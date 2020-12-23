@@ -1,0 +1,110 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'application'
+    id 'com.diffplug.gradle.spotless' version '3.27.2'
+    id 'com.github.spotbugs' version '4.0.8'
+}
+
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
+group 'terra-cli'
+version '0.1'
+sourceCompatibility = 1.8
+
+mainClassName = 'bio.terra.cli.command.Main'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
+    }
+}
+
+dependencies {
+    ext {
+        // command parsing
+        picocli = '4.5.2'
+        picocliAnnotations = '4.2.0'
+
+        // logging
+        logback = '1.2.3'
+        slf4j = '1.7.30'
+
+        // serialization
+        jackson = '2.10.2'
+
+        // GCP
+        googleApiServicesOauth2 = 'v2-rev20190313-1.30.1'
+        googleClient = '1.30.7'
+        googleOauthClientJetty = '1.30.5'
+
+        // static analysis
+        findbugsAnnotations = '3.0.1u2' // annotations to allow suppression of spotbugs errors
+    }
+
+    implementation "info.picocli:picocli:${picocli}"
+    annotationProcessor "info.picocli:picocli-codegen:${picocliAnnotations}"
+
+    compile "ch.qos.logback:logback-classic:${logback}"
+    compile "org.slf4j:slf4j-api:${slf4j}"
+
+    compile "com.fasterxml.jackson.core:jackson-core:${jackson}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+
+    compile "com.google.apis:google-api-services-oauth2:${googleApiServicesOauth2}"
+    compile "com.google.api-client:google-api-client:${googleClient}"
+    compile "com.google.api-client:google-api-client-java6:${googleClient}"
+    compile "com.google.oauth-client:google-oauth-client-jetty:${googleOauthClientJetty}"
+
+    compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
+}
+
+test {
+    testLogging {
+        showStandardStreams = true // disable stdout & stderr redirection
+    }
+}
+
+// automatic code formatting
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+compileJava.dependsOn tasks.spotlessApply
+
+// static analysis
+spotbugs {
+    effort = 'max'
+    extraArgs = [ '-emacs']
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}
