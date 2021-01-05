@@ -1,5 +1,6 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.auth.Auth;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
@@ -21,9 +22,8 @@ class Main implements Runnable {
    * @param args from stdin
    */
   public static void main(String... args) {
-    CommandLine cmd =
-        new CommandLine(new Main())
-            .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
+    CommandLine cmd = new CommandLine(new Main());
+    //            .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
     cmd.setExecutionStrategy(new CommandLine.RunLast());
     cmd.execute(args);
 

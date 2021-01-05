@@ -1,5 +1,6 @@
 package bio.terra.cli.command.auth;
 
+import bio.terra.cli.auth.AuthManager;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -8,8 +9,9 @@ import picocli.CommandLine.Command;
 public class Revoke implements Callable<Integer> {
 
   @Override
-  public Integer call() throws Exception {
-    System.out.println("terra auth revoke");
+  public Integer call() {
+    AuthManager.buildAuthManagerFromGlobalContext().logoutTerraUser();
+    System.out.println("Logout successful.");
     return 0;
   }
 }

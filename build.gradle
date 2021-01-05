@@ -46,27 +46,28 @@ dependencies {
         jackson = '2.10.2'
 
         // GCP
-        googleApiServicesOauth2 = 'v2-rev20190313-1.30.1'
-        googleClient = '1.30.7'
-        googleOauthClientJetty = '1.30.5'
+        googleOauth2 = '0.22.0'
+        googleClient = '1.31.1'
 
         // static analysis
-        findbugsAnnotations = '3.0.1u2' // annotations to allow suppression of spotbugs errors
+        findbugsAnnotations = '3.0.1u2'
     }
 
     implementation "info.picocli:picocli:${picocli}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliAnnotations}"
 
-    compile "ch.qos.logback:logback-classic:${logback}"
-    compile "org.slf4j:slf4j-api:${slf4j}"
+    implementation "ch.qos.logback:logback-classic:${logback}"
+    implementation "org.slf4j:slf4j-api:${slf4j}"
 
-    compile "com.fasterxml.jackson.core:jackson-core:${jackson}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
 
-    compile "com.google.apis:google-api-services-oauth2:${googleApiServicesOauth2}"
-    compile "com.google.api-client:google-api-client:${googleClient}"
-    compile "com.google.api-client:google-api-client-java6:${googleClient}"
-    compile "com.google.oauth-client:google-oauth-client-jetty:${googleOauthClientJetty}"
+//    compile "com.google.api-client:google-api-client:${googleClient}"
+    implementation "com.google.oauth-client:google-oauth-client-jetty:${googleClient}"
+    implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
+//    implementation "com.google.apis:google-api-services-oauth2:${googleClient}"
+    implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
+    implementation 'com.google.cloud:google-cloud-bigquery:1.116.6'
 
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 }

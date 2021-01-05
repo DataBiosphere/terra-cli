@@ -1,9 +1,5 @@
-package bio.terra.cli.command;
+package bio.terra.cli.command.auth;
 
-import bio.terra.cli.command.auth.List;
-import bio.terra.cli.command.auth.Login;
-import bio.terra.cli.command.auth.Revoke;
-import bio.terra.cli.command.auth.Status;
 import picocli.CommandLine.Command;
 
 /**
@@ -13,5 +9,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "auth",
     description = "Commands related to the retrieval and management of user credentials.",
-    subcommands = {List.class, Login.class, Revoke.class, Status.class})
-class Auth {}
+    subcommands = {Login.class, Revoke.class, Status.class})
+public class Auth {}

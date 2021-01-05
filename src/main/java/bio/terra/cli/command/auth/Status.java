@@ -1,5 +1,7 @@
 package bio.terra.cli.command.auth;
 
+import bio.terra.cli.auth.AuthManager;
+import bio.terra.cli.auth.TerraUser;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -8,8 +10,23 @@ import picocli.CommandLine.Command;
 public class Status implements Callable<Integer> {
 
   @Override
-  public Integer call() throws Exception {
-    System.out.println("terra auth status");
+  public Integer call() {
+    AuthManager authManager = AuthManager.buildAuthManagerFromGlobalContext();
+    TerraUser currentTerraUser = authManager.populateCurrentTerraUser();
+
+    // check if current user is defined
+    if (currentTerraUser == null) {
+      System.out.println("There is no current Terra user defined.");
+      return 0;
+    }
+
+    // check if the current user needs to re-authenticate (i.e. is logged out)
+    if (currentTerraUser.requiresReauthentication()) {
+      System.out.println("The current Terra user is logged out.");
+    } else {
+      System.out.println("The current Terra user is logged in.");
+    }
+
     return 0;
   }
 }
