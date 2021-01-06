@@ -4,6 +4,7 @@ import bio.terra.cli.utils.AuthenticationUtils;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,16 +14,18 @@ public class TerraUser {
 
   private String terraUserId;
   private String terraUserName;
-  private GoogleCredentials userCredentials;
+  private UserCredentials userCredentials;
   private ServiceAccountCredentials petSACredentials;
-
-  public TerraUser(String terraUserId) {
-    this.terraUserId = terraUserId;
-  }
 
   /** Getter for the Terra user id. */
   public String getTerraUserId() {
     return terraUserId;
+  }
+
+  /** Chainable setter for the Terra user id. */
+  public TerraUser terraUserId(String terraUserId) {
+    this.terraUserId = terraUserId;
+    return this;
   }
 
   /** Getter for the Terra user name. */
@@ -42,7 +45,7 @@ public class TerraUser {
   }
 
   /** Chainable setter for the user credentials for this Terra user. */
-  public TerraUser userCredentials(GoogleCredentials userCredentials) {
+  public TerraUser userCredentials(UserCredentials userCredentials) {
     this.userCredentials = userCredentials;
     return this;
   }
@@ -65,14 +68,19 @@ public class TerraUser {
       return true;
     }
 
-    // fetch the access token
+    // fetch the user access token
     // this method call will attempt to refresh the token if it's already expired
-    AccessToken accessToken = AuthenticationUtils.getAccessToken(userCredentials);
+    AccessToken accessToken = getUserAccessToken();
 
     // check if the token is expired
     logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
     boolean tokenIsExpired = accessToken.getExpirationTime().compareTo(new Date()) <= 0;
 
     return tokenIsExpired;
+  }
+
+  /** Fetch the access token for the user (not pet SA) credentials. */
+  public AccessToken getUserAccessToken() {
+    return AuthenticationUtils.getAccessToken(userCredentials);
   }
 }

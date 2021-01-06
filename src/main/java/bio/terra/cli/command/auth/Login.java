@@ -12,8 +12,10 @@ public class Login implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    AuthManager.buildAuthManagerFromGlobalContext().loginTerraUser();
-    System.out.println("Login successful.");
+    AuthManager authManager = AuthManager.buildAuthManagerFromGlobalContext();
+    authManager.loginTerraUser();
+    System.out.println(
+        "Login successful. (" + authManager.getCurrentTerraUser().getTerraUserName() + ")");
     return 0;
   }
 }

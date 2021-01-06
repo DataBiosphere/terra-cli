@@ -12,7 +12,8 @@ public class Status implements Callable<Integer> {
   @Override
   public Integer call() {
     AuthManager authManager = AuthManager.buildAuthManagerFromGlobalContext();
-    TerraUser currentTerraUser = authManager.populateCurrentTerraUser();
+    authManager.populateCurrentTerraUser();
+    TerraUser currentTerraUser = authManager.getCurrentTerraUser();
 
     // check if current user is defined
     if (currentTerraUser == null) {
@@ -22,9 +23,11 @@ public class Status implements Callable<Integer> {
 
     // check if the current user needs to re-authenticate (i.e. is logged out)
     if (currentTerraUser.requiresReauthentication()) {
-      System.out.println("The current Terra user is logged out.");
+      System.out.println(
+          "The current Terra user (" + currentTerraUser.getTerraUserName() + ") is logged out.");
     } else {
-      System.out.println("The current Terra user is logged in.");
+      System.out.println(
+          "The current Terra user (" + currentTerraUser.getTerraUserName() + ") is logged in.");
     }
 
     return 0;

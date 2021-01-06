@@ -51,6 +51,9 @@ dependencies {
 
         // static analysis
         findbugsAnnotations = '3.0.1u2'
+
+        // terra libraries
+        samClient = "0.1-9435410-SNAP"
     }
 
     implementation "info.picocli:picocli:${picocli}"
@@ -62,14 +65,14 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
 
-//    compile "com.google.api-client:google-api-client:${googleClient}"
     implementation "com.google.oauth-client:google-oauth-client-jetty:${googleClient}"
     implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
-//    implementation "com.google.apis:google-api-services-oauth2:${googleClient}"
     implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
     implementation 'com.google.cloud:google-cloud-bigquery:1.116.6'
 
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
+
+    implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
 }
 
 test {

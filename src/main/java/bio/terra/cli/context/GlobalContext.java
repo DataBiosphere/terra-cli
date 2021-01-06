@@ -17,12 +17,15 @@ public class GlobalContext {
   public static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
       Paths.get(System.getProperty("user.home"), ".terra-cli");
   public static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
+  public static final String PET_SA_KEYS_DIRNAME = "pet_SA_keys";
 
   private Path globalContextDir;
-  private String
-      singleUserId; // TODO: this needs to change to a list when we support multiple identity
-  // contexts
+  // TODO: this needs to change to a list when we support multiple identity contexts
+  private String singleUserId;
+  private String petSAId;
   private String currentTerraUserId;
+  private String currentTerraUserName;
+  private String samUri;
 
   public GlobalContext() {}
 
@@ -30,6 +33,8 @@ public class GlobalContext {
   private GlobalContext(Path globalContextDir) {
     this.globalContextDir = globalContextDir;
     this.singleUserId = "singleuser";
+    this.petSAId = "petSA";
+    this.samUri = "https://sam.dsde-dev.broadinstitute.org";
   }
 
   /**
@@ -79,9 +84,31 @@ public class GlobalContext {
     return globalContextDir;
   }
 
+  /**
+   * Getter for the sub-directory of the global context directory that holds the pet SA key files.
+   */
+  public Path resolvePetSAKeyDir() {
+    return globalContextDir.resolve(PET_SA_KEYS_DIRNAME);
+  }
+
+  /** Getter for the SAM URI. */
+  public String getSamUri() {
+    return samUri;
+  }
+
+  /** Setter for the SAM URI. */
+  public void setSamUri(String samUri) {
+    this.samUri = samUri;
+  }
+
   /** Getter for the single user id. */
   public String getSingleUserId() {
     return singleUserId;
+  }
+
+  /** Getter for the single pet SA id. */
+  public String getPetSAId() {
+    return petSAId;
   }
 
   /** Getter for the current Terra user id. */
@@ -92,5 +119,15 @@ public class GlobalContext {
   /** Setter for the current Terra user id. */
   public void setCurrentTerraUserId(String currentTerraUserId) {
     this.currentTerraUserId = currentTerraUserId;
+  }
+
+  /** Getter for the current Terra user name. */
+  public String getCurrentTerraUserName() {
+    return currentTerraUserName;
+  }
+
+  /** Setter for the current Terra user name. */
+  public void setCurrentTerraUserName(String currentTerraUserName) {
+    this.currentTerraUserName = currentTerraUserName;
   }
 }

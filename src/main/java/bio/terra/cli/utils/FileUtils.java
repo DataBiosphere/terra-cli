@@ -2,13 +2,17 @@ package bio.terra.cli.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Utility methods for manipulating files on disk. */
 public class FileUtils {
   private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
@@ -56,5 +60,34 @@ public class FileUtils {
     logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
 
     objectWriter.writeValue(outputFile, javaObject);
+  }
+
+  /**
+   * Write a string directly to a file.
+   *
+   * @param directory the directory where the file is
+   * @param fileName the file name
+   * @param fileContents the string to write
+   * @return the file that was written to
+   */
+  @SuppressFBWarnings(
+      value = "RV_RETURN_VALUE_IGNORED",
+      justification =
+          "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
+  public static Path writeStringToFile(Path directory, String fileName, String fileContents)
+      throws IOException {
+    // get a reference to the file
+    Path outputPath = directory.resolve(fileName);
+    logger.debug("Writing to file: {}", outputPath.toAbsolutePath());
+
+    // create the file and any parent directories if they don't already exist
+    File outputFile = outputPath.toFile();
+    if (!outputFile.exists()) {
+      outputFile.getParentFile().mkdirs();
+      outputFile.createNewFile();
+    }
+
+    return Files.write(
+        directory.resolve(fileName), fileContents.getBytes(Charset.forName("UTF-8")));
   }
 }

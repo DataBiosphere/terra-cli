@@ -13,8 +13,10 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +26,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Utility methods for manipulating Google credentials. */
 public final class AuthenticationUtils {
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationUtils.class);
 
@@ -36,7 +39,7 @@ public final class AuthenticationUtils {
    * credential for this userId, this method will open a browser window to ask for consent to access
    * the specified scopes.
    */
-  public static GoogleCredentials doLoginAndConsent(
+  public static UserCredentials doLoginAndConsent(
       String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
@@ -52,12 +55,13 @@ public final class AuthenticationUtils {
     Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
 
     // OAuth2 Credentials representing a user's identity and consent
-    GoogleCredentials credentials =
+    UserCredentials credentials =
         UserCredentials.newBuilder()
             .setClientId(clientSecrets.getDetails().getClientId())
             .setClientSecret(clientSecrets.getDetails().getClientSecret())
             .setRefreshToken(credential.getRefreshToken())
             .build();
+    credentials.refresh();
 
     return credentials;
   }
@@ -86,7 +90,7 @@ public final class AuthenticationUtils {
   }
 
   /** Get the existing credential for the given user. */
-  public static GoogleCredentials getExistingUserCredential(
+  public static UserCredentials getExistingUserCredential(
       String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
@@ -106,7 +110,7 @@ public final class AuthenticationUtils {
 
     // now turn the stored credential into a regular OAuth2 Credentials representing a user's
     // identity and consent
-    GoogleCredentials credentials =
+    UserCredentials credentials =
         UserCredentials.newBuilder()
             .setClientId(clientSecrets.getDetails().getClientId())
             .setClientSecret(clientSecrets.getDetails().getClientSecret())
@@ -132,6 +136,13 @@ public final class AuthenticationUtils {
             .setApprovalPrompt("force")
             .build();
     return flow;
+  }
+
+  /** Get a credentials object for a service account using its JSON-formatted key file. */
+  public static ServiceAccountCredentials getServiceAccountCredential(
+      File jsonKey, List<String> scopes) throws IOException {
+    return (ServiceAccountCredentials)
+        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey)).createScoped(scopes);
   }
 
   /**
