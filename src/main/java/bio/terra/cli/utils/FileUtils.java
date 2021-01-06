@@ -19,23 +19,21 @@ public class FileUtils {
   /**
    * Read a JSON-formatted file into a Java object using the Jackson object mapper.
    *
-   * @param directory the directory where the file is
-   * @param fileName the file name
+   * @param inputFile the file to read in
    * @param javaObjectClass the Java object class
    * @param <T> the Java object class to map the file contents to
    * @return an instance of the Java object class
    */
-  public static <T> T readOutputFileIntoJavaObject(
-      Path directory, String fileName, Class<T> javaObjectClass) throws IOException {
+  public static <T> T readOutputFileIntoJavaObject(File inputFile, Class<T> javaObjectClass)
+      throws IOException {
     // get a reference to the file
-    File outputFile = directory.resolve(fileName).toFile();
-    if (!outputFile.exists()) {
+    if (!inputFile.exists()) {
       return null;
     }
 
-    // use Jackson to map the file contents to the TestConfiguration object
+    // use Jackson to map the file contents to an instance of the specified class
     ObjectMapper objectMapper = new ObjectMapper();
-    try (FileInputStream inputStream = new FileInputStream(outputFile)) {
+    try (FileInputStream inputStream = new FileInputStream(inputFile)) {
       return objectMapper.readValue(inputStream, javaObjectClass);
     }
   }
@@ -43,22 +41,17 @@ public class FileUtils {
   /**
    * Write a Java object to a JSON-formatted file using the Jackson object mapper.
    *
-   * @param directory the directory where the file is
-   * @param fileName the file name
+   * @param outputFile the file to write to
    * @param javaObject the Java object to write
    * @param <T> the Java object class to write
    * @return an instance of the Java object class
    */
-  public static <T> void writeJavaObjectToFile(Path directory, String fileName, T javaObject)
-      throws IOException {
+  public static <T> void writeJavaObjectToFile(File outputFile, T javaObject) throws IOException {
     // use Jackson to map the object to a JSON-formatted text block
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 
-    // get a reference to the file
-    File outputFile = directory.resolve(fileName).toFile();
     logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
-
     objectWriter.writeValue(outputFile, javaObject);
   }
 

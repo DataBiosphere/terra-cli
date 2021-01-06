@@ -1,6 +1,5 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.auth.Auth;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
@@ -11,7 +10,7 @@ import picocli.CommandLine.ParseResult;
  */
 @Command(
     name = "terra",
-    subcommands = {Auth.class, CommandLine.HelpCommand.class},
+    subcommands = {Auth.class, Config.class, Status.class, CommandLine.HelpCommand.class},
     description = "MC Terra CLI")
 class Main implements Runnable {
 

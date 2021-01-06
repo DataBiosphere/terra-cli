@@ -1,5 +1,8 @@
-package bio.terra.cli.command.auth;
+package bio.terra.cli.command;
 
+import bio.terra.cli.command.auth.Login;
+import bio.terra.cli.command.auth.Revoke;
+import bio.terra.cli.command.auth.Status;
 import picocli.CommandLine.Command;
 
 /**

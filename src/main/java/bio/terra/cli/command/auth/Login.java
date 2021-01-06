@@ -1,6 +1,7 @@
 package bio.terra.cli.command.auth;
 
 import bio.terra.cli.auth.AuthManager;
+import bio.terra.cli.context.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -12,10 +13,10 @@ public class Login implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    AuthManager authManager = AuthManager.buildAuthManagerFromGlobalContext();
-    authManager.loginTerraUser();
+    GlobalContext globalContext = GlobalContext.readFromFile();
+    new AuthManager(globalContext).loginTerraUser();
     System.out.println(
-        "Login successful. (" + authManager.getCurrentTerraUser().getTerraUserName() + ")");
+        "Login successful. (" + globalContext.getCurrentTerraUser().terraUserName + ")");
     return 0;
   }
 }

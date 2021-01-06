@@ -29,7 +29,7 @@ public class SAMUtils {
   public static ApiClient getClientForTerraUser(TerraUser terraUser, GlobalContext globalContext) {
     // fetch the user access token
     // this method call will attempt to refresh the token if it's already expired
-    AccessToken userAccessToken = terraUser.getUserAccessToken();
+    AccessToken userAccessToken = terraUser.fetchUserAccessToken();
 
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(globalContext.getSamUri());
@@ -80,15 +80,17 @@ public class SAMUtils {
     ApiClient samClient = getClientForTerraUser(terraUser, globalContext);
     try {
       UserStatusInfo samUserInfo = getUserInfo(samClient);
-      terraUser
-          .terraUserId(samUserInfo.getUserSubjectId())
-          .terraUserName(samUserInfo.getUserEmail());
+      terraUser.terraUserId = samUserInfo.getUserSubjectId();
+      terraUser.terraUserName = samUserInfo.getUserEmail();
     } finally {
       // try to close the connection pool after we're finished with this request -- why is this
       // needed?
       try {
         samClient.getHttpClient().connectionPool().evictAll();
       } catch (Exception anyEx) {
+        logger.debug(
+            "Error forcing connection pool to shutdown after making a SAM client library call.",
+            anyEx);
       }
     }
   }
@@ -109,7 +111,7 @@ public class SAMUtils {
     // to get the key file contents.
     try {
       String apiEndpoint = globalContext.getSamUri() + "/api/google/v1/user/petServiceAccount/key";
-      String userAccessToken = terraUser.getUserAccessToken().getTokenValue();
+      String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HTTPUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (IOException ioEx) {
       logger.error("Error getting pet SA key from SAM.", ioEx);

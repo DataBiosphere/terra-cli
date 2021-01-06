@@ -1,8 +1,8 @@
 package bio.terra.cli.auth;
 
 import bio.terra.cli.utils.AuthenticationUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import java.util.Date;
@@ -12,53 +12,16 @@ import org.slf4j.LoggerFactory;
 public class TerraUser {
   private static final Logger logger = LoggerFactory.getLogger(TerraUser.class);
 
-  private String terraUserId;
-  private String terraUserName;
-  private UserCredentials userCredentials;
-  private ServiceAccountCredentials petSACredentials;
+  public String cliGeneratedUserKey;
+  public String terraUserId;
+  public String terraUserName;
+  @JsonIgnore public UserCredentials userCredentials;
+  @JsonIgnore public ServiceAccountCredentials petSACredentials;
 
-  /** Getter for the Terra user id. */
-  public String getTerraUserId() {
-    return terraUserId;
-  }
+  public TerraUser() {}
 
-  /** Chainable setter for the Terra user id. */
-  public TerraUser terraUserId(String terraUserId) {
-    this.terraUserId = terraUserId;
-    return this;
-  }
-
-  /** Getter for the Terra user name. */
-  public String getTerraUserName() {
-    return terraUserName;
-  }
-
-  /** Chainable setter for the Terra user name. */
-  public TerraUser terraUserName(String terraUserName) {
-    this.terraUserName = terraUserName;
-    return this;
-  }
-
-  /** Getter for the user credentials for this Terra user. */
-  public GoogleCredentials getUserCredentials() {
-    return userCredentials;
-  }
-
-  /** Chainable setter for the user credentials for this Terra user. */
-  public TerraUser userCredentials(UserCredentials userCredentials) {
-    this.userCredentials = userCredentials;
-    return this;
-  }
-
-  /** Getter for the pet SA credentials for this Terra user. */
-  public ServiceAccountCredentials getPetSACredentials() {
-    return petSACredentials;
-  }
-
-  /** Chainable setter for the pet SA credentials for this Terra user. */
-  public TerraUser petSACredentials(ServiceAccountCredentials petSACredentials) {
-    this.petSACredentials = petSACredentials;
-    return this;
+  public TerraUser(String cliGeneratedUserKey) {
+    this.cliGeneratedUserKey = cliGeneratedUserKey;
   }
 
   /** Check if the user credentials are expired. */
@@ -70,7 +33,7 @@ public class TerraUser {
 
     // fetch the user access token
     // this method call will attempt to refresh the token if it's already expired
-    AccessToken accessToken = getUserAccessToken();
+    AccessToken accessToken = fetchUserAccessToken();
 
     // check if the token is expired
     logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
@@ -79,8 +42,8 @@ public class TerraUser {
     return tokenIsExpired;
   }
 
-  /** Fetch the access token for the user (not pet SA) credentials. */
-  public AccessToken getUserAccessToken() {
+  /** Fetch the access token for the user credentials. */
+  public AccessToken fetchUserAccessToken() {
     return AuthenticationUtils.getAccessToken(userCredentials);
   }
 }

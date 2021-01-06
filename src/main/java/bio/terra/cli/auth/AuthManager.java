@@ -15,6 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,15 +30,9 @@ public class AuthManager {
   private static final String CLIENT_SECRET_FILENAME = "jadecli_client_secret.json";
 
   private final GlobalContext globalContext;
-  private TerraUser currentTerraUser;
 
-  private AuthManager(GlobalContext globalContext) {
+  public AuthManager(GlobalContext globalContext) {
     this.globalContext = globalContext;
-  }
-
-  public static AuthManager buildAuthManagerFromGlobalContext() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    return new AuthManager((globalContext));
   }
 
   /**
@@ -51,7 +46,16 @@ public class AuthManager {
 
     // this will become the current Terra user if we are successful in getting all the various
     // information and credentials below
-    TerraUser userLoggingIn = new TerraUser();
+    TerraUser userLoggingIn = globalContext.getCurrentTerraUser();
+    if (userLoggingIn == null) {
+      // generate a random string to use as the CLI user identifer
+      // it would be better to use the SAM subject id here instead, but we can't talk to SAM until
+      // we have Google (user) credentials, and we need to give the Google login flow an identifer
+      // for storing the credential in a persistent file. so, this is the id that we hand to Google
+      // and can use later to look up the persisted Google (user) credentials
+      String cliGeneratedUserKey = UUID.randomUUID().toString();
+      userLoggingIn = new TerraUser(cliGeneratedUserKey);
+    }
 
     // fetch the user credentials, prompt for login and consent if they do not already exist or are
     // expired.
@@ -63,14 +67,17 @@ public class AuthManager {
       // otherwise, log the user in and get their consent
       userCredentials =
           AuthenticationUtils.doLoginAndConsent(
-              globalContext.getSingleUserId(),
+              userLoggingIn.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.getGlobalContextDir().toFile());
+              globalContext.resolveGlobalContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error fetching user credentials.", ex);
     }
-    userLoggingIn.userCredentials(userCredentials);
+    userLoggingIn.userCredentials = userCredentials;
+
+    // fetch the user information from SAM (subject id = terra user id, email = terra user name)
+    SAMUtils.populateTerraUserInfo(userLoggingIn, globalContext);
 
     // fetch the pet SA credentials from SAM
     HTTPUtils.HTTPResponse petSAKeySAMResponse = SAMUtils.getPetSAKey(userLoggingIn, globalContext);
@@ -82,31 +89,23 @@ public class AuthManager {
       Path jsonKeyFile =
           FileUtils.writeStringToFile(
               globalContext.resolvePetSAKeyDir(),
-              globalContext.getPetSAId(),
+              userLoggingIn.terraUserId,
               petSAKeySAMResponse.responseBody);
 
       // create a credentials object from the key
       ServiceAccountCredentials petSACredentials =
           AuthenticationUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
 
-      userLoggingIn.petSACredentials(petSACredentials);
+      userLoggingIn.petSACredentials = petSACredentials;
     } catch (IOException ioEx) {
       logger.error("Error writing pet SA key to the global context directory.", ioEx);
     }
 
-    // fetch the user information from SAM (subject id = terra user id, email = terra user name)
-    SAMUtils.populateTerraUserInfo(userLoggingIn, globalContext);
-
-    // update the state of AuthManager to include the credentials for this current Terra user
-    // note that this state is not persisted to disk. it will be useful only for code called in the
-    // same CLI command/process
-    currentTerraUser = userLoggingIn;
-
     // update the global context with the current user
     // note that this state is persisted to disk. it will be useful for code called in the same or a
     // later CLI command/process
-    globalContext.setCurrentTerraUserId(currentTerraUser.getTerraUserId());
-    globalContext.setCurrentTerraUserName(currentTerraUser.getTerraUserName());
+    globalContext.addOrUpdateTerraUser(userLoggingIn);
+    globalContext.setCurrentTerraUser(userLoggingIn);
     globalContext.writeToFile();
   }
 
@@ -115,31 +114,33 @@ public class AuthManager {
     if (globalContext == null) {
       throw new RuntimeException("Error reading global context.");
     }
+    if (globalContext.getCurrentTerraUser() == null) {
+      logger.debug("There is no current Terra user defined in the global context.");
+      return;
+    }
 
     try (InputStream inputStream =
         AuthManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // delete the user credentials
       AuthenticationUtils.deleteExistingCredential(
-          globalContext.getSingleUserId(),
+          globalContext.getCurrentTerraUser().cliGeneratedUserKey,
           SCOPES,
           inputStream,
-          globalContext.getGlobalContextDir().toFile());
+          globalContext.resolveGlobalContextDir().toFile());
 
       // delete the pet SA credentials
       File jsonKeyFile =
-          globalContext.resolvePetSAKeyDir().resolve(globalContext.getPetSAId()).toFile();
+          globalContext
+              .resolvePetSAKeyDir()
+              .resolve(globalContext.getCurrentTerraUser().terraUserId)
+              .toFile();
       if (!jsonKeyFile.delete()) {
         throw new RuntimeException("Failed to delete pet SA key file.");
       }
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error deleting credentials.", ex);
     }
-
-    // update the state of AuthManager to delete the credentials for the current Terra user
-    // note that this state is not persisted to disk. it will be useful only for code called in the
-    // same CLI command/process
-    currentTerraUser = null;
   }
 
   /**
@@ -150,20 +151,10 @@ public class AuthManager {
     if (globalContext == null) {
       throw new RuntimeException("Error reading global context.");
     }
-
-    String currentTerraUserId = globalContext.getCurrentTerraUserId();
-    if (currentTerraUserId == null) {
-      currentTerraUser = null;
+    if (globalContext.getCurrentTerraUser() == null) {
       logger.debug("There is no current Terra user defined in the global context.");
       return;
     }
-
-    // this will become the current Terra user if we are successful in getting all the various
-    // information and credentials below
-    TerraUser userAlreadyLoggedIn =
-        new TerraUser()
-            .terraUserId(currentTerraUserId)
-            .terraUserName(globalContext.getCurrentTerraUserName());
 
     // fetch the user credentials, prompt for login and consent if they do not already exist or are
     // expired.
@@ -175,40 +166,33 @@ public class AuthManager {
       // if there are no valid credentials for this user, then this method will return null
       userCredentials =
           AuthenticationUtils.getExistingUserCredential(
-              globalContext.getSingleUserId(),
+              globalContext.getCurrentTerraUser().cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.getGlobalContextDir().toFile());
+              globalContext.resolveGlobalContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error fetching user credentials.", ex);
     }
-    userAlreadyLoggedIn.userCredentials(userCredentials);
+    globalContext.getCurrentTerraUser().userCredentials = userCredentials;
 
     // if there are existing user credentials, then try to fetch the existing pet SA credentials
     // also
     if (userCredentials != null) {
       File jsonKeyFile =
-          globalContext.resolvePetSAKeyDir().resolve(globalContext.getPetSAId()).toFile();
+          globalContext
+              .resolvePetSAKeyDir()
+              .resolve(globalContext.getCurrentTerraUser().terraUserId)
+              .toFile();
       if (!jsonKeyFile.exists() || !jsonKeyFile.isFile()) {
         throw new RuntimeException("Pet SA key file not found.");
       }
       try {
         ServiceAccountCredentials petSACredentials =
             AuthenticationUtils.getServiceAccountCredential(jsonKeyFile, SCOPES);
-        userAlreadyLoggedIn.petSACredentials(petSACredentials);
+        globalContext.getCurrentTerraUser().petSACredentials = petSACredentials;
       } catch (IOException ioEx) {
         throw new RuntimeException("Error reading pet SA key file.", ioEx);
       }
     }
-
-    // update the state of AuthManager to include the credentials for this current Terra user
-    // note that this state is not persisted to disk. it will be useful only for code called in the
-    // same CLI command/process
-    currentTerraUser = userAlreadyLoggedIn;
-  }
-
-  /** Getter for the current Terra user property. */
-  public TerraUser getCurrentTerraUser() {
-    return currentTerraUser;
   }
 }

@@ -2,6 +2,7 @@ package bio.terra.cli.command.auth;
 
 import bio.terra.cli.auth.AuthManager;
 import bio.terra.cli.auth.TerraUser;
+import bio.terra.cli.context.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -11,9 +12,9 @@ public class Status implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    AuthManager authManager = AuthManager.buildAuthManagerFromGlobalContext();
-    authManager.populateCurrentTerraUser();
-    TerraUser currentTerraUser = authManager.getCurrentTerraUser();
+    GlobalContext globalContext = GlobalContext.readFromFile();
+    new AuthManager(globalContext).populateCurrentTerraUser();
+    TerraUser currentTerraUser = globalContext.getCurrentTerraUser();
 
     // check if current user is defined
     if (currentTerraUser == null) {
@@ -24,10 +25,10 @@ public class Status implements Callable<Integer> {
     // check if the current user needs to re-authenticate (i.e. is logged out)
     if (currentTerraUser.requiresReauthentication()) {
       System.out.println(
-          "The current Terra user (" + currentTerraUser.getTerraUserName() + ") is logged out.");
+          "The current Terra user (" + currentTerraUser.terraUserName + ") is logged out.");
     } else {
       System.out.println(
-          "The current Terra user (" + currentTerraUser.getTerraUserName() + ") is logged in.");
+          "The current Terra user (" + currentTerraUser.terraUserName + ") is logged in.");
     }
 
     return 0;
