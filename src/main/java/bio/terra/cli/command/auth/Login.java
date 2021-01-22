@@ -1,7 +1,7 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.auth.AuthManager;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.app.AuthenticationManager;
+import bio.terra.cli.model.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -14,7 +14,7 @@ public class Login implements Callable<Integer> {
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
-    new AuthManager(globalContext).loginTerraUser();
+    new AuthenticationManager(globalContext).loginTerraUser();
     System.out.println(
         "Login successful. (" + globalContext.getCurrentTerraUser().terraUserName + ")");
     return 0;

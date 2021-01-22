@@ -1,6 +1,6 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.model.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -12,10 +12,12 @@ public class Status implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    System.out.println("terra status");
-
     GlobalContext globalContext = GlobalContext.readFromFile();
-    System.out.println("SAM uri: " + globalContext.getSamUri());
+    System.out.println(
+        "Current server is " + globalContext.server.name + ": " + globalContext.server.description);
+
+    boolean serverIsOk = globalContext.server.pingServerStatus();
+    System.out.println("Current server status: " + (serverIsOk ? "OKAY" : "ERROR CONNECTING"));
 
     return 0;
   }

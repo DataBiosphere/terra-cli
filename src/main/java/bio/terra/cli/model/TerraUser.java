@@ -1,4 +1,4 @@
-package bio.terra.cli.auth;
+package bio.terra.cli.model;
 
 import bio.terra.cli.utils.AuthenticationUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,6 +9,10 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This POJO class represents a Terra identity context, which includes all related credentials (e.g.
+ * user, pet SA).
+ */
 public class TerraUser {
   private static final Logger logger = LoggerFactory.getLogger(TerraUser.class);
 

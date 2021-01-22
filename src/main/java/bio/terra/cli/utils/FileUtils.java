@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,5 +84,21 @@ public class FileUtils {
 
     return Files.write(
         directory.resolve(fileName), fileContents.getBytes(Charset.forName("UTF-8")));
+  }
+
+  /**
+   * Build a stream handle to a resource file.
+   *
+   * @return the new file handle
+   * @throws FileNotFoundException if the resource file doesn't exist
+   */
+  public static InputStream getResourceFileHandle(String resourceFilePath)
+      throws FileNotFoundException {
+    InputStream inputStream =
+        FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath);
+    if (inputStream == null) {
+      throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
+    }
+    return inputStream;
   }
 }

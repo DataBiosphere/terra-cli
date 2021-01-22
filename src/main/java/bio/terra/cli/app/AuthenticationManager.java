@@ -1,6 +1,7 @@
-package bio.terra.cli.auth;
+package bio.terra.cli.app;
 
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.TerraUser;
 import bio.terra.cli.utils.AuthenticationUtils;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.HTTPUtils;
@@ -19,8 +20,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AuthManager {
-  private static final Logger logger = LoggerFactory.getLogger(AuthManager.class);
+/** This class manipulates the auth-related properties of the global context object. */
+public class AuthenticationManager {
+  private static final Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
 
   public static final List<String> SCOPES =
       Collections.unmodifiableList(
@@ -31,7 +33,7 @@ public class AuthManager {
 
   private final GlobalContext globalContext;
 
-  public AuthManager(GlobalContext globalContext) {
+  public AuthenticationManager(GlobalContext globalContext) {
     this.globalContext = globalContext;
   }
 
@@ -61,7 +63,7 @@ public class AuthManager {
     // expired.
     UserCredentials userCredentials;
     try (InputStream inputStream =
-        AuthManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        AuthenticationManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // if there are already credentials for this user, and they are not expired, then return them
       // otherwise, log the user in and get their consent
@@ -120,7 +122,7 @@ public class AuthManager {
     }
 
     try (InputStream inputStream =
-        AuthManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        AuthenticationManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // delete the user credentials
       AuthenticationUtils.deleteExistingCredential(
@@ -160,7 +162,7 @@ public class AuthManager {
     // expired.
     UserCredentials userCredentials;
     try (InputStream inputStream =
-        AuthManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        AuthenticationManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // if there are already credentials for this user, and they are not expired, then return them
       // if there are no valid credentials for this user, then this method will return null

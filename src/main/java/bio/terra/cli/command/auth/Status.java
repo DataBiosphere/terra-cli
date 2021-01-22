@@ -1,8 +1,8 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.auth.AuthManager;
-import bio.terra.cli.auth.TerraUser;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.app.AuthenticationManager;
+import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.TerraUser;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -13,7 +13,7 @@ public class Status implements Callable<Integer> {
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
-    new AuthManager(globalContext).populateCurrentTerraUser();
+    new AuthenticationManager(globalContext).populateCurrentTerraUser();
     TerraUser currentTerraUser = globalContext.getCurrentTerraUser();
 
     // check if current user is defined

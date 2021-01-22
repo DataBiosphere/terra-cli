@@ -1,6 +1,5 @@
-package bio.terra.cli.context;
+package bio.terra.cli.model;
 
-import bio.terra.cli.auth.TerraUser;
 import bio.terra.cli.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,7 +11,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This POJO class represents an instance of the Terra CLI global context. This is intended
- * primarily for authentication-related context values that will span multiple workspaces.
+ * primarily for authentication and connection-related context values that will span multiple
+ * workspaces.
  */
 public class GlobalContext {
   private static final Logger logger = LoggerFactory.getLogger(GlobalContext.class);
@@ -22,12 +22,11 @@ public class GlobalContext {
   public String currentTerraUserKey;
 
   // global server context = service uris, environment name
-  public String samUri;
+  public ServerSpecification server;
 
   private GlobalContext() {
     this.terraUsers = new HashMap<>();
-
-    this.samUri = "https://sam.dsde-dev.broadinstitute.org";
+    this.server = null;
   }
 
   // ====================================================
@@ -35,7 +34,7 @@ public class GlobalContext {
 
   /**
    * Read in an instance of this class from a JSON-formatted file in the global context directory.
-   * If there is no existing file, this method will write one with default values.
+   * If there is no existing file, this method returns an object populated with default values.
    *
    * @return an instance of this class
    */
@@ -50,10 +49,14 @@ public class GlobalContext {
       logger.error("Error reading in global context file.", ioEx);
     }
 
-    // if the global context file does not exist, return an object with default values
-    if (globalContext == null) {
-      globalContext = new GlobalContext();
-    }
+    // if the global context file does not exist, return an object populated with default values
+    if (globalContext == null)
+      try {
+        globalContext = new GlobalContext();
+        globalContext.server = ServerSpecification.fromJSONFile(DEFAULT_SERVER_FILENAME);
+      } catch (IOException ioEx) {
+        logger.error("Error reading in default server file. ({})", DEFAULT_SERVER_FILENAME, ioEx);
+      }
 
     return globalContext;
   }
@@ -100,15 +103,8 @@ public class GlobalContext {
   // ====================================================
   // Server
 
-  /** Getter for the SAM URI. */
-  public String getSamUri() {
-    return samUri;
-  }
-
-  /** Setter for the SAM URI. */
-  public void setSamUri(String samUri) {
-    this.samUri = samUri;
-  }
+  // This variable defines the server that the CLI points to by default.
+  private static final String DEFAULT_SERVER_FILENAME = "terra-dev.json";
 
   // ====================================================
   // Directory and file names
@@ -134,9 +130,7 @@ public class GlobalContext {
     return resolveGlobalContextDir().resolve(PET_SA_KEYS_DIRNAME);
   }
 
-  /**
-   * Getter for the sub-directory of the global context directory that holds the pet SA key files.
-   */
+  /** Getter for the file where the global context is persisted. */
   public static Path resolveGlobalContextFile() {
     return resolveGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME);
   }

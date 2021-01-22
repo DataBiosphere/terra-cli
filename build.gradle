@@ -30,6 +30,9 @@ repositories {
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
     }
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
+    }
 }
 
 dependencies {
@@ -54,6 +57,12 @@ dependencies {
 
         // terra libraries
         samClient = "0.1-9435410-SNAP"
+        workspaceManagerClient = "0.9.0-SNAPSHOT"
+        dataRepoClient = "1.0.155-SNAPSHOT"
+
+        // needed for WSM client library
+        swaggerAnnotations = "2.1.5"
+        jersey = "2.30.1"
     }
 
     implementation "info.picocli:picocli:${picocli}"
@@ -73,6 +82,12 @@ dependencies {
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
+    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
+    implementation "bio.terra:datarepo-client:${dataRepoClient}"
+
+    compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
+    compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
+
 }
 
 test {
