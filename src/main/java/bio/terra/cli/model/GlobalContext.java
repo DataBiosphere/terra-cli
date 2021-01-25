@@ -1,6 +1,8 @@
 package bio.terra.cli.model;
 
+import bio.terra.cli.app.ServerManager;
 import bio.terra.cli.utils.FileUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,26 +45,23 @@ public class GlobalContext {
     GlobalContext globalContext = null;
     try {
       globalContext =
-          FileUtils.readOutputFileIntoJavaObject(
+          FileUtils.readFileIntoJavaObject(
               resolveGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
-      logger.error("Error reading in global context file.", ioEx);
+      logger.error("Global context file not found.", ioEx);
     }
 
     // if the global context file does not exist, return an object populated with default values
-    if (globalContext == null)
-      try {
-        globalContext = new GlobalContext();
-        globalContext.server = ServerSpecification.fromJSONFile(DEFAULT_SERVER_FILENAME);
-      } catch (IOException ioEx) {
-        logger.error("Error reading in default server file. ({})", DEFAULT_SERVER_FILENAME, ioEx);
-      }
+    if (globalContext == null) {
+      globalContext = new GlobalContext();
+      globalContext.server = ServerManager.defaultServer();
+    }
 
     return globalContext;
   }
 
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */
-  public void writeToFile() {
+  private void writeToFile() {
     try {
       FileUtils.writeJavaObjectToFile(resolveGlobalContextFile().toFile(), this);
     } catch (IOException ioEx) {
@@ -74,6 +73,7 @@ public class GlobalContext {
   // Auth
 
   /** Getter for the current Terra user. Returns null if no current user is defined. */
+  @JsonIgnore
   public TerraUser getCurrentTerraUser() {
     if (currentTerraUserKey == null) {
       return null;
@@ -81,7 +81,8 @@ public class GlobalContext {
     return terraUsers.get(currentTerraUserKey);
   }
 
-  /** Setter for the current Terra user. */
+  /** Setter for the current Terra user. Persists on disk. */
+  @JsonIgnore
   public void setCurrentTerraUser(TerraUser currentTerraUser) {
     if (terraUsers.get(currentTerraUser.cliGeneratedUserKey) == null) {
       throw new RuntimeException(
@@ -90,21 +91,33 @@ public class GlobalContext {
               + " not found in the list of known identity contexts.");
     }
     currentTerraUserKey = currentTerraUser.cliGeneratedUserKey;
+
+    writeToFile();
   }
 
-  /** Add a new Terra user to the list of identity contexts, or update an existing one. */
+  /**
+   * Add a new Terra user to the list of identity contexts, or update an existing one. Persists on
+   * disk.
+   */
   public void addOrUpdateTerraUser(TerraUser terraUser) {
     if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
       logger.debug("Terra user {} already exists, updating.", terraUser.terraUserName);
     }
     terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
+
+    writeToFile();
   }
 
   // ====================================================
   // Server
 
-  // This variable defines the server that the CLI points to by default.
-  private static final String DEFAULT_SERVER_FILENAME = "terra-dev.json";
+  /** Setter for the current Terra server. Persists on disk. */
+  public void updateServer(ServerSpecification server) {
+    logger.debug("Updating server from {} to {}.", this.server.name, server.name);
+    this.server = server;
+
+    writeToFile();
+  }
 
   // ====================================================
   // Directory and file names

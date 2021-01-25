@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.server.List;
+import bio.terra.cli.command.server.Set;
 import bio.terra.cli.command.server.Status;
 import picocli.CommandLine.Command;
 
@@ -11,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "server",
     description = "Commands related to the Terra server.",
-    subcommands = {Status.class, List.class})
+    subcommands = {Status.class, List.class, Set.class})
 public class Server {}

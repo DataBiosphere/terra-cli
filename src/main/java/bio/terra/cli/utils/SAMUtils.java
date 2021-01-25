@@ -4,9 +4,7 @@ import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
 import com.google.auth.oauth2.AccessToken;
-import java.io.IOException;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
-import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.VersionApi;
@@ -54,8 +52,8 @@ public class SAMUtils {
     SamVersion samVersion = null;
     try {
       samVersion = versionApi.samVersion();
-    } catch (ApiException apiEx) {
-      logger.error("Error getting SAM version", apiEx);
+    } catch (Exception ex) {
+      logger.error("Error getting SAM version", ex);
     } finally {
       closeConnectionPool(apiClient);
     }
@@ -72,8 +70,8 @@ public class SAMUtils {
     SystemStatus status = null;
     try {
       status = statusApi.getSystemStatus();
-    } catch (ApiException apiEx) {
-      logger.error("Error getting SAM status", apiEx);
+    } catch (Exception ex) {
+      logger.error("Error getting SAM status", ex);
     } finally {
       closeConnectionPool(apiClient);
     }
@@ -91,8 +89,8 @@ public class SAMUtils {
     UserStatusInfo userStatusInfo = null;
     try {
       userStatusInfo = samUsersApi.getUserStatusInfo();
-    } catch (ApiException apiEx) {
-      logger.error("Error getting user info from SAM.", apiEx);
+    } catch (Exception ex) {
+      logger.error("Error getting user info from SAM.", ex);
     } finally {
       closeConnectionPool(apiClient);
     }
@@ -147,8 +145,8 @@ public class SAMUtils {
           globalContext.server.samUri + "/api/google/v1/user/petServiceAccount/key";
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HTTPUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
-    } catch (IOException ioEx) {
-      logger.error("Error getting pet SA key from SAM.", ioEx);
+    } catch (Exception ex) {
+      logger.error("Error getting pet SA key from SAM.", ex);
       return null;
     }
   }

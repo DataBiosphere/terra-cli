@@ -4,7 +4,6 @@ import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
 import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.client.ApiClient;
-import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import com.google.auth.oauth2.AccessToken;
@@ -49,8 +48,8 @@ public class WorkspaceManagerUtils {
     SystemVersion systemVersion = null;
     try {
       systemVersion = unauthenticatedApi.serviceVersion();
-    } catch (ApiException apiEx) {
-      logger.error("Error getting Workspace Manager version", apiEx);
+    } catch (Exception ex) {
+      logger.error("Error getting Workspace Manager version", ex);
     }
     return systemVersion;
   }
@@ -65,8 +64,8 @@ public class WorkspaceManagerUtils {
     SystemStatus status = null;
     try {
       status = unauthenticatedApi.serviceStatus();
-    } catch (ApiException apiEx) {
-      logger.error("Error getting Workspace Manager status", apiEx);
+    } catch (Exception ex) {
+      logger.error("Error getting Workspace Manager status", ex);
     }
     return status;
   }

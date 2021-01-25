@@ -1,17 +1,11 @@
 package bio.terra.cli.model;
 
-import bio.terra.cli.utils.DataRepoUtils;
 import bio.terra.cli.utils.FileUtils;
-import bio.terra.cli.utils.SAMUtils;
-import bio.terra.cli.utils.WorkspaceManagerUtils;
-import bio.terra.datarepo.model.RepositoryStatusModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
-import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,47 +38,37 @@ public class ServerSpecification {
   ServerSpecification() {}
 
   /**
-   * Read an instance of this class in from a JSON-formatted file. This method expects that the file
-   * name exists in the {@link #RESOURCE_DIRECTORY} directory.
+   * Read an instance of this class in from a JSON-formatted file. This method first checks for a
+   * {@link #RESOURCE_DIRECTORY}/[filename] resource on the classpath. If that file is not found,
+   * then it tries to interpret [filename] as an absolute path.
    *
-   * @param resourceFileName file name
+   * @param fileName file name
    * @return an instance of this class
    */
-  public static ServerSpecification fromJSONFile(String resourceFileName) throws IOException {
+  public static ServerSpecification fromJSONFile(String fileName) throws IOException {
     // use Jackson to map the stream contents to a ServerSpecification object
     ObjectMapper objectMapper = new ObjectMapper();
 
     // read in the server file
-    InputStream inputStream =
-        FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + resourceFileName);
-    ServerSpecification server = objectMapper.readValue(inputStream, ServerSpecification.class);
+    ServerSpecification server;
+    try {
+      // first check for a servers/[filename] resource on the classpath
+      InputStream inputStream =
+          FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + fileName);
+      server = objectMapper.readValue(inputStream, ServerSpecification.class);
+    } catch (FileNotFoundException fnfEx) {
+      // second treat the [filename] as an absolute path
+      logger.debug(
+          "Server file ({}) not found in resource directory, now trying as absolute path.",
+          fileName);
+      server = FileUtils.readFileIntoJavaObject(new File(fileName), ServerSpecification.class);
+    }
 
-    server.validate();
+    if (server != null) {
+      server.validate();
+    }
 
     return server;
-  }
-
-  /** Read in all server specifications defined in the {@link #RESOURCE_DIRECTORY} directory. */
-  public static List<ServerSpecification> allPossibleServers() {
-    // use Jackson to map the stream contents to a list of strings
-    ObjectMapper objectMapper = new ObjectMapper();
-
-    try {
-      // read in the list of servers file
-      InputStream inputStream =
-          FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + ALL_SERVERS_FILENAME);
-      List<String> allServerFileNames = objectMapper.readValue(inputStream, List.class);
-
-      // loop through the file names, reading in from JSON
-      List<ServerSpecification> servers = new ArrayList<>();
-      for (String serverFileName : allServerFileNames) {
-        servers.add(fromJSONFile(serverFileName));
-      }
-      return servers;
-    } catch (IOException ioEx) {
-      logger.error("Error reading in all possible servers.", ioEx);
-      return new ArrayList<>();
-    }
   }
 
   /** Validate this server specification. */
@@ -101,26 +85,6 @@ public class ServerSpecification {
     } else if (datarepoUri == null || datarepoUri.isEmpty()) {
       throw new RuntimeException("Data Repo uri cannot be empty.");
     }
-  }
-
-  /** Ping the service URLs to check their status. Return true if all return OK. */
-  public boolean pingServerStatus() {
-    ApiClient samClient = SAMUtils.getClientForTerraUser(null, this);
-    SystemStatus samStatus = SAMUtils.getStatus(samClient);
-    logger.debug("SAM status: {}", samStatus);
-
-    bio.terra.workspace.client.ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(null, this);
-    bio.terra.workspace.model.SystemStatus wsmStatus = WorkspaceManagerUtils.getStatus(wsmClient);
-    logger.debug("Workspace Manager status: {}", wsmStatus);
-
-    bio.terra.datarepo.client.ApiClient tdrClient = DataRepoUtils.getClientForTerraUser(null, this);
-    RepositoryStatusModel tdrStatus = DataRepoUtils.getStatus(tdrClient);
-    logger.debug("Data Repo status: {}", tdrStatus);
-
-    return (samStatus != null && samStatus.getOk())
-        && (wsmStatus != null && wsmStatus.isOk())
-        && (tdrStatus != null && tdrStatus.isOk());
   }
 
   @Override

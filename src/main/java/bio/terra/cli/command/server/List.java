@@ -1,5 +1,6 @@
 package bio.terra.cli.command.server;
 
+import bio.terra.cli.app.ServerManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.ServerSpecification;
 import java.util.concurrent.Callable;
@@ -12,8 +13,7 @@ public class List implements Callable<Integer> {
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
-    java.util.List<ServerSpecification> allPossibleServers =
-        ServerSpecification.allPossibleServers();
+    java.util.List<ServerSpecification> allPossibleServers = ServerManager.allPossibleServers();
 
     for (ServerSpecification server : allPossibleServers) {
       String prefix = (globalContext.server.equals(server)) ? " * " : "   ";

@@ -1,5 +1,8 @@
 package bio.terra.cli.command.server;
 
+import bio.terra.cli.app.ServerManager;
+import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.ServerSpecification;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -13,7 +16,16 @@ public class Set implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    System.out.println("terra server set: " + serverName);
+    GlobalContext globalContext = GlobalContext.readFromFile();
+    ServerSpecification prevServer = globalContext.server;
+    new ServerManager(globalContext).updateServer(serverName);
+
+    if (globalContext.server.equals(prevServer)) {
+      System.out.println("Terra server unchanged from " + globalContext.server.name + ".");
+    } else {
+      System.out.println(
+          "Terra server changed from " + prevServer.name + " to " + globalContext.server.name);
+    }
 
     return 0;
   }

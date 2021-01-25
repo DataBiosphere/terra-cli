@@ -108,7 +108,6 @@ public class AuthenticationManager {
     // later CLI command/process
     globalContext.addOrUpdateTerraUser(userLoggingIn);
     globalContext.setCurrentTerraUser(userLoggingIn);
-    globalContext.writeToFile();
   }
 
   /** Delete all credentials associated with the current Terra user. */

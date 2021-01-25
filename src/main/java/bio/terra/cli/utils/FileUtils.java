@@ -26,7 +26,7 @@ public class FileUtils {
    * @param <T> the Java object class to map the file contents to
    * @return an instance of the Java object class
    */
-  public static <T> T readOutputFileIntoJavaObject(File inputFile, Class<T> javaObjectClass)
+  public static <T> T readFileIntoJavaObject(File inputFile, Class<T> javaObjectClass)
       throws IOException {
     // get a reference to the file
     if (!inputFile.exists()) {
@@ -48,10 +48,20 @@ public class FileUtils {
    * @param <T> the Java object class to write
    * @return an instance of the Java object class
    */
+  @SuppressFBWarnings(
+      value = "RV_RETURN_VALUE_IGNORED",
+      justification =
+          "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
   public static <T> void writeJavaObjectToFile(File outputFile, T javaObject) throws IOException {
     // use Jackson to map the object to a JSON-formatted text block
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+
+    // create the file and any parent directories if they don't already exist
+    if (!outputFile.exists()) {
+      outputFile.getParentFile().mkdirs();
+      outputFile.createNewFile();
+    }
 
     logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
     objectWriter.writeValue(outputFile, javaObject);
