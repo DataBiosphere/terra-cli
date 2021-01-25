@@ -1,13 +1,11 @@
-package bio.terra.cli.command;
+package bio.terra.cli.command.server;
 
 import bio.terra.cli.model.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the second-level "terra status" command. */
-@Command(
-    name = "status",
-    description = "Print status and details of the Terra server anad workspace context.")
+/** This class corresponds to the third-level "terra server status" command. */
+@Command(name = "status", description = "Print status and details of the Terra server context.")
 public class Status implements Callable<Integer> {
 
   @Override

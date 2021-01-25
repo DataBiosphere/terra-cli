@@ -10,7 +10,7 @@ import picocli.CommandLine.ParseResult;
  */
 @Command(
     name = "terra",
-    subcommands = {Auth.class, Config.class, Status.class, CommandLine.HelpCommand.class},
+    subcommands = {Auth.class, Server.class, CommandLine.HelpCommand.class},
     description = "MC Terra CLI")
 class Main implements Runnable {
 
