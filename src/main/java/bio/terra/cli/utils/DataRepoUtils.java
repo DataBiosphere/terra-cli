@@ -26,7 +26,7 @@ public class DataRepoUtils {
    */
   public static ApiClient getClientForTerraUser(TerraUser terraUser, ServerSpecification server) {
     ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(server.datarepoUri);
+    apiClient.setBasePath(server.dataRepoUri);
 
     if (terraUser != null) {
       // fetch the user access token

@@ -15,10 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling SAM endpoints. */
-public class SAMUtils {
-  private static final Logger logger = LoggerFactory.getLogger(SAMUtils.class);
+public class SamUtils {
+  private static final Logger logger = LoggerFactory.getLogger(SamUtils.class);
 
-  private SAMUtils() {}
+  private SamUtils() {}
 
   /**
    * Build the SAM API client object for the given Terra user and global context. If terraUser is
@@ -98,7 +98,8 @@ public class SAMUtils {
   }
 
   /**
-   * Populate the terra user id and name properties of the given Terra user object.
+   * Populate the terra user id and name properties of the given Terra user object. Maps the SAM
+   * subject id to the user id, and the SAM email to the user name.
    *
    * @param terraUser the Terra user whose credentials are supplied to the API client object
    * @param globalContext the global context holds a pointer to the SAM instance
@@ -132,7 +133,7 @@ public class SAMUtils {
    *
    * @return the HTTP response to the SAM request
    */
-  public static HTTPUtils.HTTPResponse getPetSAKey(
+  public static HttpUtils.HttpResponse getPetSaKey(
       TerraUser terraUser, GlobalContext globalContext) {
     // The code below should be changed to use the SAM client library. For example:
     //   GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -144,7 +145,7 @@ public class SAMUtils {
       String apiEndpoint =
           globalContext.server.samUri + "/api/google/v1/user/petServiceAccount/key";
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
-      return HTTPUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+      return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (Exception ex) {
       logger.error("Error getting pet SA key from SAM.", ex);
       return null;

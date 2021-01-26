@@ -3,6 +3,7 @@ package bio.terra.cli.command.auth;
 import bio.terra.cli.app.AuthenticationManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.TerraUser;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -14,13 +15,14 @@ public class Status implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     new AuthenticationManager(globalContext).populateCurrentTerraUser();
-    TerraUser currentTerraUser = globalContext.getCurrentTerraUser();
+    Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
 
     // check if current user is defined
-    if (currentTerraUser == null) {
+    if (!currentTerraUserOpt.isPresent()) {
       System.out.println("There is no current Terra user defined.");
       return 0;
     }
+    TerraUser currentTerraUser = currentTerraUserOpt.get();
 
     // check if the current user needs to re-authenticate (i.e. is logged out)
     if (currentTerraUser.requiresReauthentication()) {

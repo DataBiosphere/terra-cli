@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,11 @@ public class GlobalContext {
 
   // global server context = service uris, environment name
   public ServerSpecification server;
+
+  private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
+      Paths.get(System.getProperty("user.home"), ".terra-cli");
+  private static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
+  private static final String PET_KEYS_DIRNAME = "pet_keys";
 
   private GlobalContext() {
     this.terraUsers = new HashMap<>();
@@ -74,11 +80,11 @@ public class GlobalContext {
 
   /** Getter for the current Terra user. Returns null if no current user is defined. */
   @JsonIgnore
-  public TerraUser getCurrentTerraUser() {
+  public Optional<TerraUser> getCurrentTerraUser() {
     if (currentTerraUserKey == null) {
-      return null;
+      return Optional.empty();
     }
-    return terraUsers.get(currentTerraUserKey);
+    return Optional.of(terraUsers.get(currentTerraUserKey));
   }
 
   /** Setter for the current Terra user. Persists on disk. */
@@ -125,11 +131,6 @@ public class GlobalContext {
   //   - persisted global context file: global_context.json
   //   - sub-directory for persisting pet SA keys: pet_SA_keys
 
-  private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
-      Paths.get(System.getProperty("user.home"), ".terra-cli");
-  private static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
-  private static final String PET_SA_KEYS_DIRNAME = "pet_SA_keys";
-
   /** Getter for the global context directory. */
   public static Path resolveGlobalContextDir() {
     // TODO: allow overriding the global context directory path (e.g. env var?)
@@ -140,7 +141,7 @@ public class GlobalContext {
    * Getter for the sub-directory of the global context directory that holds the pet SA key files.
    */
   public static Path resolvePetSAKeyDir() {
-    return resolveGlobalContextDir().resolve(PET_SA_KEYS_DIRNAME);
+    return resolveGlobalContextDir().resolve(PET_KEYS_DIRNAME);
   }
 
   /** Getter for the file where the global context is persisted. */

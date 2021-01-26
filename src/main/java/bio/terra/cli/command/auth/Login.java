@@ -16,7 +16,7 @@ public class Login implements Callable<Integer> {
     GlobalContext globalContext = GlobalContext.readFromFile();
     new AuthenticationManager(globalContext).loginTerraUser();
     System.out.println(
-        "Login successful. (" + globalContext.getCurrentTerraUser().terraUserName + ")");
+        "Login successful. (" + globalContext.getCurrentTerraUser().get().terraUserName + ")");
     return 0;
   }
 }

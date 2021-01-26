@@ -13,24 +13,22 @@ import org.slf4j.LoggerFactory;
  * An instance of this class represents a single Terra environment or deployment. It contains all
  * the information a client would need to talk to the services. This includes the service URIs and
  * any additional information required to understand the connections between services.
- *
- * <p>Note: This class currently includes several properties specific to particular services (i.e.
- * everything under the "Terra services: ..." comment). I don't like this hard-coding because it
- * makes the TestRunner library "depend" on the services that it will be used to test. I think the
- * right way to do this is for all of these properties to be added to the Kubernetes config map and
- * removed from the ServerSpecification. We should only need a pointer to the appropriate Kubernetes
- * cluster to get these values.
  */
 public class ServerSpecification {
   private static final Logger logger = LoggerFactory.getLogger(ServerSpecification.class);
 
+  // The name is a unique descriptive identifier that matches the JSON file under resources/servers.
+  // (e.g. terra-dev)
   public String name;
+
+  // The description is a longer free-form text field that includes what the server is used for.
+  // (e.g. Terra for development purposes)
   public String description = "";
 
   // Terra services: information required to hit service endpoints
   public String samUri;
   public String workspaceManagerUri;
-  public String datarepoUri;
+  public String dataRepoUri;
 
   public static final String RESOURCE_DIRECTORY = "servers";
   public static final String ALL_SERVERS_FILENAME = "all-servers.json";
@@ -82,7 +80,7 @@ public class ServerSpecification {
       throw new RuntimeException("SAM uri cannot be empty.");
     } else if (workspaceManagerUri == null || workspaceManagerUri.isEmpty()) {
       throw new RuntimeException("Workspace Manager uri cannot be empty.");
-    } else if (datarepoUri == null || datarepoUri.isEmpty()) {
+    } else if (dataRepoUri == null || dataRepoUri.isEmpty()) {
       throw new RuntimeException("Data Repo uri cannot be empty.");
     }
   }
@@ -101,7 +99,7 @@ public class ServerSpecification {
     return this.name.equals(server.name)
         && this.description.equals(server.description)
         && this.samUri.equals(server.samUri)
-        && this.datarepoUri.equals(server.datarepoUri)
+        && this.dataRepoUri.equals(server.dataRepoUri)
         && this.workspaceManagerUri.equals(server.workspaceManagerUri);
   }
 
@@ -112,7 +110,7 @@ public class ServerSpecification {
     result = 11 * result + name.hashCode();
     result = 11 * result + description.hashCode();
     result = 11 * result + samUri.hashCode();
-    result = 11 * result + datarepoUri.hashCode();
+    result = 11 * result + dataRepoUri.hashCode();
     result = 11 * result + workspaceManagerUri.hashCode();
 
     return result;

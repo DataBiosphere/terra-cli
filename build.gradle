@@ -9,7 +9,7 @@ plugins {
     id 'idea'
     id 'application'
     id 'com.diffplug.gradle.spotless' version '3.27.2'
-    id 'com.github.spotbugs' version '4.0.8'
+    id 'com.github.spotbugs' version '4.2.0'
 }
 
 if (hasProperty('buildScan')) {
@@ -21,7 +21,7 @@ if (hasProperty('buildScan')) {
 
 group 'terra-cli'
 version '0.1'
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_11
 
 mainClassName = 'bio.terra.cli.command.Main'
 

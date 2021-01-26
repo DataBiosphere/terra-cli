@@ -12,16 +12,16 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-public class HTTPUtils {
+public class HttpUtils {
 
-  private HTTPUtils() {}
+  private HttpUtils() {}
 
   /** This is a POJO class to hold the HTTP status code and the raw JSON response body. */
-  public static class HTTPResponse {
+  public static class HttpResponse {
     public String responseBody;
     public int statusCode;
 
-    HTTPResponse(String responseBody, int statusCode) {
+    HttpResponse(String responseBody, int statusCode) {
       this.responseBody = responseBody;
       this.statusCode = statusCode;
     }
@@ -37,7 +37,7 @@ public class HTTPUtils {
    * @return a POJO that includes the HTTP status code and the raw JSON response body
    * @throws IOException
    */
-  public static HTTPResponse sendHttpRequest(
+  public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
       throws IOException {
     // build parameter string
@@ -105,6 +105,6 @@ public class HTTPUtils {
     con.disconnect();
 
     // return a POJO that includes both the response body and status code
-    return new HTTPResponse(responseBody.toString(), statusCode);
+    return new HttpResponse(responseBody.toString(), statusCode);
   }
 }

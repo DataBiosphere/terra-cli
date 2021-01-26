@@ -4,7 +4,7 @@ import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.utils.DataRepoUtils;
 import bio.terra.cli.utils.FileUtils;
-import bio.terra.cli.utils.SAMUtils;
+import bio.terra.cli.utils.SamUtils;
 import bio.terra.cli.utils.WorkspaceManagerUtils;
 import bio.terra.datarepo.model.RepositoryStatusModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,8 +59,8 @@ public class ServerManager {
 
   /** Ping the service URLs to check their status. Return true if all return OK. */
   public boolean pingServerStatus() {
-    ApiClient samClient = SAMUtils.getClientForTerraUser(null, globalContext.server);
-    SystemStatus samStatus = SAMUtils.getStatus(samClient);
+    ApiClient samClient = SamUtils.getClientForTerraUser(null, globalContext.server);
+    SystemStatus samStatus = SamUtils.getStatus(samClient);
     logger.debug("SAM status: {}", samStatus);
 
     bio.terra.workspace.client.ApiClient wsmClient =
