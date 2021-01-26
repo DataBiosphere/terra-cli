@@ -1,0 +1,129 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'application'
+    id 'com.diffplug.gradle.spotless' version '3.27.2'
+    id 'com.github.spotbugs' version '4.2.0'
+}
+
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
+group 'terra-cli'
+version '0.1'
+sourceCompatibility = JavaVersion.VERSION_11
+
+mainClassName = 'bio.terra.cli.command.Main'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
+    }
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
+    }
+}
+
+dependencies {
+    ext {
+        // command parsing
+        picocli = '4.5.2'
+        picocliAnnotations = '4.2.0'
+
+        // logging
+        logback = '1.2.3'
+        slf4j = '1.7.30'
+
+        // serialization
+        jackson = '2.10.2'
+
+        // GCP
+        googleOauth2 = '0.22.0'
+        googleClient = '1.31.1'
+
+        // static analysis
+        findbugsAnnotations = '3.0.1u2'
+
+        // terra libraries
+        samClient = "0.1-9435410-SNAP"
+        workspaceManagerClient = "0.9.0-SNAPSHOT"
+        dataRepoClient = "1.0.155-SNAPSHOT"
+
+        // needed for WSM client library
+        swaggerAnnotations = "2.1.5"
+        jersey = "2.30.1"
+    }
+
+    implementation "info.picocli:picocli:${picocli}"
+    annotationProcessor "info.picocli:picocli-codegen:${picocliAnnotations}"
+
+    implementation "ch.qos.logback:logback-classic:${logback}"
+    implementation "org.slf4j:slf4j-api:${slf4j}"
+
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+
+    implementation "com.google.oauth-client:google-oauth-client-jetty:${googleClient}"
+    implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
+    implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
+    implementation 'com.google.cloud:google-cloud-bigquery:1.116.6'
+
+    compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
+
+    implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
+    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
+    implementation "bio.terra:datarepo-client:${dataRepoClient}"
+
+    compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
+    compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
+
+}
+
+test {
+    testLogging {
+        showStandardStreams = true // disable stdout & stderr redirection
+    }
+}
+
+// automatic code formatting
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+compileJava.dependsOn tasks.spotlessApply
+
+// static analysis
+spotbugs {
+    effort = 'max'
+    extraArgs = [ '-emacs']
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}

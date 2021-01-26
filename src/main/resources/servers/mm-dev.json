@@ -1,0 +1,8 @@
+{
+  "name": "mm-dev",
+  "description": "(MM) Terra environment for development purposes.",
+
+  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
+  "samUri": "https://sam.dsde-dev.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.mmedlock.integ.envs.broadinstitute.org"
+}
