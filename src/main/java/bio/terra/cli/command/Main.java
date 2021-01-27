@@ -10,7 +10,13 @@ import picocli.CommandLine.ParseResult;
  */
 @Command(
     name = "terra",
-    subcommands = {Auth.class, Server.class, CommandLine.HelpCommand.class},
+    subcommands = {
+      Auth.class,
+      Server.class,
+      Workspace.class,
+      App.class,
+      CommandLine.HelpCommand.class
+    },
     description = "MC Terra CLI")
 class Main implements Runnable {
 
@@ -22,8 +28,13 @@ class Main implements Runnable {
    */
   public static void main(String... args) {
     CommandLine cmd = new CommandLine(new Main());
-    //            .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
     cmd.setExecutionStrategy(new CommandLine.RunLast());
+    // cmd.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
+
+    // TODO: Can we only set this for the app commands, where a random command string follows?
+    // It would be good to allow mixing options and parameters for other commands.
+    cmd.setStopAtPositional(true);
+
     cmd.execute(args);
 
     if (args.length == 0) {

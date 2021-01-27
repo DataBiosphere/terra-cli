@@ -1,5 +1,6 @@
 package bio.terra.cli.model;
 
+import bio.terra.cli.app.AppsManager;
 import bio.terra.cli.app.ServerManager;
 import bio.terra.cli.utils.FileUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +28,11 @@ public class GlobalContext {
   // global server context = service uris, environment name
   public ServerSpecification server;
 
+  // global apps context = docker image id
+  // TODO: add this to config set/get command
+  public String dockerImageId;
+
+  // file paths related to persisting the global context on disk
   private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
       Paths.get(System.getProperty("user.home"), ".terra-cli");
   private static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
@@ -61,6 +67,7 @@ public class GlobalContext {
     if (globalContext == null) {
       globalContext = new GlobalContext();
       globalContext.server = ServerManager.defaultServer();
+      globalContext.dockerImageId = AppsManager.defaultImageId();
     }
 
     return globalContext;
