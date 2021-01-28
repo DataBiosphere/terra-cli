@@ -6,11 +6,11 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra app exec" command. */
+/** This class corresponds to the third-level "terra app execute" command. */
 @Command(
     name = "execute",
-    description = "Execute an application in the Terra workspace.",
-    showEndOfOptionsDelimiterInUsageHelp = true)
+    description =
+        "[FOR DEBUG] Execute a command in the application container for the Terra workspace, with no setup.")
 public class Execute implements Callable<Integer> {
 
   @CommandLine.Parameters(index = "0", paramLabel = "command", description = "command to execute")

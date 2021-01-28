@@ -1,5 +1,7 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.app.supportedtools.Gcloud;
+import bio.terra.cli.command.app.supportedtools.Nextflow;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
@@ -15,6 +17,8 @@ import picocli.CommandLine.ParseResult;
       Server.class,
       Workspace.class,
       App.class,
+      Gcloud.class,
+      Nextflow.class,
       CommandLine.HelpCommand.class
     },
     description = "MC Terra CLI")

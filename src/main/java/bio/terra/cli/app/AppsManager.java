@@ -43,7 +43,8 @@ public class AppsManager {
     this.dockerClient = null;
   }
 
-  // This variable defines the server that the CLI points to by default.
+  // This variable specifies the default Docker image that the CLI uses to run external
+  // applications/tools.
   // TODO: change this to a GCR path
   private static final String DEFAULT_DOCKER_IMAGE_ID = "5dd738808032";
 
@@ -71,12 +72,6 @@ public class AppsManager {
    */
   public String runAppCommand(
       String command, Map<String, String> envVars, Map<String, File> bindMounts) {
-    // check that there is a current user, because we will try to mount the pet key file
-    Optional<TerraUser> currentUser = globalContext.getCurrentTerraUser();
-    if (!currentUser.isPresent()) {
-      throw new RuntimeException("Login required before running apps.");
-    }
-
     // create and start the docker container. run the terra_init script first, then the given
     // command
     buildDockerClient();
@@ -103,7 +98,8 @@ public class AppsManager {
 
   /**
    * Add the environment variables and bind mounts expected by the terra_init script to those passed
-   * into this method. Then create and start the container.
+   * into this method. Then create and start the container. Login is required before running the
+   * terra_init script because it tries to read the pet key file.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param envVars a mapping of environment variable names to values
@@ -113,6 +109,13 @@ public class AppsManager {
    */
   private String startDockerContainerWithTerraInit(
       String command, Map<String, String> envVars, Map<String, File> bindMounts) {
+    // check that there is a current user, because the terra_init script will try to read the pet
+    // key file
+    Optional<TerraUser> currentUser = globalContext.getCurrentTerraUser();
+    if (!currentUser.isPresent()) {
+      throw new RuntimeException("Login required before running apps.");
+    }
+
     // call the terra_init script that was copied into the Docker image, before running the given
     // command
     final String terraInitScript = "chmod a+x /usr/local/bin/terra_init.sh && terra_init.sh";

@@ -12,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "app",
     description = "Commands related to applications in the Terra workspace context.",
-    subcommands = {Enable.class, Execute.class, Stop.class})
+    subcommands = {Enable.class, Stop.class, Execute.class})
 public class App {}
