@@ -1,7 +1,7 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.app.supportedtools.Gcloud;
-import bio.terra.cli.command.app.supportedtools.Nextflow;
+import bio.terra.cli.command.app.supported.Gcloud;
+import bio.terra.cli.command.app.supported.Nextflow;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;

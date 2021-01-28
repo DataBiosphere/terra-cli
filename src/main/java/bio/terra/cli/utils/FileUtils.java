@@ -58,10 +58,7 @@ public class FileUtils {
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 
     // create the file and any parent directories if they don't already exist
-    if (!outputFile.exists()) {
-      outputFile.getParentFile().mkdirs();
-      outputFile.createNewFile();
-    }
+    createFile(outputFile);
 
     logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
     objectWriter.writeValue(outputFile, javaObject);
@@ -87,10 +84,7 @@ public class FileUtils {
 
     // create the file and any parent directories if they don't already exist
     File outputFile = outputPath.toFile();
-    if (!outputFile.exists()) {
-      outputFile.getParentFile().mkdirs();
-      outputFile.createNewFile();
-    }
+    createFile(outputFile);
 
     return Files.write(
         directory.resolve(fileName), fileContents.getBytes(Charset.forName("UTF-8")));
@@ -110,5 +104,13 @@ public class FileUtils {
       throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
+  }
+
+  /** Create the file and any parent directories if they don't already exist. */
+  public static void createFile(File file) throws IOException {
+    if (!file.exists()) {
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+    }
   }
 }

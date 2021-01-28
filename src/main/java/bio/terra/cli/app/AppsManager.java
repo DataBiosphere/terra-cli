@@ -4,6 +4,7 @@ import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.TerraUser;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.model.Bind;
@@ -36,7 +37,7 @@ public class AppsManager {
   private DockerClient dockerClient;
 
   // This is where the pet key files will be mounted on the Docker container.
-  public static final String PET_KEYS_MOUNT_POINT = "/etc/terra_cli";
+  public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
   public AppsManager(GlobalContext globalContext) {
     this.globalContext = globalContext;
@@ -55,7 +56,7 @@ public class AppsManager {
 
   /** Run a command inside the Docker container for external applications/tools. */
   public String runAppCommand(String command) {
-    return runAppCommand(command, new HashMap<>(), new HashMap<>());
+    return runAppCommand(command, null, new HashMap<>(), new HashMap<>());
   }
 
   /**
@@ -65,17 +66,22 @@ public class AppsManager {
    * passed in.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
+   * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
   public String runAppCommand(
-      String command, Map<String, String> envVars, Map<String, File> bindMounts) {
+      String command,
+      String workingDir,
+      Map<String, String> envVars,
+      Map<String, File> bindMounts) {
     // create and start the docker container. run the terra_init script first, then the given
     // command
     buildDockerClient();
-    String containerId = startDockerContainerWithTerraInit(command, envVars, bindMounts);
+    String containerId =
+        startDockerContainerWithTerraInit(command, workingDir, envVars, bindMounts);
 
     // block until the container exits
     Integer statusCode = waitForDockerContainerToExit(containerId);
@@ -102,13 +108,17 @@ public class AppsManager {
    * terra_init script because it tries to read the pet key file.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
+   * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
   private String startDockerContainerWithTerraInit(
-      String command, Map<String, String> envVars, Map<String, File> bindMounts) {
+      String command,
+      String workingDir,
+      Map<String, String> envVars,
+      Map<String, File> bindMounts) {
     // check that there is a current user, because the terra_init script will try to read the pet
     // key file
     Optional<TerraUser> currentUser = globalContext.getCurrentTerraUser();
@@ -153,19 +163,23 @@ public class AppsManager {
     }
     bindMounts.putAll(terraInitBindMounts);
 
-    return startDockerContainer(fullCommand, envVars, bindMounts);
+    return startDockerContainer(fullCommand, workingDir, envVars, bindMounts);
   }
 
   /**
    * Start a Docker container and run the given command. Return the container id.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
+   * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
    * @throws RuntimeException if the local directory does not exist or is not a directory
    */
   private String startDockerContainer(
-      String command, Map<String, String> envVars, Map<String, File> bindMounts) {
+      String command,
+      String workingDir,
+      Map<String, String> envVars,
+      Map<String, File> bindMounts) {
     // flatten the environment variables from a map, into a list of key=val strings
     List<String> envVarsStr = new ArrayList<>();
     for (Map.Entry<String, String> envVar : envVars.entrySet()) {
@@ -186,15 +200,18 @@ public class AppsManager {
     }
 
     // create the container and start it
-    CreateContainerResponse container =
+    CreateContainerCmd createContainerCmd =
         dockerClient
             .createContainerCmd(globalContext.dockerImageId)
             .withCmd("bash", "-c", command)
             .withEnv(envVarsStr)
             .withHostConfig(HostConfig.newHostConfig().withBinds(bindMountsObj))
             .withAttachStdout(true)
-            .withAttachStderr(true)
-            .exec();
+            .withAttachStderr(true);
+    if (workingDir != null) {
+      createContainerCmd.withWorkingDir(workingDir);
+    }
+    CreateContainerResponse container = createContainerCmd.exec();
     dockerClient.startContainerCmd(container.getId()).exec();
     return container.getId();
   }

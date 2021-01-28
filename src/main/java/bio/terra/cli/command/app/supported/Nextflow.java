@@ -1,6 +1,6 @@
-package bio.terra.cli.command.app.supportedtools;
+package bio.terra.cli.command.app.supported;
 
-import bio.terra.cli.app.supportedtools.NextflowHelper;
+import bio.terra.cli.app.supported.NextflowHelper;
 import bio.terra.cli.model.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;

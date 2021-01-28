@@ -1,4 +1,4 @@
-package bio.terra.cli.app.supportedtools;
+package bio.terra.cli.app.supported;
 
 import bio.terra.cli.app.AppsManager;
 import bio.terra.cli.model.GlobalContext;
