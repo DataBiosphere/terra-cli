@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.app.AppsManager;
+import bio.terra.cli.app.ToolsManager;
 import bio.terra.cli.model.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
@@ -31,7 +31,7 @@ public class Execute implements Callable<Integer> {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
-    String cmdOutput = new AppsManager(globalContext).runAppCommand(fullCommand);
+    String cmdOutput = new ToolsManager(globalContext).runToolCommand(fullCommand);
     System.out.println(cmdOutput);
 
     System.out.println("App command execution successful. (" + fullCommand + ")");

@@ -3,10 +3,18 @@ package bio.terra.cli.utils;
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
 import bio.terra.workspace.api.UnauthenticatedApi;
+import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
+import bio.terra.workspace.model.CreateGoogleContextRequestBody;
+import bio.terra.workspace.model.CreateWorkspaceRequestBody;
+import bio.terra.workspace.model.GrantRoleRequestBody;
+import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.auth.oauth2.AccessToken;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,5 +76,108 @@ public class WorkspaceManagerUtils {
       logger.error("Error getting Workspace Manager status", ex);
     }
     return status;
+  }
+
+  /**
+   * Call the Workspace Manager "/api/workspaces/v1" endpoint to create a new workspace, then poll
+   * the "/api/workspaces/v1/{id}" endpoint until the Google context project id is populated.
+   *
+   * @return the Workspace Manager workspace description object
+   */
+  public static WorkspaceDescription createWorkspace(ApiClient apiClient) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    WorkspaceDescription workspaceWithContext = null;
+    try {
+      // create the Terra workspace object
+      UUID workspaceId = UUID.randomUUID();
+      CreateWorkspaceRequestBody workspaceRequestBody = new CreateWorkspaceRequestBody();
+      workspaceRequestBody.setId(workspaceId);
+      workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
+      workspaceRequestBody.setSpendProfile("wm-default-spend-profile");
+      workspaceApi.createWorkspace(workspaceRequestBody);
+
+      // create the Google project that backs the Terra workspace object
+      UUID jobId = UUID.randomUUID();
+      CreateGoogleContextRequestBody contextRequestBody = new CreateGoogleContextRequestBody();
+      contextRequestBody.setJobId(jobId.toString());
+      workspaceApi.createGoogleContext(contextRequestBody, workspaceId);
+
+      // poll the get workspace endpoint until the project id property is populated
+      final int MAX_JOB_POLLING_TRIES = 120; // maximum 120 seconds sleep
+      int numJobPollingTries = 1;
+      String googleProjectId;
+      do {
+        workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
+        googleProjectId =
+            (workspaceWithContext.getGoogleContext() == null)
+                ? null
+                : workspaceWithContext.getGoogleContext().getProjectId();
+        logger.info(
+            "job polling try #{}, workspace context: {}, project id: {}",
+            numJobPollingTries,
+            workspaceWithContext.getId(),
+            googleProjectId);
+        if (googleProjectId == null) {
+          Thread.sleep(1000);
+        }
+      } while (googleProjectId == null && numJobPollingTries < MAX_JOB_POLLING_TRIES);
+    } catch (Exception ex) {
+      logger.error("Error creating a new workspace", ex);
+    }
+    return workspaceWithContext;
+  }
+
+  /**
+   * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
+   * workspace.
+   *
+   * @return the Workspace Manager workspace description object
+   */
+  public static WorkspaceDescription fetchWorkspace(ApiClient apiClient, UUID workspaceId) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    WorkspaceDescription workspaceWithContext = null;
+    try {
+      // fetch the Terra workspace object
+      workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
+      String googleProjectId =
+          (workspaceWithContext.getGoogleContext() == null)
+              ? null
+              : workspaceWithContext.getGoogleContext().getProjectId();
+      logger.info(
+          "workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
+    } catch (Exception ex) {
+      logger.error("Error fetching workspace", ex);
+    }
+    return workspaceWithContext;
+  }
+
+  /**
+   * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}" endpoint to delete an existing
+   * workspace.
+   */
+  public static void deleteWorkspace(ApiClient apiClient, UUID workspaceId) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    WorkspaceDescription workspaceWithContext = null;
+    try {
+      // delete the Terra workspace object
+      workspaceApi.deleteWorkspace(workspaceId);
+    } catch (Exception ex) {
+      logger.error("Error deleting workspace", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager "/api/workspaces/v1/{id}/roles/{role}/members" endpoint to grant an
+   * IAM role.
+   */
+  public static void grantIamRole(
+      ApiClient apiClient, UUID workspaceId, String userEmail, IamRole iamRole) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
+      workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
+    } catch (Exception ex) {
+      logger.error("Error granting IAM role on workspace", ex);
+    }
   }
 }

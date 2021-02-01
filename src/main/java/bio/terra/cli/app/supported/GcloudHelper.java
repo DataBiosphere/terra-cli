@@ -1,6 +1,6 @@
 package bio.terra.cli.app.supported;
 
-import bio.terra.cli.app.AppsManager;
+import bio.terra.cli.app.ToolsManager;
 import bio.terra.cli.model.GlobalContext;
 
 /**
@@ -12,6 +12,6 @@ public class GcloudHelper implements SupportedToolHelper {
   /** Run the tool inside the Docker container for external applications/tools. */
   public String run(GlobalContext globalContext, String[] cmdArgs) {
     String fullCommand = buildFullCommand("gcloud", cmdArgs);
-    return new AppsManager(globalContext).runAppCommand(fullCommand);
+    return new ToolsManager(globalContext).runToolCommand(fullCommand);
   }
 }

@@ -81,7 +81,7 @@ public final class AuthenticationUtils {
 
     // check that the specified credential exists
     if (!dataStore.containsKey(userId)) {
-      logger.debug("Credential for {} not found.", userId);
+      logger.info("Credential for {} not found.", userId);
       return;
     }
 

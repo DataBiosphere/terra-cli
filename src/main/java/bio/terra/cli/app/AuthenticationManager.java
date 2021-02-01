@@ -197,4 +197,17 @@ public class AuthenticationManager {
       }
     }
   }
+
+  /**
+   * Utility wrapper around populateCurrentTerraUser that throws an exception if the current Terra
+   * user is not defined.
+   */
+  public TerraUser requireCurrentTerraUser() {
+    Optional<TerraUser> terraUserOpt = globalContext.getCurrentTerraUser();
+    if (!terraUserOpt.isPresent()) {
+      throw new RuntimeException("The current Terra user is not defined. Login required.");
+    }
+    populateCurrentTerraUser();
+    return terraUserOpt.get();
+  }
 }

@@ -22,16 +22,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class runs applications and manipulates the tools-related properties of the global context
- * object.
+ * This class runs client-side tools and manipulates the tools-related properties of the global
+ * context object.
  */
-public class AppsManager {
-  private static final Logger logger = LoggerFactory.getLogger(AppsManager.class);
+public class ToolsManager {
+  private static final Logger logger = LoggerFactory.getLogger(ToolsManager.class);
 
   private final GlobalContext globalContext;
   private DockerClient dockerClient;
@@ -39,13 +38,12 @@ public class AppsManager {
   // This is where the pet key files will be mounted on the Docker container.
   public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
-  public AppsManager(GlobalContext globalContext) {
+  public ToolsManager(GlobalContext globalContext) {
     this.globalContext = globalContext;
     this.dockerClient = null;
   }
 
-  // This variable specifies the default Docker image that the CLI uses to run external
-  // applications/tools.
+  // This variable specifies the default Docker image that the CLI uses to run external tools.
   // TODO: change this to a GCR path
   private static final String DEFAULT_DOCKER_IMAGE_ID = "5dd738808032";
 
@@ -54,16 +52,15 @@ public class AppsManager {
     return DEFAULT_DOCKER_IMAGE_ID;
   }
 
-  /** Run a command inside the Docker container for external applications/tools. */
-  public String runAppCommand(String command) {
-    return runAppCommand(command, null, new HashMap<>(), new HashMap<>());
+  /** Run a command inside the Docker container for external tools. */
+  public String runToolCommand(String command) {
+    return runToolCommand(command, null, new HashMap<>(), new HashMap<>());
   }
 
   /**
-   * Run a command inside the Docker container for external applications/tools. Allows adding
-   * environment variables and bind mounts beyond what the terra_init script requires. The
-   * environment variables and bind mounts expected by the terra_init script will be added to those
-   * passed in.
+   * Run a command inside the Docker container for external tools. Allows adding environment
+   * variables and bind mounts beyond what the terra_init script requires. The environment variables
+   * and bind mounts expected by the terra_init script will be added to those passed in.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param workingDir the directory where the commmand will be executed
@@ -72,7 +69,7 @@ public class AppsManager {
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
-  public String runAppCommand(
+  public String runToolCommand(
       String command,
       String workingDir,
       Map<String, String> envVars,
@@ -85,7 +82,7 @@ public class AppsManager {
 
     // block until the container exits
     Integer statusCode = waitForDockerContainerToExit(containerId);
-    logger.debug("docker run status code: {}", statusCode);
+    logger.info("docker run status code: {}", statusCode);
 
     // read the container logs, which contains the command output
     return getLogsForDockerContainer(containerId);
@@ -121,10 +118,7 @@ public class AppsManager {
       Map<String, File> bindMounts) {
     // check that there is a current user, because the terra_init script will try to read the pet
     // key file
-    Optional<TerraUser> currentUser = globalContext.getCurrentTerraUser();
-    if (!currentUser.isPresent()) {
-      throw new RuntimeException("Login required before running apps.");
-    }
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call the terra_init script that was copied into the Docker image, before running the given
     // command
@@ -138,14 +132,12 @@ public class AppsManager {
     String googleProjectId = "terra-cli-poc-1";
     terraInitEnvVars.put(
         "PET_KEY_FILE",
-        PET_KEYS_MOUNT_POINT
-            + "/"
-            + globalContext.getCurrentTerraUser().get().getPetKeyFile(googleProjectId).getName());
+        PET_KEYS_MOUNT_POINT + "/" + currentUser.getPetKeyFile(googleProjectId).getName());
     terraInitEnvVars.put("GOOGLE_PROJECT_ID", "terra-cli-poc-1");
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
         throw new RuntimeException(
-            "App command cannot overwrite an environment variable used by the terra_init script: "
+            "Tool command cannot overwrite an environment variable used by the terra_init script: "
                 + terraInitEnvVar.getKey());
       }
     }
@@ -157,7 +149,7 @@ public class AppsManager {
     for (Map.Entry<String, File> terraInitBindMount : terraInitBindMounts.entrySet()) {
       if (bindMounts.get(terraInitBindMount.getKey()) != null) {
         throw new RuntimeException(
-            "App command cannot bind mount to the same directory used by the terra_init script: "
+            "Tool command cannot bind mount to the same directory used by the terra_init script: "
                 + terraInitBindMount.getKey());
       }
     }
@@ -233,7 +225,7 @@ public class AppsManager {
           .logContainerCmd(containerId)
           .withStdOut(true)
           .withStdErr(true)
-          .exec(new AppsManager.LogContainerTestCallback())
+          .exec(new ToolsManager.LogContainerTestCallback())
           .awaitCompletion()
           .toString();
     } catch (InterruptedException intEx) {

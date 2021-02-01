@@ -60,7 +60,7 @@ public class FileUtils {
     // create the file and any parent directories if they don't already exist
     createFile(outputFile);
 
-    logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
+    logger.info("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
     objectWriter.writeValue(outputFile, javaObject);
   }
 
@@ -80,7 +80,7 @@ public class FileUtils {
       throws IOException {
     // get a reference to the file
     Path outputPath = directory.resolve(fileName);
-    logger.debug("Writing to file: {}", outputPath.toAbsolutePath());
+    logger.info("Writing to file: {}", outputPath.toAbsolutePath());
 
     // create the file and any parent directories if they don't already exist
     File outputFile = outputPath.toFile();
@@ -109,8 +109,11 @@ public class FileUtils {
   /** Create the file and any parent directories if they don't already exist. */
   public static void createFile(File file) throws IOException {
     if (!file.exists()) {
-      file.getParentFile().mkdirs();
-      file.createNewFile();
+      boolean mkdirsSuccessful = file.getParentFile().mkdirs();
+      boolean newFileCreationSuccessful = file.createNewFile();
+      if (!mkdirsSuccessful || !newFileCreationSuccessful) {
+        throw new RuntimeException("Error creating new file: " + file.getAbsolutePath());
+      }
     }
   }
 }

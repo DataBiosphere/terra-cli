@@ -1,7 +1,7 @@
 package bio.terra.cli.model;
 
-import bio.terra.cli.app.AppsManager;
 import bio.terra.cli.app.ServerManager;
+import bio.terra.cli.app.ToolsManager;
 import bio.terra.cli.utils.FileUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class GlobalContext {
     if (globalContext == null) {
       globalContext = new GlobalContext();
       globalContext.server = ServerManager.defaultServer();
-      globalContext.dockerImageId = AppsManager.defaultImageId();
+      globalContext.dockerImageId = ToolsManager.defaultImageId();
     }
 
     return globalContext;
@@ -94,6 +94,15 @@ public class GlobalContext {
     return Optional.of(terraUsers.get(currentTerraUserKey));
   }
 
+  /** Utility method that throws an exception if the current Terra user is not defined. */
+  public TerraUser requireCurrentTerraUser() {
+    Optional<TerraUser> terraUserOpt = getCurrentTerraUser();
+    if (!terraUserOpt.isPresent()) {
+      throw new RuntimeException("The current Terra user is not defined. Login required.");
+    }
+    return terraUserOpt.get();
+  }
+
   /** Setter for the current Terra user. Persists on disk. */
   @JsonIgnore
   public void setCurrentTerraUser(TerraUser currentTerraUser) {
@@ -114,7 +123,7 @@ public class GlobalContext {
    */
   public void addOrUpdateTerraUser(TerraUser terraUser) {
     if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
-      logger.debug("Terra user {} already exists, updating.", terraUser.terraUserName);
+      logger.info("Terra user {} already exists, updating.", terraUser.terraUserName);
     }
     terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
 

@@ -61,17 +61,17 @@ public class ServerManager {
   public boolean pingServerStatus() {
     ApiClient samClient = SamUtils.getClientForTerraUser(null, globalContext.server);
     SystemStatus samStatus = SamUtils.getStatus(samClient);
-    logger.debug("SAM status: {}", samStatus);
+    logger.info("SAM status: {}", samStatus);
 
     bio.terra.workspace.client.ApiClient wsmClient =
         WorkspaceManagerUtils.getClientForTerraUser(null, globalContext.server);
     bio.terra.workspace.model.SystemStatus wsmStatus = WorkspaceManagerUtils.getStatus(wsmClient);
-    logger.debug("Workspace Manager status: {}", wsmStatus);
+    logger.info("Workspace Manager status: {}", wsmStatus);
 
     bio.terra.datarepo.client.ApiClient tdrClient =
         DataRepoUtils.getClientForTerraUser(null, globalContext.server);
     RepositoryStatusModel tdrStatus = DataRepoUtils.getStatus(tdrClient);
-    logger.debug("Data Repo status: {}", tdrStatus);
+    logger.info("Data Repo status: {}", tdrStatus);
 
     return (samStatus != null && samStatus.getOk())
         && (wsmStatus != null && wsmStatus.isOk())

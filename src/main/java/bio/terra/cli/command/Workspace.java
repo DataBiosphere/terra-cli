@@ -3,7 +3,7 @@ package bio.terra.cli.command;
 import bio.terra.cli.command.workspace.AddUser;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
-import bio.terra.cli.command.workspace.List;
+import bio.terra.cli.command.workspace.Mount;
 import picocli.CommandLine.Command;
 
 /**
@@ -13,5 +13,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "workspace",
     description = "Commands related to the Terra workspace.",
-    subcommands = {Create.class, List.class, Delete.class, AddUser.class})
+    subcommands = {Create.class, Mount.class, Delete.class, AddUser.class})
 public class Workspace {}

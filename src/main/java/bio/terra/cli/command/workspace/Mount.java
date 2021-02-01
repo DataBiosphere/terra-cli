@@ -5,11 +5,15 @@ import bio.terra.cli.app.WorkspaceManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra workspace create" command. */
-@Command(name = "create", description = "Create a new workspace.")
-public class Create implements Callable<Integer> {
+/** This class corresponds to the third-level "terra workspace mount" command. */
+@Command(name = "mount", description = "Mount an existing workspace to the current directory.")
+public class Mount implements Callable<Integer> {
+
+  @CommandLine.Parameters(index = "0", description = "workspace id")
+  private String workspaceId;
 
   @Override
   public Integer call() {
@@ -17,9 +21,9 @@ public class Create implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext).requireCurrentTerraUser();
-    new WorkspaceManager(globalContext, workspaceContext).createWorkspace();
+    new WorkspaceManager(globalContext, workspaceContext).mountWorkspace(workspaceId);
     System.out.println(
-        "Workspace successfully created. (" + workspaceContext.getWorkspaceId() + ")");
+        "Workspace successfully mounted. (" + workspaceContext.getWorkspaceId() + ")");
     return 0;
   }
 }
