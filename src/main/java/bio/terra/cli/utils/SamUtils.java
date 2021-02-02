@@ -149,7 +149,7 @@ public class SamUtils {
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (Exception ex) {
-      logger.error("Error getting pet SA key from SAM.", ex);
+      logger.error("Error getting arbitrary pet SA key from SAM.", ex);
       return null;
     }
   }
@@ -172,11 +172,14 @@ public class SamUtils {
     // to get the key file contents.
     try {
       String apiEndpoint =
-          globalContext.server.samUri + "/api/google/v1/user/petServiceAccount/key";
+          globalContext.server.samUri
+              + "/api/google/v1/user/petServiceAccount/"
+              + workspaceContext.getGoogleProject()
+              + "/key";
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (Exception ex) {
-      logger.error("Error getting pet SA key from SAM.", ex);
+      logger.error("Error getting project-specific pet SA key from SAM.", ex);
       return null;
     }
   }

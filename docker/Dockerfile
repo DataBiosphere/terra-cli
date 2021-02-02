@@ -19,5 +19,6 @@ RUN apt-get install apt-transport-https ca-certificates gnupg -y
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -
 RUN apt-get update -y && apt-get install google-cloud-sdk -y
 
-# copy the terra_init script into the image
-COPY terra_init.sh /usr/local/bin/terra_init.sh
+# copy any custom scripts into the image
+COPY scripts/* /usr/local/bin/
+RUN chmod a+x /usr/local/bin/*

@@ -37,8 +37,11 @@ public class NextflowHelper extends SupportedToolHelper {
   public String run(String[] cmdArgs) {
     // mount the nextflow sub-directory of the current directory
     File nextflowDir = DEFAULT_NEXTFLOW_DIR.toFile();
-    logger.debug(
-        "nextflowDir: {}, exists: {}", nextflowDir.getAbsolutePath(), nextflowDir.exists());
+    logger.info("nextflowDir: {}, exists: {}", nextflowDir.getAbsolutePath(), nextflowDir.exists());
+    if (!nextflowDir.exists() || !nextflowDir.isDirectory()) {
+      throw new RuntimeException(
+          "Nextflow sub-directory not found. Run terra app enable nextflow.");
+    }
     Map<String, File> bindMounts = new HashMap<>();
     bindMounts.put(NEXTFLOW_MOUNT_POINT, nextflowDir);
 

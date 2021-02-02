@@ -46,13 +46,13 @@ public class ToolsManager {
     this.dockerClient = null;
   }
 
-  // This variable specifies the default Docker image that the CLI uses to run external tools.
-  // TODO: change this to a GCR path
-  private static final String DEFAULT_DOCKER_IMAGE_ID = "5dd738808032";
+  // This variable specifies the default Docker image tag that the CLI uses to run external tools.
+  // TODO: change this to a DockerHub or GCR path
+  private static final String DEFAULT_DOCKER_IMAGE_TAG = "terra/cli:v0.0";
 
   /** Returns the default image id. */
   public static String defaultImageId() {
-    return DEFAULT_DOCKER_IMAGE_ID;
+    return DEFAULT_DOCKER_IMAGE_TAG;
   }
 
   /** Run a command inside the Docker container for external tools. */
@@ -133,8 +133,7 @@ public class ToolsManager {
 
     // call the terra_init script that was copied into the Docker image, before running the given
     // command
-    final String terraInitScript = "chmod a+x /usr/local/bin/terra_init.sh && terra_init.sh";
-    String fullCommand = terraInitScript + " && " + command;
+    String fullCommand = "terra_init.sh && " + command;
 
     // the terra_init script relies on environment variables to pass in global and workspace
     // context information
