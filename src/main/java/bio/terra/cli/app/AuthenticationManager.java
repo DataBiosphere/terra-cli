@@ -183,7 +183,7 @@ public class AuthenticationManager {
     HttpUtils.HttpResponse petSAKeySAMResponse =
         SamUtils.getPetSaKeyForProject(terraUser, globalContext, workspaceContext);
     if (!HttpStatusCodes.isSuccess(petSAKeySAMResponse.statusCode)) {
-      logger.debug("SAM response to pet SA key request: {})", petSAKeySAMResponse.responseBody);
+      logger.info("SAM response to pet SA key request: {})", petSAKeySAMResponse.responseBody);
       throw new RuntimeException(
           "Error fetching pet SA key from SAM (status code = "
               + petSAKeySAMResponse.statusCode

@@ -1,7 +1,9 @@
 package bio.terra.cli.command.app;
 
 import bio.terra.cli.app.AuthenticationManager;
+import bio.terra.cli.app.supported.BqHelper;
 import bio.terra.cli.app.supported.GcloudHelper;
+import bio.terra.cli.app.supported.GsutilHelper;
 import bio.terra.cli.app.supported.NextflowHelper;
 import bio.terra.cli.app.supported.SupportedToolHelper;
 import bio.terra.cli.model.GlobalContext;
@@ -35,7 +37,9 @@ public class Enable implements Callable<Integer> {
   /** This enum lists only the supported apps that can be enabled and stopped. */
   public enum SupportedForEnableAndStop {
     nextflow(new NextflowHelper()),
-    gcloud(new GcloudHelper());
+    gcloud(new GcloudHelper()),
+    gsutil(new GsutilHelper()),
+    bq(new BqHelper());
 
     private SupportedToolHelper toolHelper;
 

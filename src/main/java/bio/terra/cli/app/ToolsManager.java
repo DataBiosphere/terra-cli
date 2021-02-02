@@ -77,6 +77,9 @@ public class ToolsManager {
       String workingDir,
       Map<String, String> envVars,
       Map<String, File> bindMounts) {
+    // check that the current workspace is defined
+    workspaceContext.requireCurrentWorkspace();
+
     // create and start the docker container. run the terra_init script first, then the given
     // command
     buildDockerClient();

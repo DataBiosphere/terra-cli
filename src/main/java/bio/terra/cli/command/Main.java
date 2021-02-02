@@ -1,6 +1,8 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.app.supported.Bq;
 import bio.terra.cli.command.app.supported.Gcloud;
+import bio.terra.cli.command.app.supported.Gsutil;
 import bio.terra.cli.command.app.supported.Nextflow;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,6 +20,8 @@ import picocli.CommandLine.ParseResult;
       Workspace.class,
       App.class,
       Gcloud.class,
+      Gsutil.class,
+      Bq.class,
       Nextflow.class,
       CommandLine.HelpCommand.class
     },
