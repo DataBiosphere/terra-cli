@@ -2,6 +2,7 @@ package bio.terra.cli.command;
 
 import bio.terra.cli.command.app.Enable;
 import bio.terra.cli.command.app.Execute;
+import bio.terra.cli.command.app.SetImage;
 import bio.terra.cli.command.app.Stop;
 import picocli.CommandLine.Command;
 
@@ -12,5 +13,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "app",
     description = "Commands related to applications in the Terra workspace context.",
-    subcommands = {Enable.class, Stop.class, Execute.class})
+    subcommands = {Enable.class, Stop.class, SetImage.class, Execute.class})
 public class App {}

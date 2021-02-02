@@ -8,6 +8,7 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
@@ -46,13 +47,34 @@ public class ToolsManager {
     this.dockerClient = null;
   }
 
-  // This variable specifies the default Docker image tag that the CLI uses to run external tools.
+  // This variable specifies the default Docker image id or tag that the CLI uses to run external
+  // tools.
   // TODO: change this to a DockerHub or GCR path
-  private static final String DEFAULT_DOCKER_IMAGE_TAG = "terra/cli:v0.0";
+  private static final String DEFAULT_DOCKER_IMAGE_ID = "terra/cli:v0.0";
 
   /** Returns the default image id. */
   public static String defaultImageId() {
-    return DEFAULT_DOCKER_IMAGE_TAG;
+    return DEFAULT_DOCKER_IMAGE_ID;
+  }
+
+  /**
+   * Update the Docker image property of the global context.
+   *
+   * @return true if the Docker image property was updated, false otherwise
+   */
+  public boolean updateImageId(String imageId) {
+    buildDockerClient();
+
+    // check if image exists
+    try {
+      dockerClient.inspectImageCmd(imageId).exec();
+    } catch (NotFoundException nfEx) {
+      logger.error("Image not found: {}", imageId, nfEx);
+      return false;
+    }
+
+    globalContext.updateDockerImageId(imageId);
+    return true;
   }
 
   /** Run a command inside the Docker container for external tools. */
@@ -80,9 +102,10 @@ public class ToolsManager {
     // check that the current workspace is defined
     workspaceContext.requireCurrentWorkspace();
 
+    buildDockerClient();
+
     // create and start the docker container. run the terra_init script first, then the given
     // command
-    buildDockerClient();
     String containerId =
         startDockerContainerWithTerraInit(command, workingDir, envVars, bindMounts);
 

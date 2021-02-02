@@ -2,6 +2,7 @@ HELP.md
 .gradle
 build/
 scratch/
+scratch2/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**

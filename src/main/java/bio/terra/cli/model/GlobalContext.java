@@ -28,8 +28,7 @@ public class GlobalContext {
   // global server context = service uris, environment name
   public ServerSpecification server;
 
-  // global apps context = docker image id
-  // TODO: add this to config set/get command
+  // global apps context = docker image id or tag
   public String dockerImageId;
 
   // file paths related to persisting the global context on disk
@@ -135,6 +134,17 @@ public class GlobalContext {
   public void updateServer(ServerSpecification server) {
     logger.debug("Updating server from {} to {}.", this.server.name, server.name);
     this.server = server;
+
+    writeToFile();
+  }
+
+  // ====================================================
+  // Apps
+
+  /** Setter for the Docker image id. Persists on disk. */
+  public void updateDockerImageId(String dockerImageId) {
+    logger.debug("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
+    this.dockerImageId = dockerImageId;
 
     writeToFile();
   }
