@@ -1,9 +1,11 @@
 package bio.terra.cli.command.app;
 
+import bio.terra.cli.app.AuthenticationManager;
 import bio.terra.cli.app.supported.GcloudHelper;
 import bio.terra.cli.app.supported.NextflowHelper;
 import bio.terra.cli.app.supported.SupportedToolHelper;
 import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -19,9 +21,13 @@ public class Enable implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    // TODO: should we also pull the image on any call to enable?
     GlobalContext globalContext = GlobalContext.readFromFile();
-    appName.getToolHelper().enable(globalContext);
+    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    appName.getToolHelper(globalContext, workspaceContext).enable();
+    // TODO: should we also pull the image on any call to enable?
+
     System.out.println(appName.toString() + " successfully enabled.");
     return 0;
   }
@@ -37,8 +43,9 @@ public class Enable implements Callable<Integer> {
       this.toolHelper = toolHelper;
     }
 
-    public SupportedToolHelper getToolHelper() {
-      return toolHelper;
+    public SupportedToolHelper getToolHelper(
+        GlobalContext globalContext, WorkspaceContext workspaceContext) {
+      return toolHelper.setContext(globalContext, workspaceContext);
     }
   }
 }

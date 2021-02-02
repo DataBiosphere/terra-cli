@@ -1,20 +1,32 @@
 package bio.terra.cli.app.supported;
 
 import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.WorkspaceContext;
 
-public interface SupportedToolHelper {
+public abstract class SupportedToolHelper {
+
+  GlobalContext globalContext;
+  WorkspaceContext workspaceContext;
+
+  /** Set the global and workspace context properties. */
+  public final SupportedToolHelper setContext(
+      GlobalContext globalContext, WorkspaceContext workspaceContext) {
+    this.globalContext = globalContext;
+    this.workspaceContext = workspaceContext;
+    return this;
+  }
 
   /** Do any command-specific setup. */
-  default void enable(GlobalContext globalContext) {}
+  public void enable() {}
 
   /** Run the tool inside the Docker container for external applications/tools. */
-  String run(GlobalContext globalContext, String[] cmdArgs);
+  public abstract String run(String[] cmdArgs);
 
   /** Do any command-specific teardown. */
-  default void stop(GlobalContext globalContext) {}
+  public void stop() {}
 
   /** Utility method for concatenating a command and its arguments. */
-  default String buildFullCommand(String cmd, String[] cmdArgs) {
+  static String buildFullCommand(String cmd, String[] cmdArgs) {
     String fullCommand = cmd;
     if (cmdArgs != null && cmdArgs.length > 0) {
       final String argSeparator = " ";

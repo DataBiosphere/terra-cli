@@ -16,8 +16,12 @@ public class Create implements Callable<Integer> {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
-    new AuthenticationManager(globalContext).requireCurrentTerraUser();
+    AuthenticationManager authenticationManager =
+        new AuthenticationManager(globalContext, workspaceContext);
+    authenticationManager.loginTerraUser();
     new WorkspaceManager(globalContext, workspaceContext).createWorkspace();
+    authenticationManager.fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
+
     System.out.println(
         "Workspace successfully created. (" + workspaceContext.getWorkspaceId() + ")");
     return 0;

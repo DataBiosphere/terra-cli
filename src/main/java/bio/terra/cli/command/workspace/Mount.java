@@ -20,8 +20,12 @@ public class Mount implements Callable<Integer> {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
-    new AuthenticationManager(globalContext).requireCurrentTerraUser();
+    AuthenticationManager authenticationManager =
+        new AuthenticationManager(globalContext, workspaceContext);
+    authenticationManager.loginTerraUser();
     new WorkspaceManager(globalContext, workspaceContext).mountWorkspace(workspaceId);
+    authenticationManager.fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
+
     System.out.println(
         "Workspace successfully mounted. (" + workspaceContext.getWorkspaceId() + ")");
     return 0;

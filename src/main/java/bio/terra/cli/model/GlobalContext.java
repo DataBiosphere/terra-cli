@@ -103,16 +103,19 @@ public class GlobalContext {
     return terraUserOpt.get();
   }
 
-  /** Setter for the current Terra user. Persists on disk. */
-  @JsonIgnore
-  public void setCurrentTerraUser(TerraUser currentTerraUser) {
-    if (terraUsers.get(currentTerraUser.cliGeneratedUserKey) == null) {
-      throw new RuntimeException(
-          "Terra user "
-              + currentTerraUser.terraUserName
-              + " not found in the list of known identity contexts.");
+  /**
+   * Add a new Terra user to the list of identity contexts, or update an existing one. Optionally
+   * update the current user. Persists on disk.
+   */
+  public void addOrUpdateTerraUser(TerraUser terraUser, boolean setAsCurrentUser) {
+    if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
+      logger.info("Terra user {} already exists, updating.", terraUser.terraUserName);
     }
-    currentTerraUserKey = currentTerraUser.cliGeneratedUserKey;
+    terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
+
+    if (setAsCurrentUser) {
+      currentTerraUserKey = terraUser.cliGeneratedUserKey;
+    }
 
     writeToFile();
   }
@@ -122,12 +125,7 @@ public class GlobalContext {
    * disk.
    */
   public void addOrUpdateTerraUser(TerraUser terraUser) {
-    if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
-      logger.info("Terra user {} already exists, updating.", terraUser.terraUserName);
-    }
-    terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
-
-    writeToFile();
+    addOrUpdateTerraUser(terraUser, false);
   }
 
   // ====================================================

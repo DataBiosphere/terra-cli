@@ -1,17 +1,16 @@
 package bio.terra.cli.app.supported;
 
 import bio.terra.cli.app.ToolsManager;
-import bio.terra.cli.model.GlobalContext;
 
 /**
  * This class contains logic related to running the supported tool gcloud. There's no need for any
  * special setup or teardown logic since gcloud is already initialized when the container starts.
  */
-public class GcloudHelper implements SupportedToolHelper {
+public class GcloudHelper extends SupportedToolHelper {
 
-  /** Run the tool inside the Docker container for external applications/tools. */
-  public String run(GlobalContext globalContext, String[] cmdArgs) {
+  /** Run gcloud in the Docker container. */
+  public String run(String[] cmdArgs) {
     String fullCommand = buildFullCommand("gcloud", cmdArgs);
-    return new ToolsManager(globalContext).runToolCommand(fullCommand);
+    return new ToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
   }
 }

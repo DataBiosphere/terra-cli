@@ -2,6 +2,7 @@ package bio.terra.cli.app;
 
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.TerraUser;
+import bio.terra.cli.model.WorkspaceContext;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -33,13 +34,15 @@ public class ToolsManager {
   private static final Logger logger = LoggerFactory.getLogger(ToolsManager.class);
 
   private final GlobalContext globalContext;
+  private final WorkspaceContext workspaceContext;
   private DockerClient dockerClient;
 
   // This is where the pet key files will be mounted on the Docker container.
   public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
-  public ToolsManager(GlobalContext globalContext) {
+  public ToolsManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
+    this.workspaceContext = workspaceContext;
     this.dockerClient = null;
   }
 
@@ -85,7 +88,12 @@ public class ToolsManager {
     logger.info("docker run status code: {}", statusCode);
 
     // read the container logs, which contains the command output
-    return getLogsForDockerContainer(containerId);
+    String logs = getLogsForDockerContainer(containerId);
+
+    // delete the container
+    deleteDockerContainer(containerId);
+
+    return logs;
   }
 
   /** Build the Docker client object with standard options. */
@@ -125,15 +133,14 @@ public class ToolsManager {
     final String terraInitScript = "chmod a+x /usr/local/bin/terra_init.sh && terra_init.sh";
     String fullCommand = terraInitScript + " && " + command;
 
-    // the terra_init script relies on environment variables to pass in (global and workspace)
+    // the terra_init script relies on environment variables to pass in global and workspace
     // context information
     Map<String, String> terraInitEnvVars = new HashMap<>();
-    // TODO: get the google project id from the workspace context object
-    String googleProjectId = "terra-cli-poc-1";
+    String googleProjectId = workspaceContext.getGoogleProject();
     terraInitEnvVars.put(
         "PET_KEY_FILE",
         PET_KEYS_MOUNT_POINT + "/" + currentUser.getPetKeyFile(googleProjectId).getName());
-    terraInitEnvVars.put("GOOGLE_PROJECT_ID", "terra-cli-poc-1");
+    terraInitEnvVars.put("GOOGLE_PROJECT_ID", googleProjectId);
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
         throw new RuntimeException(
@@ -232,6 +239,11 @@ public class ToolsManager {
       logger.error("Error reading logs for Docker container.", intEx);
       return "<ERROR READING CONTAINER LOGS>";
     }
+  }
+
+  /** Delete the Docker container. */
+  private void deleteDockerContainer(String containerId) {
+    dockerClient.removeContainerCmd(containerId).exec();
   }
 
   /** Helper class for reading Docker container logs into a string. */

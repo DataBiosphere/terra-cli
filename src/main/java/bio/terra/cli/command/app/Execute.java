@@ -1,7 +1,9 @@
 package bio.terra.cli.command.app;
 
+import bio.terra.cli.app.AuthenticationManager;
 import bio.terra.cli.app.ToolsManager;
 import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -23,15 +25,18 @@ public class Execute implements Callable<Integer> {
   private String[] cmdArgs;
 
   @Override
-  public Integer call() throws InterruptedException {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
+    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     String fullCommand = cmd;
     if (cmdArgs != null && cmdArgs.length > 0) {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
-    String cmdOutput = new ToolsManager(globalContext).runToolCommand(fullCommand);
+    String cmdOutput =
+        new ToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
     System.out.println(cmdOutput);
 
     System.out.println("App command execution successful. (" + fullCommand + ")");

@@ -1,6 +1,8 @@
 package bio.terra.cli.command.app;
 
+import bio.terra.cli.app.AuthenticationManager;
 import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -16,9 +18,12 @@ public class Stop implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    // TODO: should we also delete the image on any call to stop?
     GlobalContext globalContext = GlobalContext.readFromFile();
-    appName.getToolHelper().stop(globalContext);
+    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    appName.getToolHelper(globalContext, workspaceContext).stop();
+
     System.out.println(appName.toString() + " successfully stopped.");
     return 0;
   }

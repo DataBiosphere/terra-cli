@@ -24,7 +24,7 @@ public class AddUser implements Callable<Integer> {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
-    new AuthenticationManager(globalContext).requireCurrentTerraUser();
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     new WorkspaceManager(globalContext, workspaceContext).addUserToWorkspace(userEmail, iamRole);
     System.out.println(
         "User successfully added to workspace. (" + userEmail + " : " + iamRole + ")");

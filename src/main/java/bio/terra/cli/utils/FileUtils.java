@@ -107,13 +107,14 @@ public class FileUtils {
   }
 
   /** Create the file and any parent directories if they don't already exist. */
+  @SuppressFBWarnings(
+      value = "RV_RETURN_VALUE_IGNORED",
+      justification =
+          "A file not found exception will be thrown anyway in the calling method if the mkdirs or createNewFile calls fail.")
   public static void createFile(File file) throws IOException {
     if (!file.exists()) {
-      boolean mkdirsSuccessful = file.getParentFile().mkdirs();
-      boolean newFileCreationSuccessful = file.createNewFile();
-      if (!mkdirsSuccessful || !newFileCreationSuccessful) {
-        throw new RuntimeException("Error creating new file: " + file.getAbsolutePath());
-      }
+      file.getParentFile().mkdirs();
+      file.createNewFile();
     }
   }
 }
