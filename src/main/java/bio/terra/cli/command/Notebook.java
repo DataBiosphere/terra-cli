@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.notebook.Create;
+import bio.terra.cli.command.notebook.Delete;
 import picocli.CommandLine;
 
 /**
@@ -10,5 +11,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "notebook",
     description = "Commands related to AI Notebooks in the Terra workspace context.",
-    subcommands = {Create.class})
+    subcommands = {Create.class, Delete.class})
 public class Notebook {}
