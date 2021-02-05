@@ -23,7 +23,7 @@ import picocli.CommandLine.ParseResult;
       Gsutil.class,
       Bq.class,
       Nextflow.class,
-      Notebook.class,
+      Notebooks.class,
       CommandLine.HelpCommand.class
     },
     description = "MC Terra CLI")
