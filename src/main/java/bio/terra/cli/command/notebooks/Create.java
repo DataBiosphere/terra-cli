@@ -11,7 +11,9 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook create" command. */
-@CommandLine.Command(name = "create", description = "Create a new AI Notebook instance within your workspace.")
+@CommandLine.Command(
+    name = "create",
+    description = "Create a new AI Notebook instance within your workspace.")
 public class Create implements Callable<Integer> {
 
   @CommandLine.Parameters(
@@ -20,7 +22,7 @@ public class Create implements Callable<Integer> {
           "The unique name to give to the notebook instance. Cannot be changed later. "
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
               + "letters, numeric characters, and dashes. The first character must be a lowercase "
-          + "letter and the last character cannot be a dash.")
+              + "letter and the last character cannot be a dash.")
   private String instanceName;
 
   @CommandLine.Option(
@@ -82,19 +84,12 @@ public class Create implements Callable<Integer> {
     envVars.put("VM_IMAGE_FAMILY", vmImageFamily);
     // 'network' is the name of the VPC network instance created by the Buffer Service.
     // Instead of hard coding this, we could try to look up the name of the network on the project.
-    envVars.put(
-        "NETWORK", "projects/" + projectId + "/global/networks/network");
+    envVars.put("NETWORK", "projects/" + projectId + "/global/networks/network");
     // Assume the zone is related to the location like 'us-west1' is to 'us-west1-b'.
     String zone = location.substring(0, location.length() - 2);
     // Like 'network', 'subnetwork is the name of the subnetwork created by the Buffer Service in
     // each zone.
-    envVars.put(
-        "SUBNET",
-        "projects/"
-            + projectId
-            + "/regions/"
-            + zone
-            + "/subnetworks/subnetwork");
+    envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
 
     // TODO(PF-434): Stream back the docker container output.
     String logs =
@@ -103,8 +98,10 @@ public class Create implements Callable<Integer> {
                 command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
     System.out.println(logs);
-    System.out.println("Notebook creation in process. This will take ~5-10 minutes.\n" +
-            "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project=" + projectId);
+    System.out.println(
+        "Notebook creation in process. This will take ~5-10 minutes.\n"
+            + "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project="
+            + projectId);
     return 0;
   }
 }
