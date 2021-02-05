@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
+import java.io.File;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +51,19 @@ public class TerraUser {
     AccessToken accessToken = fetchUserAccessToken();
 
     // check if the token is expired
-    logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
+    logger.info("Access token expiration date: {}", accessToken.getExpirationTime());
     return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
   }
 
   /** Fetch the access token for the user credentials. */
   public AccessToken fetchUserAccessToken() {
     return AuthenticationUtils.getAccessToken(userCredentials);
+  }
+
+  /** Return a pointer to the pet key file for the given Google project id. */
+  public File getPetKeyFile(String googleProjectId) {
+    // TODO: move each user's keys into its own sub-directory (easier to mount on container), and
+    // maintain an index by project
+    return GlobalContext.resolvePetSaKeyDir().resolve(terraUserId).toFile();
   }
 }

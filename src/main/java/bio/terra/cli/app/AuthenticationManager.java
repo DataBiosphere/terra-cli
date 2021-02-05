@@ -2,10 +2,12 @@ package bio.terra.cli.app;
 
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.TerraUser;
+import bio.terra.cli.model.WorkspaceContext;
 import bio.terra.cli.utils.AuthenticationUtils;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.HttpUtils;
 import bio.terra.cli.utils.SamUtils;
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -37,10 +39,12 @@ public class AuthenticationManager {
 
   private static final String CLIENT_SECRET_FILENAME = "jadecli_client_secret.json";
 
-  private final GlobalContext globalContext;
+  private GlobalContext globalContext;
+  private WorkspaceContext workspaceContext;
 
-  public AuthenticationManager(GlobalContext globalContext) {
+  public AuthenticationManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
+    this.workspaceContext = workspaceContext;
   }
 
   /**
@@ -86,37 +90,11 @@ public class AuthenticationManager {
     // fetch the user information from SAM
     SamUtils.populateTerraUserInfo(terraUser, globalContext);
 
-    // fetch the pet SA credentials from SAM
-    HttpUtils.HttpResponse petSAKeySAMResponse = SamUtils.getPetSaKey(terraUser, globalContext);
-    if (petSAKeySAMResponse.statusCode != 200) {
-      logger.debug("SAM response to pet SA key request: {})", petSAKeySAMResponse.responseBody);
-      throw new RuntimeException(
-          "Error fetching pet SA key from SAM (status code = "
-              + petSAKeySAMResponse.statusCode
-              + ").");
-    }
-    try {
-      // persist it in the global context directory
-      Path jsonKeyFile =
-          FileUtils.writeStringToFile(
-              globalContext.resolvePetSAKeyDir(),
-              terraUser.terraUserId,
-              petSAKeySAMResponse.responseBody);
-
-      // create a credentials object from the key
-      ServiceAccountCredentials petSACredentials =
-          AuthenticationUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
-
-      terraUser.petSACredentials = petSACredentials;
-    } catch (IOException ioEx) {
-      logger.error("Error writing pet SA key to the global context directory.", ioEx);
-    }
+    // fetch the pet SA credentials if they don't already exist
+    fetchPetSaCredentials(terraUser);
 
     // update the global context with the current user
-    // note that this state is persisted to disk. it will be useful for code called in the same or a
-    // later CLI command/process
-    globalContext.addOrUpdateTerraUser(terraUser);
-    globalContext.setCurrentTerraUser(terraUser);
+    globalContext.addOrUpdateTerraUser(terraUser, true);
   }
 
   /** Delete all credentials associated with the current Terra user. */
@@ -139,62 +117,101 @@ public class AuthenticationManager {
           globalContext.resolveGlobalContextDir().toFile());
 
       // delete the pet SA credentials
-      File jsonKeyFile =
-          globalContext.resolvePetSAKeyDir().resolve(currentTerraUser.terraUserId).toFile();
-      if (!jsonKeyFile.delete()) {
-        throw new RuntimeException("Failed to delete pet SA key file.");
-      }
+      deletePetSaCredentials(currentTerraUser);
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error deleting credentials.", ex);
     }
   }
 
   /**
-   * Populates user and SA credentials for the current Terra user. Returns early if no current Terra
-   * user has been set.
+   * Populates user and SA credentials, and user information for the current Terra user. If there is
+   * no current user defined, or their credentials are expired, then this method does not populate
+   * anything.
    */
   public void populateCurrentTerraUser() {
     Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
     if (!currentTerraUserOpt.isPresent()) {
-      logger.debug("There is no current Terra user defined in the global context.");
+      logger.info("There is no current Terra user defined in the global context.");
       return;
     }
     TerraUser currentTerraUser = currentTerraUserOpt.get();
 
-    // fetch the user credentials, prompt for login and consent if they do not already exist or are
-    // expired.
+    // fetch existing user credentials
     UserCredentials userCredentials;
     try (InputStream inputStream =
         AuthenticationManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
-      // if there are already credentials for this user, and they are not expired, then return them
-      // if there are no valid credentials for this user, then this method will return null
+      // fetch any non-expired existing credentials for this user
       userCredentials =
           AuthenticationUtils.getExistingUserCredential(
               currentTerraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
               globalContext.resolveGlobalContextDir().toFile());
+
+      // if there are no valid credentials, then return here because there's nothing to populate
+      if (userCredentials == null) {
+        return;
+      }
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error fetching user credentials.", ex);
     }
     currentTerraUser.userCredentials = userCredentials;
 
-    // if there are existing user credentials, then try to fetch the existing pet SA credentials
-    // also
-    if (userCredentials != null) {
-      File jsonKeyFile =
-          globalContext.resolvePetSAKeyDir().resolve(currentTerraUser.terraUserId).toFile();
-      if (!jsonKeyFile.exists() || !jsonKeyFile.isFile()) {
-        throw new RuntimeException("Pet SA key file not found.");
-      }
-      try {
-        ServiceAccountCredentials petSACredentials =
-            AuthenticationUtils.getServiceAccountCredential(jsonKeyFile, SCOPES);
-        currentTerraUser.petSACredentials = petSACredentials;
-      } catch (IOException ioEx) {
-        throw new RuntimeException("Error reading pet SA key file.", ioEx);
-      }
+    // fetch the user information from SAM
+    SamUtils.populateTerraUserInfo(currentTerraUser, globalContext);
+
+    // fetch the pet SA credentials if they don't already exist
+    fetchPetSaCredentials(currentTerraUser);
+
+    // update the global context with the populated information
+    globalContext.addOrUpdateTerraUser(currentTerraUser);
+  }
+
+  /** Fetch the pet SA credentials for the given user + current workspace. */
+  public void fetchPetSaCredentials(TerraUser terraUser) {
+    // if the current workspace is not defined, then we don't know which pet SA to fetch
+    if (workspaceContext.isEmpty()) {
+      logger.info("There is no current workspace defined.");
+      return;
+    }
+
+    // TODO: check if the key already exists before fetching it. need to store the project, not just
+    // the user
+
+    // ask SAM for the project-specific pet SA key
+    HttpUtils.HttpResponse petSaKeySamResponse =
+        SamUtils.getPetSaKeyForProject(terraUser, globalContext, workspaceContext);
+    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
+      logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
+      throw new RuntimeException(
+          "Error fetching pet SA key from SAM (status code = "
+              + petSaKeySamResponse.statusCode
+              + ").");
+    }
+    try {
+      // persist the key file in the global context directory
+      Path jsonKeyFile =
+          FileUtils.writeStringToFile(
+              globalContext.resolvePetSaKeyDir(),
+              terraUser.terraUserId,
+              petSaKeySamResponse.responseBody);
+
+      // create a credentials object from the key
+      ServiceAccountCredentials petSaCredentials =
+          AuthenticationUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
+
+      terraUser.petSACredentials = petSaCredentials;
+    } catch (IOException ioEx) {
+      logger.error("Error writing pet SA key to the global context directory.", ioEx);
+    }
+  }
+
+  /** Delete the pet SA credentials for the given user + current workspace. */
+  public void deletePetSaCredentials(TerraUser terraUser) {
+    File jsonKeyFile = globalContext.resolvePetSaKeyDir().resolve(terraUser.terraUserId).toFile();
+    if (!jsonKeyFile.delete() && jsonKeyFile.exists()) {
+      throw new RuntimeException("Failed to delete pet SA key file.");
     }
   }
 }

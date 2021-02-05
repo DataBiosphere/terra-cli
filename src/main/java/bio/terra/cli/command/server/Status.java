@@ -13,10 +13,14 @@ public class Status implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     System.out.println(
-        "Current server is " + globalContext.server.name + ": " + globalContext.server.description);
+        "Current server: "
+            + globalContext.server.name
+            + " ("
+            + globalContext.server.description
+            + ")");
 
     boolean serverIsOk = new ServerManager(globalContext).pingServerStatus();
-    System.out.println("Current server status: " + (serverIsOk ? "OKAY" : "ERROR CONNECTING"));
+    System.out.println("Server status: " + (serverIsOk ? "OKAY" : "ERROR CONNECTING"));
 
     return 0;
   }

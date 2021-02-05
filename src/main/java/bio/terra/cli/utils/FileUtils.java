@@ -58,12 +58,9 @@ public class FileUtils {
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 
     // create the file and any parent directories if they don't already exist
-    if (!outputFile.exists()) {
-      outputFile.getParentFile().mkdirs();
-      outputFile.createNewFile();
-    }
+    createFile(outputFile);
 
-    logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
+    logger.info("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
     objectWriter.writeValue(outputFile, javaObject);
   }
 
@@ -83,14 +80,11 @@ public class FileUtils {
       throws IOException {
     // get a reference to the file
     Path outputPath = directory.resolve(fileName);
-    logger.debug("Writing to file: {}", outputPath.toAbsolutePath());
+    logger.info("Writing to file: {}", outputPath.toAbsolutePath());
 
     // create the file and any parent directories if they don't already exist
     File outputFile = outputPath.toFile();
-    if (!outputFile.exists()) {
-      outputFile.getParentFile().mkdirs();
-      outputFile.createNewFile();
-    }
+    createFile(outputFile);
 
     return Files.write(
         directory.resolve(fileName), fileContents.getBytes(Charset.forName("UTF-8")));
@@ -110,5 +104,17 @@ public class FileUtils {
       throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
+  }
+
+  /** Create the file and any parent directories if they don't already exist. */
+  @SuppressFBWarnings(
+      value = "RV_RETURN_VALUE_IGNORED",
+      justification =
+          "A file not found exception will be thrown anyway in the calling method if the mkdirs or createNewFile calls fail.")
+  public static void createFile(File file) throws IOException {
+    if (!file.exists()) {
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+    }
   }
 }

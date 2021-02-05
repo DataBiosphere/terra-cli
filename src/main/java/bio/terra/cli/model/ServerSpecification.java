@@ -56,7 +56,7 @@ public class ServerSpecification {
       server = objectMapper.readValue(inputStream, ServerSpecification.class);
     } catch (FileNotFoundException fnfEx) {
       // second treat the [filename] as an absolute path
-      logger.debug(
+      logger.info(
           "Server file ({}) not found in resource directory, now trying as absolute path.",
           fileName);
       server = FileUtils.readFileIntoJavaObject(new File(fileName), ServerSpecification.class);

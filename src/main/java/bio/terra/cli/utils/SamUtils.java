@@ -3,6 +3,7 @@ package bio.terra.cli.utils;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
+import bio.terra.cli.model.WorkspaceContext;
 import com.google.auth.oauth2.AccessToken;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
@@ -128,12 +129,13 @@ public class SamUtils {
   }
 
   /**
-   * Call the SAM "/api/google/v1/user/petServiceAccount/key" endpoint to get the pet SA key for the
-   * current user (i.e. the one whose credentials were supplied to the apiClient object).
+   * Call the SAM "/api/google/v1/user/petServiceAccount/key" endpoint to get an arbitrary pet SA
+   * key for the current user (i.e. the one whose credentials were supplied to the apiClient
+   * object).
    *
    * @return the HTTP response to the SAM request
    */
-  public static HttpUtils.HttpResponse getPetSaKey(
+  public static HttpUtils.HttpResponse getArbitraryPetSaKey(
       TerraUser terraUser, GlobalContext globalContext) {
     // The code below should be changed to use the SAM client library. For example:
     //   GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -147,7 +149,37 @@ public class SamUtils {
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (Exception ex) {
-      logger.error("Error getting pet SA key from SAM.", ex);
+      logger.error("Error getting arbitrary pet SA key from SAM.", ex);
+      return null;
+    }
+  }
+
+  /**
+   * Call the SAM "/api/google/v1/user/petServiceAccount/{project}/key" endpoint to get a
+   * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
+   * to the apiClient object).
+   *
+   * @return the HTTP response to the SAM request
+   */
+  public static HttpUtils.HttpResponse getPetSaKeyForProject(
+      TerraUser terraUser, GlobalContext globalContext, WorkspaceContext workspaceContext) {
+    // The code below should be changed to use the SAM client library. For example:
+    //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
+    //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
+    //  samGoogleApi.getPetServiceAccount(workspaceContext.getGoogleProject());
+    // But I couldn't get this to work. The ApiClient throws an exception, I think in parsing the
+    // response. So for now, this is making a direct (i.e. without the client library) HTTP request
+    // to get the key file contents.
+    try {
+      String apiEndpoint =
+          globalContext.server.samUri
+              + "/api/google/v1/user/petServiceAccount/"
+              + workspaceContext.getGoogleProject()
+              + "/key";
+      String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
+      return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+    } catch (Exception ex) {
+      logger.error("Error getting project-specific pet SA key from SAM.", ex);
       return null;
     }
   }

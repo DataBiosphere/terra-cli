@@ -1,5 +1,6 @@
 package bio.terra.cli.model;
 
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.app.ServerManager;
 import bio.terra.cli.utils.FileUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,10 +28,14 @@ public class GlobalContext {
   // global server context = service uris, environment name
   public ServerSpecification server;
 
+  // global apps context = docker image id or tag
+  public String dockerImageId;
+
+  // file paths related to persisting the global context on disk
   private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
-      Paths.get(System.getProperty("user.home"), ".terra-cli");
-  private static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
-  private static final String PET_KEYS_DIRNAME = "pet_keys";
+      Paths.get(System.getProperty("user.home"), ".terra");
+  private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
+  private static final String PET_KEYS_DIRNAME = "pet-keys";
 
   private GlobalContext() {
     this.terraUsers = new HashMap<>();
@@ -61,6 +66,7 @@ public class GlobalContext {
     if (globalContext == null) {
       globalContext = new GlobalContext();
       globalContext.server = ServerManager.defaultServer();
+      globalContext.dockerImageId = DockerToolsManager.defaultImageId();
     }
 
     return globalContext;
@@ -87,16 +93,28 @@ public class GlobalContext {
     return Optional.of(terraUsers.get(currentTerraUserKey));
   }
 
-  /** Setter for the current Terra user. Persists on disk. */
-  @JsonIgnore
-  public void setCurrentTerraUser(TerraUser currentTerraUser) {
-    if (terraUsers.get(currentTerraUser.cliGeneratedUserKey) == null) {
-      throw new RuntimeException(
-          "Terra user "
-              + currentTerraUser.terraUserName
-              + " not found in the list of known identity contexts.");
+  /** Utility method that throws an exception if the current Terra user is not defined. */
+  public TerraUser requireCurrentTerraUser() {
+    Optional<TerraUser> terraUserOpt = getCurrentTerraUser();
+    if (!terraUserOpt.isPresent()) {
+      throw new RuntimeException("The current Terra user is not defined. Login required.");
     }
-    currentTerraUserKey = currentTerraUser.cliGeneratedUserKey;
+    return terraUserOpt.get();
+  }
+
+  /**
+   * Add a new Terra user to the list of identity contexts, or update an existing one. Optionally
+   * update the current user. Persists on disk.
+   */
+  public void addOrUpdateTerraUser(TerraUser terraUser, boolean setAsCurrentUser) {
+    if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
+      logger.info("Terra user {} already exists, updating.", terraUser.terraUserName);
+    }
+    terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
+
+    if (setAsCurrentUser) {
+      currentTerraUserKey = terraUser.cliGeneratedUserKey;
+    }
 
     writeToFile();
   }
@@ -106,12 +124,7 @@ public class GlobalContext {
    * disk.
    */
   public void addOrUpdateTerraUser(TerraUser terraUser) {
-    if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
-      logger.debug("Terra user {} already exists, updating.", terraUser.terraUserName);
-    }
-    terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
-
-    writeToFile();
+    addOrUpdateTerraUser(terraUser, false);
   }
 
   // ====================================================
@@ -126,10 +139,21 @@ public class GlobalContext {
   }
 
   // ====================================================
+  // Apps
+
+  /** Setter for the Docker image id. Persists on disk. */
+  public void updateDockerImageId(String dockerImageId) {
+    logger.debug("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
+    this.dockerImageId = dockerImageId;
+
+    writeToFile();
+  }
+
+  // ====================================================
   // Directory and file names
-  //   - top-level directory: $HOME/.terra-cli
-  //   - persisted global context file: global_context.json
-  //   - sub-directory for persisting pet SA keys: pet_SA_keys
+  //   - top-level directory: $HOME/.terra
+  //   - persisted global context file: global-context.json
+  //   - sub-directory for persisting pet SA keys: pet-keys
 
   /** Getter for the global context directory. */
   public static Path resolveGlobalContextDir() {
@@ -140,7 +164,7 @@ public class GlobalContext {
   /**
    * Getter for the sub-directory of the global context directory that holds the pet SA key files.
    */
-  public static Path resolvePetSAKeyDir() {
+  public static Path resolvePetSaKeyDir() {
     return resolveGlobalContextDir().resolve(PET_KEYS_DIRNAME);
   }
 
