@@ -56,6 +56,7 @@ public class Create implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+    workspaceContext.requireCurrentWorkspace();
 
     AuthenticationManager authenticationManager =
         new AuthenticationManager(globalContext, workspaceContext);
