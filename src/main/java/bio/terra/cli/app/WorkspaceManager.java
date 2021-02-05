@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** This class manipulates the workspace properties of the workspace context object. */
 public class WorkspaceManager {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManager.class);
 
@@ -68,7 +69,7 @@ public class WorkspaceManager {
     ApiClient wsmClient =
         WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
     WorkspaceDescription existingWorkspace =
-        WorkspaceManagerUtils.fetchWorkspace(wsmClient, workspaceIdParsed);
+        WorkspaceManagerUtils.getWorkspace(wsmClient, workspaceIdParsed);
     logger.info("existing workspace: id={}, {}", existingWorkspace.getId(), existingWorkspace);
 
     // update the workspace context with the current workspace

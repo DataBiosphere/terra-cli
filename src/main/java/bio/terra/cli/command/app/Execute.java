@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app;
 
 import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.ToolsManager;
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
@@ -36,7 +36,7 @@ public class Execute implements Callable<Integer> {
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
     String cmdOutput =
-        new ToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
+        new DockerToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
     System.out.println(cmdOutput);
 
     System.out.println("App command successfully executed: " + fullCommand);

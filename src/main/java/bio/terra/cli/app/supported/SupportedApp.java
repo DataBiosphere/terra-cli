@@ -10,7 +10,7 @@ public enum SupportedApp {
   gsutil(),
   nextflow(new NextflowHelper());
 
-  private SupportedToolHelper toolHelper;
+  private SupportedAppHelper toolHelper;
   public final boolean enableStopPattern;
 
   SupportedApp() {
@@ -18,12 +18,12 @@ public enum SupportedApp {
     this.toolHelper = null;
   }
 
-  SupportedApp(SupportedToolHelper toolHelper) {
+  SupportedApp(SupportedAppHelper toolHelper) {
     this.enableStopPattern = true;
     this.toolHelper = toolHelper;
   }
 
-  public SupportedToolHelper getToolHelper(
+  public SupportedAppHelper getToolHelper(
       GlobalContext globalContext, WorkspaceContext workspaceContext) {
     return toolHelper.setContext(globalContext, workspaceContext);
   }

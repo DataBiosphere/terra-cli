@@ -134,7 +134,7 @@ public class WorkspaceManagerUtils {
    *
    * @return the Workspace Manager workspace description object
    */
-  public static WorkspaceDescription fetchWorkspace(ApiClient apiClient, UUID workspaceId) {
+  public static WorkspaceDescription getWorkspace(ApiClient apiClient, UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     WorkspaceDescription workspaceWithContext = null;
     try {
@@ -158,7 +158,6 @@ public class WorkspaceManagerUtils {
    */
   public static void deleteWorkspace(ApiClient apiClient, UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
-    WorkspaceDescription workspaceWithContext = null;
     try {
       // delete the Terra workspace object
       workspaceApi.deleteWorkspace(workspaceId);

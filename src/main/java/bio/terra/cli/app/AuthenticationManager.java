@@ -180,28 +180,28 @@ public class AuthenticationManager {
     // the user
 
     // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSAKeySAMResponse =
+    HttpUtils.HttpResponse petSaKeySamResponse =
         SamUtils.getPetSaKeyForProject(terraUser, globalContext, workspaceContext);
-    if (!HttpStatusCodes.isSuccess(petSAKeySAMResponse.statusCode)) {
-      logger.info("SAM response to pet SA key request: {})", petSAKeySAMResponse.responseBody);
+    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
+      logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
       throw new RuntimeException(
           "Error fetching pet SA key from SAM (status code = "
-              + petSAKeySAMResponse.statusCode
+              + petSaKeySamResponse.statusCode
               + ").");
     }
     try {
       // persist the key file in the global context directory
       Path jsonKeyFile =
           FileUtils.writeStringToFile(
-              globalContext.resolvePetSAKeyDir(),
+              globalContext.resolvePetSaKeyDir(),
               terraUser.terraUserId,
-              petSAKeySAMResponse.responseBody);
+              petSaKeySamResponse.responseBody);
 
       // create a credentials object from the key
-      ServiceAccountCredentials petSACredentials =
+      ServiceAccountCredentials petSaCredentials =
           AuthenticationUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
 
-      terraUser.petSACredentials = petSACredentials;
+      terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {
       logger.error("Error writing pet SA key to the global context directory.", ioEx);
     }
@@ -209,7 +209,7 @@ public class AuthenticationManager {
 
   /** Delete the pet SA credentials for the given user + current workspace. */
   public void deletePetSaCredentials(TerraUser terraUser) {
-    File jsonKeyFile = globalContext.resolvePetSAKeyDir().resolve(terraUser.terraUserId).toFile();
+    File jsonKeyFile = globalContext.resolvePetSaKeyDir().resolve(terraUser.terraUserId).toFile();
     if (!jsonKeyFile.delete() && jsonKeyFile.exists()) {
       throw new RuntimeException("Failed to delete pet SA key file.");
     }
