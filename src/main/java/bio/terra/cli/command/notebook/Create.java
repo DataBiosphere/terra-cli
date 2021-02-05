@@ -11,14 +11,16 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook create" command. */
-@CommandLine.Command(name = "create", description = "Create a new AI Notebook instance.")
+@CommandLine.Command(name = "create", description = "Create a new AI Notebook instance within your workspace.")
 public class Create implements Callable<Integer> {
 
   @CommandLine.Parameters(
       index = "0",
       description =
           "The unique name to give to the notebook instance. Cannot be changed later. "
-              + "The instance name must be 1 to 63 characters long and contain only lowercase letters, numeric characters, and dashes. The first character must be a lowercase letter and the last character cannot be a dash.")
+              + "The instance name must be 1 to 63 characters long and contain only lowercase "
+              + "letters, numeric characters, and dashes. The first character must be a lowercase "
+          + "letter and the last character cannot be a dash.")
   private String instanceName;
 
   @CommandLine.Option(
@@ -101,7 +103,8 @@ public class Create implements Callable<Integer> {
                 command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
     System.out.println(logs);
-    System.out.println("Notebook creation in process. This will take ~5-10 minutes.\nSee your notebooks at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project=" + projectId);
+    System.out.println("Notebook creation in process. This will take ~5-10 minutes.\n" +
+            "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project=" + projectId);
     return 0;
   }
 }

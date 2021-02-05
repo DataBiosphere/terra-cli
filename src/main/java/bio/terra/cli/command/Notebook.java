@@ -9,6 +9,6 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "notebook",
-    description = "Commands related to applications in the Terra workspace context.",
+    description = "Commands related to AI Notebooks in the Terra workspace context.",
     subcommands = {Create.class})
 public class Notebook {}
