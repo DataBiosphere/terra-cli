@@ -1,5 +1,16 @@
 # terra-cli
 
+1. [Setup and run](#setup-and-run)
+2. [Requirements](#requirements)
+3. [Example usage](#example-usage)
+4. [Commands description](#commands-description)
+    * [Authentication](#authentication)
+    * [Server](#server)
+    * [Workspace](#workspace)
+    * [External tools](#external-tools)
+
+-----
+
 ### Setup and run
 From the top-level directory.
 ```
@@ -12,6 +23,8 @@ terra
 2. Docker 20.10.2 *
 
 * Other Docker versions may also work, but this is the only one tested so far.
+
+Make sure Docker is running.
 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
