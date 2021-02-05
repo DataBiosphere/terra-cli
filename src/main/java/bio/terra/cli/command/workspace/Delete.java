@@ -24,7 +24,7 @@ public class Delete implements Callable<Integer> {
         new WorkspaceManager(globalContext, workspaceContext).deleteWorkspace();
     authenticationManager.deletePetSaCredentials(globalContext.requireCurrentTerraUser());
 
-    System.out.println("Workspace successfully deleted. (" + workspaceIdDeleted + ")");
+    System.out.println("Workspace successfully deleted: " + workspaceIdDeleted);
     return 0;
   }
 }

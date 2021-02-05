@@ -36,18 +36,18 @@ terra auth login
 terra auth status
 ```
 
-Check the status of the Terra server.
+Ping the Terra server.
 ```
 terra server status
 ```
 
 Create an empty directory and change into it.
 Create a new Terra workspace (and backing Google project).
-Check the workspace status to confirm it was created successfully.
+Check the current workspace status to confirm it was created successfully.
 ```
 mkdir new-workspace; cd new-workspace
 terra workspace create
-terra workspace status
+terra status
 ```
 
 If you wanted to use an existing Terra workspace, use the mount command instead of create.
@@ -56,7 +56,7 @@ terra workspace mount eb0753f9-5c45-46b3-b3b4-80b4c7bea248
 ```
 
 Call the Gcloud CLI tools within the workspace context.
-This means the commands are executed for the workspace project and as the current user.
+This means the commands are executed against the workspace project and as the current user.
 ```
 terra gcloud config get-value project
 terra gsutil ls
@@ -70,31 +70,33 @@ terra app enable nextflow
 terra nextflow run hello
 ```
 
-(External) tools launched via the CLI run in a Docker image. Print the image tag that the CLI is currently using.
+See the list of supported (external) tools.
+The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
 ```
+terra app list
 terra app get-image
 ```
 
 ### Commands description
 ```
 Usage: terra [COMMAND]
-MC Terra CLI
+Terra CLI
 Commands:
+  status     Print details about the current workspace.
   auth       Commands related to the retrieval and management of user
                credentials.
   server     Commands related to the Terra server.
   workspace  Commands related to the Terra workspace.
   app        Commands related to applications in the Terra workspace context.
-  help       Displays help information about the specified command
 ```
 
-There are four groups of commands:
+The `status` command prints details about the current workspace and server.
+
+Each sub-group of commands is described in a sub-section below:
 - Authentication
 - Server
 - Workspace
 - App
-
-Each group is described in a sub-section below.
 
 #### Authentication
 ```
@@ -132,7 +134,6 @@ The server is part of the global context, so this value applies across workspace
 Usage: terra workspace [COMMAND]
 Commands related to the Terra workspace.
 Commands:
-  status    Print details about the current workspace context.
   create    Create a new workspace.
   mount     Mount an existing workspace to the current directory.
   delete    Delete an existing workspace.
@@ -158,6 +159,6 @@ Commands:
                Terra workspace, with no setup.
 ```
 
-The Terra CLI allows running "supported" external tools within the context of a workspace.
-Nextflow and the Gcloud CLI are the first examples of "supported" tools.
-Thinking about what it means to "support" a new tool is currently evolving.
+The Terra CLI allows running supported external tools within the context of a workspace.
+Nextflow and the Gcloud CLIs are the first examples of supported tools.
+Exactly what it means to be a "supported" tool is still under discussion.

@@ -21,10 +21,10 @@ public class Set implements Callable<Integer> {
     new ServerManager(globalContext).updateServer(serverName);
 
     if (globalContext.server.equals(prevServer)) {
-      System.out.println("Terra server unchanged from " + globalContext.server.name + ".");
+      System.out.println("Terra server: " + globalContext.server.name + " (UNCHANGED)");
     } else {
       System.out.println(
-          "Terra server changed from " + prevServer.name + " to " + globalContext.server.name);
+          "Terra server: " + globalContext.server.name + " (CHANGED FROM " + prevServer.name + ")");
     }
 
     return 0;

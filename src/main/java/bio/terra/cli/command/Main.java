@@ -15,6 +15,7 @@ import picocli.CommandLine.ParseResult;
 @Command(
     name = "terra",
     subcommands = {
+      Status.class,
       Auth.class,
       Server.class,
       Workspace.class,
@@ -22,10 +23,9 @@ import picocli.CommandLine.ParseResult;
       Gcloud.class,
       Gsutil.class,
       Bq.class,
-      Nextflow.class,
-      CommandLine.HelpCommand.class
+      Nextflow.class
     },
-    description = "MC Terra CLI")
+    description = "Terra CLI")
 class Main implements Runnable {
 
   /**

@@ -26,7 +26,7 @@ public abstract class SupportedToolHelper {
   public void stop() {}
 
   /** Utility method for concatenating a command and its arguments. */
-  static String buildFullCommand(String cmd, String[] cmdArgs) {
+  public static String buildFullCommand(String cmd, String[] cmdArgs) {
     String fullCommand = cmd;
     if (cmdArgs != null && cmdArgs.length > 0) {
       final String argSeparator = " ";

@@ -1,14 +1,18 @@
 # terra-cli
 
-1. [Code structure](#code-structure)
-2. [Docker](#docker)
-3. [Servers](#servers)
-4. [Command structure](#command-structure)
-5. [Model and manager classes](#model-and-manager-classes)
-6. [Supported tools](#supported-tools)
-7. [Utility methods](#utility-methods)
+1. [Logging](#logging)
+2. [Code structure](#code-structure)
+    * [Docker](#docker)
+    * [Servers](#servers)
+    * [Command structure](#command-structure)
+    * [Model and manager classes](#model-and-manager-classes)
+    * [Supported tools](#supported-tools)
+    * [Utility methods](#utility-methods)
 
 -----
+
+### Logging
+Logging is turned off by default. Modify the root level in the `src/main/resources/logback.xml` file to turn it on (e.g. `INFO`).
 
 ### Code structure
 Below is an outline of the directory structure. Details about each are included in the sub-sections below.
@@ -62,6 +66,8 @@ Most of the top-level commands (e.g. `auth`, `server`, `workspace`) are strictly
 doesn't do anything.
 An empty class body with child commands defined in the annotation creates such a grouping command.
 
+Supported tools are currently children of the top-level command, but are hidden from the usage help.
+
 #### Model and manager classes
 The `src/main/java/bio/terra/cli/model/` directory contains the objects that represent the current state.
 Since the CLI Java code exits after each command, this state is persisted on disk by the `GlobalContext` and 
@@ -72,14 +78,16 @@ The `src/main/java/bio/terra/cli/app/` directory contains `*Manager` classes tha
 #### Supported tools
 The `src/main/java/bio/terra/cli/app/supported/` directory contains (external) tools that the CLI supports.
 Currently these tools can be called from the top-level, so it looks the same as it would if you called it on your 
-local terminal, only with `terra` prefixed. For example:
+local terminal, only with a `terra` prefix. For example:
 ```
 terra gsutil ls
 terra bq version
 terra nextflow run hello
 ```
 
-This is the section that is most likely to evolve significantly.
+These tools are collected in the `SupportedApp` enum class, which also tracks whether they follow the enable/stop pattern.
+
+This section of the code is likely to evolve significantly.
 
 #### Utility methods
 The `src/main/java/bio/terra/cli/utils/` directory contains utility methods that are not strictly related to the CLI.

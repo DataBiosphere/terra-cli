@@ -117,6 +117,7 @@ public class WorkspaceManagerUtils {
             numJobPollingTries,
             workspaceWithContext.getId(),
             googleProjectId);
+        numJobPollingTries++;
         if (googleProjectId == null) {
           Thread.sleep(1000);
         }

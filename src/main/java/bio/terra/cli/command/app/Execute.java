@@ -39,7 +39,7 @@ public class Execute implements Callable<Integer> {
         new ToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
     System.out.println(cmdOutput);
 
-    System.out.println("App command execution successful. (" + fullCommand + ")");
+    System.out.println("App command successfully executed: " + fullCommand);
 
     return 0;
   }

@@ -25,10 +25,10 @@ public class SetImage implements Callable<Integer> {
     new ToolsManager(globalContext, workspaceContext).updateImageId(imageId);
 
     if (globalContext.dockerImageId.equals(prevImageId)) {
-      System.out.println("Docker image unchanged from " + globalContext.dockerImageId + ".");
+      System.out.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");
     } else {
       System.out.println(
-          "Docker image changed from " + prevImageId + " to " + globalContext.dockerImageId);
+          "Docker image: " + prevImageId + " (CHANGED FROM " + globalContext.dockerImageId + ")");
     }
 
     return 0;
