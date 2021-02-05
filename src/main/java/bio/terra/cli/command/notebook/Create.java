@@ -96,7 +96,7 @@ public class Create implements Callable<Integer> {
             + zone
             + "/subnetworks/subnetwork");
 
-    // TODO: Is there anyway to stream back the output?
+    // TODO(PF-434): Stream back the docker container output.
     String logs =
         new ToolsManager(globalContext, workspaceContext)
             .runToolCommand(
