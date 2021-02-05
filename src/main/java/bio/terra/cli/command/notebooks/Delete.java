@@ -1,7 +1,7 @@
 package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.ToolsManager;
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.WorkspaceContext;
 import java.util.HashMap;
@@ -28,6 +28,7 @@ public class Delete implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+    workspaceContext.requireCurrentWorkspace();
 
     AuthenticationManager authenticationManager =
         new AuthenticationManager(globalContext, workspaceContext);
@@ -39,7 +40,7 @@ public class Delete implements Callable<Integer> {
     envVars.put("LOCATION", location);
 
     String logs =
-        new ToolsManager(globalContext, workspaceContext)
+        new DockerToolsManager(globalContext, workspaceContext)
             .runToolCommand(
                 command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
