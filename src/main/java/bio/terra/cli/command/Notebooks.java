@@ -1,7 +1,7 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.notebook.Create;
-import bio.terra.cli.command.notebook.Delete;
+import bio.terra.cli.command.notebooks.Create;
+import bio.terra.cli.command.notebooks.Delete;
 import picocli.CommandLine;
 
 /**
@@ -9,7 +9,7 @@ import picocli.CommandLine;
  * itself; it is just a grouping keyword for it sub-commands.
  */
 @CommandLine.Command(
-    name = "notebook",
+    name = "notebooks",
     description = "Commands related to AI Notebooks in the Terra workspace context.",
     subcommands = {Create.class, Delete.class})
-public class Notebook {}
+public class Notebooks {}

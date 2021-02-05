@@ -1,4 +1,4 @@
-package bio.terra.cli.command.notebook;
+package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.app.AuthenticationManager;
 import bio.terra.cli.app.ToolsManager;
