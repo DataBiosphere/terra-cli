@@ -16,8 +16,8 @@ public class AddUser implements Callable<Integer> {
   @CommandLine.Parameters(index = "0", description = "user email")
   private String userEmail;
 
-  @CommandLine.Parameters(index = "1", description = "IAM role to grant: ${COMPLETION-CANDIDATES}")
-  private IamRole iamRole;
+  @CommandLine.Parameters(index = "1", description = "Role to grant: ${COMPLETION-CANDIDATES}")
+  private IamRole role;
 
   @Override
   public Integer call() {
@@ -25,9 +25,8 @@ public class AddUser implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    new WorkspaceManager(globalContext, workspaceContext).addUserToWorkspace(userEmail, iamRole);
-    System.out.println(
-        "User successfully added to workspace. (" + userEmail + " : " + iamRole + ")");
+    new WorkspaceManager(globalContext, workspaceContext).addUserToWorkspace(userEmail, role);
+    System.out.println("User added to workspace: " + userEmail + ", " + role);
     return 0;
   }
 }

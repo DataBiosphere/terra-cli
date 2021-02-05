@@ -1,7 +1,7 @@
 package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.ToolsManager;
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.TerraUser;
 import bio.terra.cli.model.WorkspaceContext;
@@ -56,6 +56,7 @@ public class Create implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+    workspaceContext.requireCurrentWorkspace();
 
     AuthenticationManager authenticationManager =
         new AuthenticationManager(globalContext, workspaceContext);
@@ -93,13 +94,13 @@ public class Create implements Callable<Integer> {
 
     // TODO(PF-434): Stream back the docker container output.
     String logs =
-        new ToolsManager(globalContext, workspaceContext)
+        new DockerToolsManager(globalContext, workspaceContext)
             .runToolCommand(
                 command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
     System.out.println(logs);
     System.out.println(
-        "Notebook creation in process. This will take ~5-10 minutes.\n"
+        "Notebook instance starting. This will take ~5-10 minutes.\n"
             + "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project="
             + projectId);
     return 0;

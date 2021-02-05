@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * This class runs client-side tools and manipulates the tools-related properties of the global
  * context object.
  */
-public class ToolsManager {
-  private static final Logger logger = LoggerFactory.getLogger(ToolsManager.class);
+public class DockerToolsManager {
+  private static final Logger logger = LoggerFactory.getLogger(DockerToolsManager.class);
 
   private final GlobalContext globalContext;
   private final WorkspaceContext workspaceContext;
@@ -41,7 +41,7 @@ public class ToolsManager {
   // This is where the pet key files will be mounted on the Docker container.
   public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
-  public ToolsManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public DockerToolsManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
     this.dockerClient = null;
@@ -177,7 +177,7 @@ public class ToolsManager {
 
     // the terra_init script requires that the pet SA key file is accessible to it
     Map<String, File> terraInitBindMounts = new HashMap<>();
-    terraInitBindMounts.put(PET_KEYS_MOUNT_POINT, GlobalContext.resolvePetSAKeyDir().toFile());
+    terraInitBindMounts.put(PET_KEYS_MOUNT_POINT, GlobalContext.resolvePetSaKeyDir().toFile());
     for (Map.Entry<String, File> terraInitBindMount : terraInitBindMounts.entrySet()) {
       if (bindMounts.get(terraInitBindMount.getKey()) != null) {
         throw new RuntimeException(
@@ -257,7 +257,7 @@ public class ToolsManager {
           .logContainerCmd(containerId)
           .withStdOut(true)
           .withStdErr(true)
-          .exec(new ToolsManager.LogContainerTestCallback())
+          .exec(new DockerToolsManager.LogContainerTestCallback())
           .awaitCompletion()
           .toString();
     } catch (InterruptedException intEx) {

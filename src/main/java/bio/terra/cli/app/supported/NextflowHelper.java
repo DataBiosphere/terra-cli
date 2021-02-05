@@ -1,6 +1,6 @@
 package bio.terra.cli.app.supported;
 
-import bio.terra.cli.app.ToolsManager;
+import bio.terra.cli.app.DockerToolsManager;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class contains logic related to running the supported tool nextflow. */
-public class NextflowHelper extends SupportedToolHelper {
+public class NextflowHelper extends SupportedAppHelper {
   private static final Logger logger = LoggerFactory.getLogger(NextflowHelper.class);
 
   // Mount point for the nextflow sub-directory on the Docker container.
@@ -46,7 +46,7 @@ public class NextflowHelper extends SupportedToolHelper {
     bindMounts.put(NEXTFLOW_MOUNT_POINT, nextflowDir);
 
     String fullCommand = buildFullCommand("nextflow", cmdArgs);
-    return new ToolsManager(globalContext, workspaceContext)
+    return new DockerToolsManager(globalContext, workspaceContext)
         .runToolCommand(fullCommand, NEXTFLOW_MOUNT_POINT, new HashMap<>(), bindMounts);
   }
 

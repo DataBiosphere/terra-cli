@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+/** Utility methods for making raw HTTP requests (e.g. in place of using a client library). */
 public class HttpUtils {
 
   private HttpUtils() {}

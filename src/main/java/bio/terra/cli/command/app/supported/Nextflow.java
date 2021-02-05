@@ -9,7 +9,10 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra nextflow" command. */
-@Command(name = "nextflow", description = "Use the nextflow tool in the Terra workspace.")
+@Command(
+    name = "nextflow",
+    description = "Use the nextflow tool in the Terra workspace.",
+    hidden = true)
 public class Nextflow implements Callable<Integer> {
 
   @CommandLine.Unmatched private String[] cmdArgs;

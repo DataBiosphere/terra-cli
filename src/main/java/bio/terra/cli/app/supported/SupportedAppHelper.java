@@ -3,13 +3,14 @@ package bio.terra.cli.app.supported;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.WorkspaceContext;
 
-public abstract class SupportedToolHelper {
+/** This class specifies a multi-command model for using a supported app: enable, run, stop. */
+public abstract class SupportedAppHelper {
 
   GlobalContext globalContext;
   WorkspaceContext workspaceContext;
 
   /** Set the global and workspace context properties. */
-  public final SupportedToolHelper setContext(
+  public final SupportedAppHelper setContext(
       GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
@@ -26,7 +27,7 @@ public abstract class SupportedToolHelper {
   public void stop() {}
 
   /** Utility method for concatenating a command and its arguments. */
-  static String buildFullCommand(String cmd, String[] cmdArgs) {
+  public static String buildFullCommand(String cmd, String[] cmdArgs) {
     String fullCommand = cmd;
     if (cmdArgs != null && cmdArgs.length > 0) {
       final String argSeparator = " ";

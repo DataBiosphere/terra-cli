@@ -64,6 +64,6 @@ public class TerraUser {
   public File getPetKeyFile(String googleProjectId) {
     // TODO: move each user's keys into its own sub-directory (easier to mount on container), and
     // maintain an index by project
-    return GlobalContext.resolvePetSAKeyDir().resolve(terraUserId).toFile();
+    return GlobalContext.resolvePetSaKeyDir().resolve(terraUserId).toFile();
   }
 }
