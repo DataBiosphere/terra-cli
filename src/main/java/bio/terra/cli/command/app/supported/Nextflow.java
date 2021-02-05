@@ -1,9 +1,9 @@
 package bio.terra.cli.command.app.supported;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.supported.NextflowHelper;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.apps.NextflowRunner;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -23,8 +23,9 @@ public class Nextflow implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    String cmdOutput =
-        new NextflowHelper().setContext(globalContext, workspaceContext).run(cmdArgs);
+    NextflowRunner nextflowRunner = new NextflowRunner();
+    nextflowRunner.setContext(globalContext, workspaceContext);
+    String cmdOutput = nextflowRunner.run(cmdArgs);
     System.out.println(cmdOutput);
 
     return 0;

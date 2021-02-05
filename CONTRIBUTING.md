@@ -85,7 +85,12 @@ terra bq version
 terra nextflow run hello
 ```
 
-These tools are collected in the `SupportedApp` enum class, which also tracks whether they follow the enable/stop pattern.
+Tools can follow existing command patterns, such as `terra app enable [app name]` and `terra app stop [app name]`, by
+implementing the accompanying interface in `src/main/java/bio/terra/cli/apps/interfaces/` and updating the enum in the
+same class.
+
+Alternatively, tools can forgo this existing pattern altogether and just add new commands without implementing any of
+these interfaces.
 
 This section of the code is likely to evolve significantly.
 

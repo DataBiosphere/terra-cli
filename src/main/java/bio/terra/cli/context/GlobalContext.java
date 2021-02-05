@@ -1,8 +1,8 @@
-package bio.terra.cli.model;
+package bio.terra.cli.context;
 
-import bio.terra.cli.app.DockerToolsManager;
-import bio.terra.cli.app.ServerManager;
-import bio.terra.cli.utils.FileUtils;
+import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -66,7 +66,7 @@ public class GlobalContext {
     if (globalContext == null) {
       globalContext = new GlobalContext();
       globalContext.server = ServerManager.defaultServer();
-      globalContext.dockerImageId = DockerToolsManager.defaultImageId();
+      globalContext.dockerImageId = DockerAppsRunner.defaultImageId();
     }
 
     return globalContext;

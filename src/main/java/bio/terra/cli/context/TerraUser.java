@@ -1,6 +1,6 @@
-package bio.terra.cli.model;
+package bio.terra.cli.context;
 
-import bio.terra.cli.utils.AuthenticationUtils;
+import bio.terra.cli.auth.AuthenticationUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;

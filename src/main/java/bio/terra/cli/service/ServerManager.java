@@ -1,11 +1,11 @@
-package bio.terra.cli.app;
+package bio.terra.cli.service;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.ServerSpecification;
-import bio.terra.cli.utils.DataRepoUtils;
-import bio.terra.cli.utils.FileUtils;
-import bio.terra.cli.utils.SamUtils;
-import bio.terra.cli.utils.WorkspaceManagerUtils;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.service.utils.DataRepoUtils;
+import bio.terra.cli.service.utils.SamUtils;
+import bio.terra.cli.service.utils.WorkspaceManagerUtils;
 import bio.terra.datarepo.model.RepositoryStatusModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;

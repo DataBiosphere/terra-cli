@@ -1,9 +1,8 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.supported.SupportedApp;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,17 +14,17 @@ public class Stop implements Callable<Integer> {
   @CommandLine.Parameters(
       index = "0",
       description = "name of the application to stop: ${COMPLETION-CANDIDATES}")
-  private SupportedApp app;
+  private bio.terra.cli.apps.interfaces.Stop.StopApp app;
 
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
-    if (app.enableStopPattern) {
-      new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-      app.getToolHelper(globalContext, workspaceContext).stop();
-    }
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    bio.terra.cli.apps.interfaces.Stop appHelper = app.getAppHelper();
+    appHelper.setContext(globalContext, workspaceContext);
+    appHelper.stop();
 
     System.out.println("Application successfully stopped: " + app.toString());
     return 0;

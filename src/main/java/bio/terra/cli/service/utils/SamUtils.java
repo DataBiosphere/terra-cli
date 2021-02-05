@@ -1,9 +1,9 @@
-package bio.terra.cli.utils;
+package bio.terra.cli.service.utils;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.ServerSpecification;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import com.google.auth.oauth2.AccessToken;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;

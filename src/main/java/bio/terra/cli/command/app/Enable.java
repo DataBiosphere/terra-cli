@@ -1,9 +1,8 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.supported.SupportedApp;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,17 +14,17 @@ public class Enable implements Callable<Integer> {
   @CommandLine.Parameters(
       index = "0",
       description = "name of the application to enable: ${COMPLETION-CANDIDATES}")
-  private SupportedApp app;
+  private bio.terra.cli.apps.interfaces.Enable.EnableApp app;
 
   @Override
   public Integer call() {
-    if (app.enableStopPattern) {
-      GlobalContext globalContext = GlobalContext.readFromFile();
-      WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+    GlobalContext globalContext = GlobalContext.readFromFile();
+    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
-      new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-      app.getToolHelper(globalContext, workspaceContext).enable();
-    }
+    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    bio.terra.cli.apps.interfaces.Enable appHelper = app.getAppHelper();
+    appHelper.setContext(globalContext, workspaceContext);
+    appHelper.enable();
 
     // TODO: should we also pull the image on any call to enable?
 

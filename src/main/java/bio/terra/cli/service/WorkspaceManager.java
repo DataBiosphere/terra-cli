@@ -1,9 +1,9 @@
-package bio.terra.cli.app;
+package bio.terra.cli.service;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
-import bio.terra.cli.utils.WorkspaceManagerUtils;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.service.utils.WorkspaceManagerUtils;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.WorkspaceDescription;

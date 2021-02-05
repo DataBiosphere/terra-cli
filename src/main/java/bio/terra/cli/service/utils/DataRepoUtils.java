@@ -1,7 +1,7 @@
-package bio.terra.cli.utils;
+package bio.terra.cli.service.utils;
 
-import bio.terra.cli.model.ServerSpecification;
-import bio.terra.cli.model.TerraUser;
+import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.TerraUser;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;
 import bio.terra.datarepo.model.RepositoryConfigurationModel;

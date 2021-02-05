@@ -1,12 +1,11 @@
-package bio.terra.cli.app;
+package bio.terra.cli.auth;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
-import bio.terra.cli.utils.AuthenticationUtils;
-import bio.terra.cli.utils.FileUtils;
-import bio.terra.cli.utils.HttpUtils;
-import bio.terra.cli.utils.SamUtils;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.service.utils.SamUtils;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
