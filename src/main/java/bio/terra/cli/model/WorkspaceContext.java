@@ -21,8 +21,8 @@ public class WorkspaceContext {
   public WorkspaceDescription terraWorkspaceModel;
 
   // file paths related to persisting the workspace context on disk
-  private static final Path WORKSPACE_CONTEXT_DIR = Paths.get("", ".terra-cli");
-  private static final String WORKSPACE_CONTEXT_FILENAME = "workspace_context.json";
+  private static final Path WORKSPACE_CONTEXT_DIR = Paths.get("", ".terra");
+  private static final String WORKSPACE_CONTEXT_FILENAME = "workspace-context.json";
 
   private WorkspaceContext() {
     this.terraWorkspaceModel = null;

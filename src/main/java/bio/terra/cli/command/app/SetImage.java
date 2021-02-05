@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.app.ToolsManager;
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.model.GlobalContext;
 import bio.terra.cli.model.WorkspaceContext;
 import java.util.concurrent.Callable;
@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra app set-image" command. */
 @Command(
     name = "set-image",
-    description = "Set the Docker image to use for launching applications.")
+    description = "[FOR DEBUG] Set the Docker image to use for launching applications.")
 public class SetImage implements Callable<Integer> {
 
   @CommandLine.Parameters(index = "0", description = "image id or tag")
@@ -22,13 +22,13 @@ public class SetImage implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     String prevImageId = globalContext.dockerImageId;
-    new ToolsManager(globalContext, workspaceContext).updateImageId(imageId);
+    new DockerToolsManager(globalContext, workspaceContext).updateImageId(imageId);
 
     if (globalContext.dockerImageId.equals(prevImageId)) {
-      System.out.println("Docker image unchanged from " + globalContext.dockerImageId + ".");
+      System.out.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");
     } else {
       System.out.println(
-          "Docker image changed from " + prevImageId + " to " + globalContext.dockerImageId);
+          "Docker image: " + prevImageId + " (CHANGED FROM " + globalContext.dockerImageId + ")");
     }
 
     return 0;

@@ -1,7 +1,7 @@
 package bio.terra.cli.model;
 
+import bio.terra.cli.app.DockerToolsManager;
 import bio.terra.cli.app.ServerManager;
-import bio.terra.cli.app.ToolsManager;
 import bio.terra.cli.utils.FileUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
@@ -33,9 +33,9 @@ public class GlobalContext {
 
   // file paths related to persisting the global context on disk
   private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
-      Paths.get(System.getProperty("user.home"), ".terra-cli");
-  private static final String GLOBAL_CONTEXT_FILENAME = "global_context.json";
-  private static final String PET_KEYS_DIRNAME = "pet_keys";
+      Paths.get(System.getProperty("user.home"), ".terra");
+  private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
+  private static final String PET_KEYS_DIRNAME = "pet-keys";
 
   private GlobalContext() {
     this.terraUsers = new HashMap<>();
@@ -66,7 +66,7 @@ public class GlobalContext {
     if (globalContext == null) {
       globalContext = new GlobalContext();
       globalContext.server = ServerManager.defaultServer();
-      globalContext.dockerImageId = ToolsManager.defaultImageId();
+      globalContext.dockerImageId = DockerToolsManager.defaultImageId();
     }
 
     return globalContext;
@@ -151,9 +151,9 @@ public class GlobalContext {
 
   // ====================================================
   // Directory and file names
-  //   - top-level directory: $HOME/.terra-cli
-  //   - persisted global context file: global_context.json
-  //   - sub-directory for persisting pet SA keys: pet_SA_keys
+  //   - top-level directory: $HOME/.terra
+  //   - persisted global context file: global-context.json
+  //   - sub-directory for persisting pet SA keys: pet-keys
 
   /** Getter for the global context directory. */
   public static Path resolveGlobalContextDir() {
@@ -164,7 +164,7 @@ public class GlobalContext {
   /**
    * Getter for the sub-directory of the global context directory that holds the pet SA key files.
    */
-  public static Path resolvePetSAKeyDir() {
+  public static Path resolvePetSaKeyDir() {
     return resolveGlobalContextDir().resolve(PET_KEYS_DIRNAME);
   }
 

@@ -22,8 +22,7 @@ public class Create implements Callable<Integer> {
     new WorkspaceManager(globalContext, workspaceContext).createWorkspace();
     authenticationManager.fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
 
-    System.out.println(
-        "Workspace successfully created. (" + workspaceContext.getWorkspaceId() + ")");
+    System.out.println("Workspace successfully created: " + workspaceContext.getWorkspaceId());
     return 0;
   }
 }

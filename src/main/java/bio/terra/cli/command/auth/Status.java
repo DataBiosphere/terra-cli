@@ -22,19 +22,14 @@ public class Status implements Callable<Integer> {
 
     // check if current user is defined
     if (!currentTerraUserOpt.isPresent()) {
-      System.out.println("There is no current Terra user defined.");
+      System.out.println("No current Terra user defined.");
       return 0;
     }
     TerraUser currentTerraUser = currentTerraUserOpt.get();
+    System.out.println("Current Terra user: " + currentTerraUser.terraUserName);
 
     // check if the current user needs to re-authenticate (i.e. is logged out)
-    if (currentTerraUser.requiresReauthentication()) {
-      System.out.println(
-          "The current Terra user (" + currentTerraUser.terraUserName + ") is logged out.");
-    } else {
-      System.out.println(
-          "The current Terra user (" + currentTerraUser.terraUserName + ") is logged in.");
-    }
+    System.out.println("LOGGED " + (currentTerraUser.requiresReauthentication() ? "OUT" : "IN"));
 
     return 0;
   }
