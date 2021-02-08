@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
-/** This class corresponds to the third-level "terra notebook create" command. */
+/** This class corresponds to the third-level "terra notebooks create" command. */
 @CommandLine.Command(
     name = "create",
     description = "Create a new AI Notebook instance within your workspace.")
@@ -64,8 +64,9 @@ public class Create implements Callable<Integer> {
     TerraUser user = globalContext.requireCurrentTerraUser();
     String projectId = workspaceContext.getGoogleProject();
 
+    // See https://cloud.google.com/sdk/gcloud/reference/notebooks/instances/create
     String command =
-        "gcloud beta notebooks instances create $INSTANCE_NAME "
+        "gcloud notebooks instances create $INSTANCE_NAME "
             + "--location=$LOCATION "
             + "--instance-owners=$USER_EMAIL "
             + "--service-account=$SERVICE_ACCOUNT "
@@ -74,7 +75,10 @@ public class Create implements Callable<Integer> {
             + "--vm-image-family=$VM_IMAGE_FAMILY "
             + "--network=$NETWORK "
             + "--subnet=$SUBNET "
-            + "--metadata=^:^enable-oslogin=TRUE:installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz";
+            // The metadata installed-extensions causes the AI Notebooks setup to install some
+            // Google JupyterLab extensions. Found by manual inspection of what is created with the
+            // cloud console GUI.
+            + "--metadata=^:^installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz";
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
