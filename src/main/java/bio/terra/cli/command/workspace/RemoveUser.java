@@ -26,7 +26,7 @@ public class RemoveUser implements Callable<Integer> {
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     new WorkspaceManager(globalContext, workspaceContext).removeUserFromWorkspace(userEmail, role);
-    System.out.println("User removed to workspace: " + userEmail + ", " + role);
+    System.out.println("User removed from workspace: " + userEmail + ", " + role);
     return 0;
   }
 }
