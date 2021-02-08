@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
-/** This class corresponds to the third-level "terra notebook delete" command. */
+/** This class corresponds to the third-level "terra notebooks delete" command. */
 @CommandLine.Command(
     name = "delete",
     description = "Delete an AI Notebook instance within your workspace.")
