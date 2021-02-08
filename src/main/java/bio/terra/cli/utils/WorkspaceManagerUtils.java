@@ -2,13 +2,17 @@ package bio.terra.cli.utils;
 
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
+import bio.terra.workspace.api.JobsApi;
 import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
-import bio.terra.workspace.model.CreateGoogleContextRequestBody;
+import bio.terra.workspace.model.CloudContext;
+import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
+import bio.terra.workspace.model.JobControl;
+import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -86,6 +90,7 @@ public class WorkspaceManagerUtils {
    */
   public static WorkspaceDescription createWorkspace(ApiClient apiClient) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    JobsApi jobsApi = new JobsApi(apiClient);
     WorkspaceDescription workspaceWithContext = null;
     try {
       // create the Terra workspace object
@@ -98,30 +103,38 @@ public class WorkspaceManagerUtils {
 
       // create the Google project that backs the Terra workspace object
       UUID jobId = UUID.randomUUID();
-      CreateGoogleContextRequestBody contextRequestBody = new CreateGoogleContextRequestBody();
-      contextRequestBody.setJobId(jobId.toString());
-      workspaceApi.createGoogleContext(contextRequestBody, workspaceId);
+      CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
+      cloudContextRequest.setCloudContext(CloudContext.GOOGLE);
+      cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
+      workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
 
-      // poll the get workspace endpoint until the project id property is populated
+      // poll the job result endpoint until the job status is completed
       final int MAX_JOB_POLLING_TRIES = 120; // maximum 120 seconds sleep
       int numJobPollingTries = 1;
-      String googleProjectId;
+      JobReport jobReport;
       do {
-        workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
-        googleProjectId =
-            (workspaceWithContext.getGoogleContext() == null)
-                ? null
-                : workspaceWithContext.getGoogleContext().getProjectId();
         logger.info(
-            "job polling try #{}, workspace context: {}, project id: {}",
+            "job polling try #{}, workspace id: {}, job id: {}",
             numJobPollingTries,
-            workspaceWithContext.getId(),
-            googleProjectId);
+            workspaceId,
+            jobId);
+        jobReport = jobsApi.retrieveJob(jobId.toString());
+        logger.debug("create workspace jobReport: {}", jobReport);
         numJobPollingTries++;
-        if (googleProjectId == null) {
+        if (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)) {
           Thread.sleep(1000);
         }
-      } while (googleProjectId == null && numJobPollingTries < MAX_JOB_POLLING_TRIES);
+      } while (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)
+          && numJobPollingTries < MAX_JOB_POLLING_TRIES);
+
+      if (jobReport.getStatus().equals(JobReport.StatusEnum.FAILED)) {
+        logger.error("Job to create a new workspace failed");
+      } else if (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)) {
+        logger.error("Job to create a new workspace timed out in the CLI");
+      }
+
+      // call the get workspace endpoint to get the full description object
+      workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
     } catch (Exception ex) {
       logger.error("Error creating a new workspace", ex);
     }
