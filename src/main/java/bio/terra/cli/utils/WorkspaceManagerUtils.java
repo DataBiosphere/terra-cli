@@ -8,6 +8,7 @@ import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.model.CloudContext;
 import bio.terra.workspace.model.CreateCloudContextRequest;
+import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
@@ -111,25 +112,28 @@ public class WorkspaceManagerUtils {
       // poll the job result endpoint until the job status is completed
       final int MAX_JOB_POLLING_TRIES = 120; // maximum 120 seconds sleep
       int numJobPollingTries = 1;
-      JobReport jobReport;
+      CreateCloudContextResult cloudContextResult;
+      JobReport.StatusEnum jobReportStatus;
       do {
         logger.info(
             "job polling try #{}, workspace id: {}, job id: {}",
             numJobPollingTries,
             workspaceId,
             jobId);
-        jobReport = jobsApi.retrieveJob(jobId.toString());
-        logger.debug("create workspace jobReport: {}", jobReport);
+        cloudContextResult = workspaceApi.createCloudContextResult(workspaceId, jobId.toString());
+        jobReportStatus = cloudContextResult.getJobReport().getStatus();
+        logger.debug("create workspace cloudContextResult: {}", cloudContextResult);
         numJobPollingTries++;
-        if (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)) {
+        if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
           Thread.sleep(1000);
         }
-      } while (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)
+      } while (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)
           && numJobPollingTries < MAX_JOB_POLLING_TRIES);
 
-      if (jobReport.getStatus().equals(JobReport.StatusEnum.FAILED)) {
-        logger.error("Job to create a new workspace failed");
-      } else if (jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING)) {
+      if (jobReportStatus.equals(JobReport.StatusEnum.FAILED)) {
+        logger.error(
+            "Job to create a new workspace failed: {}", cloudContextResult.getErrorReport());
+      } else if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
         logger.error("Job to create a new workspace timed out in the CLI");
       }
 
