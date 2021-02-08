@@ -4,7 +4,7 @@ import bio.terra.cli.command.notebooks.Create;
 import picocli.CommandLine;
 
 /**
- * This class corresponds to the second-level "terra notebook" command. This command is not valid by
+ * This class corresponds to the second-level "terra notebooks" command. This command is not valid by
  * itself; it is just a grouping keyword for it sub-commands.
  */
 @CommandLine.Command(
