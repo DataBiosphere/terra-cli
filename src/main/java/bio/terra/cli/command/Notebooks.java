@@ -1,0 +1,14 @@
+package bio.terra.cli.command;
+
+import bio.terra.cli.command.notebooks.Create;
+import picocli.CommandLine;
+
+/**
+ * This class corresponds to the second-level "terra notebooks" command. This command is not valid by
+ * itself; it is just a grouping keyword for it sub-commands.
+ */
+@CommandLine.Command(
+    name = "notebooks",
+    description = "Commands related to AI Notebooks in the Terra workspace context.",
+    subcommands = {Create.class})
+public class Notebooks {}
