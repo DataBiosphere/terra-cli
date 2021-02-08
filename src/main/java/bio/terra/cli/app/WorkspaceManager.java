@@ -6,6 +6,7 @@ import bio.terra.cli.model.WorkspaceContext;
 import bio.terra.cli.utils.WorkspaceManagerUtils;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.model.IamRole;
+import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -107,8 +108,11 @@ public class WorkspaceManager {
   }
 
   /**
-   * Add a user to the workspace that is mounted to the current directory.
+   * Add a user to the workspace that is mounted to the current directory. Possible roles are
+   * defined by the WSM client library.
    *
+   * @param userEmail the user to add
+   * @param iamRole the role to assign the user
    * @throws RuntimeException if there is no workspace currently mounted
    */
   public void addUserToWorkspace(String userEmail, IamRole iamRole) {
@@ -128,5 +132,50 @@ public class WorkspaceManager {
         workspaceContext.getWorkspaceId(),
         userEmail,
         iamRole);
+  }
+
+  /**
+   * Remove a user + role from the workspace that is mounted to the current directory. Possible
+   * roles are defined by the WSM client library.
+   *
+   * @param userEmail the user to remove
+   * @param iamRole the role to remove from the user
+   * @throws RuntimeException if there is no workspace currently mounted
+   */
+  public void removeUserFromWorkspace(String userEmail, IamRole iamRole) {
+    // check that there is a workspace currently mounted
+    workspaceContext.requireCurrentWorkspace();
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to remove a user + role from the existing workspace
+    ApiClient wsmClient =
+        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
+    WorkspaceManagerUtils.removeIamRole(
+        wsmClient, workspaceContext.getWorkspaceId(), userEmail, iamRole);
+    logger.info(
+        "removed user from workspace: id={}, user={}, role={}",
+        workspaceContext.getWorkspaceId(),
+        userEmail,
+        iamRole);
+  }
+
+  /**
+   * List the roles in a workspace and all the users that have each role.
+   *
+   * @return a map of roles to the list of users that have that role
+   */
+  public RoleBindingList listUsersOfWorkspace() {
+    // check that there is a workspace currently mounted
+    workspaceContext.requireCurrentWorkspace();
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to get the users + roles for the existing workspace
+    ApiClient wsmClient =
+        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
+    return WorkspaceManagerUtils.getRoles(wsmClient, workspaceContext.getWorkspaceId());
   }
 }

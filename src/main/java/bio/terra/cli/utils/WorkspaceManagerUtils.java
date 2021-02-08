@@ -9,6 +9,7 @@ import bio.terra.workspace.model.CreateGoogleContextRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
+import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -49,6 +50,7 @@ public class WorkspaceManagerUtils {
    * Call the Workspace Manager "/version" endpoint to get the version of the server that is
    * currently running.
    *
+   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager version object
    */
   public static SystemVersion getVersion(ApiClient apiClient) {
@@ -65,6 +67,7 @@ public class WorkspaceManagerUtils {
   /**
    * Call the Workspace Manager "/status" endpoint to get the status of the server.
    *
+   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager status object
    */
   public static SystemStatus getStatus(ApiClient apiClient) {
@@ -82,6 +85,7 @@ public class WorkspaceManagerUtils {
    * Call the Workspace Manager "/api/workspaces/v1" endpoint to create a new workspace, then poll
    * the "/api/workspaces/v1/{id}" endpoint until the Google context project id is populated.
    *
+   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager workspace description object
    */
   public static WorkspaceDescription createWorkspace(ApiClient apiClient) {
@@ -132,6 +136,8 @@ public class WorkspaceManagerUtils {
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
    *
+   * @param apiClient the WSM client with credentials set
+   * @param workspaceId the id of the workspace to fetch
    * @return the Workspace Manager workspace description object
    */
   public static WorkspaceDescription getWorkspace(ApiClient apiClient, UUID workspaceId) {
@@ -155,6 +161,9 @@ public class WorkspaceManagerUtils {
   /**
    * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}" endpoint to delete an existing
    * workspace.
+   *
+   * @param apiClient the WSM client with credentials set
+   * @param workspaceId the id of the workspace to delete
    */
   public static void deleteWorkspace(ApiClient apiClient, UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
@@ -167,8 +176,13 @@ public class WorkspaceManagerUtils {
   }
 
   /**
-   * Call the Workspace Manager "/api/workspaces/v1/{id}/roles/{role}/members" endpoint to grant an
-   * IAM role.
+   * Call the Workspace Manager POST "/api/workspaces/v1/{id}/roles/{role}/members" endpoint to
+   * grant an IAM role.
+   *
+   * @param apiClient the WSM client with credentials set
+   * @param workspaceId the workspace to update
+   * @param userEmail the user email to add
+   * @param iamRole the role to assign
    */
   public static void grantIamRole(
       ApiClient apiClient, UUID workspaceId, String userEmail, IamRole iamRole) {
@@ -179,5 +193,43 @@ public class WorkspaceManagerUtils {
     } catch (Exception ex) {
       logger.error("Error granting IAM role on workspace", ex);
     }
+  }
+
+  /**
+   * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}/roles/{role}/members/{memberEmail}"
+   * endpoint to remove an IAM role.
+   *
+   * @param apiClient the WSM client with credentials set
+   * @param workspaceId the workspace to update
+   * @param userEmail the user email to remove
+   * @param iamRole the role to remove
+   */
+  public static void removeIamRole(
+      ApiClient apiClient, UUID workspaceId, String userEmail, IamRole iamRole) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      workspaceApi.removeRole(workspaceId, iamRole, userEmail);
+    } catch (Exception ex) {
+      logger.error("Error removing IAM role on workspace", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager "/api/workspace/v1/{id}/roles" endpoint to get a list of roles and
+   * their members.
+   *
+   * @param apiClient the WSM client with credentials set
+   * @param workspaceId the workspace to query
+   * @return a list of roles and the users that have them
+   */
+  public static RoleBindingList getRoles(ApiClient apiClient, UUID workspaceId) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    RoleBindingList roleBindings = null;
+    try {
+      roleBindings = workspaceApi.getRoles(workspaceId);
+    } catch (Exception ex) {
+      logger.error("Error granting IAM role on workspace", ex);
+    }
+    return roleBindings;
   }
 }
