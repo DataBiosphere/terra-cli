@@ -2,7 +2,6 @@ package bio.terra.cli.utils;
 
 import bio.terra.cli.model.ServerSpecification;
 import bio.terra.cli.model.TerraUser;
-import bio.terra.workspace.api.JobsApi;
 import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
@@ -91,7 +90,6 @@ public class WorkspaceManagerUtils {
    */
   public static WorkspaceDescription createWorkspace(ApiClient apiClient) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
-    JobsApi jobsApi = new JobsApi(apiClient);
     WorkspaceDescription workspaceWithContext = null;
     try {
       // create the Terra workspace object
