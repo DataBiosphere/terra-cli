@@ -108,7 +108,7 @@ public class GlobalContext {
    */
   public void addOrUpdateTerraUser(TerraUser terraUser, boolean setAsCurrentUser) {
     if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
-      logger.info("Terra user {} already exists, updating.", terraUser.terraUserName);
+      logger.info("Terra user {} already exists, updating.", terraUser.terraUserEmail);
     }
     terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
 

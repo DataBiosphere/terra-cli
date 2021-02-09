@@ -82,7 +82,7 @@ public class Create implements Callable<Integer> {
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
-    envVars.put("USER_EMAIL", user.terraUserName);
+    envVars.put("USER_EMAIL", user.terraUserEmail);
     envVars.put("SERVICE_ACCOUNT", user.petSACredentials.getClientEmail());
     envVars.put("MACHINE_TYPE", machineType);
     envVars.put("VM_IMAGE_PROJECT", vmImageProject);

@@ -19,7 +19,7 @@ public class Login implements Callable<Integer> {
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     System.out.println(
-        "Login successful: " + globalContext.requireCurrentTerraUser().terraUserName);
+        "Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail);
     return 0;
   }
 }

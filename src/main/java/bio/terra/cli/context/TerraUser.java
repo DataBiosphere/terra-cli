@@ -28,7 +28,7 @@ public class TerraUser {
 
   // This field stores the name that Terra associates with this user. The CLI queries SAM for a
   // user's email to populate this field.
-  public String terraUserName;
+  public String terraUserEmail;
 
   @JsonIgnore public UserCredentials userCredentials;
   @JsonIgnore public ServiceAccountCredentials petSACredentials;

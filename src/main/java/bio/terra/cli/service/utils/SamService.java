@@ -129,7 +129,7 @@ public class SamService {
   public void populateTerraUserInfo() {
     UserStatusInfo samUserInfo = getUserInfo();
     terraUser.terraUserId = samUserInfo.getUserSubjectId();
-    terraUser.terraUserName = samUserInfo.getUserEmail();
+    terraUser.terraUserEmail = samUserInfo.getUserEmail();
   }
 
   /** Try to close the connection pool after we're finished with this SAM request. */
