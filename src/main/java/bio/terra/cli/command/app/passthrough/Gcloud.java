@@ -1,4 +1,4 @@
-package bio.terra.cli.command.app.supported;
+package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.auth.AuthenticationManager;
@@ -9,9 +9,12 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the second-level "terra bq" command. */
-@Command(name = "bq", description = "Use the bq tool in the Terra workspace.", hidden = true)
-public class Bq implements Callable<Integer> {
+/** This class corresponds to the second-level "terra gcloud" command. */
+@Command(
+    name = "gcloud",
+    description = "Use the gcloud tool in the Terra workspace.",
+    hidden = true)
+public class Gcloud implements Callable<Integer> {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
@@ -21,9 +24,9 @@ public class Bq implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    String fullCommand = DockerAppsRunner.buildFullCommand("bq", cmdArgs);
+    String fullCommand = DockerAppsRunner.buildFullCommand("gcloud", cmdArgs);
 
-    // no need for any special setup or teardown logic since bq is already initialized when the
+    // no need for any special setup or teardown logic since gcloud is already initialized when the
     // container starts
     String cmdOutput =
         new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);

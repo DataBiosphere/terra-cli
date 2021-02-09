@@ -1,6 +1,5 @@
-package bio.terra.cli.command.app.supported;
+package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
@@ -9,12 +8,12 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the second-level "terra gsutil" command. */
+/** This class corresponds to the second-level "terra nextflow" command. */
 @Command(
-    name = "gsutil",
-    description = "Use the gsutil tool in the Terra workspace.",
+    name = "nextflow",
+    description = "Use the nextflow tool in the Terra workspace.",
     hidden = true)
-public class Gsutil implements Callable<Integer> {
+public class Nextflow implements Callable<Integer> {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
@@ -24,12 +23,8 @@ public class Gsutil implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    String fullCommand = DockerAppsRunner.buildFullCommand("gsutil", cmdArgs);
-
-    // no need for any special setup or teardown logic since gsutil is already initialized when the
-    // container starts
     String cmdOutput =
-        new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
+        new bio.terra.cli.apps.Nextflow(globalContext, workspaceContext).run(cmdArgs);
     System.out.println(cmdOutput);
 
     return 0;
