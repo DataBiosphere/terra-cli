@@ -61,7 +61,7 @@ dependencies {
 
         // terra libraries
         samClient = "0.1-9435410-SNAP"
-        workspaceManagerClient = "0.9.0-SNAPSHOT"
+        workspaceManagerClient = "0.10.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
