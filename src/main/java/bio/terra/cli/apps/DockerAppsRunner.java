@@ -272,9 +272,9 @@ public class DockerAppsRunner {
   }
 
   /** Utility method for concatenating a command and its arguments. */
-  public static String buildFullCommand(String cmd, String[] cmdArgs) {
+  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
     String fullCommand = cmd;
-    if (cmdArgs != null && cmdArgs.length > 0) {
+    if (cmdArgs != null && cmdArgs.size() > 0) {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }

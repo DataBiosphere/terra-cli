@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class NextflowRunner implements Enable, Stop {
   }
 
   /** Run nextflow in the Docker container. */
-  public String run(String[] cmdArgs) {
+  public String run(List<String> cmdArgs) {
     // mount the nextflow sub-directory of the current directory
     File nextflowDir = DEFAULT_NEXTFLOW_DIR.toFile();
     logger.info("nextflowDir: {}, exists: {}", nextflowDir.getAbsolutePath(), nextflowDir.exists());

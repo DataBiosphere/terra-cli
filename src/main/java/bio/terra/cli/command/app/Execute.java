@@ -4,6 +4,7 @@ import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
+import java.util.List;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,11 +19,7 @@ public class Execute implements Callable<Integer> {
   @CommandLine.Parameters(index = "0", paramLabel = "command", description = "command to execute")
   private String cmd;
 
-  @CommandLine.Parameters(
-      index = "1..*",
-      paramLabel = "arguments",
-      description = "command arguments")
-  private String[] cmdArgs;
+  @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
   public Integer call() {
@@ -31,7 +28,7 @@ public class Execute implements Callable<Integer> {
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     String fullCommand = cmd;
-    if (cmdArgs != null && cmdArgs.length > 0) {
+    if (cmdArgs != null && cmdArgs.size() > 0) {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
