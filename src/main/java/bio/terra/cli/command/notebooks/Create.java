@@ -1,10 +1,10 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.DockerToolsManager;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -98,7 +98,7 @@ public class Create implements Callable<Integer> {
 
     // TODO(PF-434): Stream back the docker container output.
     String logs =
-        new DockerToolsManager(globalContext, workspaceContext)
+        new DockerAppsRunner(globalContext, workspaceContext)
             .runToolCommand(
                 command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 

@@ -144,10 +144,8 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to remove a user + role from the existing workspace
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    WorkspaceManagerUtils.removeIamRole(
-        wsmClient, workspaceContext.getWorkspaceId(), userEmail, iamRole);
+    new WorkspaceManagerService(globalContext.server, currentUser)
+        .removeIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
         "removed user from workspace: id={}, user={}, role={}",
         workspaceContext.getWorkspaceId(),
@@ -168,8 +166,7 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to get the users + roles for the existing workspace
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    return WorkspaceManagerUtils.getRoles(wsmClient, workspaceContext.getWorkspaceId());
+    return new WorkspaceManagerService(globalContext.server, currentUser)
+        .getRoles(workspaceContext.getWorkspaceId());
   }
 }

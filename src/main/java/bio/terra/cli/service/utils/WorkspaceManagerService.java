@@ -73,7 +73,6 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager "/version" endpoint to get the version of the server that is
    * currently running.
    *
-   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager version object
    */
   public SystemVersion getVersion() {
@@ -90,7 +89,6 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager "/status" endpoint to get the status of the server.
    *
-   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager status object
    */
   public SystemStatus getStatus() {
@@ -108,7 +106,6 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager "/api/workspaces/v1" endpoint to create a new workspace, then poll
    * the "/api/workspaces/v1/{id}" endpoint until the Google context project id is populated.
    *
-   * @param apiClient the WSM client with credentials set
    * @return the Workspace Manager workspace description object
    */
   public WorkspaceDescription createWorkspace() {
@@ -170,7 +167,6 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
    *
-   * @param apiClient the WSM client with credentials set
    * @param workspaceId the id of the workspace to fetch
    * @return the Workspace Manager workspace description object
    */
@@ -196,7 +192,6 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}" endpoint to delete an existing
    * workspace.
    *
-   * @param apiClient the WSM client with credentials set
    * @param workspaceId the id of the workspace to delete
    */
   public void deleteWorkspace(UUID workspaceId) {
@@ -213,7 +208,6 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager POST "/api/workspaces/v1/{id}/roles/{role}/members" endpoint to
    * grant an IAM role.
    *
-   * @param apiClient the WSM client with credentials set
    * @param workspaceId the workspace to update
    * @param userEmail the user email to add
    * @param iamRole the role to assign
@@ -232,13 +226,11 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}/roles/{role}/members/{memberEmail}"
    * endpoint to remove an IAM role.
    *
-   * @param apiClient the WSM client with credentials set
    * @param workspaceId the workspace to update
    * @param userEmail the user email to remove
    * @param iamRole the role to remove
    */
-  public static void removeIamRole(
-      ApiClient apiClient, UUID workspaceId, String userEmail, IamRole iamRole) {
+  public void removeIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       workspaceApi.removeRole(workspaceId, iamRole, userEmail);
@@ -251,11 +243,10 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager "/api/workspace/v1/{id}/roles" endpoint to get a list of roles and
    * their members.
    *
-   * @param apiClient the WSM client with credentials set
    * @param workspaceId the workspace to query
    * @return a list of roles and the users that have them
    */
-  public static RoleBindingList getRoles(ApiClient apiClient, UUID workspaceId) {
+  public RoleBindingList getRoles(UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     RoleBindingList roleBindings = null;
     try {
