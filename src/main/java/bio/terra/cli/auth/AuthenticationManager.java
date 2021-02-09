@@ -5,7 +5,7 @@ import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.utils.HttpUtils;
-import bio.terra.cli.service.utils.SamUtils;
+import bio.terra.cli.service.utils.SamService;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
@@ -87,7 +87,7 @@ public class AuthenticationManager {
     terraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    SamUtils.populateTerraUserInfo(terraUser, globalContext);
+    new SamService(globalContext.server, terraUser).populateTerraUserInfo();
 
     // fetch the pet SA credentials if they don't already exist
     fetchPetSaCredentials(terraUser);
@@ -158,7 +158,7 @@ public class AuthenticationManager {
     currentTerraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    SamUtils.populateTerraUserInfo(currentTerraUser, globalContext);
+    new SamService(globalContext.server, currentTerraUser).populateTerraUserInfo();
 
     // fetch the pet SA credentials if they don't already exist
     fetchPetSaCredentials(currentTerraUser);
@@ -180,7 +180,7 @@ public class AuthenticationManager {
 
     // ask SAM for the project-specific pet SA key
     HttpUtils.HttpResponse petSaKeySamResponse =
-        SamUtils.getPetSaKeyForProject(terraUser, globalContext, workspaceContext);
+        new SamService(globalContext.server, terraUser).getPetSaKeyForProject(workspaceContext);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
       throw new RuntimeException(

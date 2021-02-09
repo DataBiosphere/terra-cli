@@ -3,16 +3,15 @@ package bio.terra.cli.service;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.utils.FileUtils;
-import bio.terra.cli.service.utils.DataRepoUtils;
-import bio.terra.cli.service.utils.SamUtils;
-import bio.terra.cli.service.utils.WorkspaceManagerUtils;
+import bio.terra.cli.service.utils.DataRepoService;
+import bio.terra.cli.service.utils.SamService;
+import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.datarepo.model.RepositoryStatusModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,18 +58,14 @@ public class ServerManager {
 
   /** Ping the service URLs to check their status. Return true if all return OK. */
   public boolean pingServerStatus() {
-    ApiClient samClient = SamUtils.getClientForTerraUser(null, globalContext.server);
-    SystemStatus samStatus = SamUtils.getStatus(samClient);
+    SystemStatus samStatus = new SamService(globalContext.server).getStatus();
     logger.info("SAM status: {}", samStatus);
 
-    bio.terra.workspace.client.ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(null, globalContext.server);
-    bio.terra.workspace.model.SystemStatus wsmStatus = WorkspaceManagerUtils.getStatus(wsmClient);
+    bio.terra.workspace.model.SystemStatus wsmStatus =
+        new WorkspaceManagerService(globalContext.server).getStatus();
     logger.info("Workspace Manager status: {}", wsmStatus);
 
-    bio.terra.datarepo.client.ApiClient tdrClient =
-        DataRepoUtils.getClientForTerraUser(null, globalContext.server);
-    RepositoryStatusModel tdrStatus = DataRepoUtils.getStatus(tdrClient);
+    RepositoryStatusModel tdrStatus = new DataRepoService(globalContext.server).getStatus();
     logger.info("Data Repo status: {}", tdrStatus);
 
     return (samStatus != null && samStatus.getOk())
