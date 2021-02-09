@@ -34,7 +34,7 @@ public class NextflowHelper extends SupportedAppHelper {
   }
 
   /** Run nextflow in the Docker container. */
-  public String run(String[] cmdArgs) {
+  public void run(String[] cmdArgs) {
     // mount the nextflow sub-directory of the current directory
     File nextflowDir = DEFAULT_NEXTFLOW_DIR.toFile();
     logger.info("nextflowDir: {}, exists: {}", nextflowDir.getAbsolutePath(), nextflowDir.exists());
@@ -46,7 +46,7 @@ public class NextflowHelper extends SupportedAppHelper {
     bindMounts.put(NEXTFLOW_MOUNT_POINT, nextflowDir);
 
     String fullCommand = buildFullCommand("nextflow", cmdArgs);
-    return new DockerToolsManager(globalContext, workspaceContext)
+    new DockerToolsManager(globalContext, workspaceContext)
         .runToolCommand(fullCommand, NEXTFLOW_MOUNT_POINT, new HashMap<>(), bindMounts);
   }
 

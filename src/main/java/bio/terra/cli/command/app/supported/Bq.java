@@ -25,9 +25,7 @@ public class Bq implements Callable<Integer> {
 
     // no need for any special setup or teardown logic since bq is already initialized when the
     // container starts
-    String cmdOutput =
-        new DockerToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
-    System.out.println(cmdOutput);
+    new DockerToolsManager(globalContext, workspaceContext).runToolCommand(fullCommand);
 
     return 0;
   }

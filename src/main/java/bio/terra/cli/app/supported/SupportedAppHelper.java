@@ -21,7 +21,7 @@ public abstract class SupportedAppHelper {
   public void enable() {}
 
   /** Run the tool inside the Docker container for external applications/tools. */
-  public abstract String run(String[] cmdArgs);
+  public abstract void run(String[] cmdArgs);
 
   /** Do any command-specific teardown. */
   public void stop() {}
