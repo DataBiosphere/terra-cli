@@ -267,7 +267,7 @@ public class DockerToolsManager {
   }
 
   /**
-   * Read the Docker container logs into a string.
+   * Read the Docker container logs and write them to standard out.
    *
    * @param containerId id of the container
    */
