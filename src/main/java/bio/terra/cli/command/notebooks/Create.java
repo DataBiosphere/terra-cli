@@ -29,7 +29,7 @@ public class Create implements Callable<Integer> {
       names = "location",
       defaultValue = "us-central1-a",
       description =
-          "The Google Cloud location to create the instance within, by default '${DEFAULT-VALUE}'.")
+          "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
   private String location;
 
   @CommandLine.Option(
