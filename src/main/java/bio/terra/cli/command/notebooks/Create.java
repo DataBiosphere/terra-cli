@@ -28,7 +28,7 @@ public class Create implements Callable<Integer> {
   @CommandLine.Option(
       names = "location",
       defaultValue = "us-central1-a",
-      description = "The Google Cloud location to create the instance within, e.g. us-central1-a")
+      description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
   private String location;
 
   @CommandLine.Option(
