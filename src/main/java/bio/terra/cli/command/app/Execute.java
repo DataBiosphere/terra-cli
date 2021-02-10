@@ -32,9 +32,7 @@ public class Execute implements Callable<Integer> {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
-    String cmdOutput =
-        new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
-    System.out.println(cmdOutput);
+    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
 
     System.out.println("App command successfully executed: " + fullCommand);
 

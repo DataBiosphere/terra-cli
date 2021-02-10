@@ -23,9 +23,7 @@ public class Nextflow implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    String cmdOutput =
-        new bio.terra.cli.apps.Nextflow(globalContext, workspaceContext).run(cmdArgs);
-    System.out.println(cmdOutput);
+    new bio.terra.cli.apps.Nextflow(globalContext, workspaceContext).run(cmdArgs);
 
     return 0;
   }

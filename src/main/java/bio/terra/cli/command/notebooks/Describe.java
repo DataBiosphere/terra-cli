@@ -40,12 +40,10 @@ public class Describe implements Callable<Integer> {
     envVars.put("LOCATION", location);
 
     // TODO(wchamber): Consider reformatting the ouptut or otherwise highlighting the proxy uri.
-    String logs =
-        new DockerAppsRunner(globalContext, workspaceContext)
-            .runToolCommand(
-                command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
+    new DockerAppsRunner(globalContext, workspaceContext)
+        .runToolCommand(
+            command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
-    System.out.println(logs);
     return 0;
   }
 }

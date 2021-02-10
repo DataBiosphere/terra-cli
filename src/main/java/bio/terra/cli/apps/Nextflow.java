@@ -37,14 +37,14 @@ public class Nextflow {
    *
    * @param cmdArgs command arguments to pass through to nextflow
    */
-  public String run(List<String> cmdArgs) {
+  public void run(List<String> cmdArgs) {
     // mount the nextflow sub-directory of the current directory
     createSubDirectory();
     Map<String, File> bindMounts = new HashMap<>();
     bindMounts.put(NEXTFLOW_MOUNT_POINT, DEFAULT_NEXTFLOW_DIR.toFile());
 
     String fullCommand = DockerAppsRunner.buildFullCommand("nextflow", cmdArgs);
-    return new DockerAppsRunner(globalContext, workspaceContext)
+    new DockerAppsRunner(globalContext, workspaceContext)
         .runToolCommand(fullCommand, NEXTFLOW_MOUNT_POINT, new HashMap<>(), bindMounts);
   }
 

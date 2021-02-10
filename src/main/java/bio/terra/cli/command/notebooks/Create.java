@@ -96,13 +96,10 @@ public class Create implements Callable<Integer> {
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
 
-    // TODO(PF-434): Stream back the docker container output.
-    String logs =
-        new DockerAppsRunner(globalContext, workspaceContext)
-            .runToolCommand(
-                command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
+    new DockerAppsRunner(globalContext, workspaceContext)
+        .runToolCommand(
+            command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 
-    System.out.println(logs);
     System.out.println(
         "Notebook instance starting. This will take ~5-10 minutes.\n"
             + "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project="
