@@ -1,8 +1,8 @@
-package bio.terra.cli.app;
+package bio.terra.cli.apps;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * This class runs client-side tools and manipulates the tools-related properties of the global
  * context object.
  */
-public class DockerToolsManager {
-  private static final Logger logger = LoggerFactory.getLogger(DockerToolsManager.class);
+public class DockerAppsRunner {
+  private static final Logger logger = LoggerFactory.getLogger(DockerAppsRunner.class);
 
   private final GlobalContext globalContext;
   private final WorkspaceContext workspaceContext;
@@ -41,7 +41,7 @@ public class DockerToolsManager {
   // This is where the pet key files will be mounted on the Docker container.
   public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
-  public DockerToolsManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public DockerAppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
     this.dockerClient = null;
@@ -257,7 +257,7 @@ public class DockerToolsManager {
           .logContainerCmd(containerId)
           .withStdOut(true)
           .withStdErr(true)
-          .exec(new DockerToolsManager.LogContainerTestCallback())
+          .exec(new DockerAppsRunner.LogContainerTestCallback())
           .awaitCompletion()
           .toString();
     } catch (InterruptedException intEx) {
@@ -269,6 +269,16 @@ public class DockerToolsManager {
   /** Delete the Docker container. */
   private void deleteDockerContainer(String containerId) {
     dockerClient.removeContainerCmd(containerId).exec();
+  }
+
+  /** Utility method for concatenating a command and its arguments. */
+  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
+    String fullCommand = cmd;
+    if (cmdArgs != null && cmdArgs.size() > 0) {
+      final String argSeparator = " ";
+      fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
+    }
+    return fullCommand;
   }
 
   /** Helper class for reading Docker container logs into a string. */

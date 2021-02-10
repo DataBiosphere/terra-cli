@@ -1,6 +1,6 @@
-package bio.terra.cli.model;
+package bio.terra.cli.context;
 
-import bio.terra.cli.utils.FileUtils;
+import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;

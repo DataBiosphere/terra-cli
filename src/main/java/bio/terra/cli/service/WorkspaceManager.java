@@ -1,10 +1,9 @@
-package bio.terra.cli.app;
+package bio.terra.cli.service;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
-import bio.terra.cli.utils.WorkspaceManagerUtils;
-import bio.terra.workspace.client.ApiClient;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -35,9 +34,8 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to create the workspace object and backing Google context
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    WorkspaceDescription createdWorkspace = WorkspaceManagerUtils.createWorkspace(wsmClient);
+    WorkspaceDescription createdWorkspace =
+        new WorkspaceManagerService(globalContext.server, currentUser).createWorkspace();
     logger.info("created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
 
     // update the workspace context with the current workspace
@@ -67,10 +65,9 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to fetch the existing workspace object and backing Google context
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
     WorkspaceDescription existingWorkspace =
-        WorkspaceManagerUtils.getWorkspace(wsmClient, workspaceIdParsed);
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .getWorkspace(workspaceIdParsed);
     logger.info("existing workspace: id={}, {}", existingWorkspace.getId(), existingWorkspace);
 
     // update the workspace context with the current workspace
@@ -94,9 +91,8 @@ public class WorkspaceManager {
 
     // call WSM to delete the existing workspace object
     WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    WorkspaceManagerUtils.deleteWorkspace(wsmClient, workspaceContext.getWorkspaceId());
+    new WorkspaceManagerService(globalContext.server, currentUser)
+        .deleteWorkspace(workspaceContext.getWorkspaceId());
     logger.info("deleted workspace: id={}, {}", workspace.getId(), workspace);
 
     // unset the workspace in the current context
@@ -123,10 +119,8 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to add a user + role to the existing workspace
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    WorkspaceManagerUtils.grantIamRole(
-        wsmClient, workspaceContext.getWorkspaceId(), userEmail, iamRole);
+    new WorkspaceManagerService(globalContext.server, currentUser)
+        .grantIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
         "added user to workspace: id={}, user={}, role={}",
         workspaceContext.getWorkspaceId(),
@@ -150,10 +144,8 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to remove a user + role from the existing workspace
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    WorkspaceManagerUtils.removeIamRole(
-        wsmClient, workspaceContext.getWorkspaceId(), userEmail, iamRole);
+    new WorkspaceManagerService(globalContext.server, currentUser)
+        .removeIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
         "removed user from workspace: id={}, user={}, role={}",
         workspaceContext.getWorkspaceId(),
@@ -174,8 +166,7 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to get the users + roles for the existing workspace
-    ApiClient wsmClient =
-        WorkspaceManagerUtils.getClientForTerraUser(currentUser, globalContext.server);
-    return WorkspaceManagerUtils.getRoles(wsmClient, workspaceContext.getWorkspaceId());
+    return new WorkspaceManagerService(globalContext.server, currentUser)
+        .getRoles(workspaceContext.getWorkspaceId());
   }
 }

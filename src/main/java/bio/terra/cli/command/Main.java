@@ -1,9 +1,9 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.app.supported.Bq;
-import bio.terra.cli.command.app.supported.Gcloud;
-import bio.terra.cli.command.app.supported.Gsutil;
-import bio.terra.cli.command.app.supported.Nextflow;
+import bio.terra.cli.command.app.passthrough.Bq;
+import bio.terra.cli.command.app.passthrough.Gcloud;
+import bio.terra.cli.command.app.passthrough.Gsutil;
+import bio.terra.cli.command.app.passthrough.Nextflow;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;

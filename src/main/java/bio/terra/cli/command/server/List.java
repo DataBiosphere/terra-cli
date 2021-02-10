@@ -1,8 +1,8 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.app.ServerManager;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.ServerSpecification;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.service.ServerManager;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 

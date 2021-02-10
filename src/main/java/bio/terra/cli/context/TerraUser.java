@@ -1,6 +1,6 @@
-package bio.terra.cli.model;
+package bio.terra.cli.context;
 
-import bio.terra.cli.utils.AuthenticationUtils;
+import bio.terra.cli.auth.AuthenticationUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -28,7 +28,7 @@ public class TerraUser {
 
   // This field stores the name that Terra associates with this user. The CLI queries SAM for a
   // user's email to populate this field.
-  public String terraUserName;
+  public String terraUserEmail;
 
   @JsonIgnore public UserCredentials userCredentials;
   @JsonIgnore public ServiceAccountCredentials petSACredentials;
