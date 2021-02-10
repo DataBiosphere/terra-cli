@@ -288,7 +288,8 @@ public class DockerAppsRunner {
     List<Frame> framesList = new ArrayList<>();
 
     // these two boolean flags are useful for debugging
-    // buildSingleStringOutput = concatenate the output into a single String (be careful of very long outputs)
+    // buildSingleStringOutput = concatenate the output into a single String (be careful of very
+    // long outputs)
     boolean buildSingleStringOutput;
     // buildFramesList = keep a list of all the output lines (frames) as they come back
     boolean buildFramesList;
