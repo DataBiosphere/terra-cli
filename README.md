@@ -153,8 +153,7 @@ So if you change directories, you lose the workspace context.
 Usage: terra app [COMMAND]
 Commands related to applications in the Terra workspace context.
 Commands:
-  enable     Enable an application in the Terra workspace.
-  stop       Stop a running application in the Terra workspace.
+  list       List the supported applications.
   get-image  Get the Docker image used for launching applications.
   set-image  Set the Docker image to use for launching applications.
   execute    [FOR DEBUG] Execute a command in the application container for the

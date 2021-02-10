@@ -1,4 +1,4 @@
-package bio.terra.cli.utils;
+package bio.terra.cli.context.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

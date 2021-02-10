@@ -1,9 +1,8 @@
-package bio.terra.cli.utils;
+package bio.terra.cli.service.utils;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.ServerSpecification;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import com.google.auth.oauth2.AccessToken;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
@@ -16,31 +15,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling SAM endpoints. */
-public class SamUtils {
-  private static final Logger logger = LoggerFactory.getLogger(SamUtils.class);
+public class SamService {
+  private static final Logger logger = LoggerFactory.getLogger(SamService.class);
 
-  private SamUtils() {}
+  // the Terra environment where the SAM service lives
+  private final ServerSpecification server;
+
+  // the Terra user whose credentials will be used to call authenticated requests
+  private final TerraUser terraUser;
+
+  // the client object used for talking to SAM
+  private final ApiClient apiClient;
+
+  /**
+   * Constructor for class that talks to the SAM service. The user must be authenticated. Methods in
+   * this class will use its credentials to call authenticated endpoints.
+   *
+   * @param server the Terra environment where the SAM service lives
+   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   */
+  public SamService(ServerSpecification server, TerraUser terraUser) {
+    this.server = server;
+    this.terraUser = terraUser;
+    this.apiClient = new ApiClient();
+    buildClientForTerraUser();
+  }
+
+  /**
+   * Constructor for class that talks to the SAM service. No user is specified, so only
+   * unauthenticated endpoints can be called.
+   *
+   * @param server the Terra environment where the SAM service lives
+   */
+  public SamService(ServerSpecification server) {
+    this(server, null);
+  }
 
   /**
    * Build the SAM API client object for the given Terra user and global context. If terraUser is
-   * null, this method returns the client object without an access token set.
-   *
-   * @param terraUser the Terra user whose credentials are supplied to the API client object
-   * @param server the server specification that holds a pointer to the SAM instance
-   * @return the API client object for this user
+   * null, this method builds the client object without an access token set.
    */
-  public static ApiClient getClientForTerraUser(TerraUser terraUser, ServerSpecification server) {
-    ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(server.samUri);
-    apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
+  private void buildClientForTerraUser() {
+    this.apiClient.setBasePath(server.samUri);
+    this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
 
     if (terraUser != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
       AccessToken userAccessToken = terraUser.fetchUserAccessToken();
-      apiClient.setAccessToken(userAccessToken.getTokenValue());
+      this.apiClient.setAccessToken(userAccessToken.getTokenValue());
     }
-    return apiClient;
   }
 
   /**
@@ -48,7 +72,7 @@ public class SamUtils {
    *
    * @return the SAM version object
    */
-  public static SamVersion getVersion(ApiClient apiClient) {
+  public SamVersion getVersion() {
     VersionApi versionApi = new VersionApi(apiClient);
     SamVersion samVersion = null;
     try {
@@ -56,7 +80,7 @@ public class SamUtils {
     } catch (Exception ex) {
       logger.error("Error getting SAM version", ex);
     } finally {
-      closeConnectionPool(apiClient);
+      closeConnectionPool();
     }
     return samVersion;
   }
@@ -66,7 +90,7 @@ public class SamUtils {
    *
    * @return the SAM status object
    */
-  public static SystemStatus getStatus(ApiClient apiClient) {
+  public SystemStatus getStatus() {
     StatusApi statusApi = new StatusApi(apiClient);
     SystemStatus status = null;
     try {
@@ -74,7 +98,7 @@ public class SamUtils {
     } catch (Exception ex) {
       logger.error("Error getting SAM status", ex);
     } finally {
-      closeConnectionPool(apiClient);
+      closeConnectionPool();
     }
     return status;
   }
@@ -85,7 +109,7 @@ public class SamUtils {
    *
    * @return the SAM user status info object
    */
-  public static UserStatusInfo getUserInfo(ApiClient apiClient) {
+  public UserStatusInfo getUserInfo() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     UserStatusInfo userStatusInfo = null;
     try {
@@ -93,7 +117,7 @@ public class SamUtils {
     } catch (Exception ex) {
       logger.error("Error getting user info from SAM.", ex);
     } finally {
-      closeConnectionPool(apiClient);
+      closeConnectionPool();
     }
     return userStatusInfo;
   }
@@ -101,24 +125,17 @@ public class SamUtils {
   /**
    * Populate the terra user id and name properties of the given Terra user object. Maps the SAM
    * subject id to the user id, and the SAM email to the user name.
-   *
-   * @param terraUser the Terra user whose credentials are supplied to the API client object
-   * @param globalContext the global context holds a pointer to the SAM instance
    */
-  public static void populateTerraUserInfo(TerraUser terraUser, GlobalContext globalContext) {
-    ApiClient samClient = getClientForTerraUser(terraUser, globalContext.server);
-    UserStatusInfo samUserInfo = getUserInfo(samClient);
+  public void populateTerraUserInfo() {
+    UserStatusInfo samUserInfo = getUserInfo();
     terraUser.terraUserId = samUserInfo.getUserSubjectId();
-    terraUser.terraUserName = samUserInfo.getUserEmail();
+    terraUser.terraUserEmail = samUserInfo.getUserEmail();
   }
 
-  /**
-   * Try to close the connection pool after we're finished with this SAM request. TODO: why is this
-   * needed? possibly a bad interaction with picoCLI?
-   */
-  private static void closeConnectionPool(ApiClient apiClient) {
-    // try to close the connection pool after we're finished with this request -- why is this
-    // needed?
+  /** Try to close the connection pool after we're finished with this SAM request. */
+  private void closeConnectionPool() {
+    // try to close the connection pool after we're finished with this request
+    // TODO: why is this needed? possibly a bad interaction with picoCLI?
     try {
       apiClient.getHttpClient().connectionPool().evictAll();
     } catch (Exception anyEx) {
@@ -135,8 +152,7 @@ public class SamUtils {
    *
    * @return the HTTP response to the SAM request
    */
-  public static HttpUtils.HttpResponse getArbitraryPetSaKey(
-      TerraUser terraUser, GlobalContext globalContext) {
+  public HttpUtils.HttpResponse getArbitraryPetSaKey() {
     // The code below should be changed to use the SAM client library. For example:
     //   GoogleApi samGoogleApi = new GoogleApi(apiClient);
     //   samGoogleApi.getArbitraryPetServiceAccountKey();
@@ -144,8 +160,7 @@ public class SamUtils {
     // response. So for now, this is making a direct (i.e. without the client library) HTTP request
     // to get the key file contents.
     try {
-      String apiEndpoint =
-          globalContext.server.samUri + "/api/google/v1/user/petServiceAccount/key";
+      String apiEndpoint = server.samUri + "/api/google/v1/user/petServiceAccount/key";
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
       return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
     } catch (Exception ex) {
@@ -161,8 +176,7 @@ public class SamUtils {
    *
    * @return the HTTP response to the SAM request
    */
-  public static HttpUtils.HttpResponse getPetSaKeyForProject(
-      TerraUser terraUser, GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext) {
     // The code below should be changed to use the SAM client library. For example:
     //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
     //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -172,7 +186,7 @@ public class SamUtils {
     // to get the key file contents.
     try {
       String apiEndpoint =
-          globalContext.server.samUri
+          server.samUri
               + "/api/google/v1/user/petServiceAccount/"
               + workspaceContext.getGoogleProject()
               + "/key";

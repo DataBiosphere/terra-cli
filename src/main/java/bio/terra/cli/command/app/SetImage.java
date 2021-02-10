@@ -1,8 +1,8 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.app.DockerToolsManager;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,7 +22,7 @@ public class SetImage implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     String prevImageId = globalContext.dockerImageId;
-    new DockerToolsManager(globalContext, workspaceContext).updateImageId(imageId);
+    new DockerAppsRunner(globalContext, workspaceContext).updateImageId(imageId);
 
     if (globalContext.dockerImageId.equals(prevImageId)) {
       System.out.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");

@@ -22,11 +22,12 @@ docker/
 src/main/
   java/
     bio/terra/cli/
-      app/
-        supported/
+      apps/
+        interfaces/
+      auth/
       command/
-      model/
-      utils/
+      context/
+      service/
   resources/
       servers/
 ```
@@ -68,15 +69,16 @@ An empty class body with child commands defined in the annotation creates such a
 
 Supported tools are currently children of the top-level command, but are hidden from the usage help.
 
-#### Model and manager classes
-The `src/main/java/bio/terra/cli/model/` directory contains the objects that represent the current state.
+#### Context classes
+The `src/main/java/bio/terra/cli/context/` directory contains the objects that represent the current state.
 Since the CLI Java code exits after each command, this state is persisted on disk by the `GlobalContext` and 
 `WorkspaceContext` classes.
 
-The `src/main/java/bio/terra/cli/app/` directory contains `*Manager` classes that manipulate the context objects.
+Other packages (e.g. `src/main/java/bio/terra/cli/app/`, `auth/`, `server/` and `workspace/`) contain classes that 
+manipulate the context objects. Classes are grouped into packages by general functional area.
 
 #### Supported tools
-The `src/main/java/bio/terra/cli/app/supported/` directory contains (external) tools that the CLI supports.
+The `src/main/java/bio/terra/cli/apps/` directory contains (external) tools that the CLI supports.
 Currently these tools can be called from the top-level, so it looks the same as it would if you called it on your 
 local terminal, only with a `terra` prefix. For example:
 ```
@@ -85,9 +87,6 @@ terra bq version
 terra nextflow run hello
 ```
 
-These tools are collected in the `SupportedApp` enum class, which also tracks whether they follow the enable/stop pattern.
+The list of supported tools that can be called is specified in an enum in the `terra app list` class.
 
 This section of the code is likely to evolve significantly.
-
-#### Utility methods
-The `src/main/java/bio/terra/cli/utils/` directory contains utility methods that are not strictly related to the CLI.

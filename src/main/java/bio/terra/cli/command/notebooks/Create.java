@@ -1,10 +1,10 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.DockerToolsManager;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -82,7 +82,7 @@ public class Create implements Callable<Integer> {
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
-    envVars.put("USER_EMAIL", user.terraUserName);
+    envVars.put("USER_EMAIL", user.terraUserEmail);
     envVars.put("SERVICE_ACCOUNT", user.petSACredentials.getClientEmail());
     envVars.put("MACHINE_TYPE", machineType);
     envVars.put("VM_IMAGE_PROJECT", vmImageProject);
@@ -96,7 +96,7 @@ public class Create implements Callable<Integer> {
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
 
-    new DockerToolsManager(globalContext, workspaceContext)
+    new DockerAppsRunner(globalContext, workspaceContext)
         .runToolCommand(
             command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
 

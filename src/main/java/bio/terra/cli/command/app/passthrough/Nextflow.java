@@ -1,9 +1,9 @@
-package bio.terra.cli.command.app.supported;
+package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.app.supported.NextflowHelper;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
+import java.util.List;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
     hidden = true)
 public class Nextflow implements Callable<Integer> {
 
-  @CommandLine.Unmatched private String[] cmdArgs;
+  @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
   public Integer call() {
@@ -23,7 +23,7 @@ public class Nextflow implements Callable<Integer> {
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    new NextflowHelper().setContext(globalContext, workspaceContext).run(cmdArgs);
+    new bio.terra.cli.apps.Nextflow(globalContext, workspaceContext).run(cmdArgs);
 
     return 0;
   }

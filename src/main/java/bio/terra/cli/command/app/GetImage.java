@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.model.GlobalContext;
+import bio.terra.cli.context.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 

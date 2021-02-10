@@ -1,8 +1,8 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.app.AuthenticationManager;
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 

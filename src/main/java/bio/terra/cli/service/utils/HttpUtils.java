@@ -1,4 +1,4 @@
-package bio.terra.cli.utils;
+package bio.terra.cli.service.utils;
 
 import com.google.api.client.http.HttpStatusCodes;
 import java.io.BufferedReader;
