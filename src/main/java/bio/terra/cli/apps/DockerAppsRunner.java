@@ -276,7 +276,6 @@ public class DockerAppsRunner {
         .logContainerCmd(containerId)
         .withStdOut(true)
         .withStdErr(true)
-        // .withTimestamps(true)
         .withFollowStream(true)
         .withTailAll()
         .exec(new DockerAppsRunner.LogContainerTestCallback());
@@ -288,7 +287,10 @@ public class DockerAppsRunner {
     protected final StringBuffer log = new StringBuffer();
     List<Frame> framesList = new ArrayList<>();
 
+    // these two boolean flags are useful for debugging
+    // buildSingleStringOutput = concatenate the output into a single String (be careful of very long outputs)
     boolean buildSingleStringOutput;
+    // buildFramesList = keep a list of all the output lines (frames) as they come back
     boolean buildFramesList;
 
     public LogContainerTestCallback() {
