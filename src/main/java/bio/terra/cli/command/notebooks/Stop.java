@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
-/** This class corresponds to the third-level "terra notebooks delete" command. */
+/** This class corresponds to the third-level "terra notebooks stop" command. */
 @CommandLine.Command(
-    name = "delete",
-    description = "Delete an AI Notebook instance within your workspace.")
-public class Delete implements Callable<Integer> {
+    name = "stop",
+    description = "Stop a running AI Notebook instance within your workspace.")
+public class Stop implements Callable<Integer> {
 
   @CommandLine.Parameters(index = "0", description = "The name of the notebook instance.")
   private String instanceName;
@@ -34,7 +34,7 @@ public class Delete implements Callable<Integer> {
         new AuthenticationManager(globalContext, workspaceContext);
     authenticationManager.loginTerraUser();
 
-    String command = "gcloud notebooks instances delete $INSTANCE_NAME --location=$LOCATION";
+    String command = "gcloud notebooks instances stop $INSTANCE_NAME --location=$LOCATION";
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);

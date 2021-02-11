@@ -134,10 +134,12 @@ The server is part of the global context, so this value applies across workspace
 Usage: terra workspace [COMMAND]
 Commands related to the Terra workspace.
 Commands:
-  create    Create a new workspace.
-  mount     Mount an existing workspace to the current directory.
-  delete    Delete an existing workspace.
-  add-user  Add a user to the workspace.
+  create       Create a new workspace.
+  mount        Mount an existing workspace to the current directory.
+  delete       Delete an existing workspace.
+  list-users   List the users of the workspace.
+  add-user     Add a user to the workspace.
+  remove-user  Remove a user from the workspace.
 ```
 
 A Terra Workspace is backed by a Google project. Creating a new workspace also creates a new backing Google project.
@@ -151,8 +153,7 @@ So if you change directories, you lose the workspace context.
 Usage: terra app [COMMAND]
 Commands related to applications in the Terra workspace context.
 Commands:
-  enable     Enable an application in the Terra workspace.
-  stop       Stop a running application in the Terra workspace.
+  list       List the supported applications.
   get-image  Get the Docker image used for launching applications.
   set-image  Set the Docker image to use for launching applications.
   execute    [FOR DEBUG] Execute a command in the application container for the

@@ -1,8 +1,8 @@
-package bio.terra.cli.app;
+package bio.terra.cli.apps;
 
-import bio.terra.cli.model.GlobalContext;
-import bio.terra.cli.model.TerraUser;
-import bio.terra.cli.model.WorkspaceContext;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.WorkspaceContext;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * This class runs client-side tools and manipulates the tools-related properties of the global
  * context object.
  */
-public class DockerToolsManager {
-  private static final Logger logger = LoggerFactory.getLogger(DockerToolsManager.class);
+public class DockerAppsRunner {
+  private static final Logger logger = LoggerFactory.getLogger(DockerAppsRunner.class);
 
   private final GlobalContext globalContext;
   private final WorkspaceContext workspaceContext;
@@ -41,7 +41,7 @@ public class DockerToolsManager {
   // This is where the pet key files will be mounted on the Docker container.
   public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
 
-  public DockerToolsManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public DockerAppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
     this.dockerClient = null;
@@ -60,6 +60,7 @@ public class DockerToolsManager {
   /**
    * Update the Docker image property of the global context.
    *
+   * @param imageId id or tag of the image
    * @return true if the Docker image property was updated, false otherwise
    */
   public boolean updateImageId(String imageId) {
@@ -77,9 +78,13 @@ public class DockerToolsManager {
     return true;
   }
 
-  /** Run a command inside the Docker container for external tools. */
-  public String runToolCommand(String command) {
-    return runToolCommand(command, null, new HashMap<>(), new HashMap<>());
+  /**
+   * Run a command inside the Docker container for external tools.
+   *
+   * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
+   */
+  public void runToolCommand(String command) {
+    runToolCommand(command, null, new HashMap<>(), new HashMap<>());
   }
 
   /**
@@ -94,7 +99,7 @@ public class DockerToolsManager {
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
-  public String runToolCommand(
+  public void runToolCommand(
       String command,
       String workingDir,
       Map<String, String> envVars,
@@ -109,17 +114,15 @@ public class DockerToolsManager {
     String containerId =
         startDockerContainerWithTerraInit(command, workingDir, envVars, bindMounts);
 
+    // read the container logs, which contains the command output, and write them to stdout
+    outputLogsForDockerContainer(containerId);
+
     // block until the container exits
     Integer statusCode = waitForDockerContainerToExit(containerId);
     logger.info("docker run status code: {}", statusCode);
 
-    // read the container logs, which contains the command output
-    String logs = getLogsForDockerContainer(containerId);
-
     // delete the container
     deleteDockerContainer(containerId);
-
-    return logs;
   }
 
   /** Build the Docker client object with standard options. */
@@ -240,7 +243,11 @@ public class DockerToolsManager {
     return container.getId();
   }
 
-  /** Block until the Docker container exits, then return its status code. */
+  /**
+   * Block until the Docker container exits, then return its status code.
+   *
+   * @param containerId id of the container
+   */
   private Integer waitForDockerContainerToExit(String containerId) {
     WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
     WaitContainerResultCallback exec =
@@ -250,46 +257,68 @@ public class DockerToolsManager {
     return exec.awaitStatusCode();
   }
 
-  /** Read the Docker container logs into a string. TODO: How to handle very long output? */
-  private String getLogsForDockerContainer(String containerId) {
-    try {
-      return dockerClient
-          .logContainerCmd(containerId)
-          .withStdOut(true)
-          .withStdErr(true)
-          .exec(new DockerToolsManager.LogContainerTestCallback())
-          .awaitCompletion()
-          .toString();
-    } catch (InterruptedException intEx) {
-      logger.error("Error reading logs for Docker container.", intEx);
-      return "<ERROR READING CONTAINER LOGS>";
-    }
-  }
-
-  /** Delete the Docker container. */
+  /**
+   * Delete the Docker container.
+   *
+   * @param containerId id of the container
+   */
   private void deleteDockerContainer(String containerId) {
     dockerClient.removeContainerCmd(containerId).exec();
+  }
+
+  /**
+   * Read the Docker container logs and write them to standard out.
+   *
+   * @param containerId id of the container
+   */
+  private void outputLogsForDockerContainer(String containerId) {
+    dockerClient
+        .logContainerCmd(containerId)
+        .withStdOut(true)
+        .withStdErr(true)
+        .withFollowStream(true)
+        .withTailAll()
+        .exec(new DockerAppsRunner.LogContainerTestCallback());
   }
 
   /** Helper class for reading Docker container logs into a string. */
   private static class LogContainerTestCallback extends ResultCallback.Adapter<Frame> {
 
     protected final StringBuffer log = new StringBuffer();
-    List<Frame> collectedFrames = new ArrayList<>();
-    boolean collectFrames = false;
+    List<Frame> framesList = new ArrayList<>();
+
+    // these two boolean flags are useful for debugging
+    // buildSingleStringOutput = concatenate the output into a single String (be careful of very
+    // long outputs)
+    boolean buildSingleStringOutput;
+    // buildFramesList = keep a list of all the output lines (frames) as they come back
+    boolean buildFramesList;
 
     public LogContainerTestCallback() {
-      this(false);
+      this(false, false);
     }
 
-    public LogContainerTestCallback(boolean collectFrames) {
-      this.collectFrames = collectFrames;
+    public LogContainerTestCallback(boolean buildSingleStringOutput, boolean buildFramesList) {
+      this.buildSingleStringOutput = buildSingleStringOutput;
+      this.buildFramesList = buildFramesList;
     }
 
     @Override
     public void onNext(Frame frame) {
-      if (collectFrames) collectedFrames.add(frame);
-      log.append(new String(frame.getPayload(), Charset.forName("UTF-8")));
+      String logStr = new String(frame.getPayload(), Charset.forName("UTF-8"));
+
+      // TODO: PF-423. Calling sysout.println here breaks the model of printing user-facing output
+      // from the command classes only.
+      // Revisit this once we have better model for centralizing output across all commands/rest of
+      // the codebase.
+      System.out.println(logStr); // write to stdout
+
+      if (buildSingleStringOutput) {
+        log.append(logStr);
+      }
+      if (buildFramesList) {
+        framesList.add(frame);
+      }
     }
 
     @Override
@@ -297,8 +326,18 @@ public class DockerToolsManager {
       return log.toString();
     }
 
-    public List<Frame> getCollectedFrames() {
-      return collectedFrames;
+    public List<Frame> getFramesList() {
+      return framesList;
     }
+  }
+
+  /** Utility method for concatenating a command and its arguments. */
+  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
+    String fullCommand = cmd;
+    if (cmdArgs != null && cmdArgs.size() > 0) {
+      final String argSeparator = " ";
+      fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
+    }
+    return fullCommand;
   }
 }

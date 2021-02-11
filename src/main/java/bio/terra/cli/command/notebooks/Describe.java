@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
-/** This class corresponds to the third-level "terra notebooks delete" command. */
+/** This class corresponds to the third-level "terra notebooks describe" command. */
 @CommandLine.Command(
-    name = "delete",
-    description = "Delete an AI Notebook instance within your workspace.")
-public class Delete implements Callable<Integer> {
+    name = "describe",
+    description = "Describe an AI Notebook instance within your workspace.")
+public class Describe implements Callable<Integer> {
 
   @CommandLine.Parameters(index = "0", description = "The name of the notebook instance.")
   private String instanceName;
@@ -34,11 +34,12 @@ public class Delete implements Callable<Integer> {
         new AuthenticationManager(globalContext, workspaceContext);
     authenticationManager.loginTerraUser();
 
-    String command = "gcloud notebooks instances delete $INSTANCE_NAME --location=$LOCATION";
+    String command = "gcloud notebooks instances describe $INSTANCE_NAME --location=$LOCATION";
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
 
+    // TODO(wchamber): Consider reformatting the ouptut or otherwise highlighting the proxy uri.
     new DockerAppsRunner(globalContext, workspaceContext)
         .runToolCommand(
             command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());

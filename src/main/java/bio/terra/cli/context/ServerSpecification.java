@@ -1,6 +1,6 @@
-package bio.terra.cli.model;
+package bio.terra.cli.context;
 
-import bio.terra.cli.utils.FileUtils;
+import bio.terra.cli.context.utils.FileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
