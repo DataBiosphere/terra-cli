@@ -26,8 +26,9 @@ terra
 #### Authentication
 1. Register a Terra account with the [dev instance](https://bvdp-saturn-dev.appspot.com/#) 
 to go through authentication. I think this needs to be a non-Google/Verily corporate account.
-2. Keep going through the warning login screen ("! Google hasn't verified this app" -> click 
-"Advanced" -> "Go to ... (unsafe)") that shows up since the CLI is not a Google-verified app yet.
+2. `terra auth login` launches an OAuth flow that pops out a browser window with a warning login
+page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
+app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
 
 Note: The default server has been temporarily changed from `terra-dev` to `wchamber-dev`.
 This is because the Terra dev services are behind a firewall that requires users to be
