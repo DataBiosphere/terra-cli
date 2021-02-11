@@ -5,9 +5,9 @@
     * [Docker](#docker)
     * [Servers](#servers)
     * [Command structure](#command-structure)
-    * [Model and manager classes](#model-and-manager-classes)
+    * [Context classes](#context-classes)
     * [Supported tools](#supported-tools)
-    * [Utility methods](#utility-methods)
+        * [Adding a new supported tool](#adding-a-new-supported-tool)
 
 -----
 
@@ -89,4 +89,30 @@ terra nextflow run hello
 
 The list of supported tools that can be called is specified in an enum in the `terra app list` class.
 
-This section of the code is likely to evolve significantly.
+#### Adding a new supported tool
+To add a new supported tool:
+   1. Install the app in the `docker/Dockerfile`
+   2. Build the new image with `source tools/local-dev.sh`
+   3. Test that the install worked by calling the app through the `terra app execute` command.
+   (e.g. `terra app execute dsub --version`). This command just runs the Docker container and 
+   executes the command, without requiring any new Java code. This `terra app execute` command
+   is intended for debugging only; this won't be how users call the tool.
+   4. Add a new command class in the `src/main/java/bio/terra/cli/command/app/passthrough` package.
+   Copy/paste an existing class in that same package as a starting point. Gsutil, Bq, and Gcloud 
+   are the simplest.
+   5. Add it to the list of tools shown by `terra app list` by adding the new command class to
+   the list of sub-commands in the `@Command` annotation of the `Main.class`. This means you can
+   invoke the command by prefixing it with terra (e.g. `terra dsub -version`).
+   6. When you run e.g. `terra dsub -version`, the CLI:
+      - Launches a Docker container
+      - Runs the `terra_init.sh` script in the `docker/scripts` directory, which activates the user’s
+      pet service account and sets the workspace project
+      - Runs the dsub command
+   7. You can pass environment variables through to the Docker container by populating a `Map` and
+   passing it to the `DockerAppsRunner.runToolCommand` method. Two environment variables are always
+   passed:
+       - `GOOGLE_PROJECT_ID` = the workspace project id
+       - `PET_KEY_FILE` = the pet service account key file
+   8.  You can mount directories on the host machine to the Docker container by populating a second
+   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
+   has an example of this (see `bio.terra.cli.apps.Nextflow` class `run` method).

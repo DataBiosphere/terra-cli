@@ -2,12 +2,13 @@
 
 1. [Setup and run](#setup-and-run)
 2. [Requirements](#requirements)
+    * [Authentication](#authentication)
+    * [External data](#external-data)
 3. [Example usage](#example-usage)
 4. [Commands description](#commands-description)
-    * [Authentication](#authentication)
     * [Server](#server)
     * [Workspace](#workspace)
-    * [External tools](#external-tools)
+    * [Supported tools](#supported-tools)
 
 -----
 
@@ -20,11 +21,25 @@ terra
 
 ### Requirements
 1. Java 11
-2. Docker 20.10.2 *
+2. Docker 20.10.2 (Must be running)
 
-* Other Docker versions may also work, but this is the only one tested so far.
+#### Authentication
+1. Register a Terra account with the [dev instance](https://bvdp-saturn-dev.appspot.com/#) 
+to go through authentication. I think this needs to be a non-Google/Verily corporate account.
+2. Keep going through the warning login screen ("! Google hasn't verified this app" -> click 
+"Advanced" -> "Go to ... (unsafe)") that shows up since the CLI is not a Google-verified app yet.
 
-Make sure Docker is running.
+Note: The default server has been temporarily changed from `terra-dev` to `wchamber-dev`.
+This is because the Terra dev services are behind a firewall that requires users to be
+on the Broad VPN. There is an open ticket with Broad DevOps to address this. In the meantime,
+personal development deployments are apparently not behind the firewall, so we're using
+one of those as a temporary workaround. If you do have access to the Broad VPN, you can run 
+`terra server set terra-dev` to change it back to official Terra dev environment.
+
+#### External data 
+To allow supported tools (i.e. the ones shown by `terra app list`) to read or write data external
+to the Terra workspace, you need to give the user's pet service account the appropriate access.
+To get the email of the user's pet service account, run `terra gcloud config get-value account`.
 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
@@ -148,7 +163,7 @@ The same applies to deleting.
 The workspace context is tied to the directory on your local machine, similar to how `git` works.
 So if you change directories, you lose the workspace context.
 
-#### External tools
+#### Supported tools
 ```
 Usage: terra app [COMMAND]
 Commands related to applications in the Terra workspace context.
