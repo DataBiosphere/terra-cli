@@ -74,7 +74,7 @@ public class ServerManager {
   }
 
   // This variable defines the server that the CLI points to by default.
-  private static final String DEFAULT_SERVER_FILENAME = "terra-dev.json";
+  private static final String DEFAULT_SERVER_FILENAME = "wchamber-dev.json";
 
   /**
    * Returns the default server specification, or null if there was an error reading it in from
