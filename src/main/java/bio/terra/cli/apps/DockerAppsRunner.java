@@ -172,7 +172,7 @@ public class DockerAppsRunner {
     Map<String, String> terraInitEnvVars = new HashMap<>();
     String googleProjectId = workspaceContext.getGoogleProject();
     terraInitEnvVars.put(
-        "TERRA_PET_KEY_FILE",
+        "GOOGLE_APPLICATION_CREDENTIALS",
         PET_KEYS_MOUNT_POINT + "/" + currentUser.getPetKeyFile(googleProjectId).getName());
     terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", googleProjectId);
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
