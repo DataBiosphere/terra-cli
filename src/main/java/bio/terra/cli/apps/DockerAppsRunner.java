@@ -317,7 +317,7 @@ public class DockerAppsRunner {
       // from the command classes only.
       // Revisit this once we have better model for centralizing output across all commands/rest of
       // the codebase.
-      System.out.println(logStr); // write to stdout
+      System.out.print(logStr); // write to stdout
 
       if (buildSingleStringOutput) {
         log.append(logStr);
