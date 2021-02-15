@@ -14,6 +14,6 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "notebooks",
-    description = "Commands related to AI Notebooks in the Terra workspace context.",
+    description = "Use AI Notebooks in the workspace.",
     subcommands = {Create.class, Delete.class, Describe.class, List.class, Start.class, Stop.class})
 public class Notebooks {}
