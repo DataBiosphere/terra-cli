@@ -2,8 +2,8 @@
 
 echo "Setting up Terra app environment..."
 
-gcloud auth activate-service-account --key-file=${PET_KEY_FILE}
-gcloud config set project ${GOOGLE_PROJECT_ID}
+gcloud auth activate-service-account --key-file=${TERRA_PET_KEY_FILE}
+gcloud config set project ${TERRA_GOOGLE_PROJECT_ID}
 
 echo "Done setting up Terra app environment..."
 echo

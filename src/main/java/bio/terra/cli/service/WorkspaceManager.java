@@ -12,6 +12,7 @@ import bio.terra.workspace.model.WorkspaceDescription;
 import com.google.cloud.storage.Bucket;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +201,11 @@ public class WorkspaceManager {
   public CloudResource createControlledResource(
       CloudResource.Type resourceType, String resourceName) {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
+    if (!isValidEnvironmentVariableName(resourceName)) {
+      throw new RuntimeException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
     // create the bucket by calling GCS directly
     String bucketName = workspaceContext.getGoogleProject() + "-" + resourceName;
     Bucket bucket =
@@ -213,6 +219,16 @@ public class WorkspaceManager {
     workspaceContext.addCloudResource(resource);
 
     return resource;
+  }
+
+  /**
+   * Check if the name only contains alphanumeric and underscore characters.
+   *
+   * @param name string to check
+   * @return true if the string is a valid environment variable name
+   */
+  private static boolean isValidEnvironmentVariableName(String name) {
+    return !Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find();
   }
 
   /**

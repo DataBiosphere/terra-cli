@@ -22,7 +22,8 @@ public class Create implements Callable<Integer> {
   @CommandLine.Option(
       names = "--name",
       required = true,
-      description = "The name of the resource, scoped to the workspace.")
+      description =
+          "The name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
   private String name;
 
   @Override
