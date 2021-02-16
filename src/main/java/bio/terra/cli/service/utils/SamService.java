@@ -211,7 +211,7 @@ public class SamService {
       statusCode = HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
     }
 
-    // mim
+    // mimic the SAM client library and throw an ApiException if the status code was not successful
     throw new ApiException(
         statusCode, "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
   }
