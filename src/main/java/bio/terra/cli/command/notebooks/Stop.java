@@ -25,7 +25,7 @@ public class Stop implements Callable<Integer> {
   private String location;
 
   @Override
-  public Integer call() throws Exception {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
     workspaceContext.requireCurrentWorkspace();

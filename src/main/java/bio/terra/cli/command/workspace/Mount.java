@@ -16,7 +16,7 @@ public class Mount implements Callable<Integer> {
   private String workspaceId;
 
   @Override
-  public Integer call() throws Exception {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

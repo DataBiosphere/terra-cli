@@ -131,8 +131,9 @@ public class HttpUtils {
    * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
    *     number of retries was exhausted
    */
-  public static <T> T callWithRetries(
-      HttpRequestOperator<T> makeRequest, Predicate<Exception> isRetryable) throws Exception {
+  public static <T, E extends Exception> T callWithRetries(
+      HttpRequestOperator<T, E> makeRequest, Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
     return callWithRetries(
         DEFAULT_MAXIMUM_RETRIES, DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY, makeRequest, isRetryable);
   }
@@ -148,13 +149,14 @@ public class HttpUtils {
    * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
    *     number of retries was exhausted
    */
-  public static <T> T callWithRetries(
+  public static <T, E extends Exception> T callWithRetries(
       int maxRetries,
       int sleepDurationMS,
-      HttpRequestOperator<T> makeRequest,
+      HttpRequestOperator<T, E> makeRequest,
       Predicate<Exception> isRetryable)
-      throws Exception {
+      throws E, InterruptedException {
     int numTries = 0;
+    Exception lastRetryableException = null;
     do {
       numTries++;
       try {
@@ -164,6 +166,9 @@ public class HttpUtils {
         // if the exception is not retryable, then quit polling
         if (!isRetryable.test(ex)) {
           throw ex;
+        } else {
+          // keep track of the last retryable exception so we can re-throw it in case of a timeout
+          lastRetryableException = ex;
         }
         logger.info("Caught retryable exception: {}", ex);
       }
@@ -172,7 +177,10 @@ public class HttpUtils {
       Thread.sleep(sleepDurationMS);
     } while (numTries <= maxRetries);
 
-    throw new RuntimeException("Http request with retries timed out after " + numTries + " tries.");
+    // request with retries timed out
+    throw new RuntimeException(
+        "Http request with retries timed out after " + numTries + " tries.",
+        lastRetryableException);
   }
 
   /**
@@ -181,7 +189,7 @@ public class HttpUtils {
    *
    * @param <T> type of the Http response (i.e. return type of the makeRequest method)
    */
-  public interface HttpRequestOperator<T> {
-    T makeRequest() throws Exception;
+  public interface HttpRequestOperator<T, E extends Exception> {
+    T makeRequest() throws E;
   }
 }

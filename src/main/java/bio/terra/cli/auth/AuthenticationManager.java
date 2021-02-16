@@ -50,7 +50,7 @@ public class AuthenticationManager {
    * Fetch all credentials for a new user, and set them as the current Terra user. Prompt for login
    * and consent if they do not already exist or are expired.
    */
-  public void loginTerraUser() throws Exception {
+  public void loginTerraUser() {
     // this will become the current Terra user if we are successful in getting all the various
     // information and credentials below
     TerraUser terraUser;
@@ -128,7 +128,7 @@ public class AuthenticationManager {
    * no current user defined, or their credentials are expired, then this method does not populate
    * anything.
    */
-  public void populateCurrentTerraUser() throws Exception {
+  public void populateCurrentTerraUser() {
     Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
     if (!currentTerraUserOpt.isPresent()) {
       logger.info("There is no current Terra user defined in the global context.");
@@ -170,7 +170,7 @@ public class AuthenticationManager {
   }
 
   /** Fetch the pet SA credentials for the given user + current workspace. */
-  public void fetchPetSaCredentials(TerraUser terraUser) throws Exception {
+  public void fetchPetSaCredentials(TerraUser terraUser) {
     // if the current workspace is not defined, then we don't know which pet SA to fetch
     if (workspaceContext.isEmpty()) {
       logger.info("There is no current workspace defined.");

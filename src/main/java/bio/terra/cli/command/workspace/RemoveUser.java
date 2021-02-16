@@ -20,7 +20,7 @@ public class RemoveUser implements Callable<Integer> {
   private IamRole role;
 
   @Override
-  public Integer call() throws Exception {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

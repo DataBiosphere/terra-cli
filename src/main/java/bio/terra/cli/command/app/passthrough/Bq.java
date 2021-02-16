@@ -16,7 +16,7 @@ public class Bq implements Callable<Integer> {
   @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
-  public Integer call() throws Exception {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

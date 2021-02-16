@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 public class Create implements Callable<Integer> {
 
   @Override
-  public Integer call() throws Exception {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

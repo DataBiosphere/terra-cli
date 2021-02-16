@@ -5,6 +5,7 @@ import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.io.IOException;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
@@ -78,8 +79,8 @@ public class SamService {
     SystemStatus status = null;
     try {
       status =
-          HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), (ex) -> isRetryable(ex));
-    } catch (Exception ex) {
+          HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       logger.error("Error getting SAM status", ex);
     } finally {
       closeConnectionPool();
@@ -93,13 +94,15 @@ public class SamService {
    *
    * <p>Update the Terra User object passed in with the user information from SAM.
    */
-  public void getUser() throws Exception {
+  public void getUser() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
       UserStatusInfo userStatusInfo =
-          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), (ex) -> isRetryable(ex));
+          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
       terraUser.terraUserId = userStatusInfo.getUserSubjectId();
       terraUser.terraUserEmail = userStatusInfo.getUserEmail();
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error reading user information from SAM.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -114,25 +117,30 @@ public class SamService {
    *
    * <p>Update the Terra User object with the user information from SAM.
    */
-  public void getOrRegisterUser() throws Exception {
+  public void getOrRegisterUser() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
       // first try to lookup the user
       UserStatusInfo userStatusInfo =
-          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), (ex) -> isRetryable(ex));
+          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
       terraUser.terraUserId = userStatusInfo.getUserSubjectId();
       terraUser.terraUserEmail = userStatusInfo.getUserEmail();
-    } catch (ApiException apiEx) {
-      if (apiEx.getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND) {
-        throw apiEx;
+    } catch (ApiException | InterruptedException ex) {
+      if (!(ex instanceof ApiException)
+          || (((ApiException) ex).getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND)) {
+        throw new RuntimeException("Error reading user information from SAM.", ex);
       }
       logger.info("User not found in SAM. Trying to register a new user.");
 
-      // lookup failed with Not Found error, now try to register the user
-      UserStatus userStatus =
-          HttpUtils.callWithRetries(() -> samUsersApi.createUserV2(), (ex) -> isRetryable(ex));
-      terraUser.terraUserId = userStatus.getUserInfo().getUserSubjectId();
-      terraUser.terraUserEmail = userStatus.getUserInfo().getUserEmail();
+      try {
+        // lookup failed with Not Found error, now try to register the user
+        UserStatus userStatus =
+            HttpUtils.callWithRetries(() -> samUsersApi.createUserV2(), SamService::isRetryable);
+        terraUser.terraUserId = userStatus.getUserInfo().getUserSubjectId();
+        terraUser.terraUserEmail = userStatus.getUserInfo().getUserEmail();
+      } catch (ApiException | InterruptedException secondEx) {
+        throw new RuntimeException("Error reading user information from SAM.", secondEx);
+      }
     } finally {
       closeConnectionPool();
     }
@@ -159,8 +167,25 @@ public class SamService {
    * @param workspaceContext the current workspace
    * @return the HTTP response to the SAM request
    */
-  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext)
-      throws Exception {
+  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext) {
+    try {
+      return HttpUtils.callWithRetries(
+          () -> getPetSaKeyForProjectApiClientWrapper(workspaceContext), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error fetching the pet SA key file from SAM.", ex);
+    }
+  }
+
+  /**
+   * Helper method for getting the pet SA key for the current user. This method wraps a raw HTTP
+   * request and throws an ApiException on error, mimicing the behavior of the client library.
+   *
+   * @param workspaceContext
+   * @return the HTTP response to the SAM request
+   * @throws ApiException if the HTTP status code is not successful
+   */
+  private HttpUtils.HttpResponse getPetSaKeyForProjectApiClientWrapper(
+      WorkspaceContext workspaceContext) throws ApiException {
     // The code below should be changed to use the SAM client library. For example:
     //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
     //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -174,18 +199,21 @@ public class SamService {
             + workspaceContext.getGoogleProject()
             + "/key";
     String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
-    return HttpUtils.callWithRetries(
-        () -> {
-          HttpUtils.HttpResponse response =
-              HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
-          if (HttpStatusCodes.isSuccess(response.statusCode)) {
-            return response;
-          }
-          throw new ApiException(
-              response.statusCode,
-              "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
-        },
-        (ex) -> isRetryable(ex));
+    int statusCode;
+    try {
+      HttpUtils.HttpResponse response =
+          HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+      if (HttpStatusCodes.isSuccess(response.statusCode)) {
+        return response;
+      }
+      statusCode = response.statusCode;
+    } catch (IOException ioEx) {
+      statusCode = HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
+    }
+
+    // mim
+    throw new ApiException(
+        statusCode, "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
   }
 
   /**
