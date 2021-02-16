@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.Map;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
@@ -22,8 +23,8 @@ public class HttpUtils {
   // default value for the maximum number of times to retry HTTP requests
   private static final int DEFAULT_MAXIMUM_RETRIES = 10;
 
-  // default value for the number of milliseconds to sleep between retries
-  private static final int DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY = 1000;
+  // default value for the time to sleep between retries
+  private static final Duration DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
 
   private HttpUtils() {}
 
@@ -141,7 +142,7 @@ public class HttpUtils {
    * Helper method to do retries.
    *
    * @param maxRetries maximum number of times to retry
-   * @param sleepDurationMS number of milliseconds to sleep between tries
+   * @param sleepDuration time to sleep between tries
    * @param makeRequest function to perform the request
    * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the Http response (i.e. return type of the makeRequest function)
@@ -151,7 +152,7 @@ public class HttpUtils {
    */
   public static <T, E extends Exception> T callWithRetries(
       int maxRetries,
-      int sleepDurationMS,
+      Duration sleepDuration,
       HttpRequestOperator<T, E> makeRequest,
       Predicate<Exception> isRetryable)
       throws E, InterruptedException {
@@ -173,8 +174,10 @@ public class HttpUtils {
         logger.info("Caught retryable exception: {}", ex);
       }
 
-      // sleep before retrying
-      Thread.sleep(sleepDurationMS);
+      // sleep before retrying, unless this is the last try
+      if (numTries < maxRetries) {
+        Thread.sleep(sleepDuration.toMillis());
+      }
     } while (numTries <= maxRetries);
 
     // request with retries timed out
@@ -189,6 +192,7 @@ public class HttpUtils {
    *
    * @param <T> type of the Http response (i.e. return type of the makeRequest method)
    */
+  @FunctionalInterface
   public interface HttpRequestOperator<T, E extends Exception> {
     T makeRequest() throws E;
   }
