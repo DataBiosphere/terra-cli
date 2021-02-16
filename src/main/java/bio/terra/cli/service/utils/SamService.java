@@ -9,9 +9,8 @@ import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
-import org.broadinstitute.dsde.workbench.client.sam.api.VersionApi;
-import org.broadinstitute.dsde.workbench.client.sam.model.SamVersion;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
+import org.broadinstitute.dsde.workbench.client.sam.model.UserStatus;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,28 +69,9 @@ public class SamService {
   }
 
   /**
-   * Call the SAM "/version" endpoint to get the version of the server that is currently running.
-   *
-   * @return the SAM version object
-   */
-  public SamVersion getVersion() {
-    VersionApi versionApi = new VersionApi(apiClient);
-    SamVersion samVersion = null;
-    try {
-      samVersion =
-          HttpUtils.callWithRetries(() -> versionApi.samVersion(), (ex) -> isRetryable(ex));
-    } catch (Exception ex) {
-      logger.error("Error getting SAM version", ex);
-    } finally {
-      closeConnectionPool();
-    }
-    return samVersion;
-  }
-
-  /**
    * Call the SAM "/status" endpoint to get the status of the server.
    *
-   * @return the SAM status object
+   * @return the SAM status object, null if there was an error checking the status
    */
   public SystemStatus getStatus() {
     StatusApi statusApi = new StatusApi(apiClient);
@@ -111,30 +91,51 @@ public class SamService {
    * Call the SAM "/register/user/v2/self/info" endpoint to get the user info for the current user
    * (i.e. the one whose credentials were supplied to the apiClient object).
    *
-   * @return the SAM user status info object
+   * <p>Update the Terra User object passed in with the user information from SAM.
    */
-  public UserStatusInfo getUserInfo() {
+  public void getUser() throws Exception {
     UsersApi samUsersApi = new UsersApi(apiClient);
-    UserStatusInfo userStatusInfo = null;
     try {
-      userStatusInfo =
+      UserStatusInfo userStatusInfo =
           HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), (ex) -> isRetryable(ex));
-    } catch (Exception ex) {
-      logger.error("Error getting user info from SAM.", ex);
+      terraUser.terraUserId = userStatusInfo.getUserSubjectId();
+      terraUser.terraUserEmail = userStatusInfo.getUserEmail();
     } finally {
       closeConnectionPool();
     }
-    return userStatusInfo;
   }
 
   /**
-   * Populate the terra user id and name properties of the given Terra user object. Maps the SAM
-   * subject id to the user id, and the SAM email to the user name.
+   * Call the SAM "/register/user/v2/self/info" endpoint to get the user info for the current user
+   * (i.e. the one whose credentials were supplied to the apiClient object).
+   *
+   * <p>If that returns a Not Found error, then call the SAM "register/user/v2/self" endpoint to
+   * register the user.
+   *
+   * <p>Update the Terra User object with the user information from SAM.
    */
-  public void populateTerraUserInfo() {
-    UserStatusInfo samUserInfo = getUserInfo();
-    terraUser.terraUserId = samUserInfo.getUserSubjectId();
-    terraUser.terraUserEmail = samUserInfo.getUserEmail();
+  public void getOrRegisterUser() throws Exception {
+    UsersApi samUsersApi = new UsersApi(apiClient);
+    try {
+      // first try to lookup the user
+      UserStatusInfo userStatusInfo =
+          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), (ex) -> isRetryable(ex));
+      terraUser.terraUserId = userStatusInfo.getUserSubjectId();
+      terraUser.terraUserEmail = userStatusInfo.getUserEmail();
+    } catch (ApiException apiEx) {
+      if (apiEx.getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND) {
+        throw apiEx;
+      }
+      logger.info("User not found in SAM. Trying to register a new user.");
+
+      // lookup failed with Not Found error, now try to register the user
+      UserStatus userStatus =
+          HttpUtils.callWithRetries(() -> samUsersApi.createUserV2(), (ex) -> isRetryable(ex));
+      terraUser.terraUserId = userStatus.getUserInfo().getUserSubjectId();
+      terraUser.terraUserEmail = userStatus.getUserInfo().getUserEmail();
+    } finally {
+      closeConnectionPool();
+    }
   }
 
   /** Try to close the connection pool after we're finished with this SAM request. */
@@ -155,9 +156,11 @@ public class SamService {
    * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
    * to the apiClient object).
    *
+   * @param workspaceContext the current workspace
    * @return the HTTP response to the SAM request
    */
-  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext) {
+  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext)
+      throws Exception {
     // The code below should be changed to use the SAM client library. For example:
     //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
     //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -165,29 +168,24 @@ public class SamService {
     // But I couldn't get this to work. The ApiClient throws an exception, I think in parsing the
     // response. So for now, this is making a direct (i.e. without the client library) HTTP request
     // to get the key file contents.
-    try {
-      String apiEndpoint =
-          server.samUri
-              + "/api/google/v1/user/petServiceAccount/"
-              + workspaceContext.getGoogleProject()
-              + "/key";
-      String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
-      return HttpUtils.callWithRetries(
-          () -> {
-            HttpUtils.HttpResponse response =
-                HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
-            if (HttpStatusCodes.isSuccess(response.statusCode)) {
-              return response;
-            }
-            throw new ApiException(
-                response.statusCode,
-                "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
-          },
-          (ex) -> isRetryable(ex));
-    } catch (Exception ex) {
-      logger.error("Error getting project-specific pet SA key from SAM.", ex);
-      return null;
-    }
+    String apiEndpoint =
+        server.samUri
+            + "/api/google/v1/user/petServiceAccount/"
+            + workspaceContext.getGoogleProject()
+            + "/key";
+    String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
+    return HttpUtils.callWithRetries(
+        () -> {
+          HttpUtils.HttpResponse response =
+              HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+          if (HttpStatusCodes.isSuccess(response.statusCode)) {
+            return response;
+          }
+          throw new ApiException(
+              response.statusCode,
+              "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
+        },
+        (ex) -> isRetryable(ex));
   }
 
   /**

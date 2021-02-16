@@ -14,7 +14,7 @@ import picocli.CommandLine.Command;
 public class ListUsers implements Callable<Integer> {
 
   @Override
-  public Integer call() {
+  public Integer call() throws Exception {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

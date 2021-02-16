@@ -1,6 +1,6 @@
 package bio.terra.cli.context;
 
-import bio.terra.cli.auth.AuthenticationUtils;
+import bio.terra.cli.auth.GoogleCredentialUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -57,7 +57,7 @@ public class TerraUser {
 
   /** Fetch the access token for the user credentials. */
   public AccessToken fetchUserAccessToken() {
-    return AuthenticationUtils.getAccessToken(userCredentials);
+    return GoogleCredentialUtils.getAccessToken(userCredentials);
   }
 
   /** Return a pointer to the pet key file for the given Google project id. */

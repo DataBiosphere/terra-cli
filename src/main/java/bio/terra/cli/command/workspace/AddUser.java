@@ -20,7 +20,7 @@ public class AddUser implements Callable<Integer> {
   private IamRole role;
 
   @Override
-  public Integer call() {
+  public Integer call() throws Exception {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

@@ -21,7 +21,7 @@ public class List implements Callable<Integer> {
   private String location;
 
   @Override
-  public Integer call() {
+  public Integer call() throws Exception {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
     workspaceContext.requireCurrentWorkspace();

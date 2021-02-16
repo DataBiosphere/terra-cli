@@ -53,7 +53,7 @@ public class Create implements Callable<Integer> {
   // TODO: Add boot disk types & gpu size configs.
 
   @Override
-  public Integer call() {
+  public Integer call() throws Exception {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
     workspaceContext.requireCurrentWorkspace();

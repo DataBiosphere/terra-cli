@@ -22,7 +22,7 @@ public class Execute implements Callable<Integer> {
   @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
-  public Integer call() {
+  public Integer call() throws Exception {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
