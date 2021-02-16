@@ -3,8 +3,10 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
+import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.VersionApi;
@@ -76,7 +78,8 @@ public class SamService {
     VersionApi versionApi = new VersionApi(apiClient);
     SamVersion samVersion = null;
     try {
-      samVersion = versionApi.samVersion();
+      samVersion =
+          HttpUtils.callWithRetries(() -> versionApi.samVersion(), (ex) -> isRetryable(ex));
     } catch (Exception ex) {
       logger.error("Error getting SAM version", ex);
     } finally {
@@ -94,7 +97,8 @@ public class SamService {
     StatusApi statusApi = new StatusApi(apiClient);
     SystemStatus status = null;
     try {
-      status = statusApi.getSystemStatus();
+      status =
+          HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), (ex) -> isRetryable(ex));
     } catch (Exception ex) {
       logger.error("Error getting SAM status", ex);
     } finally {
@@ -113,7 +117,8 @@ public class SamService {
     UsersApi samUsersApi = new UsersApi(apiClient);
     UserStatusInfo userStatusInfo = null;
     try {
-      userStatusInfo = samUsersApi.getUserStatusInfo();
+      userStatusInfo =
+          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), (ex) -> isRetryable(ex));
     } catch (Exception ex) {
       logger.error("Error getting user info from SAM.", ex);
     } finally {
@@ -146,30 +151,6 @@ public class SamService {
   }
 
   /**
-   * Call the SAM "/api/google/v1/user/petServiceAccount/key" endpoint to get an arbitrary pet SA
-   * key for the current user (i.e. the one whose credentials were supplied to the apiClient
-   * object).
-   *
-   * @return the HTTP response to the SAM request
-   */
-  public HttpUtils.HttpResponse getArbitraryPetSaKey() {
-    // The code below should be changed to use the SAM client library. For example:
-    //   GoogleApi samGoogleApi = new GoogleApi(apiClient);
-    //   samGoogleApi.getArbitraryPetServiceAccountKey();
-    // But I couldn't get this to work. The ApiClient throws an exception, I think in parsing the
-    // response. So for now, this is making a direct (i.e. without the client library) HTTP request
-    // to get the key file contents.
-    try {
-      String apiEndpoint = server.samUri + "/api/google/v1/user/petServiceAccount/key";
-      String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
-      return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
-    } catch (Exception ex) {
-      logger.error("Error getting arbitrary pet SA key from SAM.", ex);
-      return null;
-    }
-  }
-
-  /**
    * Call the SAM "/api/google/v1/user/petServiceAccount/{project}/key" endpoint to get a
    * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
    * to the apiClient object).
@@ -191,10 +172,36 @@ public class SamService {
               + workspaceContext.getGoogleProject()
               + "/key";
       String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
-      return HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+      return HttpUtils.callWithRetries(
+          () -> {
+            HttpUtils.HttpResponse response =
+                HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
+            if (HttpStatusCodes.isSuccess(response.statusCode)) {
+              return response;
+            }
+            throw new ApiException(
+                response.statusCode,
+                "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
+          },
+          (ex) -> isRetryable(ex));
     } catch (Exception ex) {
       logger.error("Error getting project-specific pet SA key from SAM.", ex);
       return null;
     }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the SAM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  private static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int statusCode = ((ApiException) ex).getCode();
+    return statusCode == HttpStatusCodes.STATUS_CODE_SERVER_ERROR
+        || statusCode == HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
   }
 }
