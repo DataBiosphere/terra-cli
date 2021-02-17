@@ -26,13 +26,6 @@ public class CloudResource {
 
   /** Type of cloud resource. */
   public enum Type {
-    bucket(true);
-
-    // true = this cloud resource is also a data reference
-    public final boolean isDataReference;
-
-    Type(boolean isDataReference) {
-      this.isDataReference = isDataReference;
-    }
+    bucket;
   }
 }

@@ -81,6 +81,9 @@ public class DockerAppsRunner {
   /**
    * Run a command inside the Docker container for external tools.
    *
+   * <p>This method substitutes any Terra references in the command and also adds the Terra
+   * references as environment variables in the container.
+   *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    */
   public void runToolCommand(String command) {
@@ -91,6 +94,9 @@ public class DockerAppsRunner {
    * Run a command inside the Docker container for external tools. Allows adding environment
    * variables and bind mounts beyond what the terra_init script requires. The environment variables
    * and bind mounts expected by the terra_init script will be added to those passed in.
+   *
+   * <p>This method substitutes any Terra references in the command and also adds the Terra
+   * references as environment variables in the container.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param workingDir the directory where the commmand will be executed
@@ -361,7 +367,7 @@ public class DockerAppsRunner {
    *
    * <p>e.g. TERRA_MY_BUCKET -> gs://terra-wsm-test-9b7511ab-my-bucket
    *
-   * @return
+   * @return a map of Terra references (name -> cloud id)
    */
   private Map<String, String> buildMapOfTerraReferences() {
     // build a map of reference string -> resolved value

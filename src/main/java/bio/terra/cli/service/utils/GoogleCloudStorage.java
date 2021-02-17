@@ -34,19 +34,15 @@ public class GoogleCloudStorage {
     buildClientForTerraUser();
   }
 
-  /**
-   * Build the GCS client object for the given Terra user. If terraUser is null, this method builds
-   * the client object without an access token set.
-   */
+  /** Build the GCS client object for the given Terra user. */
   private void buildClientForTerraUser() {
     StorageOptions.Builder storageOptions = StorageOptions.newBuilder();
     storageOptions.setProjectId(googleProjectId);
 
-    if (terraUser != null) {
-      // fetch the user access token
-      // this method call will attempt to refresh the token if it's already expired
-      storageOptions.setCredentials(terraUser.userCredentials);
-    }
+    // fetch the user access token
+    // this method call will attempt to refresh the token if it's already expired
+    storageOptions.setCredentials(terraUser.userCredentials);
+
     this.storageClient = storageOptions.build().getService();
   }
 
