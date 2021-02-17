@@ -76,7 +76,7 @@ public class AuthenticationManager {
       // if there are already credentials for this user, and they are not expired, then return them
       // otherwise, log the user in and get their consent
       userCredentials =
-          AuthenticationUtils.doLoginAndConsent(
+          GoogleCredentialUtils.doLoginAndConsent(
               terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
@@ -87,10 +87,11 @@ public class AuthenticationManager {
     terraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    new SamService(globalContext.server, terraUser).populateTerraUserInfo();
-
-    // fetch the pet SA credentials if they don't already exist
-    fetchPetSaCredentials(terraUser);
+    new SamService(globalContext.server, terraUser).getOrRegisterUser();
+    if (terraUser.terraUserId != null) {
+      // fetch the pet SA credentials if they don't already exist
+      fetchPetSaCredentials(terraUser);
+    }
 
     // update the global context with the current user
     globalContext.addOrUpdateTerraUser(terraUser, true);
@@ -109,7 +110,7 @@ public class AuthenticationManager {
         AuthenticationManager.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // delete the user credentials
-      AuthenticationUtils.deleteExistingCredential(
+      GoogleCredentialUtils.deleteExistingCredential(
           currentTerraUser.cliGeneratedUserKey,
           SCOPES,
           inputStream,
@@ -142,7 +143,7 @@ public class AuthenticationManager {
 
       // fetch any non-expired existing credentials for this user
       userCredentials =
-          AuthenticationUtils.getExistingUserCredential(
+          GoogleCredentialUtils.getExistingUserCredential(
               currentTerraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
@@ -158,10 +159,11 @@ public class AuthenticationManager {
     currentTerraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    new SamService(globalContext.server, currentTerraUser).populateTerraUserInfo();
-
-    // fetch the pet SA credentials if they don't already exist
-    fetchPetSaCredentials(currentTerraUser);
+    new SamService(globalContext.server, currentTerraUser).getUser();
+    if (currentTerraUser.terraUserId != null) {
+      // fetch the pet SA credentials if they don't already exist
+      fetchPetSaCredentials(currentTerraUser);
+    }
 
     // update the global context with the populated information
     globalContext.addOrUpdateTerraUser(currentTerraUser);
@@ -198,7 +200,7 @@ public class AuthenticationManager {
 
       // create a credentials object from the key
       ServiceAccountCredentials petSaCredentials =
-          AuthenticationUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
+          GoogleCredentialUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
 
       terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {

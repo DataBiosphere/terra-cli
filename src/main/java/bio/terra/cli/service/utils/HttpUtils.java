@@ -10,10 +10,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.Map;
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Utility methods for making raw HTTP requests (e.g. in place of using a client library). */
 public class HttpUtils {
+  private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
+
+  // default value for the maximum number of times to retry HTTP requests
+  private static final int DEFAULT_MAXIMUM_RETRIES = 10;
+
+  // default value for the time to sleep between retries
+  private static final Duration DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
 
   private HttpUtils() {}
 
@@ -107,5 +118,82 @@ public class HttpUtils {
 
     // return a POJO that includes both the response body and status code
     return new HttpResponse(responseBody.toString(), statusCode);
+  }
+
+  /**
+   * Helper method to do retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for maximum number of
+   * retries and {@link #DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY} for the time to sleep between
+   * retries.
+   *
+   * @param makeRequest function to perform the request
+   * @param isRetryable function to test whether the exception is retryable or not
+   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
+   * @return the Http response
+   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
+   *     number of retries was exhausted
+   */
+  public static <T, E extends Exception> T callWithRetries(
+      HttpRequestOperator<T, E> makeRequest, Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
+    return callWithRetries(
+        DEFAULT_MAXIMUM_RETRIES, DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY, makeRequest, isRetryable);
+  }
+  /**
+   * Helper method to do retries.
+   *
+   * @param maxRetries maximum number of times to retry
+   * @param sleepDuration time to sleep between tries
+   * @param makeRequest function to perform the request
+   * @param isRetryable function to test whether the exception is retryable or not
+   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
+   * @return the Http response
+   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
+   *     number of retries was exhausted
+   */
+  public static <T, E extends Exception> T callWithRetries(
+      int maxRetries,
+      Duration sleepDuration,
+      HttpRequestOperator<T, E> makeRequest,
+      Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
+    int numTries = 0;
+    Exception lastRetryableException = null;
+    do {
+      numTries++;
+      try {
+        logger.info("Http request attempt #{}", numTries);
+        return makeRequest.makeRequest();
+      } catch (Exception ex) {
+        // if the exception is not retryable, then quit polling
+        if (!isRetryable.test(ex)) {
+          throw ex;
+        } else {
+          // keep track of the last retryable exception so we can re-throw it in case of a timeout
+          lastRetryableException = ex;
+        }
+        logger.info("Caught retryable exception: {}", ex);
+      }
+
+      // sleep before retrying, unless this is the last try
+      if (numTries < maxRetries) {
+        Thread.sleep(sleepDuration.toMillis());
+      }
+    } while (numTries <= maxRetries);
+
+    // request with retries timed out
+    throw new RuntimeException(
+        "Http request with retries timed out after " + numTries + " tries.",
+        lastRetryableException);
+  }
+
+  /**
+   * Function interface for making a retryable Http request. This interface is explicitly defined so
+   * that it can throw an exception (i.e. Supplier does not have this method annotation).
+   *
+   * @param <T> type of the Http response (i.e. return type of the makeRequest method)
+   */
+  @FunctionalInterface
+  public interface HttpRequestOperator<T, E extends Exception> {
+    T makeRequest() throws E;
   }
 }

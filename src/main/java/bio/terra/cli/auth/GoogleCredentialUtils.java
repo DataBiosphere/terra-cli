@@ -27,10 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating Google credentials. */
-public final class AuthenticationUtils {
-  private static final Logger logger = LoggerFactory.getLogger(AuthenticationUtils.class);
+public final class GoogleCredentialUtils {
+  private static final Logger logger = LoggerFactory.getLogger(GoogleCredentialUtils.class);
 
-  private AuthenticationUtils() {}
+  private GoogleCredentialUtils() {}
 
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
