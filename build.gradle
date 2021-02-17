@@ -52,6 +52,7 @@ dependencies {
         googleOauth2 = '0.22.0'
         googleClient = '1.31.1'
         bigQuery = '1.116.6'
+        cloudStorage = '1.113.2'
 
         // Docker
         docker = '3.2.7'
@@ -82,6 +83,7 @@ dependencies {
     implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
     implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
     implementation "com.google.cloud:google-cloud-bigquery:${bigQuery}"
+    implementation "com.google.cloud:google-cloud-storage:${cloudStorage}"
 
     implementation "com.github.docker-java:docker-java-core:${docker}"
     implementation "com.github.docker-java:docker-java-transport-httpclient5:${docker}"

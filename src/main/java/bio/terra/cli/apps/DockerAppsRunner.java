@@ -81,6 +81,9 @@ public class DockerAppsRunner {
   /**
    * Run a command inside the Docker container for external tools.
    *
+   * <p>This method substitutes any Terra references in the command and also adds the Terra
+   * references as environment variables in the container.
+   *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    */
   public void runToolCommand(String command) {
@@ -91,6 +94,9 @@ public class DockerAppsRunner {
    * Run a command inside the Docker container for external tools. Allows adding environment
    * variables and bind mounts beyond what the terra_init script requires. The environment variables
    * and bind mounts expected by the terra_init script will be added to those passed in.
+   *
+   * <p>This method substitutes any Terra references in the command and also adds the Terra
+   * references as environment variables in the container.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param workingDir the directory where the commmand will be executed
@@ -106,6 +112,12 @@ public class DockerAppsRunner {
       Map<String, File> bindMounts) {
     // check that the current workspace is defined
     workspaceContext.requireCurrentWorkspace();
+
+    // substitute any Terra references in the command
+    // also add the Terra references as environment variables in the container
+    Map<String, String> terraReferences = buildMapOfTerraReferences();
+    command = replaceTerraReferences(terraReferences, command);
+    envVars.putAll(terraReferences);
 
     buildDockerClient();
 
@@ -166,9 +178,9 @@ public class DockerAppsRunner {
     Map<String, String> terraInitEnvVars = new HashMap<>();
     String googleProjectId = workspaceContext.getGoogleProject();
     terraInitEnvVars.put(
-        "PET_KEY_FILE",
+        "GOOGLE_APPLICATION_CREDENTIALS",
         PET_KEYS_MOUNT_POINT + "/" + currentUser.getPetKeyFile(googleProjectId).getName());
-    terraInitEnvVars.put("GOOGLE_PROJECT_ID", googleProjectId);
+    terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", googleProjectId);
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
         throw new RuntimeException(
@@ -311,7 +323,7 @@ public class DockerAppsRunner {
       // from the command classes only.
       // Revisit this once we have better model for centralizing output across all commands/rest of
       // the codebase.
-      System.out.println(logStr); // write to stdout
+      System.out.print(logStr); // write to stdout
 
       if (buildSingleStringOutput) {
         log.append(logStr);
@@ -331,7 +343,12 @@ public class DockerAppsRunner {
     }
   }
 
-  /** Utility method for concatenating a command and its arguments. */
+  /**
+   * Utility method for concatenating a command and its arguments.
+   *
+   * @param cmd command name (e.g. gsutil)
+   * @param cmdArgs command arguments (e.g. ls, gs://my-bucket)
+   */
   public static String buildFullCommand(String cmd, List<String> cmdArgs) {
     String fullCommand = cmd;
     if (cmdArgs != null && cmdArgs.size() > 0) {
@@ -339,5 +356,48 @@ public class DockerAppsRunner {
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
     return fullCommand;
+  }
+
+  /**
+   * Build a map of Terra references to use in parsing the CLI command string, and in setting
+   * environment variables in the Docker container.
+   *
+   * <p>The list of references are TERRA_[...] where [...] is the name of a cloud resource. The
+   * cloud resource can be controlled or external.
+   *
+   * <p>e.g. TERRA_MY_BUCKET -> gs://terra-wsm-test-9b7511ab-my-bucket
+   *
+   * @return a map of Terra references (name -> cloud id)
+   */
+  private Map<String, String> buildMapOfTerraReferences() {
+    // build a map of reference string -> resolved value
+    Map<String, String> terraReferences = new HashMap<>();
+    workspaceContext
+        .listCloudResources()
+        .forEach(
+            cloudResource ->
+                terraReferences.put(
+                    "TERRA_" + cloudResource.name.toUpperCase(), cloudResource.cloudId));
+
+    return terraReferences;
+  }
+
+  /**
+   * Replace any Terra references in the command string with the resolved values. The references are
+   * case insensitive.
+   *
+   * @param cmd the original command string
+   * @return the modified command string
+   */
+  private String replaceTerraReferences(Map<String, String> terraReferences, String cmd) {
+    // loop through the map entries
+    String modifiedCmd = cmd;
+    for (Map.Entry<String, String> terraReference : terraReferences.entrySet()) {
+      // loop through the map entries, replacing each one in the command string (case insensitive)
+      modifiedCmd =
+          modifiedCmd.replaceAll(
+              "(?i)\\{" + terraReference.getKey() + "}", terraReference.getValue());
+    }
+    return modifiedCmd;
   }
 }

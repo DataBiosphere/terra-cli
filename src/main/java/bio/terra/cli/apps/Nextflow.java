@@ -43,9 +43,12 @@ public class Nextflow {
     Map<String, File> bindMounts = new HashMap<>();
     bindMounts.put(NEXTFLOW_MOUNT_POINT, DEFAULT_NEXTFLOW_DIR.toFile());
 
+    Map<String, String> envVars = new HashMap<>();
+    envVars.put("NXF_MODE", "google");
+
     String fullCommand = DockerAppsRunner.buildFullCommand("nextflow", cmdArgs);
     new DockerAppsRunner(globalContext, workspaceContext)
-        .runToolCommand(fullCommand, NEXTFLOW_MOUNT_POINT, new HashMap<>(), bindMounts);
+        .runToolCommand(fullCommand, NEXTFLOW_MOUNT_POINT, envVars, bindMounts);
   }
 
   /** Create the nextflow sub-directory on the host machine if it does not already exist. */

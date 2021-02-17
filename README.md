@@ -37,9 +37,9 @@ one of those as a temporary workaround. If you do have access to the Broad VPN, 
 `terra server set terra-dev` to change it back to official Terra dev environment.
 
 #### External data 
-To allow supported tools (i.e. the ones shown by `terra app list`) to read or write data external
-to the Terra workspace, you need to give the user's pet service account the appropriate access.
-To get the email of the user's pet service account, run `terra gcloud config get-value account`.
+To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
+external to the Terra workspace, you need to give the user's pet service account the appropriate
+access. To get the email of the user's pet service account, run `terra gcloud config get-value account`.
 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
@@ -98,11 +98,12 @@ Usage: terra [COMMAND]
 Terra CLI
 Commands:
   status     Print details about the current workspace.
-  auth       Commands related to the retrieval and management of user
-               credentials.
-  server     Commands related to the Terra server.
-  workspace  Commands related to the Terra workspace.
-  app        Commands related to applications in the Terra workspace context.
+  auth       Retrieve and manage user credentials.
+  server     Connect to a Terra server.
+  workspace  Setup a Terra workspace.
+  resources  Manage controlled resources in the workspace.
+  app        Run applications in the workspace.
+  notebooks  Use AI Notebooks in the workspace.
 ```
 
 The `status` command prints details about the current workspace and server.
@@ -111,7 +112,8 @@ Each sub-group of commands is described in a sub-section below:
 - Authentication
 - Server
 - Workspace
-- App
+- Resources
+- Applications
 
 #### Authentication
 ```
@@ -157,13 +159,27 @@ Commands:
   remove-user  Remove a user from the workspace.
 ```
 
-A Terra Workspace is backed by a Google project. Creating a new workspace also creates a new backing Google project.
-The same applies to deleting.
+A Terra workspace is backed by a Google project. Creating a new workspace also creates a new backing Google 
+project. The same applies to deleting.
 
 The workspace context is tied to the directory on your local machine, similar to how `git` works.
 So if you change directories, you lose the workspace context.
 
-#### Supported tools
+#### Resources
+```
+Usage: terra resources [COMMAND]
+Manage controlled resources in the workspace.
+Commands:
+  create    Create a new controlled resource.
+  delete    Delete an existing controlled resource.
+  describe  Describe an existing controlled resource.
+  list      List all controlled resources.
+```
+
+A controlled resource is a cloud resource managed by the Terra workspace on behalf of the user.
+Currently, the only supported controlled resource is a bucket.
+
+#### Applications
 ```
 Usage: terra app [COMMAND]
 Commands related to applications in the Terra workspace context.

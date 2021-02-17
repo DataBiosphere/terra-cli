@@ -14,7 +14,7 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "workspace",
-    description = "Commands related to the Terra workspace.",
+    description = "Setup a Terra workspace.",
     subcommands = {
       Create.class,
       Mount.class,

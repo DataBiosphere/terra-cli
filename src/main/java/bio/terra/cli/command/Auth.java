@@ -11,6 +11,6 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "auth",
-    description = "Commands related to the retrieval and management of user credentials.",
+    description = "Retrieve and manage user credentials.",
     subcommands = {Status.class, Login.class, Revoke.class})
 public class Auth {}

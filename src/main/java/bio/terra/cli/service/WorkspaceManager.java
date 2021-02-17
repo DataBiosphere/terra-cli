@@ -1,13 +1,18 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.cloud.storage.Bucket;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,5 +173,92 @@ public class WorkspaceManager {
     // call WSM to get the users + roles for the existing workspace
     return new WorkspaceManagerService(globalContext.server, currentUser)
         .getRoles(workspaceContext.getWorkspaceId());
+  }
+
+  /**
+   * Lookup a controlled resource by its name. Names are unique within a workspace.
+   *
+   * @param resourceName name of resource to lookup
+   * @return the cloud resource object
+   * @throws RuntimeException if the resource is not controlled (e.g. external bucket)
+   */
+  public CloudResource getControlledResource(String resourceName) {
+    // TODO: change this method to call WSM controlled resource endpoints once they're ready
+    CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
+    if (!cloudResource.isControlled) {
+      throw new RuntimeException(resourceName + " is not a controlled resource.");
+    }
+    return cloudResource;
+  }
+
+  /**
+   * Create a new controlled resource in the workspace.
+   *
+   * @param resourceType type of resource to create
+   * @param resourceName name of resource to create
+   * @return the cloud resource that was created
+   */
+  public CloudResource createControlledResource(
+      CloudResource.Type resourceType, String resourceName) {
+    // TODO: change this method to call WSM controlled resource endpoints once they're ready
+    if (!isValidEnvironmentVariableName(resourceName)) {
+      throw new RuntimeException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
+    // create the bucket by calling GCS directly
+    String bucketName = workspaceContext.getGoogleProject() + "-" + resourceName;
+    Bucket bucket =
+        new GoogleCloudStorage(
+                globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+            .createBucket(bucketName);
+
+    // persist the cloud resource locally
+    CloudResource resource =
+        new CloudResource(resourceName, "gs://" + bucket.getName(), resourceType, true);
+    workspaceContext.addCloudResource(resource);
+
+    return resource;
+  }
+
+  /**
+   * Check if the name only contains alphanumeric and underscore characters.
+   *
+   * @param name string to check
+   * @return true if the string is a valid environment variable name
+   */
+  private static boolean isValidEnvironmentVariableName(String name) {
+    return !Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find();
+  }
+
+  /**
+   * Delete an existing controlled resource in the workspace.
+   *
+   * @param resourceName name of resource to delete
+   * @return the cloud resource object that was removed
+   */
+  public CloudResource deleteControlledResource(String resourceName) {
+    // TODO: change this method to call WSM controlled resource endpoints once they're ready
+    // delete the bucket by calling GCS directly
+    CloudResource resource = getControlledResource(resourceName);
+    new GoogleCloudStorage(
+            globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+        .deleteBucket(resource.cloudId);
+
+    // remove the cloud resource and persist the updated list locally
+    workspaceContext.removeCloudResource(resourceName);
+
+    return resource;
+  }
+
+  /**
+   * List the controlled resources in a workspace.
+   *
+   * @return a list of controlled resources in the workspace
+   */
+  public List<CloudResource> listResources() {
+    // TODO: change this method to call WSM controlled resource endpoints once they're ready
+
+    return workspaceContext.listControlledResources();
   }
 }

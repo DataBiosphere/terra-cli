@@ -12,6 +12,6 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "app",
-    description = "Commands related to applications in the Terra workspace context.",
+    description = "Run applications in the workspace.",
     subcommands = {List.class, GetImage.class, SetImage.class, Execute.class})
 public class App {}
