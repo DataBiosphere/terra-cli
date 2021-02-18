@@ -10,7 +10,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra groups list-users" command. */
-@Command(name = "list-users", description = "List the users in a group.")
+@Command(name = "list-users", description = "List the users in a group with a given policy.")
 public class ListUsers implements Callable<Integer> {
   @CommandLine.Parameters(index = "0", description = "The name of the group")
   private String group;

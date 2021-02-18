@@ -41,8 +41,14 @@ by Workspace Manager. Your email needs to either be added as a user of that spen
 to a Terra group that is a user of that spend profile. This needs to be done by someone else with
 owner access to that spend profile.
 
-- [Preferred] Add a user to a Terra group that is a user of the spend profile with `terra groups add-user --group=enterprise-pilot-testers --policy=admin mmdevverily4@gmail.com`
-- Add a user directly to the spend profile with `terra spend enable --policy=owner mmdevverily@gmail.com`
+- [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
+to add new members to the group, use `policy=admin` instead.
+
+`terra groups add-user --group=enterprise-pilot-testers --policy=member mmdevverily4@gmail.com`
+
+- Add a user directly to the spend profile. To also grant permission to add new users to the spend profile,
+user `policy=owner` instead.
+`terra spend enable --policy=user mmdevverily@gmail.com`
 
 #### External data 
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data

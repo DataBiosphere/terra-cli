@@ -9,7 +9,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra groups remove-user" command. */
-@Command(name = "remove-user", description = "Remove a user from a group.")
+@Command(name = "remove-user", description = "Remove a user from a group with a given policy.")
 public class RemoveUser implements Callable<Integer> {
   @CommandLine.Parameters(index = "0", description = "The email of the user.")
   private String user;
