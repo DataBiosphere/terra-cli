@@ -113,11 +113,8 @@ public class DockerAppsRunner {
     // check that the current workspace is defined
     workspaceContext.requireCurrentWorkspace();
 
-    // substitute any Terra references in the command
-    // also add the Terra references as environment variables in the container
-    Map<String, String> terraReferences = buildMapOfTerraReferences();
-    command = replaceTerraReferences(terraReferences, command);
-    envVars.putAll(terraReferences);
+    // add the Terra references as environment variables in the container
+    envVars.putAll(buildMapOfTerraReferences());
 
     buildDockerClient();
 
@@ -380,24 +377,5 @@ public class DockerAppsRunner {
                     "TERRA_" + cloudResource.name.toUpperCase(), cloudResource.cloudId));
 
     return terraReferences;
-  }
-
-  /**
-   * Replace any Terra references in the command string with the resolved values. The references are
-   * case insensitive.
-   *
-   * @param cmd the original command string
-   * @return the modified command string
-   */
-  private String replaceTerraReferences(Map<String, String> terraReferences, String cmd) {
-    // loop through the map entries
-    String modifiedCmd = cmd;
-    for (Map.Entry<String, String> terraReference : terraReferences.entrySet()) {
-      // loop through the map entries, replacing each one in the command string (case insensitive)
-      modifiedCmd =
-          modifiedCmd.replaceAll(
-              "(?i)\\{" + terraReference.getKey() + "}", terraReference.getValue());
-    }
-    return modifiedCmd;
   }
 }
