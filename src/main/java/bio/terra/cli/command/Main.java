@@ -25,7 +25,9 @@ import picocli.CommandLine.ParseResult;
       Gsutil.class,
       Bq.class,
       Nextflow.class,
-      Notebooks.class
+      Notebooks.class,
+      Groups.class,
+      Spend.class
     },
     description = "Terra CLI")
 class Main implements Runnable {

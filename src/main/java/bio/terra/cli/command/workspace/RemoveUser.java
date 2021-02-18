@@ -10,10 +10,10 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace remove-user" command. */
-@Command(name = "remove-user", description = "Remove a user from the workspace.")
+@Command(name = "remove-user", description = "Remove a user or group from the workspace.")
 public class RemoveUser implements Callable<Integer> {
 
-  @CommandLine.Parameters(index = "0", description = "user email")
+  @CommandLine.Parameters(index = "0", description = "user or group email")
   private String userEmail;
 
   @CommandLine.Parameters(index = "1", description = "Role to remove: ${COMPLETION-CANDIDATES}")
@@ -26,7 +26,7 @@ public class RemoveUser implements Callable<Integer> {
 
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     new WorkspaceManager(globalContext, workspaceContext).removeUserFromWorkspace(userEmail, role);
-    System.out.println("User removed from workspace: " + userEmail + ", " + role);
+    System.out.println("Email removed from workspace: " + userEmail + ", " + role);
     return 0;
   }
 }

@@ -6,10 +6,15 @@ import bio.terra.cli.context.WorkspaceContext;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
+import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
+import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
+import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatus;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
@@ -141,6 +146,238 @@ public class SamService {
       } catch (ApiException | InterruptedException secondEx) {
         throw new RuntimeException("Error reading user information from SAM.", secondEx);
       }
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}" POST endpoint to create a new group.
+   *
+   * @param groupName name of the new group
+   */
+  public void createGroup(String groupName) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            groupApi.postGroup(groupName);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error creating SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}" DELETE endpoint to delete an existing group.
+   *
+   * @param groupName name of the group to delete
+   */
+  public void deleteGroup(String groupName) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            groupApi.deleteGroup(groupName);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error deleting SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}" GET endpoint to get the email address of a group.
+   *
+   * @param groupName name of the group to delete
+   */
+  public String getGroupEmail(String groupName) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(() -> groupApi.getGroup(groupName), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error getting email address of SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Possible values for the policies on a SAM group. These values are defined as an enum in SAM's
+   * API YAML
+   * (https://github.com/broadinstitute/sam/blob/61135c798873d20a308be1e440b862bf9767c243/src/main/resources/swagger/api-docs.yaml#L383)
+   * but I don't see an enum in the client library. It looks like that was a bug in Swagger codegen
+   * until v2.1.5 (https://github.com/swagger-api/swagger-codegen/pull/1740), but I'm not sure if
+   * that applies to the version that SAM is using.
+   */
+  public enum GroupPolicy {
+    member,
+    admin
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}/{policyName}" GET endpoint to get the email addresses
+   * of a group + policy.
+   *
+   * @param groupName name of the group
+   * @param policy policy the users belong to
+   * @return a list of users that belong to the group with the specified policy
+   */
+  public List<String> listUsersInGroup(String groupName, GroupPolicy policy) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> groupApi.getGroupAdminEmails(groupName, policy.name()), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error listing users in SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}/{policyName}/{email}" PUT endpoint to add an email
+   * address to a group + policy.
+   *
+   * @param groupName name of the group
+   * @param policy policy the user will belong to
+   * @param userEmail email of the user to add
+   */
+  public void addUserToGroup(String groupName, GroupPolicy policy, String userEmail) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            groupApi.addEmailToGroup(groupName, policy.name(), userEmail);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error adding user to SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1/{groupName}/{policyName}/{email}" DELETE endpoint to remove an
+   * email address from a group + policy.
+   *
+   * @param groupName name of the group
+   * @param policy policy the user belongs to
+   * @param userEmail email of the user to remove
+   */
+  public void removeUserFromGroup(String groupName, GroupPolicy policy, String userEmail) {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            groupApi.removeEmailFromGroup(groupName, policy.name(), userEmail);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error removing user from SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/groups/v1" GET endpoint to get the groups to which the current user belongs.
+   *
+   * @return a list of groups
+   */
+  public List<ManagedGroupMembershipEntry> listGroups() {
+    GroupApi groupApi = new GroupApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> groupApi.listGroupMemberships(), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error listing users in SAM group.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM
+   * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
+   * PUT endpoint to add an email address to a resource + policy.
+   *
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   * @param resourcePolicyName name of resource policy
+   * @param userEmail email of the user or group to add
+   */
+  public void addUserToResource(
+      String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
+    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error adding user to SAM resource.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM
+   * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
+   * DELETE endpoint to remove an email address from a resource + policy.
+   *
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   * @param resourcePolicyName name of resource policy
+   * @param userEmail email of the user or group to remove
+   */
+  public void removeUserFromResource(
+      String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
+    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
+    try {
+      HttpUtils.callWithRetries(
+          () -> {
+            resourcesApi.removeUserFromPolicy(
+                resourceType, resourceId, resourcePolicyName, userEmail);
+            return null;
+          },
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error removing user from SAM resource.", ex);
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/allUsers" GET endpoint to list
+   * all policies of a resource and their members.
+   *
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   */
+  public List<AccessPolicyResponseEntry> listPoliciesForResource(
+      String resourceType, String resourceId) {
+    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> resourcesApi.listResourcePolicies(resourceType, resourceId),
+          SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error getting policies for SAM resource.", ex);
     } finally {
       closeConnectionPool();
     }
