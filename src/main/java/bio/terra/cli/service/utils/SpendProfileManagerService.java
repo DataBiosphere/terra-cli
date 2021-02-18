@@ -7,10 +7,7 @@ import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEn
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Utility methods for managing spend profile and talking to the future Spend Profile Manager
- * service.
- */
+/** Utility methods for talking to the future Spend Profile Manager service. */
 public class SpendProfileManagerService {
   private static final Logger logger = LoggerFactory.getLogger(SamService.class);
 
@@ -24,7 +21,7 @@ public class SpendProfileManagerService {
   // keep a reference to the SAM service instance here
   private final SamService samService;
 
-  // these are the resource type and id of the default spend profile used by WSM currently there is
+  // these are the resource type and id of the default spend profile used by WSM. currently there is
   // only one SAM resource used. in the future, if this varies per environment, move this resource
   // id into the server specification
   private static final String SPEND_PROFILE_RESOURCE_TYPE = "spend-profile";
