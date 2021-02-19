@@ -87,10 +87,8 @@ To publish a new image to GCR:
       BUILD SUCCESSFUL in 26s
       1 actionable task: 1 executed
     ```
-3. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
-    ```
-    > terra app set-image gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
-    ```
+2. Pull the image from GCR (see above). This is so that the name and tag on your local image matches what it will
+look like for someone who did not build the image.
 
 #### Update the default image
 To update the default image:
