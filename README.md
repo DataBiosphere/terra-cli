@@ -309,8 +309,8 @@ profiles {
       params.multiqc = 'gs://rnaseq-nf/multiqc'
       process.executor = 'google-lifesciences'
       process.container = 'nextflow/rnaseq-nf:latest'
-      google.project = ${TERRA_GOOGLE_PROJECT_ID}
       google.region  = 'europe-west2'
+      google.project = "$TERRA_GOOGLE_PROJECT_ID"
   }
 }
 ```
@@ -322,7 +322,7 @@ this bucket as the working directory.
 bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-my_bucket
 Workspace resource successfully added: my_bucket
 
-> terra nextflow run rnaseq-nf/main.nf -profile gls -work-dir \${TERRA_MY_BUCKET}
+> terra nextflow config rnaseq-nf/main.nf -profile gls -work-dir \${TERRA_MY_BUCKET}
   Setting up Terra app environment...
   Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
   Updated property [core/project].
