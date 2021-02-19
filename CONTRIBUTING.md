@@ -44,6 +44,8 @@ For any change in this directory to take effect:
 #### Pull an existing image
 The `tools/local-dev.sh` script pulls the default image already.
 
+The gcr.io/terra-cli-dev registry is public readable, so anyone should be able to pull images.
+
 To use a specific Docker image from GCR:
 1. Pull the image with that tag.
     ```
@@ -63,6 +65,9 @@ To use a specific Docker image from GCR:
     ```
 
 #### Publish a new image
+The Gradle publishDockerImage task expects the caller to be logged into Vault already, because it fetches
+a SA key file in order to write to GCR. In the future, we should probably do this with a GH action instead.
+
 To publish a new image to GCR:
 1. Build the image (see above).
 2. Push it to GCR.
