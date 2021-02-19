@@ -1,24 +1,110 @@
 # terra-cli
 
 1. [Logging](#logging)
+3. [Docker](#docker)
+    * [Build a new image](#build-a-new-image)
+    * [Pull an existing image](#pull-an-existing-image)
+    * [Publish a new image](#publish-a-new-image)
+    * [Update the default image](#update-the-default-image)
 2. [Code structure](#code-structure)
-    * [Docker](#docker)
     * [Servers](#servers)
     * [Command structure](#command-structure)
     * [Context classes](#context-classes)
     * [Supported tools](#supported-tools)
-        * [Adding a new supported tool](#adding-a-new-supported-tool)
+3. [Adding a new supported tool](#adding-a-new-supported-tool)
 
 -----
 
 ### Logging
 Logging is turned off by default. Modify the root level in the `src/main/resources/logback.xml` file to turn it on (e.g. `INFO`).
 
+### Docker
+The `docker/` directory contains files required to build the Docker image.
+All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
+and made executable.
+
+The `gradle.properties` file specifies the path to the default Docker image used by the CLI.
+
+#### Build a new image
+For any change in this directory to take effect:
+1. Build a new image.
+    ```
+    > ./gradlew buildDockerImage
+    [...Docker build output...]
+    terra-cli/local:b5fdce0 successfully built
+    
+    BUILD SUCCESSFUL in 25s
+    1 actionable task: 1 executed
+    ```
+2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
+    ```
+    > terra app set-image terra-cli/local:b5fdce0
+    ```
+
+#### Pull an existing image
+The `tools/local-dev.sh` script pulls the default image already.
+
+To use a specific Docker image from GCR:
+1. Pull the image with that tag.
+    ```
+    > ./gradlew pullDockerImage -PdockerImageTag=b5fdce0
+    Task :pullDockerImage
+    b5fdce0: Pulling from terra-cli-dev/terra-cli/v0.0
+    Digest: sha256:c77ee0b87a8972ec2a9f1b69387216a9f726f5503679edab37911a6322876dbe
+    Status: Downloaded newer image for gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    
+    BUILD SUCCESSFUL in 3s
+    1 actionable task: 1 executed
+    ```
+2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
+    ```
+    > terra app set-image gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    ```
+
+#### Publish a new image
+To publish a new image to GCR:
+1. Build the image (see above).
+2. Push it to GCR.
+    ```
+    > ./gradlew publishDockerImage -PdockerLocalImageTag=b5fdce0
+      
+    Task :publishDockerImage
+    Reading the CI service account key file from Vault
+    Logging in to docker using this key file
+    Login Succeeded
+    Tagging the local docker image with the name to use in GCR
+    Pushing the image to GCR
+    The push refers to repository [gcr.io/terra-cli-dev/terra-cli/v0.0]
+    [...Docker push output...]
+    gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0 successfully pushed to GCR
+    
+      BUILD SUCCESSFUL in 26s
+      1 actionable task: 1 executed
+    ```
+3. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
+    ```
+    > terra app set-image gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    ```
+
+#### Update the default image
+To update the default image:
+1. Build the image (see above).
+2. Tag the image locally with `stable`. (See output of build command for local image name and tag.)
+    ```
+    docker tag terra-cli/local:b5fdce0 terra-cli/local:stable
+    ```
+3. Bump the version number in the image name in `gradle.properties`.
+    ```
+    dockerImageName=terra-cli/v0.1
+    ```
+4. Publish the new (`stable`-tagged) image to GCR (see above).
+5. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
+
+
 ### Code structure
 Below is an outline of the directory structure. Details about each are included in the sub-sections below.
 ```
-docker/
-  scripts/
 src/main/
   java/
     bio/terra/cli/
@@ -31,20 +117,6 @@ src/main/
   resources/
       servers/
 ```
-
-#### Docker
-The `docker/` directory contains files required to build the Docker image.
-All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
-and made executable.
-
-From the `docker/` directory, run
-```
-docker build . --tag terra/cli:v0.0
-```
-Use the `terra app set-image` command to update the image used to launch supported applications.
-This command accepts either the tag or the image id, which is output from the `docker build` command.
-
-To update the default image tag, modify the `ToolsManager.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
 
 #### Servers
 The `src/main/java/resources/servers/` directory contains the server specification files.
@@ -89,10 +161,11 @@ terra nextflow run hello
 
 The list of supported tools that can be called is specified in an enum in the `terra app list` class.
 
-#### Adding a new supported tool
+### Add a new supported tool
 To add a new supported tool:
    1. Install the app in the `docker/Dockerfile`
-   2. Build the new image with `source tools/local-dev.sh`
+   2. Build the new image (see instructions in section above).
+   3. Set the image that the CLI will use 
    3. Test that the install worked by calling the app through the `terra app execute` command.
    (e.g. `terra app execute dsub --version`). This command just runs the Docker container and 
    executes the command, without requiring any new Java code. This `terra app execute` command
@@ -116,3 +189,5 @@ To add a new supported tool:
    8.  You can mount directories on the host machine to the Docker container by populating a second
    `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
    has an example of this (see `bio.terra.cli.apps.Nextflow` class `run` method).
+   9. Publish the new Docker image and update the default image that the CLI uses to the new version
+   (see instructions above).
