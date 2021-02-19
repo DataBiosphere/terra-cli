@@ -3,9 +3,11 @@
 # Run this script from the top-level directory "terra-cli/".
 # source tools/local-dev.sh
 
-# build Docker image
-docker build -t terra/cli:v0.0 ./docker
+echo "Pulling the default Docker image from GCR"
+./gradlew pullDockerImage
 
-# build and alias JAR file
+echo "Building Java code"
 ./gradlew install
+
+echo "Aliasing JAR file"
 alias terra=$(pwd)/build/install/terra-cli/bin/terra-cli

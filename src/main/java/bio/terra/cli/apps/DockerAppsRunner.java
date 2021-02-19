@@ -48,9 +48,9 @@ public class DockerAppsRunner {
   }
 
   // This variable specifies the default Docker image id or tag that the CLI uses to run external
-  // tools.
-  // TODO: change this to a DockerHub or GCR path
-  private static final String DEFAULT_DOCKER_IMAGE_ID = "terra/cli:v0.0";
+  // tools. Keep this property in-sync with the dockerImageName Gradle property
+  private static final String DEFAULT_DOCKER_IMAGE_ID =
+      "gcr.io/terra-cli-dev/terra-cli/v0.0:stable";
 
   /** Returns the default image id. */
   public static String defaultImageId() {
