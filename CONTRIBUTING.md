@@ -27,7 +27,7 @@ The `gradle.properties` file specifies the path to the default Docker image used
 
 #### Build a new image
 For any change in this directory to take effect:
-1. Build a new image.
+1. Build a new image. This uses a short Git hash for the current commit as the tag.
     ```
     > ./gradlew buildDockerImage
     [...Docker build output...]
@@ -170,7 +170,6 @@ The list of supported tools that can be called is specified in an enum in the `t
 To add a new supported tool:
    1. Install the app in the `docker/Dockerfile`
    2. Build the new image (see instructions in section above).
-   3. Set the image that the CLI will use 
    3. Test that the install worked by calling the app through the `terra app execute` command.
    (e.g. `terra app execute dsub --version`). This command just runs the Docker container and 
    executes the command, without requiring any new Java code. This `terra app execute` command
@@ -195,4 +194,4 @@ To add a new supported tool:
    `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
    has an example of this (see `bio.terra.cli.apps.Nextflow` class `run` method).
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
-   (see instructions above).
+   (see instructions in section above).

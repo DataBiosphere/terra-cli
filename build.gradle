@@ -143,13 +143,13 @@ task pullDockerImage(type: Exec) {
     commandLine 'docker', 'pull', dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName + ':' + dockerImageTag
 }
 
-// task: build image (use default local image name & short git hash tag)
+// task: build image
 task buildDockerImage(type: Exec) {
     workingDir '.'
     commandLine 'sh', 'tools/build-docker.sh', dockerLocalImageName
 }
 
-// task: publish image (use default local image name & tag)
+// task: publish image
 // expect caller to override the local tag property on the command line (-PdockerLocalImageTag=b5fdce0)
 task publishDockerImage(type: Exec) {
     workingDir '.'
