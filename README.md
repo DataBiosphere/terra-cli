@@ -14,7 +14,6 @@
     * [Applications](#applications)
     * [Groups](#groups)
     * [Spend](#spend)
-    * [Supported tools](#supported-tools)
 5. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)

@@ -114,7 +114,15 @@ public class DockerAppsRunner {
     workspaceContext.requireCurrentWorkspace();
 
     // add the Terra references as environment variables in the container
-    envVars.putAll(buildMapOfTerraReferences());
+    Map<String, String> terraReferences = buildMapOfTerraReferences();
+    for (Map.Entry<String, String> workspaceReferenceEnvVar : terraReferences.entrySet()) {
+      if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
+        throw new RuntimeException(
+            "Workspace reference cannot overwrite an environment variable used by the tool command: "
+                + workspaceReferenceEnvVar.getKey());
+      }
+    }
+    envVars.putAll(terraReferences);
 
     buildDockerClient();
 

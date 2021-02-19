@@ -206,6 +206,11 @@ public class WorkspaceManager {
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
+    // check for any collisions with existing references
+    if (workspaceContext.getCloudResource(resourceName) != null) {
+      throw new RuntimeException("Resource of this name already exists.");
+    }
+
     // create the bucket by calling GCS directly
     String bucketName = workspaceContext.getGoogleProject() + "-" + resourceName;
     Bucket bucket =
