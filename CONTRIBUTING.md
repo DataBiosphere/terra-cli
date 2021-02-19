@@ -70,7 +70,7 @@ a SA key file in order to write to GCR. In the future, we should probably do thi
 
 To publish a new image to GCR:
 1. Build the image (see above).
-2. Push it to GCR.
+2. Push it to GCR. (See output of build command for local image tag.)
     ```
     > ./gradlew publishDockerImage -PdockerLocalImageTag=b5fdce0
       
