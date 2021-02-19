@@ -2,12 +2,18 @@
 
 1. [Setup and run](#setup-and-run)
 2. [Requirements](#requirements)
-    * [Authentication](#authentication)
+    * [Login](#login)
+    * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
 3. [Example usage](#example-usage)
 4. [Commands description](#commands-description)
+    * [Authentication](#authentication)
     * [Server](#server)
     * [Workspace](#workspace)
+    * [Resources](#resources)
+    * [Applications](#applications)
+    * [Groups](#groups)
+    * [Spend](#spend)
     * [Supported tools](#supported-tools)
 5. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
@@ -27,18 +33,27 @@ terra
 1. Java 11
 2. Docker 20.10.2 (Must be running)
 
-#### Authentication
+#### Login
 1. Use a Google account that is not a Google/Verily corporate account.
 2. `terra auth login` launches an OAuth flow that pops out a browser window with a warning login
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
 
-Note: The default server has been temporarily changed from `terra-dev` to `wchamber-dev`.
-This is because the Terra dev services are behind a firewall that requires users to be
-on the Broad VPN. There is an open ticket with Broad DevOps to address this. In the meantime,
-personal development deployments are apparently not behind the firewall, so we're using
-one of those as a temporary workaround. If you do have access to the Broad VPN, you can run 
-`terra server set terra-dev` to change it back to official Terra dev environment.
+#### Spend profile access
+In order to spend money (e.g. by creating a project and resources within it) in Terra, you need
+access to a billing account via a spend profile. Currently, there is a single spend profile used
+by Workspace Manager. Your email needs to either be added as a user of that spend profile or added
+to a Terra group that is a user of that spend profile. This needs to be done by someone else with
+owner access to that spend profile.
+
+- [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
+to add new members to the group, use `policy=admin` instead.
+
+`terra groups add-user --group=enterprise-pilot-testers --policy=member mmdevverily4@gmail.com`
+
+- Add a user directly to the spend profile. To also grant permission to add new users to the spend profile,
+user `policy=owner` instead.
+`terra spend enable --policy=user mmdevverily@gmail.com`
 
 #### External data 
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
@@ -108,6 +123,8 @@ Commands:
   resources  Manage controlled resources in the workspace.
   app        Run applications in the workspace.
   notebooks  Use AI Notebooks in the workspace.
+  groups     Manage groups of users.
+  spend      Manage spend profiles.
 ```
 
 The `status` command prints details about the current workspace and server.
@@ -118,6 +135,8 @@ Each sub-group of commands is described in a sub-section below:
 - Workspace
 - Resources
 - Applications
+- Groups
+- Spend
 
 #### Authentication
 ```
@@ -198,6 +217,40 @@ Commands:
 The Terra CLI allows running supported external tools within the context of a workspace.
 Nextflow and the Gcloud CLIs are the first examples of supported tools.
 Exactly what it means to be a "supported" tool is still under discussion.
+
+#### Groups
+```
+Usage: terra groups [COMMAND]
+Manage groups of users.
+Commands:
+  list         List the groups to which the current user belongs.
+  create       Create a new Terra group.
+  delete       Delete an existing Terra group.
+  describe     Print the group email address.
+  list-users   List the users in a group.
+  add-user     Add a user to a group.
+  remove-user  Remove a user from a group.
+```
+
+Terra groups are managed by SAM. These commands are utility wrappers around the group endpoints.
+
+#### Spend
+```
+Usage: terra spend [COMMAND]
+Manage spend profiles.
+Commands:
+  enable      Enable use of the Workspace Manager default spend profile for a
+                user or group.
+  disable     Disable use of the Workspace Manager default spend profile for a
+                user or group.
+  list-users  List the users enabled on the Workspace Manager default spend
+                profile.
+```
+
+These commands allow managing the users authorized to spend money with Workspace Manager (e.g. by
+creating a project and resources within it). A Spend Profile Manager service has not yet been built.
+In the meantime, WSM uses a single billing account and manages access to it with a single SAM resource.
+These commands are utility wrappers around adding users to this single resource.
 
 ### Workspace context for applications
 The Terra CLI defines a workspace context for applications to run in. This context includes:
