@@ -3,7 +3,7 @@
 1. [Setup and run](#setup-and-run)
 2. [Requirements](#requirements)
     * [Login](#login)
-    * [Spend Profile Access](#spend-profile-access)
+    * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
 3. [Example usage](#example-usage)
 4. [Commands description](#commands-description)
@@ -14,6 +14,10 @@
     * [Applications](#applications)
     * [Groups](#groups)
     * [Spend](#spend)
+5. [Workspace context for applications](#workspace-context-for-applications)
+    * [Reference in a CLI command](#reference-in-a-cli-command)
+    * [Reference in file](#reference-in-file)
+    * [See all environment variables](#see-all-environment-variables)
 
 -----
 
@@ -34,7 +38,7 @@ terra
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
 
-#### Spend Profile Access
+#### Spend profile access
 In order to spend money (e.g. by creating a project and resources within it) in Terra, you need
 access to a billing account via a spend profile. Currently, there is a single spend profile used
 by Workspace Manager. Your email needs to either be added as a user of that spend profile or added
@@ -246,3 +250,89 @@ These commands allow managing the users authorized to spend money with Workspace
 creating a project and resources within it). A Spend Profile Manager service has not yet been built.
 In the meantime, WSM uses a single billing account and manages access to it with a single SAM resource.
 These commands are utility wrappers around adding users to this single resource.
+
+### Workspace context for applications
+The Terra CLI defines a workspace context for applications to run in. This context includes:
+- User's pet SA activated as current Google credentials and path to the key file passed in
+via `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+- Backing google project id passed in via `TERRA_GOOGLE_PROJECT_ID` environment variable.
+- Workspace references to controlled cloud resources resolved in an environment variable that is the name 
+of the workspace reference, all in uppercase, with `TERRA_` prefixed. (e.g. `my_bucket` -> `TERRA_MY_BUCKET`).
+- In the future, it will also include references to external cloud resources (e.g. a bucket outside the workspace).
+
+#### Reference in a CLI command
+To use a workspace reference in a Terra CLI command, escape the environment variable to bypass the
+shell substitution on the host machine.
+
+Example commands for creating a new controlled bucket resource and then using `gsutil` to get its IAM bindings.
+```
+> terra resources create --name=my_bucket --type=bucket
+bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-my_bucket
+Workspace resource successfully added: my_bucket
+
+> terra gsutil iam get \${TERRA_MY_BUCKET}
+  Setting up Terra app environment...
+  Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
+  Updated property [core/project].
+  Done setting up Terra app environment...
+  
+  {
+    "bindings": [
+      {
+        "members": [
+          "projectEditor:terra-wsm-dev-e3d8e1f5",
+          "projectOwner:terra-wsm-dev-e3d8e1f5"
+        ],
+        "role": "roles/storage.legacyBucketOwner"
+      },
+      {
+        "members": [
+          "projectViewer:terra-wsm-dev-e3d8e1f5"
+        ],
+        "role": "roles/storage.legacyBucketReader"
+      }
+    ],
+    "etag": "CAE="
+  }
+```
+
+#### Reference in file
+To use a workspace reference in a file or config that will be read by an application, do not escape the
+environment variable. Since this will be running inside the Docker container, there is no need to escape it.
+
+Example `nextflow.config` file that includes a reference to the backing Google project.
+```
+profiles {
+  gls {
+      params.transcriptome = 'gs://rnaseq-nf/data/ggal/transcript.fa'
+      params.reads = 'gs://rnaseq-nf/data/ggal/gut_{1,2}.fq'
+      params.multiqc = 'gs://rnaseq-nf/multiqc'
+      process.executor = 'google-lifesciences'
+      process.container = 'nextflow/rnaseq-nf:latest'
+      google.region  = 'europe-west2'
+      google.project = "$TERRA_GOOGLE_PROJECT_ID"
+  }
+}
+```
+
+Example commands for creating a new controlled bucket resource and then running a Nextflow workflow using
+this bucket as the working directory.
+```
+> terra resources create --name=my_bucket --type=bucket
+bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-my_bucket
+Workspace resource successfully added: my_bucket
+
+> terra nextflow config rnaseq-nf/main.nf -profile gls -work-dir \${TERRA_MY_BUCKET}
+  Setting up Terra app environment...
+  Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
+  Updated property [core/project].
+  Done setting up Terra app environment...
+[...Nextflow output...]
+```
+
+#### See all environment variables
+Run `terra app execute env` to see all environment variables defined in the Docker container where applications
+are run.
+
+The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
+container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
