@@ -153,9 +153,9 @@ public class GlobalContext {
   // ====================================================
   // Directory and file names
   //   - top-level directory: $HOME/.terra
-  //   - persisted global context file: global-context.json
-  //   - sub-directory for persisting pet SA keys: pet-keys/[terra user id]
-  //   - pet SA key filename: [workspace id]
+  //       - persisted global context file: global-context.json
+  //       - sub-directory for persisting pet SA keys: pet-keys/[terra user id]
+  //           - pet SA key filename: [workspace id]
 
   /** Getter for the global context directory. */
   public static Path resolveGlobalContextDir() {
