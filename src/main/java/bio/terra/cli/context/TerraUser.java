@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
-import java.io.File;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +57,5 @@ public class TerraUser {
   /** Fetch the access token for the user credentials. */
   public AccessToken fetchUserAccessToken() {
     return GoogleCredentialUtils.getAccessToken(userCredentials);
-  }
-
-  /** Return a pointer to the pet key file for the given Google project id. */
-  public File getPetKeyFile(String googleProjectId) {
-    // TODO: move each user's keys into its own sub-directory (easier to mount on container), and
-    // maintain an index by project
-    return GlobalContext.resolvePetSaKeyDir().resolve(terraUserId).toFile();
   }
 }

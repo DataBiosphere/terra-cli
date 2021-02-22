@@ -52,8 +52,7 @@ public class ServerManager {
       }
     } catch (IOException ioEx) {
     }
-    logger.error("Error reading in server specification file ({}).", serverName);
-    return false;
+    throw new RuntimeException("Error reading in server specification file (" + serverName + ").");
   }
 
   /** Ping the service URLs to check their status. Return true if all return OK. */
@@ -84,8 +83,8 @@ public class ServerManager {
     try {
       return ServerSpecification.fromJSONFile(DEFAULT_SERVER_FILENAME);
     } catch (IOException ioEx) {
-      logger.error("Error reading in default server file. ({})", DEFAULT_SERVER_FILENAME, ioEx);
-      return null;
+      throw new RuntimeException(
+          "Error reading in default server file. (" + DEFAULT_SERVER_FILENAME + ")", ioEx);
     }
   }
 
@@ -110,8 +109,7 @@ public class ServerManager {
       }
       return servers;
     } catch (IOException ioEx) {
-      logger.error("Error reading in all possible servers.", ioEx);
-      return new ArrayList<>();
+      throw new RuntimeException("Error reading in all possible servers.", ioEx);
     }
   }
 }
