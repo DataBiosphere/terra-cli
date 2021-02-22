@@ -136,3 +136,22 @@ spotbugsTest {
         }
     }
 }
+
+// task: pull default image
+task pullDockerImage(type: Exec) {
+    workingDir '.'
+    commandLine 'docker', 'pull', dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName + ':' + dockerImageTag
+}
+
+// task: build image
+task buildDockerImage(type: Exec) {
+    workingDir '.'
+    commandLine 'sh', 'tools/build-docker.sh', dockerLocalImageName
+}
+
+// task: publish image
+// expect caller to override the local tag property on the command line (-PdockerLocalImageTag=b5fdce0)
+task publishDockerImage(type: Exec) {
+    workingDir '.'
+    commandLine 'tools/publish-docker.sh', dockerLocalImageName, dockerLocalImageTag, dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName, dockerLocalImageTag
+}

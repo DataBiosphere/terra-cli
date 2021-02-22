@@ -3,6 +3,7 @@ HELP.md
 build/
 scratch/
 scratch2/
+rendered/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
