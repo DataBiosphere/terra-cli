@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,8 +153,9 @@ public class GlobalContext {
   // ====================================================
   // Directory and file names
   //   - top-level directory: $HOME/.terra
-  //   - persisted global context file: global-context.json
-  //   - sub-directory for persisting pet SA keys: pet-keys
+  //       - persisted global context file: global-context.json
+  //       - sub-directory for persisting pet SA keys: pet-keys/[terra user id]
+  //           - pet SA key filename: [workspace id]
 
   /** Getter for the global context directory. */
   public static Path resolveGlobalContextDir() {
@@ -162,10 +164,32 @@ public class GlobalContext {
   }
 
   /**
-   * Getter for the sub-directory of the global context directory that holds the pet SA key files.
+   * Getter for the sub-directory of the global context directory that holds the pet SA key files
+   * for all users.
    */
-  public static Path resolvePetSaKeyDir() {
+  private static Path resolvePetSaKeyDir() {
     return resolveGlobalContextDir().resolve(PET_KEYS_DIRNAME);
+  }
+
+  /**
+   * Getter for the sub-directory of the global context directory that holds the pet SA key files
+   * for the given user.
+   */
+  @JsonIgnore
+  public static Path getPetSaKeyDirForUser(TerraUser terraUser) {
+    return resolvePetSaKeyDir().resolve(terraUser.terraUserId);
+  }
+
+  /** Getter for the pet SA key file name for the given user + workspace. */
+  @JsonIgnore
+  public static String getPetSaKeyFilename(UUID workspaceId) {
+    return workspaceId.toString();
+  }
+
+  /** Getter for the pet SA key file handle for the given user + workspace. */
+  @JsonIgnore
+  public static Path getPetSaKeyFile(TerraUser terraUser, UUID workspaceId) {
+    return getPetSaKeyDirForUser(terraUser).resolve(getPetSaKeyFilename(workspaceId));
   }
 
   /** Getter for the file where the global context is persisted. */

@@ -181,11 +181,12 @@ public class DockerAppsRunner {
     // the terra_init script relies on environment variables to pass in global and workspace
     // context information
     Map<String, String> terraInitEnvVars = new HashMap<>();
-    String googleProjectId = workspaceContext.getGoogleProject();
     terraInitEnvVars.put(
         "GOOGLE_APPLICATION_CREDENTIALS",
-        PET_KEYS_MOUNT_POINT + "/" + currentUser.getPetKeyFile(googleProjectId).getName());
-    terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", googleProjectId);
+        PET_KEYS_MOUNT_POINT
+            + "/"
+            + GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()));
+    terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", workspaceContext.getGoogleProject());
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
         throw new RuntimeException(
@@ -197,7 +198,8 @@ public class DockerAppsRunner {
 
     // the terra_init script requires that the pet SA key file is accessible to it
     Map<String, File> terraInitBindMounts = new HashMap<>();
-    terraInitBindMounts.put(PET_KEYS_MOUNT_POINT, GlobalContext.resolvePetSaKeyDir().toFile());
+    terraInitBindMounts.put(
+        PET_KEYS_MOUNT_POINT, GlobalContext.getPetSaKeyDirForUser(currentUser).toFile());
     for (Map.Entry<String, File> terraInitBindMount : terraInitBindMounts.entrySet()) {
       if (bindMounts.get(terraInitBindMount.getKey()) != null) {
         throw new RuntimeException(

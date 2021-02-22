@@ -86,15 +86,16 @@ public class AuthenticationManager {
     }
     terraUser.userCredentials = userCredentials;
 
-    // fetch the user information from SAM
-    new SamService(globalContext.server, terraUser).getOrRegisterUser();
-    if (terraUser.terraUserId != null) {
-      // fetch the pet SA credentials if they don't already exist
-      fetchPetSaCredentials(terraUser);
+    // fetch the user information from SAM, if it's not already populated
+    if (!currentTerraUser.isPresent()) {
+      new SamService(globalContext.server, terraUser).getOrRegisterUser();
     }
+    fetchPetSaCredentials(terraUser);
 
-    // update the global context with the current user
-    globalContext.addOrUpdateTerraUser(terraUser, true);
+    // update the global context with the current user, if it's changed
+    if (!currentTerraUser.isPresent()) {
+      globalContext.addOrUpdateTerraUser(terraUser, true);
+    }
   }
 
   /** Delete all credentials associated with the current Terra user. */
@@ -177,8 +178,13 @@ public class AuthenticationManager {
       return;
     }
 
-    // TODO: check if the key already exists before fetching it. need to store the project, not just
-    // the user
+    // if the key file for this user + workspace already exists, then no need to re-fetch
+    Path jsonKeyPath = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext.getWorkspaceId());
+    logger.info("Looking for pet SA key file at: {}", jsonKeyPath);
+    if (jsonKeyPath.toFile().exists()) {
+      logger.info("Pet SA key file for this user and workspace already exists.");
+      return;
+    }
 
     // ask SAM for the project-specific pet SA key
     HttpUtils.HttpResponse petSaKeySamResponse =
@@ -192,27 +198,42 @@ public class AuthenticationManager {
     }
     try {
       // persist the key file in the global context directory
-      Path jsonKeyFile =
+      jsonKeyPath =
           FileUtils.writeStringToFile(
-              globalContext.resolvePetSaKeyDir(),
-              terraUser.terraUserId,
+              GlobalContext.getPetSaKeyDirForUser(terraUser),
+              GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()),
               petSaKeySamResponse.responseBody);
+      logger.info("Stored pet SA key file for this user and workspace.");
 
       // create a credentials object from the key
       ServiceAccountCredentials petSaCredentials =
-          GoogleCredentialUtils.getServiceAccountCredential(jsonKeyFile.toFile(), SCOPES);
+          GoogleCredentialUtils.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
 
       terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {
-      logger.error("Error writing pet SA key to the global context directory.", ioEx);
+      throw new RuntimeException("Error writing pet SA key to the global context directory.", ioEx);
     }
   }
 
-  /** Delete the pet SA credentials for the given user + current workspace. */
+  /** Delete all pet SA credentials for the given user. */
   public void deletePetSaCredentials(TerraUser terraUser) {
-    File jsonKeyFile = globalContext.resolvePetSaKeyDir().resolve(terraUser.terraUserId).toFile();
-    if (!jsonKeyFile.delete() && jsonKeyFile.exists()) {
-      throw new RuntimeException("Failed to delete pet SA key file.");
+    File jsonKeysDir = GlobalContext.getPetSaKeyDirForUser(terraUser).toFile();
+
+    // delete all key files
+    File[] keyFiles = jsonKeysDir.listFiles();
+    if (keyFiles != null) {
+      for (File keyFile : keyFiles) {
+        if (!keyFile.delete() && keyFile.exists()) {
+          throw new RuntimeException(
+              "Failed to delete pet SA key file: " + keyFile.getAbsolutePath());
+        }
+      }
+    }
+
+    // delete the key file directory
+    if (!jsonKeysDir.delete() && jsonKeysDir.exists()) {
+      throw new RuntimeException(
+          "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
     }
   }
 }
