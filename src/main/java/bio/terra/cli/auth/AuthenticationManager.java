@@ -80,7 +80,8 @@ public class AuthenticationManager {
               terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.resolveGlobalContextDir().toFile());
+              globalContext.resolveGlobalContextDir().toFile(),
+              globalContext.launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error fetching user credentials.", ex);
     }

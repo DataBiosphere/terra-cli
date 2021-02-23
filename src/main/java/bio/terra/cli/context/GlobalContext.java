@@ -22,9 +22,11 @@ import org.slf4j.LoggerFactory;
 public class GlobalContext {
   private static final Logger logger = LoggerFactory.getLogger(GlobalContext.class);
 
-  // global auth context =  list of Terra users, CLI-generated key of current Terra user
+  // global auth context =  list of Terra users, CLI-generated key of current Terra user,
+  //   flag indicating whether to launch a browser automatically or not
   public Map<String, TerraUser> terraUsers;
   public String currentTerraUserKey;
+  public boolean launchBrowserAutomatically = true;
 
   // global server context = service uris, environment name
   public ServerSpecification server;
@@ -126,6 +128,17 @@ public class GlobalContext {
    */
   public void addOrUpdateTerraUser(TerraUser terraUser) {
     addOrUpdateTerraUser(terraUser, false);
+  }
+
+  /** Setter for the browser launch flag. Persists on disk. */
+  public void updateBrowserLaunchFlag(boolean launchBrowserAutomatically) {
+    logger.debug(
+        "Updating browser launch flag from {} to {}.",
+        this.launchBrowserAutomatically,
+        launchBrowserAutomatically);
+    this.launchBrowserAutomatically = launchBrowserAutomatically;
+
+    writeToFile();
   }
 
   // ====================================================

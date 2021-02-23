@@ -2,6 +2,7 @@ package bio.terra.cli.auth;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
+import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -36,11 +37,25 @@ public final class GoogleCredentialUtils {
 
   /**
    * Do the Google OAuth2 flow for the specified userId. If there is no existing, unexpired
-   * credential for this userId, this method will open a browser window to ask for consent to access
-   * the specified scopes.
+   * credential for this userId, this method will require browser window to ask for consent to
+   * access the specified scopes. This browser window is either launched automatically or the URL
+   * printed to stdout, depending on the boolean flag.
+   *
+   * @param userId key to use when persisting the Google credential in the local credential store
+   * @param scopes list of scopes to request from the user
+   * @param clientSecretFile stream to the client secret file
+   * @param dataStoreDir directory in which to persist the local credential store
+   * @param launchBrowserAutomatically true to launch a browser automatically and listen on a local
+   *     server for the token response, false to print the url to stdout and ask the user to
+   *     copy/paste the token response to stdin
+   * @return credentials object for the user
    */
   public static UserCredentials doLoginAndConsent(
-      String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
+      String userId,
+      List<String> scopes,
+      InputStream clientSecretFile,
+      File dataStoreDir,
+      boolean launchBrowserAutomatically)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
@@ -51,8 +66,17 @@ public final class GoogleCredentialUtils {
     GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
 
     // exchange an authorization code for a refresh token
-    LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
-    Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
+    Credential credential;
+    if (launchBrowserAutomatically) {
+      // launch a browser window on this machine and listen on a local port for the token response
+      LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
+      credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
+    } else {
+      // print the url to stdout and ask the user to copy/paste the token response to stdin
+      credential =
+          new AuthorizationCodeInstalledApp(flow, new StdinReceiver(), new NoLaunchBrowser())
+              .authorize(userId);
+    }
 
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
@@ -66,7 +90,37 @@ public final class GoogleCredentialUtils {
     return credentials;
   }
 
-  /** Delete the credential associated with the specified userId. */
+  /**
+   * Helper class that asks the user to copy/paste the token response manually to stdin.
+   * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
+   */
+  private static class StdinReceiver extends AbstractPromptReceiver {
+    @Override
+    public String getRedirectUri() {
+      return "urn:ietf:wg:oauth:2.0:oob";
+    }
+  }
+
+  /**
+   * Helper class that prints the URL to follow the OAuth flow to stdout, and does not try to open a
+   * browser locally (i.e. on this machine).
+   */
+  private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
+    @Override
+    public void browse(String url) {
+      System.out.println("Please open the following address in a browser on any machine:");
+      System.out.println("  " + url);
+    }
+  }
+
+  /**
+   * Delete the credential associated with the specified userId.
+   *
+   * @param userId key to use when looking up the Google credential in the local credential store
+   * @param scopes list of scopes requested of the user
+   * @param clientSecretFile stream to the client secret file
+   * @param dataStoreDir directory where the local credential store is persisted
+   */
   public static void deleteExistingCredential(
       String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
@@ -89,7 +143,15 @@ public final class GoogleCredentialUtils {
     dataStore.delete(userId);
   }
 
-  /** Get the existing credential for the given user. */
+  /**
+   * Get the existing credential for the given user.
+   *
+   * @param userId key to use when looking up the Google credential in the local credential store
+   * @param scopes list of scopes requested of the user
+   * @param clientSecretFile stream to the client secret file
+   * @param dataStoreDir directory where the local credential store is persisted
+   * @return credentials object for the user
+   */
   public static UserCredentials getExistingUserCredential(
       String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
@@ -123,6 +185,11 @@ public final class GoogleCredentialUtils {
   /**
    * Build the GoogleAuthorizationCodeFlow object for the given scopes, client secret and data store
    * directory.
+   *
+   * @param scopes list of scopes to request from the user
+   * @param clientSecrets wrapper object for the client secret file
+   * @param dataStoreDir directory in which to persist the local credential store
+   * @return oauth flow object
    */
   private static GoogleAuthorizationCodeFlow getOAuth2Flow(
       List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
@@ -138,7 +205,13 @@ public final class GoogleCredentialUtils {
     return flow;
   }
 
-  /** Get a credentials object for a service account using its JSON-formatted key file. */
+  /**
+   * Get a credentials object for a service account using its JSON-formatted key file.
+   *
+   * @jsonKey file handle for the JSON-formatted service account key file
+   * @scopes scopes to request for the credential object
+   * @return credentials object for the service account
+   */
   public static ServiceAccountCredentials getServiceAccountCredential(
       File jsonKey, List<String> scopes) throws IOException {
     return (ServiceAccountCredentials)
@@ -148,7 +221,7 @@ public final class GoogleCredentialUtils {
   /**
    * Refresh the credential if expired and then return its access token.
    *
-   * @param credential
+   * @param credential credentials object
    * @return access token
    */
   public static AccessToken getAccessToken(GoogleCredentials credential) {
