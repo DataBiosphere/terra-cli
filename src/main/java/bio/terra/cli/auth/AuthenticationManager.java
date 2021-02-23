@@ -183,35 +183,39 @@ public class AuthenticationManager {
     logger.info("Looking for pet SA key file at: {}", jsonKeyPath);
     if (jsonKeyPath.toFile().exists()) {
       logger.info("Pet SA key file for this user and workspace already exists.");
-      return;
+    } else {
+      // ask SAM for the project-specific pet SA key
+      HttpUtils.HttpResponse petSaKeySamResponse =
+          new SamService(globalContext.server, terraUser).getPetSaKeyForProject(workspaceContext);
+      if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
+        logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
+        throw new RuntimeException(
+            "Error fetching pet SA key from SAM (status code = "
+                + petSaKeySamResponse.statusCode
+                + ").");
+      }
+      try {
+        // persist the key file in the global context directory
+        jsonKeyPath =
+            FileUtils.writeStringToFile(
+                GlobalContext.getPetSaKeyDirForUser(terraUser),
+                GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()),
+                petSaKeySamResponse.responseBody);
+        logger.info("Stored pet SA key file for this user and workspace.");
+      } catch (IOException ioEx) {
+        throw new RuntimeException(
+            "Error writing pet SA key to the global context directory.", ioEx);
+      }
     }
 
-    // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSaKeySamResponse =
-        new SamService(globalContext.server, terraUser).getPetSaKeyForProject(workspaceContext);
-    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
-      logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
-      throw new RuntimeException(
-          "Error fetching pet SA key from SAM (status code = "
-              + petSaKeySamResponse.statusCode
-              + ").");
-    }
     try {
-      // persist the key file in the global context directory
-      jsonKeyPath =
-          FileUtils.writeStringToFile(
-              GlobalContext.getPetSaKeyDirForUser(terraUser),
-              GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()),
-              petSaKeySamResponse.responseBody);
-      logger.info("Stored pet SA key file for this user and workspace.");
-
       // create a credentials object from the key
       ServiceAccountCredentials petSaCredentials =
           GoogleCredentialUtils.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
-
       terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {
-      throw new RuntimeException("Error writing pet SA key to the global context directory.", ioEx);
+      throw new RuntimeException(
+          "Error reading pet SA credentials from the global context directory.", ioEx);
     }
   }
 
