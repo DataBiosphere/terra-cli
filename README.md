@@ -37,6 +37,9 @@ terra
 2. `terra auth login` launches an OAuth flow that pops out a browser window with a warning login
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
+3. If the machine where you're running the CLI does not have a browser available to it, then use the
+manual login flow by setting the browser flag `terra auth set-browser manual`. See the [Authentication](#authentication)
+section below for more details.
 
 #### Spend profile access
 In order to spend money (e.g. by creating a project and resources within it) in Terra, you need
@@ -140,11 +143,16 @@ Each sub-group of commands is described in a sub-section below:
 #### Authentication
 ```
 Usage: terra auth [COMMAND]
-Commands related to the retrieval and management of user credentials.
+Retrieve and manage user credentials.
 Commands:
-  status  Print details about the currently authorized account.
-  login   Authorize the CLI to access Terra APIs and data with user credentials.
-  revoke  Revoke credentials from an account.
+  status       Print details about the currently authorized account.
+  login        Authorize the CLI to access Terra APIs and data with user
+                 credentials.
+  revoke       Revoke credentials from an account.
+  get-browser  Check whether a browser is launched automatically during the
+                 login process.
+  set-browser  Configure whether a browser is launched automatically during the
+                 login process.
 ```
 
 Only one user can be logged in at a time. To change the active user, revoke the existing credentials and login again.
@@ -154,10 +162,26 @@ If there is a workspace defined in the current context, then logging in also fet
 
 Credentials are part of the global context, so you don't need to login again after switching workspaces.
 
+By default, the CLI opens a browser window for the user to click through the OAuth flow. For some use cases (e.g. CloudShell,
+notebook VM), this is not practical because there is no default (or any) browser on the machine. The CLI has a browser
+flag that controls this behavior. `terra set-browser manual` means the user can copy the url into a browser on a different
+machine (e.g. their laptop), confirm the scopes and get the token response, then copy/paste that back into a shell on the
+machine where they want to use the Terra CLI. Example usage:
+```
+> terra auth set-browser manual
+Browser will be launched manually (CHANGED)
+
+> terra auth login
+Please open the following address in a browser on any machine:
+  https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force&client_id=[...]
+Please enter code: *****
+Login successful: mmdevverily@gmail.com
+```
+
 #### Server
 ```
 Usage: terra server [COMMAND]
-Commands related to the Terra server.
+Connect to a Terra server.
 Commands:
   status  Print status and details of the Terra server context.
   list    List all available Terra servers.
@@ -171,14 +195,14 @@ The server is part of the global context, so this value applies across workspace
 #### Workspace
 ```
 Usage: terra workspace [COMMAND]
-Commands related to the Terra workspace.
+Setup a Terra workspace.
 Commands:
   create       Create a new workspace.
   mount        Mount an existing workspace to the current directory.
   delete       Delete an existing workspace.
   list-users   List the users of the workspace.
-  add-user     Add a user to the workspace.
-  remove-user  Remove a user from the workspace.
+  add-user     Add a user or group to the workspace.
+  remove-user  Remove a user or group from the workspace.
 ```
 
 A Terra workspace is backed by a Google project. Creating a new workspace also creates a new backing Google 
@@ -204,11 +228,11 @@ Currently, the only supported controlled resource is a bucket.
 #### Applications
 ```
 Usage: terra app [COMMAND]
-Commands related to applications in the Terra workspace context.
+Run applications in the workspace.
 Commands:
   list       List the supported applications.
-  get-image  Get the Docker image used for launching applications.
-  set-image  Set the Docker image to use for launching applications.
+  get-image  [FOR DEBUG] Get the Docker image used for launching applications.
+  set-image  [FOR DEBUG] Set the Docker image to use for launching applications.
   execute    [FOR DEBUG] Execute a command in the application container for the
                Terra workspace, with no setup.
 ```
