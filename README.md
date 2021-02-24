@@ -18,6 +18,7 @@
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
     * [See all environment variables](#see-all-environment-variables)
+6. [Troubleshooting](#troubleshooting)
 
 -----
 
@@ -279,9 +280,9 @@ These commands are utility wrappers around adding users to this single resource.
 The Terra CLI defines a workspace context for applications to run in. This context includes:
 - User's pet SA activated as current Google credentials and path to the key file passed in
 via `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-- Backing google project id passed in via `TERRA_GOOGLE_PROJECT_ID` environment variable.
+- Backing google project id passed in via `GOOGLE_CLOUD_PROJECT` environment variable.
 - Workspace references to controlled cloud resources resolved in an environment variable that is the name 
-of the workspace reference, all in uppercase, with `TERRA_` prefixed. (e.g. `my_bucket` -> `TERRA_MY_BUCKET`).
+of the workspace reference, all in uppercase, with `TERRA_` prefixed. (e.g. `mybucket` -> `TERRA_MYBUCKET`).
 - In the future, it will also include references to external cloud resources (e.g. a bucket outside the workspace).
 
 #### Reference in a CLI command
@@ -290,11 +291,11 @@ shell substitution on the host machine.
 
 Example commands for creating a new controlled bucket resource and then using `gsutil` to get its IAM bindings.
 ```
-> terra resources create --name=my_bucket --type=bucket
-bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-my_bucket
-Workspace resource successfully added: my_bucket
+> terra resources create --name=mybucket --type=bucket
+bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
+Workspace resource successfully added: mybucket
 
-> terra gsutil iam get \${TERRA_MY_BUCKET}
+> terra gsutil iam get \${TERRA_MYBUCKET}
   Setting up Terra app environment...
   Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
   Updated property [core/project].
@@ -333,8 +334,11 @@ profiles {
       params.multiqc = 'gs://rnaseq-nf/multiqc'
       process.executor = 'google-lifesciences'
       process.container = 'nextflow/rnaseq-nf:latest'
-      google.region  = 'europe-west2'
-      google.project = "$TERRA_GOOGLE_PROJECT_ID"
+      workDir = "$TERRA_MYBUCKET/scratch"
+      google.location = 'europe-west2'
+      google.region  = 'europe-west1'
+      google.project = "$GOOGLE_CLOUD_PROJECT"
+
   }
 }
 ```
@@ -342,11 +346,11 @@ profiles {
 Example commands for creating a new controlled bucket resource and then running a Nextflow workflow using
 this bucket as the working directory.
 ```
-> terra resources create --name=my_bucket --type=bucket
-bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-my_bucket
-Workspace resource successfully added: my_bucket
+> terra resources create --name=mybucket --type=bucket
+bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
+Workspace resource successfully added: mybucket
 
-> terra nextflow config rnaseq-nf/main.nf -profile gls -work-dir \${TERRA_MY_BUCKET}
+> terra nextflow run rnaseq-nf/main.nf -profile gls
   Setting up Terra app environment...
   Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
   Updated property [core/project].
@@ -360,3 +364,7 @@ are run.
 
 The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
 container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
+
+### Troubleshooting
+- Wipe the global context directory. `rm -R $HOME/.terra`.
+- Re-run the setup script. `source tools/local-dev.sh`.
