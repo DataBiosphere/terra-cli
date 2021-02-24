@@ -15,7 +15,7 @@ import picocli.CommandLine;
     description = "List the AI Notebook instance within your workspace for the specified location.")
 public class List implements Callable<Integer> {
   @CommandLine.Option(
-      names = "location",
+      names = "--location",
       defaultValue = "us-central1-a",
       description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
   private String location;

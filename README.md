@@ -12,6 +12,7 @@
     * [Workspace](#workspace)
     * [Resources](#resources)
     * [Applications](#applications)
+    * [Notebooks](#notebooks)
     * [Groups](#groups)
     * [Spend](#spend)
 5. [Workspace context for applications](#workspace-context-for-applications)
@@ -240,6 +241,22 @@ Commands:
 The Terra CLI allows running supported external tools within the context of a workspace.
 Nextflow and the Gcloud CLIs are the first examples of supported tools.
 Exactly what it means to be a "supported" tool is still under discussion.
+
+#### Notebooks
+```
+Usage: terra notebooks [COMMAND]
+Use AI Notebooks in the workspace.
+Commands:
+  create    Create a new AI Notebook instance within your workspace.
+  delete    Delete an AI Notebook instance within your workspace.
+  describe  Describe an AI Notebook instance within your workspace.
+  list      List the AI Notebook instance within your workspace for the
+              specified location.
+  start     Start a stopped AI Notebook instance within your workspace.
+  stop      Stop a running AI Notebook instance within your workspace.
+```
+The Terra CLI provides convenience for running
+[AI Platform Notebooks](https://cloud.google.com/ai-platform-notebooks) within a workspace.
 
 #### Groups
 ```
