@@ -26,25 +26,25 @@ public class Create implements Callable<Integer> {
   private String instanceName;
 
   @CommandLine.Option(
-      names = "location",
+      names = "--location",
       defaultValue = "us-central1-a",
       description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
   private String location;
 
   @CommandLine.Option(
-      names = "machine-type",
+      names = "--machine-type",
       defaultValue = "n1-standard-4",
       description = "The Compute Engine machine type of this instance.")
   private String machineType;
 
   @CommandLine.Option(
-      names = "vm-image-project",
+      names = "--vm-image-project",
       defaultValue = "deeplearning-platform-release",
       description = "The ID of the Google Cloud project that this VM image belongs to.")
   private String vmImageProject;
 
   @CommandLine.Option(
-      names = "vm-image-family",
+      names = "--vm-image-family",
       defaultValue = "tf-latest-gpu",
       description =
           "Use this VM image family to find the image; the newest image in this family will be used.")

@@ -19,7 +19,7 @@ public class Start implements Callable<Integer> {
   private String instanceName;
 
   @CommandLine.Option(
-      names = "location",
+      names = "--location",
       defaultValue = "us-central1-a",
       description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
   private String location;
