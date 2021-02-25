@@ -41,9 +41,13 @@ public class GlobalContext {
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
   private static final String PET_KEYS_DIRNAME = "pet-keys";
 
-  private GlobalContext() {
+  // defaut constructor needed for Jackson de/serialization
+  private GlobalContext() {}
+
+  private GlobalContext(ServerSpecification server, String dockerImageId) {
     this.terraUsers = new HashMap<>();
-    this.server = null;
+    this.server = server;
+    this.dockerImageId = dockerImageId;
   }
 
   // ====================================================
@@ -57,22 +61,15 @@ public class GlobalContext {
    */
   public static GlobalContext readFromFile() {
     // try to read in an instance of the global context file
-    GlobalContext globalContext = null;
     try {
-      globalContext =
-          FileUtils.readFileIntoJavaObject(resolveGlobalContextFile(), GlobalContext.class);
+      return FileUtils.readFileIntoJavaObject(resolveGlobalContextFile(), GlobalContext.class);
     } catch (IOException ioEx) {
-      logger.error("Global context file not found.", ioEx);
+      logger.warn("Global context file not found or error reading it.", ioEx);
     }
 
-    // if the global context file does not exist, return an object populated with default values
-    if (globalContext == null) {
-      globalContext = new GlobalContext();
-      globalContext.server = ServerManager.defaultServer();
-      globalContext.dockerImageId = DockerAppsRunner.defaultImageId();
-    }
-
-    return globalContext;
+    // if the global context file does not exist or there is an error reading it, return an object
+    // populated with default values
+    return new GlobalContext(ServerManager.defaultServer(), DockerAppsRunner.defaultImageId());
   }
 
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */

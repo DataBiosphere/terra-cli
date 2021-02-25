@@ -50,20 +50,16 @@ public class WorkspaceContext {
    */
   public static WorkspaceContext readFromFile() {
     // try to read in an instance of the workspace context file
-    WorkspaceContext workspaceContext = null;
     try {
-      workspaceContext =
-          FileUtils.readFileIntoJavaObject(resolveWorkspaceContextFile(), WorkspaceContext.class);
+      return FileUtils.readFileIntoJavaObject(
+          resolveWorkspaceContextFile(), WorkspaceContext.class);
     } catch (IOException ioEx) {
-      logger.error("Workspace context file not found.", ioEx);
+      logger.warn("Workspace context file not found or error reading it.", ioEx);
     }
 
-    // if the workspace context file does not exist, return an object populated with default values
-    if (workspaceContext == null) {
-      workspaceContext = new WorkspaceContext();
-    }
-
-    return workspaceContext;
+    // if the workspace context file does not exist or there is an error reading it, return an
+    // object populated with default values
+    return new WorkspaceContext();
   }
 
   /**

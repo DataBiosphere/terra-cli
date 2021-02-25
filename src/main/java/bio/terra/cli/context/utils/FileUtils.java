@@ -25,14 +25,10 @@ public class FileUtils {
    * @param javaObjectClass the Java object class
    * @param <T> the Java object class to map the file contents to
    * @return an instance of the Java object class
+   * @throws FileNotFoundException if the file to read in does not exist
    */
   public static <T> T readFileIntoJavaObject(File inputFile, Class<T> javaObjectClass)
       throws IOException {
-    // get a reference to the file
-    if (!inputFile.exists()) {
-      return null;
-    }
-
     // use Jackson to map the file contents to an instance of the specified class
     ObjectMapper objectMapper = new ObjectMapper();
     try (FileInputStream inputStream = new FileInputStream(inputFile)) {
