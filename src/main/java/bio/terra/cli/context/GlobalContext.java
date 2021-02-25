@@ -4,6 +4,7 @@ import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,8 +60,7 @@ public class GlobalContext {
     GlobalContext globalContext = null;
     try {
       globalContext =
-          FileUtils.readFileIntoJavaObject(
-              resolveGlobalContextFile().toFile(), GlobalContext.class);
+          FileUtils.readFileIntoJavaObject(resolveGlobalContextFile(), GlobalContext.class);
     } catch (IOException ioEx) {
       logger.error("Global context file not found.", ioEx);
     }
@@ -78,7 +78,7 @@ public class GlobalContext {
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(resolveGlobalContextFile().toFile(), this);
+      FileUtils.writeJavaObjectToFile(resolveGlobalContextFile(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting global context.", ioEx);
     }
@@ -206,7 +206,7 @@ public class GlobalContext {
   }
 
   /** Getter for the file where the global context is persisted. */
-  public static Path resolveGlobalContextFile() {
-    return resolveGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME);
+  public static File resolveGlobalContextFile() {
+    return resolveGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME).toFile();
   }
 }

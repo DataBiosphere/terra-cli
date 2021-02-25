@@ -3,9 +3,10 @@ package bio.terra.cli.context;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,7 @@ public class WorkspaceContext {
   public Map<String, CloudResource> cloudResources;
 
   // file paths related to persisting the workspace context on disk
-  private static final Path WORKSPACE_CONTEXT_DIR = Paths.get("", ".terra");
+  private static final String WORKSPACE_CONTEXT_DIRNAME = ".terra";
   private static final String WORKSPACE_CONTEXT_FILENAME = "workspace-context.json";
 
   private WorkspaceContext() {
@@ -52,8 +53,7 @@ public class WorkspaceContext {
     WorkspaceContext workspaceContext = null;
     try {
       workspaceContext =
-          FileUtils.readFileIntoJavaObject(
-              resolveWorkspaceContextFile().toFile(), WorkspaceContext.class);
+          FileUtils.readFileIntoJavaObject(resolveWorkspaceContextFile(), WorkspaceContext.class);
     } catch (IOException ioEx) {
       logger.error("Workspace context file not found.", ioEx);
     }
@@ -71,7 +71,7 @@ public class WorkspaceContext {
    */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(resolveWorkspaceContextFile().toFile(), this);
+      FileUtils.writeJavaObjectToFile(resolveWorkspaceContextFile(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting workspace context.", ioEx);
     }
@@ -189,18 +189,73 @@ public class WorkspaceContext {
   }
 
   // ====================================================
-  // Directory and file names
-  //   - current working directory: .
-  //   - persisted workspace context file: ./terra-cli/workspace_context.json
-  //   - sub-directories for tools (e.g. ./nextflow) are defined in the SupportedToolHelper
-  // sub-classes
+  // Resolving file and directory paths
 
   /**
-   * Getter for the file where the workspace context is persisted.
+   * Getter for the file handle where the workspace context is persisted.
    *
-   * @return path to the workspace context file
+   * <p>This method first searches for an existing workspace context file in the current directory
+   * hierarchy. If it finds one, then it returns a handle to that file.
+   *
+   * <p>If it does not find one, then it returns a handle to the file where a new workspace context
+   * can be written. This handle will be relative to the current directory (i.e. current directory =
+   * workspace top-level directory)
+   *
+   * @return a handle for the workspace context file
    */
-  public static Path resolveWorkspaceContextFile() {
-    return WORKSPACE_CONTEXT_DIR.resolve(WORKSPACE_CONTEXT_FILENAME);
+  public static File resolveWorkspaceContextFile() {
+    Path currentDir = Path.of("").toAbsolutePath();
+    try {
+      return getExistingWorkspaceContextFile(currentDir);
+    } catch (FileNotFoundException fnfEx) {
+      return currentDir
+          .resolve(WORKSPACE_CONTEXT_DIRNAME)
+          .resolve(WORKSPACE_CONTEXT_FILENAME)
+          .toFile();
+    }
+  }
+
+  /**
+   * This method searches for an existing workspace context file in the current directory hierarchy.
+   *
+   * <p>For each directory, it checks for the existence of a workspace context file (i.e.
+   * ./.terra/workspace-context.json).
+   *
+   * <p>-If it finds one, then it returns a handle to that file.
+   *
+   * <p>-Otherwise, it recursively checks the parent directory, until it hits the root directory.
+   *
+   * <p>-Once it hits the root directory, and still doesn't find a workspace context file, it throws
+   * an exception.
+   *
+   * @param currentDir the directory to search
+   * @return the file handle for an existing workspace context file
+   * @throws FileNotFoundException if no existing workspace context file is found
+   */
+  private static File getExistingWorkspaceContextFile(Path currentDir)
+      throws FileNotFoundException {
+    // get the workspace context sub-directory relative to the current directory and check if it
+    // exists
+    Path workspaceContextDir = currentDir.resolve(WORKSPACE_CONTEXT_DIRNAME);
+    File workspaceContextDirHandle = workspaceContextDir.toFile();
+    if (workspaceContextDirHandle.exists() && workspaceContextDirHandle.isDirectory()) {
+
+      // get the workspace context file relative to the sub-directory and check if it exists
+      File workspaceContextFileHandle =
+          workspaceContextDir.resolve(WORKSPACE_CONTEXT_FILENAME).toFile();
+      if (workspaceContextFileHandle.exists() && workspaceContextFileHandle.isFile()) {
+        return workspaceContextFileHandle;
+      }
+    }
+
+    // if we've reached the root directory, then no existing workspace context file is found
+    Path parentDir = currentDir.toAbsolutePath().getParent();
+    if (currentDir.getNameCount() == 0 || parentDir == null) {
+      throw new FileNotFoundException(
+          "No workspace context file found in the current directory hierarchy");
+    }
+
+    // recursively check the parent directory
+    return getExistingWorkspaceContextFile(parentDir);
   }
 }
