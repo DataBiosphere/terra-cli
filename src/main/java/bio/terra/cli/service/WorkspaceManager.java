@@ -211,8 +211,12 @@ public class WorkspaceManager {
       throw new RuntimeException("Resource of this name already exists.");
     }
 
+    // replace underscores in the resource name with hyphens so that the bucket path will be a valid
+    // url
+    String bucketName =
+        workspaceContext.getGoogleProject() + "-" + resourceName.replaceAll("_", "-");
+
     // create the bucket by calling GCS directly
-    String bucketName = workspaceContext.getGoogleProject() + "-" + resourceName;
     Bucket bucket =
         new GoogleCloudStorage(
                 globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
