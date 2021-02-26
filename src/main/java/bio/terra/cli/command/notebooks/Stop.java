@@ -39,9 +39,7 @@ public class Stop implements Callable<Integer> {
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
 
-    new DockerAppsRunner(globalContext, workspaceContext)
-        .runToolCommand(
-            command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
+    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
     return 0;
   }

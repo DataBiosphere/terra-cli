@@ -188,6 +188,15 @@ public class WorkspaceContext {
   // Resolving file and directory paths
 
   /**
+   * Getter for the workspace directory file handle. (i.e. the parent of the .terra directory)
+   *
+   * @return a handle for the workspace directory
+   */
+  public static File resolveWorkspaceDir() {
+    return resolveWorkspaceContextFile().getParentFile().getParentFile();
+  }
+
+  /**
    * Getter for the file handle where the workspace context is persisted.
    *
    * <p>This method first searches for an existing workspace context file in the current directory

@@ -20,6 +20,8 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +40,14 @@ public class DockerAppsRunner {
   private final WorkspaceContext workspaceContext;
   private DockerClient dockerClient;
 
-  // This is where the pet key files will be mounted on the Docker container.
-  public static final String PET_KEYS_MOUNT_POINT = "/usr/local/etc/terra_cli";
+  // mount point for the global context directory on the container
+  // TODO: this is the default $HOME directory on the container, which is where we look for the
+  // global context directory. add an env var override for this, so we can mount the global context
+  // somewhere else (e.g. under /usr)
+  private static final String GLOBAL_CONTEXT_MOUNT_POINT = "/root/.terra";
+
+  // mount point for the workspace context directory on the container
+  private static final String WORKSPACE_CONTEXT_MOUNT_POINT = "/usr/local/etc/.terra";
 
   public DockerAppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
@@ -87,29 +95,23 @@ public class DockerAppsRunner {
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    */
   public void runToolCommand(String command) {
-    runToolCommand(command, null, new HashMap<>(), new HashMap<>());
+    runToolCommand(command, new HashMap<>());
   }
 
   /**
    * Run a command inside the Docker container for external tools. Allows adding environment
-   * variables and bind mounts beyond what the terra_init script requires. The environment variables
-   * and bind mounts expected by the terra_init script will be added to those passed in.
+   * variables beyond what the terra_init script requires. The environment variables expected by the
+   * terra_init script will be added to those passed in.
    *
    * <p>This method substitutes any Terra references in the command and also adds the Terra
    * references as environment variables in the container.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
-   * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
-   * @param bindMounts a mapping of container mount point to the local directory being mounted
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
-  public void runToolCommand(
-      String command,
-      String workingDir,
-      Map<String, String> envVars,
-      Map<String, File> bindMounts) {
+  public void runToolCommand(String command, Map<String, String> envVars) {
     // check that the current workspace is defined
     workspaceContext.requireCurrentWorkspace();
 
@@ -123,6 +125,19 @@ public class DockerAppsRunner {
       }
     }
     envVars.putAll(terraReferences);
+
+    // mount the global and workspace directories to the Docker image
+    File workspaceDir = WorkspaceContext.resolveWorkspaceDir();
+    Map<String, File> bindMounts = new HashMap<>();
+    bindMounts.put(GLOBAL_CONTEXT_MOUNT_POINT, GlobalContext.resolveGlobalContextDir().toFile());
+    bindMounts.put(WORKSPACE_CONTEXT_MOUNT_POINT, workspaceDir);
+
+    // default the working directory to the current directory, relative to the workspace directory
+    Path currentDir = Paths.get("").toAbsolutePath();
+    Path currentRelativeToWorkspaceDir =
+        WorkspaceContext.resolveWorkspaceDir().toPath().toAbsolutePath().relativize(currentDir);
+    String workingDir =
+        Path.of(WORKSPACE_CONTEXT_MOUNT_POINT).resolve(currentRelativeToWorkspaceDir).toString();
 
     buildDockerClient();
 
@@ -178,14 +193,17 @@ public class DockerAppsRunner {
     // command
     String fullCommand = "terra_init.sh && " + command;
 
+    // get a path to the current user's pet SA key file on the container
+    Path keyFilePathOnHost =
+        GlobalContext.resolveGlobalContextDir()
+            .relativize(
+                GlobalContext.getPetSaKeyFile(currentUser, workspaceContext.getWorkspaceId()));
+    Path keyFilePathOnContainer = Path.of(GLOBAL_CONTEXT_MOUNT_POINT).resolve(keyFilePathOnHost);
+
     // the terra_init script relies on environment variables to pass in global and workspace
     // context information
     Map<String, String> terraInitEnvVars = new HashMap<>();
-    terraInitEnvVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        PET_KEYS_MOUNT_POINT
-            + "/"
-            + GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()));
+    terraInitEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", keyFilePathOnContainer.toString());
     terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", workspaceContext.getGoogleProject());
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
@@ -195,19 +213,6 @@ public class DockerAppsRunner {
       }
     }
     envVars.putAll(terraInitEnvVars);
-
-    // the terra_init script requires that the pet SA key file is accessible to it
-    Map<String, File> terraInitBindMounts = new HashMap<>();
-    terraInitBindMounts.put(
-        PET_KEYS_MOUNT_POINT, GlobalContext.getPetSaKeyDirForUser(currentUser).toFile());
-    for (Map.Entry<String, File> terraInitBindMount : terraInitBindMounts.entrySet()) {
-      if (bindMounts.get(terraInitBindMount.getKey()) != null) {
-        throw new RuntimeException(
-            "Tool command cannot bind mount to the same directory used by the terra_init script: "
-                + terraInitBindMount.getKey());
-      }
-    }
-    bindMounts.putAll(terraInitBindMounts);
 
     return startDockerContainer(fullCommand, workingDir, envVars, bindMounts);
   }
