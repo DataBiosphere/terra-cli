@@ -194,7 +194,7 @@ public class GlobalContext {
    * @return handle to the global context file
    */
   @JsonIgnore
-  public static File getGlobalContextFileHandle() {
+  private static File getGlobalContextFileHandle() {
     return getGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME).toFile();
   }
 

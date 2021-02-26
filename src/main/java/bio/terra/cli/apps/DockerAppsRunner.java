@@ -39,7 +39,10 @@ public class DockerAppsRunner {
   private final WorkspaceContext workspaceContext;
   private DockerClient dockerClient;
 
+  // default $HOME directory on the container (this is where we expect to look for the global
+  // context)
   private static final String CONTAINER_HOME_DIR = "/root";
+  // mount point for the workspace directory
   private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
 
   public DockerAppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
