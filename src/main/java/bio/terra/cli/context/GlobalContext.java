@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +35,7 @@ public class GlobalContext {
   public String dockerImageId;
 
   // file paths related to persisting the global context on disk
-  private static final Path DEFAULT_GLOBAL_CONTEXT_DIR =
-      Paths.get(System.getProperty("user.home"), ".terra");
+  public static final String GLOBAL_CONTEXT_DIRNAME = ".terra";
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
   private static final String PET_KEYS_DIRNAME = "pet-keys";
 
@@ -62,7 +60,7 @@ public class GlobalContext {
   public static GlobalContext readFromFile() {
     // try to read in an instance of the global context file
     try {
-      return FileUtils.readFileIntoJavaObject(resolveGlobalContextFile(), GlobalContext.class);
+      return FileUtils.readFileIntoJavaObject(getGlobalContextFileHandle(), GlobalContext.class);
     } catch (IOException ioEx) {
       logger.warn("Global context file not found or error reading it.", ioEx);
     }
@@ -75,7 +73,7 @@ public class GlobalContext {
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(resolveGlobalContextFile(), this);
+      FileUtils.writeJavaObjectToFile(getGlobalContextFileHandle(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting global context.", ioEx);
     }
@@ -167,43 +165,82 @@ public class GlobalContext {
   //       - sub-directory for persisting pet SA keys: pet-keys/[terra user id]
   //           - pet SA key filename: [workspace id]
 
-  /** Getter for the global context directory. */
-  public static Path resolveGlobalContextDir() {
-    // TODO: allow overriding the global context directory path (e.g. env var?)
-    return DEFAULT_GLOBAL_CONTEXT_DIR;
+  /**
+   * Get the global context directory path relative to the user home directory.
+   *
+   * @return absolute path to global context directory, relative to the user home directory
+   */
+  @JsonIgnore
+  public static Path getGlobalContextDir() {
+    // TODO: allow overriding the global context directory path (e.g. env var != user home
+    // directory)
+    return getGlobalContextDir(Paths.get(System.getProperty("user.home")));
   }
 
   /**
-   * Getter for the sub-directory of the global context directory that holds the pet SA key files
-   * for all users.
+   * Get the global context directory path relative to the given directory.
+   *
+   * @param relativeToDir the top-level directory (e.g. $HOME on either the host or container)
+   * @return absolute path to the global context directory, relative to the given directory
    */
-  private static Path resolvePetSaKeyDir() {
-    return resolveGlobalContextDir().resolve(PET_KEYS_DIRNAME);
+  @JsonIgnore
+  public static Path getGlobalContextDir(Path relativeToDir) {
+    return relativeToDir.resolve(GLOBAL_CONTEXT_DIRNAME).toAbsolutePath();
   }
 
   /**
-   * Getter for the sub-directory of the global context directory that holds the pet SA key files
-   * for the given user.
+   * Get a handle to the global context file.
+   *
+   * @return handle to the global context file
    */
   @JsonIgnore
-  public static Path getPetSaKeyDirForUser(TerraUser terraUser) {
-    return resolvePetSaKeyDir().resolve(terraUser.terraUserId);
+  public static File getGlobalContextFileHandle() {
+    return getGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME).toFile();
   }
 
-  /** Getter for the pet SA key file name for the given user + workspace. */
+  /**
+   * Get a handle to the directory that contains the pet SA key files for the given user. This is a
+   * sub-directory of the global context directory.
+   *
+   * @param terraUser user whose key files we want
+   * @return handle to the key file directory for the given user
+   */
   @JsonIgnore
-  public static String getPetSaKeyFilename(UUID workspaceId) {
-    return workspaceId.toString();
+  public static File getPetSaKeyDirHandle(TerraUser terraUser) {
+    return getGlobalContextDir().resolve(PET_KEYS_DIRNAME).resolve(terraUser.terraUserId).toFile();
   }
 
-  /** Getter for the pet SA key file handle for the given user + workspace. */
+  /**
+   * Get the pet SA key file for the given user and workspace. This is stored in a sub-directory of
+   * the global context directory.
+   *
+   * @param terraUser user whose key file we want
+   * @param workspaceContext workspace the key file was created for
+   * @return absolute path to the pet SA key file for the given user and workspace
+   */
   @JsonIgnore
-  public static Path getPetSaKeyFile(TerraUser terraUser, UUID workspaceId) {
-    return getPetSaKeyDirForUser(terraUser).resolve(getPetSaKeyFilename(workspaceId));
+  public static Path getPetSaKeyFile(TerraUser terraUser, WorkspaceContext workspaceContext) {
+    return getGlobalContextDir()
+        .resolve(PET_KEYS_DIRNAME)
+        .resolve(terraUser.terraUserId)
+        .resolve(workspaceContext.getWorkspaceId().toString());
   }
 
-  /** Getter for the file where the global context is persisted. */
-  public static File resolveGlobalContextFile() {
-    return resolveGlobalContextDir().resolve(GLOBAL_CONTEXT_FILENAME).toFile();
+  /**
+   * Get the pet SA key file for the given user and workspace. This is stored in a sub-directory of
+   * the global context directory.
+   *
+   * @param terraUser user whose key file we want
+   * @param workspaceContext workspace the key file was created for
+   * @param relativeToDir the top-level directory (e.g. $HOME on either the host or container)
+   * @return absolute path to the pet SA key file for the given user and workspace
+   */
+  @JsonIgnore
+  public static Path getPetSaKeyFile(
+      TerraUser terraUser, WorkspaceContext workspaceContext, Path relativeToDir) {
+    return getGlobalContextDir(relativeToDir)
+        .resolve(PET_KEYS_DIRNAME)
+        .resolve(terraUser.terraUserId)
+        .resolve(workspaceContext.getWorkspaceId().toString());
   }
 }

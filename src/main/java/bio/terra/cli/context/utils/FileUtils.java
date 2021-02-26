@@ -63,8 +63,7 @@ public class FileUtils {
   /**
    * Write a string directly to a file.
    *
-   * @param directory the directory where the file is
-   * @param fileName the file name
+   * @param outputFile the file to write to
    * @param fileContents the string to write
    * @return the file that was written to
    */
@@ -72,18 +71,13 @@ public class FileUtils {
       value = "RV_RETURN_VALUE_IGNORED",
       justification =
           "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
-  public static Path writeStringToFile(Path directory, String fileName, String fileContents)
-      throws IOException {
-    // get a reference to the file
-    Path outputPath = directory.resolve(fileName);
-    logger.info("Writing to file: {}", outputPath.toAbsolutePath());
+  public static Path writeStringToFile(File outputFile, String fileContents) throws IOException {
+    logger.info("Writing to file: {}", outputFile.getAbsolutePath());
 
     // create the file and any parent directories if they don't already exist
-    File outputFile = outputPath.toFile();
     createFile(outputFile);
 
-    return Files.write(
-        directory.resolve(fileName), fileContents.getBytes(Charset.forName("UTF-8")));
+    return Files.write(outputFile.toPath(), fileContents.getBytes(Charset.forName("UTF-8")));
   }
 
   /**

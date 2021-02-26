@@ -80,7 +80,7 @@ public class AuthenticationManager {
               terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.resolveGlobalContextDir().toFile(),
+              globalContext.getGlobalContextDir().toFile(),
               globalContext.launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new RuntimeException("Error fetching user credentials.", ex);
@@ -116,7 +116,7 @@ public class AuthenticationManager {
           currentTerraUser.cliGeneratedUserKey,
           SCOPES,
           inputStream,
-          globalContext.resolveGlobalContextDir().toFile());
+          globalContext.getGlobalContextDir().toFile());
 
       // delete the pet SA credentials
       deletePetSaCredentials(currentTerraUser);
@@ -149,7 +149,7 @@ public class AuthenticationManager {
               currentTerraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.resolveGlobalContextDir().toFile());
+              globalContext.getGlobalContextDir().toFile());
 
       // if there are no valid credentials, then return here because there's nothing to populate
       if (userCredentials == null) {
@@ -180,7 +180,7 @@ public class AuthenticationManager {
     }
 
     // if the key file for this user + workspace already exists, then no need to re-fetch
-    Path jsonKeyPath = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext.getWorkspaceId());
+    Path jsonKeyPath = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext);
     logger.info("Looking for pet SA key file at: {}", jsonKeyPath);
     if (jsonKeyPath.toFile().exists()) {
       logger.info("Pet SA key file for this user and workspace already exists.");
@@ -199,8 +199,7 @@ public class AuthenticationManager {
         // persist the key file in the global context directory
         jsonKeyPath =
             FileUtils.writeStringToFile(
-                GlobalContext.getPetSaKeyDirForUser(terraUser),
-                GlobalContext.getPetSaKeyFilename(workspaceContext.getWorkspaceId()),
+                GlobalContext.getPetSaKeyFile(terraUser, workspaceContext).toFile(),
                 petSaKeySamResponse.responseBody);
         logger.info("Stored pet SA key file for this user and workspace.");
       } catch (IOException ioEx) {
@@ -222,7 +221,7 @@ public class AuthenticationManager {
 
   /** Delete all pet SA credentials for the given user. */
   public void deletePetSaCredentials(TerraUser terraUser) {
-    File jsonKeysDir = GlobalContext.getPetSaKeyDirForUser(terraUser).toFile();
+    File jsonKeysDir = GlobalContext.getPetSaKeyDirHandle(terraUser);
 
     // delete all key files
     File[] keyFiles = jsonKeysDir.listFiles();
