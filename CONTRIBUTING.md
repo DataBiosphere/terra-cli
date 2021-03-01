@@ -38,7 +38,7 @@ For any change in this directory to take effect:
     ```
 2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
     ```
-    > terra app set-image terra-cli/local:b5fdce0
+    > terra app set-image --image=terra-cli/local:b5fdce0
     ```
 
 #### Pull an existing image
@@ -61,7 +61,7 @@ To use a specific Docker image from GCR:
     ```
 2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
     ```
-    > terra app set-image gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    > terra app set-image --image=gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
     ```
 
 #### Publish a new image
@@ -99,7 +99,7 @@ To update the default image:
     ```
 3. Bump the version number in the image name in `gradle.properties`.
     ```
-    dockerImageName=terra-cli/v0.1
+    dockerImageName=terra-cli/v0.2
     ```
 4. Publish the new (`stable`-tagged) image to GCR (see above).
 5. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
@@ -186,8 +186,8 @@ To add a new supported tool:
    7. You can pass environment variables through to the Docker container by populating a `Map` and
    passing it to the `DockerAppsRunner.runToolCommand` method. Two environment variables are always
    passed:
-       - `GOOGLE_PROJECT_ID` = the workspace project id
-       - `PET_KEY_FILE` = the pet service account key file
+       - `GOOGLE_CLOUD_PROJECT` = the workspace project id
+       - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
    8.  You can mount directories on the host machine to the Docker container by populating a second
    `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
    has an example of this (see `bio.terra.cli.apps.Nextflow` class `run` method).

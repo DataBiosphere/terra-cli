@@ -17,6 +17,7 @@ if [ -z "$localImageName" ] || [ -z "$localImageTag" ] || [ -z "$remoteImageName
 fi
 
 echo "Reading the CI service account key file from Vault"
+mkdir -p rendered
 vault read -format json secret/dsde/terra/kernel/dev/common/ci/ci-account.json | jq .data > rendered/ci-account.json
 
 echo "Logging in to docker using this key file"
@@ -27,8 +28,17 @@ localImageNameAndTag="$localImageName:$localImageTag"
 remoteImageNameAndTag="$remoteImageName:$remoteImageTag"
 docker tag $localImageNameAndTag $remoteImageNameAndTag
 
+echo "Logging into to gcloud and configuring docker with the CI service account"
+# reference: https://cloud.google.com/container-registry/docs/advanced-authentication#gcloud-helper
+currentGcloudUser=$(gcloud config get-value account)
+gcloud auth activate-service-account --key-file=rendered/ci-account.json
+gcloud auth configure-docker
+
 echo "Pushing the image to GCR"
 docker push $remoteImageNameAndTag
+
+echo "Restoring the current gcloud user"
+gcloud config set account $currentGcloudUser
 
 # write out the path to the remote image
 echo "$remoteImageNameAndTag successfully pushed to GCR"
