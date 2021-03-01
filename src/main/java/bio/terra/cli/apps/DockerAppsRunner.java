@@ -402,14 +402,7 @@ public class DockerAppsRunner {
     Path workspaceDirOnHost = WorkspaceContext.getWorkspaceDir();
 
     // remove the workspace directory part of the current working directory
-    Path relativePathToCurrentDir = currentDir.relativize(workspaceDirOnHost);
-
-    logger.info("currentDir: {}", currentDir);
-    logger.info("workspaceDirOnHost: {}", workspaceDirOnHost);
-    logger.info("relativePathToCurrentDir: {}", relativePathToCurrentDir);
-    logger.info(
-        "getWorkingDirOnContainer: {}",
-        Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir));
+    Path relativePathToCurrentDir = workspaceDirOnHost.relativize(currentDir);
 
     // working directory on container = workspace dir on container + relative path to current dir
     return Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir);
@@ -446,13 +439,6 @@ public class DockerAppsRunner {
     //      globalContextDirOnHost = $HOME/.terra/
     //      relativePathToKeyFile = pet-keys/[user id]/[workspace id]
     Path relativePathToKeyFile = globalContextDirOnHost.relativize(keyFileOnHost);
-
-    logger.info("keyFileOnHost: {}", keyFileOnHost);
-    logger.info("globalContextDirOnHost: {}", globalContextDirOnHost);
-    logger.info("relativePathToKeyFile: {}", relativePathToKeyFile);
-    logger.info(
-        "getPetSaKeyFileOnContainer: {}",
-        getGlobalContextDirOnContainer().resolve(relativePathToKeyFile));
 
     // key file path on container = global context dir on container + relative path to key file
     return getGlobalContextDirOnContainer().resolve(relativePathToKeyFile);
