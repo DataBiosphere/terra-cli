@@ -84,10 +84,8 @@ public class SamService {
     StatusApi statusApi = new StatusApi(apiClient);
     try {
       return HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
-    } catch (Exception ex) {
-      // catch any exception, including client-side ones (e.g. UnknownHostException)
-      logger.error("Error getting SAM status", ex);
-      return null;
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error getting SAM status.", ex);
     } finally {
       closeConnectionPool();
     }

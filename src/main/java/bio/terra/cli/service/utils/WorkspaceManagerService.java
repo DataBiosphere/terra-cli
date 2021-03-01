@@ -104,10 +104,8 @@ public class WorkspaceManagerService {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
       return unauthenticatedApi.serviceStatus();
-    } catch (Exception ex) {
-      // catch any exception, including client-side ones (e.g. UnknownHostException)
-      logger.error("Error getting Workspace Manager status", ex);
-      return null;
+    } catch (ApiException ex) {
+      throw new RuntimeException("Error getting Workspace Manager status", ex);
     }
   }
 
