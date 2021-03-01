@@ -17,6 +17,7 @@ import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEn
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatus;
+import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusDetails;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,16 +82,32 @@ public class SamService {
    */
   public SystemStatus getStatus() {
     StatusApi statusApi = new StatusApi(apiClient);
-    SystemStatus status = null;
     try {
-      status =
-          HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
+      return HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      logger.error("Error getting SAM status", ex);
+      throw new RuntimeException("Error getting SAM status.", ex);
     } finally {
       closeConnectionPool();
     }
-    return status;
+  }
+
+  /**
+   * Call the SAM "/api/users/v1/invite/{inviteeEmail}" endpoint to invite a user and track them.
+   * This is not the same thing as registering a user.
+   *
+   * @param userEmail email to invite
+   * @return SAM object with details about the user
+   */
+  public UserStatusDetails inviteUser(String userEmail) {
+    UsersApi samUsersApi = new UsersApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> samUsersApi.inviteUser(userEmail), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error inviting user in SAM.", ex);
+    } finally {
+      closeConnectionPool();
+    }
   }
 
   /**
@@ -197,6 +214,7 @@ public class SamService {
    * Call the SAM "/api/groups/v1/{groupName}" GET endpoint to get the email address of a group.
    *
    * @param groupName name of the group to delete
+   * @return email address of the group
    */
   public String getGroupEmail(String groupName) {
     GroupApi groupApi = new GroupApi(apiClient);
@@ -368,6 +386,7 @@ public class SamService {
    *
    * @param resourceType type of resource
    * @param resourceId id of resource
+   * @return list of policies on the resource and their members
    */
   public List<AccessPolicyResponseEntry> listPoliciesForResource(
       String resourceType, String resourceId) {

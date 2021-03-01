@@ -55,17 +55,36 @@ public class ServerManager {
     throw new RuntimeException("Error reading in server specification file (" + serverName + ").");
   }
 
-  /** Ping the service URLs to check their status. Return true if all return OK. */
+  /**
+   * Ping the service URLs to check their status. Return true if all return OK.
+   *
+   * <p>Each of the status checks in this method swallow all exceptions. This means that the CLI
+   * treats all network or API exceptions when calling "/status" the same as a bad status code.
+   */
   public boolean pingServerStatus() {
-    SystemStatus samStatus = new SamService(globalContext.server).getStatus();
-    logger.info("SAM status: {}", samStatus);
+    SystemStatus samStatus = null;
+    try {
+      samStatus = new SamService(globalContext.server).getStatus();
+      logger.info("SAM status: {}", samStatus);
+    } catch (Exception ex) {
+      logger.error("Error getting SAM status.", ex);
+    }
 
-    bio.terra.workspace.model.SystemStatus wsmStatus =
-        new WorkspaceManagerService(globalContext.server).getStatus();
-    logger.info("Workspace Manager status: {}", wsmStatus);
+    bio.terra.workspace.model.SystemStatus wsmStatus = null;
+    try {
+      wsmStatus = new WorkspaceManagerService(globalContext.server).getStatus();
+      logger.info("WSM status: {}", wsmStatus);
+    } catch (Exception ex) {
+      logger.error("Error getting WSM status.", ex);
+    }
 
-    RepositoryStatusModel tdrStatus = new DataRepoService(globalContext.server).getStatus();
-    logger.info("Data Repo status: {}", tdrStatus);
+    RepositoryStatusModel tdrStatus = null;
+    try {
+      tdrStatus = new DataRepoService(globalContext.server).getStatus();
+      logger.info("TDR status: {}", tdrStatus);
+    } catch (Exception ex) {
+      logger.error("Error getting TDR status.", ex);
+    }
 
     return (samStatus != null && samStatus.getOk())
         && (wsmStatus != null && wsmStatus.isOk())

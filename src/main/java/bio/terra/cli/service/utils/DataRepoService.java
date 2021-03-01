@@ -4,6 +4,7 @@ import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;
+import bio.terra.datarepo.client.ApiException;
 import bio.terra.datarepo.model.RepositoryConfigurationModel;
 import bio.terra.datarepo.model.RepositoryStatusModel;
 import com.google.auth.oauth2.AccessToken;
@@ -68,8 +69,8 @@ public class DataRepoService {
     RepositoryConfigurationModel repositoryConfig = null;
     try {
       repositoryConfig = unauthenticatedApi.retrieveRepositoryConfig();
-    } catch (Exception ex) {
-      logger.error("Error getting Data Repo configuration", ex);
+    } catch (ApiException ex) {
+      throw new RuntimeException("Error getting Data Repo version", ex);
     }
     return repositoryConfig;
   }
@@ -81,12 +82,10 @@ public class DataRepoService {
    */
   public RepositoryStatusModel getStatus() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
-    RepositoryStatusModel status = null;
     try {
-      status = unauthenticatedApi.serviceStatus();
-    } catch (Exception ex) {
-      logger.error("Error getting Data Repo status", ex);
+      return unauthenticatedApi.serviceStatus();
+    } catch (ApiException ex) {
+      throw new RuntimeException("Error getting Data Repo status", ex);
     }
-    return status;
   }
 }
