@@ -54,7 +54,7 @@ public class DockerAppsRunner {
   // This variable specifies the default Docker image id or tag that the CLI uses to run external
   // tools. Keep this property in-sync with the dockerImageName Gradle property
   private static final String DEFAULT_DOCKER_IMAGE_ID =
-      "gcr.io/terra-cli-dev/terra-cli/v0.0:stable";
+      "gcr.io/terra-cli-dev/terra-cli/v0.1:stable";
 
   /** Returns the default image id. */
   public static String defaultImageId() {
@@ -205,7 +205,8 @@ public class DockerAppsRunner {
     // context information
     Map<String, String> terraInitEnvVars = new HashMap<>();
     terraInitEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", keyFileOnContainer.toString());
-    terraInitEnvVars.put("TERRA_GOOGLE_PROJECT_ID", workspaceContext.getGoogleProject());
+    terraInitEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
+
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
         throw new RuntimeException(
