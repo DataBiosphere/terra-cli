@@ -263,7 +263,6 @@ public class WorkspaceManager {
    */
   public List<CloudResource> listResources() {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
-
     return workspaceContext.listControlledResources();
   }
 }
