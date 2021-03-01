@@ -3,11 +3,11 @@ package bio.terra.cli.context;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +52,8 @@ public class WorkspaceContext {
   public static WorkspaceContext readFromFile() {
     // try to read in an instance of the workspace context file
     try {
-      return FileUtils.readFileIntoJavaObject(getWorkspaceContextFile(), WorkspaceContext.class);
+      return FileUtils.readFileIntoJavaObject(
+          getWorkspaceContextFile().toFile(), WorkspaceContext.class);
     } catch (IOException ioEx) {
       logger.warn("Workspace context file not found or error reading it.", ioEx);
     }
@@ -67,7 +68,7 @@ public class WorkspaceContext {
    */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(getWorkspaceContextFile(), this);
+      FileUtils.writeJavaObjectToFile(getWorkspaceContextFile().toFile(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting workspace context.", ioEx);
     }
@@ -188,24 +189,17 @@ public class WorkspaceContext {
   // Resolving file and directory paths
 
   /**
-   * Get a handle for the workspace directory. (i.e. the parent of the .terra directory)
+   * Get the workspace directory. (i.e. the parent of the .terra directory)
    *
-   * @return a handle for the workspace directory
+   * @return the absolute path to the workspace directory
    */
+  @SuppressFBWarnings(
+      value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+      justification =
+          "An NPE would only happen here if there was an error getting the workspace context file, and an exception would be thrown in that method instead.")
   @JsonIgnore
-  public static File getWorkspaceDir() {
-    return getWorkspaceContextFile().getParentFile().getParentFile();
-  }
-
-  /**
-   * Get the current working directory relative to the workspace directory.
-   *
-   * @return a relative path for the current working directory
-   */
-  @JsonIgnore
-  public static Path getCurrentDirRelativeToWorkspaceDir() {
-    Path currentDir = Paths.get("").toAbsolutePath();
-    return getWorkspaceDir().toPath().toAbsolutePath().relativize(currentDir);
+  public static Path getWorkspaceDir() {
+    return getWorkspaceContextFile().getParent().getParent();
   }
 
   /**
@@ -221,15 +215,12 @@ public class WorkspaceContext {
    * @return a handle for the workspace context file
    */
   @JsonIgnore
-  private static File getWorkspaceContextFile() {
+  private static Path getWorkspaceContextFile() {
     Path currentDir = Path.of("").toAbsolutePath();
     try {
       return getExistingWorkspaceContextFile(currentDir);
     } catch (FileNotFoundException fnfEx) {
-      return currentDir
-          .resolve(WORKSPACE_CONTEXT_DIRNAME)
-          .resolve(WORKSPACE_CONTEXT_FILENAME)
-          .toFile();
+      return currentDir.resolve(WORKSPACE_CONTEXT_DIRNAME).resolve(WORKSPACE_CONTEXT_FILENAME);
     }
   }
 
@@ -251,7 +242,7 @@ public class WorkspaceContext {
    * @throws FileNotFoundException if no existing workspace context file is found
    */
   @JsonIgnore
-  private static File getExistingWorkspaceContextFile(Path currentDir)
+  private static Path getExistingWorkspaceContextFile(Path currentDir)
       throws FileNotFoundException {
     // get the workspace context sub-directory relative to the current directory and check if it
     // exists
@@ -260,10 +251,9 @@ public class WorkspaceContext {
     if (workspaceContextDirHandle.exists() && workspaceContextDirHandle.isDirectory()) {
 
       // get the workspace context file relative to the sub-directory and check if it exists
-      File workspaceContextFileHandle =
-          workspaceContextDir.resolve(WORKSPACE_CONTEXT_FILENAME).toFile();
-      if (workspaceContextFileHandle.exists() && workspaceContextFileHandle.isFile()) {
-        return workspaceContextFileHandle;
+      Path workspaceContextFile = workspaceContextDir.resolve(WORKSPACE_CONTEXT_FILENAME);
+      if (workspaceContextFile.toFile().exists() && workspaceContextFile.toFile().isFile()) {
+        return workspaceContextFile;
       }
     }
 

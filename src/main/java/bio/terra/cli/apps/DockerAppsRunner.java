@@ -21,6 +21,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +52,9 @@ public class DockerAppsRunner {
     this.dockerClient = null;
   }
 
+  // ====================================================
+  // Docker images
+
   // This variable specifies the default Docker image id or tag that the CLI uses to run external
   // tools. Keep this property in-sync with the dockerImageName Gradle property
   private static final String DEFAULT_DOCKER_IMAGE_ID =
@@ -80,6 +84,24 @@ public class DockerAppsRunner {
 
     globalContext.updateDockerImageId(imageId);
     return true;
+  }
+
+  // ====================================================
+  // Tool commands
+
+  /**
+   * Utility method for concatenating a command and its arguments.
+   *
+   * @param cmd command name (e.g. gsutil)
+   * @param cmdArgs command arguments (e.g. ls, gs://my-bucket)
+   */
+  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
+    String fullCommand = cmd;
+    if (cmdArgs != null && cmdArgs.size() > 0) {
+      final String argSeparator = " ";
+      fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
+    }
+    return fullCommand;
   }
 
   /**
@@ -123,31 +145,18 @@ public class DockerAppsRunner {
     envVars.putAll(terraReferences);
 
     // mount the global context directory and the workspace directory to the container
-    //  e.g. global context dir on host = $HOME/.terra
-    //       global context dir on container = CONTAINER_HOME_DIR/.terra
-    //       workspace dir on host = $HOME/terra-workspaces/workspace123
-    //       workspace dir on container = CONTAINER_WORKSPACE_DIR
-    Path globalContextDirOnContainer =
-        GlobalContext.getGlobalContextDir(Path.of(CONTAINER_HOME_DIR));
-    Path workspaceDirOnContainer = Path.of(CONTAINER_WORKSPACE_DIR);
-
-    Map<Path, File> bindMounts = new HashMap<>();
-    bindMounts.put(globalContextDirOnContainer, GlobalContext.getGlobalContextDir().toFile());
-    bindMounts.put(workspaceDirOnContainer, WorkspaceContext.getWorkspaceDir());
-
-    // set the working directory on the container to match the working directory on the host,
-    // relative to the workspace directory
-    //  e.g. current dir on host = $HOME/terra-workspaces/workspace123/nextflow/rnaseq-nf
-    //       current dir on container = CONTAINER_WORKSPACE_DIR/nextflow/rnaseq-nf
-    Path workingDir =
-        Path.of(CONTAINER_WORKSPACE_DIR)
-            .resolve(WorkspaceContext.getCurrentDirRelativeToWorkspaceDir());
+    //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
+    //       workspace context dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
+    Map<Path, Path> bindMounts = new HashMap<>();
+    bindMounts.put(getGlobalContextDirOnContainer(), GlobalContext.getGlobalContextDir());
+    bindMounts.put(Path.of(CONTAINER_WORKSPACE_DIR), WorkspaceContext.getWorkspaceDir());
 
     // create and start the docker container. run the terra_init script first, then the given
     // command
     buildDockerClient();
     String containerId =
-        startDockerContainerWithTerraInit(command, workingDir.toString(), envVars, bindMounts);
+        startDockerContainerWithTerraInit(
+            command, getWorkingDirOnContainer().toString(), envVars, bindMounts);
 
     // read the container logs, which contains the command output, and write them to stdout
     outputLogsForDockerContainer(containerId);
@@ -160,15 +169,28 @@ public class DockerAppsRunner {
     deleteDockerContainer(containerId);
   }
 
-  /** Build the Docker client object with standard options. */
-  private void buildDockerClient() {
-    DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
-    DockerHttpClient httpClient =
-        new ApacheDockerHttpClient.Builder()
-            .dockerHost(config.getDockerHost())
-            .sslConfig(config.getSSLConfig())
-            .build();
-    dockerClient = DockerClientImpl.getInstance(config, httpClient);
+  /**
+   * Build a map of Terra references to use in parsing the CLI command string, and in setting
+   * environment variables in the Docker container.
+   *
+   * <p>The list of references are TERRA_[...] where [...] is the name of a cloud resource. The
+   * cloud resource can be controlled or external.
+   *
+   * <p>e.g. TERRA_MY_BUCKET -> gs://terra-wsm-test-9b7511ab-my-bucket
+   *
+   * @return a map of Terra references (name -> cloud id)
+   */
+  private Map<String, String> buildMapOfTerraReferences() {
+    // build a map of reference string -> resolved value
+    Map<String, String> terraReferences = new HashMap<>();
+    workspaceContext
+        .listCloudResources()
+        .forEach(
+            cloudResource ->
+                terraReferences.put(
+                    "TERRA_" + cloudResource.name.toUpperCase(), cloudResource.cloudId));
+
+    return terraReferences;
   }
 
   /**
@@ -184,7 +206,7 @@ public class DockerAppsRunner {
    *     overlaps or conflicts with one passed into this method
    */
   private String startDockerContainerWithTerraInit(
-      String command, String workingDir, Map<String, String> envVars, Map<Path, File> bindMounts) {
+      String command, String workingDir, Map<String, String> envVars, Map<Path, Path> bindMounts) {
     // check that there is a current user, because the terra_init script will try to read the pet
     // key file
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
@@ -193,14 +215,12 @@ public class DockerAppsRunner {
     // command
     String fullCommand = "terra_init.sh && " + command;
 
-    // get a path to the current user's pet SA key file on the container
-    Path keyFileOnContainer =
-        GlobalContext.getPetSaKeyFile(currentUser, workspaceContext, Path.of(CONTAINER_HOME_DIR));
-
     // the terra_init script relies on environment variables to pass in global and workspace
     // context information
     Map<String, String> terraInitEnvVars = new HashMap<>();
-    terraInitEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", keyFileOnContainer.toString());
+    terraInitEnvVars.put(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        getPetSaKeyFileOnContainer(currentUser, workspaceContext).toString());
     terraInitEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
 
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
@@ -215,6 +235,20 @@ public class DockerAppsRunner {
     return startDockerContainer(fullCommand, workingDir, envVars, bindMounts);
   }
 
+  // ====================================================
+  // Docker containers
+
+  /** Build the Docker client object with standard options. */
+  private void buildDockerClient() {
+    DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
+    DockerHttpClient httpClient =
+        new ApacheDockerHttpClient.Builder()
+            .dockerHost(config.getDockerHost())
+            .sslConfig(config.getSSLConfig())
+            .build();
+    dockerClient = DockerClientImpl.getInstance(config, httpClient);
+  }
+
   /**
    * Start a Docker container and run the given command. Return the container id.
    *
@@ -225,7 +259,7 @@ public class DockerAppsRunner {
    * @throws RuntimeException if the local directory does not exist or is not a directory
    */
   private String startDockerContainer(
-      String command, String workingDir, Map<String, String> envVars, Map<Path, File> bindMounts) {
+      String command, String workingDir, Map<String, String> envVars, Map<Path, Path> bindMounts) {
     // flatten the environment variables from a map, into a list of key=val strings
     List<String> envVarsStr = new ArrayList<>();
     for (Map.Entry<String, String> envVar : envVars.entrySet()) {
@@ -234,16 +268,14 @@ public class DockerAppsRunner {
 
     // create Bind objects for each specified mount
     List<Bind> bindMountsObj = new ArrayList<>();
-    for (Map.Entry<Path, File> bindMount : bindMounts.entrySet()) {
-      File localDirectory = bindMount.getValue();
+    for (Map.Entry<Path, Path> bindMount : bindMounts.entrySet()) {
+      File localDirectory = bindMount.getValue().toFile();
       if (!localDirectory.exists() || !localDirectory.isDirectory()) {
         throw new RuntimeException(
-            "Bind mount does not specify a local directory: "
-                + bindMount.getValue().getAbsolutePath());
+            "Bind mount does not specify a local directory: " + localDirectory.getAbsolutePath());
       }
       bindMountsObj.add(
-          new Bind(
-              bindMount.getValue().getAbsolutePath(), new Volume(bindMount.getKey().toString())));
+          new Bind(localDirectory.getAbsolutePath(), new Volume(bindMount.getKey().toString())));
     }
 
     // create the container and start it
@@ -351,42 +383,78 @@ public class DockerAppsRunner {
     }
   }
 
+  // ====================================================
+  // Directory and file names
+
   /**
-   * Utility method for concatenating a command and its arguments.
+   * Get the working directory on the container so that it matches the current working directory on
+   * the host.
    *
-   * @param cmd command name (e.g. gsutil)
-   * @param cmdArgs command arguments (e.g. ls, gs://my-bucket)
+   * <p>e.g. working dir on host = /Users/mm/workspace123/nextflow/rnaseq-nf
+   *
+   * <p>working dir on container = CONTAINER_WORKSPACE_DIR/nextflow/rnaseq-nf
+   *
+   * @return absolute path to the working directory on the container
    */
-  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
-    String fullCommand = cmd;
-    if (cmdArgs != null && cmdArgs.size() > 0) {
-      final String argSeparator = " ";
-      fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
-    }
-    return fullCommand;
+  private static Path getWorkingDirOnContainer() {
+    // get the current working directory and the workspace directory on the host
+    Path currentDir = Paths.get("").toAbsolutePath();
+    Path workspaceDirOnHost = WorkspaceContext.getWorkspaceDir();
+
+    // remove the workspace directory part of the current working directory
+    Path relativePathToCurrentDir = currentDir.relativize(workspaceDirOnHost);
+
+    logger.info("currentDir: {}", currentDir);
+    logger.info("workspaceDirOnHost: {}", workspaceDirOnHost);
+    logger.info("relativePathToCurrentDir: {}", relativePathToCurrentDir);
+    logger.info(
+        "getWorkingDirOnContainer: {}",
+        Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir));
+
+    // working directory on container = workspace dir on container + relative path to current dir
+    return Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir);
   }
 
   /**
-   * Build a map of Terra references to use in parsing the CLI command string, and in setting
-   * environment variables in the Docker container.
+   * Get the global context directory on the container.
    *
-   * <p>The list of references are TERRA_[...] where [...] is the name of a cloud resource. The
-   * cloud resource can be controlled or external.
+   * <p>e.g. (host) $HOME/.terra/ -> (container) CONTAINER_HOME_DIR/.terra/
    *
-   * <p>e.g. TERRA_MY_BUCKET -> gs://terra-wsm-test-9b7511ab-my-bucket
-   *
-   * @return a map of Terra references (name -> cloud id)
+   * @return absolute path to the global context directory on the container
    */
-  private Map<String, String> buildMapOfTerraReferences() {
-    // build a map of reference string -> resolved value
-    Map<String, String> terraReferences = new HashMap<>();
-    workspaceContext
-        .listCloudResources()
-        .forEach(
-            cloudResource ->
-                terraReferences.put(
-                    "TERRA_" + cloudResource.name.toUpperCase(), cloudResource.cloudId));
+  private static Path getGlobalContextDirOnContainer() {
+    Path globalContextDirName = GlobalContext.getGlobalContextDir().getFileName();
+    return Path.of(CONTAINER_HOME_DIR).resolve(globalContextDirName);
+  }
 
-    return terraReferences;
+  /**
+   * Get the pet SA key file for the given user and workspace on the container.
+   *
+   * <p>e.g. (host) $HOME/.terra/pet-keys/[user id]/[workspace id] -> (container)
+   * CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/[workspace id]
+   *
+   * @return absolute path to the pet SA key file for the given user and workspace on the container
+   */
+  private static Path getPetSaKeyFileOnContainer(
+      TerraUser terraUser, WorkspaceContext workspaceContext) {
+    // get the full path of the key file and global context directory on the host
+    Path keyFileOnHost = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext);
+    Path globalContextDirOnHost = GlobalContext.getGlobalContextDir();
+
+    // remove the global context directory part of the key file path
+    // e.g. keyFileOnHost = $HOME/.terra/pet-keys/[user id]/[workspace id]
+    //      globalContextDirOnHost = $HOME/.terra/
+    //      relativePathToKeyFile = pet-keys/[user id]/[workspace id]
+    Path relativePathToKeyFile = globalContextDirOnHost.relativize(keyFileOnHost);
+
+    logger.info("keyFileOnHost: {}", keyFileOnHost);
+    logger.info("globalContextDirOnHost: {}", globalContextDirOnHost);
+    logger.info("relativePathToKeyFile: {}", relativePathToKeyFile);
+    logger.info(
+        "getPetSaKeyFileOnContainer: {}",
+        getGlobalContextDirOnContainer().resolve(relativePathToKeyFile));
+
+    // key file path on container = global context dir on container + relative path to key file
+    return getGlobalContextDirOnContainer().resolve(relativePathToKeyFile);
   }
 }

@@ -221,7 +221,7 @@ public class AuthenticationManager {
 
   /** Delete all pet SA credentials for the given user. */
   public void deletePetSaCredentials(TerraUser terraUser) {
-    File jsonKeysDir = GlobalContext.getPetSaKeyDirHandle(terraUser);
+    File jsonKeysDir = GlobalContext.getPetSaKeyDir(terraUser).toFile();
 
     // delete all key files
     File[] keyFiles = jsonKeysDir.listFiles();
