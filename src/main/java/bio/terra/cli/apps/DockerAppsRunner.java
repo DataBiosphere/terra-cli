@@ -131,10 +131,9 @@ public class DockerAppsRunner {
         GlobalContext.getGlobalContextDir(Path.of(CONTAINER_HOME_DIR));
     Path workspaceDirOnContainer = Path.of(CONTAINER_WORKSPACE_DIR);
 
-    Map<String, File> bindMounts = new HashMap<>();
-    bindMounts.put(
-        globalContextDirOnContainer.toString(), GlobalContext.getGlobalContextDir().toFile());
-    bindMounts.put(workspaceDirOnContainer.toString(), WorkspaceContext.getWorkspaceDir());
+    Map<Path, File> bindMounts = new HashMap<>();
+    bindMounts.put(globalContextDirOnContainer, GlobalContext.getGlobalContextDir().toFile());
+    bindMounts.put(workspaceDirOnContainer, WorkspaceContext.getWorkspaceDir());
 
     // set the working directory on the container to match the working directory on the host,
     // relative to the workspace directory
@@ -185,10 +184,7 @@ public class DockerAppsRunner {
    *     overlaps or conflicts with one passed into this method
    */
   private String startDockerContainerWithTerraInit(
-      String command,
-      String workingDir,
-      Map<String, String> envVars,
-      Map<String, File> bindMounts) {
+      String command, String workingDir, Map<String, String> envVars, Map<Path, File> bindMounts) {
     // check that there is a current user, because the terra_init script will try to read the pet
     // key file
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
@@ -229,10 +225,7 @@ public class DockerAppsRunner {
    * @throws RuntimeException if the local directory does not exist or is not a directory
    */
   private String startDockerContainer(
-      String command,
-      String workingDir,
-      Map<String, String> envVars,
-      Map<String, File> bindMounts) {
+      String command, String workingDir, Map<String, String> envVars, Map<Path, File> bindMounts) {
     // flatten the environment variables from a map, into a list of key=val strings
     List<String> envVarsStr = new ArrayList<>();
     for (Map.Entry<String, String> envVar : envVars.entrySet()) {
@@ -241,7 +234,7 @@ public class DockerAppsRunner {
 
     // create Bind objects for each specified mount
     List<Bind> bindMountsObj = new ArrayList<>();
-    for (Map.Entry<String, File> bindMount : bindMounts.entrySet()) {
+    for (Map.Entry<Path, File> bindMount : bindMounts.entrySet()) {
       File localDirectory = bindMount.getValue();
       if (!localDirectory.exists() || !localDirectory.isDirectory()) {
         throw new RuntimeException(
@@ -249,7 +242,8 @@ public class DockerAppsRunner {
                 + bindMount.getValue().getAbsolutePath());
       }
       bindMountsObj.add(
-          new Bind(bindMount.getValue().getAbsolutePath(), new Volume(bindMount.getKey())));
+          new Bind(
+              bindMount.getValue().getAbsolutePath(), new Volume(bindMount.getKey().toString())));
     }
 
     // create the container and start it
