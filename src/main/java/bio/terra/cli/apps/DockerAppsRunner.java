@@ -49,7 +49,7 @@ public class DockerAppsRunner {
   public DockerAppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
-    this.dockerClient = null;
+    this.dockerClient = buildDockerClient();
   }
 
   // ====================================================
@@ -72,8 +72,6 @@ public class DockerAppsRunner {
    * @return true if the Docker image property was updated, false otherwise
    */
   public boolean updateImageId(String imageId) {
-    buildDockerClient();
-
     // check if image exists
     try {
       dockerClient.inspectImageCmd(imageId).exec();
@@ -153,10 +151,7 @@ public class DockerAppsRunner {
 
     // create and start the docker container. run the terra_init script first, then the given
     // command
-    buildDockerClient();
-    String containerId =
-        startDockerContainerWithTerraInit(
-            command, getWorkingDirOnContainer().toString(), envVars, bindMounts);
+    String containerId = startDockerContainerWithTerraInit(command, envVars, bindMounts);
 
     // read the container logs, which contains the command output, and write them to stdout
     outputLogsForDockerContainer(containerId);
@@ -199,14 +194,13 @@ public class DockerAppsRunner {
    * terra_init script because it tries to read the pet key file.
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
-   * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
    * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
   private String startDockerContainerWithTerraInit(
-      String command, String workingDir, Map<String, String> envVars, Map<Path, Path> bindMounts) {
+      String command, Map<String, String> envVars, Map<Path, Path> bindMounts) {
     // check that there is a current user, because the terra_init script will try to read the pet
     // key file
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
@@ -232,21 +226,22 @@ public class DockerAppsRunner {
     }
     envVars.putAll(terraInitEnvVars);
 
-    return startDockerContainer(fullCommand, workingDir, envVars, bindMounts);
+    return startDockerContainer(
+        fullCommand, getWorkingDirOnContainer().toString(), envVars, bindMounts);
   }
 
   // ====================================================
   // Docker containers
 
   /** Build the Docker client object with standard options. */
-  private void buildDockerClient() {
+  private static DockerClient buildDockerClient() {
     DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
     DockerHttpClient httpClient =
         new ApacheDockerHttpClient.Builder()
             .dockerHost(config.getDockerHost())
             .sslConfig(config.getSSLConfig())
             .build();
-    dockerClient = DockerClientImpl.getInstance(config, httpClient);
+    return DockerClientImpl.getInstance(config, httpClient);
   }
 
   /**

@@ -203,16 +203,16 @@ public class WorkspaceContext {
   }
 
   /**
-   * Get a handle for the workspace context file.
+   * Get the workspace context file.
    *
    * <p>This method first searches for an existing workspace context file in the current directory
-   * hierarchy. If it finds one, then it returns a handle to that file.
+   * hierarchy. If it finds one, then it returns that file.
    *
-   * <p>If it does not find one, then it returns a handle to the file where a new workspace context
-   * can be written. This handle will be relative to the current directory (i.e. current directory =
+   * <p>If it does not find one, then it returns the file where a new workspace context can be
+   * written. This file will be relative to the current directory (i.e. current directory =
    * workspace top-level directory)
    *
-   * @return a handle for the workspace context file
+   * @return absolute path to the workspace context file
    */
   @JsonIgnore
   private static Path getWorkspaceContextFile() {
@@ -225,12 +225,12 @@ public class WorkspaceContext {
   }
 
   /**
-   * Get a handle for an existing workspace context file in the current directory hierarchy.
+   * Get the existing workspace context file in the current directory hierarchy.
    *
    * <p>For each directory, it checks for the existence of a workspace context file (i.e.
    * ./.terra/workspace-context.json).
    *
-   * <p>-If it finds one, then it returns a handle to that file.
+   * <p>-If it finds one, then it returns that file.
    *
    * <p>-Otherwise, it recursively checks the parent directory, until it hits the root directory.
    *
@@ -238,7 +238,7 @@ public class WorkspaceContext {
    * an exception.
    *
    * @param currentDir the directory to search
-   * @return the file handle for an existing workspace context file
+   * @return absolute path to the existing workspace context file
    * @throws FileNotFoundException if no existing workspace context file is found
    */
   @JsonIgnore
@@ -253,7 +253,7 @@ public class WorkspaceContext {
       // get the workspace context file relative to the sub-directory and check if it exists
       Path workspaceContextFile = workspaceContextDir.resolve(WORKSPACE_CONTEXT_FILENAME);
       if (workspaceContextFile.toFile().exists() && workspaceContextFile.toFile().isFile()) {
-        return workspaceContextFile;
+        return workspaceContextFile.toAbsolutePath();
       }
     }
 
