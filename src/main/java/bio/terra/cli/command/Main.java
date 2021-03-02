@@ -20,6 +20,7 @@ import picocli.CommandLine.ParseResult;
       Server.class,
       Workspace.class,
       Resources.class,
+      DataRefs.class,
       App.class,
       Gcloud.class,
       Gsutil.class,

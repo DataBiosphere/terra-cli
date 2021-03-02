@@ -219,7 +219,8 @@ public class WorkspaceManager {
     // create the bucket by calling GCS directly
     Bucket bucket =
         new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
             .createBucket(bucketName);
 
     // persist the cloud resource locally
@@ -251,7 +252,8 @@ public class WorkspaceManager {
     // delete the bucket by calling GCS directly
     CloudResource resource = getControlledResource(resourceName);
     new GoogleCloudStorage(
-            globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+            globalContext.requireCurrentTerraUser().userCredentials,
+            workspaceContext.getGoogleProject())
         .deleteBucket(resource.cloudId);
 
     // remove the cloud resource and persist the updated list locally
@@ -268,5 +270,79 @@ public class WorkspaceManager {
   public List<CloudResource> listResources() {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     return workspaceContext.listControlledResources();
+  }
+
+  /**
+   * Lookup a data reference by its name. Names are unique within a workspace.
+   *
+   * @param referenceName name of reference to lookup
+   * @return the data reference object
+   * @throws RuntimeException if the resource is not a data reference (e.g. VM)
+   */
+  public CloudResource getDataReference(String referenceName) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
+    if (!dataReference.type.isDataReference) {
+      throw new RuntimeException(dataReference + " is not a data reference.");
+    }
+    return dataReference;
+  }
+
+  /**
+   * Add a new data reference in the workspace.
+   *
+   * <p>This method checks that the data reference exists using the user's credentials. The
+   * reference does not have to be within the workspace project.
+   *
+   * @param referenceType type of reference to add
+   * @param referenceName name of reference to add
+   * @return the data reference that was added
+   */
+  public CloudResource addDataReference(
+      CloudResource.Type referenceType, String referenceName, String cloudId) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    // check that the cloud id is a valid GCS bucket path
+    boolean bucketFound =
+        new GoogleCloudStorage(globalContext.requireCurrentTerraUser().userCredentials)
+            .checkAccess(cloudId);
+    if (!bucketFound) {
+      throw new RuntimeException("Invalid or inaccessible bucket path: " + cloudId);
+    }
+
+    // persist the data reference locally
+    CloudResource reference = new CloudResource(referenceName, cloudId, referenceType, false);
+    workspaceContext.addCloudResource(reference);
+
+    return reference;
+  }
+
+  /**
+   * Delete an existing data reference in the workspace.
+   *
+   * @param referenceName name of reference to delete
+   * @return the data reference object that was removed
+   */
+  public CloudResource deleteDataReference(String referenceName) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    // only delete un-controlled cloud resources through the data references endpoints
+    CloudResource dataReference = getDataReference(referenceName);
+    if (dataReference.isControlled) {
+      throw new RuntimeException("Cannot delete a controlled cloud resource.");
+    }
+
+    // remove the cloud resource and persist the updated list locally
+    workspaceContext.removeCloudResource(referenceName);
+
+    return dataReference;
+  }
+
+  /**
+   * List the data references in a workspace.
+   *
+   * @return a list of data references in the workspace
+   */
+  public List<CloudResource> listDataReferences() {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    return workspaceContext.listDataReferences();
   }
 }

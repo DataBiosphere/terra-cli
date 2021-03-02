@@ -175,13 +175,25 @@ public class WorkspaceContext {
 
   /**
    * List all controlled cloud resources for the workspace. This is a utility wrapper around {@link
-   * #listControlledResources()} that filters for just the controlled ones.
+   * #listCloudResources()} that filters for just the controlled ones.
    *
    * @return list of controlled resources in the workspace
    */
   public List<CloudResource> listControlledResources() {
     return cloudResources.values().stream()
-        .filter(dataReference -> dataReference.isControlled)
+        .filter(cloudResource -> cloudResource.isControlled)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * List all data references for this workspace. This is a utility wrapper around {@link
+   * #listCloudResources()} that filters for just the data references.
+   *
+   * @return list of data references in the workspace
+   */
+  public List<CloudResource> listDataReferences() {
+    return cloudResources.values().stream()
+        .filter(cloudResource -> cloudResource.type.isDataReference)
         .collect(Collectors.toList());
   }
 
