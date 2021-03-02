@@ -35,9 +35,7 @@ public class List implements Callable<Integer> {
     envVars.put("LOCATION", location);
 
     // TODO(wchamber): Output more relevant information, like the proxy uri.
-    new DockerAppsRunner(globalContext, workspaceContext)
-        .runToolCommand(
-            command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
+    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
     return 0;
   }

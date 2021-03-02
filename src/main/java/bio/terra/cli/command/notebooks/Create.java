@@ -96,9 +96,7 @@ public class Create implements Callable<Integer> {
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
 
-    new DockerAppsRunner(globalContext, workspaceContext)
-        .runToolCommand(
-            command, /* workingDir =*/ null, envVars, /* bindMounts =*/ new HashMap<>());
+    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
     System.out.println(
         "Notebook instance starting. This will take ~5-10 minutes.\n"
