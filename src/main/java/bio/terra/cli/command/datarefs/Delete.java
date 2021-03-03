@@ -27,8 +27,6 @@ public class Delete implements Callable<Integer> {
     CloudResource dataReference =
         new WorkspaceManager(globalContext, workspaceContext).deleteDataReference(name);
 
-    System.out.println(
-        dataReference.type + " reference successfully deleted: " + dataReference.cloudId);
     System.out.println("Workspace data reference successfully deleted: " + dataReference.name);
 
     return 0;
