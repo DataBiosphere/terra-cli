@@ -11,6 +11,7 @@
     * [Server](#server)
     * [Workspace](#workspace)
     * [Resources](#resources)
+    * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
     * [Groups](#groups)
@@ -125,6 +126,7 @@ Commands:
   server     Connect to a Terra server.
   workspace  Setup a Terra workspace.
   resources  Manage controlled resources in the workspace.
+  data-refs  Reference data in the workspace context.
   app        Run applications in the workspace.
   notebooks  Use AI Notebooks in the workspace.
   groups     Manage groups of users.
@@ -138,7 +140,9 @@ Each sub-group of commands is described in a sub-section below:
 - Server
 - Workspace
 - Resources
+- Data References
 - Applications
+- Notebooks
 - Groups
 - Spend
 
@@ -226,6 +230,23 @@ Commands:
 
 A controlled resource is a cloud resource managed by the Terra workspace on behalf of the user.
 Currently, the only supported controlled resource is a bucket.
+
+#### Data References
+```
+Usage: terra data-refs [COMMAND]
+Reference data in the workspace context.
+Commands:
+  list          List all data references.
+  add           Add a new data reference.
+  delete        Delete an existing data reference.
+  check-access  Check if you have access to a data reference.
+  resolve       Resolve a data reference to its cloud id or path.
+```
+
+A data reference points to a cloud resource that the user wants to read or write data to.
+Data references include some types of controlled resources (e.g. bucket but not VM) and 
+un-controlled resources that are external to the workspace.
+Currently, the only supported data reference is a GCS bucket.
 
 #### Applications
 ```
