@@ -89,7 +89,9 @@ public class AuthenticationManager {
 
     // fetch the user information from SAM, if it's not already populated
     if (!currentTerraUser.isPresent()) {
-      new SamService(globalContext.server, terraUser).getOrRegisterUser();
+      SamService samService = new SamService(globalContext.server, terraUser);
+      samService.getOrRegisterUser();
+      samService.getProxyGroupEmail();
     }
     fetchPetSaCredentials(terraUser);
 
@@ -161,8 +163,12 @@ public class AuthenticationManager {
     currentTerraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    new SamService(globalContext.server, currentTerraUser).getUser();
+    SamService samService = new SamService(globalContext.server, currentTerraUser);
+    samService.getUser();
     if (currentTerraUser.terraUserId != null) {
+      // populate the user's proxy group email also
+      samService.getProxyGroupEmail();
+
       // fetch the pet SA credentials if they don't already exist
       fetchPetSaCredentials(currentTerraUser);
     }

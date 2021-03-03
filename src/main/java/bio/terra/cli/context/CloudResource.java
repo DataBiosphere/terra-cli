@@ -46,8 +46,9 @@ public class CloudResource {
    * @param terraUser the user whose credentials we use to do the check
    * @return true if the user has access
    */
-  public boolean checkAccessForUser(TerraUser terraUser) {
-    return new GoogleCloudStorage(terraUser.userCredentials).checkAccess(cloudId);
+  public boolean checkAccessForUser(TerraUser terraUser, WorkspaceContext workspaceContext) {
+    return new GoogleCloudStorage(terraUser.userCredentials, workspaceContext.getGoogleProject())
+        .checkObjectsListAccess(cloudId);
   }
 
   /**
@@ -56,7 +57,8 @@ public class CloudResource {
    * @param terraUser the user whose pet SA credentials we use to do the check
    * @return true if the user's pet SA has access
    */
-  public boolean checkAccessForPetSa(TerraUser terraUser) {
-    return new GoogleCloudStorage(terraUser.petSACredentials).checkAccess(cloudId);
+  public boolean checkAccessForPetSa(TerraUser terraUser, WorkspaceContext workspaceContext) {
+    return new GoogleCloudStorage(terraUser.petSACredentials, workspaceContext.getGoogleProject())
+        .checkObjectsListAccess(cloudId);
   }
 }

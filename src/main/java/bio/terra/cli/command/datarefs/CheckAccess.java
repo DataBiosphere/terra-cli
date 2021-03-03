@@ -31,13 +31,19 @@ public class CheckAccess implements Callable<Integer> {
         new WorkspaceManager(globalContext, workspaceContext).getDataReference(name);
 
     TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
-    boolean userHasAccess = dataReference.checkAccessForUser(currentTerraUser);
-    boolean petSaHasAccess = dataReference.checkAccessForPetSa(currentTerraUser);
+    boolean userHasAccess = dataReference.checkAccessForUser(currentTerraUser, workspaceContext);
+    boolean petSaHasAccess = dataReference.checkAccessForPetSa(currentTerraUser, workspaceContext);
 
     System.out.println(
-        "User DOES " + (userHasAccess ? "" : "NOT ") + "have access to this data reference.");
+        "User ("
+            + currentTerraUser.terraUserEmail
+            + ") DOES "
+            + (userHasAccess ? "" : "NOT ")
+            + "have access to this data reference.");
     System.out.println(
-        "User's pet service account DOES "
+        "User's pet SA in their proxy group ("
+            + currentTerraUser.terraProxyGroupEmail
+            + ") DOES "
             + (petSaHasAccess ? "" : "NOT ")
             + "have access to this data reference.");
 

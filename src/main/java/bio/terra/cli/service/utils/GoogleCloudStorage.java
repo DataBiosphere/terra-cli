@@ -24,18 +24,6 @@ public class GoogleCloudStorage {
   private final Storage storageClient;
 
   /**
-   * Constructor for class that talks to Google Cloud Storage. Methods in this class will use its
-   * credentials to call authenticated endpoints.
-   *
-   * <p>This constructor does not scope Storage requests to a single project.
-   *
-   * @param googleCredentials the credentials that will be used to call authenticated endpoints
-   */
-  public GoogleCloudStorage(GoogleCredentials googleCredentials) {
-    this(googleCredentials, null);
-  }
-
-  /**
    * Constructor for class that talks to Google Cloud Storage. Methods in this class will use the
    * given credentials to call authenticated endpoints.
    *
@@ -97,15 +85,23 @@ public class GoogleCloudStorage {
   }
 
   /**
-   * Check whether we have access to the bucket information.
+   * Check whether we have permission to list objects in the bucket.
+   *
+   * <p>List access is included in the Storage Object Viewer and Storage Legacy Bucket Reader. It is
+   * NOT included in the Storage Legacy Object Reader.
    *
    * @param bucketUri uri of the bucket (gs://...)
    * @return true if access is allowed
    */
-  public boolean checkAccess(String bucketUri) {
+  public boolean checkObjectsListAccess(String bucketUri) {
     try {
       String bucketName = bucketUri.replaceFirst("^gs://", "");
-      storageClient.get(bucketName, Storage.BucketGetOption.fields());
+
+      // try listing objects in the bucket
+      storageClient.list(
+          bucketName,
+          Storage.BlobListOption.userProject(googleProjectId),
+          Storage.BlobListOption.fields());
       return true;
     } catch (StorageException storageEx) {
       logger.error("storage exception http code = {}", storageEx.getCode(), storageEx);

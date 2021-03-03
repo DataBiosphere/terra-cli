@@ -40,8 +40,12 @@ public class Add implements Callable<Integer> {
     CloudResource dataReference =
         new WorkspaceManager(globalContext, workspaceContext).addDataReference(type, name, uri);
 
-    System.out.println(dataReference.type + " successfully created: " + dataReference.cloudId);
-    System.out.println("Workspace data reference successfully added: " + dataReference.name);
+    System.out.println(
+        "Workspace data reference successfully added: "
+            + dataReference.name
+            + " ("
+            + dataReference.cloudId
+            + ")");
 
     return 0;
   }

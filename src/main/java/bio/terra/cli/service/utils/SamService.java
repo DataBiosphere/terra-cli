@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
+import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
@@ -163,6 +164,25 @@ public class SamService {
       } catch (ApiException | InterruptedException secondEx) {
         throw new RuntimeException("Error reading user information from SAM.", secondEx);
       }
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/google/v1/user/proxyGroup/{email}" endpoint to get the email for the current
+   * user's proxy group.
+   *
+   * <p>Update the Terra User object with the proxy group email.
+   */
+  public void getProxyGroupEmail() {
+    GoogleApi googleApi = new GoogleApi(apiClient);
+    try {
+      terraUser.terraProxyGroupEmail =
+          HttpUtils.callWithRetries(
+              () -> googleApi.getProxyGroup(terraUser.terraUserEmail), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error getting proxy group email from SAM.", ex);
     } finally {
       closeConnectionPool();
     }
