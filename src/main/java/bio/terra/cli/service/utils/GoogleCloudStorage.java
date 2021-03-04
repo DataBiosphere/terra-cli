@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 public class GoogleCloudStorage {
   private static final Logger logger = LoggerFactory.getLogger(GoogleCloudStorage.class);
 
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final GoogleCredentials googleCredentials;
-
   // the google project id of the workspace
   private final String googleProjectId;
 
@@ -33,9 +30,8 @@ public class GoogleCloudStorage {
    * @param googleProjectId scope Storage requests to this project
    */
   public GoogleCloudStorage(GoogleCredentials googleCredentials, String googleProjectId) {
-    this.googleCredentials = googleCredentials;
     this.googleProjectId = googleProjectId;
-    this.storageClient = buildClientForTerraUser();
+    this.storageClient = buildClient(googleCredentials);
   }
 
   /**
@@ -43,7 +39,7 @@ public class GoogleCloudStorage {
    *
    * @return the GCS client object
    */
-  private Storage buildClientForTerraUser() {
+  private Storage buildClient(GoogleCredentials googleCredentials) {
     StorageOptions.Builder storageOptions = StorageOptions.newBuilder();
     if (googleProjectId != null) {
       storageOptions.setProjectId(googleProjectId);

@@ -1,8 +1,7 @@
 HELP.md
 .gradle
 build/
-scratch/
-scratch2/
+scratch*/
 rendered/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**

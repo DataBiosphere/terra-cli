@@ -303,6 +303,8 @@ public class WorkspaceManager {
    *
    * @param referenceType type of reference to add
    * @param referenceName name of reference to add
+   * @param cloudId unique identifier for this resource in the cloud (e.g. bucket uri, bq dataset
+   *     id)
    * @return the data reference that was added
    */
   public CloudResource addDataReference(

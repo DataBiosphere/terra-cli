@@ -243,9 +243,9 @@ Commands:
   resolve       Resolve a data reference to its cloud id or path.
 ```
 
-A data reference points to a cloud resource that the user wants to read or write data to.
-Data references include some types of controlled resources (e.g. bucket but not VM) and 
-un-controlled resources that are external to the workspace.
+A data reference points to a data (i.e. not compute) type of cloud resource that the user wants to
+read or write to. Data references include some types of controlled resources (e.g. bucket but not
+VM) within the workspace and un-controlled resources external to the workspace.
 Currently, the only supported data reference is a GCS bucket.
 
 #### Applications
