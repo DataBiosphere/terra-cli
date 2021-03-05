@@ -12,12 +12,13 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra notebooks describe" command. */
 @CommandLine.Command(
     name = "list",
-    description = "List the AI Notebook instance within your workspace for the specified location.")
+    description = "List the AI Notebook instance within your workspace for the specified location.",
+    showDefaultValues = true)
 public class List implements Callable<Integer> {
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
+      description = "The Google Cloud location of the instance.")
   private String location;
 
   @Override
