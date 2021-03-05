@@ -45,7 +45,7 @@ public class Create implements Callable<Integer> {
 
   @CommandLine.Option(
       names = "--vm-image-family",
-      defaultValue = "tf-latest-gpu",
+      defaultValue = "r-latest-cpu-experimental",
       description =
           "Use this VM image family to find the image; the newest image in this family will be used.")
   private String vmImageFamily;
