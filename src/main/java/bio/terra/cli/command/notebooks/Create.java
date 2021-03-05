@@ -13,7 +13,8 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra notebooks create" command. */
 @CommandLine.Command(
     name = "create",
-    description = "Create a new AI Notebook instance within your workspace.")
+    description = "Create a new AI Notebook instance within your workspace.",
+    showDefaultValues = true)
 public class Create implements Callable<Integer> {
 
   @CommandLine.Parameters(
@@ -28,7 +29,7 @@ public class Create implements Callable<Integer> {
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance, by default '${DEFAULT-VALUE}'.")
+      description = "The Google Cloud location of the instance.")
   private String location;
 
   @CommandLine.Option(
