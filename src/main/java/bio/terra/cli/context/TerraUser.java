@@ -29,6 +29,11 @@ public class TerraUser {
   // user's email to populate this field.
   public String terraUserEmail;
 
+  // This field stores the proxy group email that Terra associates with this user. Permissions
+  // granted to the proxy group are transitively granted to the user and all of their pet SAs. The
+  // CLI queries SAM to populate this field.
+  public String terraProxyGroupEmail;
+
   @JsonIgnore public UserCredentials userCredentials;
   @JsonIgnore public ServiceAccountCredentials petSACredentials;
 

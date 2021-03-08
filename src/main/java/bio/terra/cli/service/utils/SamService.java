@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
+import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
@@ -114,15 +115,13 @@ public class SamService {
    * Call the SAM "/register/user/v2/self/info" endpoint to get the user info for the current user
    * (i.e. the one whose credentials were supplied to the apiClient object).
    *
-   * <p>Update the Terra User object passed in with the user information from SAM.
+   * @return SAM object with details about the user
    */
-  public void getUser() {
+  public UserStatusInfo getUserInfo() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
-      UserStatusInfo userStatusInfo =
-          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-      terraUser.terraUserId = userStatusInfo.getUserSubjectId();
-      terraUser.terraUserEmail = userStatusInfo.getUserEmail();
+      return HttpUtils.callWithRetries(
+          () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new RuntimeException("Error reading user information from SAM.", ex);
     } finally {
@@ -137,16 +136,14 @@ public class SamService {
    * <p>If that returns a Not Found error, then call the SAM "register/user/v2/self" endpoint to
    * register the user.
    *
-   * <p>Update the Terra User object with the user information from SAM.
+   * @return SAM object with details about the user
    */
-  public void getOrRegisterUser() {
+  public UserStatusInfo getUserInfoOrRegisterUser() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
       // first try to lookup the user
-      UserStatusInfo userStatusInfo =
-          HttpUtils.callWithRetries(() -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-      terraUser.terraUserId = userStatusInfo.getUserSubjectId();
-      terraUser.terraUserEmail = userStatusInfo.getUserEmail();
+      return HttpUtils.callWithRetries(
+          () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       if (!(ex instanceof ApiException)
           || (((ApiException) ex).getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND)) {
@@ -155,14 +152,36 @@ public class SamService {
       logger.info("User not found in SAM. Trying to register a new user.");
 
       try {
-        // lookup failed with Not Found error, now try to register the user
+        // lookup failed with Not Found error, now try to register the user and look them up again
         UserStatus userStatus =
             HttpUtils.callWithRetries(() -> samUsersApi.createUserV2(), SamService::isRetryable);
-        terraUser.terraUserId = userStatus.getUserInfo().getUserSubjectId();
-        terraUser.terraUserEmail = userStatus.getUserInfo().getUserEmail();
+        logger.info(
+            "User registered in SAM: {}, {}",
+            userStatus.getUserInfo().getUserSubjectId(),
+            userStatus.getUserInfo().getUserEmail());
+        return HttpUtils.callWithRetries(
+            () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
       } catch (ApiException | InterruptedException secondEx) {
         throw new RuntimeException("Error reading user information from SAM.", secondEx);
       }
+    } finally {
+      closeConnectionPool();
+    }
+  }
+
+  /**
+   * Call the SAM "/api/google/v1/user/proxyGroup/{email}" endpoint to get the email for the current
+   * user's proxy group.
+   *
+   * @return email address of the user's proxy group
+   */
+  public String getProxyGroupEmail() {
+    GoogleApi googleApi = new GoogleApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> googleApi.getProxyGroup(terraUser.terraUserEmail), SamService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new RuntimeException("Error getting proxy group email from SAM.", ex);
     } finally {
       closeConnectionPool();
     }

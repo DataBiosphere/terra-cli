@@ -27,6 +27,8 @@ public class Status implements Callable<Integer> {
     }
     TerraUser currentTerraUser = currentTerraUserOpt.get();
     System.out.println("Current Terra user: " + currentTerraUser.terraUserEmail);
+    System.out.println(
+        "Current Terra user's proxy group: " + currentTerraUser.terraProxyGroupEmail);
 
     // check if the current user needs to re-authenticate (i.e. is logged out)
     System.out.println("LOGGED " + (currentTerraUser.requiresReauthentication() ? "OUT" : "IN"));

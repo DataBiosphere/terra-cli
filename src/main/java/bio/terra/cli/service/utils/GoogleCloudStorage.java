@@ -1,9 +1,11 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.context.TerraUser;
+import com.google.api.client.http.HttpStatusCodes;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,38 +14,41 @@ import org.slf4j.LoggerFactory;
 public class GoogleCloudStorage {
   private static final Logger logger = LoggerFactory.getLogger(GoogleCloudStorage.class);
 
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final TerraUser terraUser;
-
   // the google project id of the workspace
   private final String googleProjectId;
 
   // the client object used for talking to Google Cloud Storage
-  private Storage storageClient;
+  private final Storage storageClient;
 
   /**
-   * Constructor for class that talks to Google Cloud Storage. The user must be authenticated.
-   * Methods in this class will use its credentials to call authenticated endpoints.
+   * Constructor for class that talks to Google Cloud Storage. Methods in this class will use the
+   * given credentials to call authenticated endpoints.
    *
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * <p>This constructor scopes Storage requests to the given project.
+   *
+   * @param googleCredentials the credentials that will be used to call authenticated endpoints
+   * @param googleProjectId scope Storage requests to this project
    */
-  public GoogleCloudStorage(TerraUser terraUser, String googleProjectId) {
-    this.terraUser = terraUser;
+  public GoogleCloudStorage(GoogleCredentials googleCredentials, String googleProjectId) {
     this.googleProjectId = googleProjectId;
-    this.storageClient = null;
-    buildClientForTerraUser();
+    this.storageClient = buildClient(googleCredentials);
   }
 
-  /** Build the GCS client object for the given Terra user. */
-  private void buildClientForTerraUser() {
+  /**
+   * Build the GCS client object for the given credentials and project.
+   *
+   * @return the GCS client object
+   */
+  private Storage buildClient(GoogleCredentials googleCredentials) {
     StorageOptions.Builder storageOptions = StorageOptions.newBuilder();
-    storageOptions.setProjectId(googleProjectId);
+    if (googleProjectId != null) {
+      storageOptions.setProjectId(googleProjectId);
+    }
 
-    // fetch the user access token
-    // this method call will attempt to refresh the token if it's already expired
-    storageOptions.setCredentials(terraUser.userCredentials);
+    // set the credentials to use when talking to GCS
+    storageOptions.setCredentials(googleCredentials);
 
-    this.storageClient = storageOptions.build().getService();
+    return storageOptions.build().getService();
   }
 
   /**
@@ -72,6 +77,35 @@ public class GoogleCloudStorage {
     boolean deleted = storageClient.delete(bucketName);
     if (!deleted) {
       throw new RuntimeException("Bucket deletion failed.");
+    }
+  }
+
+  /**
+   * Check whether we have permission to list objects in the bucket.
+   *
+   * <p>List access is included in the Storage Object Viewer and Storage Legacy Bucket Reader. It is
+   * NOT included in the Storage Legacy Object Reader.
+   *
+   * @param bucketUri uri of the bucket (gs://...)
+   * @return true if access is allowed
+   */
+  public boolean checkObjectsListAccess(String bucketUri) {
+    try {
+      String bucketName = bucketUri.replaceFirst("^gs://", "");
+
+      // try listing objects in the bucket
+      storageClient.list(
+          bucketName,
+          Storage.BlobListOption.userProject(googleProjectId),
+          Storage.BlobListOption.fields());
+      return true;
+    } catch (StorageException storageEx) {
+      logger.error("storage exception http code = {}", storageEx.getCode(), storageEx);
+      if (storageEx.getCode() == HttpStatusCodes.STATUS_CODE_NOT_FOUND
+          || storageEx.getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
+        return false;
+      }
+      throw storageEx;
     }
   }
 }

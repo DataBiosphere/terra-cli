@@ -185,6 +185,9 @@ public class WorkspaceManager {
   public CloudResource getControlledResource(String resourceName) {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
+    if (cloudResource == null) {
+      throw new RuntimeException(resourceName + " not found.");
+    }
     if (!cloudResource.isControlled) {
       throw new RuntimeException(resourceName + " is not a controlled resource.");
     }
@@ -208,7 +211,8 @@ public class WorkspaceManager {
 
     // check for any collisions with existing references
     if (workspaceContext.getCloudResource(resourceName) != null) {
-      throw new RuntimeException("Resource of this name already exists.");
+      throw new RuntimeException(
+          "A data reference or controlled resource with this name already exists.");
     }
 
     // replace underscores in the resource name with hyphens so that the bucket path will be a valid
@@ -219,7 +223,8 @@ public class WorkspaceManager {
     // create the bucket by calling GCS directly
     Bucket bucket =
         new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
             .createBucket(bucketName);
 
     // persist the cloud resource locally
@@ -251,7 +256,8 @@ public class WorkspaceManager {
     // delete the bucket by calling GCS directly
     CloudResource resource = getControlledResource(resourceName);
     new GoogleCloudStorage(
-            globalContext.requireCurrentTerraUser(), workspaceContext.getGoogleProject())
+            globalContext.requireCurrentTerraUser().userCredentials,
+            workspaceContext.getGoogleProject())
         .deleteBucket(resource.cloudId);
 
     // remove the cloud resource and persist the updated list locally
@@ -268,5 +274,93 @@ public class WorkspaceManager {
   public List<CloudResource> listResources() {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     return workspaceContext.listControlledResources();
+  }
+
+  /**
+   * Lookup a data reference by its name. Names are unique within a workspace.
+   *
+   * @param referenceName name of reference to lookup
+   * @return the data reference object
+   * @throws RuntimeException if the resource is not a data reference (e.g. VM)
+   */
+  public CloudResource getDataReference(String referenceName) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
+    if (dataReference == null) {
+      throw new RuntimeException(referenceName + " not found.");
+    }
+    if (!dataReference.type.isDataReference) {
+      throw new RuntimeException(dataReference + " is not a data reference.");
+    }
+    return dataReference;
+  }
+
+  /**
+   * Add a new data reference in the workspace.
+   *
+   * <p>This method checks that the data reference exists using the user's credentials. The
+   * reference does not have to be within the workspace project.
+   *
+   * @param referenceType type of reference to add
+   * @param referenceName name of reference to add
+   * @param cloudId unique identifier for this resource in the cloud (e.g. bucket uri, bq dataset
+   *     id)
+   * @return the data reference that was added
+   */
+  public CloudResource addDataReference(
+      CloudResource.Type referenceType, String referenceName, String cloudId) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    // check that the cloud id is a valid GCS bucket path
+    boolean bucketFound =
+        new GoogleCloudStorage(
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
+            .checkObjectsListAccess(cloudId);
+    if (!bucketFound) {
+      throw new RuntimeException("Invalid or inaccessible bucket path: " + cloudId);
+    }
+
+    // check for any collisions with existing references
+    if (workspaceContext.getCloudResource(referenceName) != null) {
+      throw new RuntimeException(
+          "A data reference or controlled resource with this name already exists.");
+    }
+
+    // persist the data reference locally
+    CloudResource reference = new CloudResource(referenceName, cloudId, referenceType, false);
+    workspaceContext.addCloudResource(reference);
+
+    return reference;
+  }
+
+  /**
+   * Delete an existing data reference in the workspace.
+   *
+   * @param referenceName name of reference to delete
+   * @return the data reference object that was removed
+   */
+  public CloudResource deleteDataReference(String referenceName) {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    // only delete un-controlled cloud resources through the data references endpoints
+    CloudResource dataReference = getDataReference(referenceName);
+    if (dataReference.isControlled) {
+      throw new RuntimeException(
+          "Cannot delete a reference to a controlled cloud resource. Delete the resource instead.");
+    }
+
+    // remove the cloud resource and persist the updated list locally
+    workspaceContext.removeCloudResource(referenceName);
+
+    return dataReference;
+  }
+
+  /**
+   * List the data references in a workspace.
+   *
+   * @return a list of data references in the workspace
+   */
+  public List<CloudResource> listDataReferences() {
+    // TODO: change this method to call WSM data reference endpoints once they're ready
+    return workspaceContext.listDataReferences();
   }
 }

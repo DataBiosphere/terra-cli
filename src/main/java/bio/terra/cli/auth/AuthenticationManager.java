@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,11 @@ public class AuthenticationManager {
 
     // fetch the user information from SAM, if it's not already populated
     if (!currentTerraUser.isPresent()) {
-      new SamService(globalContext.server, terraUser).getOrRegisterUser();
+      SamService samService = new SamService(globalContext.server, terraUser);
+      UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
+      terraUser.terraUserId = userInfo.getUserSubjectId();
+      terraUser.terraUserEmail = userInfo.getUserEmail();
+      terraUser.terraProxyGroupEmail = samService.getProxyGroupEmail();
     }
     fetchPetSaCredentials(terraUser);
 
@@ -161,8 +166,15 @@ public class AuthenticationManager {
     currentTerraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM
-    new SamService(globalContext.server, currentTerraUser).getUser();
+    SamService samService = new SamService(globalContext.server, currentTerraUser);
+    UserStatusInfo userInfo = samService.getUserInfo();
+    currentTerraUser.terraUserId = userInfo.getUserSubjectId();
+    currentTerraUser.terraUserEmail = userInfo.getUserEmail();
+
     if (currentTerraUser.terraUserId != null) {
+      // populate the user's proxy group email also
+      currentTerraUser.terraProxyGroupEmail = samService.getProxyGroupEmail();
+
       // fetch the pet SA credentials if they don't already exist
       fetchPetSaCredentials(currentTerraUser);
     }
