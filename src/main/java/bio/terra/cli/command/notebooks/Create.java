@@ -79,7 +79,9 @@ public class Create implements Callable<Integer> {
             // The metadata installed-extensions causes the AI Notebooks setup to install some
             // Google JupyterLab extensions. Found by manual inspection of what is created with the
             // cloud console GUI.
-            + "--metadata=^:^installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz";
+            + "--metadata=^:^installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz"
+            // Also set the id of this workspace as metadata on the VM instance.
+            + ":terra-workspace-id=$TERRA_WORKSPACE_ID";
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
@@ -96,6 +98,7 @@ public class Create implements Callable<Integer> {
     // Like 'network', 'subnetwork is the name of the subnetwork created by the Buffer Service in
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
+    envVars.put("TERRA_WORKSPACE_ID", workspaceContext.getWorkspaceId().toString());
 
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
