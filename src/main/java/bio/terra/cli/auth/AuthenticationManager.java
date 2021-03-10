@@ -37,7 +37,7 @@ public class AuthenticationManager {
           Arrays.asList(
               "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
 
-  private static final String CLIENT_SECRET_FILENAME = "jadecli_client_secret.json";
+  private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
   private GlobalContext globalContext;
   private WorkspaceContext workspaceContext;
