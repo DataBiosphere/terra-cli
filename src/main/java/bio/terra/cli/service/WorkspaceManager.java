@@ -103,7 +103,7 @@ public class WorkspaceManager {
     // unset the workspace in the current context
     // note that this state is persisted to disk. it will be useful for code called in the same or a
     // later CLI command/process
-    workspaceContext.updateWorkspace(null);
+    workspaceContext.deleteWorkspace();
 
     return workspace.getId();
   }

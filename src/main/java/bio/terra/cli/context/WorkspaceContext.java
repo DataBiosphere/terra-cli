@@ -84,10 +84,17 @@ public class WorkspaceContext {
    */
   public void updateWorkspace(WorkspaceDescription terraWorkspaceModel) {
     logger.debug(
-        "Updating workspace from {} to {}.",
-        getWorkspaceId(),
-        terraWorkspaceModel == null ? null : terraWorkspaceModel.getId());
+        "Updating workspace from {} to {}.", getWorkspaceId(), terraWorkspaceModel.getId());
     this.terraWorkspaceModel = terraWorkspaceModel;
+
+    writeToFile();
+  }
+
+  /** Delete the current Terra workspace context. Persists on disk. */
+  public void deleteWorkspace() {
+    logger.debug("Deleting workspace {}", getWorkspaceId());
+    this.terraWorkspaceModel = null;
+    this.cloudResources = null;
 
     writeToFile();
   }
