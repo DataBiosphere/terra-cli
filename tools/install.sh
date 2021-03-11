@@ -7,7 +7,7 @@
 ## The script assumes that it is being run from the same directory (i.e. ./install.sh, not terra-0.1/install.sh)
 ARCHIVE_DIR=$PWD
 
-echo "Checking for application directory"
+echo "--  Checking for application directory"
 APPLICATION_DIRECTORY="${HOME}/.terra"
 mkdir -p $APPLICATION_DIRECTORY
 if [ ! -d "${APPLICATION_DIRECTORY}" ]; then
@@ -15,25 +15,26 @@ if [ ! -d "${APPLICATION_DIRECTORY}" ]; then
     exit 1
 fi
 
-echo "Moving JARs to application directory"
-if [ -f "${APPLICATION_DIRECTORY}/lib" ]; then
+echo "--  Moving JARs to application directory"
+if [ -f "${APPLICATION_DIRECTORY}/lib" ] || [ -d "${APPLICATION_DIRECTORY}/lib" ]; then
   rm -R "${APPLICATION_DIRECTORY}/lib"
 fi
 mv "${ARCHIVE_DIR}/lib" $APPLICATION_DIRECTORY
 
-echo "Moving run script out of archive directory"
+echo "--  Moving run script out of archive directory"
 mv "${ARCHIVE_DIR}/bin/terra" "${ARCHIVE_DIR}/../terra"
 
-echo "Deleting the archive directory"
+echo "--  Deleting the archive directory"
 cd "${ARCHIVE_DIR}/.."
 rm -R $ARCHIVE_DIR
 
-echo "Pulling the default Docker image"
+echo "--  Setting the Docker image id to the default"
 ./terra app set-image --default
+
+echo "--  Pulling the default Docker image"
 DEFAULT_DOCKER_IMAGE=$(./terra app get-image)
-echo "default docker image: ${DEFAULT_DOCKER_IMAGE}"
 docker pull $DEFAULT_DOCKER_IMAGE
 
-echo "Install complete"
+echo "--  Install complete"
 echo "You can add the ./terra executable to your \$PATH"
-echo "Run \"terra --help\" to see usage"
+echo "Run \"./terra\" to see usage"

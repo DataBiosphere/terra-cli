@@ -10,7 +10,7 @@ echo "Building Java code"
 ./gradlew install
 
 echo "Aliasing JAR file"
-alias terra=$(pwd)/build/install/terra-cli/bin/terra-cli
+alias terra=$(pwd)/build/install/terra-cli/bin/terra
 
 echo "Setting the Docker image id to the default"
 terra app set-image --default

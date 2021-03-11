@@ -23,12 +23,6 @@ group 'terra-cli'
 version '0.1'
 sourceCompatibility = JavaVersion.VERSION_11
 
-application {
-    mainClass = 'bio.terra.cli.command.Main'
-    applicationName = 'terra'
-    executableDir = 'bin'
-}
-
 repositories {
     mavenCentral()
     maven {
@@ -160,11 +154,26 @@ task publishDockerImage(type: Exec) {
     commandLine 'tools/publish-docker.sh', dockerLocalImageName, dockerLocalImageTag, dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName, dockerLocalImageTag
 }
 
-// distribution: configure what's included in the release archive
+// plugin: distribution
 distributions {
     main {
+        // configure what to include in the release archive
         contents {
             from 'tools/install.sh'
         }
+    }
+}
+
+// plugin: application
+application {
+    mainClass = 'bio.terra.cli.command.Main'
+    applicationName = 'terra'
+    executableDir = 'bin'
+}
+startScripts {
+    // set the $APP_HOME path to $HOME/.terra
+    doLast {
+        unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
+        windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
     }
 }
