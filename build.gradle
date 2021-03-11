@@ -23,7 +23,11 @@ group 'terra-cli'
 version '0.1'
 sourceCompatibility = JavaVersion.VERSION_11
 
-mainClassName = 'bio.terra.cli.command.Main'
+application {
+    mainClass = 'bio.terra.cli.command.Main'
+    applicationName = 'terra'
+    executableDir = 'bin'
+}
 
 repositories {
     mavenCentral()
@@ -154,4 +158,13 @@ task buildDockerImage(type: Exec) {
 task publishDockerImage(type: Exec) {
     workingDir '.'
     commandLine 'tools/publish-docker.sh', dockerLocalImageName, dockerLocalImageTag, dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName, dockerLocalImageTag
+}
+
+// distribution: configure what's included in the release archive
+distributions {
+    main {
+        contents {
+            from 'tools/install.sh'
+        }
+    }
 }
