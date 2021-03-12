@@ -14,5 +14,10 @@ tar -czvf $SOURCE_CODE_ARCHIVE_FILENAME ./
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
-gh release create --draft "$RELEASE_VERSION" \
-  build/distributions/*.tar tools/download-install.sh $SOURCE_CODE_ARCHIVE_FILENAME
+echo "tags: ${GITHUB_REF#refs/tags/}"
+gh release create "${GITHUB_REF#refs/tags/}" \
+  --draft \
+  --title "$RELEASE_VERSION" \
+  'build/distributions/*.tar#Install package' \
+  'tools/download-install.sh#Download & Install script' \
+  '$SOURCE_CODE_ARCHIVE_FILENAME#Source code'
