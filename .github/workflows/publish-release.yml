@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
+      - name: Set up AdoptOpenJDK 11
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: 11
       - name: Checkout current code
         uses: actions/checkout@master
         with:
