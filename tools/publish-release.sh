@@ -18,8 +18,7 @@ ls -la ..
 
 echo "-- Building the distribution archive"
 ./gradlew distTar
-ls -la build/distributions
-ls -la tools/
+distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
@@ -27,6 +26,6 @@ echo "tags: ${GITHUB_REF#refs/tags/}"
 gh release create $RELEASE_VERSION \
   --draft \
   --title "Terra CLI version ${RELEASE_VERSION}" \
-  "build/distributions/*.tar#Install package" \
+  "${distributionArchivePath}#Install package" \
   "tools/download-install.sh#Download & Install script" \
   "${sourceCodeArchivePath}#Source code"
