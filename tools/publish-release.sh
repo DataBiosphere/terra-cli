@@ -10,4 +10,4 @@ echo "-- Building the distribution archive"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
-gh release create --draft "$RELEASE_VERSION" dist/*.tar tools/download-install.sh
+gh release create --draft "$RELEASE_VERSION" build/distributions/*.tar tools/download-install.sh
