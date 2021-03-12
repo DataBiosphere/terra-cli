@@ -14,7 +14,7 @@ jobs:
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - name: Checkout current code
-        uses: actions/checkout@v2
+        uses: actions/checkout@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 #      - name: "Bump the tag to a new version"
@@ -25,7 +25,13 @@ jobs:
 #          VERSION_FILE_PATH: build.gradle
 #          VERSION_LINE_MATCH: ^version
       - name: Publish a release
-        run: tools/publish-release.sh
+        run: |
+          echo "pwd: $PWD"
+          echo "home: $HOME"
+          ls -la
+          ls -la /usr/bin/g*
+          gh release list
+#          tools/publish-release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ 0.0 }}
