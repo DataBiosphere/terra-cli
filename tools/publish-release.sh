@@ -23,10 +23,10 @@ echo "distributionArchivePath: $distributionArchivePath"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
-echo "tags: ${GITHUB_REF#refs/tags/}"
 gh release create $RELEASE_VERSION \
   --draft \
-  --title "Terra CLI version ${RELEASE_VERSION}" \
+  --title "Terra CLI version ${RELEASE_VERSION} " \
   "${distributionArchivePath}#Install package" \
-  "tools/download-install.sh#Download & Install script" \
-  "${sourceCodeArchivePath}#Source code"
+#  "${distributionArchivePath}#Install package" \
+#  "tools/download-install.sh#Download & Install script" \
+#  "${sourceCodeArchivePath}#Source code"
