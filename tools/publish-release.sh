@@ -4,9 +4,11 @@
 ## Usage: ./publish-release.sh
 
 echo "-- Building the source code archive"
-SOURCE_CODE_ARCHIVE_FILENAME="terra-cli-$RELEASE_VERSION.tar.gz"
-SOURCE_CODE_ARCHIVE_PATH=../$SOURCE_CODE_ARCHIVE_FILENAME
-tar -czf $SOURCE_CODE_ARCHIVE_PATH ./
+sourceCodeArchiveFilename="terra-cli-$RELEASE_VERSION.tar.gz"
+sourceCodeArchivePath=../$sourceCodeArchiveFilename
+tar -czf $sourceCodeArchivePath ./
+echo "sourceCodeArchivePath: $sourceCodeArchivePath"
+ls -la ..
 
 # TODO: include Docker image build and publish, once Vault secrets have been added to the GH repo
 #echo "-- Building the Docker image"
@@ -27,4 +29,4 @@ gh release create $RELEASE_VERSION \
   --title "Terra CLI version $RELEASE_VERSION" \
   'build/distributions/*.tar#Install package' \
   'tools/download-install.sh#Download & Install script' \
-  '$SOURCE_CODE_ARCHIVE_PATH#Source code'
+  '$sourceCodeArchivePath#Source code'
