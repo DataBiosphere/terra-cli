@@ -1,18 +1,18 @@
 #!/bin/bash
 
 ## This script builds a new GitHub release for the Terra CLI.
-## Usage: ./publish-release.sh        --> installs the latest version
+## Usage: ./publish-release.sh
 
 echo "-- Building the source code archive"
 SOURCE_CODE_ARCHIVE_FILENAME="terra-cli-$RELEASE_VERSION.tar.gz"
 SOURCE_CODE_ARCHIVE_PATH=../$SOURCE_CODE_ARCHIVE_FILENAME
 tar -czf $SOURCE_CODE_ARCHIVE_PATH ./
 
+# TODO: include Docker image build and publish, once Vault secrets have been added to the GH repo
 #echo "-- Building the Docker image"
 #./tools/build-docker.sh terra-cli/local forRelease
-
 #echo "-- Publishing the Docker image"
-#./tools/publish-docker.sh terra-cli/local forRelease "terra-cli/v1.$RELEASE_VERSION" stable
+#./tools/publish-docker.sh terra-cli/local forRelease "terra-cli/v1$RELEASE_VERSION" stable
 
 echo "-- Building the distribution archive"
 ./gradlew distTar

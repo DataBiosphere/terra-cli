@@ -24,32 +24,12 @@ jobs:
       - name: Bump tag and build version
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCHES: main, mm-PF-425-install-investigation
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
-
-      - name: Pull Vault image
-        run: docker pull vault:1.1.0
-      # Currently, there's no way to add capabilities to Docker actions on Git, and Vault needs IPC_LOCK to run.
-      - name: Get Vault token
-        id: vault-token-step
-        run: |
-          VAULT_TOKEN=$(docker run --rm --cap-add IPC_LOCK \
-            -e "VAULT_ADDR=${VAULT_ADDR}" \
-            vault:1.1.0 \
-            vault write -field token \
-              auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
-              secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
-          echo ::set-output name=vault-token::$VAULT_TOKEN
-          echo ::add-mask::$VAULT_TOKEN
-        env:
-          VAULT_ADDR: https://clotho.broadinstitute.org:8200
-
       - name: Grant execute permission for tools scripts
         run: chmod +x tools/*
-      - name: Render configs
-        run: ./tools/render-config.sh
       - name: Publish a release
         run: |
           ./tools/publish-release.sh
