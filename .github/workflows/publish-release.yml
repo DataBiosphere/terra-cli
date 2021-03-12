@@ -1,6 +1,6 @@
 name: Publish Release
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
     inputs:
       name:
         description: 'Person to greet'
