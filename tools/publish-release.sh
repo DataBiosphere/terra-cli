@@ -29,7 +29,6 @@ releaseTag="v${RELEASE_VERSION}"
 gh release create $releaseTag \
   --draft \
   --title "v${RELEASE_VERSION}" \
-  "${distributionArchivePath}#Install package"
-#  "${distributionArchivePath}#Install package" \
-#  "tools/download-install.sh#Download & Install script" \
-#  "${sourceCodeArchivePath}#Source code"
+  "${distributionArchivePath}#Install package" \
+  "tools/download-install.sh#Download & Install script" \
+  "${sourceCodeArchivePath}#Source code"
