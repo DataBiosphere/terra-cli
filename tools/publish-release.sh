@@ -24,7 +24,8 @@ echo "distributionArchivePath: $distributionArchivePath"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
-gh release create $RELEASE_VERSION \
+releaseTag="v${RELEASE_VERSION}"
+gh release create $releaseTag \
   --draft \
   --title "v${RELEASE_VERSION}" \
   '${distributionArchivePath}'
