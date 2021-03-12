@@ -21,13 +21,13 @@ jobs:
         uses: actions/checkout@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-#      - name: "Bump the tag to a new version"
-#        uses: databiosphere/github-actions/actions/bumper@v0.0.3
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-#          RELEASE_BRANCHES: main
-#          VERSION_FILE_PATH: build.gradle
-#          VERSION_LINE_MATCH: ^version
+      - name: "Bump the tag to a new version"
+        uses: databiosphere/github-actions/actions/bumper@v0.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          RELEASE_BRANCHES: main
+          VERSION_FILE_PATH: build.gradle
+          VERSION_LINE_MATCH: ^version
       - name: Grant execute permission for tools scripts
         run: chmod +x tools/*
       - name: Publish a release
