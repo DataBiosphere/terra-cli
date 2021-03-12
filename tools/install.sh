@@ -5,35 +5,35 @@
 ## Usage: ./install.sh
 
 ## The script assumes that it is being run from the same directory (i.e. ./install.sh, not terra-0.1/install.sh)
-ARCHIVE_DIR=$PWD
+archiveDir=$PWD
 
 echo "--  Checking for application directory"
-APPLICATION_DIRECTORY="${HOME}/.terra"
-mkdir -p $APPLICATION_DIRECTORY
-if [ ! -d "${APPLICATION_DIRECTORY}" ]; then
-    echo "Error creating application directory: ${APPLICATION_DIRECTORY}"
+applicationDir="${HOME}/.terra"
+mkdir -p $applicationDir
+if [ ! -d "${applicationDir}" ]; then
+    echo "Error creating application directory: ${applicationDir}"
     exit 1
 fi
 
 echo "--  Moving JARs to application directory"
-if [ -f "${APPLICATION_DIRECTORY}/lib" ] || [ -d "${APPLICATION_DIRECTORY}/lib" ]; then
-  rm -R "${APPLICATION_DIRECTORY}/lib"
+if [ -f "${applicationDir}/lib" ] || [ -d "${applicationDir}/lib" ]; then
+  rm -R "${applicationDir}/lib"
 fi
-mv "${ARCHIVE_DIR}/lib" $APPLICATION_DIRECTORY
+mv "${archiveDir}/lib" applicationDir
 
 echo "--  Moving run script out of archive directory"
-mv "${ARCHIVE_DIR}/bin/terra" "${ARCHIVE_DIR}/../terra"
+mv "${archiveDir}/bin/terra" "${archiveDir}/../terra"
 
 echo "--  Deleting the archive directory"
-cd "${ARCHIVE_DIR}/.."
-rm -R $ARCHIVE_DIR
+cd "${archiveDir}/.."
+rm -R archiveDir
 
 echo "--  Setting the Docker image id to the default"
 ./terra app set-image --default
 
 echo "--  Pulling the default Docker image"
-DEFAULT_DOCKER_IMAGE=$(./terra app get-image)
-docker pull $DEFAULT_DOCKER_IMAGE
+defaultDockerImage=$(./terra app get-image)
+docker pull $defaultDockerImage
 
 echo "--  Install complete"
 echo "You can add the ./terra executable to your \$PATH"

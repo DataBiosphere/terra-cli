@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Bump the tag to a new version"
+      - name: Bump tag and build version
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
@@ -35,4 +35,4 @@ jobs:
           ./tools/publish-release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: "0.0"
+          RELEASE_VERSION: ${{ steps.tag.outputs.tag }}
