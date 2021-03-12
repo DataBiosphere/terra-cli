@@ -7,8 +7,7 @@ on:
   pull_request:
     branches:
       - main
-env:
-  VAULT_ADDR: https://clotho.broadinstitute.org:8200
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -44,6 +43,8 @@ jobs:
               secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
           echo ::set-output name=vault-token::$VAULT_TOKEN
           echo ::add-mask::$VAULT_TOKEN
+        env:
+          VAULT_ADDR: https://clotho.broadinstitute.org:8200
 
       - name: Grant execute permission for tools scripts
         run: chmod +x tools/*
