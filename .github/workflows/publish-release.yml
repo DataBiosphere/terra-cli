@@ -16,7 +16,7 @@ jobs:
       - name: Checkout current code
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 #      - name: "Bump the tag to a new version"
 #        uses: databiosphere/github-actions/actions/bumper@v0.0.3
 #        env:
