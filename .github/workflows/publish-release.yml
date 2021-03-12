@@ -7,7 +7,8 @@ on:
   pull_request:
     branches:
       - main
-
+env:
+  VAULT_ADDR: https://clotho.broadinstitute.org:8200
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -25,7 +26,7 @@ jobs:
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          RELEASE_BRANCHES: main
+          RELEASE_BRANCHES: main, mm-PF-425-install-investigation
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
 
