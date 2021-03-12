@@ -1,0 +1,77 @@
+name: Publish Release
+on:
+  workflow_dispatch: {}
+    inputs:
+      name:
+        description: 'Person to greet'
+        required: true
+        default: 'Mona the Octocat'
+      home:
+        description: 'location'
+        required: false
+        default: 'The Octoverse'
+
+jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Hello ${{ github.event.inputs.name }}!"
+          echo "- in ${{ github.event.inputs.home }}!"
+  create-release:
+    runs-on: ubuntu-latest
+    if: "!contains( github.event.sender.login, 'broadbot')"
+    steps:
+      - name: Checkout current code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BROADBOT_TOKEN }}
+      - name: Bump version and push tag
+        id: tag
+        uses: broadinstitute/github-tag-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+      - name: Pull Vault image
+        run: docker pull vault:1.1.0
+      # Currently, there's no way to add capabilities to Docker actions on Git, and Vault needs IPC_LOCK to run.
+      - name: Get Vault token
+        id: vault-token-step
+        run: |
+          VAULT_TOKEN=$(docker run --rm --cap-add IPC_LOCK \
+            -e "VAULT_ADDR=${VAULT_ADDR}" \
+            vault:1.1.0 \
+            vault write -field token \
+              auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
+              secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
+          echo ::set-output name=vault-token::$VAULT_TOKEN
+          echo ::add-mask::$VAULT_TOKEN
+      - name: Get Vault secrets
+        id: vault-secret-step
+        run: |
+          GCR_EMAIL=$(docker run --rm --cap-add IPC_LOCK \
+            -e "VAULT_TOKEN=${{ steps.vault-token-step.outputs.vault-token }}" \
+            -e "VAULT_ADDR=${VAULT_ADDR}" \
+            vault:1.1.0 \
+            vault read -field ci-gcr-sa-email ${VAULT_PATH_GCR})
+          GCR_KEY=$(docker run --rm --cap-add IPC_LOCK \
+            -e "VAULT_TOKEN=${{ steps.vault-token-step.outputs.vault-token }}" \
+            -e "VAULT_ADDR=${VAULT_ADDR}" \
+            vault:1.1.0 \
+            vault read -field ci-gcr-sa-key ${VAULT_PATH_GCR})
+          echo ::set-output name=gcr-email::$GCR_EMAIL
+          echo ::add-mask::$GCR_EMAIL
+          echo ::set-output name=gcr-key::$GCR_KEY
+          echo ::add-mask::$GCR_KEY
+      - name: Auth to GCR
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '270.0.0'
+          service_account_email: ${{ steps.vault-secret-step.outputs.gcr-email }}
+          service_account_key: ${{ steps.vault-secret-step.outputs.gcr-key }}
+      - name: Explicitly auth Docker for GCR
+        run: gcloud auth configure-docker --quiet
+      - name: Set up AdoptOpenJDK 11
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: 11
