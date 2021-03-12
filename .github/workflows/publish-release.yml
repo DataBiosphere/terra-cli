@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - main, mm-PF-425-install-investigation
+      - main
   pull_request:
     branches:
       - main
@@ -25,7 +25,7 @@ jobs:
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BRANCHES: main, mm-PF-425-install-investigation
+          RELEASE_BRANCHES: main
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
       - name: Grant execute permission for tools scripts

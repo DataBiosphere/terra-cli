@@ -2,6 +2,7 @@
 
 ## This script renders configuration files needed for development and CI/CD.
 ## Dependencies: vault
+## Inputs: VAULT_TOKEN (arg, optional) default is $HOME/.vault-token
 ## Usage: ./tools/render-config.sh
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".

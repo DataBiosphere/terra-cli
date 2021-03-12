@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ## This script builds a new GitHub release for the Terra CLI.
+## Inputs: RELEASE_VERSION (env var, required) determines the git tag to use for creating the release
 ## Usage: ./publish-release.sh
 
 echo "-- Building the source code archive"
@@ -28,7 +29,7 @@ releaseTag="v${RELEASE_VERSION}"
 gh release create $releaseTag \
   --draft \
   --title "v${RELEASE_VERSION}" \
-  '${distributionArchivePath}'
+  "${distributionArchivePath}#Install package"
 #  "${distributionArchivePath}#Install package" \
 #  "tools/download-install.sh#Download & Install script" \
 #  "${sourceCodeArchivePath}#Source code"
