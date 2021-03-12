@@ -20,13 +20,14 @@ echo "-- Building the distribution archive"
 ./gradlew distTar
 distributionArchivePath=$(ls build/distributions/*tar)
 echo "distributionArchivePath: $distributionArchivePath"
+#mariko
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
 gh release create $RELEASE_VERSION \
   --draft \
   --title "v${RELEASE_VERSION}" \
-  "build/distributions/terra-0.1.tar" \
+  ${distributionArchivePath} \
 #  "${distributionArchivePath}#Install package" \
 #  "tools/download-install.sh#Download & Install script" \
 #  "${sourceCodeArchivePath}#Source code"
