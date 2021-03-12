@@ -4,7 +4,7 @@
 ## Usage: ./publish-release.sh
 
 echo "-- Building the source code archive"
-sourceCodeArchiveFilename="terra-cli-$RELEASE_VERSION.tar.gz"
+sourceCodeArchiveFilename="terra-cli-${RELEASE_VERSION}.tar.gz"
 sourceCodeArchivePath=../$sourceCodeArchiveFilename
 tar -czf $sourceCodeArchivePath ./
 echo "sourceCodeArchivePath: $sourceCodeArchivePath"
@@ -26,7 +26,7 @@ echo "-- Creating a new GitHub release with the install archive and download scr
 echo "tags: ${GITHUB_REF#refs/tags/}"
 gh release create $RELEASE_VERSION \
   --draft \
-  --title "Terra CLI version $RELEASE_VERSION" \
-  'build/distributions/*.tar#Install package' \
-  'tools/download-install.sh#Download & Install script' \
-  '$sourceCodeArchivePath#Source code'
+  --title "Terra CLI version ${RELEASE_VERSION}" \
+  "build/distributions/*.tar#Install package" \
+  "tools/download-install.sh#Download & Install script" \
+  "${sourceCodeArchivePath}#Source code"
