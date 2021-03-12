@@ -24,14 +24,11 @@ jobs:
 #          RELEASE_BRANCHES: main
 #          VERSION_FILE_PATH: build.gradle
 #          VERSION_LINE_MATCH: ^version
+      - name: Grant execute permission for tools scripts
+        run: chmod +x tools/*
       - name: Publish a release
         run: |
-          echo "pwd: $PWD"
-          echo "home: $HOME"
-          ls -la
-          ls -la /usr/bin/g*
-          gh release list
-#          tools/publish-release.sh
+          ./tools/publish-release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG_NAME: ${{ 0.0 }}
+          RELEASE_VERSION: "0.0"
