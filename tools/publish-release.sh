@@ -20,6 +20,7 @@ echo "-- Building the distribution archive"
 ./gradlew distTar
 ls -la build/distributions
 ls -la tools/
+#mariko test
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 #gh release create --draft "${GITHUB_REF#refs/tags/}" dist/*.tar tools/download-install.sh
