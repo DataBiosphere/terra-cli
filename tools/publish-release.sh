@@ -27,7 +27,7 @@ echo "-- Creating a new GitHub release with the install archive and download scr
 gh release create $RELEASE_VERSION \
   --draft \
   --title "v${RELEASE_VERSION}" \
-  "build/distributions/terra-0.1.tar" \
+  ${distributionArchivePath} \
 #  "${distributionArchivePath}#Install package" \
 #  "tools/download-install.sh#Download & Install script" \
 #  "${sourceCodeArchivePath}#Source code"
