@@ -155,6 +155,7 @@ Usage: terra [COMMAND]
 Terra CLI
 Commands:
   status     Print details about the current workspace.
+  version    Get the installed version.
   auth       Retrieve and manage user credentials.
   server     Connect to a Terra server.
   workspace  Setup a Terra workspace.
@@ -167,6 +168,8 @@ Commands:
 ```
 
 The `status` command prints details about the current workspace and server.
+
+The `version` command prints the installed version string.
 
 Each sub-group of commands is described in a sub-section below:
 - Authentication
