@@ -1,30 +1,41 @@
 #!/bin/bash
 
 ## This script build the Docker image that the CLI uses to run applications.
-## Dependencies: vault, docker, gcloud
-## Inputs: localImageName (arg, required) name of the image on the local host
-##         localImageTag (arg, optional) tag of the image on the local host, default is Git commit hash
-## Usage: ./tools/publish-docker.sh terra-cli/local test123 terra-cli/v0.0 stable
+## Dependencies: docker, gcloud
+## Inputs: remoteImageTag (arg, required) tag of the image in GCR
+##         remoteImageName (arg, required) name of the image in GCR
+##         localImageTag (arg, required) tag of the local image
+##         localImageName (arg, optional) name of the local image, default is 'terra-cli/local'
+## Usage: ./tools/publish-docker.sh terra-cli/v0.0 stable
+
+## The script assumes that it is being run from the top-level directory "terra-cli/".
 
 usage="Usage: tools/publish-docker.sh [localImageName] [localImageTag] [remoteImageName] [remoteImageTag]"
 
 # check required arguments
-localImageName=$1
-localImageTag=$2
-remoteImageName=$3
-remoteImageTag=$4
-if [ -z "$localImageName" ] || [ -z "$localImageTag" ] || [ -z "$remoteImageName" ] || [ -z "$remoteImageTag" ]
+remoteImageTag=$1
+remoteImageName=$2
+localImageTag=$3
+if [ -z "$remoteImageTag" ] || [ -z "$remoteImageName" ] || [ -z "$localImageTag" ]
   then
     echo $usage
     exit 1
 fi
 
-echo "Logging in to docker using this key file"
+# set the local image name if no name was provided
+localImageName=$4
+if [ -z "$localImageName" ]
+  then
+    localImageName="terra-cli/local"
+fi
+
+echo "Logging in to docker using the CI service account key file"
 cat rendered/ci-account.json | docker login -u _json_key --password-stdin https://gcr.io
 
 echo "Tagging the local docker image with the name to use in GCR"
+dockerGcrProject="terra-cli-dev"
 localImageNameAndTag="$localImageName:$localImageTag"
-remoteImageNameAndTag="$remoteImageName:$remoteImageTag"
+remoteImageNameAndTag="gcr.io/$dockerGcrProject/$remoteImageName:$remoteImageTag"
 docker tag $localImageNameAndTag $remoteImageNameAndTag
 
 echo "Logging into to gcloud and configuring docker with the CI service account"

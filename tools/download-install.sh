@@ -12,28 +12,34 @@ if [[ -z "${TERRA_CLI_VERSION}" ]]; then
 else
   terraCliVersion=$TERRA_CLI_VERSION
 fi
-releaseName="terra-${terraCliVersion}"
 
-echo "--  Downloading release archive from GitHub"
-# TODO: curl github releases page here
-archiveFilename="${releaseName}.tar"
-archiveFilePath="/Users/marikomedlock/Workspaces/terra-cli/build/distributions/${archiveFilename}"
-if [ ! -f "${archiveFilePath}" ]; then
-    echo "Error downloading release: ${archiveFilename}"
+echo "--  Downloading latest release archive from GitHub"
+if [ "$terraCliVersion" == "latest" ]; then
+  releaseTarUrl="https://github.com/DataBiosphere/terra-cli/releases/latest/download/terra-cli.tar"
+else
+  releaseTarUrl="https://github.com/DataBiosphere/terra-cli/releases/download/$terraCliVersion/terra-cli.tar"
+fi
+archiveFileName="terra-cli.tar"
+curl -L $releaseTarUrl > $archiveFileName
+if [ ! -f "${archiveFileName}" ]; then
+    echo "Error downloading release: ${archiveFileName}"
     exit 1
 fi
 
 echo "--  Unarchiving release"
-scratchInstallDir=$PWD
+scratchInstallDir=$PWD/terra-cli
 mkdir -p $scratchInstallDir
-tar -C $scratchInstallDir -xvf $archiveFilePath
-if [ ! -d "${scratchInstallDir}/${releaseName}" ]; then
-    echo "Error unarchiving release: ${archiveFilePath}"
+tar -C $scratchInstallDir --strip-components=1 -xf $archiveFileName
+if [ ! -f "$scratchInstallDir/install.sh" ]; then
+    echo "Error unarchiving release: ${archiveFileName}"
     exit 1
 fi
 
 echo "--  Running the install script inside the release directory"
 currentDir=$PWD
-cd $scratchInstallDir/$releaseName
+cd $scratchInstallDir
 ./install.sh
 cd $currentDir
+
+echo "-- Deleting the release archive"
+rm $archiveFileName

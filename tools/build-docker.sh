@@ -2,28 +2,26 @@
 
 ## This script build the Docker image that the CLI uses to run applications.
 ## Dependencies: docker, git
-## Inputs: localImageName (arg, required) name of the image on the local host
-##         localImageTag (arg, optional) tag of the image on the local host, default is Git commit hash
-## Usage: ./tools/build-docker.sh terra-cli/local
-##        ./tools/build-docker.sh terra-cli/local test123
+## Inputs: localImageTag (arg, optional) tag of the local image, default is Git commit hash
+##         localImageName (arg, optional) name of the local image, default is 'terra-cli/local'
+## Usage: ./tools/build-docker.sh                            --> builds local Docker image terra-cli/local:[GITHASH]
+##        ./tools/build-docker.sh test123                    --> builds local Docker image terra-cli/local:test123
+##        ./tools/build-docker.sh test123 terracli/branchA   --> builds local Docker image terracli/branchA:test123
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 
-usage="Usage: tools/publish-docker.sh [localImageName] [localImageTag]"
-
-# check required arguments
-localImageName=$1
-if [ -z "$localImageName" ]
-  then
-    echo $usage
-    exit 1
-fi
-
 # generate a tag from the commit hash if no tag was provided
-localImageTag=$2
+localImageTag=$1
 if [ -z "$localImageTag" ]; then
   echo "Generating an image tag from the Git commit hash"
   localImageTag=$(git rev-parse --short HEAD)
+fi
+
+# set the local image name if no name was provided
+localImageName=$2
+if [ -z "$localImageName" ]
+  then
+    localImageName="terra-cli/local"
 fi
 
 echo "Building the image"

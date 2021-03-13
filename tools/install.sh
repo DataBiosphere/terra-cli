@@ -19,14 +19,15 @@ echo "--  Moving JARs to application directory"
 if [ -f "${applicationDir}/lib" ] || [ -d "${applicationDir}/lib" ]; then
   rm -R "${applicationDir}/lib"
 fi
-mv "${archiveDir}/lib" applicationDir
+cp -R $archiveDir/lib $applicationDir/lib
 
-echo "--  Moving run script out of archive directory"
-mv "${archiveDir}/bin/terra" "${archiveDir}/../terra"
+echo "--  Moving run script and README out of archive directory"
+cp $archiveDir/bin/terra $archiveDir/../terra
+cp $archiveDir/README.md $archiveDir/../README.md
 
 echo "--  Deleting the archive directory"
-cd "${archiveDir}/.."
-rm -R archiveDir
+cd $archiveDir/..
+rm -R $archiveDir
 
 echo "--  Setting the Docker image id to the default"
 ./terra app set-image --default
