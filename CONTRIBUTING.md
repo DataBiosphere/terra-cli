@@ -136,12 +136,13 @@ options.
     ```
 
 #### Publish a new image
-The Gradle publishDockerImage task expects the caller to be logged into Vault already, because it fetches
-a SA key file in order to write to GCR. In the future, we should probably do this with a GH action instead.
-
 To publish a new image to GCR:
 1. Build the image (see above).
-2. Push it to GCR. (See output of build command for local image tag.) See the script comments for more options.
+2. Render the CI credentials from Vault, in order to upload to GCR.
+    ```
+    > ./tools/render-config.sh
+    ```
+3. Push it to GCR. (See output of build command for local image tag.) See the script comments for more options.
     ```
     > ./tools/publish-docker.sh 92d6e09 "terra-cli/test" 92d6e09
       
@@ -157,7 +158,7 @@ To publish a new image to GCR:
     Updated property [core/account].
     gcr.io/terra-cli-dev/terra-cli/test:92d6e09 successfully pushed to GCR
     ```
-3. Pull the image from GCR (see above). This is so that the name and tag on your local image matches what it will
+4. Pull the image from GCR (see above). This is so that the name and tag on your local image matches what it will
 look like for someone who did not build the image.
 
 #### Update the default image
