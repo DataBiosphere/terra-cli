@@ -1,12 +1,14 @@
 # terra-cli
 
-1. [Setup and run](#setup-and-run)
-2. [Requirements](#requirements)
+1. [Install and run](#install-and-run)
+    * [Requirements](#requirements)
     * [Login](#login)
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
-3. [Example usage](#example-usage)
-4. [Commands description](#commands-description)
+    * [Troubleshooting](#troubleshooting)
+3. [Troubleshooting](#troubleshooting)
+4. [Example usage](#example-usage)
+5. [Commands description](#commands-description)
     * [Authentication](#authentication)
     * [Server](#server)
     * [Workspace](#workspace)
@@ -16,22 +18,29 @@
     * [Notebooks](#notebooks)
     * [Groups](#groups)
     * [Spend](#spend)
-5. [Workspace context for applications](#workspace-context-for-applications)
+6. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
     * [See all environment variables](#see-all-environment-variables)
-6. [Troubleshooting](#troubleshooting)
 
 -----
 
-### Setup and run
-From the top-level directory.
+### Install and run
+To install the latest version:
 ```
-source tools/local-dev.sh
-terra
+curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+./terra
 ```
 
-### Requirements
+To install a specific version:
+```
+export TERRA_CLI_VERSION=0.2
+curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+./terra
+```
+
+
+#### Requirements
 1. Java 11
 2. Docker 20.10.2 (Must be running)
 
@@ -64,6 +73,14 @@ user `policy=owner` instead.
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
 external to the Terra workspace, you need to give the user's pet service account the appropriate
 access. To get the email of the user's pet service account, run `terra gcloud config get-value account`.
+
+#### Troubleshooting
+- Install manually.
+    * Download the `terra-cli.tar` install package directly from the [GitHub releases](https://github.com/DataBiosphere/terra-cli/releases)
+    page.
+    * Unarchive the `tar` file.
+    * Run the install script from the unarchived directory: `./install.sh`
+- Wipe the global context directory. `rm -R $HOME/.terra`.
 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
@@ -402,7 +419,3 @@ are run.
 
 The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
 container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
-
-### Troubleshooting
-- Wipe the global context directory. `rm -R $HOME/.terra`.
-- Re-run the setup script. `source tools/local-dev.sh`.

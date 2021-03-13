@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## This script build the Docker image that the CLI uses to run applications.
+## This script builds the Docker image that the CLI uses to run applications.
 ## Dependencies: docker, gcloud
 ## Inputs: remoteImageTag (arg, required) tag of the image in GCR
 ##         remoteImageName (arg, required) name of the image in GCR

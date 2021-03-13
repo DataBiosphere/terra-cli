@@ -1,67 +1,106 @@
 # terra-cli
 
-1. [Logging](#logging)
+1. [Setup development environment](#setup-development-environment)
+    * [Logging](#logging)
+    * [Troubleshooting](#troubleshooting)
+2. [Publish a release](#publish-a-release)
 3. [Docker](#docker)
-    * [Build a new image](#build-a-new-image)
     * [Pull an existing image](#pull-an-existing-image)
+    * [Build a new image](#build-a-new-image)
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
-2. [Code structure](#code-structure)
+4. [Code structure](#code-structure)
     * [Servers](#servers)
     * [Command structure](#command-structure)
     * [Context classes](#context-classes)
     * [Supported tools](#supported-tools)
-3. [Adding a new supported tool](#adding-a-new-supported-tool)
+5. [Adding a new supported tool](#adding-a-new-supported-tool)
 
 -----
 
-### Logging
+### Setup development environment
+From the top-level directory:
+```
+source tools/local-dev.sh
+terra
+```
+
+#### Logging
 Logging is turned off by default. Modify the root level in the `src/main/resources/logback.xml` file to turn it on (e.g. `INFO`).
+
+#### Troubleshooting
+- Wipe the global context directory. `rm -R $HOME/.terra`.
+- Re-run the setup script. `source tools/local-dev.sh`.
+
+
+### Publish a release
+A release includes a GitHub release of the `terra-cli` repository and a corresponding Docker image pushed to GCR.
+
+To publish a release manually, from the current local code:
+1. Create a tag (e.g. `test123`) and push it to the remote repository. The tag should not include any uppercase letters.
+    ```
+    > git tag -a test123 -m "testing version 123"
+    > git push --tags
+    ```
+2. Update the version in `build.gradle`.
+    ```
+    version = 'test123'
+    ```
+3. Login to GitHub and run the `tools/publish-release.sh` script. This will publish a pre-release, which does not
+affect the "Latest release" tag.
+    ```
+    > gh auth login
+    > ./tools/publish-release.sh test123
+    ```
+    To publish a regular release, add `false` as a second argument.
+     ```
+    > gh auth login
+    > ./tools/publish-release.sh test123 false
+    ```
+
+Note that GitHub automatically attaches an archive of the source code to the release. If you have local changes that
+are not yet committed, then they may not be reflected in the source code archive, but they will be included in the
+install package. We don't use the source code archive for install.
+
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
 and made executable.
 
-The `gradle.properties` file specifies the path to the default Docker image used by the CLI.
-
-#### Build a new image
-For any change in this directory to take effect:
-1. Build a new image. This uses a short Git hash for the current commit as the tag.
-    ```
-    > ./gradlew buildDockerImage
-    [...Docker build output...]
-    terra-cli/local:b5fdce0 successfully built
-    
-    BUILD SUCCESSFUL in 25s
-    1 actionable task: 1 executed
-    ```
-2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
-    ```
-    > terra app set-image --image=terra-cli/local:b5fdce0
-    ```
-
 #### Pull an existing image
-The `tools/local-dev.sh` script pulls the default image already.
+The `tools/local-dev.sh` and `install.sh` scripts pull the default image already. So this is mostly useful for
+development and debugging.
 
 The gcr.io/terra-cli-dev registry is public readable, so anyone should be able to pull images.
 
 To use a specific Docker image from GCR:
 1. Pull the image with that tag.
     ```
-    > ./gradlew pullDockerImage -PdockerImageTag=b5fdce0
-    Task :pullDockerImage
-    b5fdce0: Pulling from terra-cli-dev/terra-cli/v0.0
-    Digest: sha256:c77ee0b87a8972ec2a9f1b69387216a9f726f5503679edab37911a6322876dbe
-    Status: Downloaded newer image for gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
-    gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
-    
-    BUILD SUCCESSFUL in 3s
-    1 actionable task: 1 executed
+    > docker pull gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    ```
+2. Update the image id that the CLI uses.
+    ```
+    > terra app set-image --image=gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    ```
+
+#### Build a new image
+For any change in the `docker/` directory to take effect:
+1. Build a new image. This uses a short Git hash for the current commit as the tag. See the script comments for more
+options.
+    ```
+    > ./tools/build-docker.sh
+   
+    Generating an image tag from the Git commit hash
+    Building the image
+    [...Docker output...]
+    Successfully built 6558c3bcb316
+    Successfully tagged terra-cli/local:92d6e09
+    terra-cli/local:92d6e09 successfully built
     ```
 2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
     ```
-    > terra app set-image --image=gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    > terra app set-image --image=terra-cli/local:b5fdce0
     ```
 
 #### Publish a new image
@@ -70,39 +109,29 @@ a SA key file in order to write to GCR. In the future, we should probably do thi
 
 To publish a new image to GCR:
 1. Build the image (see above).
-2. Push it to GCR. (See output of build command for local image tag.)
+2. Push it to GCR. (See output of build command for local image tag.) See the script comments for more options.
     ```
-    > ./gradlew publishDockerImage -PdockerLocalImageTag=b5fdce0
+    > ./tools/publish-docker.sh 92d6e09 "terra-cli/test" 92d6e09
       
-    Task :publishDockerImage
-    Reading the CI service account key file from Vault
-    Logging in to docker using this key file
+    Logging in to docker using the CI service account key file
     Login Succeeded
     Tagging the local docker image with the name to use in GCR
+    Logging into to gcloud and configuring docker with the CI service account
+    Activated service account credentials for: [dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com]
     Pushing the image to GCR
-    The push refers to repository [gcr.io/terra-cli-dev/terra-cli/v0.0]
     [...Docker push output...]
-    gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0 successfully pushed to GCR
-    
-      BUILD SUCCESSFUL in 26s
-      1 actionable task: 1 executed
+    92d6e09: digest: sha256:f419d97735749573baff95247d0918d174cb683089c9b1370e7c99817b9b6d67 size: 2211
+    Restoring the current gcloud user
+    Updated property [core/account].
+    gcr.io/terra-cli-dev/terra-cli/test:92d6e09 successfully pushed to GCR
     ```
-2. Pull the image from GCR (see above). This is so that the name and tag on your local image matches what it will
+3. Pull the image from GCR (see above). This is so that the name and tag on your local image matches what it will
 look like for someone who did not build the image.
 
 #### Update the default image
-To update the default image:
-1. Build the image (see above).
-2. Tag the image locally with `stable`. (See output of build command for local image name and tag.)
-    ```
-    docker tag terra-cli/local:b5fdce0 terra-cli/local:stable
-    ```
-3. Bump the version number in the image name in `gradle.properties`.
-    ```
-    dockerImageName=terra-cli/v0.2
-    ```
-4. Publish the new (`stable`-tagged) image to GCR (see above).
-5. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
+It's best to do this as part of a release, but if it's necessary to update the default image manually:
+1. Publish the image (see above).
+2. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
 
 
 ### Code structure

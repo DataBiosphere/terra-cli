@@ -20,7 +20,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '123'"
-version = 'testinstall6'
+version = '0.2'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 

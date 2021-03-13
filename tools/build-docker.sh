@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## This script build the Docker image that the CLI uses to run applications.
+## This script builds the Docker image that the CLI uses to run applications.
 ## Dependencies: docker, git
 ## Inputs: localImageTag (arg, optional) tag of the local image, default is Git commit hash
 ##         localImageName (arg, optional) name of the local image, default is 'terra-cli/local'
