@@ -1,0 +1,31 @@
+name: Bump version and publish release
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  bump-version-publish-release:
+    runs-on: ubuntu-latest
+    if: "!contains( github.event.sender.login, 'broadbot')"
+    steps:
+      - name: Checkout current code
+        uses: actions/checkout@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bump tag and build version
+        uses: databiosphere/github-actions/actions/bumper@v0.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCHES: main
+          VERSION_FILE_PATH: build.gradle
+          VERSION_LINE_MATCH: ^version
+      - name: Publish a release
+        run: |
+          echo "TODO (PF-570): ./tools/publish-release.sh $RELEASE_VERSION true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.tag.outputs.tag }}
