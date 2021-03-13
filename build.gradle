@@ -19,8 +19,9 @@ if (hasProperty('buildScan')) {
     }
 }
 
-group 'terra-cli'
-version '0.1'
+// The tools/publish-release.sh script depends on this version string being of the format "version = '123'"
+version = '0.5'
+group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -133,25 +134,6 @@ spotbugsTest {
             stylesheet = 'fancy.xsl'
         }
     }
-}
-
-// task: pull default image
-task pullDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'docker', 'pull', dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName + ':' + dockerImageTag
-}
-
-// task: build image
-task buildDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'sh', 'tools/build-docker.sh', dockerLocalImageName
-}
-
-// task: publish image
-// expect caller to override the local tag property on the command line (-PdockerLocalImageTag=b5fdce0)
-task publishDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'tools/publish-docker.sh', dockerLocalImageName, dockerLocalImageTag, dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName, dockerLocalImageTag
 }
 
 // plugin: distribution
