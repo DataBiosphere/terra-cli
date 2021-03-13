@@ -39,10 +39,21 @@ curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/down
 ./terra
 ```
 
+#### Manual install
+A Terra CLI release includes a GitHub release of the `terra-cli` repository and a corresponding Docker image in GCR.
+`download-install.sh` is a convenience script that downloads the latest (or specific version) of the install package,
+unarchives it, runs the `install.sh` script included inside, and then deletes the install package.
+
+You can also skip the `download-install.sh` script and install manually.
+- Download the `terra-cli.tar` install package directly from the 
+[GitHub releases page.](https://github.com/DataBiosphere/terra-cli/releases)
+- Unarchive the `tar` file.
+- Run the install script from the unarchived directory: `./install.sh`
 
 #### Requirements
 1. Java 11
 2. Docker 20.10.2 (Must be running)
+3. `curl`, `tar` (For install only)
 
 #### Login
 1. Use a Google account that is not a Google/Verily corporate account.
@@ -75,13 +86,19 @@ external to the Terra workspace, you need to give the user's pet service account
 access. To get the email of the user's pet service account, run `terra gcloud config get-value account`.
 
 #### Troubleshooting
-- Install manually.
-    * Download the `terra-cli.tar` install package directly from the [GitHub releases](https://github.com/DataBiosphere/terra-cli/releases)
-    page.
-    * Unarchive the `tar` file.
-    * Run the install script from the unarchived directory: `./install.sh`
-- Wipe the global context directory. `rm -R $HOME/.terra`.
-
+- Clear the global context file and all credentials. This will then require you to login again.
+```
+cd $HOME/.terra
+rm global-context.json
+rm StoredCredential
+rm -R pet-keys
+```
+- Clear the entire global context, which includes the context file, all credentials, and all JARs.
+This will then require a re-install (see above).
+```
+rm -R $HOME/.terra
+```
+ 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
 
