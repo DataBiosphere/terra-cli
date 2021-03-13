@@ -55,7 +55,7 @@ echo "-- Publishing the Docker image"
 ./tools/publish-docker.sh stable "terra-cli/$releaseVersion" forRelease
 
 echo "-- Building the distribution archive"
-./gradlew clean distTar
+./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
 mv $distributionArchivePath build/distributions/terra-cli.tar
 distributionArchivePath=$(ls build/distributions/*tar)

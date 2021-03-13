@@ -157,7 +157,21 @@ application {
 startScripts {
     // set the $APP_HOME path to $HOME/.terra
     doLast {
-        unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
-        windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
+        // add the -PforRelease flag to update the APP_HOME in preparation for install
+        // default is to not update APP_HOME, so that ./gradlew install still works for development
+        if(project.hasProperty("forRelease")) {
+            println("Updating APP_HOME")
+            unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
+            windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
+        } else {
+            println("Skipping APP_HOME update")
+        }
+    }
+}
+jar {
+    // set attributes in the JAR manifest file that we can access from the Java code
+    manifest {
+        attributes 'Implementation-Title': 'terra-cli',
+                   'Implementation-Version': archiveVersion // this matches the top-level version property
     }
 }

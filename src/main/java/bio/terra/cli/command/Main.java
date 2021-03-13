@@ -16,6 +16,7 @@ import picocli.CommandLine.ParseResult;
     name = "terra",
     subcommands = {
       Status.class,
+      Version.class,
       Auth.class,
       Server.class,
       Workspace.class,
