@@ -9,8 +9,10 @@
 echo "--  Checking if specific version requested"
 if [[ -z "${TERRA_CLI_VERSION}" ]]; then
   terraCliVersion="latest"
+  echo "No specific version requested, using: $terraCliVersion"
 else
   terraCliVersion=$TERRA_CLI_VERSION
+  echo "Specific version requested: $terraCliVersion"
 fi
 
 echo "--  Downloading latest release archive from GitHub"
