@@ -15,7 +15,7 @@ else
   echo "Specific version requested: $terraCliVersion"
 fi
 
-echo "--  Downloading latest release archive from GitHub"
+echo "--  Downloading release archive from GitHub"
 if [ "$terraCliVersion" == "latest" ]; then
   releaseTarUrl="https://github.com/DataBiosphere/terra-cli/releases/latest/download/terra-cli.tar"
 else

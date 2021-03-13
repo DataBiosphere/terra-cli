@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## This script sets up the machine for local development.
+## This script sets up the environment for local development.
 ## Dependencies: docker, chmod
 ## Usage: source tools/local-dev.sh
 

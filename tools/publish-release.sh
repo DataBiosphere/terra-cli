@@ -5,9 +5,9 @@
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.
 ## Dependencies: docker, gh, sed
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
-##         isPreRelease (arg, optional) 'true' for a pre-release (default), 'false' for a regular release
+##         isRegularRelease (arg, optional) 'false' for a pre-release (default), 'true' for a regular release
 ## Usage: ./publish-release.sh  0.0        --> publishes version 0.0 as a pre-release
-## Usage: ./publish-release.sh  0.0 false  --> publishes version 0.0 as a regular release
+## Usage: ./publish-release.sh  0.0 true   --> publishes version 0.0 as a regular release
 
 usage="Usage: tools/publish-release.sh [releaseVersion]"
 
@@ -16,9 +16,9 @@ if [ -z "$releaseVersion" ]; then
     echo $usage
     exit 1
 fi
-isPreRelease=$2
-if [ "$isPreRelease" != "false" ]; then
-  isPreRelease="true"
+isRegularRelease=$2
+if [ "$isRegularRelease" != "true" ]; then
+  isRegularRelease="false"
 fi
 
 echo "-- Checking if this version contains any uppercase letters"
@@ -57,15 +57,18 @@ echo "-- Publishing the Docker image"
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
+# don't include the version number in the archive file name, so that the install script doesn't need to know it
 mv $distributionArchivePath build/distributions/terra-cli.tar
 distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled
-if [ "$isPreRelease" == "true" ]; then
-  preReleaseFlag="--prerelease"
-else
+if [ "$isRegularRelease" == "true" ]; then
+  echo "Creating regular release"
   preReleaseFlag=""
+else
+  echo "Creating pre-release"
+  preReleaseFlag="--prerelease"
 fi
 gh release create $releaseTag $preReleaseFlag \
   --title "$releaseVersion" \

@@ -6,7 +6,8 @@
 ##         remoteImageName (arg, required) name of the image in GCR
 ##         localImageTag (arg, required) tag of the local image
 ##         localImageName (arg, optional) name of the local image, default is 'terra-cli/local'
-## Usage: ./tools/publish-docker.sh terra-cli/v0.0 stable
+## Usage: ./tools/publish-docker.sh test123 terra-cli/v0.0 test123ab
+##        ./tools/publish-docker.sh test123 terra-cli/v0.0 test123ab terracli/branchA
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 

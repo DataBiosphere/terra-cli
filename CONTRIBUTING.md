@@ -52,10 +52,10 @@ affect the "Latest release" tag.
     > gh auth login
     > ./tools/publish-release.sh test123
     ```
-    To publish a regular release, add `false` as a second argument.
+    To publish a regular release, add `true` as a second argument.
      ```
     > gh auth login
-    > ./tools/publish-release.sh test123 false
+    > ./tools/publish-release.sh test123 true
     ```
 
 Note that GitHub automatically attaches an archive of the source code to the release. If you have local changes that
