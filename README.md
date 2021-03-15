@@ -146,7 +146,7 @@ Each sub-group of commands is described in a sub-section below:
 - Groups
 - Spend
 
-#### Authentication 
+#### Authentication
 ```
 Usage: terra auth [COMMAND]
 Retrieve and manage user credentials.
