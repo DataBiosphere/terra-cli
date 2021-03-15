@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - main
+      - main, mm-PF-569-add-bumper-gha
   pull_request:
     branches: [ '**' ]
 jobs:
