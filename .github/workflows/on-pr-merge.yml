@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-
+  pull_request:
+    branches: [ '**' ]
 jobs:
   bump-version-publish-release:
     runs-on: ubuntu-latest
@@ -20,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCHES: main
           VERSION_FILE_PATH: build.gradle
-          VERSION_LINE_MATCH: ^version
+          VERSION_LINE_MATCH: "^version\ "
       - name: Publish a release
         run: |
           echo "TODO (PF-570): ./tools/publish-release.sh $RELEASE_VERSION true"
