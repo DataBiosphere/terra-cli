@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout current code
+      - name: checkout_code
         uses: actions/checkout@v2
         with:
           ref: mm-PF-569-debug-bumper-gha
-      - name: Bump tag and build version
+      - name: bump_tag
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
@@ -22,9 +22,9 @@ jobs:
           RELEASE_BRANCHES: mm-PF-569-debug-bumper-gha
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
-      - name: Publish a release
+      - name: publish_release
         run: |
           echo "TODO (PF-570): ./tools/publish-release.sh $RELEASE_VERSION true"
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ steps.tag.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}
