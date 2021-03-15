@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - main
+      - mm-PF-569-debug-bumper-gha
 
 jobs:
   bump-version-publish-release:
@@ -13,13 +13,13 @@ jobs:
       - name: Checkout current code
         uses: actions/checkout@v2
         with:
-          ref: main
+          ref: mm-PF-569-debug-bumper-gha
       - name: Bump tag and build version
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           DEFAULT_BUMP: minor
-          RELEASE_BRANCHES: main
+          RELEASE_BRANCHES: mm-PF-569-debug-bumper-gha
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
       - name: Publish a release
