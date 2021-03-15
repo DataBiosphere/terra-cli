@@ -17,7 +17,7 @@ jobs:
       - name: Bump tag and build version
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           RELEASE_BRANCHES: main
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
