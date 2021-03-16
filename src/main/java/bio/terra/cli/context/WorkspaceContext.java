@@ -116,9 +116,9 @@ public class WorkspaceContext {
    */
   @JsonIgnore
   public String getGoogleProject() {
-    return terraWorkspaceModel == null || terraWorkspaceModel.getGoogleContext() == null
+    return terraWorkspaceModel == null || terraWorkspaceModel.getGcpContext() == null
         ? null
-        : terraWorkspaceModel.getGoogleContext().getProjectId();
+        : terraWorkspaceModel.getGcpContext().getProjectId();
   }
 
   /** Utility method to test whether a workspace is set in the current context. */
