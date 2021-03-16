@@ -38,6 +38,9 @@ curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/down
 ./terra
 ```
 
+This will install the Terra CLI in the current directory. Afterwards, you may want to add it to your `$PATH` directly
+or move it to a place that is already on your `$PATH` (e.g. `/usr/local/bin`).
+
 #### Manual install
 A Terra CLI release includes a GitHub release of the `terra-cli` repository and a corresponding Docker image in GCR.
 `download-install.sh` is a convenience script that downloads the latest (or specific version) of the install package,
@@ -52,7 +55,11 @@ You can also skip the `download-install.sh` script and install manually.
 #### Requirements
 1. Java 11
 2. Docker 20.10.2 (Must be running)
-3. `curl`, `tar` (For install only)
+3. `curl`, `tar`, `gcloud` (For install only)
+
+Note: The CLI doesn't use `gcloud` directly either during install or normal operation.
+However, `docker pull` [may use](https://cloud.google.com/container-registry/docs/quickstart#auth) `gcloud` under the 
+covers to pull the default Docker image from GCR. This is the reason for the `gcloud` requirement for install.
 
 #### Login
 1. Use a Google account that is not a Google/Verily corporate account.

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## This script installs the Terra CLI from an unarchived release directory.
-## Dependencies: docker
+## Dependencies: docker, gcloud
 ## Usage: ./install.sh
 
 echo "--  Checking that script is being run from the same directory"

@@ -75,6 +75,8 @@ This is convenience script that:
 It is published as a separate file in each GitHub release.
 The intent is to have a one-line install command  `curl -L download-install.sh | bash`.
 
+Note that this installs the CLI in the current directory. Afterwards, the user can optionally add it to their `$PATH`.
+
 ##### `install.sh`
 This is an installer script that:
 - Moves all the JARs to `$HOME/.terra/lib`

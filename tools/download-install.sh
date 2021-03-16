@@ -16,10 +16,12 @@ else
 fi
 
 echo "--  Downloading release archive from GitHub"
+ghRepoReleasesUrl="https://github.com/DataBiosphere/terra-cli/releases"
+installPackageFileName="terra-cli.tar"
 if [ "$terraCliVersion" == "latest" ]; then
-  releaseTarUrl="https://github.com/DataBiosphere/terra-cli/releases/latest/download/terra-cli.tar"
+  releaseTarUrl="$ghRepoReleasesUrl/latest/download/$installPackageFileName"
 else
-  releaseTarUrl="https://github.com/DataBiosphere/terra-cli/releases/download/$terraCliVersion/terra-cli.tar"
+  releaseTarUrl="$ghRepoReleasesUrl/download/$terraCliVersion/$installPackageFileName"
 fi
 archiveFileName="terra-cli.tar"
 curl -L $releaseTarUrl > $archiveFileName
@@ -29,17 +31,17 @@ if [ ! -f "${archiveFileName}" ]; then
 fi
 
 echo "--  Unarchiving release"
-scratchInstallDir=$PWD/terra-cli
-mkdir -p $scratchInstallDir
-tar -C $scratchInstallDir --strip-components=1 -xf $archiveFileName
-if [ ! -f "$scratchInstallDir/install.sh" ]; then
+archiveDir=$PWD/terra-cli
+mkdir -p $archiveDir
+tar -C $archiveDir --strip-components=1 -xf $archiveFileName
+if [ ! -f "$archiveDir/install.sh" ]; then
     echo "Error unarchiving release: ${archiveFileName}"
     exit 1
 fi
 
 echo "--  Running the install script inside the release directory"
 currentDir=$PWD
-cd $scratchInstallDir
+cd $archiveDir
 ./install.sh
 cd $currentDir
 
