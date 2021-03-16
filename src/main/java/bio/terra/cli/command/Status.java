@@ -14,7 +14,7 @@ public class Status implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(Status.class);
 
   @Override
-  public Integer call() throws FileAlreadyExistsException {
+  public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 
