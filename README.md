@@ -1,12 +1,13 @@
 # terra-cli
 
-1. [Setup and run](#setup-and-run)
-2. [Requirements](#requirements)
+1. [Install and run](#install-and-run)
+    * [Requirements](#requirements)
     * [Login](#login)
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
-3. [Example usage](#example-usage)
-4. [Commands description](#commands-description)
+    * [Troubleshooting](#troubleshooting)
+2. [Example usage](#example-usage)
+3. [Commands description](#commands-description)
     * [Authentication](#authentication)
     * [Server](#server)
     * [Workspace](#workspace)
@@ -16,24 +17,49 @@
     * [Notebooks](#notebooks)
     * [Groups](#groups)
     * [Spend](#spend)
-5. [Workspace context for applications](#workspace-context-for-applications)
+4. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
     * [See all environment variables](#see-all-environment-variables)
-6. [Troubleshooting](#troubleshooting)
 
 -----
 
-### Setup and run
-From the top-level directory.
+### Install and run
+To install the latest version:
 ```
-source tools/local-dev.sh
-terra
+curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+./terra
 ```
 
-### Requirements
+To install a specific version:
+```
+export TERRA_CLI_VERSION=0.2
+curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+./terra
+```
+
+This will install the Terra CLI in the current directory. Afterwards, you may want to add it to your `$PATH` directly
+or move it to a place that is already on your `$PATH` (e.g. `/usr/local/bin`).
+
+#### Manual install
+A Terra CLI release includes a GitHub release of the `terra-cli` repository and a corresponding Docker image in GCR.
+`download-install.sh` is a convenience script that downloads the latest (or specific version) of the install package,
+unarchives it, runs the `install.sh` script included inside, and then deletes the install package.
+
+You can also skip the `download-install.sh` script and install manually.
+- Download the `terra-cli.tar` install package directly from the 
+[GitHub releases page.](https://github.com/DataBiosphere/terra-cli/releases)
+- Unarchive the `tar` file.
+- Run the install script from the unarchived directory: `./install.sh`
+
+#### Requirements
 1. Java 11
 2. Docker 20.10.2 (Must be running)
+3. `curl`, `tar`, `gcloud` (For install only)
+
+Note: The CLI doesn't use `gcloud` directly either during install or normal operation.
+However, `docker pull` [may use](https://cloud.google.com/container-registry/docs/quickstart#auth) `gcloud` under the 
+covers to pull the default Docker image from GCR. This is the reason for the `gcloud` requirement for install.
 
 #### Login
 1. Use a Google account that is not a Google/Verily corporate account.
@@ -64,6 +90,20 @@ user `policy=owner` instead.
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
 external to the Terra workspace, you need to give the user's pet service account the appropriate
 access. To get the email of the user's pet service account, run `terra gcloud config get-value account`.
+
+#### Troubleshooting
+- Clear the global context file and all credentials. This will then require you to login again.
+```
+cd $HOME/.terra
+rm global-context.json
+rm StoredCredential
+rm -R pet-keys
+```
+- Clear the entire global context, which includes the context file, all credentials, and all JARs.
+This will then require a re-install (see above).
+```
+rm -R $HOME/.terra
+```
 
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
@@ -122,6 +162,7 @@ Usage: terra [COMMAND]
 Terra CLI
 Commands:
   status     Print details about the current workspace.
+  version    Get the installed version.
   auth       Retrieve and manage user credentials.
   server     Connect to a Terra server.
   workspace  Setup a Terra workspace.
@@ -134,6 +175,8 @@ Commands:
 ```
 
 The `status` command prints details about the current workspace and server.
+
+The `version` command prints the installed version string.
 
 Each sub-group of commands is described in a sub-section below:
 - Authentication
@@ -402,7 +445,3 @@ are run.
 
 The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
 container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
-
-### Troubleshooting
-- Wipe the global context directory. `rm -R $HOME/.terra`.
-- Re-run the setup script. `source tools/local-dev.sh`.

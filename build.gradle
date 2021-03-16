@@ -19,11 +19,10 @@ if (hasProperty('buildScan')) {
     }
 }
 
-group 'terra-cli'
-version '0.1'
+// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
+version = '0.7.0'
+group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
-
-mainClassName = 'bio.terra.cli.command.Main'
 
 repositories {
     mavenCentral()
@@ -137,21 +136,46 @@ spotbugsTest {
     }
 }
 
-// task: pull default image
-task pullDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'docker', 'pull', dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName + ':' + dockerImageTag
+// plugin: distribution
+distributions {
+    main {
+        distributionBaseName = 'terra-cli'
+        // configure what to include in the release archive
+        contents {
+            from 'tools/install.sh'
+            from 'README.md'
+        }
+    }
 }
 
-// task: build image
-task buildDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'sh', 'tools/build-docker.sh', dockerLocalImageName
+// plugin: application
+application {
+    mainClass = 'bio.terra.cli.command.Main'
+    applicationName = 'terra'
+    executableDir = 'bin'
+}
+startScripts {
+    // set the $APP_HOME path to $HOME/.terra
+    doLast {
+        // add the -PforRelease flag to update the APP_HOME in preparation for install
+        // default is to not update APP_HOME, so that ./gradlew install still works for development
+        if(project.hasProperty("forRelease")) {
+            println("Updating APP_HOME")
+            unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
+            windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
+        } else {
+            println("Skipping APP_HOME update")
+        }
+    }
+}
+jar {
+    // set attributes in the JAR manifest file that we can access from the Java code
+    manifest {
+        attributes 'Implementation-Title': 'terra-cli',
+                   'Implementation-Version': archiveVersion // this matches the top-level version property
+    }
 }
 
-// task: publish image
-// expect caller to override the local tag property on the command line (-PdockerLocalImageTag=b5fdce0)
-task publishDockerImage(type: Exec) {
-    workingDir '.'
-    commandLine 'tools/publish-docker.sh', dockerLocalImageName, dockerLocalImageTag, dockerGcrHostname + '/' + dockerGcrProject + '/' + dockerImageName, dockerLocalImageTag
+task getBuildVersion {
+    println(version)
 }
