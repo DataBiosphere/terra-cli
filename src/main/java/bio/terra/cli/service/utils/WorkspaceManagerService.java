@@ -7,7 +7,7 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.CloudContext;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
@@ -130,7 +130,7 @@ public class WorkspaceManagerService {
       // create the Google project that backs the Terra workspace object
       UUID jobId = UUID.randomUUID();
       CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
-      cloudContextRequest.setCloudContext(CloudContext.GOOGLE);
+      cloudContextRequest.setCloudPlatform(CloudPlatform.GCP);
       cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
       workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
 
@@ -145,7 +145,8 @@ public class WorkspaceManagerService {
             numJobPollingTries,
             workspaceId,
             jobId);
-        cloudContextResult = workspaceApi.createCloudContextResult(workspaceId, jobId.toString());
+        cloudContextResult =
+            workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString());
         jobReportStatus = cloudContextResult.getJobReport().getStatus();
         logger.debug("Create workspace cloudContextResult: {}", cloudContextResult);
         numJobPollingTries++;
@@ -182,10 +183,10 @@ public class WorkspaceManagerService {
       // fetch the Terra workspace object
       WorkspaceDescription workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
       String googleProjectId =
-          (workspaceWithContext.getGoogleContext() == null)
+          (workspaceWithContext.getGcpContext() == null)
               ? null
-              : workspaceWithContext.getGoogleContext().getProjectId();
-      logger.debug(
+              : workspaceWithContext.getGcpContext().getProjectId();
+      logger.info(
           "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
       return workspaceWithContext;
     } catch (ApiException ex) {
