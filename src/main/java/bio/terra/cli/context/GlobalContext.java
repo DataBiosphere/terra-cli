@@ -1,10 +1,11 @@
 package bio.terra.cli.context;
 
+import static bio.terra.cli.context.utils.Logger.LogLevel;
+
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
-import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,13 +38,14 @@ public class GlobalContext {
 
   // TODO (PF-542): add a config command to allow modifying these levels without re-compiling
   // global logging context = log levels for file and stdout
-  public Level fileLoggingLevel = Level.DEBUG;
-  public Level consoleLoggingLevel = Level.OFF;
+  public LogLevel fileLoggingLevel = LogLevel.INFO;
+  public LogLevel consoleLoggingLevel = LogLevel.OFF;
 
   // file paths related to persisting the global context on disk
   private static final String GLOBAL_CONTEXT_DIRNAME = ".terra";
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
   private static final String PET_KEYS_DIRNAME = "pet-keys";
+  private static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
   // defaut constructor needed for Jackson de/serialization
@@ -61,6 +63,10 @@ public class GlobalContext {
   /**
    * Read in an instance of this class from a JSON-formatted file in the global context directory.
    * If there is no existing file, this method returns an object populated with default values.
+   *
+   * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
+   * the logging levels specified in the global context, the loggers have not been setup when we
+   * first call this function.
    *
    * @return an instance of this class
    */
@@ -170,9 +176,10 @@ public class GlobalContext {
   //   - global context directory parent: $HOME/
   //       - global context directory: .terra/
   //           - persisted global context file: global-context.json
-  //           - global log file: terra.log
   //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
   //               - pet SA key filename: [workspace id]
+  //           - sub-directory for log files: logs/
+  //               -*.terra.log
 
   /**
    * Get the global context directory.
@@ -228,6 +235,6 @@ public class GlobalContext {
    */
   @JsonIgnore
   public static Path getLogFile() {
-    return getGlobalContextDir().resolve(LOG_FILENAME);
+    return getGlobalContextDir().resolve(LOGS_DIRNAME).resolve(LOG_FILENAME);
   }
 }

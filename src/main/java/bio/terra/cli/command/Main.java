@@ -100,22 +100,19 @@ class Main implements Runnable {
       String errorMessage;
       boolean printPointerToLogFile;
       if (ex instanceof UserFacingException) {
-        errorMessage = "[ERROR] " + ex.getMessage();
+        errorMessage = ex.getMessage();
         printPointerToLogFile = false;
       } else if (ex instanceof InternalErrorException) {
         errorMessage =
-            "[ERROR] "
-                + ex.getMessage()
-                + ": "
-                + (ex.getCause() != null ? ex.getCause().getMessage() : "");
+            ex.getMessage() + (ex.getCause() != null ? ": " + ex.getCause().getMessage() : "");
         printPointerToLogFile = true;
       } else {
-        errorMessage = "[ERROR] " + ex.getClass().getCanonicalName() + ": " + ex.getMessage();
+        errorMessage = ex.getClass().getCanonicalName() + ": " + ex.getMessage();
         printPointerToLogFile = true;
       }
 
       // print the error for the user
-      printErrorText(commandLine.getErr(), errorMessage);
+      printErrorText(commandLine.getErr(), "[ERROR] " + errorMessage);
       if (printPointerToLogFile) {
         printErrorText(commandLine.getErr(), "See $HOME/.terra/terra.log for more information");
       }

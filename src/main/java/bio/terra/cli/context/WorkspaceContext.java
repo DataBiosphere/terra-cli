@@ -216,7 +216,8 @@ public class WorkspaceContext {
   @SuppressFBWarnings(
       value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
       justification =
-          "An NPE would only happen here if there was an error getting the workspace context file, and an exception would be thrown in that method instead.")
+          "An NPE would only happen here if there was an error getting the workspace context file, "
+              + "and an exception would be thrown in that method instead.")
   @JsonIgnore
   public static Path getWorkspaceDir() {
     return getWorkspaceContextFile().getParent().getParent();
