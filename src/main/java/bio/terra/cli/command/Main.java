@@ -100,17 +100,17 @@ class Main implements Runnable {
       String errorMessage;
       boolean printPointerToLogFile;
       if (ex instanceof UserFacingException) {
-        errorMessage = "ERROR: " + ex.getMessage();
+        errorMessage = "[ERROR] " + ex.getMessage();
         printPointerToLogFile = false;
       } else if (ex instanceof InternalErrorException) {
         errorMessage =
-            "ERROR: "
+            "[ERROR] "
                 + ex.getMessage()
                 + ": "
                 + (ex.getCause() != null ? ex.getCause().getMessage() : "");
         printPointerToLogFile = true;
       } else {
-        errorMessage = "ERROR " + ex.getClass().getCanonicalName() + ": " + ex.getMessage();
+        errorMessage = "[ERROR] " + ex.getClass().getCanonicalName() + ": " + ex.getMessage();
         printPointerToLogFile = true;
       }
 
