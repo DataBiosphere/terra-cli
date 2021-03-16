@@ -33,7 +33,7 @@ curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/down
 
 To install a specific version:
 ```
-export TERRA_CLI_VERSION=0.2
+export TERRA_CLI_VERSION=0.7.0
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
 ./terra
 ```
