@@ -14,7 +14,7 @@ public class GetImage implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
 
-    System.out.println("Docker image: " + globalContext.dockerImageId);
+    System.out.println(globalContext.dockerImageId);
 
     return 0;
   }
