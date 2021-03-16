@@ -1,5 +1,6 @@
 package bio.terra.cli.auth;
 
+import bio.terra.cli.command.exception.InternalErrorException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
@@ -84,7 +85,7 @@ public class AuthenticationManager {
               globalContext.getGlobalContextDir().toFile(),
               globalContext.launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
-      throw new RuntimeException("Error fetching user credentials.", ex);
+      throw new InternalErrorException("Error fetching user credentials.", ex);
     }
     terraUser.userCredentials = userCredentials;
 
@@ -126,7 +127,7 @@ public class AuthenticationManager {
       // delete the pet SA credentials
       deletePetSaCredentials(currentTerraUser);
     } catch (IOException | GeneralSecurityException ex) {
-      throw new RuntimeException("Error deleting credentials.", ex);
+      throw new InternalErrorException("Error deleting credentials.", ex);
     }
   }
 
@@ -138,7 +139,7 @@ public class AuthenticationManager {
   public void populateCurrentTerraUser() {
     Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
     if (!currentTerraUserOpt.isPresent()) {
-      logger.info("There is no current Terra user defined in the global context.");
+      logger.debug("There is no current Terra user defined in the global context.");
       return;
     }
     TerraUser currentTerraUser = currentTerraUserOpt.get();
@@ -161,7 +162,7 @@ public class AuthenticationManager {
         return;
       }
     } catch (IOException | GeneralSecurityException ex) {
-      throw new RuntimeException("Error fetching user credentials.", ex);
+      throw new InternalErrorException("Error fetching user credentials.", ex);
     }
     currentTerraUser.userCredentials = userCredentials;
 
@@ -187,22 +188,22 @@ public class AuthenticationManager {
   public void fetchPetSaCredentials(TerraUser terraUser) {
     // if the current workspace is not defined, then we don't know which pet SA to fetch
     if (workspaceContext.isEmpty()) {
-      logger.info("There is no current workspace defined.");
+      logger.debug("There is no current workspace defined.");
       return;
     }
 
     // if the key file for this user + workspace already exists, then no need to re-fetch
     Path jsonKeyPath = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext);
-    logger.info("Looking for pet SA key file at: {}", jsonKeyPath);
+    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
     if (jsonKeyPath.toFile().exists()) {
-      logger.info("Pet SA key file for this user and workspace already exists.");
+      logger.debug("Pet SA key file for this user and workspace already exists.");
     } else {
       // ask SAM for the project-specific pet SA key
       HttpUtils.HttpResponse petSaKeySamResponse =
           new SamService(globalContext.server, terraUser).getPetSaKeyForProject(workspaceContext);
       if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
-        logger.info("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
-        throw new RuntimeException(
+        logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
+        throw new InternalErrorException(
             "Error fetching pet SA key from SAM (status code = "
                 + petSaKeySamResponse.statusCode
                 + ").");
@@ -213,9 +214,9 @@ public class AuthenticationManager {
             FileUtils.writeStringToFile(
                 GlobalContext.getPetSaKeyFile(terraUser, workspaceContext).toFile(),
                 petSaKeySamResponse.responseBody);
-        logger.info("Stored pet SA key file for this user and workspace.");
+        logger.debug("Stored pet SA key file for this user and workspace.");
       } catch (IOException ioEx) {
-        throw new RuntimeException(
+        throw new InternalErrorException(
             "Error writing pet SA key to the global context directory.", ioEx);
       }
     }
@@ -226,7 +227,7 @@ public class AuthenticationManager {
           GoogleCredentialUtils.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
       terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {
-      throw new RuntimeException(
+      throw new InternalErrorException(
           "Error reading pet SA credentials from the global context directory.", ioEx);
     }
   }
@@ -240,7 +241,7 @@ public class AuthenticationManager {
     if (keyFiles != null) {
       for (File keyFile : keyFiles) {
         if (!keyFile.delete() && keyFile.exists()) {
-          throw new RuntimeException(
+          throw new InternalErrorException(
               "Failed to delete pet SA key file: " + keyFile.getAbsolutePath());
         }
       }
@@ -248,7 +249,7 @@ public class AuthenticationManager {
 
     // delete the key file directory
     if (!jsonKeysDir.delete() && jsonKeysDir.exists()) {
-      throw new RuntimeException(
+      throw new InternalErrorException(
           "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
     }
   }

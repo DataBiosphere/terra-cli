@@ -1,6 +1,7 @@
 package bio.terra.cli.context;
 
 import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
 import ch.qos.logback.classic.Level;
@@ -68,7 +69,7 @@ public class GlobalContext {
     try {
       return FileUtils.readFileIntoJavaObject(getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
-      logger.warn("Global context file not found or error reading it.", ioEx);
+      logger.debug("Global context file not found or error reading it.", ioEx);
     }
 
     // if the global context file does not exist or there is an error reading it, return an object
@@ -101,7 +102,7 @@ public class GlobalContext {
   public TerraUser requireCurrentTerraUser() {
     Optional<TerraUser> terraUserOpt = getCurrentTerraUser();
     if (!terraUserOpt.isPresent()) {
-      throw new RuntimeException("The current Terra user is not defined. Login required.");
+      throw new UserFacingException("The current Terra user is not defined. Login required.");
     }
     return terraUserOpt.get();
   }
@@ -133,7 +134,7 @@ public class GlobalContext {
 
   /** Setter for the browser launch flag. Persists on disk. */
   public void updateBrowserLaunchFlag(boolean launchBrowserAutomatically) {
-    logger.debug(
+    logger.info(
         "Updating browser launch flag from {} to {}.",
         this.launchBrowserAutomatically,
         launchBrowserAutomatically);
@@ -147,7 +148,7 @@ public class GlobalContext {
 
   /** Setter for the current Terra server. Persists on disk. */
   public void updateServer(ServerSpecification server) {
-    logger.debug("Updating server from {} to {}.", this.server.name, server.name);
+    logger.info("Updating server from {} to {}.", this.server.name, server.name);
     this.server = server;
 
     writeToFile();
@@ -158,7 +159,7 @@ public class GlobalContext {
 
   /** Setter for the Docker image id. Persists on disk. */
   public void updateDockerImageId(String dockerImageId) {
-    logger.debug("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
+    logger.info("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
     this.dockerImageId = dockerImageId;
 
     writeToFile();

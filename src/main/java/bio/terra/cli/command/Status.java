@@ -2,6 +2,7 @@ package bio.terra.cli.command;
 
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ public class Status implements Callable<Integer> {
   private static final Logger logger = LoggerFactory.getLogger(Status.class);
 
   @Override
-  public Integer call() {
+  public Integer call() throws FileAlreadyExistsException {
     GlobalContext globalContext = GlobalContext.readFromFile();
     WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
 

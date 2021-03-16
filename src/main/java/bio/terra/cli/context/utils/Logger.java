@@ -20,7 +20,7 @@ public class Logger {
   private final GlobalContext globalContext;
 
   /**
-   * Constructor for class that setups up logging.
+   * Constructor for class that sets up logging.
    *
    * @param globalContext the global context object
    */

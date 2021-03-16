@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.command.exception.InternalErrorException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.utils.FileUtils;
@@ -52,7 +53,8 @@ public class ServerManager {
       }
     } catch (IOException ioEx) {
     }
-    throw new RuntimeException("Error reading in server specification file (" + serverName + ").");
+    throw new InternalErrorException(
+        "Error reading in server specification file (" + serverName + ").");
   }
 
   /**
@@ -102,7 +104,7 @@ public class ServerManager {
     try {
       return ServerSpecification.fromJSONFile(DEFAULT_SERVER_FILENAME);
     } catch (IOException ioEx) {
-      throw new RuntimeException(
+      throw new InternalErrorException(
           "Error reading in default server file. (" + DEFAULT_SERVER_FILENAME + ")", ioEx);
     }
   }
@@ -128,7 +130,7 @@ public class ServerManager {
       }
       return servers;
     } catch (IOException ioEx) {
-      throw new RuntimeException("Error reading in all possible servers.", ioEx);
+      throw new InternalErrorException("Error reading in all possible servers.", ioEx);
     }
   }
 }

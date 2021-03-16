@@ -1,5 +1,6 @@
 package bio.terra.cli.context;
 
+import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -55,7 +56,7 @@ public class WorkspaceContext {
       return FileUtils.readFileIntoJavaObject(
           getWorkspaceContextFile().toFile(), WorkspaceContext.class);
     } catch (IOException ioEx) {
-      logger.warn("Workspace context file not found or error reading it.", ioEx);
+      logger.debug("Workspace context file not found or error reading it.", ioEx);
     }
 
     // if the workspace context file does not exist or there is an error reading it, return an
@@ -83,8 +84,7 @@ public class WorkspaceContext {
    * @param terraWorkspaceModel the workspace description object
    */
   public void updateWorkspace(WorkspaceDescription terraWorkspaceModel) {
-    logger.debug(
-        "Updating workspace from {} to {}.", getWorkspaceId(), terraWorkspaceModel.getId());
+    logger.info("Updating workspace from {} to {}.", getWorkspaceId(), terraWorkspaceModel.getId());
     this.terraWorkspaceModel = terraWorkspaceModel;
 
     writeToFile();
@@ -92,7 +92,7 @@ public class WorkspaceContext {
 
   /** Delete the current Terra workspace context. Persists on disk. */
   public void deleteWorkspace() {
-    logger.debug("Deleting workspace {}", getWorkspaceId());
+    logger.info("Deleting workspace {}", getWorkspaceId());
     this.terraWorkspaceModel = null;
     this.cloudResources = null;
 
@@ -132,7 +132,8 @@ public class WorkspaceContext {
    */
   public void requireCurrentWorkspace() {
     if (isEmpty()) {
-      throw new RuntimeException("There is no Terra workspace mounted to the current directory.");
+      throw new UserFacingException(
+          "There is no Terra workspace mounted to the current directory.");
     }
   }
 

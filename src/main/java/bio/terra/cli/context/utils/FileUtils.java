@@ -56,7 +56,7 @@ public class FileUtils {
     // create the file and any parent directories if they don't already exist
     createFile(outputFile);
 
-    logger.info("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
+    logger.debug("Serializing object with Jackson to file: {}", outputFile.getAbsolutePath());
     objectWriter.writeValue(outputFile, javaObject);
   }
 
@@ -72,7 +72,7 @@ public class FileUtils {
       justification =
           "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
   public static Path writeStringToFile(File outputFile, String fileContents) throws IOException {
-    logger.info("Writing to file: {}", outputFile.getAbsolutePath());
+    logger.debug("Writing to file: {}", outputFile.getAbsolutePath());
 
     // create the file and any parent directories if they don't already exist
     createFile(outputFile);

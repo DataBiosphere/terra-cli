@@ -4,6 +4,8 @@ import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
 import bio.terra.cli.command.app.passthrough.Gsutil;
 import bio.terra.cli.command.app.passthrough.Nextflow;
+import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +45,8 @@ class Main implements Runnable {
    * @param args from stdin
    */
   public static void main(String... args) {
-    // TODO (PF-446): move this to a common base class so we only read the global context file once
+    // TODO (PF-446): Can we move this to a common base class so we only read the global context
+    // file once?
     GlobalContext globalContext = GlobalContext.readFromFile();
     new Logger(globalContext).setupLogging();
 
@@ -67,8 +70,19 @@ class Main implements Runnable {
   public void run() {}
 
   /**
-   * Custom exception handler class that suppresses the stack trace when an exception is thrown.
-   * Instead, it just prints the exception message and exits the process.
+   * Custom handler class that intercepts all exceptions.
+   *
+   * <p>There are three categories of exceptions, each handled slightly differently:
+   *
+   * <p>- User-facing = user can fix (message to stdout, log)
+   *
+   * <p>- Internal = user cannot fix, exception specifically thrown by CLI code (message to stderr,
+   * log)
+   *
+   * <p>- Unexpected = user cannot fix, exception not thrown by CLI code (message to stderr, log)
+   *
+   * <p>The internal and unexpected cases are very similar, except that the message on the internal
+   * exception might be more readable/relevant.
    */
   private static class UserFacingExceptionHandler
       implements CommandLine.IExecutionExceptionHandler {
@@ -76,20 +90,46 @@ class Main implements Runnable {
     private static final org.slf4j.Logger logger =
         LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 
+    private CommandLine commandLine;
+
+    @Override
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-      if (ex instanceof RuntimeException) {
-        // print the message, log the stacktrace
-        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-        logger.info("user error " + ex.getClass());
+      this.commandLine = cmd;
+
+      if (ex instanceof UserFacingException) {
+        printErrorStdout("ERROR: " + ex.getMessage());
+        logger.error("User Error", ex);
+      } else if (ex instanceof InternalErrorException) {
+        printErrorStderr("ERROR: " + ex.getMessage());
+        printErrorStderr("See $HOME/.terra/terra.log for more information");
+        logger.error("Internal Error", ex);
       } else {
-        // print generic message, log the stacktrace
-        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-        logger.error("internal error " + ex.getClass());
+        printErrorStderr("ERROR " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+        printErrorStderr("See $HOME/.terra/terra.log for more information");
+        logger.error("Unexpected Error", ex);
       }
 
       return cmd.getExitCodeExceptionMapper() != null
           ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
           : cmd.getCommandSpec().exitCodeOnExecutionException();
+    }
+
+    /**
+     * Helper method to print a message to stdout, in red text.
+     *
+     * @param message string to print
+     */
+    private void printErrorStdout(String message) {
+      commandLine.getOut().println(commandLine.getColorScheme().errorText(message));
+    }
+
+    /**
+     * Helper method to print a message to stderr, in red text.
+     *
+     * @param message string to print
+     */
+    private void printErrorStderr(String message) {
+      commandLine.getErr().println(commandLine.getColorScheme().errorText(message));
     }
   }
 }
