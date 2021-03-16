@@ -75,7 +75,6 @@ public class GlobalContext {
     try {
       return FileUtils.readFileIntoJavaObject(getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
-      logger.debug("Global context file not found or error reading it.", ioEx);
     }
 
     // if the global context file does not exist or there is an error reading it, return an object

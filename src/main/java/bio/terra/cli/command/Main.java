@@ -8,7 +8,6 @@ import bio.terra.cli.command.exception.InternalErrorException;
 import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
-import java.io.PrintWriter;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -38,6 +37,7 @@ import picocli.CommandLine.ParseResult;
     },
     description = "Terra CLI")
 class Main implements Runnable {
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
 
   /**
    * Main entry point into the CLI application. For picocli, this creates and executes the top-level
@@ -88,15 +88,8 @@ class Main implements Runnable {
   private static class UserFacingExceptionHandler
       implements CommandLine.IExecutionExceptionHandler {
 
-    private static final org.slf4j.Logger logger =
-        LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-
-    private CommandLine commandLine;
-
     @Override
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-      this.commandLine = cmd;
-
       String errorMessage;
       boolean printPointerToLogFile;
       if (ex instanceof UserFacingException) {
@@ -112,9 +105,9 @@ class Main implements Runnable {
       }
 
       // print the error for the user
-      printErrorText(commandLine.getErr(), "[ERROR] " + errorMessage);
+      printErrorText(cmd, "[ERROR] " + errorMessage);
       if (printPointerToLogFile) {
-        printErrorText(commandLine.getErr(), "See $HOME/.terra/terra.log for more information");
+        printErrorText(cmd, "See $HOME/.terra/terra.log for more information");
       }
 
       // log the exact message that was printed to the console, for easier debugging
@@ -131,8 +124,8 @@ class Main implements Runnable {
      *
      * @param message string to print
      */
-    private void printErrorText(PrintWriter printWriter, String message) {
-      printWriter.println(commandLine.getColorScheme().errorText(message));
+    private void printErrorText(CommandLine commandLine, String message) {
+      commandLine.getErr().println(commandLine.getColorScheme().errorText(message));
     }
   }
 }
