@@ -4,8 +4,12 @@
 ## Dependencies: docker
 ## Usage: ./install.sh
 
-## The script assumes that it is being run from the same directory (i.e. ./install.sh, not terra-0.1/install.sh)
+echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
+if [ ! -f "$archiveDir/install.sh" ]; then
+  echo "Script must be run from the same directory (i.e. ./install.sh, not terra-0.1.0/install.sh)"
+  exit 1
+fi
 
 echo "--  Checking for application directory"
 applicationDir="${HOME}/.terra"

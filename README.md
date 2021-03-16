@@ -97,7 +97,7 @@ This will then require a re-install (see above).
 ```
 rm -R $HOME/.terra
 ```
- 
+
 ### Example usage
 The commands below walk through a brief demo of the existing commands.
 

@@ -5,6 +5,10 @@
 ## Usage: source tools/local-dev.sh
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
 
 echo "Building Java code"
 ./gradlew clean install
@@ -15,7 +19,7 @@ alias terra=$(pwd)/build/install/terra-cli/bin/terra
 echo "Setting the Docker image id to the default"
 terra app set-image --default
 
-echo "Pulling the default Docker image from GCR"
+echo "Pulling the default Docker image"
 defaultDockerImage=$(terra app get-image)
 docker pull $defaultDockerImage
 

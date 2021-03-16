@@ -3,13 +3,13 @@
 ## This script downloads a release archive of the Terra CLI and calls its install script.
 ## Dependencies: curl, tar
 ## Inputs: TERRA_CLI_VERSION (env var, optional) specific version requested, default is latest
-## Usage: ./download-install.sh        --> installs the latest version
-##        ./download-install.sh 0.1    --> installs version 0.1
+## Usage: ./download-install.sh          --> installs the latest version
+##        ./download-install.sh 0.1.0    --> installs version 0.1.0
 
 echo "--  Checking if specific version requested"
 if [[ -z "${TERRA_CLI_VERSION}" ]]; then
   terraCliVersion="latest"
-  echo "No specific version requested, using: $terraCliVersion"
+  echo "No specific version requested, using $terraCliVersion"
 else
   terraCliVersion=$TERRA_CLI_VERSION
   echo "Specific version requested: $terraCliVersion"

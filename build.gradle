@@ -19,8 +19,8 @@ if (hasProperty('buildScan')) {
     }
 }
 
-// The tools/publish-release.sh script depends on this version string being of the format "version = '123'"
-version = '0.4'
+// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
+version = '0.5.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -174,4 +174,8 @@ jar {
         attributes 'Implementation-Title': 'terra-cli',
                    'Implementation-Version': archiveVersion // this matches the top-level version property
     }
+}
+
+task getBuildVersion {
+    println(version)
 }

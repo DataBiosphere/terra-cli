@@ -10,8 +10,12 @@
 ##        ./tools/publish-docker.sh test123 terra-cli/v0.0 test123ab terracli/branchA
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
 
-usage="Usage: tools/publish-docker.sh [localImageName] [localImageTag] [remoteImageName] [remoteImageTag]"
+usage="Usage: tools/publish-docker.sh [remoteImageTag] [remoteImageName] [localImageTag] [localImageName]"
 
 # check required arguments
 remoteImageTag=$1

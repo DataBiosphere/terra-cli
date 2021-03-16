@@ -6,6 +6,10 @@
 ## Usage: ./tools/render-config.sh
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
 
 VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0

@@ -9,6 +9,10 @@
 ##        ./tools/build-docker.sh test123 terracli/branchA   --> builds local Docker image terracli/branchA:test123
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
 
 # generate a tag from the commit hash if no tag was provided
 localImageTag=$1

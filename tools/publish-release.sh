@@ -3,13 +3,21 @@
 ## This script builds a new GitHub release for the Terra CLI, and uploads a new Docker container.
 ## The GitHub release includes an install package and a download + install script.
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.
+## The release version number argument to this script must match the version number in the build.gradle
+# file (i.e. version = '0.0.0' line).
 ## Dependencies: docker, gh, sed
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
 ##         isRegularRelease (arg, optional) 'false' for a pre-release (default), 'true' for a regular release
-## Usage: ./publish-release.sh  0.0        --> publishes version 0.0 as a pre-release
-## Usage: ./publish-release.sh  0.0 true   --> publishes version 0.0 as a regular release
+## Usage: ./publish-release.sh  0.0.0        --> publishes version 0.0.0 as a pre-release
+## Usage: ./publish-release.sh  0.0.0 true   --> publishes version 0.0.0 as a regular release
 
-usage="Usage: tools/publish-release.sh [releaseVersion]"
+## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
+
+usage="Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
 
 releaseVersion=$1
 if [ -z "$releaseVersion" ]; then
@@ -21,7 +29,7 @@ if [ "$isRegularRelease" != "true" ]; then
   isRegularRelease="false"
 fi
 
-echo "-- Checking if this version contains any uppercase letters"
+echo "-- Validating version string"
 # Docker image name cannot contain any uppercase letters, so this would prevent using the same
 # version number for both the Java code and Docker image
 if [[ $releaseVersion =~ [A-Z] ]]; then
@@ -30,7 +38,7 @@ if [[ $releaseVersion =~ [A-Z] ]]; then
 fi
 
 echo "-- Checking if this version matches the value in build.gradle"
-buildGradleVersion=$(sed -n -e "/^version/ s/.*\= *\'\(.*\)\'/\1/p" build.gradle)
+buildGradleVersion=$(./gradlew getBuildVersion --quiet)
 if [ "$releaseVersion" != "$buildGradleVersion" ]; then
   echo "Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
