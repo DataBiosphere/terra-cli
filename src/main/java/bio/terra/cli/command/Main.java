@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.InternalErrorException;
 import bio.terra.cli.command.exception.UserFacingException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
+import java.io.PrintWriter;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -72,14 +73,14 @@ class Main implements Runnable {
   /**
    * Custom handler class that intercepts all exceptions.
    *
-   * <p>There are three categories of exceptions, each handled slightly differently:
+   * <p>There are three categories of exceptions. All print a message to stderr and log the
+   * exception.
    *
-   * <p>- User-facing = user can fix (message to stdout, log)
+   * <p>- User-facing = user can fix
    *
-   * <p>- Internal = user cannot fix, exception specifically thrown by CLI code (message to stderr,
-   * log)
+   * <p>- Internal = user cannot fix, exception specifically thrown by CLI code
    *
-   * <p>- Unexpected = user cannot fix, exception not thrown by CLI code (message to stderr, log)
+   * <p>- Unexpected = user cannot fix, exception not thrown by CLI code
    *
    * <p>The internal and unexpected cases are very similar, except that the message on the internal
    * exception might be more readable/relevant.
@@ -96,40 +97,45 @@ class Main implements Runnable {
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
       this.commandLine = cmd;
 
+      String errorMessage;
+      boolean printPointerToLogFile;
       if (ex instanceof UserFacingException) {
-        printErrorStdout("ERROR: " + ex.getMessage());
-        logger.error("User Error", ex);
+        errorMessage = "ERROR: " + ex.getMessage();
+        printPointerToLogFile = false;
       } else if (ex instanceof InternalErrorException) {
-        printErrorStderr("ERROR: " + ex.getMessage());
-        printErrorStderr("See $HOME/.terra/terra.log for more information");
-        logger.error("Internal Error", ex);
+        errorMessage =
+            "ERROR: "
+                + ex.getMessage()
+                + ": "
+                + (ex.getCause() != null ? ex.getCause().getMessage() : "");
+        printPointerToLogFile = true;
       } else {
-        printErrorStderr("ERROR " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
-        printErrorStderr("See $HOME/.terra/terra.log for more information");
-        logger.error("Unexpected Error", ex);
+        errorMessage = "ERROR " + ex.getClass().getCanonicalName() + ": " + ex.getMessage();
+        printPointerToLogFile = true;
       }
 
+      // print the error for the user
+      printErrorText(commandLine.getErr(), errorMessage);
+      if (printPointerToLogFile) {
+        printErrorText(commandLine.getErr(), "See $HOME/.terra/terra.log for more information");
+      }
+
+      // log the exact message that was printed to the console, for easier debugging
+      logger.error(errorMessage, ex);
+
+      // set the process return code
       return cmd.getExitCodeExceptionMapper() != null
           ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
           : cmd.getCommandSpec().exitCodeOnExecutionException();
     }
 
     /**
-     * Helper method to print a message to stdout, in red text.
+     * Helper method to print a message to stdout or stderr, in red text.
      *
      * @param message string to print
      */
-    private void printErrorStdout(String message) {
-      commandLine.getOut().println(commandLine.getColorScheme().errorText(message));
-    }
-
-    /**
-     * Helper method to print a message to stderr, in red text.
-     *
-     * @param message string to print
-     */
-    private void printErrorStderr(String message) {
-      commandLine.getErr().println(commandLine.getColorScheme().errorText(message));
+    private void printErrorText(PrintWriter printWriter, String message) {
+      printWriter.println(commandLine.getColorScheme().errorText(message));
     }
   }
 }

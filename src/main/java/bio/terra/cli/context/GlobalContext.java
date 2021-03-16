@@ -35,7 +35,7 @@ public class GlobalContext {
   // global apps context = docker image id or tag
   public String dockerImageId;
 
-  // TODO (PF-542): add a config command to allow modifying these levels with re-compiling
+  // TODO (PF-542): add a config command to allow modifying these levels without re-compiling
   // global logging context = log levels for file and stdout
   public Level fileLoggingLevel = Level.DEBUG;
   public Level consoleLoggingLevel = Level.OFF;
