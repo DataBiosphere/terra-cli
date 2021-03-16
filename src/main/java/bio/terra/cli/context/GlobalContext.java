@@ -3,6 +3,7 @@ package bio.terra.cli.context;
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
+import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,10 +34,16 @@ public class GlobalContext {
   // global apps context = docker image id or tag
   public String dockerImageId;
 
+  // TODO (PF-542): add a config command to allow modifying these levels with re-compiling
+  // global logging context = log levels for file and stdout
+  public Level fileLoggingLevel = Level.DEBUG;
+  public Level consoleLoggingLevel = Level.OFF;
+
   // file paths related to persisting the global context on disk
   private static final String GLOBAL_CONTEXT_DIRNAME = ".terra";
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
   private static final String PET_KEYS_DIRNAME = "pet-keys";
+  private static final String LOG_FILENAME = "terra.log";
 
   // defaut constructor needed for Jackson de/serialization
   private GlobalContext() {}
@@ -162,6 +169,7 @@ public class GlobalContext {
   //   - global context directory parent: $HOME/
   //       - global context directory: .terra/
   //           - persisted global context file: global-context.json
+  //           - global log file: terra.log
   //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
   //               - pet SA key filename: [workspace id]
 
@@ -210,5 +218,15 @@ public class GlobalContext {
   @JsonIgnore
   public static Path getPetSaKeyFile(TerraUser terraUser, WorkspaceContext workspaceContext) {
     return getPetSaKeyDir(terraUser).resolve(workspaceContext.getWorkspaceId().toString());
+  }
+
+  /**
+   * Get the global log file name.
+   *
+   * @return absolute path to the log file
+   */
+  @JsonIgnore
+  public static Path getLogFile() {
+    return getGlobalContextDir().resolve(LOG_FILENAME);
   }
 }
