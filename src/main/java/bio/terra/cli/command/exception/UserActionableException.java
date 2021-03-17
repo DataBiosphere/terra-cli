@@ -8,7 +8,7 @@ package bio.terra.cli.command.exception;
  *
  * <p>-NOT print information about the cause or point users to the log file for more information
  *
- * <p>-use a normal font when printing to the terminal (e.g. regular black text).
+ * <p>-use a less scary font when printing to the terminal (e.g. regular blue text).
  */
 public class UserActionableException extends RuntimeException {
   /**

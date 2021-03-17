@@ -27,7 +27,7 @@ public class Logger {
   private static final String LOG_FORMAT =
       "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n";
 
-  private static final long MAX_FILE_SIZE = 50 * FileSize.MB_COEFFICIENT; // 50 MB
+  private static final long MAX_FILE_SIZE = 5 * FileSize.MB_COEFFICIENT; // 5 MB
   private static final int MAX_NUM_FILES = 5;
 
   private final GlobalContext globalContext;
