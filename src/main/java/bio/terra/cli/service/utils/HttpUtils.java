@@ -1,5 +1,6 @@
 package bio.terra.cli.service.utils;
 
+import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -181,7 +182,7 @@ public class HttpUtils {
     } while (numTries <= maxRetries);
 
     // request with retries timed out
-    throw new RuntimeException(
+    throw new SystemException(
         "Http request with retries timed out after " + numTries + " tries.",
         lastRetryableException);
   }

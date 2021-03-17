@@ -1,5 +1,6 @@
 package bio.terra.cli.service.utils;
 
+import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
@@ -58,7 +59,7 @@ public class GoogleCloudStorage {
    * @return the bucket object
    */
   public Bucket createBucket(String bucketName) {
-    logger.info("creating bucket: {}", bucketName);
+    logger.info("Creating bucket: {}", bucketName);
 
     // TODO: optionally set lifecycle rules here
     BucketInfo bucketInfo = BucketInfo.newBuilder(bucketName).build();
@@ -71,12 +72,12 @@ public class GoogleCloudStorage {
    * @param bucketUri uri of the bucket (gs://...)
    */
   public void deleteBucket(String bucketUri) {
-    logger.info("deleting bucket: {}", bucketUri);
+    logger.info("Deleting bucket: {}", bucketUri);
     String bucketName = bucketUri.replaceFirst("^gs://", "");
 
     boolean deleted = storageClient.delete(bucketName);
     if (!deleted) {
-      throw new RuntimeException("Bucket deletion failed.");
+      throw new SystemException("Bucket deletion failed.");
     }
   }
 
@@ -100,7 +101,7 @@ public class GoogleCloudStorage {
           Storage.BlobListOption.fields());
       return true;
     } catch (StorageException storageEx) {
-      logger.error("storage exception http code = {}", storageEx.getCode(), storageEx);
+      logger.debug("Storage exception http code = {}", storageEx.getCode(), storageEx);
       if (storageEx.getCode() == HttpStatusCodes.STATUS_CODE_NOT_FOUND
           || storageEx.getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
         return false;

@@ -55,7 +55,7 @@ public class TerraUser {
     AccessToken accessToken = fetchUserAccessToken();
 
     // check if the token is expired
-    logger.info("Access token expiration date: {}", accessToken.getExpirationTime());
+    logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
     return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
   }
 

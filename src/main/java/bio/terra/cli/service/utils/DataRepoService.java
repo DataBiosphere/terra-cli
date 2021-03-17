@@ -1,5 +1,6 @@
 package bio.terra.cli.service.utils;
 
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.datarepo.api.UnauthenticatedApi;
@@ -70,7 +71,7 @@ public class DataRepoService {
     try {
       repositoryConfig = unauthenticatedApi.retrieveRepositoryConfig();
     } catch (ApiException ex) {
-      throw new RuntimeException("Error getting Data Repo version", ex);
+      throw new SystemException("Error getting Data Repo version", ex);
     }
     return repositoryConfig;
   }
@@ -85,7 +86,7 @@ public class DataRepoService {
     try {
       return unauthenticatedApi.serviceStatus();
     } catch (ApiException ex) {
-      throw new RuntimeException("Error getting Data Repo status", ex);
+      throw new SystemException("Error getting Data Repo status", ex);
     }
   }
 }
