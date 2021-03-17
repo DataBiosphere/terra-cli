@@ -101,7 +101,11 @@ class Main implements Runnable {
             ex.getMessage() + (ex.getCause() != null ? ": " + ex.getCause().getMessage() : "");
         printPointerToLogFile = true;
       } else {
-        errorMessage = ex.getClass().getCanonicalName() + ": " + ex.getMessage();
+        errorMessage =
+            "An unexpected error occurred in "
+                + ex.getClass().getCanonicalName()
+                + ": "
+                + ex.getMessage();
         printPointerToLogFile = true;
       }
 

@@ -75,6 +75,9 @@ public class GlobalContext {
     try {
       return FileUtils.readFileIntoJavaObject(getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
+      // file not found is a common error here (e.g. first time running the CLI, there will be no
+      // pre-existing global context file). we handle this by returning an object populated with
+      // default values below. so, no need to log or throw the exception returned here.
     }
 
     // if the global context file does not exist or there is an error reading it, return an object

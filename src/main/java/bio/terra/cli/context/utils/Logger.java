@@ -6,21 +6,23 @@ import bio.terra.cli.context.GlobalContext;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
-import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
-import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for logging. */
+/**
+ * Utility class to initialize and configure a Logback context and loggers for the main CLI app.
+ * Requires an already-loaded GlobalContext for defining logging output files and loading config
+ * properties.
+ */
 public class Logger {
   private static final String LOG_FORMAT =
       "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n";
@@ -143,15 +145,10 @@ public class Logger {
 
     // filter out any logs that are below the fileLoggingLevel specified in the global context
     appender.clearAllFilters();
-    appender.addFilter(
-        new Filter<ILoggingEvent>() {
-          @Override
-          public FilterReply decide(final ILoggingEvent event) {
-            return event.getLevel().isGreaterOrEqual(loggingLevel)
-                ? FilterReply.ACCEPT
-                : FilterReply.DENY;
-          }
-        });
+    ThresholdFilter thresholdFilter = new ThresholdFilter();
+    thresholdFilter.setLevel(loggingLevel.levelStr);
+    thresholdFilter.start();
+    appender.addFilter(thresholdFilter);
   }
 
   /**
@@ -161,6 +158,16 @@ public class Logger {
    * class. The rest of the codebase should use the SLF4J facade only, and not need to know about
    * the internals of the implementation. Importantly, the SLF4J facade does not include the OFF
    * level, but the implementation we use does.
+   *
+   * <p>Without this wrapper class, we'd leak logger implementation into:
+   *
+   * <p>- GlobalContext, including the serialized version persisted in a file.
+   * ch.qos.logback.classic.Level is an object, not a string, and we don't want this file to include
+   * logger implementation-specific object structure. That would make it harder to change later (i.e
+   * because if we replace the cho.qos library with another one, then we won't have the appropriate
+   * Level class any more to do the deserialization)
+   *
+   * <p>- Config command to set the log level(s), including displaying the possible values.
    */
   public enum LogLevel {
     OFF,

@@ -3,6 +3,9 @@ package bio.terra.cli.command.exception;
 /**
  * Custom exception class for user-facing exceptions. These represent errors that the user can fix.
  * (e.g. "Invalid bucket path" when creating a data reference).
+ *
+ * <p>In contrast to InternalErrorExceptions, throwing a UserFacingException will not print any
+ * information about the cause and will not point users to the log file for more information.
  */
 public class UserFacingException extends RuntimeException {
   /**

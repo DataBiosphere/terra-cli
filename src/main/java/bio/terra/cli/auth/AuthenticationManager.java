@@ -188,7 +188,8 @@ public class AuthenticationManager {
   public void fetchPetSaCredentials(TerraUser terraUser) {
     // if the current workspace is not defined, then we don't know which pet SA to fetch
     if (workspaceContext.isEmpty()) {
-      logger.debug("There is no current workspace defined.");
+      logger.debug(
+          "There is no current workspace defined. Skipping fetch of user's pet SA credentials.");
       return;
     }
 
