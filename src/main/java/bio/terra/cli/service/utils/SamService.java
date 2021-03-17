@@ -1,6 +1,6 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
@@ -87,7 +87,7 @@ public class SamService {
     try {
       return HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error getting SAM status.", ex);
+      throw new SystemException("Error getting SAM status.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -106,7 +106,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> samUsersApi.inviteUser(userEmail), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error inviting user in SAM.", ex);
+      throw new SystemException("Error inviting user in SAM.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -124,7 +124,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error reading user information from SAM.", ex);
+      throw new SystemException("Error reading user information from SAM.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -148,7 +148,7 @@ public class SamService {
     } catch (ApiException | InterruptedException ex) {
       if (!(ex instanceof ApiException)
           || (((ApiException) ex).getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND)) {
-        throw new InternalErrorException("Error reading user information from SAM.", ex);
+        throw new SystemException("Error reading user information from SAM.", ex);
       }
       logger.info("User not found in SAM. Trying to register a new user.");
 
@@ -163,7 +163,7 @@ public class SamService {
         return HttpUtils.callWithRetries(
             () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
       } catch (ApiException | InterruptedException secondEx) {
-        throw new InternalErrorException("Error reading user information from SAM.", secondEx);
+        throw new SystemException("Error reading user information from SAM.", secondEx);
       }
     } finally {
       closeConnectionPool();
@@ -182,7 +182,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> googleApi.getProxyGroup(terraUser.terraUserEmail), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error getting proxy group email from SAM.", ex);
+      throw new SystemException("Error getting proxy group email from SAM.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -203,7 +203,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error creating SAM group.", ex);
+      throw new SystemException("Error creating SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -224,7 +224,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error deleting SAM group.", ex);
+      throw new SystemException("Error deleting SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -241,7 +241,7 @@ public class SamService {
     try {
       return HttpUtils.callWithRetries(() -> groupApi.getGroup(groupName), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error getting email address of SAM group.", ex);
+      throw new SystemException("Error getting email address of SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -274,7 +274,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> groupApi.getGroupAdminEmails(groupName, policy.name()), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error listing users in SAM group.", ex);
+      throw new SystemException("Error listing users in SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -298,7 +298,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error adding user to SAM group.", ex);
+      throw new SystemException("Error adding user to SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -322,7 +322,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error removing user from SAM group.", ex);
+      throw new SystemException("Error removing user from SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -339,7 +339,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> groupApi.listGroupMemberships(), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error listing users in SAM group.", ex);
+      throw new SystemException("Error listing users in SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -366,7 +366,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error adding user to SAM resource.", ex);
+      throw new SystemException("Error adding user to SAM resource.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -394,7 +394,7 @@ public class SamService {
           },
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error removing user from SAM resource.", ex);
+      throw new SystemException("Error removing user from SAM resource.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -416,7 +416,7 @@ public class SamService {
           () -> resourcesApi.listResourcePolicies(resourceType, resourceId),
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error getting policies for SAM resource.", ex);
+      throw new SystemException("Error getting policies for SAM resource.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -448,7 +448,7 @@ public class SamService {
       return HttpUtils.callWithRetries(
           () -> getPetSaKeyForProjectApiClientWrapper(workspaceContext), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error fetching the pet SA key file from SAM.", ex);
+      throw new SystemException("Error fetching the pet SA key file from SAM.", ex);
     }
   }
 

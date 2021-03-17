@@ -1,6 +1,6 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
@@ -77,7 +77,7 @@ public class GoogleCloudStorage {
 
     boolean deleted = storageClient.delete(bucketName);
     if (!deleted) {
-      throw new InternalErrorException("Bucket deletion failed.");
+      throw new SystemException("Bucket deletion failed.");
     }
   }
 

@@ -1,6 +1,6 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.command.exception.UserFacingException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
@@ -33,7 +33,7 @@ public class WorkspaceManager {
   public void createWorkspace() {
     // check that there is no existing workspace already mounted
     if (!workspaceContext.isEmpty()) {
-      throw new UserFacingException("There is already a workspace mounted to this directory.");
+      throw new UserActionableException("There is already a workspace mounted to this directory.");
     }
 
     // check that there is a current user, we will use their credentials to communicate with WSM
@@ -63,7 +63,7 @@ public class WorkspaceManager {
     // check that either there is no workspace currently mounted, or its id matches this one
     if (!(workspaceContext.isEmpty()
         || workspaceContext.getWorkspaceId().equals(workspaceIdParsed))) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "There is already a different workspace mounted to this directory.");
     }
 
@@ -187,10 +187,10 @@ public class WorkspaceManager {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
     if (cloudResource == null) {
-      throw new UserFacingException(resourceName + " not found.");
+      throw new UserActionableException(resourceName + " not found.");
     }
     if (!cloudResource.isControlled) {
-      throw new UserFacingException(resourceName + " is not a controlled resource.");
+      throw new UserActionableException(resourceName + " is not a controlled resource.");
     }
     return cloudResource;
   }
@@ -206,13 +206,13 @@ public class WorkspaceManager {
       CloudResource.Type resourceType, String resourceName) {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     if (!isValidEnvironmentVariableName(resourceName)) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
     // check for any collisions with existing references
     if (workspaceContext.getCloudResource(resourceName) != null) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "A data reference or controlled resource with this name already exists.");
     }
 
@@ -288,10 +288,10 @@ public class WorkspaceManager {
     // TODO: change this method to call WSM data reference endpoints once they're ready
     CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
     if (dataReference == null) {
-      throw new UserFacingException(referenceName + " not found.");
+      throw new UserActionableException(referenceName + " not found.");
     }
     if (!dataReference.type.isDataReference) {
-      throw new UserFacingException(dataReference + " is not a data reference.");
+      throw new UserActionableException(dataReference + " is not a data reference.");
     }
     return dataReference;
   }
@@ -318,12 +318,12 @@ public class WorkspaceManager {
                 workspaceContext.getGoogleProject())
             .checkObjectsListAccess(cloudId);
     if (!bucketFound) {
-      throw new UserFacingException("Invalid or inaccessible bucket path: " + cloudId);
+      throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
     }
 
     // check for any collisions with existing references
     if (workspaceContext.getCloudResource(referenceName) != null) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "A data reference or controlled resource with this name already exists.");
     }
 
@@ -345,7 +345,7 @@ public class WorkspaceManager {
     // only delete un-controlled cloud resources through the data references endpoints
     CloudResource dataReference = getDataReference(referenceName);
     if (dataReference.isControlled) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "Cannot delete a reference to a controlled cloud resource. Delete the resource instead.");
     }
 

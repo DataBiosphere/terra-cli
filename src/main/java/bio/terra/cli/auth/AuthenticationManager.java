@@ -1,6 +1,6 @@
 package bio.terra.cli.auth;
 
-import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
@@ -85,7 +85,7 @@ public class AuthenticationManager {
               globalContext.getGlobalContextDir().toFile(),
               globalContext.launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
-      throw new InternalErrorException("Error fetching user credentials.", ex);
+      throw new SystemException("Error fetching user credentials.", ex);
     }
     terraUser.userCredentials = userCredentials;
 
@@ -127,7 +127,7 @@ public class AuthenticationManager {
       // delete the pet SA credentials
       deletePetSaCredentials(currentTerraUser);
     } catch (IOException | GeneralSecurityException ex) {
-      throw new InternalErrorException("Error deleting credentials.", ex);
+      throw new SystemException("Error deleting credentials.", ex);
     }
   }
 
@@ -162,7 +162,7 @@ public class AuthenticationManager {
         return;
       }
     } catch (IOException | GeneralSecurityException ex) {
-      throw new InternalErrorException("Error fetching user credentials.", ex);
+      throw new SystemException("Error fetching user credentials.", ex);
     }
     currentTerraUser.userCredentials = userCredentials;
 
@@ -204,7 +204,7 @@ public class AuthenticationManager {
           new SamService(globalContext.server, terraUser).getPetSaKeyForProject(workspaceContext);
       if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
         logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
-        throw new InternalErrorException(
+        throw new SystemException(
             "Error fetching pet SA key from SAM (status code = "
                 + petSaKeySamResponse.statusCode
                 + ").");
@@ -217,7 +217,7 @@ public class AuthenticationManager {
                 petSaKeySamResponse.responseBody);
         logger.debug("Stored pet SA key file for this user and workspace.");
       } catch (IOException ioEx) {
-        throw new InternalErrorException(
+        throw new SystemException(
             "Error writing pet SA key to the global context directory.", ioEx);
       }
     }
@@ -228,7 +228,7 @@ public class AuthenticationManager {
           GoogleCredentialUtils.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
       terraUser.petSACredentials = petSaCredentials;
     } catch (IOException ioEx) {
-      throw new InternalErrorException(
+      throw new SystemException(
           "Error reading pet SA credentials from the global context directory.", ioEx);
     }
   }
@@ -242,7 +242,7 @@ public class AuthenticationManager {
     if (keyFiles != null) {
       for (File keyFile : keyFiles) {
         if (!keyFile.delete() && keyFile.exists()) {
-          throw new InternalErrorException(
+          throw new SystemException(
               "Failed to delete pet SA key file: " + keyFile.getAbsolutePath());
         }
       }
@@ -250,7 +250,7 @@ public class AuthenticationManager {
 
     // delete the key file directory
     if (!jsonKeysDir.delete() && jsonKeysDir.exists()) {
-      throw new InternalErrorException(
+      throw new SystemException(
           "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
     }
   }

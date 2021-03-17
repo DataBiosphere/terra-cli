@@ -3,7 +3,7 @@ package bio.terra.cli.context;
 import static bio.terra.cli.context.utils.Logger.LogLevel;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.command.exception.UserFacingException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -110,7 +110,7 @@ public class GlobalContext {
   public TerraUser requireCurrentTerraUser() {
     Optional<TerraUser> terraUserOpt = getCurrentTerraUser();
     if (!terraUserOpt.isPresent()) {
-      throw new UserFacingException("The current Terra user is not defined. Login required.");
+      throw new UserActionableException("The current Terra user is not defined. Login required.");
     }
     return terraUserOpt.get();
   }

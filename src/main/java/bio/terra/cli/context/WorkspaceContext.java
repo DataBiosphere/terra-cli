@@ -1,6 +1,6 @@
 package bio.terra.cli.context;
 
-import bio.terra.cli.command.exception.UserFacingException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -132,7 +132,7 @@ public class WorkspaceContext {
    */
   public void requireCurrentWorkspace() {
     if (isEmpty()) {
-      throw new UserFacingException(
+      throw new UserActionableException(
           "There is no Terra workspace mounted to the current directory.");
     }
   }

@@ -1,6 +1,6 @@
 package bio.terra.cli.context;
 
-import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.utils.FileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -74,15 +74,15 @@ public class ServerSpecification {
   public void validate() {
     // check for null properties
     if (name == null || name.isEmpty()) {
-      throw new InternalErrorException("Server name cannot be empty.");
+      throw new SystemException("Server name cannot be empty.");
     } else if (description == null || description.isEmpty()) {
-      throw new InternalErrorException("Server description cannot be empty.");
+      throw new SystemException("Server description cannot be empty.");
     } else if (samUri == null || samUri.isEmpty()) {
-      throw new InternalErrorException("SAM uri cannot be empty.");
+      throw new SystemException("SAM uri cannot be empty.");
     } else if (workspaceManagerUri == null || workspaceManagerUri.isEmpty()) {
-      throw new InternalErrorException("Workspace Manager uri cannot be empty.");
+      throw new SystemException("Workspace Manager uri cannot be empty.");
     } else if (dataRepoUri == null || dataRepoUri.isEmpty()) {
-      throw new InternalErrorException("Data Repo uri cannot be empty.");
+      throw new SystemException("Data Repo uri cannot be empty.");
     }
   }
 

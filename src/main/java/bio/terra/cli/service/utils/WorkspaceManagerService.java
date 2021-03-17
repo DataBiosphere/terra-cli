@@ -1,6 +1,6 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.InternalErrorException;
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.workspace.api.UnauthenticatedApi;
@@ -92,7 +92,7 @@ public class WorkspaceManagerService {
     try {
       return unauthenticatedApi.serviceVersion();
     } catch (ApiException ex) {
-      throw new InternalErrorException("Error getting Workspace Manager version", ex);
+      throw new SystemException("Error getting Workspace Manager version", ex);
     }
   }
 
@@ -106,7 +106,7 @@ public class WorkspaceManagerService {
     try {
       return unauthenticatedApi.serviceStatus();
     } catch (ApiException ex) {
-      throw new InternalErrorException("Error getting Workspace Manager status", ex);
+      throw new SystemException("Error getting Workspace Manager status", ex);
     }
   }
 
@@ -166,7 +166,7 @@ public class WorkspaceManagerService {
       // call the get workspace endpoint to get the full description object
       return workspaceApi.getWorkspace(workspaceId);
     } catch (ApiException | InterruptedException ex) {
-      throw new InternalErrorException("Error creating a new workspace", ex);
+      throw new SystemException("Error creating a new workspace", ex);
     }
   }
 
@@ -190,7 +190,7 @@ public class WorkspaceManagerService {
           "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
       return workspaceWithContext;
     } catch (ApiException ex) {
-      throw new InternalErrorException("Error fetching workspace", ex);
+      throw new SystemException("Error fetching workspace", ex);
     }
   }
 
@@ -206,7 +206,7 @@ public class WorkspaceManagerService {
       // delete the Terra workspace object
       workspaceApi.deleteWorkspace(workspaceId);
     } catch (ApiException ex) {
-      throw new InternalErrorException("Error deleting workspace", ex);
+      throw new SystemException("Error deleting workspace", ex);
     }
   }
 
@@ -226,7 +226,7 @@ public class WorkspaceManagerService {
     } catch (ApiException ex) {
       // a bad request is the only type of exception that inviting the user might fix
       if (!isBadRequest(ex)) {
-        throw new InternalErrorException("Error granting IAM role on workspace", ex);
+        throw new SystemException("Error granting IAM role on workspace", ex);
       }
 
       try {
@@ -247,7 +247,7 @@ public class WorkspaceManagerService {
             },
             WorkspaceManagerService::isBadRequest);
       } catch (ApiException | InterruptedException inviteEx) {
-        throw new InternalErrorException("Error granting IAM role on workspace", inviteEx);
+        throw new SystemException("Error granting IAM role on workspace", inviteEx);
       }
     }
   }
@@ -279,7 +279,7 @@ public class WorkspaceManagerService {
     try {
       workspaceApi.removeRole(workspaceId, iamRole, userEmail);
     } catch (ApiException ex) {
-      throw new InternalErrorException("Error removing IAM role on workspace", ex);
+      throw new SystemException("Error removing IAM role on workspace", ex);
     }
   }
 
@@ -295,8 +295,7 @@ public class WorkspaceManagerService {
     try {
       return workspaceApi.getRoles(workspaceId);
     } catch (ApiException ex) {
-      throw new InternalErrorException(
-          "Error fetching users and their IAM roles for workspace", ex);
+      throw new SystemException("Error fetching users and their IAM roles for workspace", ex);
     }
   }
 }
