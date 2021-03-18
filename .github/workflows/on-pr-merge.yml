@@ -36,7 +36,7 @@ jobs:
           # this step does the equivalent of the tools/render-config.sh script
           # on local machines, the script fetches a SA from Vault
           # in GH actions, the SA key is stored in a GH repo secret
-          # regardless of how it was fetched, the publish_release step expects this
+          # regardless of how it was fetched, the publish-release script expects this
           # key to be stored in rendered/ci-account.json
           mkdir -p rendered
           echo "$DEV_CI_SA_KEY" > rendered/ci-account.json
