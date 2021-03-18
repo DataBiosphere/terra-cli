@@ -19,6 +19,7 @@ import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
@@ -111,8 +112,27 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager "/api/workspaces/v1" endpoint to create a new workspace, then poll
-   * the "/api/workspaces/v1/{id}" endpoint until the Google context project id is populated.
+   * Call the Workspace Manager GET "/api/workspaces/v1" endpoint to list all the workspaces a user
+   * can read.
+   *
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
+   * @return the Workspace Manager workspsace list object
+   */
+  public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      return workspaceApi.listWorkspaces(offset, limit);
+    } catch (ApiException ex) {
+      throw new SystemException("Error fetching list of workspaces", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST "/api/workspaces/v1" endpoint to create a new workspace, then
+   * call the POST "/api/workspaces/v1/{workspaceId}/cloudcontexts" endpoint to create a new backing
+   * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
+   * endpoint to wait for the job to finish.
    *
    * @return the Workspace Manager workspace description object
    */

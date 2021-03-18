@@ -125,7 +125,7 @@ public class DockerAppsRunner {
    *
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param envVars a mapping of environment variable names to values
-   * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
+   * @throws SystemException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
   public void runToolCommand(String command, Map<String, String> envVars) {
@@ -197,7 +197,7 @@ public class DockerAppsRunner {
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
-   * @throws RuntimeException if an environment variable or bind mount used by the terra_init script
+   * @throws SystemException if an environment variable or bind mount used by the terra_init script
    *     overlaps or conflicts with one passed into this method
    */
   private String startDockerContainerWithTerraInit(
@@ -252,7 +252,7 @@ public class DockerAppsRunner {
    * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
-   * @throws RuntimeException if the local directory does not exist or is not a directory
+   * @throws SystemException if the local directory does not exist or is not a directory
    */
   private String startDockerContainer(
       String command, String workingDir, Map<String, String> envVars, Map<Path, Path> bindMounts) {
