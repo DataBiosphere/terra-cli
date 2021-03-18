@@ -5,6 +5,6 @@ public class Version {
   /** Getter for the Terra CLI version of the current JAR. */
   public static String getVersion() {
     // read from the JAR Manifest file
-    return Version.class.getPackage().getImplementationVersion();
+    return Version.class.getPackage().getSpecificationVersion();
   }
 }

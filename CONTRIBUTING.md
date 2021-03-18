@@ -119,6 +119,9 @@ To use a specific Docker image from GCR:
     ```
 
 #### Build a new image
+The `tools/publish-release.sh` script builds and publishes a new image, and updates the default image path already.
+So this is mostly useful for development and debugging.
+
 For any change in the `docker/` directory to take effect:
 1. Build a new image. This uses a short Git hash for the current commit as the tag. See the script comments for more
 options.
@@ -138,6 +141,9 @@ options.
     ```
 
 #### Publish a new image
+The `tools/publish-release.sh` script builds and publishes a new image, and updates the default image path already.
+So this is mostly useful for development and debugging.
+
 To publish a new image to GCR:
 1. Build the image (see above).
 2. Render the CI credentials from Vault, in order to upload to GCR.
@@ -166,7 +172,7 @@ look like for someone who did not build the image.
 #### Update the default image
 It's best to do this as part of a release, but if it's necessary to update the default image manually:
 1. Publish the image (see above).
-2. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
+2. Update the `DockerAppsRunner.defaultImageId` method in the Java code to return a hard-coded string.
 
 
 ### Code structure

@@ -62,7 +62,9 @@ echo "-- Building the Docker image"
 ./tools/build-docker.sh forRelease
 
 echo "-- Publishing the Docker image"
-./tools/publish-docker.sh stable "terra-cli/$releaseVersion" forRelease
+dockerImageName=$(./gradlew --quiet getDockerImageName) # e.g. terra-cli
+dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
+./tools/publish-docker.sh $dockerImageTag "$dockerImageName/$releaseVersion" forRelease
 
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
