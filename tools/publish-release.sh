@@ -38,13 +38,18 @@ if [[ $releaseVersion =~ [A-Z] ]]; then
 fi
 
 echo "-- Checking if this version matches the value in build.gradle"
-buildGradleVersion=$(./gradlew getBuildVersion --quiet)
+# note that the --quiet flag has to be before the task name, otherwise log statements
+# related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
+buildGradleVersion=$(./gradlew --quiet getBuildVersion)
 if [ "$releaseVersion" != "$buildGradleVersion" ]; then
   echo "Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
 else
   echo "Release version matches build.gradle version"
 fi
+
+echo "-- Pulling to get all recent tags"
+git pull
 
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
