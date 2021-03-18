@@ -24,6 +24,13 @@ public class List implements Callable<Integer> {
           "The offset to use when listing workspaces. (Zero means to start from the beginning.)")
   private int offset;
 
+  @CommandLine.Option(
+      names = "--limit",
+      required = false,
+      defaultValue = "30",
+      description = "The maximum number of workspaces to return.")
+  private int limit;
+
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
@@ -33,7 +40,7 @@ public class List implements Callable<Integer> {
         new AuthenticationManager(globalContext, workspaceContext);
     authenticationManager.loginTerraUser();
     java.util.List<WorkspaceDescription> workspaces =
-        new WorkspaceManager(globalContext, workspaceContext).listWorkspaces(offset);
+        new WorkspaceManager(globalContext, workspaceContext).listWorkspaces(offset, limit);
 
     for (WorkspaceDescription workspace : workspaces) {
       String prefix =

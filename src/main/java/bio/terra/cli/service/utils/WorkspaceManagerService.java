@@ -41,9 +41,6 @@ public class WorkspaceManagerService {
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
-  // the maximum number of workspaces to fetch at once when listing all workspaces a user can read
-  private static final int LIST_WORKSPACES_LIMIT = 30;
-
   /**
    * Constructor for class that talks to the Workspace Manager service. The user must be
    * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
@@ -119,12 +116,13 @@ public class WorkspaceManagerService {
    * can read.
    *
    * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
    * @return the Workspace Manager workspsace list object
    */
-  public WorkspaceDescriptionList listWorkspaces(int offset) {
+  public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
-      return workspaceApi.listWorkspaces(offset, LIST_WORKSPACES_LIMIT);
+      return workspaceApi.listWorkspaces(offset, limit);
     } catch (ApiException ex) {
       throw new SystemException("Error fetching list of workspaces", ex);
     }

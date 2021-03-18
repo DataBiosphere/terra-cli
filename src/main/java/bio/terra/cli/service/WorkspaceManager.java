@@ -33,15 +33,16 @@ public class WorkspaceManager {
    * List all workspaces that a user has read access to.
    *
    * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
    * @return list of workspaces
    */
-  public List<WorkspaceDescription> listWorkspaces(int offset) {
+  public List<WorkspaceDescription> listWorkspaces(int offset, int limit) {
     // check that there is a current user, we will use their credentials to communicate with WSM
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // fetch the list of workspaces from WSM
     return new WorkspaceManagerService(globalContext.server, currentUser)
-        .listWorkspaces(offset)
+        .listWorkspaces(offset, limit)
         .getWorkspaces();
   }
 
