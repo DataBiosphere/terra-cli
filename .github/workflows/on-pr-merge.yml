@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - mm-PF-569-debug-bumper-gha
+      - mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
 
 jobs:
   bump-version-publish-release:

@@ -53,7 +53,11 @@ echo "Pushing the image to GCR"
 docker push $remoteImageNameAndTag
 
 echo "Restoring the current gcloud user"
-gcloud config set account $currentGcloudUser
+if [ -n "$currentGcloudUser" ]; then
+  gcloud config set account $currentGcloudUser
+else
+  echo "No current gcloud user to restore"
+fi
 
 # write out the path to the remote image
 echo "$remoteImageNameAndTag successfully pushed to GCR"
