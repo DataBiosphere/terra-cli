@@ -29,6 +29,22 @@ public class WorkspaceManager {
     this.workspaceContext = workspaceContext;
   }
 
+  /**
+   * List all workspaces that a user has read access to.
+   *
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @return list of workspaces
+   */
+  public List<WorkspaceDescription> listWorkspaces(int offset) {
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // fetch the list of workspaces from WSM
+    return new WorkspaceManagerService(globalContext.server, currentUser)
+        .listWorkspaces(offset)
+        .getWorkspaces();
+  }
+
   /** Create a new workspace. */
   public void createWorkspace() {
     // check that there is no existing workspace already mounted
@@ -53,8 +69,8 @@ public class WorkspaceManager {
   /**
    * Fetch an existing workspace and mount it to the current directory.
    *
-   * @throws RuntimeException if there is already a different workspace mounted to the current
-   *     directory
+   * @throws UserActionableException if there is already a different workspace mounted to the
+   *     current directory
    */
   public void mountWorkspace(String workspaceId) {
     // check that the workspace id is a valid UUID
@@ -86,7 +102,7 @@ public class WorkspaceManager {
    * Delete the workspace that is mounted to the current directory.
    *
    * @return the deleted workspace id
-   * @throws RuntimeException if there is no workspace currently mounted
+   * @throws UserActionableException if there is no workspace currently mounted
    */
   public UUID deleteWorkspace() {
     // check that there is a workspace currently mounted
@@ -115,7 +131,7 @@ public class WorkspaceManager {
    *
    * @param userEmail the user to add
    * @param iamRole the role to assign the user
-   * @throws RuntimeException if there is no workspace currently mounted
+   * @throws UserActionableException if there is no workspace currently mounted
    */
   public void addUserToWorkspace(String userEmail, IamRole iamRole) {
     // check that there is a workspace currently mounted
@@ -140,7 +156,7 @@ public class WorkspaceManager {
    *
    * @param userEmail the user to remove
    * @param iamRole the role to remove from the user
-   * @throws RuntimeException if there is no workspace currently mounted
+   * @throws UserActionableException if there is no workspace currently mounted
    */
   public void removeUserFromWorkspace(String userEmail, IamRole iamRole) {
     // check that there is a workspace currently mounted
@@ -181,7 +197,7 @@ public class WorkspaceManager {
    *
    * @param resourceName name of resource to lookup
    * @return the cloud resource object
-   * @throws RuntimeException if the resource is not controlled (e.g. external bucket)
+   * @throws UserActionableException if the resource is not controlled (e.g. external bucket)
    */
   public CloudResource getControlledResource(String resourceName) {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
@@ -282,7 +298,7 @@ public class WorkspaceManager {
    *
    * @param referenceName name of reference to lookup
    * @return the data reference object
-   * @throws RuntimeException if the resource is not a data reference (e.g. VM)
+   * @throws UserActionableException if the resource is not a data reference (e.g. VM)
    */
   public CloudResource getDataReference(String referenceName) {
     // TODO: change this method to call WSM data reference endpoints once they're ready

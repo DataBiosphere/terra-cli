@@ -19,6 +19,7 @@ import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
@@ -39,6 +40,9 @@ public class WorkspaceManagerService {
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
+
+  // the maximum number of workspaces to fetch at once when listing all workspaces a user can read
+  private static final int LIST_WORKSPACES_LIMIT = 30;
 
   /**
    * Constructor for class that talks to the Workspace Manager service. The user must be
@@ -111,8 +115,26 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager "/api/workspaces/v1" endpoint to create a new workspace, then poll
-   * the "/api/workspaces/v1/{id}" endpoint until the Google context project id is populated.
+   * Call the Workspace Manager GET "/api/workspaces/v1" endpoint to list all the workspaces a user
+   * can read.
+   *
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @return the Workspace Manager workspsace list object
+   */
+  public WorkspaceDescriptionList listWorkspaces(int offset) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      return workspaceApi.listWorkspaces(offset, LIST_WORKSPACES_LIMIT);
+    } catch (ApiException ex) {
+      throw new SystemException("Error fetching list of workspaces", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST "/api/workspaces/v1" endpoint to create a new workspace, then
+   * call the POST "/api/workspaces/v1/{workspaceId}/cloudcontexts" endpoint to create a new backing
+   * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
+   * endpoint to wait for the job to finish.
    *
    * @return the Workspace Manager workspace description object
    */
