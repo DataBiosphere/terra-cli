@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          ref: mm-PF-569-debug-bumper-gha
       - name: Bump tag and build version
         id: bump_tag
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
@@ -24,6 +19,11 @@ jobs:
           RELEASE_BRANCHES: mm-PF-569-debug-bumper-gha
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version
+      - name: Checkout current code
+        id: checkout_code
+        uses: actions/checkout@v2
+        with:
+          ref: mm-PF-569-debug-bumper-gha
       - name: Render config
         id: render_config
         run: |
