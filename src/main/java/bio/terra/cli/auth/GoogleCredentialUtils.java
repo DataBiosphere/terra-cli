@@ -1,5 +1,6 @@
 package bio.terra.cli.auth;
 
+import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
@@ -135,7 +136,7 @@ public final class GoogleCredentialUtils {
 
     // check that the specified credential exists
     if (!dataStore.containsKey(userId)) {
-      logger.info("Credential for {} not found.", userId);
+      logger.debug("Credential for {} not found.", userId);
       return;
     }
 
@@ -229,7 +230,7 @@ public final class GoogleCredentialUtils {
       credential.refreshIfExpired();
       return credential.getAccessToken();
     } catch (IOException ioEx) {
-      throw new RuntimeException("Error refreshing access token", ioEx);
+      throw new SystemException("Error refreshing access token", ioEx);
     }
   }
 }

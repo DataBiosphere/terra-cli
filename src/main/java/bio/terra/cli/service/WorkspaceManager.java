@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
@@ -32,7 +33,7 @@ public class WorkspaceManager {
   public void createWorkspace() {
     // check that there is no existing workspace already mounted
     if (!workspaceContext.isEmpty()) {
-      throw new RuntimeException("There is already a workspace mounted to this directory.");
+      throw new UserActionableException("There is already a workspace mounted to this directory.");
     }
 
     // check that there is a current user, we will use their credentials to communicate with WSM
@@ -41,7 +42,7 @@ public class WorkspaceManager {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         new WorkspaceManagerService(globalContext.server, currentUser).createWorkspace();
-    logger.info("created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
+    logger.info("Created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
 
     // update the workspace context with the current workspace
     // note that this state is persisted to disk. it will be useful for code called in the same or a
@@ -62,7 +63,7 @@ public class WorkspaceManager {
     // check that either there is no workspace currently mounted, or its id matches this one
     if (!(workspaceContext.isEmpty()
         || workspaceContext.getWorkspaceId().equals(workspaceIdParsed))) {
-      throw new RuntimeException(
+      throw new UserActionableException(
           "There is already a different workspace mounted to this directory.");
     }
 
@@ -73,7 +74,7 @@ public class WorkspaceManager {
     WorkspaceDescription existingWorkspace =
         new WorkspaceManagerService(globalContext.server, currentUser)
             .getWorkspace(workspaceIdParsed);
-    logger.info("existing workspace: id={}, {}", existingWorkspace.getId(), existingWorkspace);
+    logger.info("Existing workspace: id={}, {}", existingWorkspace.getId(), existingWorkspace);
 
     // update the workspace context with the current workspace
     // note that this state is persisted to disk. it will be useful for code called in the same or a
@@ -98,7 +99,7 @@ public class WorkspaceManager {
     WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
     new WorkspaceManagerService(globalContext.server, currentUser)
         .deleteWorkspace(workspaceContext.getWorkspaceId());
-    logger.info("deleted workspace: id={}, {}", workspace.getId(), workspace);
+    logger.info("Deleted workspace: id={}, {}", workspace.getId(), workspace);
 
     // unset the workspace in the current context
     // note that this state is persisted to disk. it will be useful for code called in the same or a
@@ -127,7 +128,7 @@ public class WorkspaceManager {
     new WorkspaceManagerService(globalContext.server, currentUser)
         .grantIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
-        "added user to workspace: id={}, user={}, role={}",
+        "Added user to workspace: id={}, user={}, role={}",
         workspaceContext.getWorkspaceId(),
         userEmail,
         iamRole);
@@ -152,7 +153,7 @@ public class WorkspaceManager {
     new WorkspaceManagerService(globalContext.server, currentUser)
         .removeIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
-        "removed user from workspace: id={}, user={}, role={}",
+        "Removed user from workspace: id={}, user={}, role={}",
         workspaceContext.getWorkspaceId(),
         userEmail,
         iamRole);
@@ -186,10 +187,10 @@ public class WorkspaceManager {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
     if (cloudResource == null) {
-      throw new RuntimeException(resourceName + " not found.");
+      throw new UserActionableException(resourceName + " not found.");
     }
     if (!cloudResource.isControlled) {
-      throw new RuntimeException(resourceName + " is not a controlled resource.");
+      throw new UserActionableException(resourceName + " is not a controlled resource.");
     }
     return cloudResource;
   }
@@ -205,13 +206,13 @@ public class WorkspaceManager {
       CloudResource.Type resourceType, String resourceName) {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     if (!isValidEnvironmentVariableName(resourceName)) {
-      throw new RuntimeException(
+      throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
     // check for any collisions with existing references
     if (workspaceContext.getCloudResource(resourceName) != null) {
-      throw new RuntimeException(
+      throw new UserActionableException(
           "A data reference or controlled resource with this name already exists.");
     }
 
@@ -287,10 +288,10 @@ public class WorkspaceManager {
     // TODO: change this method to call WSM data reference endpoints once they're ready
     CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
     if (dataReference == null) {
-      throw new RuntimeException(referenceName + " not found.");
+      throw new UserActionableException(referenceName + " not found.");
     }
     if (!dataReference.type.isDataReference) {
-      throw new RuntimeException(dataReference + " is not a data reference.");
+      throw new UserActionableException(dataReference + " is not a data reference.");
     }
     return dataReference;
   }
@@ -317,12 +318,12 @@ public class WorkspaceManager {
                 workspaceContext.getGoogleProject())
             .checkObjectsListAccess(cloudId);
     if (!bucketFound) {
-      throw new RuntimeException("Invalid or inaccessible bucket path: " + cloudId);
+      throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
     }
 
     // check for any collisions with existing references
     if (workspaceContext.getCloudResource(referenceName) != null) {
-      throw new RuntimeException(
+      throw new UserActionableException(
           "A data reference or controlled resource with this name already exists.");
     }
 
@@ -344,7 +345,7 @@ public class WorkspaceManager {
     // only delete un-controlled cloud resources through the data references endpoints
     CloudResource dataReference = getDataReference(referenceName);
     if (dataReference.isControlled) {
-      throw new RuntimeException(
+      throw new UserActionableException(
           "Cannot delete a reference to a controlled cloud resource. Delete the resource instead.");
     }
 

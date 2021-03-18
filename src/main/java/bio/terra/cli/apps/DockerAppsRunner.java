@@ -1,5 +1,6 @@
 package bio.terra.cli.apps;
 
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
@@ -135,7 +136,7 @@ public class DockerAppsRunner {
     Map<String, String> terraReferences = buildMapOfTerraReferences();
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraReferences.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
-        throw new RuntimeException(
+        throw new SystemException(
             "Workspace reference cannot overwrite an environment variable used by the tool command: "
                 + workspaceReferenceEnvVar.getKey());
       }
@@ -158,7 +159,7 @@ public class DockerAppsRunner {
 
     // block until the container exits
     Integer statusCode = waitForDockerContainerToExit(containerId);
-    logger.info("docker run status code: {}", statusCode);
+    logger.debug("docker run status code: {}", statusCode);
 
     // delete the container
     deleteDockerContainer(containerId);
@@ -219,7 +220,7 @@ public class DockerAppsRunner {
 
     for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
       if (envVars.get(terraInitEnvVar.getKey()) != null) {
-        throw new RuntimeException(
+        throw new SystemException(
             "Tool command cannot overwrite an environment variable used by the terra_init script: "
                 + terraInitEnvVar.getKey());
       }
@@ -266,7 +267,7 @@ public class DockerAppsRunner {
     for (Map.Entry<Path, Path> bindMount : bindMounts.entrySet()) {
       File localDirectory = bindMount.getValue().toFile();
       if (!localDirectory.exists() || !localDirectory.isDirectory()) {
-        throw new RuntimeException(
+        throw new SystemException(
             "Bind mount does not specify a local directory: " + localDirectory.getAbsolutePath());
       }
       bindMountsObj.add(

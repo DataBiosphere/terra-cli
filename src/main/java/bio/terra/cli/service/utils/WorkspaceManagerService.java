@@ -1,12 +1,13 @@
 package bio.terra.cli.service.utils;
 
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.CloudContext;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
@@ -91,7 +92,7 @@ public class WorkspaceManagerService {
     try {
       return unauthenticatedApi.serviceVersion();
     } catch (ApiException ex) {
-      throw new RuntimeException("Error getting Workspace Manager version", ex);
+      throw new SystemException("Error getting Workspace Manager version", ex);
     }
   }
 
@@ -105,7 +106,7 @@ public class WorkspaceManagerService {
     try {
       return unauthenticatedApi.serviceStatus();
     } catch (ApiException ex) {
-      throw new RuntimeException("Error getting Workspace Manager status", ex);
+      throw new SystemException("Error getting Workspace Manager status", ex);
     }
   }
 
@@ -129,7 +130,7 @@ public class WorkspaceManagerService {
       // create the Google project that backs the Terra workspace object
       UUID jobId = UUID.randomUUID();
       CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
-      cloudContextRequest.setCloudContext(CloudContext.GOOGLE);
+      cloudContextRequest.setCloudPlatform(CloudPlatform.GCP);
       cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
       workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
 
@@ -140,13 +141,14 @@ public class WorkspaceManagerService {
       JobReport.StatusEnum jobReportStatus;
       do {
         logger.info(
-            "job polling try #{}, workspace id: {}, job id: {}",
+            "Job polling try #{}, workspace id: {}, job id: {}",
             numJobPollingTries,
             workspaceId,
             jobId);
-        cloudContextResult = workspaceApi.createCloudContextResult(workspaceId, jobId.toString());
+        cloudContextResult =
+            workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString());
         jobReportStatus = cloudContextResult.getJobReport().getStatus();
-        logger.debug("create workspace cloudContextResult: {}", cloudContextResult);
+        logger.debug("Create workspace cloudContextResult: {}", cloudContextResult);
         numJobPollingTries++;
         if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
           Thread.sleep(1000);
@@ -164,7 +166,7 @@ public class WorkspaceManagerService {
       // call the get workspace endpoint to get the full description object
       return workspaceApi.getWorkspace(workspaceId);
     } catch (ApiException | InterruptedException ex) {
-      throw new RuntimeException("Error creating a new workspace", ex);
+      throw new SystemException("Error creating a new workspace", ex);
     }
   }
 
@@ -181,14 +183,14 @@ public class WorkspaceManagerService {
       // fetch the Terra workspace object
       WorkspaceDescription workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
       String googleProjectId =
-          (workspaceWithContext.getGoogleContext() == null)
+          (workspaceWithContext.getGcpContext() == null)
               ? null
-              : workspaceWithContext.getGoogleContext().getProjectId();
+              : workspaceWithContext.getGcpContext().getProjectId();
       logger.info(
-          "workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
+          "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
       return workspaceWithContext;
     } catch (ApiException ex) {
-      throw new RuntimeException("Error fetching workspace", ex);
+      throw new SystemException("Error fetching workspace", ex);
     }
   }
 
@@ -204,7 +206,7 @@ public class WorkspaceManagerService {
       // delete the Terra workspace object
       workspaceApi.deleteWorkspace(workspaceId);
     } catch (ApiException ex) {
-      throw new RuntimeException("Error deleting workspace", ex);
+      throw new SystemException("Error deleting workspace", ex);
     }
   }
 
@@ -224,16 +226,16 @@ public class WorkspaceManagerService {
     } catch (ApiException ex) {
       // a bad request is the only type of exception that inviting the user might fix
       if (!isBadRequest(ex)) {
-        throw new RuntimeException("Error granting IAM role on workspace", ex);
+        throw new SystemException("Error granting IAM role on workspace", ex);
       }
 
       try {
         // try to invite the user first, in case they are not already registered
         // if they are already registered, this will throw an exception
-        logger.info("inviting new user: {}", userEmail);
+        logger.info("Inviting new user: {}", userEmail);
         UserStatusDetails userStatusDetails =
             new SamService(server, terraUser).inviteUser(userEmail);
-        logger.info("invited new user: {}", userStatusDetails);
+        logger.info("Invited new user: {}", userStatusDetails);
 
         // now try to add the user to the workspace role
         // retry if it returns with a bad request (because the invite sometimes takes a few seconds
@@ -245,7 +247,7 @@ public class WorkspaceManagerService {
             },
             WorkspaceManagerService::isBadRequest);
       } catch (ApiException | InterruptedException inviteEx) {
-        throw new RuntimeException("Error granting IAM role on workspace", inviteEx);
+        throw new SystemException("Error granting IAM role on workspace", inviteEx);
       }
     }
   }
@@ -277,7 +279,7 @@ public class WorkspaceManagerService {
     try {
       workspaceApi.removeRole(workspaceId, iamRole, userEmail);
     } catch (ApiException ex) {
-      throw new RuntimeException("Error removing IAM role on workspace", ex);
+      throw new SystemException("Error removing IAM role on workspace", ex);
     }
   }
 
@@ -293,7 +295,7 @@ public class WorkspaceManagerService {
     try {
       return workspaceApi.getRoles(workspaceId);
     } catch (ApiException ex) {
-      throw new RuntimeException("Error fetching users and their IAM roles for workspace", ex);
+      throw new SystemException("Error fetching users and their IAM roles for workspace", ex);
     }
   }
 }

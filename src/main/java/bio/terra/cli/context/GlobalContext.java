@@ -1,6 +1,9 @@
 package bio.terra.cli.context;
 
+import static bio.terra.cli.context.utils.Logger.LogLevel;
+
 import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,10 +36,17 @@ public class GlobalContext {
   // global apps context = docker image id or tag
   public String dockerImageId;
 
+  // TODO (PF-542): add a config command to allow modifying these levels without re-compiling
+  // global logging context = log levels for file and stdout
+  public LogLevel fileLoggingLevel = LogLevel.INFO;
+  public LogLevel consoleLoggingLevel = LogLevel.OFF;
+
   // file paths related to persisting the global context on disk
   private static final String GLOBAL_CONTEXT_DIRNAME = ".terra";
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
   private static final String PET_KEYS_DIRNAME = "pet-keys";
+  private static final String LOGS_DIRNAME = "logs";
+  private static final String LOG_FILENAME = "terra.log";
 
   // defaut constructor needed for Jackson de/serialization
   private GlobalContext() {}
@@ -54,6 +64,10 @@ public class GlobalContext {
    * Read in an instance of this class from a JSON-formatted file in the global context directory.
    * If there is no existing file, this method returns an object populated with default values.
    *
+   * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
+   * the logging levels specified in the global context, the loggers have not been setup when we
+   * first call this function.
+   *
    * @return an instance of this class
    */
   public static GlobalContext readFromFile() {
@@ -61,7 +75,9 @@ public class GlobalContext {
     try {
       return FileUtils.readFileIntoJavaObject(getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
-      logger.warn("Global context file not found or error reading it.", ioEx);
+      // file not found is a common error here (e.g. first time running the CLI, there will be no
+      // pre-existing global context file). we handle this by returning an object populated with
+      // default values below. so, no need to log or throw the exception returned here.
     }
 
     // if the global context file does not exist or there is an error reading it, return an object
@@ -94,7 +110,7 @@ public class GlobalContext {
   public TerraUser requireCurrentTerraUser() {
     Optional<TerraUser> terraUserOpt = getCurrentTerraUser();
     if (!terraUserOpt.isPresent()) {
-      throw new RuntimeException("The current Terra user is not defined. Login required.");
+      throw new UserActionableException("The current Terra user is not defined. Login required.");
     }
     return terraUserOpt.get();
   }
@@ -126,7 +142,7 @@ public class GlobalContext {
 
   /** Setter for the browser launch flag. Persists on disk. */
   public void updateBrowserLaunchFlag(boolean launchBrowserAutomatically) {
-    logger.debug(
+    logger.info(
         "Updating browser launch flag from {} to {}.",
         this.launchBrowserAutomatically,
         launchBrowserAutomatically);
@@ -140,7 +156,7 @@ public class GlobalContext {
 
   /** Setter for the current Terra server. Persists on disk. */
   public void updateServer(ServerSpecification server) {
-    logger.debug("Updating server from {} to {}.", this.server.name, server.name);
+    logger.info("Updating server from {} to {}.", this.server.name, server.name);
     this.server = server;
 
     writeToFile();
@@ -151,7 +167,7 @@ public class GlobalContext {
 
   /** Setter for the Docker image id. Persists on disk. */
   public void updateDockerImageId(String dockerImageId) {
-    logger.debug("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
+    logger.info("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
     this.dockerImageId = dockerImageId;
 
     writeToFile();
@@ -164,6 +180,8 @@ public class GlobalContext {
   //           - persisted global context file: global-context.json
   //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
   //               - pet SA key filename: [workspace id]
+  //           - sub-directory for log files: logs/
+  //               -*.terra.log
 
   /**
    * Get the global context directory.
@@ -210,5 +228,15 @@ public class GlobalContext {
   @JsonIgnore
   public static Path getPetSaKeyFile(TerraUser terraUser, WorkspaceContext workspaceContext) {
     return getPetSaKeyDir(terraUser).resolve(workspaceContext.getWorkspaceId().toString());
+  }
+
+  /**
+   * Get the global log file name.
+   *
+   * @return absolute path to the log file
+   */
+  @JsonIgnore
+  public static Path getLogFile() {
+    return getGlobalContextDir().resolve(LOGS_DIRNAME).resolve(LOG_FILENAME);
   }
 }
