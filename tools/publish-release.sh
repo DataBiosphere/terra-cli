@@ -48,9 +48,6 @@ else
   echo "Release version matches build.gradle version"
 fi
 
-echo "-- Pulling to get all recent tags"
-git pull
-
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
 foundReleaseTag=$(git tag -l $releaseVersion)
