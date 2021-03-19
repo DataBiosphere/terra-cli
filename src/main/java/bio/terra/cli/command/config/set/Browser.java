@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.set;
 
+import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.BaseCommand;
-import bio.terra.cli.context.GlobalContext;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,50 +14,26 @@ public class Browser extends BaseCommand<Browser.ReturnValue> {
   @CommandLine.Parameters(
       index = "0",
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
-  private ReturnValue.BrowserLaunchOptions mode;
+  private BrowserLaunchOption mode;
 
   @Override
   public ReturnValue execute() {
-    globalContext.updateBrowserLaunchFlag(mode.getBrowserLaunchFlag());
+    globalContext.updateBrowserLaunchFlag(mode);
 
     return new ReturnValue(mode);
   }
 
   /** The return value for this command is just the current value of the boolean flag. */
   public static class ReturnValue extends BaseCommand.BaseReturnValue {
-    public BrowserLaunchOptions browser;
+    public BrowserLaunchOption browser;
 
-    public ReturnValue(BrowserLaunchOptions browser) {
+    public ReturnValue(BrowserLaunchOption browser) {
       this.browser = browser;
     }
 
     @Override
     public void printText() {
       output.println("browser launch for login = " + browser);
-    }
-
-    /**
-     * This enum provides a text translation for the boolean flag {@link
-     * GlobalContext#launchBrowserAutomatically}. This enum is not used in the auth logic, it is
-     * strictly for CLI command presentation, so it lives here instead of the auth package.
-     */
-    public enum BrowserLaunchOptions {
-      manual(false),
-      auto(true);
-
-      private boolean browserLaunchFlag;
-
-      BrowserLaunchOptions(boolean browserLaunchFlag) {
-        this.browserLaunchFlag = browserLaunchFlag;
-      }
-
-      public boolean getBrowserLaunchFlag() {
-        return browserLaunchFlag;
-      }
-
-      public static BrowserLaunchOptions fromFlag(boolean browserLaunchFlag) {
-        return browserLaunchFlag ? auto : manual;
-      }
     }
   }
 }

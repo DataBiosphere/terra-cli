@@ -3,6 +3,7 @@ package bio.terra.cli.context;
 import static bio.terra.cli.context.utils.Logger.LogLevel;
 
 import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.ServerManager;
@@ -28,7 +29,7 @@ public class GlobalContext {
   //   flag indicating whether to launch a browser automatically or not
   public Map<String, TerraUser> terraUsers;
   public String currentTerraUserKey;
-  public boolean launchBrowserAutomatically = true;
+  public BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
   // global server context = service uris, environment name
   public ServerSpecification server;
@@ -141,12 +142,12 @@ public class GlobalContext {
   }
 
   /** Setter for the browser launch flag. Persists on disk. */
-  public void updateBrowserLaunchFlag(boolean launchBrowserAutomatically) {
+  public void updateBrowserLaunchFlag(BrowserLaunchOption browserLaunchOption) {
     logger.info(
         "Updating browser launch flag from {} to {}.",
-        this.launchBrowserAutomatically,
-        launchBrowserAutomatically);
-    this.launchBrowserAutomatically = launchBrowserAutomatically;
+        this.browserLaunchOption,
+        browserLaunchOption);
+    this.browserLaunchOption = browserLaunchOption;
 
     writeToFile();
   }

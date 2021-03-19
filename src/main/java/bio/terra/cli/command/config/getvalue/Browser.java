@@ -13,7 +13,6 @@ public class Browser extends BaseCommand<ReturnValue> {
 
   @Override
   public ReturnValue execute() {
-    return new ReturnValue(
-        ReturnValue.BrowserLaunchOptions.fromFlag(globalContext.launchBrowserAutomatically));
+    return new ReturnValue(globalContext.browserLaunchOption);
   }
 }
