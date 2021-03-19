@@ -1,9 +1,7 @@
 package bio.terra.cli.command.config.set;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
-import java.util.concurrent.Callable;
+import bio.terra.cli.command.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -11,7 +9,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "image",
     description = "[FOR DEBUG] Set the Docker image to use for launching applications.")
-public class Image implements Callable<Integer> {
+public class Image extends BaseCommand<Image.ReturnValue> {
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ImageIdArgGroup argGroup;
@@ -25,22 +23,27 @@ public class Image implements Callable<Integer> {
   }
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
+  public ReturnValue execute() {
     String newImageId = argGroup.useDefault ? DockerAppsRunner.defaultImageId() : argGroup.imageId;
-
-    String prevImageId = globalContext.dockerImageId;
     new DockerAppsRunner(globalContext, workspaceContext).updateImageId(newImageId);
 
-    if (globalContext.dockerImageId.equals(prevImageId)) {
-      System.out.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");
-    } else {
-      System.out.println(
-          "Docker image: " + globalContext.dockerImageId + " (CHANGED FROM " + prevImageId + ")");
+    return new ReturnValue(newImageId);
+  }
+
+  /**
+   * The return value for this command is just the current value of the docker image id in the
+   * global context.
+   */
+  public static class ReturnValue extends BaseCommand.BaseReturnValue {
+    public String imageId;
+
+    public ReturnValue(String imageId) {
+      this.imageId = imageId;
     }
 
-    return 0;
+    @Override
+    public void printText() {
+      output.println("Docker image id for running apps = " + imageId);
+    }
   }
 }

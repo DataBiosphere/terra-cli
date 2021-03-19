@@ -23,7 +23,10 @@ public class Browser extends BaseCommand<Browser.ReturnValue> {
     return new ReturnValue(mode);
   }
 
-  /** The return value for this command is just the current value of the boolean flag. */
+  /**
+   * The return value for this command is just the current value of the browser option in the global
+   * context.
+   */
   public static class ReturnValue extends BaseCommand.BaseReturnValue {
     public BrowserLaunchOption browser;
 

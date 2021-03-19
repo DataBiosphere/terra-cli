@@ -1,21 +1,16 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.context.GlobalContext;
-import java.util.concurrent.Callable;
+import static bio.terra.cli.command.config.set.Image.ReturnValue;
+
+import bio.terra.cli.command.BaseCommand;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config get image" command. */
-@Command(
-    name = "image",
-    description = "[FOR DEBUG] Get the Docker image used for launching applications.")
-public class Image implements Callable<Integer> {
+@Command(name = "image", description = "Get the Docker image used for launching applications.")
+public class Image extends BaseCommand<ReturnValue> {
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-
-    System.out.println(globalContext.dockerImageId);
-
-    return 0;
+  public ReturnValue execute() {
+    return new ReturnValue(globalContext.dockerImageId);
   }
 }

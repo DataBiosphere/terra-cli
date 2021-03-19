@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.WorkspaceContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -20,6 +21,7 @@ public abstract class BaseCommand<T extends BaseCommand.BaseReturnValue>
     implements Callable<Integer> {
 
   protected GlobalContext globalContext;
+  protected WorkspaceContext workspaceContext;
 
   @CommandLine.Option(
       names = "--format",
@@ -53,6 +55,7 @@ public abstract class BaseCommand<T extends BaseCommand.BaseReturnValue>
   public T getReturnValue() {
     // read in the current context
     globalContext = GlobalContext.readFromFile();
+    workspaceContext = WorkspaceContext.readFromFile();
 
     // execute the command
     return execute();
