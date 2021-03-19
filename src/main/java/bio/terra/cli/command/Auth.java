@@ -1,9 +1,7 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.auth.GetBrowser;
 import bio.terra.cli.command.auth.Login;
 import bio.terra.cli.command.auth.Revoke;
-import bio.terra.cli.command.auth.SetBrowser;
 import bio.terra.cli.command.auth.Status;
 import picocli.CommandLine.Command;
 
@@ -14,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "auth",
     description = "Retrieve and manage user credentials.",
-    subcommands = {Status.class, Login.class, Revoke.class, GetBrowser.class, SetBrowser.class})
+    subcommands = {Status.class, Login.class, Revoke.class})
 public class Auth {}

@@ -17,10 +17,10 @@ echo "Aliasing JAR file"
 alias terra=$(pwd)/build/install/terra-cli/bin/terra
 
 echo "Setting the Docker image id to the default"
-terra app set-image --default
+terra config set image --default
 
 echo "Pulling the default Docker image"
-defaultDockerImage=$(terra app get-image)
+defaultDockerImage=$(terra config get-value image)
 docker pull $defaultDockerImage
 
 echo "Making all 'tools' scripts executable"

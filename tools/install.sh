@@ -34,10 +34,10 @@ cd $archiveDir/..
 rm -R $archiveDir
 
 echo "--  Setting the Docker image id to the default"
-./terra app set-image --default
+./terra config set image --default
 
 echo "--  Pulling the default Docker image"
-defaultDockerImage=$(./terra app get-image)
+defaultDockerImage=$(./terra config get-value image)
 docker pull $defaultDockerImage
 
 echo "--  Install complete"

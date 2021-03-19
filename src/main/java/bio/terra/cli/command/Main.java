@@ -34,7 +34,8 @@ import picocli.CommandLine.ParseResult;
       Nextflow.class,
       Notebooks.class,
       Groups.class,
-      Spend.class
+      Spend.class,
+      Config.class
     },
     description = "Terra CLI")
 class Main implements Runnable {
