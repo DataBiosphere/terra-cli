@@ -1,23 +1,21 @@
-package bio.terra.cli.command.auth;
+package bio.terra.cli.command.config.getvalue;
 
 import bio.terra.cli.context.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra auth get-browser" command. */
+/** This class corresponds to the third-level "terra config get-value browser" command. */
 @Command(
-    name = "get-browser",
+    name = "browser",
     description = "Check whether a browser is launched automatically during the login process.")
-public class GetBrowser implements Callable<Integer> {
+public class Browser implements Callable<Integer> {
 
   @Override
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
 
     System.out.println(
-        "Browser will be launched "
-            + (globalContext.launchBrowserAutomatically ? "automatically" : "manually")
-            + ".");
+        "Browser launch mode for login is " + globalContext.browserLaunchOption + ".");
 
     return 0;
   }

@@ -1,4 +1,4 @@
-package bio.terra.cli.command.app;
+package bio.terra.cli.command.config.set;
 
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.context.GlobalContext;
@@ -7,11 +7,11 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra app set-image" command. */
+/** This class corresponds to the third-level "terra config set image" command. */
 @Command(
-    name = "set-image",
+    name = "image",
     description = "[FOR DEBUG] Set the Docker image to use for launching applications.")
-public class SetImage implements Callable<Integer> {
+public class Image implements Callable<Integer> {
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ImageIdArgGroup argGroup;

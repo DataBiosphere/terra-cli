@@ -34,7 +34,8 @@ import picocli.CommandLine.ParseResult;
       Nextflow.class,
       Notebooks.class,
       Groups.class,
-      Spend.class
+      Spend.class,
+      Config.class
     },
     description = "Terra CLI")
 class Main implements Runnable {
@@ -68,9 +69,13 @@ class Main implements Runnable {
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
     cmd.setColorScheme(colorScheme);
 
-    // TODO: Can we only set this for the app commands, where a random command string follows?
-    // It would be good to allow mixing options and parameters for other commands.
-    cmd.setStopAtPositional(true);
+    // allow mixing options and parameters for all commands except the pass-through app commands.
+    // this is because any options that follow the app command name should NOT be interpreted by the
+    // Terra CLI, we want to pass those through to the app instead
+    cmd.getSubcommands().get("bq").setStopAtPositional(true);
+    cmd.getSubcommands().get("gcloud").setStopAtPositional(true);
+    cmd.getSubcommands().get("gsutil").setStopAtPositional(true);
+    cmd.getSubcommands().get("nextflow").setStopAtPositional(true);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     cmd.execute(args);

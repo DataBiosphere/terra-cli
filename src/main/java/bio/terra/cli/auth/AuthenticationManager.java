@@ -49,6 +49,16 @@ public class AuthenticationManager {
   }
 
   /**
+   * This enum configures the browser for authentication. Currently, there are only two possible
+   * values, so this could be a boolean flag instead. However, this may change in the future and
+   * it's useful to have the flag values mapped to strings that can be displayed to the user.
+   */
+  public enum BrowserLaunchOption {
+    manual,
+    auto;
+  }
+
+  /**
    * Fetch all credentials for a new user, and set them as the current Terra user. Prompt for login
    * and consent if they do not already exist or are expired.
    */
@@ -77,13 +87,15 @@ public class AuthenticationManager {
 
       // if there are already credentials for this user, and they are not expired, then return them
       // otherwise, log the user in and get their consent
+      boolean launchBrowserAutomatically =
+          globalContext.browserLaunchOption.equals(BrowserLaunchOption.auto);
       userCredentials =
           GoogleCredentialUtils.doLoginAndConsent(
               terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
               globalContext.getGlobalContextDir().toFile(),
-              globalContext.launchBrowserAutomatically);
+              launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
