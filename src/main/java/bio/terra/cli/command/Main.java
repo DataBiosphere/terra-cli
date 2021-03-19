@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
+import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -72,10 +73,11 @@ class Main implements Runnable {
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
     // Terra CLI, we want to pass those through to the app instead
-    cmd.getSubcommands().get("bq").setStopAtPositional(true);
-    cmd.getSubcommands().get("gcloud").setStopAtPositional(true);
-    cmd.getSubcommands().get("gsutil").setStopAtPositional(true);
-    cmd.getSubcommands().get("nextflow").setStopAtPositional(true);
+    Map<String, CommandLine> subcommands = cmd.getSubcommands();
+    subcommands.get("bq").setStopAtPositional(true);
+    subcommands.get("gcloud").setStopAtPositional(true);
+    subcommands.get("gsutil").setStopAtPositional(true);
+    subcommands.get("nextflow").setStopAtPositional(true);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     cmd.execute(args);
