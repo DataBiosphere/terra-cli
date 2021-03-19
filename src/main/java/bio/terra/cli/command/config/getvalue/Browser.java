@@ -4,7 +4,7 @@ import bio.terra.cli.context.GlobalContext;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra config get-value browser" command. */
+/** This class corresponds to the fourth-level "terra config get-value browser" command. */
 @Command(
     name = "browser",
     description = "Check whether a browser is launched automatically during the login process.")

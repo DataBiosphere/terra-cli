@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra config set browser" command. */
+/** This class corresponds to the fourth-level "terra config set browser" command. */
 @Command(
     name = "browser",
     description = "Configure whether a browser is launched automatically during the login process.")
