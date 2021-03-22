@@ -1,0 +1,8 @@
+{
+  "name": "terra-verily",
+  "description": "Terra environment deployed at Verily.",
+
+  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
+  "samUri": "https://sam.dsde-dev.broadinstitute.org",
+  "workspaceManagerUri": "http://35.223.106.37:8080"
+}
