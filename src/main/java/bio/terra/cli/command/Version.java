@@ -11,4 +11,10 @@ public class Version extends CommandWithFormatOptions<String> {
   protected String execute() {
     return bio.terra.cli.context.utils.Version.getVersion();
   }
+
+  @Override
+  protected boolean requiresLogin() {
+    // command never requires login
+    return false;
+  }
 }

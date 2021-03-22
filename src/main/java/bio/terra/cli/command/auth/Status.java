@@ -60,4 +60,10 @@ public class Status extends CommandWithFormatOptions<Status.AuthStatusReturnValu
       out.println("LOGGED " + (currentTerraUser.requiresReauthentication() ? "OUT" : "IN"));
     }
   }
+
+  @Override
+  protected boolean requiresLogin() {
+    // command never requires login
+    return false;
+  }
 }

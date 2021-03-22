@@ -1,5 +1,6 @@
 package bio.terra.cli.command.baseclasses;
 
+import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
 import java.io.PrintStream;
@@ -33,6 +34,11 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
     globalContext = GlobalContext.readFromFile();
     workspaceContext = WorkspaceContext.readFromFile();
 
+    // do the login flow if required
+    if (requiresLogin()) {
+      new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    }
+
     // get the return value object
     T returnValue = execute();
 
@@ -50,6 +56,19 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
    * @return command return value
    */
   protected abstract T execute();
+
+  /**
+   * This method returns true if login is required for the command. Default implementation is to
+   * always require login.
+   *
+   * <p>Sub-classes can use the current global and workspace context to decide whether to require
+   * login.
+   *
+   * @return true if login is required for this command
+   */
+  protected boolean requiresLogin() {
+    return true;
+  }
 
   /**
    * Default implementation of printing the return value. This method uses the {@link

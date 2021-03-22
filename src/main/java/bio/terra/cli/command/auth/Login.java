@@ -15,4 +15,10 @@ public class Login extends BaseCommand<String> {
     new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     return "Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail;
   }
+
+  @Override
+  protected boolean requiresLogin() {
+    // command never requires login
+    return false;
+  }
 }

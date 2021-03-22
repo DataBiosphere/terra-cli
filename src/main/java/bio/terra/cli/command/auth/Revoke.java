@@ -13,4 +13,10 @@ public class Revoke extends BaseCommand<String> {
     new AuthenticationManager(globalContext, workspaceContext).logoutTerraUser();
     return "Logout successful.";
   }
+
+  @Override
+  protected boolean requiresLogin() {
+    // command never requires login
+    return false;
+  }
 }

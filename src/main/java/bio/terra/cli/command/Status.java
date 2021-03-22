@@ -39,4 +39,10 @@ public class Status extends CommandWithFormatOptions<Status.StatusReturnValue> {
       out.println("Google project: " + workspaceContext.getGoogleProject());
     }
   }
+
+  @Override
+  protected boolean requiresLogin() {
+    // command never requires login
+    return false;
+  }
 }
