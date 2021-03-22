@@ -1,10 +1,10 @@
 package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.command.baseclasses.BaseCommand;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -13,18 +13,18 @@ import picocli.CommandLine.Command;
     name = "nextflow",
     description = "Use the nextflow tool in the Terra workspace.",
     hidden = true)
-public class Nextflow implements Callable<Integer> {
+public class Nextflow extends BaseCommand<Void> {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  protected Void execute() {
+    Map<String, String> envVars = new HashMap<>();
+    envVars.put("NXF_MODE", "google");
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    new bio.terra.cli.apps.Nextflow(globalContext, workspaceContext).run(cmdArgs);
+    String fullCommand = DockerAppsRunner.buildFullCommand("nextflow", cmdArgs);
+    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand, envVars);
 
-    return 0;
+    return null;
   }
 }

@@ -254,6 +254,6 @@ To add a new supported tool:
        - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
    8.  You can mount directories on the host machine to the Docker container by populating a second
    `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
-   has an example of this (see `bio.terra.cli.apps.Nextflow` class `run` method).
+   has an example of this (see `bio.terra.cli.command.app.passthrough.Nextflow` class `execute` method).
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
    (see instructions in section above).

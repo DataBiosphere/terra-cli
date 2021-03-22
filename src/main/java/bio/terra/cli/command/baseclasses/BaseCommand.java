@@ -35,7 +35,7 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
     workspaceContext = WorkspaceContext.readFromFile();
 
     // do the login flow if required
-    if (requiresLogin()) {
+    if (doLogin()) {
       new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     }
 
@@ -66,7 +66,7 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
    *
    * @return true if login is required for this command
    */
-  protected boolean requiresLogin() {
+  protected boolean doLogin() {
     return true;
   }
 
@@ -74,9 +74,14 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
    * Default implementation of printing the return value. This method uses the {@link
    * Object#toString} method of the return value object.
    *
+   * <p>Skips printing out a null value to handle the no return value case (i.e. class type
+   * parameter T = Void).
+   *
    * @param returnValue command return value
    */
-  void printReturnValue(T returnValue) {
-    out.println(returnValue.toString());
+  protected void printReturnValue(T returnValue) {
+    if (returnValue != null) {
+      out.println(returnValue.toString());
+    }
   }
 }

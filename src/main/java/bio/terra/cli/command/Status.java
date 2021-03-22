@@ -41,7 +41,7 @@ public class Status extends CommandWithFormatOptions<Status.StatusReturnValue> {
   }
 
   @Override
-  protected boolean requiresLogin() {
+  protected boolean doLogin() {
     // command never requires login
     return false;
   }

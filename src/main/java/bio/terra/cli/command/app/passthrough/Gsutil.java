@@ -1,11 +1,8 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.baseclasses.BaseCommand;
 import java.util.List;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,22 +11,18 @@ import picocli.CommandLine.Command;
     name = "gsutil",
     description = "Use the gsutil tool in the Terra workspace.",
     hidden = true)
-public class Gsutil implements Callable<Integer> {
+public class Gsutil extends BaseCommand<Void> {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  protected Void execute() {
     String fullCommand = DockerAppsRunner.buildFullCommand("gsutil", cmdArgs);
 
     // no need for any special setup or teardown logic since gsutil is already initialized when the
     // container starts
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
 
-    return 0;
+    return null;
   }
 }

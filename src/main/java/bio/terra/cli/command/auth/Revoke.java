@@ -15,7 +15,7 @@ public class Revoke extends BaseCommand<String> {
   }
 
   @Override
-  protected boolean requiresLogin() {
+  protected boolean doLogin() {
     // command never requires login
     return false;
   }

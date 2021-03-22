@@ -1,6 +1,5 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.baseclasses.BaseCommand;
 import picocli.CommandLine.Command;
 
@@ -12,13 +11,8 @@ public class Login extends BaseCommand<String> {
 
   @Override
   protected String execute() {
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+    // the base command class will always login the user unless the {@link BaseCommand#doLogin}
+    // method is overridden
     return "Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail;
-  }
-
-  @Override
-  protected boolean requiresLogin() {
-    // command never requires login
-    return false;
   }
 }

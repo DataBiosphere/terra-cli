@@ -13,7 +13,7 @@ public class Version extends CommandWithFormatOptions<String> {
   }
 
   @Override
-  protected boolean requiresLogin() {
+  protected boolean doLogin() {
     // command never requires login
     return false;
   }
