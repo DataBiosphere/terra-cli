@@ -1,31 +1,24 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
 import bio.terra.cli.context.CloudResource;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra data-refs list" command. */
 @CommandLine.Command(name = "list", description = "List all data references.")
-public class List implements Callable<Integer> {
+public class List extends CommandWithFormatOptions<java.util.List<CloudResource>> {
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  protected java.util.List<CloudResource> execute() {
+    return new WorkspaceManager(globalContext, workspaceContext).listDataReferences();
+  }
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    java.util.List<CloudResource> dataReferences =
-        new WorkspaceManager(globalContext, workspaceContext).listDataReferences();
-
-    for (CloudResource dataReference : dataReferences) {
+  @Override
+  protected void printText(java.util.List<CloudResource> returnValue) {
+    for (CloudResource dataReference : returnValue) {
       System.out.println(
           dataReference.name + " (" + dataReference.type + "): " + dataReference.cloudId);
     }
-
-    return 0;
   }
 }

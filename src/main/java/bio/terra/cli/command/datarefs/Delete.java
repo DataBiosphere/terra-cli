@@ -1,16 +1,13 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
 import bio.terra.cli.context.CloudResource;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra data-refs delete" command. */
 @CommandLine.Command(name = "delete", description = "Delete an existing data reference.")
-public class Delete implements Callable<Integer> {
+public class Delete extends CommandWithFormatOptions<CloudResource> {
 
   @CommandLine.Option(
       names = "--name",
@@ -19,16 +16,12 @@ public class Delete implements Callable<Integer> {
   private String name;
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  protected CloudResource execute() {
+    return new WorkspaceManager(globalContext, workspaceContext).deleteDataReference(name);
+  }
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    CloudResource dataReference =
-        new WorkspaceManager(globalContext, workspaceContext).deleteDataReference(name);
-
-    System.out.println("Workspace data reference successfully deleted: " + dataReference.name);
-
-    return 0;
+  @Override
+  protected void printText(CloudResource returnValue) {
+    out.println("Workspace data reference successfully deleted: " + returnValue.name);
   }
 }
