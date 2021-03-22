@@ -14,6 +14,7 @@ jobs:
         id: checkout_code
         uses: actions/checkout@v2
         with:
+          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           ref: mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
       - name: Bump tag and build version
         id: bump_tag
@@ -45,7 +46,7 @@ jobs:
       - name: Publish a release
         id: publish_release
         run: |
-          ./tools/publish-release.sh $RELEASE_VERSION true
+          echo "./tools/publish-release.sh $RELEASE_VERSION true" # TODO put back
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}
