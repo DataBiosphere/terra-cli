@@ -15,7 +15,8 @@ import picocli.CommandLine;
  *
  * <p>Sub-classes can override any of the print__ methods with a custom implementation.
  *
- * @param <T> class type of the command's return value
+ * @param <T> class type of the command's return value, should be a POJO class that can be
+ *     serialized to JSON
  */
 public abstract class CommandWithFormatOptions<T> extends BaseCommand<T> {
   @CommandLine.Option(

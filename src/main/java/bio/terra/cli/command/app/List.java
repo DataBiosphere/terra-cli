@@ -25,6 +25,12 @@ public class List extends CommandWithFormatOptions<java.util.List<String>> {
     }
   }
 
+  @Override
+  protected boolean doLogin() {
+    // command never requires login
+    return false;
+  }
+
   /**
    * This enum specifies the list returned by the 'terra app list' command. These commands are
    * hidden top-level commands that can be called in a pass-through manner, meaning the user can

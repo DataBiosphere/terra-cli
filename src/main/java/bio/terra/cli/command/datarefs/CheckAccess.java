@@ -18,6 +18,8 @@ public class CheckAccess extends CommandWithFormatOptions<CheckAccess.CheckAcces
       description = "The name of the data reference, scoped to the workspace.")
   private String name;
 
+  private TerraUser currentTerraUser;
+
   @Override
   protected CheckAccessReturnValue execute() {
     CloudResource dataReference =
@@ -43,8 +45,6 @@ public class CheckAccess extends CommandWithFormatOptions<CheckAccess.CheckAcces
       this.proxyGroupHasAccess = proxyGroupHasAccess;
     }
   }
-
-  private TerraUser currentTerraUser;
 
   @Override
   protected void printText(CheckAccessReturnValue returnValue) {

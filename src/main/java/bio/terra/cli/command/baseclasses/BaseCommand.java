@@ -51,7 +51,7 @@ public abstract class BaseCommand<T> implements Callable<Integer> {
 
   /**
    * Required override for executing this command and returning an instance of the return value
-   * object. The return value should be a POJO class that can be serialized to JSON.
+   * object.
    *
    * @return command return value
    */
