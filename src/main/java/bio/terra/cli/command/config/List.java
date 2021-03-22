@@ -14,8 +14,8 @@ public class List implements Callable<Integer> {
   public Integer call() {
     GlobalContext globalContext = GlobalContext.readFromFile();
 
-    System.out.println("browser launch for login = " + globalContext.browserLaunchOption);
-    System.out.println("docker image id = " + globalContext.dockerImageId);
+    System.out.println("[browser] browser launch for login = " + globalContext.browserLaunchOption);
+    System.out.println("[image] docker image id = " + globalContext.dockerImageId);
 
     return 0;
   }
