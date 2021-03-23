@@ -138,10 +138,56 @@ terra workspace create
 terra status
 ```
 
-If you wanted to use an existing Terra workspace, use the mount command instead of create.
+List all workspaces the user has read access to.
+```
+terra workspace list
+```
+
+If you want to use an existing Terra workspace, use the mount command instead of create.
 ```
 terra workspace mount eb0753f9-5c45-46b3-b3b4-80b4c7bea248
 ```
+
+Run a Nextflow hello world example.
+```
+terra nextflow run hello
+```
+
+Run an [example Nextflow workflow](https://github.com/nextflow-io/rnaseq-nf).
+This is the same example workflow used in the [GCLS tutorial](https://cloud.google.com/life-sciences/docs/tutorials/nextflow).
+- Fetch the workflow code
+    ```
+    git clone https://github.com/nextflow-io/rnaseq-nf.git
+    cd rnaseq-nf
+    git checkout v2.0
+    cd ..
+    ```
+- Create a bucket in the workspace for Nextflow to use.
+    ```
+    terra resources create --name=mybucket --type=bucket
+    ```
+- Update the `gls` section of the `nextflow.config` file to point to the workspace project and the bucket we just created.
+    ```
+      gls {
+          params.transcriptome = 'gs://rnaseq-nf/data/ggal/transcript.fa'
+          params.reads = 'gs://rnaseq-nf/data/ggal/gut_{1,2}.fq'
+          params.multiqc = 'gs://rnaseq-nf/multiqc'
+          process.executor = 'google-lifesciences'
+          process.container = 'nextflow/rnaseq-nf:latest'
+          workDir = "$TERRA_MYBUCKET/scratch"
+          google.location = 'europe-west2'
+          google.region  = 'europe-west1'
+          google.project = "$GOOGLE_CLOUD_PROJECT"
+      }
+    ```
+- Do a dry-run to confirm the config is set correctly.
+    ```
+    ./terra nextflow config rnaseq-nf/main.nf -profile gls
+    ```
+- Kick off the workflow. (This takes about 10 minutes to complete.)
+    ```
+    ./terra nextflow run rnaseq-nf/main.nf -profile gls
+    ```
 
 Call the Gcloud CLI tools within the workspace context.
 This means the commands are executed against the workspace project and as the current user.
@@ -149,13 +195,6 @@ This means the commands are executed against the workspace project and as the cu
 terra gcloud config get-value project
 terra gsutil ls
 terra bq version
-```
-
-Enable the Nextflow tool. This will create a sub-directory called `nextflow`.
-Run a Nextflow hello world example.
-```
-terra app enable nextflow
-terra nextflow run hello
 ```
 
 See the list of supported (external) tools.
@@ -255,6 +294,7 @@ The server is part of the global context, so this value applies across workspace
 Usage: terra workspace [COMMAND]
 Setup a Terra workspace.
 Commands:
+  list         List all workspaces the current user can access.
   create       Create a new workspace.
   mount        Mount an existing workspace to the current directory.
   delete       Delete an existing workspace.
@@ -431,21 +471,6 @@ profiles {
 
   }
 }
-```
-
-Example commands for creating a new controlled bucket resource and then running a Nextflow workflow using
-this bucket as the working directory.
-```
-> terra resources create --name=mybucket --type=bucket
-bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
-Workspace resource successfully added: mybucket
-
-> terra nextflow run rnaseq-nf/main.nf -profile gls
-  Setting up Terra app environment...
-  Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
-  Updated property [core/project].
-  Done setting up Terra app environment...
-[...Nextflow output...]
 ```
 
 #### See all environment variables
