@@ -12,8 +12,8 @@ public class Login extends CommandSetup {
   /** Login the user and print out a success message. */
   @Override
   protected void execute() {
-    // the base command class will always login the user unless the {@link BaseCommand#doLogin}
+    // the base class will always login the user unless the {@link CommandSetup#doLogin}
     // method is overridden
-    out.println("Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail);
+    OUT.println("Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail);
   }
 }

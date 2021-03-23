@@ -45,7 +45,7 @@ public class Add extends CommandSetup {
    * @param returnValue command return value object
    */
   private static void printText(CloudResource returnValue) {
-    out.println(
+    OUT.println(
         "Workspace data reference successfully added: "
             + returnValue.name
             + " ("

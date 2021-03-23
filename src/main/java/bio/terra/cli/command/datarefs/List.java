@@ -27,7 +27,7 @@ public class List extends CommandSetup {
    */
   private static void printText(java.util.List<CloudResource> returnValue) {
     for (CloudResource dataReference : returnValue) {
-      out.println(dataReference.name + " (" + dataReference.type + "): " + dataReference.cloudId);
+      OUT.println(dataReference.name + " (" + dataReference.type + "): " + dataReference.cloudId);
     }
   }
 }

@@ -11,7 +11,7 @@ public abstract class CommandSetup implements Callable<Integer> {
   protected WorkspaceContext workspaceContext;
 
   // output stream to use for writing command return value
-  protected static final PrintStream out = System.out;
+  protected static final PrintStream OUT = System.out;
 
   @Override
   public Integer call() {

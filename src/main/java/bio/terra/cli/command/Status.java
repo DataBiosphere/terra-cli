@@ -41,14 +41,14 @@ public class Status extends CommandSetup {
    * @param returnValue command return value object
    */
   private void printText(StatusReturnValue returnValue) {
-    out.println("Terra server: " + globalContext.server.name);
+    OUT.println("Terra server: " + globalContext.server.name);
 
     // check if current workspace is defined
     if (workspaceContext.isEmpty()) {
-      out.println("There is no current Terra workspace defined.");
+      OUT.println("There is no current Terra workspace defined.");
     } else {
-      out.println("Terra workspace: " + workspaceContext.getWorkspaceId());
-      out.println("Google project: " + workspaceContext.getGoogleProject());
+      OUT.println("Terra workspace: " + workspaceContext.getWorkspaceId());
+      OUT.println("Google project: " + workspaceContext.getGoogleProject());
     }
   }
 

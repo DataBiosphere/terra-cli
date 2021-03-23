@@ -32,6 +32,6 @@ public class Delete extends CommandSetup {
    * @param returnValue command return value object
    */
   private static void printText(CloudResource returnValue) {
-    out.println("Workspace data reference successfully deleted: " + returnValue.name);
+    OUT.println("Workspace data reference successfully deleted: " + returnValue.name);
   }
 }

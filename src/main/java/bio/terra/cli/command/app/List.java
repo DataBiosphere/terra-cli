@@ -29,10 +29,10 @@ public class List extends CommandSetup {
    * @param returnValue command return value object
    */
   private static void printText(java.util.List<String> returnValue) {
-    out.println(
+    OUT.println(
         "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
     for (String app : returnValue) {
-      out.println("  " + app);
+      OUT.println("  " + app);
     }
   }
 

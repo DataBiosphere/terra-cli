@@ -53,6 +53,7 @@ public class Status extends CommandSetup {
     // true if there is a current user defined in the global context
     public final boolean currentUserDefined;
 
+    /** Constructor for when there is a current user defined. */
     public AuthStatusReturnValue(String userEmail, String proxyGroupEmail, boolean loggedIn) {
       this.userEmail = userEmail;
       this.proxyGroupEmail = proxyGroupEmail;
@@ -60,6 +61,7 @@ public class Status extends CommandSetup {
       this.currentUserDefined = true;
     }
 
+    /** Constructor for when there is NOT a current user defined. */
     public AuthStatusReturnValue() {
       this.userEmail = null;
       this.proxyGroupEmail = null;
@@ -76,13 +78,13 @@ public class Status extends CommandSetup {
   private void printText(AuthStatusReturnValue returnValue) {
     // check if current user is defined
     if (returnValue.userEmail == null) {
-      out.println("No current Terra user defined.");
+      OUT.println("No current Terra user defined.");
     } else {
-      out.println("Current Terra user: " + returnValue.userEmail);
-      out.println("Current Terra user's proxy group: " + returnValue.proxyGroupEmail);
+      OUT.println("Current Terra user: " + returnValue.userEmail);
+      OUT.println("Current Terra user's proxy group: " + returnValue.proxyGroupEmail);
 
       // check if the current user needs to re-authenticate (i.e. is logged out)
-      out.println("LOGGED " + (returnValue.loggedIn ? "IN" : "OUT"));
+      OUT.println("LOGGED " + (returnValue.loggedIn ? "IN" : "OUT"));
     }
   }
 

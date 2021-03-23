@@ -12,7 +12,7 @@ public class Revoke extends CommandSetup {
   @Override
   protected void execute() {
     new AuthenticationManager(globalContext, workspaceContext).logoutTerraUser();
-    out.println("Logout successful.");
+    OUT.println("Logout successful.");
   }
 
   /**

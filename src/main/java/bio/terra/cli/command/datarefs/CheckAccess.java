@@ -62,13 +62,13 @@ public class CheckAccess extends CommandSetup {
    */
   private void printText(CheckAccessReturnValue returnValue) {
     TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
-    out.println(
+    OUT.println(
         "User ("
             + currentTerraUser.terraUserEmail
             + ") DOES "
             + (returnValue.userHasAccess ? "" : "NOT ")
             + "have access to this data reference.");
-    out.println(
+    OUT.println(
         "User's pet SA in their proxy group ("
             + currentTerraUser.terraProxyGroupEmail
             + ") DOES "
