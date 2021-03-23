@@ -1,33 +1,48 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
+import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.FormatFlag;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra app list" command. */
 @Command(name = "list", description = "List the supported applications.")
-public class List extends CommandWithFormatOptions<java.util.List<String>> {
+public class List extends CommandSetup {
 
+  @CommandLine.Mixin FormatFlag formatFlag;
+
+  /** Print out a list of all the supported apps. */
   @Override
-  protected java.util.List<String> execute() {
-    return Arrays.asList(PassThrough.values()).stream()
-        .map(passthrough -> passthrough.toString())
-        .collect(Collectors.toList());
+  protected void execute() {
+    java.util.List<String> returnValue =
+        Arrays.asList(PassThrough.values()).stream()
+            .map(passthrough -> passthrough.toString())
+            .collect(Collectors.toList());
+    formatFlag.printReturnValue(returnValue, List::printText);
   }
 
-  @Override
-  protected void printText(java.util.List<String> returnValue) {
+  /**
+   * Print this command's output in text format.
+   *
+   * @param returnValue command return value object
+   */
+  private static void printText(java.util.List<String> returnValue) {
     out.println(
         "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
-    for (PassThrough app : PassThrough.values()) {
-      System.out.println("  " + app);
+    for (String app : returnValue) {
+      out.println("  " + app);
     }
   }
 
+  /**
+   * This command never requires login.
+   *
+   * @return false, always
+   */
   @Override
   protected boolean doLogin() {
-    // command never requires login
     return false;
   }
 

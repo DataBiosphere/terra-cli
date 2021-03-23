@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.command.baseclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.CommandSetup;
 import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -11,18 +11,17 @@ import picocli.CommandLine.Command;
     name = "gcloud",
     description = "Use the gcloud tool in the Terra workspace.",
     hidden = true)
-public class Gcloud extends BaseCommand<Void> {
+public class Gcloud extends CommandSetup {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
+  /** Pass the command through to the CLI Docker image. */
   @Override
-  protected Void execute() {
+  protected void execute() {
     String fullCommand = DockerAppsRunner.buildFullCommand("gcloud", cmdArgs);
 
     // no need for any special setup or teardown logic since gcloud is already initialized when the
     // container starts
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
-
-    return null;
   }
 }

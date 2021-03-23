@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.command.baseclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.CommandSetup;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,18 +13,17 @@ import picocli.CommandLine.Command;
     name = "nextflow",
     description = "Use the nextflow tool in the Terra workspace.",
     hidden = true)
-public class Nextflow extends BaseCommand<Void> {
+public class Nextflow extends CommandSetup {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 
+  /** Pass the command through to the CLI Docker image. */
   @Override
-  protected Void execute() {
+  protected void execute() {
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
 
     String fullCommand = DockerAppsRunner.buildFullCommand("nextflow", cmdArgs);
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand, envVars);
-
-    return null;
   }
 }

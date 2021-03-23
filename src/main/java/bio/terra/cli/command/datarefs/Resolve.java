@@ -1,6 +1,7 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
+import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.FormatFlag;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.service.WorkspaceManager;
 import picocli.CommandLine;
@@ -9,7 +10,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "resolve",
     description = "Resolve a data reference to its cloud id or path.")
-public class Resolve extends CommandWithFormatOptions<String> {
+public class Resolve extends CommandSetup {
 
   @CommandLine.Option(
       names = "--name",
@@ -17,10 +18,13 @@ public class Resolve extends CommandWithFormatOptions<String> {
       description = "The name of the data reference, scoped to the workspace.")
   private String name;
 
+  @CommandLine.Mixin FormatFlag formatFlag;
+
+  /** Resolve a data reference in the workspace to its cloud identifier. */
   @Override
-  protected String execute() {
+  protected void execute() {
     CloudResource dataReference =
         new WorkspaceManager(globalContext, workspaceContext).getDataReference(name);
-    return dataReference.cloudId;
+    formatFlag.printReturnValue(dataReference.cloudId);
   }
 }

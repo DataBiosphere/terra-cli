@@ -1,6 +1,7 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
+import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.FormatFlag;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.WorkspaceManager;
@@ -10,7 +11,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "check-access",
     description = "Check if you have access to a data reference.")
-public class CheckAccess extends CommandWithFormatOptions<CheckAccess.CheckAccessReturnValue> {
+public class CheckAccess extends CommandSetup {
 
   @CommandLine.Option(
       names = "--name",
@@ -18,21 +19,29 @@ public class CheckAccess extends CommandWithFormatOptions<CheckAccess.CheckAcces
       description = "The name of the data reference, scoped to the workspace.")
   private String name;
 
-  private TerraUser currentTerraUser;
+  @CommandLine.Mixin FormatFlag formatFlag;
 
+  /** Check if the user and their proxy group have access to a data reference. */
   @Override
-  protected CheckAccessReturnValue execute() {
+  protected void execute() {
     CloudResource dataReference =
         new WorkspaceManager(globalContext, workspaceContext).getDataReference(name);
 
-    currentTerraUser = globalContext.requireCurrentTerraUser();
+    TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
     boolean userHasAccess = dataReference.checkAccessForUser(currentTerraUser, workspaceContext);
     boolean proxyGroupHasAccess =
         dataReference.checkAccessForPetSa(currentTerraUser, workspaceContext);
 
-    return new CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);
+    CheckAccessReturnValue checkAccessReturnValue =
+        new CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);
+    formatFlag.printReturnValue(
+        checkAccessReturnValue,
+        returnValue -> {
+          this.printText(returnValue);
+        });
   }
 
+  /** POJO class for printing out this command's output. */
   public static class CheckAccessReturnValue {
     // true if the user's email has acccess
     public final boolean userHasAccess;
@@ -46,15 +55,20 @@ public class CheckAccess extends CommandWithFormatOptions<CheckAccess.CheckAcces
     }
   }
 
-  @Override
-  protected void printText(CheckAccessReturnValue returnValue) {
-    System.out.println(
+  /**
+   * Print this command's output in text format.
+   *
+   * @param returnValue command return value object
+   */
+  private void printText(CheckAccessReturnValue returnValue) {
+    TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
+    out.println(
         "User ("
             + currentTerraUser.terraUserEmail
             + ") DOES "
             + (returnValue.userHasAccess ? "" : "NOT ")
             + "have access to this data reference.");
-    System.out.println(
+    out.println(
         "User's pet SA in their proxy group ("
             + currentTerraUser.terraProxyGroupEmail
             + ") DOES "

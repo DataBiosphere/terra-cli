@@ -1,24 +1,33 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
+import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.FormatFlag;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.service.WorkspaceManager;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra data-refs list" command. */
 @CommandLine.Command(name = "list", description = "List all data references.")
-public class List extends CommandWithFormatOptions<java.util.List<CloudResource>> {
+public class List extends CommandSetup {
 
+  @CommandLine.Mixin FormatFlag formatFlag;
+
+  /** List the data references in the workspace. */
   @Override
-  protected java.util.List<CloudResource> execute() {
-    return new WorkspaceManager(globalContext, workspaceContext).listDataReferences();
+  protected void execute() {
+    java.util.List<CloudResource> listDataRefsReturnValue =
+        new WorkspaceManager(globalContext, workspaceContext).listDataReferences();
+    formatFlag.printReturnValue(listDataRefsReturnValue, List::printText);
   }
 
-  @Override
-  protected void printText(java.util.List<CloudResource> returnValue) {
+  /**
+   * Print this command's output in text format.
+   *
+   * @param returnValue command return value object
+   */
+  private static void printText(java.util.List<CloudResource> returnValue) {
     for (CloudResource dataReference : returnValue) {
-      System.out.println(
-          dataReference.name + " (" + dataReference.type + "): " + dataReference.cloudId);
+      out.println(dataReference.name + " (" + dataReference.type + "): " + dataReference.cloudId);
     }
   }
 }

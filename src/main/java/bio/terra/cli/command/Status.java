@@ -1,19 +1,27 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.baseclasses.CommandWithFormatOptions;
+import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.FormatFlag;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.workspace.model.WorkspaceDescription;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra status" command. */
 @Command(name = "status", description = "Print details about the current workspace.")
-public class Status extends CommandWithFormatOptions<Status.StatusReturnValue> {
+public class Status extends CommandSetup {
 
+  @CommandLine.Mixin FormatFlag formatFlag;
+
+  /** Build the return value from the global and workspace context. */
   @Override
-  protected StatusReturnValue execute() {
-    return new StatusReturnValue(globalContext.server, workspaceContext.terraWorkspaceModel);
+  protected void execute() {
+    StatusReturnValue statusReturnValue =
+        new StatusReturnValue(globalContext.server, workspaceContext.terraWorkspaceModel);
+    formatFlag.printReturnValue(statusReturnValue, returnValue -> this.printText(returnValue));
   }
 
+  /** POJO class for printing out this command's output. */
   public static class StatusReturnValue {
     // global server context = service uris, environment name
     public final ServerSpecification server;
@@ -27,8 +35,12 @@ public class Status extends CommandWithFormatOptions<Status.StatusReturnValue> {
     }
   }
 
-  @Override
-  protected void printText(StatusReturnValue returnValue) {
+  /**
+   * Print this command's output in text format.
+   *
+   * @param returnValue command return value object
+   */
+  private void printText(StatusReturnValue returnValue) {
     out.println("Terra server: " + globalContext.server.name);
 
     // check if current workspace is defined
@@ -40,9 +52,13 @@ public class Status extends CommandWithFormatOptions<Status.StatusReturnValue> {
     }
   }
 
+  /**
+   * This command never requires login.
+   *
+   * @return false, always
+   */
   @Override
   protected boolean doLogin() {
-    // command never requires login
     return false;
   }
 }
