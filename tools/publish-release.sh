@@ -38,7 +38,9 @@ if [[ $releaseVersion =~ [A-Z] ]]; then
 fi
 
 echo "-- Checking if this version matches the value in build.gradle"
-buildGradleVersion=$(./gradlew getBuildVersion --quiet)
+# note that the --quiet flag has to be before the task name, otherwise log statements
+# related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
+buildGradleVersion=$(./gradlew --quiet getBuildVersion)
 if [ "$releaseVersion" != "$buildGradleVersion" ]; then
   echo "Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
@@ -60,7 +62,9 @@ echo "-- Building the Docker image"
 ./tools/build-docker.sh forRelease
 
 echo "-- Publishing the Docker image"
-./tools/publish-docker.sh stable "terra-cli/$releaseVersion" forRelease
+dockerImageName=$(./gradlew --quiet getDockerImageName) # e.g. terra-cli
+dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
+./tools/publish-docker.sh $dockerImageTag "$dockerImageName/$releaseVersion" forRelease
 
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease

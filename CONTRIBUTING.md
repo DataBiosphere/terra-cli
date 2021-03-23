@@ -102,10 +102,13 @@ The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
 and made executable.
 
-#### Pull an existing image
-The `tools/local-dev.sh` and `install.sh` scripts pull the default image already. So this is mostly useful for
-development and debugging.
+Merging a PR and installing should take care of all this Docker image stuff for you, so these notes are mostly useful
+for debugging/development when you need to make an image available outside of that normal process.
+- The `tools/local-dev.sh` and `install.sh` scripts pull the default image.
+- The `tools/publish-release.sh` script builds and publishes a new image. It also updates the image path that the CLI
+uses to point to this newly published image.
 
+#### Pull an existing image
 The gcr.io/terra-cli-dev registry is public readable, so anyone should be able to pull images.
 
 To use a specific Docker image from GCR:
@@ -166,7 +169,7 @@ look like for someone who did not build the image.
 #### Update the default image
 It's best to do this as part of a release, but if it's necessary to update the default image manually:
 1. Publish the image (see above).
-2. Update the `DockerAppsRunner.DEFAULT_DOCKER_IMAGE_ID` property in the Java code.
+2. Update the `DockerAppsRunner.defaultImageId` method in the Java code to return a hard-coded string.
 
 
 ### Code structure

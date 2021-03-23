@@ -20,7 +20,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.16.0'
+version = '0.10.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -170,12 +170,33 @@ startScripts {
 }
 jar {
     // set attributes in the JAR manifest file that we can access from the Java code
-    manifest {
-        attributes 'Implementation-Title': 'terra-cli',
-                   'Implementation-Version': archiveVersion // this matches the top-level version property
+    // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
+     manifest {
+        attributes  'Specification-Title' : 'Terra CLI',
+                    'Specification-Version' : "${project.version}", // this matches the top-level version property
+                    'Implementation-Title': 'bio.terra.cli',
+                    'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
     }
 }
 
+// convenience tasks to fetch build properties from scripts (e.g. see ./tools/)
 task getBuildVersion {
-    println(version)
+    doLast {
+        println(version)
+    }
+}
+task getDockerRepoPath {
+    doLast {
+        println("${project.properties['dockerRepoPath']}")
+    }
+}
+task getDockerImageName {
+    doLast {
+        println("${project.properties['dockerImageName']}")
+    }
+}
+task getDockerImageTag {
+    doLast {
+        println("${project.properties['dockerImageTag']}")
+    }
 }

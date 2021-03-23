@@ -11,19 +11,42 @@ jobs:
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - name: Checkout current code
-        uses: actions/checkout@master
+        id: checkout_code
+        uses: actions/checkout@v2
         with:
           token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          ref: main
       - name: Bump tag and build version
+        id: bump_tag
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          DEFAULT_BUMP: minor
           RELEASE_BRANCHES: main
           VERSION_FILE_PATH: build.gradle
-          VERSION_LINE_MATCH: ^version
-      - name: Publish a release
+          VERSION_LINE_MATCH: ^version\>
+      - name: Updating code to get the version bump changes
+        id: update_code_post_version_bump
         run: |
-          echo "TODO (PF-570): ./tools/publish-release.sh $RELEASE_VERSION true"
+          git pull
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ steps.tag.outputs.tag }}
+      - name: Render config
+        id: render_config
+        run: |
+          # this step does the equivalent of the tools/render-config.sh script
+          # on local machines, the script fetches a SA from Vault
+          # in GH actions, the SA key is stored in a GH repo secret
+          # regardless of how it was fetched, the publish-release script expects this
+          # key to be stored in rendered/ci-account.json
+          mkdir -p rendered
+          echo "$DEV_CI_SA_KEY" > rendered/ci-account.json
+        env:
+          DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
+      - name: Publish a release
+        id: publish_release
+        run: |
+          ./tools/publish-release.sh $RELEASE_VERSION true
+        env:
+          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}
