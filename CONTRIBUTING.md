@@ -102,10 +102,15 @@ The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
 and made executable.
 
-#### Pull an existing image
-The `tools/local-dev.sh` and `install.sh` scripts pull the default image already. So this is mostly useful for
-development and debugging.
+The `tools/local-dev.sh` and `install.sh` scripts pull the default image. So, the below notes about pulling an image
+are mostly useful for development and debugging.
 
+The `tools/publish-release.sh` script builds and publishes a new image. It also updates the image path that the CLI uses
+to point to this newly published image. So, most code changes should not need to manually image build, publish, and
+udpate the image path. The below notes are mostly useful for debugging and development, when you want to publish an
+image (e.g. for someone else to test) before merging a PR.
+
+#### Pull an existing image
 The gcr.io/terra-cli-dev registry is public readable, so anyone should be able to pull images.
 
 To use a specific Docker image from GCR:
@@ -119,9 +124,6 @@ To use a specific Docker image from GCR:
     ```
 
 #### Build a new image
-The `tools/publish-release.sh` script builds and publishes a new image, and updates the default image path already.
-So this is mostly useful for development and debugging.
-
 For any change in the `docker/` directory to take effect:
 1. Build a new image. This uses a short Git hash for the current commit as the tag. See the script comments for more
 options.
@@ -141,9 +143,6 @@ options.
     ```
 
 #### Publish a new image
-The `tools/publish-release.sh` script builds and publishes a new image, and updates the default image path already.
-So this is mostly useful for development and debugging.
-
 To publish a new image to GCR:
 1. Build the image (see above).
 2. Render the CI credentials from Vault, in order to upload to GCR.

@@ -24,7 +24,7 @@ jobs:
           DEFAULT_BUMP: minor
           RELEASE_BRANCHES: mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
           VERSION_FILE_PATH: build.gradle
-          VERSION_LINE_MATCH: ^version
+          VERSION_LINE_MATCH: ^version\>
       - name: Updating code to get the version bump changes
         id: update_code_post_version_bump
         run: |
