@@ -414,7 +414,7 @@ Commands:
 ```
 
 These commands are property getters and setters for configuring the Terra CLI. Currently the available
-configuration propperties are:
+configuration properties are:
 ```
   browser  Check whether a browser is launched automatically during the login
              process.
