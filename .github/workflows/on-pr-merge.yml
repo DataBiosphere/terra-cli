@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
+      - main
 
 jobs:
   bump-version-publish-release:
@@ -15,14 +15,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          ref: mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
+          ref: main
       - name: Bump tag and build version
         id: bump_tag
         uses: databiosphere/github-actions/actions/bumper@v0.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           DEFAULT_BUMP: minor
-          RELEASE_BRANCHES: mm-PF-569-debug-bumper-gha # TODO: change this back to main before merge
+          RELEASE_BRANCHES: main
           VERSION_FILE_PATH: build.gradle
           VERSION_LINE_MATCH: ^version\>
       - name: Updating code to get the version bump changes
