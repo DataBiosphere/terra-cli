@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
+import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -34,7 +35,8 @@ import picocli.CommandLine.ParseResult;
       Nextflow.class,
       Notebooks.class,
       Groups.class,
-      Spend.class
+      Spend.class,
+      Config.class
     },
     description = "Terra CLI")
 class Main implements Runnable {
@@ -68,9 +70,14 @@ class Main implements Runnable {
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
     cmd.setColorScheme(colorScheme);
 
-    // TODO: Can we only set this for the app commands, where a random command string follows?
-    // It would be good to allow mixing options and parameters for other commands.
-    cmd.setStopAtPositional(true);
+    // allow mixing options and parameters for all commands except the pass-through app commands.
+    // this is because any options that follow the app command name should NOT be interpreted by the
+    // Terra CLI, we want to pass those through to the app instead
+    Map<String, CommandLine> subcommands = cmd.getSubcommands();
+    subcommands.get("bq").setStopAtPositional(true);
+    subcommands.get("gcloud").setStopAtPositional(true);
+    subcommands.get("gsutil").setStopAtPositional(true);
+    subcommands.get("nextflow").setStopAtPositional(true);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     cmd.execute(args);

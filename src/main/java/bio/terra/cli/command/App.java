@@ -1,9 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.app.Execute;
-import bio.terra.cli.command.app.GetImage;
 import bio.terra.cli.command.app.List;
-import bio.terra.cli.command.app.SetImage;
 import picocli.CommandLine.Command;
 
 /**
@@ -13,5 +11,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "app",
     description = "Run applications in the workspace.",
-    subcommands = {List.class, GetImage.class, SetImage.class, Execute.class})
+    subcommands = {List.class, Execute.class})
 public class App {}
