@@ -118,7 +118,7 @@ To use a specific Docker image from GCR:
     ```
 2. Update the image id that the CLI uses.
     ```
-    > terra app set-image --image=gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
+    > terra config set image --image=gcr.io/terra-cli-dev/terra-cli/v0.0:b5fdce0
     ```
 
 #### Build a new image
@@ -137,7 +137,7 @@ options.
     ```
 2. Update the image id that the CLI uses. (See output of previous command for image name and tag.)
     ```
-    > terra app set-image --image=terra-cli/local:b5fdce0
+    > terra config set image --image=terra-cli/local:b5fdce0
     ```
 
 #### Publish a new image

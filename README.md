@@ -20,6 +20,7 @@
     * [Notebooks](#notebooks)
     * [Groups](#groups)
     * [Spend](#spend)
+    * [Config](#config)
 4. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
@@ -62,7 +63,7 @@ covers to pull the default Docker image from GCR. This is the reason for the `gc
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
 3. If the machine where you're running the CLI does not have a browser available to it, then use the
-manual login flow by setting the browser flag `terra auth set-browser manual`. See the [Authentication](#authentication)
+manual login flow by setting the browser flag `terra config set browser manual`. See the [Authentication](#authentication)
 section below for more details.
 
 #### Spend profile access
@@ -201,7 +202,7 @@ See the list of supported (external) tools.
 The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
 ```
 terra app list
-terra app get-image
+terra config get image
 ```
 
 ### Commands description
@@ -220,6 +221,7 @@ Commands:
   notebooks  Use AI Notebooks in the workspace.
   groups     Manage groups of users.
   spend      Manage spend profiles.
+  config     Configure the CLI.
 ```
 
 The `status` command prints details about the current workspace and server.
@@ -236,6 +238,7 @@ Each sub-group of commands is described in a sub-section below:
 - Notebooks
 - Groups
 - Spend
+- Config
 
 #### Authentication
 ```
@@ -246,10 +249,6 @@ Commands:
   login        Authorize the CLI to access Terra APIs and data with user
                  credentials.
   revoke       Revoke credentials from an account.
-  get-browser  Check whether a browser is launched automatically during the
-                 login process.
-  set-browser  Configure whether a browser is launched automatically during the
-                 login process.
 ```
 
 Only one user can be logged in at a time. To change the active user, revoke the existing credentials and login again.
@@ -261,11 +260,11 @@ Credentials are part of the global context, so you don't need to login again aft
 
 By default, the CLI opens a browser window for the user to click through the OAuth flow. For some use cases (e.g. CloudShell,
 notebook VM), this is not practical because there is no default (or any) browser on the machine. The CLI has a browser
-flag that controls this behavior. `terra set-browser manual` means the user can copy the url into a browser on a different
+option that controls this behavior. `terra config set browser manual` means the user can copy the url into a browser on a different
 machine (e.g. their laptop), confirm the scopes and get the token response, then copy/paste that back into a shell on the
 machine where they want to use the Terra CLI. Example usage:
 ```
-> terra auth set-browser manual
+> terra config set browser manual
 Browser will be launched manually (CHANGED)
 
 > terra auth login
@@ -346,8 +345,6 @@ Usage: terra app [COMMAND]
 Run applications in the workspace.
 Commands:
   list       List the supported applications.
-  get-image  [FOR DEBUG] Get the Docker image used for launching applications.
-  set-image  [FOR DEBUG] Set the Docker image to use for launching applications.
   execute    [FOR DEBUG] Execute a command in the application container for the
                Terra workspace, with no setup.
 ```
@@ -405,6 +402,24 @@ These commands allow managing the users authorized to spend money with Workspace
 creating a project and resources within it). A Spend Profile Manager service has not yet been built.
 In the meantime, WSM uses a single billing account and manages access to it with a single SAM resource.
 These commands are utility wrappers around adding users to this single resource.
+
+#### Config
+```
+Usage: terra config [COMMAND]
+Configure the CLI.
+Commands:
+  list       List all configuration properties and their values.
+  get-value  Get a configuration property value.
+  set        Set a configuration property value.
+```
+
+These commands are property getters and setters for configuring the Terra CLI. Currently the available
+configuration properties are:
+```
+  browser  Check whether a browser is launched automatically during the login
+             process.
+  image    Get the Docker image used for launching applications.
+```
 
 ### Workspace context for applications
 The Terra CLI defines a workspace context for applications to run in. This context includes:
