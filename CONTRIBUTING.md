@@ -102,13 +102,11 @@ The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
 and made executable.
 
-The `tools/local-dev.sh` and `install.sh` scripts pull the default image. So, the below notes about pulling an image
-are mostly useful for development and debugging.
-
-The `tools/publish-release.sh` script builds and publishes a new image. It also updates the image path that the CLI uses
-to point to this newly published image. So, most code changes should not need to manually image build, publish, and
-udpate the image path. The below notes are mostly useful for debugging and development, when you want to publish an
-image (e.g. for someone else to test) before merging a PR.
+Merging a PR and installing should take care of all this Docker image stuff for you, so these notes are mostly useful
+for debugging/development when you need to make an image available outside of that normal process.
+- The `tools/local-dev.sh` and `install.sh` scripts pull the default image.
+- The `tools/publish-release.sh` script builds and publishes a new image. It also updates the image path that the CLI
+uses to point to this newly published image.
 
 #### Pull an existing image
 The gcr.io/terra-cli-dev registry is public readable, so anyone should be able to pull images.
