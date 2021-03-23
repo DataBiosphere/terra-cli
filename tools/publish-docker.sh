@@ -38,9 +38,9 @@ echo "Logging in to docker using the CI service account key file"
 cat rendered/ci-account.json | docker login -u _json_key --password-stdin https://gcr.io
 
 echo "Tagging the local docker image with the name to use in GCR"
-dockerGcrProject="terra-cli-dev"
+dockerRepoPath=$(./gradlew --quiet getDockerRepoPath) # e.g. gcr.io/terra-cli-dev
 localImageNameAndTag="$localImageName:$localImageTag"
-remoteImageNameAndTag="gcr.io/$dockerGcrProject/$remoteImageName:$remoteImageTag"
+remoteImageNameAndTag="$dockerRepoPath/$remoteImageName:$remoteImageTag"
 docker tag $localImageNameAndTag $remoteImageNameAndTag
 
 echo "Logging into to gcloud and configuring docker with the CI service account"
@@ -53,7 +53,11 @@ echo "Pushing the image to GCR"
 docker push $remoteImageNameAndTag
 
 echo "Restoring the current gcloud user"
-gcloud config set account $currentGcloudUser
+if [ -n "$currentGcloudUser" ]; then
+  gcloud config set account $currentGcloudUser
+else
+  echo "No current gcloud user to restore"
+fi
 
 # write out the path to the remote image
 echo "$remoteImageNameAndTag successfully pushed to GCR"
