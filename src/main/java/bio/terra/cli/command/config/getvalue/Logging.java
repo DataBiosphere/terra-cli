@@ -20,7 +20,10 @@ public class Logging extends BaseCommand {
     formatOption.printReturnValue(loggingLevels, Logging::printText);
   }
 
-  /** POJO class for printing out this command's output. */
+  /**
+   * POJO class for printing out this command's output. This class is also used by the `terra config
+   * list` command, so it needs to be public.
+   */
   public static class LoggingReturnValue {
     // global logging context = log levels for file and stdout
     public Logger.LogLevel consoleLoggingLevel;

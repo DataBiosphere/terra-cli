@@ -1,9 +1,6 @@
 package bio.terra.cli.command.config.set;
 
-import static bio.terra.cli.command.config.getvalue.Logging.LoggingReturnValue;
-
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.utils.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -28,8 +25,6 @@ public class Logging extends BaseCommand {
       description = "logging level: ${COMPLETION-CANDIDATES}")
   private Logger.LogLevel level;
 
-  @CommandLine.Mixin FormatOption formatOption;
-
   /** Return the updated logging level properties of the global context. */
   @Override
   protected void execute() {
@@ -43,11 +38,6 @@ public class Logging extends BaseCommand {
     } else {
       globalContext.updateFileLoggingLevel(level);
     }
-
-    LoggingReturnValue loggingLevels =
-        new LoggingReturnValue(globalContext.consoleLoggingLevel, globalContext.fileLoggingLevel);
-    formatOption.printReturnValue(
-        loggingLevels, bio.terra.cli.command.config.getvalue.Logging::printText);
   }
 
   /** This command never requires login. */

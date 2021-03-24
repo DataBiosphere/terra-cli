@@ -2,7 +2,6 @@ package bio.terra.cli.command.config.set;
 
 import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -17,13 +16,10 @@ public class Browser extends BaseCommand {
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
   private BrowserLaunchOption mode;
 
-  @CommandLine.Mixin FormatOption formatOption;
-
   /** Return the updated browser launch option property of the global context. */
   @Override
   protected void execute() {
     globalContext.updateBrowserLaunchFlag(mode);
-    formatOption.printReturnValue(globalContext.browserLaunchOption);
   }
 
   /** This command never requires login. */

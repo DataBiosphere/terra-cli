@@ -2,7 +2,6 @@ package bio.terra.cli.command.config.set;
 
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -21,15 +20,11 @@ public class Image extends BaseCommand {
     private boolean useDefault;
   }
 
-  @CommandLine.Mixin FormatOption formatOption;
-
   /** Return the updated docker image id property of the global context. */
   @Override
   protected void execute() {
     String newImageId = argGroup.useDefault ? DockerAppsRunner.defaultImageId() : argGroup.imageId;
     new DockerAppsRunner(globalContext, workspaceContext).updateImageId(newImageId);
-
-    formatOption.printReturnValue(globalContext.dockerImageId);
   }
 
   /** This command never requires login. */
