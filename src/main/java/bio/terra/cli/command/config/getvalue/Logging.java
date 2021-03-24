@@ -18,7 +18,9 @@ public class Logging implements Callable<Integer> {
         "[console] logging level for printing directly to the terminal = "
             + globalContext.consoleLoggingLevel);
     System.out.println(
-        "[file] logging level for writing to files in $HOME/.terra/logs/ = "
+        "[file] logging level for writing to files in "
+            + GlobalContext.getLogFile().getParent()
+            + " = "
             + globalContext.fileLoggingLevel);
 
     return 0;
