@@ -37,7 +37,6 @@ public class GlobalContext {
   // global apps context = docker image id or tag
   public String dockerImageId;
 
-  // TODO (PF-542): add a config command to allow modifying these levels without re-compiling
   // global logging context = log levels for file and stdout
   public LogLevel fileLoggingLevel = LogLevel.INFO;
   public LogLevel consoleLoggingLevel = LogLevel.OFF;
@@ -152,6 +151,34 @@ public class GlobalContext {
         this.browserLaunchOption,
         browserLaunchOption);
     this.browserLaunchOption = browserLaunchOption;
+
+    writeToFile();
+  }
+
+  /**
+   * Setter for the console logging level. Persists on disk.
+   *
+   * @param consoleLoggingLevel new value for the console logging level
+   */
+  public void updateConsoleLoggingLevel(LogLevel consoleLoggingLevel) {
+    logger.info(
+        "Updating console logging level from {} to {}.",
+        this.consoleLoggingLevel,
+        consoleLoggingLevel);
+    this.consoleLoggingLevel = consoleLoggingLevel;
+
+    writeToFile();
+  }
+
+  /**
+   * Setter for the file logging level. Persists on disk.
+   *
+   * @param fileLoggingLevel new value for the file logging level
+   */
+  public void updateFileLoggingLevel(LogLevel fileLoggingLevel) {
+    logger.info(
+        "Updating file logging level from {} to {}.", this.fileLoggingLevel, fileLoggingLevel);
+    this.fileLoggingLevel = fileLoggingLevel;
 
     writeToFile();
   }
