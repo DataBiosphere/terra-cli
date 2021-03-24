@@ -1,22 +1,23 @@
 package bio.terra.cli.command.auth;
 
 import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
-import java.util.concurrent.Callable;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra auth revoke" command. */
 @Command(name = "revoke", description = "Revoke credentials from an account.")
-public class Revoke implements Callable<Integer> {
+public class Revoke extends BaseCommand {
 
+  /** Logout the user and print out a success message. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
+  protected void execute() {
     new AuthenticationManager(globalContext, workspaceContext).logoutTerraUser();
-    System.out.println("Logout successful.");
-    return 0;
+    OUT.println("Logout successful.");
+  }
+
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
   }
 }

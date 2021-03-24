@@ -1,21 +1,41 @@
 package bio.terra.cli.command.app;
 
-import java.util.concurrent.Callable;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra app list" command. */
 @Command(name = "list", description = "List the supported applications.")
-public class List implements Callable<Integer> {
+public class List extends BaseCommand {
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** Print out a list of all the supported apps. */
   @Override
-  public Integer call() {
-    System.out.println(
-        "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
-    for (PassThrough app : PassThrough.values()) {
-      System.out.println("  " + app);
-    }
+  protected void execute() {
+    java.util.List<String> returnValue =
+        Arrays.asList(PassThrough.values()).stream()
+            .map(passthrough -> passthrough.toString())
+            .collect(Collectors.toList());
+    formatOption.printReturnValue(returnValue, List::printText);
+  }
 
-    return 0;
+  /** Print this command's output in text format. */
+  private static void printText(java.util.List<String> returnValue) {
+    OUT.println(
+        "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
+    for (String app : returnValue) {
+      OUT.println("  " + app);
+    }
+  }
+
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
   }
 
   /**
@@ -23,7 +43,7 @@ public class List implements Callable<Integer> {
    * hidden top-level commands that can be called in a pass-through manner, meaning the user can
    * call them as if they were running the commands locally, except with a "terra" prefix. This
    * prefix means that the command will run within the context of a Terra workspace (e.g. in the
-   * backing Google project, wtih data references scoped to the workspace, etc).
+   * backing Google project, with data references scoped to the workspace, etc).
    */
   public enum PassThrough {
     nextflow,

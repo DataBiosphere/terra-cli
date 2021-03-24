@@ -1,16 +1,14 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.CloudResource;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra data-refs add" command. */
 @CommandLine.Command(name = "add", description = "Add a new data reference.")
-public class Add implements Callable<Integer> {
+public class Add extends BaseCommand {
 
   @CommandLine.Option(
       names = "--type",
@@ -31,22 +29,23 @@ public class Add implements Callable<Integer> {
       description = "The bucket path (e.g. gs://my-bucket)")
   private String uri;
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** Add a new data reference to the workspace. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
-    CloudResource dataReference =
+  protected void execute() {
+    CloudResource addDataRefReturnValue =
         new WorkspaceManager(globalContext, workspaceContext).addDataReference(type, name, uri);
+    formatOption.printReturnValue(addDataRefReturnValue, Add::printText);
+  }
 
-    System.out.println(
+  /** Print this command's output in text format. */
+  private static void printText(CloudResource returnValue) {
+    OUT.println(
         "Workspace data reference successfully added: "
-            + dataReference.name
+            + returnValue.name
             + " ("
-            + dataReference.cloudId
+            + returnValue.cloudId
             + ")");
-
-    return 0;
   }
 }
