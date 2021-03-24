@@ -34,11 +34,7 @@ public class CheckAccess extends BaseCommand {
 
     CheckAccessReturnValue checkAccessReturnValue =
         new CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);
-    formatOption.printReturnValue(
-        checkAccessReturnValue,
-        returnValue -> {
-          this.printText(returnValue);
-        });
+    formatOption.printReturnValue(checkAccessReturnValue, this::printText);
   }
 
   /** POJO class for printing out this command's output. */
