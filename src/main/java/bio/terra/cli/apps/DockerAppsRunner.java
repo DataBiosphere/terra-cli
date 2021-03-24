@@ -65,20 +65,20 @@ public class DockerAppsRunner {
   /**
    * Update the Docker image property of the global context.
    *
+   * <p>Logs a warning if the Docker image is not found locally (i.e. hasn't yet been downloaded
+   * with `docker pull`)
+   *
    * @param imageId id or tag of the image
-   * @return true if the Docker image property was updated, false otherwise
    */
-  public boolean updateImageId(String imageId) {
+  public void updateImageId(String imageId) {
     // check if image exists
     try {
       dockerClient.inspectImageCmd(imageId).exec();
     } catch (NotFoundException nfEx) {
-      logger.error("Image not found: {}", imageId, nfEx);
-      return false;
+      logger.warn("Image not found: {}", imageId, nfEx);
     }
 
     globalContext.updateDockerImageId(imageId);
-    return true;
   }
 
   // ====================================================
