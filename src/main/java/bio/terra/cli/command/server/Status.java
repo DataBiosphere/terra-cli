@@ -1,27 +1,39 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.ServerManager;
-import java.util.concurrent.Callable;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra server status" command. */
 @Command(name = "status", description = "Print status and details of the Terra server context.")
-public class Status implements Callable<Integer> {
+public class Status extends BaseCommand {
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** Update the Terra environment to which the CLI is pointing. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    System.out.println(
+  protected void execute() {
+    boolean serverIsOk = new ServerManager(globalContext).pingServerStatus();
+    String serverIsOkMsg = serverIsOk ? "OKAY" : "ERROR CONNECTING";
+    formatOption.printReturnValue(serverIsOkMsg, this::printText);
+  }
+
+  /** Print this command's output in text format. */
+  private void printText(String returnValue) {
+    OUT.println(
         "Current server: "
             + globalContext.server.name
             + " ("
             + globalContext.server.description
             + ")");
+    OUT.println("Server status: " + returnValue);
+  }
 
-    boolean serverIsOk = new ServerManager(globalContext).pingServerStatus();
-    System.out.println("Server status: " + (serverIsOk ? "OKAY" : "ERROR CONNECTING"));
-
-    return 0;
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
   }
 }

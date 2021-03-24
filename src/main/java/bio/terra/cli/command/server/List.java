@@ -1,25 +1,36 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.service.ServerManager;
-import java.util.concurrent.Callable;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra server list" command. */
 @Command(name = "list", description = "List all available Terra servers.")
-public class List implements Callable<Integer> {
+public class List extends BaseCommand {
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** List all Terra environments. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
+  protected void execute() {
     java.util.List<ServerSpecification> allPossibleServers = ServerManager.allPossibleServers();
+    formatOption.printReturnValue(allPossibleServers, this::printText);
+  }
 
-    for (ServerSpecification server : allPossibleServers) {
+  /** Print this command's output in text format. */
+  private void printText(java.util.List<ServerSpecification> returnValue) {
+    for (ServerSpecification server : returnValue) {
       String prefix = (globalContext.server.equals(server)) ? " * " : "   ";
-      System.out.println(prefix + server.name + ": " + server.description);
+      OUT.println(prefix + server.name + ": " + server.description);
     }
+  }
 
-    return 0;
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
   }
 }
