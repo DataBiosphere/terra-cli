@@ -110,7 +110,11 @@ public class Logger {
     consoleAppender.start();
 
     // on the root logger, clear any existing appenders and attach the two created above
+    // also set the root log level to ALL, so that each appender can set its level independently.
+    // if we don't sent the root log level to ALL, then it acts as a second filter for any messages
+    // below its default level DEBUG.
     ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(ROOT_LOGGER_NAME);
+    rootLogger.setLevel(Level.ALL);
     rootLogger.detachAndStopAllAppenders();
     rootLogger.addAppender(rollingFileAppender);
     rootLogger.addAppender(consoleAppender);
@@ -143,7 +147,7 @@ public class Logger {
     encoder.start();
     appender.setEncoder(encoder);
 
-    // filter out any logs that are below the fileLoggingLevel specified in the global context
+    // filter out any logs that are below the logging level specified in the global context
     appender.clearAllFilters();
     ThresholdFilter thresholdFilter = new ThresholdFilter();
     thresholdFilter.setLevel(loggingLevel.levelStr);

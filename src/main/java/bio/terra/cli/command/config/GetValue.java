@@ -2,6 +2,7 @@ package bio.terra.cli.command.config;
 
 import bio.terra.cli.command.config.getvalue.Browser;
 import bio.terra.cli.command.config.getvalue.Image;
+import bio.terra.cli.command.config.getvalue.Logging;
 import picocli.CommandLine.Command;
 
 /**
@@ -11,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "get-value",
     description = "Get a configuration property value.",
-    subcommands = {Browser.class, Image.class})
+    subcommands = {Browser.class, Image.class, Logging.class})
 public class GetValue {}

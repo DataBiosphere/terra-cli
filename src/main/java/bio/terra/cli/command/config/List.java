@@ -16,6 +16,11 @@ public class List implements Callable<Integer> {
 
     System.out.println("[browser] browser launch for login = " + globalContext.browserLaunchOption);
     System.out.println("[image] docker image id = " + globalContext.dockerImageId);
+    System.out.println(
+        "[logging] console logging level = "
+            + globalContext.consoleLoggingLevel
+            + ", file logging level = "
+            + globalContext.fileLoggingLevel);
 
     return 0;
   }

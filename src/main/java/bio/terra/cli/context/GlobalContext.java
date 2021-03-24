@@ -156,6 +156,34 @@ public class GlobalContext {
     writeToFile();
   }
 
+  /**
+   * Setter for the console logging level. Persists on disk.
+   *
+   * @param consoleLoggingLevel new value for the console logging level
+   */
+  public void updateConsoleLoggingLevel(LogLevel consoleLoggingLevel) {
+    logger.info(
+        "Updating console logging level from {} to {}.",
+        this.consoleLoggingLevel,
+        consoleLoggingLevel);
+    this.consoleLoggingLevel = consoleLoggingLevel;
+
+    writeToFile();
+  }
+
+  /**
+   * Setter for the file logging level. Persists on disk.
+   *
+   * @param fileLoggingLevel new value for the file logging level
+   */
+  public void updateFileLoggingLevel(LogLevel fileLoggingLevel) {
+    logger.info(
+        "Updating file logging level from {} to {}.", this.fileLoggingLevel, fileLoggingLevel);
+    this.fileLoggingLevel = fileLoggingLevel;
+
+    writeToFile();
+  }
+
   // ====================================================
   // Server
 
