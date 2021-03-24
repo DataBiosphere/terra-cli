@@ -25,7 +25,7 @@ public class Logging extends BaseCommand {
       description = "logging level: ${COMPLETION-CANDIDATES}")
   private Logger.LogLevel level;
 
-  /** Return the updated logging level properties of the global context. */
+  /** Updates the logging level properties of the global context. */
   @Override
   protected void execute() {
     // note that this new log level will take effect on the NEXT command.

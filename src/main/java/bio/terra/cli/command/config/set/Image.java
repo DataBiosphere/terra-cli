@@ -20,7 +20,7 @@ public class Image extends BaseCommand {
     private boolean useDefault;
   }
 
-  /** Return the updated docker image id property of the global context. */
+  /** Updates the docker image id property of the global context. */
   @Override
   protected void execute() {
     String newImageId = argGroup.useDefault ? DockerAppsRunner.defaultImageId() : argGroup.imageId;

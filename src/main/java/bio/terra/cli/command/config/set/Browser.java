@@ -16,7 +16,7 @@ public class Browser extends BaseCommand {
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
   private BrowserLaunchOption mode;
 
-  /** Return the updated browser launch option property of the global context. */
+  /** Updates the browser launch option property of the global context. */
   @Override
   protected void execute() {
     globalContext.updateBrowserLaunchFlag(mode);
