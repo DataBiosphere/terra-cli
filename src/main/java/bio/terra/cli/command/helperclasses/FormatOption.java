@@ -11,8 +11,10 @@ import picocli.CommandLine;
 /**
  * Command helper class that defines the --format flag and provides utility methods to printing a
  * return value out in different formats.
+ *
+ * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class FormatFlag {
+public class FormatOption {
 
   @CommandLine.Option(
       names = "--format",
@@ -31,12 +33,12 @@ public class FormatFlag {
 
   /**
    * This method calls the {@link #printJson} method if the --format flag is set to JSON. Otherwise,
-   * it calls the {@link #printText} method of the return value object.
+   * it calls the {@link #printText} method, passing the return value object as an argument.
    *
    * @param returnValue command return value
    */
   public <T> void printReturnValue(T returnValue) {
-    printReturnValue(returnValue, FormatFlag::printText, FormatFlag::printJson);
+    printReturnValue(returnValue, FormatOption::printText, FormatOption::printJson);
   }
 
   /**
@@ -48,7 +50,7 @@ public class FormatFlag {
    *     it out in text format
    */
   public <T> void printReturnValue(T returnValue, Consumer<T> printTextFunction) {
-    printReturnValue(returnValue, printTextFunction, FormatFlag::printJson);
+    printReturnValue(returnValue, printTextFunction, FormatOption::printJson);
   }
 
   /**

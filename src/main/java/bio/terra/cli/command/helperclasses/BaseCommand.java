@@ -6,7 +6,18 @@ import bio.terra.cli.context.WorkspaceContext;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
 
-public abstract class CommandSetup implements Callable<Integer> {
+/**
+ * Base class for all commands. This class handles:
+ *
+ * <p>- reading in the current global and workspace context
+ *
+ * <p>- setting up logging
+ *
+ * <p>- executing the command
+ *
+ * <p>Sub-classes define how to execute the command (i.e. the implementation of {@link #execute}).
+ */
+public abstract class BaseCommand implements Callable<Integer> {
   protected GlobalContext globalContext;
   protected WorkspaceContext workspaceContext;
 
@@ -20,7 +31,7 @@ public abstract class CommandSetup implements Callable<Integer> {
     workspaceContext = WorkspaceContext.readFromFile();
 
     // do the login flow if required
-    if (doLogin()) {
+    if (requiresLogin()) {
       new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
     }
 
@@ -31,7 +42,12 @@ public abstract class CommandSetup implements Callable<Integer> {
     return 0;
   }
 
-  /** Required override for executing this command and printing any output. */
+  /**
+   * Required override for executing this command and printing any output.
+   *
+   * <p>Sub-classes should throw exceptions for errors. The Main class handles turning these
+   * exceptions into the appropriate exit code.
+   */
   protected abstract void execute();
 
   /**
@@ -43,7 +59,7 @@ public abstract class CommandSetup implements Callable<Integer> {
    *
    * @return true if login is required for this command
    */
-  protected boolean doLogin() {
+  protected boolean requiresLogin() {
     return true;
   }
 }

@@ -1,12 +1,12 @@
 package bio.terra.cli.command.auth;
 
 import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra auth revoke" command. */
 @Command(name = "revoke", description = "Revoke credentials from an account.")
-public class Revoke extends CommandSetup {
+public class Revoke extends BaseCommand {
 
   /** Logout the user and print out a success message. */
   @Override
@@ -15,13 +15,9 @@ public class Revoke extends CommandSetup {
     OUT.println("Logout successful.");
   }
 
-  /**
-   * This command never requires login.
-   *
-   * @return false, always
-   */
+  /** This command never requires login. */
   @Override
-  protected boolean doLogin() {
+  protected boolean requiresLogin() {
     return false;
   }
 }

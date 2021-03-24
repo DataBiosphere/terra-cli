@@ -1,13 +1,13 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra auth login" command. */
 @Command(
     name = "login",
     description = "Authorize the CLI to access Terra APIs and data with user credentials.")
-public class Login extends CommandSetup {
+public class Login extends BaseCommand {
 
   /** Login the user and print out a success message. */
   @Override

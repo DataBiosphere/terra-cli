@@ -1,30 +1,26 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.helperclasses.CommandSetup;
-import bio.terra.cli.command.helperclasses.FormatFlag;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra version" command. */
 @Command(name = "version", description = "Get the installed version.")
-public class Version extends CommandSetup {
+public class Version extends BaseCommand {
 
-  @CommandLine.Mixin FormatFlag formatFlag;
+  @CommandLine.Mixin FormatOption formatOption;
 
   /** Return value is just the version string. */
   @Override
   protected void execute() {
-    String versionReturnValue = bio.terra.cli.context.utils.Version.getVersion();
-    formatFlag.printReturnValue(versionReturnValue);
+    String version = bio.terra.cli.context.utils.Version.getVersion();
+    formatOption.printReturnValue(version);
   }
 
-  /**
-   * This command never requires login.
-   *
-   * @return false, always
-   */
+  /** This command never requires login. */
   @Override
-  protected boolean doLogin() {
+  protected boolean requiresLogin() {
     return false;
   }
 }

@@ -1,7 +1,7 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.helperclasses.CommandSetup;
-import bio.terra.cli.command.helperclasses.FormatFlag;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
@@ -9,20 +9,20 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra status" command. */
 @Command(name = "status", description = "Print details about the current workspace.")
-public class Status extends CommandSetup {
+public class Status extends BaseCommand {
 
-  @CommandLine.Mixin FormatFlag formatFlag;
+  @CommandLine.Mixin FormatOption formatOption;
 
   /** Build the return value from the global and workspace context. */
   @Override
   protected void execute() {
     StatusReturnValue statusReturnValue =
         new StatusReturnValue(globalContext.server, workspaceContext.terraWorkspaceModel);
-    formatFlag.printReturnValue(statusReturnValue, returnValue -> this.printText(returnValue));
+    formatOption.printReturnValue(statusReturnValue, returnValue -> this.printText(returnValue));
   }
 
   /** POJO class for printing out this command's output. */
-  public static class StatusReturnValue {
+  private static class StatusReturnValue {
     // global server context = service uris, environment name
     public final ServerSpecification server;
 
@@ -35,11 +35,7 @@ public class Status extends CommandSetup {
     }
   }
 
-  /**
-   * Print this command's output in text format.
-   *
-   * @param returnValue command return value object
-   */
+  /** Print this command's output in text format. */
   private void printText(StatusReturnValue returnValue) {
     OUT.println("Terra server: " + globalContext.server.name);
 
@@ -52,13 +48,9 @@ public class Status extends CommandSetup {
     }
   }
 
-  /**
-   * This command never requires login.
-   *
-   * @return false, always
-   */
+  /** This command never requires login. */
   @Override
-  protected boolean doLogin() {
+  protected boolean requiresLogin() {
     return false;
   }
 }

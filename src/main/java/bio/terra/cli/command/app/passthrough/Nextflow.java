@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
     name = "nextflow",
     description = "Use the nextflow tool in the Terra workspace.",
     hidden = true)
-public class Nextflow extends CommandSetup {
+public class Nextflow extends BaseCommand {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 

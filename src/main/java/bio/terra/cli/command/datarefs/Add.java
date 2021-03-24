@@ -1,14 +1,14 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.command.helperclasses.CommandSetup;
-import bio.terra.cli.command.helperclasses.FormatFlag;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.service.WorkspaceManager;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra data-refs add" command. */
 @CommandLine.Command(name = "add", description = "Add a new data reference.")
-public class Add extends CommandSetup {
+public class Add extends BaseCommand {
 
   @CommandLine.Option(
       names = "--type",
@@ -29,21 +29,17 @@ public class Add extends CommandSetup {
       description = "The bucket path (e.g. gs://my-bucket)")
   private String uri;
 
-  @CommandLine.Mixin FormatFlag formatFlag;
+  @CommandLine.Mixin FormatOption formatOption;
 
   /** Add a new data reference to the workspace. */
   @Override
   protected void execute() {
     CloudResource addDataRefReturnValue =
         new WorkspaceManager(globalContext, workspaceContext).addDataReference(type, name, uri);
-    formatFlag.printReturnValue(addDataRefReturnValue, Add::printText);
+    formatOption.printReturnValue(addDataRefReturnValue, Add::printText);
   }
 
-  /**
-   * Print this command's output in text format.
-   *
-   * @param returnValue command return value object
-   */
+  /** Print this command's output in text format. */
   private static void printText(CloudResource returnValue) {
     OUT.println(
         "Workspace data reference successfully added: "

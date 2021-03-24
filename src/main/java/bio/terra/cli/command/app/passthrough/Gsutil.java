@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.command.helperclasses.CommandSetup;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
     name = "gsutil",
     description = "Use the gsutil tool in the Terra workspace.",
     hidden = true)
-public class Gsutil extends CommandSetup {
+public class Gsutil extends BaseCommand {
 
   @CommandLine.Unmatched private List<String> cmdArgs;
 

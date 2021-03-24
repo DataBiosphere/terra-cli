@@ -1,7 +1,7 @@
 package bio.terra.cli.command.datarefs;
 
-import bio.terra.cli.command.helperclasses.CommandSetup;
-import bio.terra.cli.command.helperclasses.FormatFlag;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.WorkspaceManager;
@@ -11,7 +11,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "check-access",
     description = "Check if you have access to a data reference.")
-public class CheckAccess extends CommandSetup {
+public class CheckAccess extends BaseCommand {
 
   @CommandLine.Option(
       names = "--name",
@@ -19,7 +19,7 @@ public class CheckAccess extends CommandSetup {
       description = "The name of the data reference, scoped to the workspace.")
   private String name;
 
-  @CommandLine.Mixin FormatFlag formatFlag;
+  @CommandLine.Mixin FormatOption formatOption;
 
   /** Check if the user and their proxy group have access to a data reference. */
   @Override
@@ -34,7 +34,7 @@ public class CheckAccess extends CommandSetup {
 
     CheckAccessReturnValue checkAccessReturnValue =
         new CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);
-    formatFlag.printReturnValue(
+    formatOption.printReturnValue(
         checkAccessReturnValue,
         returnValue -> {
           this.printText(returnValue);
@@ -42,7 +42,7 @@ public class CheckAccess extends CommandSetup {
   }
 
   /** POJO class for printing out this command's output. */
-  public static class CheckAccessReturnValue {
+  private static class CheckAccessReturnValue {
     // true if the user's email has acccess
     public final boolean userHasAccess;
 
@@ -55,11 +55,7 @@ public class CheckAccess extends CommandSetup {
     }
   }
 
-  /**
-   * Print this command's output in text format.
-   *
-   * @param returnValue command return value object
-   */
+  /** Print this command's output in text format. */
   private void printText(CheckAccessReturnValue returnValue) {
     TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
     OUT.println(
