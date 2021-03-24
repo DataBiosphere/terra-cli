@@ -1,17 +1,15 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.CloudResource;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resources describe" command. */
 @Command(name = "describe", description = "Describe an existing controlled resource.")
-public class Describe implements Callable<Integer> {
+public class Describe extends BaseCommand {
 
   @CommandLine.Option(
       names = "--name",
@@ -19,19 +17,20 @@ public class Describe implements Callable<Integer> {
       description = "The name of the resource, scoped to the workspace.")
   private String name;
 
-  @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  @CommandLine.Mixin FormatOption formatOption;
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  /** Describe an existing controlled resource. */
+  @Override
+  protected void execute() {
     CloudResource resource =
         new WorkspaceManager(globalContext, workspaceContext).getControlledResource(name);
+    formatOption.printReturnValue(resource, Describe::printText);
+  }
 
-    System.out.println("Name: " + resource.name);
-    System.out.println("Type: " + resource.type);
-    System.out.println("Cloud Id: " + resource.cloudId);
-
-    return 0;
+  /** Print this command's output in text format. */
+  private static void printText(CloudResource returnValue) {
+    OUT.println("Name: " + returnValue.name);
+    OUT.println("Type: " + returnValue.type);
+    OUT.println("Cloud Id: " + returnValue.cloudId);
   }
 }

@@ -1,17 +1,15 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.auth.AuthenticationManager;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.context.CloudResource;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resources create" command. */
 @Command(name = "create", description = "Create a new controlled resource.")
-public class Create implements Callable<Integer> {
+public class Create extends BaseCommand {
 
   @CommandLine.Option(
       names = "--type",
@@ -26,18 +24,19 @@ public class Create implements Callable<Integer> {
           "The name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
   private String name;
 
-  @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  @CommandLine.Mixin FormatOption formatOption;
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  /** Create a new controlled resource. */
+  @Override
+  protected void execute() {
     CloudResource resource =
         new WorkspaceManager(globalContext, workspaceContext).createControlledResource(type, name);
+    formatOption.printReturnValue(resource, Create::printText);
+  }
 
-    System.out.println(resource.type + " successfully created: " + resource.cloudId);
-    System.out.println("Workspace resource successfully added: " + resource.name);
-
-    return 0;
+  /** Print this command's output in text format. */
+  private static void printText(CloudResource returnValue) {
+    OUT.println(returnValue.type + " successfully created: " + returnValue.cloudId);
+    OUT.println("Workspace resource successfully added: " + returnValue.name);
   }
 }
