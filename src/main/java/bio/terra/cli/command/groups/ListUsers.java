@@ -33,7 +33,7 @@ public class ListUsers extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(java.util.List<String> returnValue) {
     for (String user : returnValue) {
-      System.out.println(user);
+      OUT.println(user);
     }
   }
 }

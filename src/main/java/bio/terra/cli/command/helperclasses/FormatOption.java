@@ -1,10 +1,10 @@
 package bio.terra.cli.command.helperclasses;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.context.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import java.io.PrintStream;
 import java.util.function.Consumer;
 import picocli.CommandLine;
 
@@ -28,9 +28,6 @@ public class FormatOption {
     json,
     text;
   }
-
-  // output stream to use for writing command return value
-  private static final PrintStream OUT = System.out;
 
   /**
    * This method calls the {@link #printJson} method if the --format flag is set to JSON. Otherwise,
@@ -84,7 +81,7 @@ public class FormatOption {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     try {
-      OUT.println(objectWriter.writeValueAsString(returnValue));
+      Printer.getOut().println(objectWriter.writeValueAsString(returnValue));
     } catch (JsonProcessingException jsonEx) {
       throw new SystemException("Error JSON-formatting the command return value.", jsonEx);
     }
@@ -98,7 +95,7 @@ public class FormatOption {
    */
   public static <T> void printText(T returnValue) {
     if (returnValue != null) {
-      OUT.println(returnValue.toString());
+      Printer.getOut().println(returnValue.toString());
     }
   }
 }

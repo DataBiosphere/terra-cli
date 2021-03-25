@@ -4,8 +4,11 @@ import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.context.utils.Logger;
-import java.io.PrintStream;
+import bio.terra.cli.context.utils.Printer;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.PrintWriter;
 import java.util.concurrent.Callable;
+import picocli.CommandLine;
 
 /**
  * Base class for all commands. This class handles:
@@ -18,15 +21,31 @@ import java.util.concurrent.Callable;
  *
  * <p>Sub-classes define how to execute the command (i.e. the implementation of {@link #execute}).
  */
+@CommandLine.Command
+@SuppressFBWarnings(
+    value = {"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"},
+    justification =
+        "Output streams are static, so the OUT & ERR properties should also be so. Each command "
+            + "execution should only instantiate a single BaseCommand sub-class. So in practice, "
+            + "the call() instance method will only be called once, and these static pointers to "
+            + "the output streams will only be initialized once. And since picocli handles instantiating "
+            + "the command classes, we can't set the output streams in the constructor and make them "
+            + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   protected GlobalContext globalContext;
   protected WorkspaceContext workspaceContext;
 
-  // output stream to use for writing command return value
-  protected static final PrintStream OUT = System.out;
+  // output streams for commands to write to
+  protected static PrintWriter OUT;
+  protected static PrintWriter ERR;
 
   @Override
   public Integer call() {
+    // pull the output streams from the singleton object setup by the top-level Main class
+    // in the future, these streams could also be controlled by a global context property
+    OUT = Printer.getOut();
+    ERR = Printer.getErr();
+
     // read in the global context and setup logging
     globalContext = GlobalContext.readFromFile();
     new Logger(globalContext).setupLogging();

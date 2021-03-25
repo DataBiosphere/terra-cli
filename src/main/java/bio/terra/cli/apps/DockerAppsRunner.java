@@ -4,6 +4,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.utils.Printer;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -20,6 +21,7 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -350,12 +352,9 @@ public class DockerAppsRunner {
     @Override
     public void onNext(Frame frame) {
       String logStr = new String(frame.getPayload(), Charset.forName("UTF-8"));
-
-      // TODO: PF-423. Calling sysout.println here breaks the model of printing user-facing output
-      // from the command classes only.
-      // Revisit this once we have better model for centralizing output across all commands/rest of
-      // the codebase.
-      System.out.print(logStr); // write to stdout
+      PrintWriter err = Printer.getErr();
+      err.print(logStr);
+      err.flush();
 
       if (buildSingleStringOutput) {
         log.append(logStr);
