@@ -1,11 +1,9 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.WorkspaceDescription;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,7 +12,7 @@ import picocli.CommandLine.Command;
     name = "list",
     description = "List all workspaces the current user can access.",
     showDefaultValues = true)
-public class List implements Callable<Integer> {
+public class List extends BaseCommand {
 
   @CommandLine.Option(
       names = "--offset",
@@ -31,18 +29,19 @@ public class List implements Callable<Integer> {
       description = "The maximum number of workspaces to return.")
   private int limit;
 
-  @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  @CommandLine.Mixin FormatOption formatOption;
 
-    AuthenticationManager authenticationManager =
-        new AuthenticationManager(globalContext, workspaceContext);
-    authenticationManager.loginTerraUser();
+  /** List all workspaces a user has access to. */
+  @Override
+  protected void execute() {
     java.util.List<WorkspaceDescription> workspaces =
         new WorkspaceManager(globalContext, workspaceContext).listWorkspaces(offset, limit);
+    formatOption.printReturnValue(workspaces, this::printText);
+  }
 
-    for (WorkspaceDescription workspace : workspaces) {
+  /** Print this command's output in text format. */
+  private void printText(java.util.List<WorkspaceDescription> returnValue) {
+    for (WorkspaceDescription workspace : returnValue) {
       String prefix =
           (!workspaceContext.isEmpty()
                   && workspaceContext.getWorkspaceId().equals(workspace.getId()))
@@ -50,6 +49,5 @@ public class List implements Callable<Integer> {
               : "   ";
       System.out.println(prefix + workspace.getId());
     }
-    return 0;
   }
 }

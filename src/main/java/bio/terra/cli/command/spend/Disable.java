@@ -1,10 +1,7 @@
 package bio.terra.cli.command.spend;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.service.utils.SpendProfileManagerService;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -12,7 +9,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "disable",
     description = "Disable use of the Workspace Manager default spend profile for a user or group.")
-public class Disable implements Callable<Integer> {
+public class Disable extends BaseCommand {
 
   @CommandLine.Parameters(index = "0", description = "The email of the user or group.")
   private String email;
@@ -23,19 +20,15 @@ public class Disable implements Callable<Integer> {
       description = "The name of the policy: ${COMPLETION-CANDIDATES}")
   private SpendProfileManagerService.SpendProfilePolicy policy;
 
+  /** Remove access to the WSM default spend profile for the given email. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  protected void execute() {
     new SpendProfileManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
         .disableUserForDefaultSpendProfile(policy, email);
 
-    System.out.println(
+    OUT.println(
         "Email "
             + email
             + " successfully disabled on the Workspace Manager default spend profile.");
-    return 0;
   }
 }

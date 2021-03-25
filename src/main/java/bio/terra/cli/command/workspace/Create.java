@@ -1,28 +1,30 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
+import bio.terra.workspace.model.WorkspaceDescription;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace create" command. */
 @Command(name = "create", description = "Create a new workspace.")
-public class Create implements Callable<Integer> {
+public class Create extends BaseCommand {
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** Create a new workspace. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    AuthenticationManager authenticationManager =
-        new AuthenticationManager(globalContext, workspaceContext);
-    authenticationManager.loginTerraUser();
+  protected void execute() {
     new WorkspaceManager(globalContext, workspaceContext).createWorkspace();
-    authenticationManager.fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
+    new AuthenticationManager(globalContext, workspaceContext)
+        .fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
+    formatOption.printReturnValue(workspaceContext.terraWorkspaceModel, this::printText);
+  }
 
-    System.out.println("Workspace successfully created: " + workspaceContext.getWorkspaceId());
-    return 0;
+  /** Print this command's output in text format. */
+  private void printText(WorkspaceDescription returnValue) {
+    OUT.println("Workspace successfully created: " + workspaceContext.getWorkspaceId());
   }
 }

@@ -1,17 +1,14 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.IamRole;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace add-user" command. */
 @Command(name = "add-user", description = "Add a user or group to the workspace.")
-public class AddUser implements Callable<Integer> {
+public class AddUser extends BaseCommand {
 
   @CommandLine.Parameters(index = "0", description = "user or group email")
   private String userEmail;
@@ -19,14 +16,10 @@ public class AddUser implements Callable<Integer> {
   @CommandLine.Parameters(index = "1", description = "Role to grant: ${COMPLETION-CANDIDATES}")
   private IamRole role;
 
+  /** Add an email to the workspace. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  protected void execute() {
     new WorkspaceManager(globalContext, workspaceContext).addUserToWorkspace(userEmail, role);
-    System.out.println("Email added to workspace: " + userEmail + ", " + role);
-    return 0;
+    OUT.println("Email added to workspace: " + userEmail + ", " + role);
   }
 }

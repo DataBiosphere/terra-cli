@@ -1,32 +1,34 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.WorkspaceManager;
-import java.util.concurrent.Callable;
+import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace mount" command. */
 @Command(name = "mount", description = "Mount an existing workspace to the current directory.")
-public class Mount implements Callable<Integer> {
+public class Mount extends BaseCommand {
 
   @CommandLine.Parameters(index = "0", description = "workspace id")
   private String workspaceId;
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** Mount an existing workspace. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    AuthenticationManager authenticationManager =
-        new AuthenticationManager(globalContext, workspaceContext);
-    authenticationManager.loginTerraUser();
+  protected void execute() {
     new WorkspaceManager(globalContext, workspaceContext).mountWorkspace(workspaceId);
-    authenticationManager.fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
+    new AuthenticationManager(globalContext, workspaceContext)
+        .fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
 
-    System.out.println("Workspace successfully mounted: " + workspaceContext.getWorkspaceId());
-    return 0;
+    formatOption.printReturnValue(workspaceContext.terraWorkspaceModel, this::printText);
+  }
+
+  /** Print this command's output in text format. */
+  private void printText(WorkspaceDescription returnValue) {
+    OUT.println("Workspace successfully mounted: " + workspaceContext.getWorkspaceId());
   }
 }
