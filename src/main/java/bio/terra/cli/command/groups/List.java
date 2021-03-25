@@ -1,29 +1,29 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.utils.SamService;
-import java.util.concurrent.Callable;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra groups list" command. */
 @Command(name = "list", description = "List the groups to which the current user belongs.")
-public class List implements Callable<Integer> {
-  @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+public class List extends BaseCommand {
+  @CommandLine.Mixin FormatOption formatOption;
 
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  /** List the groups to which the current user belongs. */
+  @Override
+  protected void execute() {
     java.util.List<ManagedGroupMembershipEntry> groups =
         new SamService(globalContext.server, globalContext.requireCurrentTerraUser()).listGroups();
+    formatOption.printReturnValue(groups, List::printText);
+  }
 
-    for (ManagedGroupMembershipEntry group : groups) {
-      System.out.println(group.getGroupName());
+  /** Print this command's output in text format. */
+  private static void printText(java.util.List<ManagedGroupMembershipEntry> returnValue) {
+    for (ManagedGroupMembershipEntry group : returnValue) {
+      OUT.println(group.getGroupName());
     }
-
-    return 0;
   }
 }

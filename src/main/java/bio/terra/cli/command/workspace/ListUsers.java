@@ -1,32 +1,34 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.FormatOption;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.RoleBinding;
 import bio.terra.workspace.model.RoleBindingList;
-import java.util.concurrent.Callable;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace list-users" command. */
 @Command(name = "list-users", description = "List the users of the workspace.")
-public class ListUsers implements Callable<Integer> {
+public class ListUsers extends BaseCommand {
 
+  @CommandLine.Mixin FormatOption formatOption;
+
+  /** List all users of the workspace. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
-
-    new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+  protected void execute() {
     RoleBindingList roleBindings =
         new WorkspaceManager(globalContext, workspaceContext).listUsersOfWorkspace();
-    for (RoleBinding roleBinding : roleBindings) {
-      System.out.println(roleBinding.getRole());
+    formatOption.printReturnValue(roleBindings, ListUsers::printText);
+  }
+
+  /** Print this command's output in text format. */
+  private static void printText(RoleBindingList returnValue) {
+    for (RoleBinding roleBinding : returnValue) {
+      OUT.println(roleBinding.getRole());
       for (String member : roleBinding.getMembers()) {
-        System.out.println("  " + member);
+        OUT.println("  " + member);
       }
     }
-    return 0;
   }
 }

@@ -18,7 +18,7 @@ public class Status extends BaseCommand {
   protected void execute() {
     StatusReturnValue statusReturnValue =
         new StatusReturnValue(globalContext.server, workspaceContext.terraWorkspaceModel);
-    formatOption.printReturnValue(statusReturnValue, returnValue -> this.printText(returnValue));
+    formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
   /** POJO class for printing out this command's output. */
