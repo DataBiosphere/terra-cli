@@ -3,6 +3,9 @@ package bio.terra.cli.command.notebooks;
 import bio.terra.cli.apps.DockerAppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.context.TerraUser;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import picocli.CommandLine;
@@ -13,15 +16,19 @@ import picocli.CommandLine;
     description = "Create a new AI Notebook instance within your workspace.",
     showDefaultValues = true)
 public class Create extends BaseCommand {
+  private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
+  private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
 
   @CommandLine.Parameters(
       index = "0",
+      paramLabel = "instanceName",
       description =
           "The unique name to give to the notebook instance. Cannot be changed later. "
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
               + "letters, numeric characters, and dashes. The first character must be a lowercase "
-              + "letter and the last character cannot be a dash.")
-  private String instanceName;
+              + "letter and the last character cannot be a dash.",
+      defaultValue = AUTO_GENERATE_NAME)
+  private String rawInstanceName;
 
   @CommandLine.Option(
       names = "--location",
@@ -56,6 +63,7 @@ public class Create extends BaseCommand {
 
     TerraUser user = globalContext.requireCurrentTerraUser();
     String projectId = workspaceContext.getGoogleProject();
+    String instanceName = getInstanceName(user);
 
     // See https://cloud.google.com/sdk/gcloud/reference/notebooks/instances/create
     String command =
@@ -92,11 +100,33 @@ public class Create extends BaseCommand {
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
     envVars.put("TERRA_WORKSPACE_ID", workspaceContext.getWorkspaceId().toString());
 
+    OUT.println(
+        String.format(
+            "Creating notebook instance `projects/%s/locations/%s/instanceId/%s`",
+            projectId, location, instanceName));
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
     OUT.println(
         "Notebook instance starting. This will take ~5-10 minutes.\n"
             + "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project="
             + projectId);
+  }
+
+  /**
+   * Returns the specified instanceName or an auto generated instance name with the username and
+   * date time.
+   */
+  private String getInstanceName(TerraUser user) {
+    if (!AUTO_GENERATE_NAME.equals(rawInstanceName)) {
+      return rawInstanceName;
+    }
+    String localDateTimeSuffix =
+        DateTimeFormatter.ofPattern(AUTO_NAME_DATE_FORMAT)
+            .format(Instant.now().atZone(ZoneId.systemDefault()));
+    return extractUsername(user.terraUserEmail) + localDateTimeSuffix;
+  }
+
+  private static String extractUsername(String validEmail) {
+    return validEmail.substring(0, validEmail.indexOf('@'));
   }
 }
