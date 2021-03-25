@@ -47,7 +47,16 @@ public class List extends BaseCommand {
                   && workspaceContext.getWorkspaceId().equals(workspace.getId()))
               ? " * "
               : "   ";
-      System.out.println(prefix + workspace.getId());
+      OUT.println(prefix + workspace.getId());
+
+      String displayName = workspace.getDisplayName();
+      if (!(displayName == null || displayName.isBlank())) {
+        OUT.println("     Name: " + displayName);
+      }
+      String description = workspace.getDescription();
+      if (!(description == null || description.isBlank())) {
+        OUT.println("     Description: " + description);
+      }
     }
   }
 }

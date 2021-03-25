@@ -100,6 +100,32 @@ public class WorkspaceContext {
   }
 
   /**
+   * Getter for the Terra workspace display name. Returns empty string if the display name is not
+   * defined.
+   *
+   * @return the Terra workspace display name
+   */
+  @JsonIgnore
+  public String getWorkspaceDisplayName() {
+    return terraWorkspaceModel == null || terraWorkspaceModel.getDisplayName() == null
+        ? ""
+        : terraWorkspaceModel.getDisplayName();
+  }
+
+  /**
+   * Getter for the Terra workspace description. Returns empty string if the description is not
+   * defined.
+   *
+   * @return the Terra workspace description
+   */
+  @JsonIgnore
+  public String getWorkspaceDescription() {
+    return terraWorkspaceModel == null || terraWorkspaceModel.getDescription() == null
+        ? ""
+        : terraWorkspaceModel.getDescription();
+  }
+
+  /**
    * Getter for the Terra workspace id.
    *
    * @return the Terra workspace id
