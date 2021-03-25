@@ -27,7 +27,7 @@ public abstract class BaseCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    // read in the global and setup logging
+    // read in the global context and setup logging
     globalContext = GlobalContext.readFromFile();
     new Logger(globalContext).setupLogging();
 
