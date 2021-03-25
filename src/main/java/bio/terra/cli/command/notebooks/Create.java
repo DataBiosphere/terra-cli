@@ -26,7 +26,8 @@ public class Create extends BaseCommand {
           "The unique name to give to the notebook instance. Cannot be changed later. "
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
               + "letters, numeric characters, and dashes. The first character must be a lowercase "
-              + "letter and the last character cannot be a dash.",
+              + "letter and the last character cannot be a dash. If not specified, an "
+              + "auto-generated name based on your email address and time will be used.",
       defaultValue = AUTO_GENERATE_NAME)
   private String rawInstanceName;
 
@@ -116,14 +117,38 @@ public class Create extends BaseCommand {
    * Returns the specified instanceName or an auto generated instance name with the username and
    * date time.
    */
+  // TODO add some unit tests when we have a testing framework.
   private String getInstanceName(TerraUser user) {
     if (!AUTO_GENERATE_NAME.equals(rawInstanceName)) {
       return rawInstanceName;
     }
+    String mangledUsername = mangleUsername(extractUsername(user.terraUserEmail));
     String localDateTimeSuffix =
         DateTimeFormatter.ofPattern(AUTO_NAME_DATE_FORMAT)
             .format(Instant.now().atZone(ZoneId.systemDefault()));
-    return extractUsername(user.terraUserEmail) + localDateTimeSuffix;
+    return mangledUsername + localDateTimeSuffix;
+  }
+
+  /**
+   * Best effort mangle the user's name so that it meets the requirements for a valid instance name.
+   *
+   * <p>Instance name id must match the regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'. I don't have
+   * a documentation link, but gcloud will complain otherwise.
+   */
+  private static String mangleUsername(String username) {
+    // Strip non alpha-numeric or '-' characters.
+    String mangledName = username.replaceAll("[^a-zA-Z0-9-]", "");
+    if (mangledName.isEmpty()) {
+      mangledName = "notebook";
+    }
+    // Lower case everything, even though only the first character requires lowercase.
+    mangledName = mangledName.toLowerCase();
+    // Make sure the returned name isn't too long to not have the date time suffix.
+    int maxNameLength = 61 - AUTO_NAME_DATE_FORMAT.length();
+    if (mangledName.length() > maxNameLength) {
+      mangledName = mangledName.substring(0, maxNameLength);
+    }
+    return mangledName;
   }
 
   private static String extractUsername(String validEmail) {
