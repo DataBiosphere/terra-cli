@@ -23,8 +23,16 @@ public class Image extends BaseCommand {
   /** Updates the docker image id property of the global context. */
   @Override
   protected void execute() {
+    String prevImageId = globalContext.dockerImageId;
     String newImageId = argGroup.useDefault ? DockerAppsRunner.defaultImageId() : argGroup.imageId;
     new DockerAppsRunner(globalContext, workspaceContext).updateImageId(newImageId);
+
+    if (globalContext.dockerImageId.equals(prevImageId)) {
+      OUT.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");
+    } else {
+      OUT.println(
+          "Docker image: " + globalContext.dockerImageId + " (CHANGED FROM " + prevImageId + ")");
+    }
   }
 
   /** This command never requires login. */

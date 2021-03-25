@@ -39,10 +39,10 @@ public class Logging extends BaseCommand {
   /** Print this command's output in text format. */
   public static void printText(LoggingReturnValue returnValue) {
     OUT.println(
-        "[console] logging level for printing directly to the terminal = "
+        "[logging, console] logging level for printing directly to the terminal = "
             + returnValue.consoleLoggingLevel);
     OUT.println(
-        "[file] logging level for writing to files in "
+        "[logging, file] logging level for writing to files in "
             + GlobalContext.getLogFile().getParent()
             + " = "
             + returnValue.fileLoggingLevel);

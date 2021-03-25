@@ -35,8 +35,10 @@ public class Logging extends BaseCommand {
     // immediately after updating the global context, so keeping it simple for now.
     if (argGroup.console) {
       globalContext.updateConsoleLoggingLevel(level);
+      OUT.println("CONSOLE logging level set to: " + level);
     } else {
       globalContext.updateFileLoggingLevel(level);
+      OUT.println("FILE logging level set to: " + level);
     }
   }
 
