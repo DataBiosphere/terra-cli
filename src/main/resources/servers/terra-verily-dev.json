@@ -1,6 +1,6 @@
 {
-  "name": "terra-verily",
-  "description": "Terra environment deployed at Verily.",
+  "name": "terra-verily-dev",
+  "description": "Terra development environment deployed at Verily.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
