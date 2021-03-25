@@ -18,6 +18,8 @@ import picocli.CommandLine;
 public class Create extends BaseCommand {
   private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
   private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
+  /** See {@link #mangleUsername(String)}. */
+  private static final int MAX_INSTANCE_NAME_LENGTH = 61;
 
   @CommandLine.Parameters(
       index = "0",
@@ -132,8 +134,9 @@ public class Create extends BaseCommand {
   /**
    * Best effort mangle the user's name so that it meets the requirements for a valid instance name.
    *
-   * <p>Instance name id must match the regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'. I don't have
-   * a documentation link, but gcloud will complain otherwise.
+   * <p>Instance name id must match the regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)', i.e. starting
+   * with a lowercase alpha character, only alphanumerics and '-' of max length 61. I don't have a
+   * documentation link, but gcloud will complain otherwise.
    */
   private static String mangleUsername(String username) {
     // Strip non alpha-numeric or '-' characters.
@@ -144,7 +147,7 @@ public class Create extends BaseCommand {
     // Lower case everything, even though only the first character requires lowercase.
     mangledName = mangledName.toLowerCase();
     // Make sure the returned name isn't too long to not have the date time suffix.
-    int maxNameLength = 61 - AUTO_NAME_DATE_FORMAT.length();
+    int maxNameLength = MAX_INSTANCE_NAME_LENGTH - AUTO_NAME_DATE_FORMAT.length();
     if (mangledName.length() > maxNameLength) {
       mangledName = mangledName.substring(0, maxNameLength);
     }
