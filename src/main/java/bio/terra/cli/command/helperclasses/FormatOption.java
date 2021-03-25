@@ -18,7 +18,8 @@ public class FormatOption {
 
   @CommandLine.Option(
       names = "--format",
-      hidden = true,
+      defaultValue = "text",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}")
   private FormatOptions format;
 

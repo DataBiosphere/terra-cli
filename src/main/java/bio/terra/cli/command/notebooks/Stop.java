@@ -1,12 +1,9 @@
 package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebooks stop" command. */
@@ -14,7 +11,7 @@ import picocli.CommandLine;
     name = "stop",
     description = "Stop a running AI Notebook instance within your workspace.",
     showDefaultValues = true)
-public class Stop implements Callable<Integer> {
+public class Stop extends BaseCommand {
 
   @CommandLine.Parameters(index = "0", description = "The name of the notebook instance.")
   private String instanceName;
@@ -26,14 +23,8 @@ public class Stop implements Callable<Integer> {
   private String location;
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  protected void execute() {
     workspaceContext.requireCurrentWorkspace();
-
-    AuthenticationManager authenticationManager =
-        new AuthenticationManager(globalContext, workspaceContext);
-    authenticationManager.loginTerraUser();
 
     String command = "gcloud notebooks instances stop $INSTANCE_NAME --location=$LOCATION";
     Map<String, String> envVars = new HashMap<>();
@@ -41,7 +32,5 @@ public class Stop implements Callable<Integer> {
     envVars.put("LOCATION", location);
 
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
-
-    return 0;
   }
 }

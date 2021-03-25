@@ -1,13 +1,10 @@
 package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.apps.DockerAppsRunner;
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.context.WorkspaceContext;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebooks create" command. */
@@ -15,7 +12,7 @@ import picocli.CommandLine;
     name = "create",
     description = "Create a new AI Notebook instance within your workspace.",
     showDefaultValues = true)
-public class Create implements Callable<Integer> {
+public class Create extends BaseCommand {
 
   @CommandLine.Parameters(
       index = "0",
@@ -54,14 +51,9 @@ public class Create implements Callable<Integer> {
   // TODO: Add boot disk types & gpu size configs.
 
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    WorkspaceContext workspaceContext = WorkspaceContext.readFromFile();
+  protected void execute() {
     workspaceContext.requireCurrentWorkspace();
 
-    AuthenticationManager authenticationManager =
-        new AuthenticationManager(globalContext, workspaceContext);
-    authenticationManager.loginTerraUser();
     TerraUser user = globalContext.requireCurrentTerraUser();
     String projectId = workspaceContext.getGoogleProject();
 
@@ -95,17 +87,16 @@ public class Create implements Callable<Integer> {
     envVars.put("NETWORK", "projects/" + projectId + "/global/networks/network");
     // Assume the zone is related to the location like 'us-west1' is to 'us-west1-b'.
     String zone = location.substring(0, location.length() - 2);
-    // Like 'network', 'subnetwork is the name of the subnetwork created by the Buffer Service in
+    // Like 'network', 'subnetwork' is the name of the subnetwork created by the Buffer Service in
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
     envVars.put("TERRA_WORKSPACE_ID", workspaceContext.getWorkspaceId().toString());
 
     new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
-    System.out.println(
+    OUT.println(
         "Notebook instance starting. This will take ~5-10 minutes.\n"
             + "See your notebooks in this workspace at https://console.cloud.google.com/ai-platform/notebooks/list/instances?project="
             + projectId);
-    return 0;
   }
 }
