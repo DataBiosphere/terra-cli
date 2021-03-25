@@ -1,8 +1,7 @@
 package bio.terra.cli.command.config.set;
 
 import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
-import bio.terra.cli.context.GlobalContext;
-import java.util.concurrent.Callable;
+import bio.terra.cli.command.helperclasses.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -10,21 +9,20 @@ import picocli.CommandLine.Command;
 @Command(
     name = "browser",
     description = "Configure whether a browser is launched automatically during the login process.")
-public class Browser implements Callable<Integer> {
+public class Browser extends BaseCommand {
 
   @CommandLine.Parameters(
       index = "0",
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
   private BrowserLaunchOption mode;
 
+  /** Updates the browser launch option property of the global context. */
   @Override
-  public Integer call() {
-    GlobalContext globalContext = GlobalContext.readFromFile();
-
+  protected void execute() {
     BrowserLaunchOption prevBrowserLaunchOption = globalContext.browserLaunchOption;
     globalContext.updateBrowserLaunchFlag(mode);
 
-    System.out.println(
+    OUT.println(
         "Browser launch mode for login is "
             + globalContext.browserLaunchOption
             + " ("
@@ -32,7 +30,11 @@ public class Browser implements Callable<Integer> {
                 ? "UNCHANGED"
                 : "CHANGED")
             + ").");
+  }
 
-    return 0;
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
   }
 }
