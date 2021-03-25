@@ -18,7 +18,9 @@ public class FormatOption {
 
   @CommandLine.Option(
       names = "--format",
-      description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}")
+      defaultValue = "text",
+      description =
+          "Set the format for printing command output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
   private FormatOptions format;
 
   /** This enum specifies the format options for printing the command output. */
