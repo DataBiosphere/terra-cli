@@ -7,7 +7,6 @@ import bio.terra.cli.command.app.passthrough.Nextflow;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.utils.Logger;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -60,11 +59,6 @@ class Main implements Runnable {
    * @param args from stdin
    */
   public static void main(String... args) {
-    // TODO (PF-446): Can we move this to a common base class so we only read the global context
-    // file once?
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    new Logger(globalContext).setupLogging();
-
     CommandLine cmd = new CommandLine(new Main());
     cmd.setExecutionStrategy(new CommandLine.RunLast());
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());

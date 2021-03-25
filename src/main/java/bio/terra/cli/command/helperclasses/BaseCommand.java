@@ -3,6 +3,7 @@ package bio.terra.cli.command.helperclasses;
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.utils.Logger;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
 
@@ -26,8 +27,11 @@ public abstract class BaseCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    // read in the global and workspace context
+    // read in the global context and setup logging
     globalContext = GlobalContext.readFromFile();
+    new Logger(globalContext).setupLogging();
+
+    // read in the workspace context
     workspaceContext = WorkspaceContext.readFromFile();
 
     // do the login flow if required
