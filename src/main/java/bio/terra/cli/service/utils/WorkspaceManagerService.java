@@ -134,9 +134,11 @@ public class WorkspaceManagerService {
    * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
    * endpoint to wait for the job to finish.
    *
+   * @param displayName optional display name
+   * @param description optional description
    * @return the Workspace Manager workspace description object
    */
-  public WorkspaceDescription createWorkspace() {
+  public WorkspaceDescription createWorkspace(String displayName, String description) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       // create the Terra workspace object
@@ -145,6 +147,8 @@ public class WorkspaceManagerService {
       workspaceRequestBody.setId(workspaceId);
       workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
       workspaceRequestBody.setSpendProfile("wm-default-spend-profile");
+      workspaceRequestBody.setDisplayName(displayName);
+      workspaceRequestBody.setDescription(description);
       workspaceApi.createWorkspace(workspaceRequestBody);
 
       // create the Google project that backs the Terra workspace object

@@ -46,8 +46,13 @@ public class WorkspaceManager {
         .getWorkspaces();
   }
 
-  /** Create a new workspace. */
-  public void createWorkspace() {
+  /**
+   * Create a new workspace.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   */
+  public void createWorkspace(String displayName, String description) {
     // check that there is no existing workspace already mounted
     if (!workspaceContext.isEmpty()) {
       throw new UserActionableException("There is already a workspace mounted to this directory.");
@@ -58,7 +63,8 @@ public class WorkspaceManager {
 
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser).createWorkspace();
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .createWorkspace(displayName, description);
     logger.info("Created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
 
     // update the workspace context with the current workspace
