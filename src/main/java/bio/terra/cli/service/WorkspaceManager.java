@@ -133,6 +133,33 @@ public class WorkspaceManager {
   }
 
   /**
+   * Update the mutable properties of the workspace that is mounted to the current directory.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   * @throws UserActionableException if there is no workspace currently mounted
+   */
+  public void updateWorkspace(String displayName, String description) {
+    // check that there is a workspace currently mounted
+    workspaceContext.requireCurrentWorkspace();
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to update the existing workspace object
+    WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
+    WorkspaceDescription updatedWorkspace =
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .updateWorkspace(workspaceContext.getWorkspaceId(), displayName, description);
+    logger.info("Updated workspace: id={}, {}", workspace.getId(), workspace);
+
+    // update the workspace in the current context
+    // note that this state is persisted to disk. it will be useful for code called in the same or a
+    // later CLI command/process
+    workspaceContext.updateWorkspace(updatedWorkspace);
+  }
+
+  /**
    * Add a user to the workspace that is mounted to the current directory. Possible roles are
    * defined by the WSM client library.
    *

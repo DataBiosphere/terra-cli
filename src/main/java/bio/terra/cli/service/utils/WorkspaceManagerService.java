@@ -18,6 +18,7 @@ import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
@@ -231,6 +232,26 @@ public class WorkspaceManagerService {
       workspaceApi.deleteWorkspace(workspaceId);
     } catch (ApiException ex) {
       throw new SystemException("Error deleting workspace", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager PATCH "/api/workspaces/v1/{id}" endpoint to update an existing
+   * workspace.
+   *
+   * @param workspaceId the id of the workspace to update
+   * @return the Workspace Manager workspace description object
+   */
+  public WorkspaceDescription updateWorkspace(
+      UUID workspaceId, String displayName, String description) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      // update the Terra workspace object
+      UpdateWorkspaceRequestBody updateRequest =
+          new UpdateWorkspaceRequestBody().displayName(displayName).description(description);
+      return workspaceApi.updateWorkspace(updateRequest, workspaceId);
+    } catch (ApiException ex) {
+      throw new SystemException("Error updating workspace", ex);
     }
   }
 
