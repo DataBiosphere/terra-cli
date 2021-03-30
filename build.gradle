@@ -153,6 +153,12 @@ application {
     mainClass = 'bio.terra.cli.command.Main'
     applicationName = 'terra'
     executableDir = 'bin'
+
+    // TODO: Suppress Jersey PATCH related warnings (PF-622)
+    applicationDefaultJvmArgs = [
+            '--add-opens', 'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    ]
 }
 startScripts {
     // set the $APP_HOME path to $HOME/.terra

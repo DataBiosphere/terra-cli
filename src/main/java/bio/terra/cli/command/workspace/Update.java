@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 @Command(name = "update", description = "Update an existing workspace.")
 public class Update extends BaseCommand {
 
-  @CommandLine.ArgGroup(exclusive = false, multiplicity = "1..2")
+  @CommandLine.ArgGroup(exclusive = false, multiplicity = "1")
   Update.UpdateArgGroup argGroup;
 
   static class UpdateArgGroup {
