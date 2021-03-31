@@ -108,9 +108,7 @@ public class WorkspaceContext {
    */
   @JsonIgnore
   public Optional<String> getWorkspaceDisplayName() {
-    return terraWorkspaceModel == null
-        ? Optional.empty()
-        : Optional.ofNullable(terraWorkspaceModel.getDisplayName());
+    return Optional.ofNullable(terraWorkspaceModel).map(WorkspaceDescription::getDisplayName);
   }
 
   /**
@@ -121,9 +119,7 @@ public class WorkspaceContext {
    */
   @JsonIgnore
   public Optional<String> getWorkspaceDescription() {
-    return terraWorkspaceModel == null
-        ? Optional.empty()
-        : Optional.ofNullable(terraWorkspaceModel.getDescription());
+    return Optional.ofNullable(terraWorkspaceModel).map(WorkspaceDescription::getDescription);
   }
 
   /**
