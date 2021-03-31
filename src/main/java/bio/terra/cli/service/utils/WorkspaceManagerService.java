@@ -25,6 +25,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +140,8 @@ public class WorkspaceManagerService {
    * @param description optional description
    * @return the Workspace Manager workspace description object
    */
-  public WorkspaceDescription createWorkspace(String displayName, String description) {
+  public WorkspaceDescription createWorkspace(
+      @Nullable String displayName, @Nullable String description) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       // create the Terra workspace object
@@ -243,7 +245,7 @@ public class WorkspaceManagerService {
    * @return the Workspace Manager workspace description object
    */
   public WorkspaceDescription updateWorkspace(
-      UUID workspaceId, String displayName, String description) {
+      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       // update the Terra workspace object

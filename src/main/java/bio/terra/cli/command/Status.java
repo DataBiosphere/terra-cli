@@ -44,8 +44,8 @@ public class Status extends BaseCommand {
       OUT.println("There is no current Terra workspace defined.");
     } else {
       OUT.println("Terra workspace id: " + workspaceContext.getWorkspaceId());
-      OUT.println("Display name: " + workspaceContext.getWorkspaceDisplayName());
-      OUT.println("Description: " + workspaceContext.getWorkspaceDescription());
+      OUT.println("Display name: " + workspaceContext.getWorkspaceDisplayName().orElse(""));
+      OUT.println("Description: " + workspaceContext.getWorkspaceDescription().orElse(""));
       OUT.println("Google project: " + workspaceContext.getGoogleProject());
     }
   }

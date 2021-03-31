@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -100,29 +101,29 @@ public class WorkspaceContext {
   }
 
   /**
-   * Getter for the Terra workspace display name. Returns empty string if the display name is not
+   * Getter for the Terra workspace display name. Returns empty Optional if the display name is not
    * defined.
    *
    * @return the Terra workspace display name
    */
   @JsonIgnore
-  public String getWorkspaceDisplayName() {
-    return terraWorkspaceModel == null || terraWorkspaceModel.getDisplayName() == null
-        ? ""
-        : terraWorkspaceModel.getDisplayName();
+  public Optional<String> getWorkspaceDisplayName() {
+    return terraWorkspaceModel == null
+        ? Optional.empty()
+        : Optional.ofNullable(terraWorkspaceModel.getDisplayName());
   }
 
   /**
-   * Getter for the Terra workspace description. Returns empty string if the description is not
+   * Getter for the Terra workspace description. Returns empty Optional if the description is not
    * defined.
    *
    * @return the Terra workspace description
    */
   @JsonIgnore
-  public String getWorkspaceDescription() {
-    return terraWorkspaceModel == null || terraWorkspaceModel.getDescription() == null
-        ? ""
-        : terraWorkspaceModel.getDescription();
+  public Optional<String> getWorkspaceDescription() {
+    return terraWorkspaceModel == null
+        ? Optional.empty()
+        : Optional.ofNullable(terraWorkspaceModel.getDescription());
   }
 
   /**
