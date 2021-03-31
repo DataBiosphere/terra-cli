@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -97,6 +98,28 @@ public class WorkspaceContext {
     this.cloudResources = null;
 
     writeToFile();
+  }
+
+  /**
+   * Getter for the Terra workspace display name. Returns empty Optional if the display name is not
+   * defined.
+   *
+   * @return the Terra workspace display name
+   */
+  @JsonIgnore
+  public Optional<String> getWorkspaceDisplayName() {
+    return Optional.ofNullable(terraWorkspaceModel).map(WorkspaceDescription::getDisplayName);
+  }
+
+  /**
+   * Getter for the Terra workspace description. Returns empty Optional if the description is not
+   * defined.
+   *
+   * @return the Terra workspace description
+   */
+  @JsonIgnore
+  public Optional<String> getWorkspaceDescription() {
+    return Optional.ofNullable(terraWorkspaceModel).map(WorkspaceDescription::getDescription);
   }
 
   /**

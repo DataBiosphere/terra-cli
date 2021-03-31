@@ -18,12 +18,14 @@ import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,9 +136,12 @@ public class WorkspaceManagerService {
    * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
    * endpoint to wait for the job to finish.
    *
+   * @param displayName optional display name
+   * @param description optional description
    * @return the Workspace Manager workspace description object
    */
-  public WorkspaceDescription createWorkspace() {
+  public WorkspaceDescription createWorkspace(
+      @Nullable String displayName, @Nullable String description) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       // create the Terra workspace object
@@ -145,6 +150,8 @@ public class WorkspaceManagerService {
       workspaceRequestBody.setId(workspaceId);
       workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
       workspaceRequestBody.setSpendProfile("wm-default-spend-profile");
+      workspaceRequestBody.setDisplayName(displayName);
+      workspaceRequestBody.setDescription(description);
       workspaceApi.createWorkspace(workspaceRequestBody);
 
       // create the Google project that backs the Terra workspace object
@@ -227,6 +234,26 @@ public class WorkspaceManagerService {
       workspaceApi.deleteWorkspace(workspaceId);
     } catch (ApiException ex) {
       throw new SystemException("Error deleting workspace", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager PATCH "/api/workspaces/v1/{id}" endpoint to update an existing
+   * workspace.
+   *
+   * @param workspaceId the id of the workspace to update
+   * @return the Workspace Manager workspace description object
+   */
+  public WorkspaceDescription updateWorkspace(
+      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    try {
+      // update the Terra workspace object
+      UpdateWorkspaceRequestBody updateRequest =
+          new UpdateWorkspaceRequestBody().displayName(displayName).description(description);
+      return workspaceApi.updateWorkspace(updateRequest, workspaceId);
+    } catch (ApiException ex) {
+      throw new SystemException("Error updating workspace", ex);
     }
   }
 

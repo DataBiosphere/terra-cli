@@ -46,8 +46,13 @@ public class WorkspaceManager {
         .getWorkspaces();
   }
 
-  /** Create a new workspace. */
-  public void createWorkspace() {
+  /**
+   * Create a new workspace.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   */
+  public void createWorkspace(String displayName, String description) {
     // check that there is no existing workspace already mounted
     if (!workspaceContext.isEmpty()) {
       throw new UserActionableException("There is already a workspace mounted to this directory.");
@@ -58,7 +63,8 @@ public class WorkspaceManager {
 
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser).createWorkspace();
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .createWorkspace(displayName, description);
     logger.info("Created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
 
     // update the workspace context with the current workspace
@@ -124,6 +130,33 @@ public class WorkspaceManager {
     workspaceContext.deleteWorkspace();
 
     return workspace.getId();
+  }
+
+  /**
+   * Update the mutable properties of the workspace that is mounted to the current directory.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   * @throws UserActionableException if there is no workspace currently mounted
+   */
+  public void updateWorkspace(String displayName, String description) {
+    // check that there is a workspace currently mounted
+    workspaceContext.requireCurrentWorkspace();
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to update the existing workspace object
+    WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
+    WorkspaceDescription updatedWorkspace =
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .updateWorkspace(workspaceContext.getWorkspaceId(), displayName, description);
+    logger.info("Updated workspace: id={}, {}", workspace.getId(), workspace);
+
+    // update the workspace in the current context
+    // note that this state is persisted to disk. it will be useful for code called in the same or a
+    // later CLI command/process
+    workspaceContext.updateWorkspace(updatedWorkspace);
   }
 
   /**

@@ -61,7 +61,7 @@ dependencies {
 
         // terra libraries
         samClient = "0.1-9435410-SNAP"
-        workspaceManagerClient = "0.16.0-SNAPSHOT"
+        workspaceManagerClient = "0.18.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
@@ -153,6 +153,12 @@ application {
     mainClass = 'bio.terra.cli.command.Main'
     applicationName = 'terra'
     executableDir = 'bin'
+
+    // TODO: Suppress Jersey PATCH related warnings (PF-622)
+    applicationDefaultJvmArgs = [
+            '--add-opens', 'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    ]
 }
 startScripts {
     // set the $APP_HOME path to $HOME/.terra
