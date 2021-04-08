@@ -26,7 +26,8 @@ public class Add extends BaseCommand {
   @CommandLine.Option(
       names = "--uri",
       required = true,
-      description = "The bucket path (e.g. gs://my-bucket)")
+      description =
+          "The cloud id of the data reference. (e.g. for buckets gs://my-bucket', for BigQuery datasets 'projectId.datasetId')")
   private String uri;
 
   @CommandLine.Mixin FormatOption formatOption;

@@ -5,11 +5,13 @@ import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.storage.Bucket;
 import java.util.List;
 import java.util.UUID;
@@ -266,6 +268,24 @@ public class WorkspaceManager {
           "A data reference or controlled resource with this name already exists.");
     }
 
+    CloudResource resource;
+    switch (resourceType) {
+      case bucket:
+        resource = createControlledBucket(resourceName);
+        break;
+      case bigQueryDataset:
+        resource = createControlledBigQueryDataset(resourceName);
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + resourceType);
+    }
+
+    // persist the cloud resource locally
+    workspaceContext.addCloudResource(resource);
+    return resource;
+  }
+
+  private CloudResource createControlledBucket(String resourceName) {
     // replace underscores in the resource name with hyphens so that the bucket path will be a valid
     // url
     String bucketName =
@@ -277,13 +297,18 @@ public class WorkspaceManager {
                 globalContext.requireCurrentTerraUser().userCredentials,
                 workspaceContext.getGoogleProject())
             .createBucket(bucketName);
+    return new CloudResource(
+        resourceName, "gs://" + bucket.getName(), CloudResource.Type.bucket, true);
+  }
 
-    // persist the cloud resource locally
-    CloudResource resource =
-        new CloudResource(resourceName, "gs://" + bucket.getName(), resourceType, true);
-    workspaceContext.addCloudResource(resource);
-
-    return resource;
+  private CloudResource createControlledBigQueryDataset(String resourceName) {
+    DatasetId datasetId = DatasetId.of(workspaceContext.getGoogleProject(), resourceName);
+    new GoogleBigQuery(
+            globalContext.requireCurrentTerraUser().userCredentials,
+            workspaceContext.getGoogleProject())
+        .create(datasetId);
+    return new CloudResource(
+        resourceName, CloudResource.toCloudId(datasetId), CloudResource.Type.bigQueryDataset, true);
   }
 
   /**
@@ -306,10 +331,22 @@ public class WorkspaceManager {
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     // delete the bucket by calling GCS directly
     CloudResource resource = getControlledResource(resourceName);
-    new GoogleCloudStorage(
-            globalContext.requireCurrentTerraUser().userCredentials,
-            workspaceContext.getGoogleProject())
-        .deleteBucket(resource.cloudId);
+    switch (resource.type) {
+      case bucket:
+        new GoogleCloudStorage(
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
+            .deleteBucket(resource.cloudId);
+        break;
+      case bigQueryDataset:
+        new GoogleBigQuery(
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
+            .delete(CloudResource.cloudIdToDatasetId(resource.cloudId));
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + resource.type);
+    }
 
     // remove the cloud resource and persist the updated list locally
     workspaceContext.removeCloudResource(resourceName);
@@ -361,14 +398,31 @@ public class WorkspaceManager {
   public CloudResource addDataReference(
       CloudResource.Type referenceType, String referenceName, String cloudId) {
     // TODO: change this method to call WSM data reference endpoints once they're ready
-    // check that the cloud id is a valid GCS bucket path
-    boolean bucketFound =
-        new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser().userCredentials,
-                workspaceContext.getGoogleProject())
-            .checkObjectsListAccess(cloudId);
-    if (!bucketFound) {
-      throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
+    // check that the cloud id is valid and that the user has access.
+    switch (referenceType) {
+      case bucket:
+        boolean bucketFound =
+            new GoogleCloudStorage(
+                    globalContext.requireCurrentTerraUser().userCredentials,
+                    workspaceContext.getGoogleProject())
+                .checkObjectsListAccess(cloudId);
+        if (!bucketFound) {
+          throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
+        }
+        break;
+      case bigQueryDataset:
+        boolean tableAccess =
+            new GoogleBigQuery(
+                    globalContext.requireCurrentTerraUser().userCredentials,
+                    workspaceContext.getGoogleProject())
+                .checkListTablesAccess(CloudResource.cloudIdToDatasetId(cloudId));
+        if (!tableAccess) {
+          throw new UserActionableException(
+              "Invalid or inaccessible BigQuery dataset id: " + cloudId);
+        }
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + referenceType);
     }
 
     // check for any collisions with existing references
