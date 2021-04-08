@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 ## This script builds a new GitHub release for the Terra CLI, and uploads a new Docker container.
 ## The GitHub release includes an install package and a download + install script.
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.

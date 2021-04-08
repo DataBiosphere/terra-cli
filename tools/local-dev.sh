@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 ## This script sets up the environment for local development.
 ## Dependencies: docker, chmod
 ## Usage: source tools/local-dev.sh
