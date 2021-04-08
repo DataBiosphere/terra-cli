@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 ## This script downloads a release archive of the Terra CLI and calls its install script.
 ## Dependencies: curl, tar
 ## Inputs: TERRA_CLI_VERSION (env var, optional) specific version requested, default is latest

@@ -13,7 +13,7 @@ RUN apt-get update \
 # other examples of installing gcloud in a docker image:
 #   - AoU (https://github.com/all-of-us/workbench/blob/master/api/src/dev/server/Dockerfile#L34)
 #   - Terra Jupyter (https://github.com/DataBiosphere/terra-docker/blob/master/terra-jupyter-base/Dockerfile#L74)
-ENV CLOUD_SDK_VERSION 326.0.0-0
+ENV CLOUD_SDK_VERSION 335.0.0-0
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && apt-get install apt-transport-https ca-certificates gnupg -y \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
