@@ -236,6 +236,7 @@ public class WorkspaceManager {
    * @throws UserActionableException if the resource is not controlled (e.g. external bucket)
    */
   public CloudResource getControlledResource(String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
     if (cloudResource == null) {
@@ -256,6 +257,7 @@ public class WorkspaceManager {
    */
   public CloudResource createControlledResource(
       CloudResource.Type resourceType, String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     if (!isValidEnvironmentVariableName(resourceName)) {
       throw new UserActionableException(
@@ -328,6 +330,7 @@ public class WorkspaceManager {
    * @return the cloud resource object that was removed
    */
   public CloudResource deleteControlledResource(String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     // delete the bucket by calling GCS directly
     CloudResource resource = getControlledResource(resourceName);
@@ -360,6 +363,7 @@ public class WorkspaceManager {
    * @return a list of controlled resources in the workspace
    */
   public List<CloudResource> listResources() {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     return workspaceContext.listControlledResources();
   }
@@ -372,6 +376,7 @@ public class WorkspaceManager {
    * @throws UserActionableException if the resource is not a data reference (e.g. VM)
    */
   public CloudResource getDataReference(String referenceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
     if (dataReference == null) {
@@ -397,6 +402,7 @@ public class WorkspaceManager {
    */
   public CloudResource addDataReference(
       CloudResource.Type referenceType, String referenceName, String cloudId) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     // check that the cloud id is valid and that the user has access.
     switch (referenceType) {
@@ -445,6 +451,7 @@ public class WorkspaceManager {
    * @return the data reference object that was removed
    */
   public CloudResource deleteDataReference(String referenceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     // only delete un-controlled cloud resources through the data references endpoints
     CloudResource dataReference = getDataReference(referenceName);
@@ -465,6 +472,7 @@ public class WorkspaceManager {
    * @return a list of data references in the workspace
    */
   public List<CloudResource> listDataReferences() {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     return workspaceContext.listDataReferences();
   }
