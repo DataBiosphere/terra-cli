@@ -4,6 +4,7 @@ import bio.terra.cli.command.resources.Create;
 import bio.terra.cli.command.resources.Delete;
 import bio.terra.cli.command.resources.Describe;
 import bio.terra.cli.command.resources.List;
+import bio.terra.cli.command.resources.Resolve;
 import picocli.CommandLine;
 
 /**
@@ -13,5 +14,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "resources",
     description = "Manage controlled resources in the workspace.",
-    subcommands = {Create.class, Delete.class, Describe.class, List.class})
+    subcommands = {Create.class, Delete.class, Describe.class, List.class, Resolve.class})
 public class Resources {}
