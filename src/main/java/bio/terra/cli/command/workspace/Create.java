@@ -12,12 +12,21 @@ import picocli.CommandLine.Command;
 @Command(name = "create", description = "Create a new workspace.")
 public class Create extends BaseCommand {
 
+  @CommandLine.Option(names = "--name", required = false, description = "workspace display name")
+  private String displayName;
+
+  @CommandLine.Option(
+      names = "--description",
+      required = false,
+      description = "workspace description")
+  private String description;
+
   @CommandLine.Mixin FormatOption formatOption;
 
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    new WorkspaceManager(globalContext, workspaceContext).createWorkspace();
+    new WorkspaceManager(globalContext, workspaceContext).createWorkspace(displayName, description);
     new AuthenticationManager(globalContext, workspaceContext)
         .fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
     formatOption.printReturnValue(workspaceContext.terraWorkspaceModel, this::printText);

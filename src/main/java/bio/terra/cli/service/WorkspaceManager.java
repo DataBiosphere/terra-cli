@@ -5,11 +5,13 @@ import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.storage.Bucket;
 import java.util.List;
 import java.util.UUID;
@@ -46,8 +48,13 @@ public class WorkspaceManager {
         .getWorkspaces();
   }
 
-  /** Create a new workspace. */
-  public void createWorkspace() {
+  /**
+   * Create a new workspace.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   */
+  public void createWorkspace(String displayName, String description) {
     // check that there is no existing workspace already mounted
     if (!workspaceContext.isEmpty()) {
       throw new UserActionableException("There is already a workspace mounted to this directory.");
@@ -58,7 +65,8 @@ public class WorkspaceManager {
 
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser).createWorkspace();
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .createWorkspace(displayName, description);
     logger.info("Created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
 
     // update the workspace context with the current workspace
@@ -124,6 +132,33 @@ public class WorkspaceManager {
     workspaceContext.deleteWorkspace();
 
     return workspace.getId();
+  }
+
+  /**
+   * Update the mutable properties of the workspace that is mounted to the current directory.
+   *
+   * @param displayName optional display name
+   * @param description optional description
+   * @throws UserActionableException if there is no workspace currently mounted
+   */
+  public void updateWorkspace(String displayName, String description) {
+    // check that there is a workspace currently mounted
+    workspaceContext.requireCurrentWorkspace();
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to update the existing workspace object
+    WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
+    WorkspaceDescription updatedWorkspace =
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .updateWorkspace(workspaceContext.getWorkspaceId(), displayName, description);
+    logger.info("Updated workspace: id={}, {}", workspace.getId(), workspace);
+
+    // update the workspace in the current context
+    // note that this state is persisted to disk. it will be useful for code called in the same or a
+    // later CLI command/process
+    workspaceContext.updateWorkspace(updatedWorkspace);
   }
 
   /**
@@ -201,6 +236,7 @@ public class WorkspaceManager {
    * @throws UserActionableException if the resource is not controlled (e.g. external bucket)
    */
   public CloudResource getControlledResource(String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
     if (cloudResource == null) {
@@ -221,6 +257,7 @@ public class WorkspaceManager {
    */
   public CloudResource createControlledResource(
       CloudResource.Type resourceType, String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     if (!isValidEnvironmentVariableName(resourceName)) {
       throw new UserActionableException(
@@ -233,6 +270,24 @@ public class WorkspaceManager {
           "A data reference or controlled resource with this name already exists.");
     }
 
+    CloudResource resource;
+    switch (resourceType) {
+      case bucket:
+        resource = createControlledBucket(resourceName);
+        break;
+      case bigQueryDataset:
+        resource = createControlledBigQueryDataset(resourceName);
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + resourceType);
+    }
+
+    // persist the cloud resource locally
+    workspaceContext.addCloudResource(resource);
+    return resource;
+  }
+
+  private CloudResource createControlledBucket(String resourceName) {
     // replace underscores in the resource name with hyphens so that the bucket path will be a valid
     // url
     String bucketName =
@@ -244,13 +299,18 @@ public class WorkspaceManager {
                 globalContext.requireCurrentTerraUser().userCredentials,
                 workspaceContext.getGoogleProject())
             .createBucket(bucketName);
+    return new CloudResource(
+        resourceName, "gs://" + bucket.getName(), CloudResource.Type.bucket, true);
+  }
 
-    // persist the cloud resource locally
-    CloudResource resource =
-        new CloudResource(resourceName, "gs://" + bucket.getName(), resourceType, true);
-    workspaceContext.addCloudResource(resource);
-
-    return resource;
+  private CloudResource createControlledBigQueryDataset(String resourceName) {
+    DatasetId datasetId = DatasetId.of(workspaceContext.getGoogleProject(), resourceName);
+    new GoogleBigQuery(
+            globalContext.requireCurrentTerraUser().userCredentials,
+            workspaceContext.getGoogleProject())
+        .create(datasetId);
+    return new CloudResource(
+        resourceName, CloudResource.toCloudId(datasetId), CloudResource.Type.bigQueryDataset, true);
   }
 
   /**
@@ -270,13 +330,26 @@ public class WorkspaceManager {
    * @return the cloud resource object that was removed
    */
   public CloudResource deleteControlledResource(String resourceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     // delete the bucket by calling GCS directly
     CloudResource resource = getControlledResource(resourceName);
-    new GoogleCloudStorage(
-            globalContext.requireCurrentTerraUser().userCredentials,
-            workspaceContext.getGoogleProject())
-        .deleteBucket(resource.cloudId);
+    switch (resource.type) {
+      case bucket:
+        new GoogleCloudStorage(
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
+            .deleteBucket(resource.cloudId);
+        break;
+      case bigQueryDataset:
+        new GoogleBigQuery(
+                globalContext.requireCurrentTerraUser().userCredentials,
+                workspaceContext.getGoogleProject())
+            .delete(CloudResource.cloudIdToDatasetId(resource.cloudId));
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + resource.type);
+    }
 
     // remove the cloud resource and persist the updated list locally
     workspaceContext.removeCloudResource(resourceName);
@@ -290,6 +363,7 @@ public class WorkspaceManager {
    * @return a list of controlled resources in the workspace
    */
   public List<CloudResource> listResources() {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM controlled resource endpoints once they're ready
     return workspaceContext.listControlledResources();
   }
@@ -302,6 +376,7 @@ public class WorkspaceManager {
    * @throws UserActionableException if the resource is not a data reference (e.g. VM)
    */
   public CloudResource getDataReference(String referenceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
     if (dataReference == null) {
@@ -327,15 +402,33 @@ public class WorkspaceManager {
    */
   public CloudResource addDataReference(
       CloudResource.Type referenceType, String referenceName, String cloudId) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
-    // check that the cloud id is a valid GCS bucket path
-    boolean bucketFound =
-        new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser().userCredentials,
-                workspaceContext.getGoogleProject())
-            .checkObjectsListAccess(cloudId);
-    if (!bucketFound) {
-      throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
+    // check that the cloud id is valid and that the user has access.
+    switch (referenceType) {
+      case bucket:
+        boolean bucketFound =
+            new GoogleCloudStorage(
+                    globalContext.requireCurrentTerraUser().userCredentials,
+                    workspaceContext.getGoogleProject())
+                .checkObjectsListAccess(cloudId);
+        if (!bucketFound) {
+          throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
+        }
+        break;
+      case bigQueryDataset:
+        boolean tableAccess =
+            new GoogleBigQuery(
+                    globalContext.requireCurrentTerraUser().userCredentials,
+                    workspaceContext.getGoogleProject())
+                .checkListTablesAccess(CloudResource.cloudIdToDatasetId(cloudId));
+        if (!tableAccess) {
+          throw new UserActionableException(
+              "Invalid or inaccessible BigQuery dataset id: " + cloudId);
+        }
+        break;
+      default:
+        throw new UserActionableException("Unsupported resourceType " + referenceType);
     }
 
     // check for any collisions with existing references
@@ -358,6 +451,7 @@ public class WorkspaceManager {
    * @return the data reference object that was removed
    */
   public CloudResource deleteDataReference(String referenceName) {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     // only delete un-controlled cloud resources through the data references endpoints
     CloudResource dataReference = getDataReference(referenceName);
@@ -378,6 +472,7 @@ public class WorkspaceManager {
    * @return a list of data references in the workspace
    */
   public List<CloudResource> listDataReferences() {
+    workspaceContext.requireCurrentWorkspace();
     // TODO: change this method to call WSM data reference endpoints once they're ready
     return workspaceContext.listDataReferences();
   }

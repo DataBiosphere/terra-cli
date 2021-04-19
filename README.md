@@ -317,6 +317,7 @@ Commands:
   delete    Delete an existing controlled resource.
   describe  Describe an existing controlled resource.
   list      List all controlled resources.
+  resolve   Resolve a resource to its cloud id or path.
 ```
 
 A controlled resource is a cloud resource managed by the Terra workspace on behalf of the user.
