@@ -1,6 +1,7 @@
 package bio.terra.cli.auth;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.context.utils.Printer;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -109,8 +111,9 @@ public final class GoogleCredentialUtils {
   private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
     @Override
     public void browse(String url) {
-      System.out.println("Please open the following address in a browser on any machine:");
-      System.out.println("  " + url);
+      PrintWriter out = Printer.getOut();
+      out.println("Please open the following address in a browser on any machine:");
+      out.println("  " + url);
     }
   }
 

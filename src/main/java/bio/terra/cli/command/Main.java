@@ -7,6 +7,7 @@ import bio.terra.cli.command.app.passthrough.Nextflow;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.utils.Printer;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -64,6 +65,11 @@ class Main implements Runnable {
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
     cmd.setColorScheme(colorScheme);
 
+    // set the output and error streams to the defaults: stdout, stderr
+    // save pointers to these streams in a singleton class, so we can access them throughout the
+    // codebase without passing them around
+    Printer.setupPrinting(cmd);
+
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
     // Terra CLI, we want to pass those through to the app instead
@@ -76,7 +82,7 @@ class Main implements Runnable {
     // delegate to the appropriate command class, or print the usage if no command was specified
     cmd.execute(args);
     if (args.length == 0) {
-      cmd.usage(System.out);
+      cmd.usage(cmd.getOut());
     }
   }
 
