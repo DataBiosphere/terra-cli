@@ -1,6 +1,7 @@
 package bio.terra.cli.apps;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.Printer;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -18,6 +19,7 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -56,6 +58,8 @@ public class DockerUtils {
       return true;
     } catch (NotFoundException nfEx) {
       return false;
+    } catch (RuntimeException rtEx) {
+      throw wrapExceptionIfDockerConnectionFailed(rtEx);
     }
   }
 
@@ -106,9 +110,13 @@ public class DockerUtils {
     if (workingDir != null) {
       createContainerCmd.withWorkingDir(workingDir);
     }
-    CreateContainerResponse container = createContainerCmd.exec();
-    dockerClient.startContainerCmd(container.getId()).exec();
-    return container.getId();
+    try {
+      CreateContainerResponse container = createContainerCmd.exec();
+      dockerClient.startContainerCmd(container.getId()).exec();
+      return container.getId();
+    } catch (RuntimeException rtEx) {
+      throw wrapExceptionIfDockerConnectionFailed(rtEx);
+    }
   }
 
   /**
@@ -118,9 +126,13 @@ public class DockerUtils {
    */
   public Integer waitForDockerContainerToExit(String containerId) {
     WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
-    WaitContainerResultCallback exec =
-        dockerClient.waitContainerCmd(containerId).exec(waitContainerResultCallback);
-    return exec.awaitStatusCode();
+    try {
+      WaitContainerResultCallback exec =
+          dockerClient.waitContainerCmd(containerId).exec(waitContainerResultCallback);
+      return exec.awaitStatusCode();
+    } catch (RuntimeException rtEx) {
+      throw wrapExceptionIfDockerConnectionFailed(rtEx);
+    }
   }
 
   /**
@@ -129,7 +141,11 @@ public class DockerUtils {
    * @param containerId id of the container
    */
   public void deleteDockerContainer(String containerId) {
-    dockerClient.removeContainerCmd(containerId).exec();
+    try {
+      dockerClient.removeContainerCmd(containerId).exec();
+    } catch (RuntimeException rtEx) {
+      throw wrapExceptionIfDockerConnectionFailed(rtEx);
+    }
   }
 
   /**
@@ -138,13 +154,17 @@ public class DockerUtils {
    * @param containerId id of the container
    */
   public void outputLogsForDockerContainer(String containerId) {
-    dockerClient
-        .logContainerCmd(containerId)
-        .withStdOut(true)
-        .withStdErr(true)
-        .withFollowStream(true)
-        .withTailAll()
-        .exec(new LogContainerTestCallback());
+    try {
+      dockerClient
+          .logContainerCmd(containerId)
+          .withStdOut(true)
+          .withStdErr(true)
+          .withFollowStream(true)
+          .withTailAll()
+          .exec(new LogContainerTestCallback());
+    } catch (RuntimeException rtEx) {
+      throw wrapExceptionIfDockerConnectionFailed(rtEx);
+    }
   }
 
   /** Helper class for reading Docker container logs into a string. */
@@ -191,6 +211,34 @@ public class DockerUtils {
 
     public List<Frame> getFramesList() {
       return framesList;
+    }
+  }
+
+  /**
+   * Check if the given exception indicates that connecting to the Docker daemon failed. This
+   * usually means that Docker is either not installed or not running.
+   *
+   * <p>- If this exception was caused by a Docker connection failure, then this method wraps the
+   * given exception in a new RuntimeException with a more readable error message. Previously, it
+   * was an obscure connection refused error.
+   *
+   * <p>- If this exception was NOT caused by a Docker connection failure, then this method returns
+   * the given exception, unchanged.
+   *
+   * @param ex exception to check
+   * @return a RuntimeException for the caller to re-throw
+   */
+  private RuntimeException wrapExceptionIfDockerConnectionFailed(RuntimeException ex) {
+    boolean isDockerConnectionFailed =
+        ex.getCause() != null
+            && ex.getCause() instanceof IOException
+            && ex.getCause().getMessage() != null
+            && ex.getCause().getMessage().contains("Connection refused");
+    if (isDockerConnectionFailed) {
+      return new UserActionableException(
+          "Connecting to Docker daemon failed. Check that Docker is installed and running.", ex);
+    } else {
+      return ex;
     }
   }
 }
