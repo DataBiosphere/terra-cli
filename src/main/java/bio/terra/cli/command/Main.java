@@ -80,10 +80,13 @@ class Main implements Runnable {
     subcommands.get("nextflow").setStopAtPositional(true);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
-    cmd.execute(args);
+    int exitCode = cmd.execute(args);
     if (args.length == 0) {
       cmd.usage(cmd.getOut());
     }
+
+    // set the exit code and terminate the process
+    System.exit(exitCode);
   }
 
   /** Required method to implement Runnable, but not actually called by picocli. */
@@ -120,16 +123,19 @@ class Main implements Runnable {
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
       String errorMessage;
       CommandLine.Help.Ansi.Text formattedErrorMessage;
+      int exitCode;
       boolean printPointerToLogFile;
       if (ex instanceof UserActionableException) {
         errorMessage = ex.getMessage();
         formattedErrorMessage = cmd.getColorScheme().errorText(errorMessage);
+        exitCode = 1;
         printPointerToLogFile = false;
       } else if (ex instanceof SystemException) {
         errorMessage =
             ex.getMessage() + (ex.getCause() != null ? ": " + ex.getCause().getMessage() : "");
         formattedErrorMessage =
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
+        exitCode = 2;
         printPointerToLogFile = true;
       } else {
         errorMessage =
@@ -139,6 +145,7 @@ class Main implements Runnable {
                 + ex.getMessage();
         formattedErrorMessage =
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
+        exitCode = 3;
         printPointerToLogFile = true;
       }
 
@@ -155,9 +162,7 @@ class Main implements Runnable {
       logger.error(errorMessage, ex);
 
       // set the process return code
-      return cmd.getExitCodeExceptionMapper() != null
-          ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
-          : cmd.getCommandSpec().exitCodeOnExecutionException();
+      return exitCode;
     }
   }
 }
