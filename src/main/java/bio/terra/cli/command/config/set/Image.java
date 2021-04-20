@@ -1,6 +1,6 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.AppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -24,8 +24,8 @@ public class Image extends BaseCommand {
   @Override
   protected void execute() {
     String prevImageId = globalContext.dockerImageId;
-    String newImageId = argGroup.useDefault ? DockerAppsRunner.defaultImageId() : argGroup.imageId;
-    new DockerAppsRunner(globalContext, workspaceContext).updateImageId(newImageId);
+    String newImageId = argGroup.useDefault ? AppsRunner.defaultImageId() : argGroup.imageId;
+    new AppsRunner(globalContext, workspaceContext).updateImageId(newImageId);
 
     if (globalContext.dockerImageId.equals(prevImageId)) {
       OUT.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");

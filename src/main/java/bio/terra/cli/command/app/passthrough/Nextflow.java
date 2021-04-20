@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.AppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,7 @@ public class Nextflow extends BaseCommand {
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
 
-    String fullCommand = DockerAppsRunner.buildFullCommand("nextflow", cmdArgs);
-    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand, envVars);
+    String fullCommand = AppsRunner.buildFullCommand("nextflow", cmdArgs);
+    new AppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand, envVars);
   }
 }

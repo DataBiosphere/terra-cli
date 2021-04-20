@@ -2,7 +2,7 @@ package bio.terra.cli.context;
 
 import static bio.terra.cli.context.utils.Logger.LogLevel;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.AppsRunner;
 import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
@@ -82,7 +82,7 @@ public class GlobalContext {
 
     // if the global context file does not exist or there is an error reading it, return an object
     // populated with default values
-    return new GlobalContext(ServerManager.defaultServer(), DockerAppsRunner.defaultImageId());
+    return new GlobalContext(ServerManager.defaultServer(), AppsRunner.defaultImageId());
   }
 
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */

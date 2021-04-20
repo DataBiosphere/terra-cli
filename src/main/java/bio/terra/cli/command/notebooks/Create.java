@@ -1,6 +1,6 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.AppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.context.TerraUser;
 import java.time.Instant;
@@ -107,7 +107,7 @@ public class Create extends BaseCommand {
         String.format(
             "Creating notebook instance `projects/%s/locations/%s/instanceId/%s`",
             projectId, location, instanceName));
-    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
+    new AppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
 
     OUT.println(
         "Notebook instance starting. This will take ~5-10 minutes.\n"

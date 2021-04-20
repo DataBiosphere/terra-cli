@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.AppsRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.List;
 import picocli.CommandLine;
@@ -18,10 +18,10 @@ public class Gsutil extends BaseCommand {
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
-    String fullCommand = DockerAppsRunner.buildFullCommand("gsutil", cmdArgs);
+    String fullCommand = AppsRunner.buildFullCommand("gsutil", cmdArgs);
 
     // no need for any special setup or teardown logic since gsutil is already initialized when the
     // container starts
-    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
+    new AppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
   }
 }
