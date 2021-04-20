@@ -119,6 +119,11 @@ class Main implements Runnable {
             .errors(CommandLine.Help.Ansi.Style.fg_red, CommandLine.Help.Ansi.Style.bold)
             .build();
 
+    // exit codes to use for each type of exception thrown
+    private static final int USER_ACTIONABLE_EXIT_CODE = 1;
+    private static final int SYSTEM_EXIT_CODE = 2;
+    private static final int UNEXPECTED_EXIT_CODE = 3;
+
     @Override
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
       String errorMessage;
@@ -128,14 +133,14 @@ class Main implements Runnable {
       if (ex instanceof UserActionableException) {
         errorMessage = ex.getMessage();
         formattedErrorMessage = cmd.getColorScheme().errorText(errorMessage);
-        exitCode = 1;
+        exitCode = USER_ACTIONABLE_EXIT_CODE;
         printPointerToLogFile = false;
       } else if (ex instanceof SystemException) {
         errorMessage =
             ex.getMessage() + (ex.getCause() != null ? ": " + ex.getCause().getMessage() : "");
         formattedErrorMessage =
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
-        exitCode = 2;
+        exitCode = SYSTEM_EXIT_CODE;
         printPointerToLogFile = true;
       } else {
         errorMessage =
@@ -145,7 +150,7 @@ class Main implements Runnable {
                 + ex.getMessage();
         formattedErrorMessage =
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
-        exitCode = 3;
+        exitCode = UNEXPECTED_EXIT_CODE;
         printPointerToLogFile = true;
       }
 
