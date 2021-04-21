@@ -6,7 +6,7 @@ import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the fourth-level "terra config get-value browser" command. */
+/** This class corresponds to the fourth-level "terra config get-value server" command. */
 @Command(name = "server", description = "Get the Terra server the CLI connects to.")
 public class Server extends BaseCommand {
 

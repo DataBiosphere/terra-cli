@@ -5,7 +5,7 @@ import bio.terra.cli.service.ServerManager;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra server set" command. */
+/** This class corresponds to the third-level "terra config set server" command. */
 @Command(
     name = "server",
     description =
