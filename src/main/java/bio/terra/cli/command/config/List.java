@@ -6,6 +6,7 @@ import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra config list" command. */
@@ -23,7 +24,10 @@ public class List extends BaseCommand {
         new LoggingReturnValue(globalContext.consoleLoggingLevel, globalContext.fileLoggingLevel);
     ConfigListReturnValue configList =
         new ConfigListReturnValue(
-            globalContext.browserLaunchOption, globalContext.dockerImageId, loggingLevels);
+            globalContext.browserLaunchOption,
+            globalContext.dockerImageId,
+            loggingLevels,
+            globalContext.server);
 
     formatOption.printReturnValue(configList, List::printText);
   }
@@ -33,14 +37,17 @@ public class List extends BaseCommand {
     public AuthenticationManager.BrowserLaunchOption browser;
     public String image;
     public LoggingReturnValue logging;
+    public ServerSpecification server;
 
     public ConfigListReturnValue(
         AuthenticationManager.BrowserLaunchOption browser,
         String image,
-        LoggingReturnValue logging) {
+        LoggingReturnValue logging,
+        ServerSpecification server) {
       this.browser = browser;
       this.image = image;
       this.logging = logging;
+      this.server = server;
     }
   }
 
@@ -50,6 +57,8 @@ public class List extends BaseCommand {
     OUT.println("[image] docker image id = " + returnValue.image);
     OUT.println();
     Logging.printText(returnValue.logging);
+    OUT.println();
+    OUT.println("[server] server = " + returnValue.server.name);
   }
 
   /** This command never requires login. */
