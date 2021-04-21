@@ -12,7 +12,7 @@ public class Server extends BaseCommand {
 
   @CommandLine.Mixin FormatOption formatOption;
 
-  /** Return the browser launch option property of the global context. */
+  /** Return the server property of the global context. */
   @Override
   protected void execute() {
     formatOption.printReturnValue(globalContext.server, Server::printText);
