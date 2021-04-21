@@ -1,6 +1,6 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.DockerAppsRunner;
+import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,6 @@ public class Start extends BaseCommand {
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
 
-    new DockerAppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
+    new DockerCommandRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
   }
 }
