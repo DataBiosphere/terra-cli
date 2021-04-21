@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.apps.AppsRunner;
+import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.List;
 import picocli.CommandLine;
@@ -26,6 +26,6 @@ public class Execute extends BaseCommand {
       final String argSeparator = " ";
       fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
     }
-    new AppsRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
+    new DockerCommandRunner(globalContext, workspaceContext).runToolCommand(fullCommand);
   }
 }

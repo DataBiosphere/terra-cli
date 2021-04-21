@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /** This class provides utility methods for running Docker containers. */
-public class DockerUtils {
+public class DockerClientWrapper {
   private final DockerClient dockerClient;
 
-  public DockerUtils() {
-    this.dockerClient = DockerUtils.buildDockerClient();
+  public DockerClientWrapper() {
+    this.dockerClient = DockerClientWrapper.buildDockerClient();
   }
 
   /** Build the Docker client object with standard options. */
@@ -161,14 +161,14 @@ public class DockerUtils {
           .withStdErr(true)
           .withFollowStream(true)
           .withTailAll()
-          .exec(new LogContainerTestCallback());
+          .exec(new LogContainerCommandCallback());
     } catch (RuntimeException rtEx) {
       throw wrapExceptionIfDockerConnectionFailed(rtEx);
     }
   }
 
   /** Helper class for reading Docker container logs into a string. */
-  private static class LogContainerTestCallback extends ResultCallback.Adapter<Frame> {
+  private static class LogContainerCommandCallback extends ResultCallback.Adapter<Frame> {
 
     protected final StringBuffer log = new StringBuffer();
     List<Frame> framesList = new ArrayList<>();
@@ -180,11 +180,11 @@ public class DockerUtils {
     // buildFramesList = keep a list of all the output lines (frames) as they come back
     boolean buildFramesList;
 
-    public LogContainerTestCallback() {
+    public LogContainerCommandCallback() {
       this(false, false);
     }
 
-    public LogContainerTestCallback(boolean buildSingleStringOutput, boolean buildFramesList) {
+    public LogContainerCommandCallback(boolean buildSingleStringOutput, boolean buildFramesList) {
       this.buildSingleStringOutput = buildSingleStringOutput;
       this.buildFramesList = buildFramesList;
     }

@@ -1,6 +1,6 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.AppsRunner;
+import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +32,6 @@ public class Describe extends BaseCommand {
     envVars.put("LOCATION", location);
 
     // TODO(wchamber): Consider reformatting the ouptut or otherwise highlighting the proxy uri.
-    new AppsRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
+    new DockerCommandRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
   }
 }

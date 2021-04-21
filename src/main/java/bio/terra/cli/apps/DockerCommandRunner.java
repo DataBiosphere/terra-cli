@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
  * This class runs client-side tools and manipulates the tools-related properties of the global
  * context object.
  */
-public class AppsRunner {
-  private static final Logger logger = LoggerFactory.getLogger(AppsRunner.class);
+public class DockerCommandRunner {
+  private static final Logger logger = LoggerFactory.getLogger(DockerCommandRunner.class);
 
   private final GlobalContext globalContext;
   private final WorkspaceContext workspaceContext;
-  private final DockerUtils dockerUtils = new DockerUtils();
+  private final DockerClientWrapper dockerClientWrapper = new DockerClientWrapper();
 
   // default $HOME directory on the container (this is where we expect to look for the global
   // context)
@@ -29,7 +29,7 @@ public class AppsRunner {
   // mount point for the workspace directory
   private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
 
-  public AppsRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public DockerCommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
   }
@@ -40,7 +40,7 @@ public class AppsRunner {
   /** Returns the default image id. */
   public static String defaultImageId() {
     // read from the JAR Manifest file
-    return AppsRunner.class.getPackage().getImplementationVersion();
+    return DockerCommandRunner.class.getPackage().getImplementationVersion();
   }
 
   /**
@@ -52,7 +52,7 @@ public class AppsRunner {
    * @param imageId id or tag of the image
    */
   public void updateImageId(String imageId) {
-    boolean imageExists = dockerUtils.checkImageExists(imageId);
+    boolean imageExists = dockerClientWrapper.checkImageExists(imageId);
     if (!imageExists) {
       logger.warn("Image not found: {}", imageId);
     }
@@ -130,14 +130,14 @@ public class AppsRunner {
     String containerId = startDockerContainerWithTerraInit(command, envVars, bindMounts);
 
     // read the container logs, which contains the command output, and write them to stdout
-    dockerUtils.outputLogsForDockerContainer(containerId);
+    dockerClientWrapper.outputLogsForDockerContainer(containerId);
 
     // block until the container exits
-    Integer statusCode = dockerUtils.waitForDockerContainerToExit(containerId);
+    Integer statusCode = dockerClientWrapper.waitForDockerContainerToExit(containerId);
     logger.debug("docker run status code: {}", statusCode);
 
     // delete the container
-    dockerUtils.deleteDockerContainer(containerId);
+    dockerClientWrapper.deleteDockerContainer(containerId);
   }
 
   /**
@@ -202,7 +202,7 @@ public class AppsRunner {
     }
     envVars.putAll(terraInitEnvVars);
 
-    return dockerUtils.startDockerContainer(
+    return dockerClientWrapper.startDockerContainer(
         globalContext.dockerImageId,
         fullCommand,
         getWorkingDirOnContainer().toString(),
