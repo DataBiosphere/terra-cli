@@ -7,8 +7,5 @@ import picocli.CommandLine.Command;
  * This class corresponds to the fourth-level "terra config set server" command. It is exactly the
  * same command as "terra server set".
  */
-@Command(
-    name = "server",
-    description =
-        "Set the Terra server to connect to. Run `terra server list` to see the available servers.")
+@Command(name = "server", description = "Set the Terra server to connect to.")
 public class Server extends Set {}
