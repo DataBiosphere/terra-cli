@@ -57,7 +57,7 @@ public class SpendProfileManagerService {
    * @param email email of the user or group to add
    */
   public void enableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
-    samService.addUserToResource(
+    samService.addUserToResourceOrInviteUser(
         SPEND_PROFILE_RESOURCE_TYPE, WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID, policy.name(), email);
   }
 
