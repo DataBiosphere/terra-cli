@@ -40,6 +40,10 @@ echo "--  Pulling the default Docker image"
 defaultDockerImage=$(./terra config get-value image)
 docker pull $defaultDockerImage
 
+echo "-- Setting the server to its current value, to pull any changes"
+currentServer=$(./terra config get-value server)
+./terra config set server $currentServer
+
 echo "--  Install complete"
 echo "You can add the ./terra executable to your \$PATH"
 echo "Run \"./terra\" to see usage"

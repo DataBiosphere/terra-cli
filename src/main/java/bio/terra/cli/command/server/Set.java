@@ -9,13 +9,23 @@ import picocli.CommandLine.Command;
 @Command(name = "set", description = "Set the Terra server to connect to.")
 public class Set extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "server name")
+  @CommandLine.Parameters(
+      index = "0",
+      description = "Server name. Run `terra server list` to see the available servers.")
   private String serverName;
 
   /** Update the Terra environment to which the CLI is pointing. */
   @Override
   protected void execute() {
+    String prevServerName = globalContext.server.name;
     new ServerManager(globalContext).updateServer(serverName);
+
+    OUT.println(
+        "Terra server is set to "
+            + globalContext.server.name
+            + " ("
+            + (globalContext.server.name.equals(prevServerName) ? "UNCHANGED" : "CHANGED")
+            + ").");
   }
 
   /** This command never requires login. */
