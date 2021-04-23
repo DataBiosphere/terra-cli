@@ -4,20 +4,23 @@ FROM openjdk:11.0-jre-slim
 # working directory when the docker is run
 WORKDIR /usr
 
-# install curl
+# install curl (to download install packages) and python (for gcloud sdk)
 RUN apt-get update \
-    && apt-get install -y curl
+    && apt-get install -y curl \
+    && apt-get install -y python
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
-# these commands come from https://cloud.google.com/sdk/docs/install
+# these commands come from https://cloud.google.com/sdk/docs/downloads-versioned-archives
 # other examples of installing gcloud in a docker image:
 #   - AoU (https://github.com/all-of-us/workbench/blob/master/api/src/dev/server/Dockerfile#L34)
 #   - Terra Jupyter (https://github.com/DataBiosphere/terra-docker/blob/master/terra-jupyter-base/Dockerfile#L74)
-ENV CLOUD_SDK_VERSION 335.0.0-0
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-    && apt-get install apt-transport-https ca-certificates gnupg -y \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
-    && apt-get update -y && apt-get install google-cloud-sdk=${CLOUD_SDK_VERSION} -y
+ENV CLOUD_SDK_VERSION 337.0.0
+ENV PATH /usr/local/google-cloud-sdk/bin:$PATH
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    mv google-cloud-sdk/ /usr/local/ && \
+    gcloud config set component_manager/disable_update_check true
 
 # install Nextflow
 ENV NXF_VER 20.10.0
