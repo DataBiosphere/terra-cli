@@ -350,7 +350,7 @@ public class SamService {
    * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
    * PUT endpoint to add an email address to a resource + policy.
    *
-   * <p>If that returns a Not Found error, then call the SAM "/api/users/v1/invite/{inviteeEmail}"
+   * <p>If that returns a Bad Request error, then call the SAM "/api/users/v1/invite/{inviteeEmail}"
    * endpoint to invite the user.
    *
    * @param resourceType type of resource
@@ -376,7 +376,7 @@ public class SamService {
       logger.info("User not found in SAM. Trying to invite a new user.");
 
       try {
-        // add to resource failed with Not Found error, now try to invite the user and add them to
+        // add to resource failed with Bad Request error, now try to invite the user and add them to
         // the resource again
         logger.info("Inviting new user: {}", userEmail);
         UserStatusDetails userStatusDetails = inviteUser(userEmail);
