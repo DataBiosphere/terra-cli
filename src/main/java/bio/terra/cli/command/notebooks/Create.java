@@ -58,6 +58,13 @@ public class Create extends BaseCommand {
           "Use this VM image family to find the image; the newest image in this family will be used.")
   private String vmImageFamily;
 
+  @CommandLine.Option(
+      names = "--post-startup-script",
+      description =
+          "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
+              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
+  private String postStartupScript;
+
   // TODO: Add boot disk types & gpu size configs.
 
   @Override
@@ -102,6 +109,10 @@ public class Create extends BaseCommand {
     // each zone.
     envVars.put("SUBNET", "projects/" + projectId + "/regions/" + zone + "/subnetworks/subnetwork");
     envVars.put("TERRA_WORKSPACE_ID", workspaceContext.getWorkspaceId().toString());
+    if (postStartupScript != null) {
+      command = command + " --post-startup-script=$POST_STARTUP_SCRIPT";
+      envVars.put("POST_STARTUP_SCRIPT", postStartupScript);
+    }
 
     OUT.println(
         String.format(
