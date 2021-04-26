@@ -7,10 +7,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra gcloud" command. */
-@Command(
-    name = "gcloud",
-    description = "Use the gcloud tool in the Terra workspace.",
-    hidden = true)
+@Command(name = "gcloud", description = "Call gcloud in the Terra workspace.")
 public class Gcloud extends BaseCommand {
 
   @CommandLine.Unmatched private List<String> cmdArgs;

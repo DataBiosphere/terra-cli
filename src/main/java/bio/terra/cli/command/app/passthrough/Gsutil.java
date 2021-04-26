@@ -7,10 +7,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra gsutil" command. */
-@Command(
-    name = "gsutil",
-    description = "Use the gsutil tool in the Terra workspace.",
-    hidden = true)
+@Command(name = "gsutil", description = "Call gsutil in the Terra workspace.")
 public class Gsutil extends BaseCommand {
 
   @CommandLine.Unmatched private List<String> cmdArgs;

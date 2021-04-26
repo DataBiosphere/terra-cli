@@ -25,6 +25,7 @@
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
     * [See all environment variables](#see-all-environment-variables)
+5. [Exit codes](#exit-codes)
 
 -----
 
@@ -202,7 +203,7 @@ See the list of supported (external) tools.
 The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
 ```
 terra app list
-terra config get image
+terra config get-value image
 ```
 
 ### Commands description
@@ -417,9 +418,13 @@ Commands:
 These commands are property getters and setters for configuring the Terra CLI. Currently the available
 configuration properties are:
 ```
-  browser  Check whether a browser is launched automatically during the login
-             process.
-  image    Get the Docker image used for launching applications.
+[browser] browser launch for login = auto
+[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.33.0:stable
+
+[logging, console] logging level for printing directly to the terminal = OFF
+[logging, file] logging level for writing to files in /Users/marikomedlock/.terra/logs = INFO
+
+[server] server = verily-cli
 ```
 
 ### Workspace context for applications
@@ -495,3 +500,11 @@ are run.
 
 The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
 container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
+
+### Exit codes
+The CLI sets the process exit code as follows.
+
+- 0 = Successful program execution
+- 1 = User-actionable error (e.g. missing parameter, workspace not defined in the current context)
+- 2 = System or internal error (e.g. error making a request to a Terra service)
+- 3 = Unexpected error (e.g. null pointer exception)
