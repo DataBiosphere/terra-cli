@@ -353,7 +353,7 @@ public class SamService {
    * @param resourcePolicyName name of resource policy
    * @param userEmail email of the user or group to add
    */
-  public void addUserToResource(
+  private void addUserToResource(
       String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
     ResourcesApi resourcesApi = new ResourcesApi(apiClient);
     try {

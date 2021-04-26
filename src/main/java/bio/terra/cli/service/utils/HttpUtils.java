@@ -134,7 +134,7 @@ public class HttpUtils {
    *     number of retries was exhausted
    */
   public static <T, E extends Exception> T callWithRetries(
-      HttpRequestOperator<T, E> makeRequest, Predicate<Exception> isRetryable)
+      SupplierWithCheckedException<T, E> makeRequest, Predicate<Exception> isRetryable)
       throws E, InterruptedException {
     return callWithRetries(
         DEFAULT_MAXIMUM_RETRIES, DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY, makeRequest, isRetryable);
@@ -155,7 +155,7 @@ public class HttpUtils {
   public static <T, E extends Exception> T callWithRetries(
       int maxRetries,
       Duration sleepDuration,
-      HttpRequestOperator<T, E> makeRequest,
+      SupplierWithCheckedException<T, E> makeRequest,
       Predicate<Exception> isRetryable)
       throws E, InterruptedException {
     int numTries = 0;
@@ -202,14 +202,14 @@ public class HttpUtils {
    * @param handleOneTimeError function to handle the one-time error before retrying the request
    * @param <T> type of the Http response (i.e. return type of the makeRequest function)
    * @return the Http response
-   * @throws E if makeRequest throws an exception that is not the expected one-time error
+   * @throws E1 if makeRequest throws an exception that is not the expected one-time error
    * @throws E2 if handleOneTimeError throws an exception
    */
-  public static <T, E extends Exception, E2 extends Exception> T callAndHandleOneTimeError(
-      HttpRequestOperator<T, E> makeRequest,
+  public static <T, E1 extends Exception, E2 extends Exception> T callAndHandleOneTimeError(
+      SupplierWithCheckedException<T, E1> makeRequest,
       Predicate<Exception> isOneTimeError,
-      HttpRequestOperator<Void, E2> handleOneTimeError)
-      throws E, E2, InterruptedException {
+      SupplierWithCheckedException<Void, E2> handleOneTimeError)
+      throws E1, E2, InterruptedException {
     try {
       // make the initial request
       return makeRequest.makeRequest();
@@ -237,7 +237,7 @@ public class HttpUtils {
    * @param <T> type of the Http response (i.e. return type of the makeRequest method)
    */
   @FunctionalInterface
-  public interface HttpRequestOperator<T, E extends Exception> {
+  public interface SupplierWithCheckedException<T, E extends Exception> {
     T makeRequest() throws E;
   }
 }
