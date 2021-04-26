@@ -139,6 +139,7 @@ public class HttpUtils {
     return callWithRetries(
         DEFAULT_MAXIMUM_RETRIES, DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY, makeRequest, isRetryable);
   }
+
   /**
    * Helper method to do retries.
    *
@@ -185,6 +186,49 @@ public class HttpUtils {
     throw new SystemException(
         "Http request with retries timed out after " + numTries + " tries.",
         lastRetryableException);
+  }
+
+  /**
+   * Helper method to make a request, handle a possible one-time error, and then retry the request.
+   *
+   * <p>Example: - Make a request to add a user to a workspace.
+   *
+   * <p>- Catch a user not found error. Handle it by making a request to invite the user.
+   *
+   * <p>- Retry the request to add a user to a workspace.
+   *
+   * @param makeRequest function to perform the request
+   * @param isOneTimeError function to test whether the exception is the expected one-time error
+   * @param handleOneTimeError function to handle the one-time error before retrying the request
+   *     once
+   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
+   * @return the Http response
+   * @throws E if makeRequest throws an exception that is not the expected one-time error
+   * @throws E2 if handleOneTimeError throws an exception
+   */
+  public static <T, E extends Exception, E2 extends Exception> T callAndHandleOneTimeError(
+      HttpRequestOperator<T, E> makeRequest,
+      Predicate<Exception> isOneTimeError,
+      HttpRequestOperator<Void, E2> handleOneTimeError)
+      throws E, E2, InterruptedException {
+    try {
+      // make the initial request
+      return makeRequest.makeRequest();
+    } catch (Exception ex) {
+      // if the exception is not the expected one-time error, then quit here
+      if (!isOneTimeError.test(ex)) {
+        throw ex;
+      }
+      logger.info("Caught possible one-time error: {}", ex);
+
+      // handle the one-time error
+      handleOneTimeError.makeRequest();
+
+      // retry the request. include some retries for the one-time error, to allow time for
+      // information to propagate (this delay seems to happen on inviting a new user -- sometimes it
+      // takes several seconds for WSM to recognize a newly invited user in SAM. not sure why)
+      return callWithRetries(makeRequest, isOneTimeError);
+    }
   }
 
   /**
