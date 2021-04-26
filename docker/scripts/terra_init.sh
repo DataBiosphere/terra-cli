@@ -2,6 +2,8 @@
 
 echo "Setting up Terra app environment..."
 
+echo "hello world" > /tmp/hello.txt
+
 gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 gcloud config set project ${GOOGLE_CLOUD_PROJECT}
 
