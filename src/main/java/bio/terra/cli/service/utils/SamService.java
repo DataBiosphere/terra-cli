@@ -408,7 +408,7 @@ public class SamService {
   }
 
   /**
-   * Utility method that checks if an exception thrown by the WSM client is a bad request.
+   * Utility method that checks if an exception thrown by the SAM client is a bad request.
    *
    * @param ex exception to test
    * @return true if the exception is a bad request
@@ -422,7 +422,7 @@ public class SamService {
   }
 
   /**
-   * Utility method that checks if an exception thrown by the WSM client is a not found.
+   * Utility method that checks if an exception thrown by the SAM client is a not found.
    *
    * @param ex exception to test
    * @return true if the exception is a not found

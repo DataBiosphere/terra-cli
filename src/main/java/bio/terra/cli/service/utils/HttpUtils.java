@@ -200,7 +200,6 @@ public class HttpUtils {
    * @param makeRequest function to perform the request
    * @param isOneTimeError function to test whether the exception is the expected one-time error
    * @param handleOneTimeError function to handle the one-time error before retrying the request
-   *     once
    * @param <T> type of the Http response (i.e. return type of the makeRequest function)
    * @return the Http response
    * @throws E if makeRequest throws an exception that is not the expected one-time error
