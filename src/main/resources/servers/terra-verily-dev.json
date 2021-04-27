@@ -3,6 +3,6 @@
   "description": "Terra development environment deployed at Verily.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
-  "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "http://35.223.106.37:8080"
+  "samUri": "https://sam-dev.api.verily.com",
+  "workspaceManagerUri": "http://34.72.191.43:8080"
 }
