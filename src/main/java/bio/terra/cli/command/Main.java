@@ -29,14 +29,14 @@ import picocli.CommandLine.ParseResult;
       Resources.class,
       DataRefs.class,
       App.class,
-      Gcloud.class,
-      Gsutil.class,
-      Bq.class,
-      Nextflow.class,
       Notebooks.class,
       Groups.class,
       Spend.class,
-      Config.class
+      Config.class,
+      Gcloud.class,
+      Gsutil.class,
+      Bq.class,
+      Nextflow.class
     },
     description = "Terra CLI")
 class Main implements Runnable {
