@@ -55,7 +55,7 @@ public class Delete extends BaseCommand {
           throw new UnsupportedOperationException("Other resource types are not available, yet.");
       }
     } else {
-      throw new UnsupportedOperationException("Other stewardship types are not available.");
+      throw new UnsupportedOperationException("Other stewardship types are not supported.");
     }
 
     formatOption.printReturnValue(resourceToDelete, Delete::printText);

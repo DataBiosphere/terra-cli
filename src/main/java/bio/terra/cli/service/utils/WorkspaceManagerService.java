@@ -505,8 +505,8 @@ public class WorkspaceManagerService {
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
       List<GcpGcsBucketLifecycleRule> lifecycleRules,
       @Nullable String location) {
-    // TODO: default storage class and lifecycle rule are currently required. remove this manual
-    // defaulting once they are made optional on the server (PF-635)
+    // TODO (PF-718): default storage class and lifecycle rule are currently required. remove this
+    // manual defaulting once they are made optional on the server
     if (defaultStorageClass == null) {
       defaultStorageClass = GcpGcsBucketDefaultStorageClass.STANDARD;
     }
@@ -646,7 +646,7 @@ public class WorkspaceManagerService {
     String asyncJobId = UUID.randomUUID().toString();
     DeleteControlledGcpGcsBucketRequest deleteRequest =
         new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
-    // TODO: factor out this polling pattern into a utility method
+    // TODO (PF-719): factor out this polling pattern into a utility method
     try {
       DeleteControlledGcpGcsBucketResult deleteResult =
           controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);

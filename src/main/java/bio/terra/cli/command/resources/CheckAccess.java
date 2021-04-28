@@ -7,7 +7,7 @@ import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resources referenced check-access" command. */
+/** This class corresponds to the third-level "terra resources check-access" command. */
 @CommandLine.Command(
     name = "check-access",
     description = "Check if you have access to a referenced resource.")
@@ -48,8 +48,8 @@ public class CheckAccess extends BaseCommand {
     formatOption.printReturnValue(checkAccessReturnValue, this::printText);
   }
 
-  /** POJO class for printing out sub-commands' output. */
-  public static class CheckAccessReturnValue {
+  /** POJO class for printing out this command's output. */
+  private static class CheckAccessReturnValue {
     // true if the user's email has acccess
     public final boolean userHasAccess;
 

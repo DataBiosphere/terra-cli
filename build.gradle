@@ -90,7 +90,7 @@ dependencies {
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
-    // TODO: use library from artifactory once a version is published that includes the create controlled BQ dataset endpoint
+    // TODO (before merging): use library from artifactory once a version is published that includes the create controlled BQ dataset endpoint
     // implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
     implementation files("/Users/marikomedlock/Workspaces/terra-workspace-manager/workspace-manager-client/build/libs/workspace-manager-client-0.22.0-SNAPSHOT.jar")
     implementation "bio.terra:datarepo-client:${dataRepoClient}"

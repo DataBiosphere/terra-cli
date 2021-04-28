@@ -10,10 +10,8 @@ import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
-import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
-import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -25,8 +23,8 @@ import com.google.cloud.bigquery.DatasetId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -262,13 +260,13 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to get the list of resources for the existing workspace
-    // TODO: keep calling the enumerate endpoint until no results are returned
+    // TODO (PF-706): keep calling the enumerate endpoint until no results are returned
     ResourceList resourceList =
         new WorkspaceManagerService(globalContext.server, currentUser)
             .enumerateResources(workspaceContext.getWorkspaceId(), 0, 100, null, null);
 
     // update the cache with the list of resources fetched from WSM
-    workspaceContext.setResources(resourceList.getResources());
+    workspaceContext.updateResources(resourceList.getResources());
   }
 
   /**
@@ -316,17 +314,15 @@ public class WorkspaceManager {
       String gcsBucketName) {
     return createResource(
         name,
-        (currentUser) -> {
-          GcpGcsBucketResource gcsBucketResource =
-              new WorkspaceManagerService(globalContext.server, currentUser)
-                  .createReferencedGcsBucket(
-                      workspaceContext.getWorkspaceId(),
-                      name,
-                      description,
-                      cloningInstructions,
-                      gcsBucketName);
-          logger.info("Created new GCS bucket REFERENCED resource: {}", gcsBucketResource);
-        });
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createReferencedGcsBucket(
+                    workspaceContext.getWorkspaceId(),
+                    name,
+                    description,
+                    cloningInstructions,
+                    gcsBucketName));
   }
 
   /**
@@ -349,19 +345,16 @@ public class WorkspaceManager {
       String bigQueryDatasetId) {
     return createResource(
         name,
-        (currentUser) -> {
-          GcpBigQueryDatasetResource bigQueryDatasetResource =
-              new WorkspaceManagerService(globalContext.server, currentUser)
-                  .createReferencedBigQueryDataset(
-                      workspaceContext.getWorkspaceId(),
-                      name,
-                      description,
-                      cloningInstructions,
-                      googleProjectId,
-                      bigQueryDatasetId);
-          logger.info(
-              "Created new Big Query dataset REFERENCED resource: {}", bigQueryDatasetResource);
-        });
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createReferencedBigQueryDataset(
+                    workspaceContext.getWorkspaceId(),
+                    name,
+                    description,
+                    cloningInstructions,
+                    googleProjectId,
+                    bigQueryDatasetId));
   }
 
   /**
@@ -392,21 +385,19 @@ public class WorkspaceManager {
       @Nullable String location) {
     return createResource(
         name,
-        (currentUser) -> {
-          GcpGcsBucketResource gcsBucketResource =
-              new WorkspaceManagerService(globalContext.server, currentUser)
-                  .createControlledGcsBucket(
-                      workspaceContext.getWorkspaceId(),
-                      name,
-                      description,
-                      cloningInstructions,
-                      accessScope,
-                      gcsBucketName,
-                      defaultStorageClass,
-                      lifecycleRules,
-                      location);
-          logger.info("Created new GCS bucket CONTROLLED resource: {}", gcsBucketResource);
-        });
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledGcsBucket(
+                    workspaceContext.getWorkspaceId(),
+                    name,
+                    description,
+                    cloningInstructions,
+                    accessScope,
+                    gcsBucketName,
+                    defaultStorageClass,
+                    lifecycleRules,
+                    location));
   }
 
   /**
@@ -432,30 +423,30 @@ public class WorkspaceManager {
       @Nullable String location) {
     return createResource(
         name,
-        (currentUser) -> {
-          GcpBigQueryDatasetResource bigQueryDatasetResource =
-              new WorkspaceManagerService(globalContext.server, currentUser)
-                  .createControlledBigQueryDataset(
-                      workspaceContext.getWorkspaceId(),
-                      name,
-                      description,
-                      cloningInstructions,
-                      accessScope,
-                      bigQueryDatasetId,
-                      location);
-          logger.info(
-              "Created new Big Query dataset CONTROLLED resource: {}", bigQueryDatasetResource);
-        });
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledBigQueryDataset(
+                    workspaceContext.getWorkspaceId(),
+                    name,
+                    description,
+                    cloningInstructions,
+                    accessScope,
+                    bigQueryDatasetId,
+                    location));
   }
 
   /**
    * Create a new resource in the workspace. Also updates the cached list of resources.
    *
    * @param resourceName name of resource to create
+   * @param createResource function pointer to execute the create request for a particular
+   *     stewardship + resource type combination
+   * @param <T> type of the create response object. this is usually very similar to the
+   *     ResourceDescription object, but not quite identical.
    * @return the resource description object that was created
    */
-  private ResourceDescription createResource(
-      String resourceName, Consumer<TerraUser> createResource) {
+  private <T> ResourceDescription createResource(String resourceName, Supplier<T> createResource) {
     workspaceContext.requireCurrentWorkspace();
 
     if (!isValidEnvironmentVariableName(resourceName)) {
@@ -463,8 +454,9 @@ public class WorkspaceManager {
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
-    // create the resource
-    createResource.accept(globalContext.requireCurrentTerraUser());
+    // create response object
+    T createResponse = createResource.get();
+    logger.info("Created resource: {}", createResponse);
 
     // persist the cloud resource locally
     updateResourcesCache();
@@ -494,8 +486,8 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         StewardshipType.REFERENCED,
-        (currentUser, resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, currentUser)
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -511,8 +503,8 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         StewardshipType.REFERENCED,
-        (currentUser, resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, currentUser)
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -528,8 +520,8 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         StewardshipType.CONTROLLED,
-        (currentUser, resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, currentUser)
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteControlledGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -545,26 +537,26 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         StewardshipType.CONTROLLED,
-        (currentUser, resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, currentUser)
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteControlledBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
 
   /**
-   * Delete an existing resource in the workspace. Also updates the cached list of resources.
+   * Delete a resource in the workspace. Also updates the cached list of resources.
    *
    * <p>This method throws a UserActionableException if the stewardship type does not match, to
    * point the user towards using a different command.
    *
    * @param resourceName name of resource to delete
    * @param stewardshipType expected stewardship type of the resource to delete
+   * @param deleteResource function pointer to execute the delete request for a particular
+   *     stewardship + resource type combination
    * @return the resource description object that was deleted
    */
   private ResourceDescription deleteResource(
-      String resourceName,
-      StewardshipType stewardshipType,
-      BiConsumer<TerraUser, UUID> deleteResource) {
+      String resourceName, StewardshipType stewardshipType, Consumer<UUID> deleteResource) {
     workspaceContext.requireCurrentWorkspace();
 
     // get the summary object
@@ -578,8 +570,7 @@ public class WorkspaceManager {
     }
 
     // delete the resource
-    deleteResource.accept(
-        globalContext.requireCurrentTerraUser(), resourceToDelete.getMetadata().getResourceId());
+    deleteResource.accept(resourceToDelete.getMetadata().getResourceId());
 
     // persist the cloud resource locally
     updateResourcesCache();
@@ -603,7 +594,7 @@ public class WorkspaceManager {
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // TODO: replace this with a call to WSM once the endpoint is available (PF-702)
+    // TODO (PF-717): replace this with a call(s) to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
         usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
@@ -628,7 +619,7 @@ public class WorkspaceManager {
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // TODO: replace this with a call to WSM once the endpoint is available (PF-702)
+    // TODO (PF-717): replace this with a call(s) to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
         usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
@@ -642,19 +633,14 @@ public class WorkspaceManager {
                 gcpBigQueryDatasetAttributes.getDatasetId()));
   }
 
-  /**
-   * Delimiter between the project id and dataset id for a Big Query dataset.
-   *
-   * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the string to be used directly in SQL calls with a Big Query extension.
-   */
+  /** Prefix for GCS bucket to make a valid URL. */
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";
 
   /**
    * Delimiter between the project id and dataset id for a Big Query dataset.
    *
    * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the string to be used directly in SQL calls with a Big Query extension.
+   * delimiter allows the path to be used directly in SQL calls with a Big Query extension.
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
 

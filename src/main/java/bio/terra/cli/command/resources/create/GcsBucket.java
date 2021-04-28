@@ -65,7 +65,7 @@ public class GcsBucket extends BaseCommand {
   /** Add a controlled GCS bucket to the workspace. */
   @Override
   protected void execute() {
-    // TODO: allow the user to specify lifecycle rules on the bucket
+    // TODO (PF-486): allow the user to specify lifecycle rules on the bucket
     ResourceDescription resource =
         new WorkspaceManager(globalContext, workspaceContext)
             .createControlledGcsBucket(

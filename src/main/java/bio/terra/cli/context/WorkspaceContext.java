@@ -30,7 +30,7 @@ public class WorkspaceContext {
   // workspace description object returned by WSM
   public WorkspaceDescription terraWorkspaceModel;
 
-  // map of cloud resources for this workspace (name -> resource description object returned by WSM)
+  // map of cloud resources for this workspace (name -> WSM resource description object)
   public Map<String, ResourceDescription> resources;
 
   // file paths related to persisting the workspace context on disk
@@ -174,12 +174,12 @@ public class WorkspaceContext {
   }
 
   /**
-   * Add a cloud resource to the list for this workspace. Persists on disk.
+   * Update the list of resources for this workspace. Persists on disk.
    *
    * @param resources list of cloud resources from WSM
    */
-  public void setResources(List<ResourceDescription> resources) {
-    // build a map of resource name to description object
+  public void updateResources(List<ResourceDescription> resources) {
+    // build a map of resource name to description object, for easier lookup
     Map<String, ResourceDescription> nameToResourceMap = new HashMap<>();
     for (ResourceDescription resource : resources) {
       nameToResourceMap.put(resource.getMetadata().getName(), resource);
