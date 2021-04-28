@@ -2,35 +2,69 @@ package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.FormatOption;
-import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resources describe" command. */
-@Command(name = "describe", description = "Describe an existing controlled resource.")
+@CommandLine.Command(name = "describe", description = "Describe a resource.")
 public class Describe extends BaseCommand {
-
   @CommandLine.Option(
       names = "--name",
       required = true,
-      description = "The name of the resource, scoped to the workspace.")
+      description = "Name of the resource, scoped to the workspace.")
   private String name;
 
   @CommandLine.Mixin FormatOption formatOption;
 
-  /** Describe an existing controlled resource. */
+  /** Describe a resource. */
   @Override
   protected void execute() {
-    CloudResource resource =
-        new WorkspaceManager(globalContext, workspaceContext).getControlledResource(name);
-    formatOption.printReturnValue(resource, Describe::printText);
+    ResourceDescription resource =
+        new WorkspaceManager(globalContext, workspaceContext).getResource(name);
+    formatOption.printReturnValue(resource);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CloudResource returnValue) {
-    OUT.println("Name: " + returnValue.name);
-    OUT.println("Type: " + returnValue.type);
-    OUT.println("Cloud Id: " + returnValue.cloudId);
+  public static void printText(ResourceDescription returnValue) {
+    OUT.println("Name:         " + returnValue.getMetadata().getName());
+    OUT.println("Description:  " + returnValue.getMetadata().getDescription());
+    OUT.println("Stewardship:  " + returnValue.getMetadata().getStewardshipType());
+
+    if (returnValue.getMetadata().getControlledResourceMetadata() != null) {
+      OUT.println(
+          "Access scope: "
+              + returnValue.getMetadata().getControlledResourceMetadata().getAccessScope());
+      OUT.println(
+          "Managed by:   "
+              + returnValue.getMetadata().getControlledResourceMetadata().getManagedBy());
+      if (returnValue.getMetadata().getControlledResourceMetadata().getPrivateResourceUser()
+          != null) {
+        OUT.println(
+            "Private user: "
+                + returnValue
+                    .getMetadata()
+                    .getControlledResourceMetadata()
+                    .getPrivateResourceUser()
+                    .getUserName());
+      }
+    }
+
+    switch (returnValue.getMetadata().getResourceType()) {
+      case BIG_QUERY_DATASET:
+        OUT.println(
+            "GCP project id:       "
+                + returnValue.getResourceAttributes().getGcpBqDataset().getProjectId());
+        OUT.println(
+            "Big Query dataset id: "
+                + returnValue.getResourceAttributes().getGcpBqDataset().getProjectId());
+        break;
+      case GCS_BUCKET:
+        OUT.println(
+            "GCS bucket name: "
+                + returnValue.getResourceAttributes().getGcpGcsBucket().getBucketName());
+        break;
+      default:
+    }
   }
 }

@@ -1,9 +1,13 @@
 package bio.terra.cli.apps;
 
+import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
+import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
+
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.workspace.model.ResourceDescription;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -155,13 +159,32 @@ public class DockerCommandRunner {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
     workspaceContext
-        .listCloudResources()
+        .listResources()
         .forEach(
-            cloudResource ->
+            resource ->
                 terraReferences.put(
-                    "TERRA_" + cloudResource.name.toUpperCase(), cloudResource.cloudId));
+                    "TERRA_" + resource.getMetadata().getName().toUpperCase(),
+                    resolveResourceForDockerContainer(resource)));
 
     return terraReferences;
+  }
+
+  /**
+   * Helper method for resolving a workspace resource into a cloud id, in order to pass it as an
+   * environment variable to the Docker container.
+   *
+   * @param resource workspace resource object
+   * @return cloud id to set the environment variable to
+   */
+  private String resolveResourceForDockerContainer(ResourceDescription resource) {
+    switch (resource.getMetadata().getResourceType()) {
+      case GCS_BUCKET:
+        return getGcsBucketUrl(resource);
+      case BIG_QUERY_DATASET:
+        return getBigQueryDatasetPath(resource);
+      default:
+        throw new UnsupportedOperationException("Other resource types are not available, yet.");
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +30,8 @@ public class WorkspaceContext {
   // workspace description object returned by WSM
   public WorkspaceDescription terraWorkspaceModel;
 
-  // map of cloud resources for this workspace (name -> object)
-  public Map<String, CloudResource> cloudResources;
+  // map of cloud resources for this workspace (name -> resource description object returned by WSM)
+  public Map<String, ResourceDescription> resources;
 
   // file paths related to persisting the workspace context on disk
   private static final String WORKSPACE_CONTEXT_DIRNAME = ".terra";
@@ -39,7 +39,7 @@ public class WorkspaceContext {
 
   private WorkspaceContext() {
     this.terraWorkspaceModel = null;
-    this.cloudResources = new HashMap<>();
+    this.resources = new HashMap<>();
   }
 
   // ====================================================
@@ -95,7 +95,7 @@ public class WorkspaceContext {
   public void deleteWorkspace() {
     logger.info("Deleting workspace {}", getWorkspaceId());
     this.terraWorkspaceModel = null;
-    this.cloudResources = null;
+    this.resources = null;
 
     writeToFile();
   }
@@ -167,30 +167,25 @@ public class WorkspaceContext {
    * Lookup a cloud resource by its name. Names are unique within a workspace.
    *
    * @param name cloud resource name
-   * @return cloud resource object
+   * @return resource description object
    */
-  public CloudResource getCloudResource(String name) {
-    return cloudResources.get(name);
+  public ResourceDescription getResource(String name) {
+    return resources.get(name);
   }
 
   /**
    * Add a cloud resource to the list for this workspace. Persists on disk.
    *
-   * @param cloudResource cloud resource to add
+   * @param resources list of cloud resources from WSM
    */
-  public void addCloudResource(CloudResource cloudResource) {
-    cloudResources.put(cloudResource.name, cloudResource);
+  public void setResources(List<ResourceDescription> resources) {
+    // build a map of resource name to description object
+    Map<String, ResourceDescription> nameToResourceMap = new HashMap<>();
+    for (ResourceDescription resource : resources) {
+      nameToResourceMap.put(resource.getMetadata().getName(), resource);
+    }
 
-    writeToFile();
-  }
-
-  /**
-   * Remove a cloud resource from the list of cloud resources for this workspace. Persists on disk.
-   *
-   * @param name cloud resource name
-   */
-  public void removeCloudResource(String name) {
-    cloudResources.remove(name);
+    this.resources = nameToResourceMap;
 
     writeToFile();
   }
@@ -200,32 +195,8 @@ public class WorkspaceContext {
    *
    * @return list of cloud resources in the workspace
    */
-  public List<CloudResource> listCloudResources() {
-    return new ArrayList<>(cloudResources.values());
-  }
-
-  /**
-   * List all controlled cloud resources for the workspace. This is a utility wrapper around {@link
-   * #listCloudResources()} that filters for just the controlled ones.
-   *
-   * @return list of controlled resources in the workspace
-   */
-  public List<CloudResource> listControlledResources() {
-    return cloudResources.values().stream()
-        .filter(cloudResource -> cloudResource.isControlled)
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * List all data references for this workspace. This is a utility wrapper around {@link
-   * #listCloudResources()} that filters for just the data references.
-   *
-   * @return list of data references in the workspace
-   */
-  public List<CloudResource> listDataReferences() {
-    return cloudResources.values().stream()
-        .filter(cloudResource -> cloudResource.type.isDataReference)
-        .collect(Collectors.toList());
+  public List<ResourceDescription> listResources() {
+    return new ArrayList<>(resources.values());
   }
 
   // ====================================================
