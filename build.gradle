@@ -61,7 +61,7 @@ dependencies {
 
         // terra libraries
         samClient = "0.1-9435410-SNAP"
-        workspaceManagerClient = "0.21.0-SNAPSHOT"
+        workspaceManagerClient = "0.22.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
@@ -90,9 +90,7 @@ dependencies {
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
-    // TODO (before merging): use library from artifactory once a version is published that includes the create controlled BQ dataset endpoint
-    // implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
-    implementation files("/Users/marikomedlock/Workspaces/terra-workspace-manager/workspace-manager-client/build/libs/workspace-manager-client-0.22.0-SNAPSHOT.jar")
+    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
 
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"

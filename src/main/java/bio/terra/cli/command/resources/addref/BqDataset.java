@@ -20,10 +20,7 @@ public class BqDataset extends BaseCommand {
           "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
   private String name;
 
-  @CommandLine.Option(
-      names = "--description",
-      required = true,
-      description = "Description of the resource")
+  @CommandLine.Option(names = "--description", description = "Description of the resource")
   private String description;
 
   @CommandLine.Option(

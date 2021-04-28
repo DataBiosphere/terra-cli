@@ -21,10 +21,7 @@ public class BqDataset extends BaseCommand {
           "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
   private String name;
 
-  @CommandLine.Option(
-      names = "--description",
-      required = true,
-      description = "Description of the resource")
+  @CommandLine.Option(names = "--description", description = "Description of the resource")
   private String description;
 
   @CommandLine.Option(
@@ -38,15 +35,11 @@ public class BqDataset extends BaseCommand {
       description = "Access scope for the resource: ${COMPLETION-CANDIDATES}")
   private AccessScope access = AccessScope.SHARED_ACCESS;
 
-  @CommandLine.Option(names = "--project-id", required = true, description = "GCP project id")
-  private String gcpProjectId;
-
   @CommandLine.Option(names = "--dataset-id", required = true, description = "Big Query dataset id")
   private String bigQueryDatasetId;
 
   @CommandLine.Option(
       names = "--location",
-      required = true,
       description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 

@@ -22,7 +22,7 @@ public class Describe extends BaseCommand {
   protected void execute() {
     ResourceDescription resource =
         new WorkspaceManager(globalContext, workspaceContext).getResource(name);
-    formatOption.printReturnValue(resource);
+    formatOption.printReturnValue(resource, Describe::printText);
   }
 
   /** Print this command's output in text format. */
@@ -38,7 +38,11 @@ public class Describe extends BaseCommand {
       OUT.println(
           "Managed by:   "
               + returnValue.getMetadata().getControlledResourceMetadata().getManagedBy());
-      if (returnValue.getMetadata().getControlledResourceMetadata().getPrivateResourceUser()
+      if (returnValue
+              .getMetadata()
+              .getControlledResourceMetadata()
+              .getPrivateResourceUser()
+              .getUserName()
           != null) {
         OUT.println(
             "Private user: "
@@ -57,7 +61,7 @@ public class Describe extends BaseCommand {
                 + returnValue.getResourceAttributes().getGcpBqDataset().getProjectId());
         OUT.println(
             "Big Query dataset id: "
-                + returnValue.getResourceAttributes().getGcpBqDataset().getProjectId());
+                + returnValue.getResourceAttributes().getGcpBqDataset().getDatasetId());
         break;
       case GCS_BUCKET:
         OUT.println(

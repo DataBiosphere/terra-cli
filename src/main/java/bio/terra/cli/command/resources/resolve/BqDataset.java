@@ -46,13 +46,14 @@ public class BqDataset extends BaseCommand {
     // either return 'project.dataset', or only the project or dataset if one of the optional flags
     // is specified
     String cloudId;
-    if (argGroup.datasetId) {
-      cloudId = bigQueryDatasetAttributes.getDatasetId();
-    } else if (argGroup.projectId) {
-      cloudId = bigQueryDatasetAttributes.getProjectId();
-    } else {
+    if (argGroup == null) {
       cloudId = getBigQueryDatasetPath(resource);
+    } else if (argGroup.datasetId) {
+      cloudId = bigQueryDatasetAttributes.getDatasetId();
+    } else {
+      cloudId = bigQueryDatasetAttributes.getProjectId();
     }
+
     formatOption.printReturnValue(cloudId);
   }
 }

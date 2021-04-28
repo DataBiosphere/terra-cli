@@ -32,7 +32,7 @@ public class List extends BaseCommand {
     java.util.List<ResourceDescription> resources =
         new WorkspaceManager(globalContext, workspaceContext).listResources();
 
-    if (argGroup.controlled) {
+    if (argGroup != null) {
       resources =
           resources.stream()
               .filter(
@@ -40,17 +40,10 @@ public class List extends BaseCommand {
                       resource
                           .getMetadata()
                           .getStewardshipType()
-                          .equals(StewardshipType.CONTROLLED))
-              .collect(Collectors.toList());
-    } else if (argGroup.referenced) {
-      resources =
-          resources.stream()
-              .filter(
-                  resource ->
-                      resource
-                          .getMetadata()
-                          .getStewardshipType()
-                          .equals(StewardshipType.REFERENCED))
+                          .equals(
+                              argGroup.controlled
+                                  ? StewardshipType.CONTROLLED
+                                  : StewardshipType.REFERENCED))
               .collect(Collectors.toList());
     }
 

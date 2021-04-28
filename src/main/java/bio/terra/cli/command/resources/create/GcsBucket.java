@@ -23,10 +23,7 @@ public class GcsBucket extends BaseCommand {
           "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
   private String name;
 
-  @CommandLine.Option(
-      names = "--description",
-      required = true,
-      description = "Description of the resource")
+  @CommandLine.Option(names = "--description", description = "Description of the resource")
   private String description;
 
   @CommandLine.Option(
@@ -49,14 +46,12 @@ public class GcsBucket extends BaseCommand {
 
   @CommandLine.Option(
       names = "--storage",
-      required = true,
       description =
           "Storage class (https://cloud.google.com/storage/docs/storage-classes): ${COMPLETION-CANDIDATES}")
   private GcpGcsBucketDefaultStorageClass storageClass;
 
   @CommandLine.Option(
       names = "--location",
-      required = true,
       description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 
