@@ -26,9 +26,17 @@ public class CheckAccess extends BaseCommand {
   @Override
   protected void execute() {
     WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    boolean userHasAccess, proxyGroupHasAccess;
-
     ResourceDescription resource = workspaceManager.getResource(name);
+
+    // call the appropriate check-access function for the resource
+    // there is different logic for checking the access of each resource type, but all require only
+    // the user/pet SA credentials and resource definition, so calling them looks very similar from
+    // the CLI user's perspective.
+    // still, it may be better to break this command into sub-commands for each resource type. that
+    // would allow different options per resource, e.g. checking different resource-specific
+    // permissions.
+    // TODO (PF-717): revisit this command once the WSM endpoints are complete
+    boolean userHasAccess, proxyGroupHasAccess;
     switch (resource.getMetadata().getResourceType()) {
       case GCS_BUCKET:
         userHasAccess = workspaceManager.checkAccessToReferencedGcsBucket(resource, false);
