@@ -103,8 +103,12 @@ public class SamService {
   public UserStatusDetails inviteUser(String userEmail) {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
-      return HttpUtils.callWithRetries(
-          () -> samUsersApi.inviteUser(userEmail), SamService::isRetryable);
+      logger.info("Inviting new user: {}", userEmail);
+      UserStatusDetails userStatusDetails =
+          HttpUtils.callWithRetries(
+              () -> samUsersApi.inviteUser(userEmail), SamService::isRetryable);
+      logger.info("Invited new user: {}", userStatusDetails);
+      return userStatusDetails;
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error inviting user in SAM.", ex);
     } finally {
@@ -140,31 +144,29 @@ public class SamService {
    * @return SAM object with details about the user
    */
   public UserStatusInfo getUserInfoOrRegisterUser() {
-    UsersApi samUsersApi = new UsersApi(apiClient);
     try {
-      // first try to lookup the user
-      return HttpUtils.callWithRetries(
-          () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      if (!(ex instanceof ApiException)
-          || (((ApiException) ex).getCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND)) {
-        throw new SystemException("Error reading user information from SAM.", ex);
-      }
-      logger.info("User not found in SAM. Trying to register a new user.");
-
-      try {
-        // lookup failed with Not Found error, now try to register the user and look them up again
-        UserStatus userStatus =
-            HttpUtils.callWithRetries(() -> samUsersApi.createUserV2(), SamService::isRetryable);
-        logger.info(
-            "User registered in SAM: {}, {}",
-            userStatus.getUserInfo().getUserSubjectId(),
-            userStatus.getUserInfo().getUserEmail());
-        return HttpUtils.callWithRetries(
-            () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-      } catch (ApiException | InterruptedException secondEx) {
-        throw new SystemException("Error reading user information from SAM.", secondEx);
-      }
+      // - try to lookup the user
+      // - if the user lookup failed with a Not Found error, it means the email is not found
+      // - so try to register the user first, then retry looking them up
+      return HttpUtils.callAndHandleOneTimeError(
+          () -> {
+            UsersApi samUsersApi = new UsersApi(apiClient);
+            return HttpUtils.callWithRetries(
+                () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
+          },
+          SamService::isNotFound,
+          () -> {
+            UserStatus userStatus =
+                HttpUtils.callWithRetries(
+                    () -> new UsersApi(apiClient).createUserV2(), SamService::isRetryable);
+            logger.info(
+                "User registered in SAM: {}, {}",
+                userStatus.getUserInfo().getUserSubjectId(),
+                userStatus.getUserInfo().getUserEmail());
+            return null;
+          });
+    } catch (Exception secondEx) {
+      throw new SystemException("Error reading user information from SAM.", secondEx);
     } finally {
       closeConnectionPool();
     }
@@ -350,7 +352,29 @@ public class SamService {
    * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
    * PUT endpoint to add an email address to a resource + policy.
    *
-   * <p>If that returns a Bad Request error, then call the SAM "/api/users/v1/invite/{inviteeEmail}"
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   * @param resourcePolicyName name of resource policy
+   * @param userEmail email of the user or group to add
+   */
+  private void addUserToResource(
+      String resourceType, String resourceId, String resourcePolicyName, String userEmail)
+      throws InterruptedException, ApiException {
+    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
+    HttpUtils.callWithRetries(
+        () -> {
+          resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
+          return null;
+        },
+        SamService::isRetryable);
+  }
+
+  /**
+   * Call the SAM
+   * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
+   * PUT endpoint to add an email address to a resource + policy.
+   *
+   * <p>If that returns a Not Found error, then call the SAM "/api/users/v1/invite/{inviteeEmail}"
    * endpoint to invite the user.
    *
    * @param resourceType type of resource
@@ -360,40 +384,54 @@ public class SamService {
    */
   public void addUserToResourceOrInviteUser(
       String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
-    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
     try {
-      HttpUtils.callWithRetries(
+      // - try to add user to the policy
+      // - if the add user to policy failed with a Bad Request error, it means the email is not
+      // found
+      // - so try to invite the user first, then retry adding them to the policy
+      HttpUtils.callAndHandleOneTimeError(
           () -> {
-            resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
+            addUserToResource(resourceType, resourceId, resourcePolicyName, userEmail);
             return null;
           },
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      if (!(ex instanceof ApiException)
-          || (((ApiException) ex).getCode() != HttpStatusCodes.STATUS_CODE_BAD_REQUEST)) {
-        throw new SystemException("Error adding user to SAM resource.", ex);
-      }
-      logger.info("User not found in SAM. Trying to invite a new user.");
-
-      try {
-        // add to resource failed with Bad Request error, now try to invite the user and add them to
-        // the resource again
-        logger.info("Inviting new user: {}", userEmail);
-        UserStatusDetails userStatusDetails = inviteUser(userEmail);
-        logger.info("Invited new user: {}", userStatusDetails);
-
-        HttpUtils.callWithRetries(
-            () -> {
-              resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
-              return null;
-            },
-            SamService::isRetryable);
-      } catch (ApiException | InterruptedException secondEx) {
-        throw new SystemException("Error adding user to SAM resource.", secondEx);
-      }
+          SamService::isBadRequest,
+          () -> {
+            inviteUser(userEmail);
+            return null;
+          });
+    } catch (Exception secondEx) {
+      throw new SystemException("Error adding user to SAM resource.", secondEx);
     } finally {
       closeConnectionPool();
     }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the SAM client is a bad request.
+   *
+   * @param ex exception to test
+   * @return true if the exception is a bad request
+   */
+  private static boolean isBadRequest(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int statusCode = ((ApiException) ex).getCode();
+    return statusCode == HttpStatusCodes.STATUS_CODE_BAD_REQUEST;
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the SAM client is a not found.
+   *
+   * @param ex exception to test
+   * @return true if the exception is a not found
+   */
+  private static boolean isNotFound(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int statusCode = ((ApiException) ex).getCode();
+    return statusCode == HttpStatusCodes.STATUS_CODE_NOT_FOUND;
   }
 
   /**
