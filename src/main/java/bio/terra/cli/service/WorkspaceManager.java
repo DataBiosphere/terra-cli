@@ -485,7 +485,6 @@ public class WorkspaceManager {
   public ResourceDescription deleteReferencedGcsBucket(String name) {
     return deleteResource(
         name,
-        StewardshipType.REFERENCED,
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
@@ -502,7 +501,6 @@ public class WorkspaceManager {
   public ResourceDescription deleteReferencedBigQueryDataset(String name) {
     return deleteResource(
         name,
-        StewardshipType.REFERENCED,
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
@@ -519,7 +517,6 @@ public class WorkspaceManager {
   public ResourceDescription deleteControlledGcsBucket(String name) {
     return deleteResource(
         name,
-        StewardshipType.CONTROLLED,
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteControlledGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
@@ -536,7 +533,6 @@ public class WorkspaceManager {
   public ResourceDescription deleteControlledBigQueryDataset(String name) {
     return deleteResource(
         name,
-        StewardshipType.CONTROLLED,
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteControlledBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
@@ -546,28 +542,16 @@ public class WorkspaceManager {
   /**
    * Delete a resource in the workspace. Also updates the cached list of resources.
    *
-   * <p>This method throws a UserActionableException if the stewardship type does not match, to
-   * point the user towards using a different command.
-   *
    * @param resourceName name of resource to delete
-   * @param stewardshipType expected stewardship type of the resource to delete
    * @param deleteResource function pointer to execute the delete request for a particular
    *     stewardship + resource type combination
    * @return the resource description object that was deleted
    */
-  private ResourceDescription deleteResource(
-      String resourceName, StewardshipType stewardshipType, Consumer<UUID> deleteResource) {
+  private ResourceDescription deleteResource(String resourceName, Consumer<UUID> deleteResource) {
     workspaceContext.requireCurrentWorkspace();
 
     // get the summary object
     ResourceDescription resourceToDelete = workspaceContext.getResource(resourceName);
-
-    // check if the resource is the wrong stewardship type
-    if (!resourceToDelete.getMetadata().getStewardshipType().equals(stewardshipType)) {
-      throw new UserActionableException(
-          "A resource with this name exists in the workspace, but it is "
-              + resourceToDelete.getMetadata().getStewardshipType());
-    }
 
     // delete the resource
     deleteResource.accept(resourceToDelete.getMetadata().getResourceId());
@@ -594,7 +578,7 @@ public class WorkspaceManager {
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // TODO (PF-717): replace this with a call(s) to WSM once an endpoint is available
+    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
         usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
@@ -619,7 +603,7 @@ public class WorkspaceManager {
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // TODO (PF-717): replace this with a call(s) to WSM once an endpoint is available
+    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
         usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
@@ -656,7 +640,7 @@ public class WorkspaceManager {
   }
 
   /**
-   * Utility method for getting the full path to a Big Query dataset: [GCP project id].[BQ dataset
+   * Utility method for getting the SQL path to a Big Query dataset: [GCP project id].[BQ dataset
    * id]
    *
    * @param resource Big Query dataset resource

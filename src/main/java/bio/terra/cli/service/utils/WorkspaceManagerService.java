@@ -656,7 +656,6 @@ public class WorkspaceManagerService {
    */
   public void deleteControlledBigQueryDataset(UUID workspaceId, UUID resourceId) {
     // TODO (PF-419): update this once the endpoint for deleting a controlled BQ dataset is ready
-    throw new UnsupportedOperationException(
-        "Delete controlled BQ dataset endpoint not implemented yet.");
+    throw new SystemException("Delete controlled BQ dataset endpoint not implemented yet.");
   }
 }

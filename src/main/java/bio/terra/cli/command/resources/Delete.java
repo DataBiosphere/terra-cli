@@ -38,7 +38,8 @@ public class Delete extends BaseCommand {
           workspaceManager.deleteReferencedBigQueryDataset(name);
           break;
         default:
-          throw new UnsupportedOperationException("Other resource types are not available, yet.");
+          throw new UnsupportedOperationException(
+              "Resource type not supported: " + resourceToDelete.getMetadata().getResourceType());
       }
     } else if (resourceToDelete
         .getMetadata()
@@ -52,10 +53,12 @@ public class Delete extends BaseCommand {
           workspaceManager.deleteControlledBigQueryDataset(name);
           break;
         default:
-          throw new UnsupportedOperationException("Other resource types are not available, yet.");
+          throw new UnsupportedOperationException(
+              "Resource type not supported: " + resourceToDelete.getMetadata().getResourceType());
       }
     } else {
-      throw new UnsupportedOperationException("Other stewardship types are not supported.");
+      throw new UnsupportedOperationException(
+          "Stewardship type not supported: " + resourceToDelete.getMetadata().getStewardshipType());
     }
 
     formatOption.printReturnValue(resourceToDelete, Delete::printText);

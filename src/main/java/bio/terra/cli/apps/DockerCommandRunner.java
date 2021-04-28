@@ -183,7 +183,8 @@ public class DockerCommandRunner {
       case BIG_QUERY_DATASET:
         return getBigQueryDatasetPath(resource);
       default:
-        throw new UnsupportedOperationException("Other resource types are not available, yet.");
+        throw new UnsupportedOperationException(
+            "Resource type not supported: " + resource.getMetadata().getResourceType());
     }
   }
 

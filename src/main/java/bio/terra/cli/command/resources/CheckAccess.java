@@ -40,7 +40,8 @@ public class CheckAccess extends BaseCommand {
             workspaceManager.checkAccessToReferencedBigQueryDataset(resource, true);
         break;
       default:
-        throw new UnsupportedOperationException("Other resource types are not available, yet.");
+        throw new UnsupportedOperationException(
+            "Resource type not supported: " + resource.getMetadata().getResourceType());
     }
 
     CheckAccess.CheckAccessReturnValue checkAccessReturnValue =
