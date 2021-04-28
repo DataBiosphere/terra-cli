@@ -149,7 +149,11 @@ public class SamService {
       // - if the user lookup failed with a Not Found error, it means the email is not found
       // - so try to register the user first, then retry looking them up
       return HttpUtils.callAndHandleOneTimeError(
-          () -> getUserInfo(),
+          () -> {
+            UsersApi samUsersApi = new UsersApi(apiClient);
+            return HttpUtils.callWithRetries(
+                () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
+          },
           SamService::isNotFound,
           () -> {
             UserStatus userStatus =
@@ -354,20 +358,15 @@ public class SamService {
    * @param userEmail email of the user or group to add
    */
   private void addUserToResource(
-      String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
+      String resourceType, String resourceId, String resourcePolicyName, String userEmail)
+      throws InterruptedException, ApiException {
     ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-    try {
-      HttpUtils.callWithRetries(
-          () -> {
-            resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
-            return null;
-          },
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error adding user to SAM resource.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    HttpUtils.callWithRetries(
+        () -> {
+          resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
+          return null;
+        },
+        SamService::isRetryable);
   }
 
   /**
