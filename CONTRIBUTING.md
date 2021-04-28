@@ -26,7 +26,8 @@ terra
 ```
 
 #### Logging
-Logging is turned off by default. Modify the root level in the `src/main/resources/logback.xml` file to turn it on (e.g. `INFO`).
+Logging is turned off by default. Modify the level with the `terra config set logging` command. Available levels are
+listed in the command usage.
 
 #### Troubleshooting
 - Wipe the global context directory. `rm -R $HOME/.terra`.
@@ -35,6 +36,10 @@ Logging is turned off by default. Modify the root level in the `src/main/resourc
 
 ### Publish a release
 A release includes a GitHub release of the `terra-cli` repository and a corresponding Docker image pushed to GCR.
+
+The GitHub action that runs on-merge to the `main` branch automatically builds the code and creates a GitHub release.
+So, this section about publishing a release manually is only intended for testing the release process, releasing a fix
+before code is merged (e.g. as a GitHub pre-release), or debugging errors in the GitHub action.
 
 To publish a release manually, from the current local code:
 1. Create a tag (e.g. `test123`) and push it to the remote repository. The tag should not include any uppercase letters.

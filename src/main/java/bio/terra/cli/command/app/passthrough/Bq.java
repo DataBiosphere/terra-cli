@@ -7,7 +7,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra bq" command. */
-@Command(name = "bq", description = "Use the bq tool in the Terra workspace.", hidden = true)
+@Command(name = "bq", description = "Call bq in the Terra workspace.")
 public class Bq extends BaseCommand {
 
   @CommandLine.Unmatched private List<String> cmdArgs;

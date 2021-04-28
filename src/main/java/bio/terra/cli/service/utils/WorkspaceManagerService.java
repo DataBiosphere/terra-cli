@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,33 +301,21 @@ public class WorkspaceManagerService {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
     try {
-      workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
-    } catch (ApiException ex) {
-      // a bad request is the only type of exception that inviting the user might fix
-      if (!isBadRequest(ex)) {
-        throw new SystemException("Error granting IAM role on workspace", ex);
-      }
-
-      try {
-        // try to invite the user first, in case they are not already registered
-        // if they are already registered, this will throw an exception
-        logger.info("Inviting new user: {}", userEmail);
-        UserStatusDetails userStatusDetails =
+      // - try to grant the user an iam role
+      // - if this fails with a Bad Request error, it means the email is not found
+      // - so try to invite the user first, then retry granting them an iam role
+      HttpUtils.callAndHandleOneTimeError(
+          () -> {
+            workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
+            return null;
+          },
+          WorkspaceManagerService::isBadRequest,
+          () -> {
             new SamService(server, terraUser).inviteUser(userEmail);
-        logger.info("Invited new user: {}", userStatusDetails);
-
-        // now try to add the user to the workspace role
-        // retry if it returns with a bad request (because the invite sometimes takes a few seconds
-        // to propagate -- not sure why)
-        HttpUtils.callWithRetries(
-            () -> {
-              workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
-              return null;
-            },
-            WorkspaceManagerService::isBadRequest);
-      } catch (ApiException | InterruptedException inviteEx) {
-        throw new SystemException("Error granting IAM role on workspace", inviteEx);
-      }
+            return null;
+          });
+    } catch (Exception secondEx) {
+      throw new SystemException("Error granting IAM role on workspace.", secondEx);
     }
   }
 
