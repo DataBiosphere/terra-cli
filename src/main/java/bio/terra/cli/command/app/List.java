@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 @Command(name = "list", description = "List the supported applications.")
 public class List extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Print out a list of all the supported apps. */
   @Override

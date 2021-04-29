@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.getvalue;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
     description = "Check whether a browser is launched automatically during the login process.")
 public class Browser extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Return the browser launch option property of the global context. */
   @Override

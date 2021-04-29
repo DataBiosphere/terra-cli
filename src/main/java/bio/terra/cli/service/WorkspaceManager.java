@@ -9,6 +9,7 @@ import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
+import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
@@ -366,6 +367,8 @@ public class WorkspaceManager {
    * @param cloningInstructions instructions for how to handle the resource when cloning the
    *     workspace
    * @param accessScope access to allow other workspaces users
+   * @param privateUserEmail email address for the private resource user
+   * @param privateUserIamRoles list of iam roles to grant the private resource user
    * @param gcsBucketName GCS bucket name (https://cloud.google.com/storage/docs/naming-buckets)
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
@@ -379,6 +382,8 @@ public class WorkspaceManager {
       String description,
       CloningInstructionsEnum cloningInstructions,
       AccessScope accessScope,
+      String privateUserEmail,
+      List<ControlledResourceIamRole> privateUserIamRoles,
       String gcsBucketName,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
       List<GcpGcsBucketLifecycleRule> lifecycleRules,
@@ -394,6 +399,8 @@ public class WorkspaceManager {
                     description,
                     cloningInstructions,
                     accessScope,
+                    privateUserEmail,
+                    privateUserIamRoles,
                     gcsBucketName,
                     defaultStorageClass,
                     lifecycleRules,
@@ -409,6 +416,8 @@ public class WorkspaceManager {
    * @param cloningInstructions instructions for how to handle the resource when cloning the
    *     workspace
    * @param accessScope access to allow other workspaces users
+   * @param privateUserEmail email address for the private resource user
+   * @param privateUserIamRoles list of iam roles to grant the private resource user
    * @param bigQueryDatasetId Big Query dataset id
    *     (https://cloud.google.com/bigquery/docs/datasets#dataset-naming)
    * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
@@ -419,6 +428,8 @@ public class WorkspaceManager {
       String description,
       CloningInstructionsEnum cloningInstructions,
       AccessScope accessScope,
+      String privateUserEmail,
+      List<ControlledResourceIamRole> privateUserIamRoles,
       String bigQueryDatasetId,
       @Nullable String location) {
     return createResource(
@@ -432,6 +443,8 @@ public class WorkspaceManager {
                     description,
                     cloningInstructions,
                     accessScope,
+                    privateUserEmail,
+                    privateUserIamRoles,
                     bigQueryDatasetId,
                     location));
   }
@@ -568,11 +581,12 @@ public class WorkspaceManager {
    * credentials.
    *
    * @param resource resource to check access for
-   * @param usePetSa true to check access using the pet SA credentials, false to check access using
-   *     the end-user credentials
-   * @return true if the user can access the referenced GCS bucket
+   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
+   *     checking access
+   * @return true if the user can access the referenced GCS bucket with the given credentials
    */
-  public boolean checkAccessToReferencedGcsBucket(ResourceDescription resource, boolean usePetSa) {
+  public boolean checkAccessToReferencedGcsBucket(
+      ResourceDescription resource, CheckAccessCredentials credentialsToUse) {
     if (!resource.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       throw new UserActionableException(
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
@@ -581,7 +595,9 @@ public class WorkspaceManager {
     // TODO (PF-717): replace this with a call to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
-        usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
+        credentialsToUse.equals(CheckAccessCredentials.USER)
+            ? currentUser.userCredentials
+            : currentUser.petSACredentials;
 
     return new GoogleCloudStorage(credentials, workspaceContext.getGoogleProject())
         .checkObjectsListAccess(getGcsBucketUrl(resource));
@@ -592,12 +608,12 @@ public class WorkspaceManager {
    * pet SA credentials.
    *
    * @param resource resource to check access for
-   * @param usePetSa true to check access using the pet SA credentials, false to check access using
-   *     the end-user credentials
-   * @return true if the user can access the referenced Big Query dataset
+   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
+   *     checking access
+   * @return true if the user can access the referenced Big Query dataset with the given credentials
    */
   public boolean checkAccessToReferencedBigQueryDataset(
-      ResourceDescription resource, boolean usePetSa) {
+      ResourceDescription resource, CheckAccessCredentials credentialsToUse) {
     if (!resource.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       throw new UserActionableException(
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
@@ -606,7 +622,9 @@ public class WorkspaceManager {
     // TODO (PF-717): replace this with a call to WSM once an endpoint is available
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
     GoogleCredentials credentials =
-        usePetSa ? currentUser.petSACredentials : currentUser.userCredentials;
+        credentialsToUse.equals(CheckAccessCredentials.USER)
+            ? currentUser.userCredentials
+            : currentUser.petSACredentials;
 
     GcpBigQueryDatasetAttributes gcpBigQueryDatasetAttributes =
         resource.getResourceAttributes().getGcpBqDataset();
@@ -616,6 +634,15 @@ public class WorkspaceManager {
                 gcpBigQueryDatasetAttributes.getProjectId(),
                 gcpBigQueryDatasetAttributes.getDatasetId()));
   }
+
+  /**
+   * Helper enum for the {@link #checkAccessToReferencedGcsBucket} method. Specifies whether to use
+   * end-user or pet SA credentials for checking access to a resource in the workspace.
+   */
+  public enum CheckAccessCredentials {
+    USER,
+    PET_SA;
+  };
 
   /** Prefix for GCS bucket to make a valid URL. */
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";

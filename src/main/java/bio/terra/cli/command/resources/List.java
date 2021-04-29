@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
@@ -22,9 +22,21 @@ public class List extends BaseCommand {
 
     @CommandLine.Option(names = "--referenced", description = "Only list referenced resources.")
     private boolean referenced;
+
+    StewardshipType toStewardshipType() {
+      if (controlled) {
+        return StewardshipType.CONTROLLED;
+      } else if (referenced) {
+        return StewardshipType.REFERENCED;
+      } else {
+        // this ArgGroup is defined with exclusive=true so we should never get here
+        throw new IllegalArgumentException(
+            "Expected either controlled or referenced to be defined.");
+      }
+    }
   }
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List the resources in the workspace. */
   @Override
@@ -40,10 +52,7 @@ public class List extends BaseCommand {
                       resource
                           .getMetadata()
                           .getStewardshipType()
-                          .equals(
-                              argGroup.controlled
-                                  ? StewardshipType.CONTROLLED
-                                  : StewardshipType.REFERENCED))
+                          .equals(argGroup.toStewardshipType()))
               .collect(Collectors.toList());
     }
 

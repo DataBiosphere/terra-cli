@@ -1,7 +1,9 @@
 package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.PrintingUtils;
+import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.helperclasses.options.ResourceName;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.StewardshipType;
@@ -10,20 +12,16 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resources delete" command. */
 @CommandLine.Command(name = "delete", description = "Delete a resource from the workspace.")
 public class Delete extends BaseCommand {
-  @CommandLine.Option(
-      names = "--name",
-      required = true,
-      description = "Name of the resource, scoped to the workspace.")
-  private String name;
+  @CommandLine.Mixin ResourceName resourceNameMixin;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Delete a resource from the workspace. */
   @Override
   protected void execute() {
     // get the resource summary object
     WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    ResourceDescription resourceToDelete = workspaceManager.getResource(name);
+    ResourceDescription resourceToDelete = workspaceManager.getResource(resourceNameMixin.name);
 
     // call the appropriate delete endpoint for the resource
     // there is a different endpoint(s) for deleting each combination of resource type and
@@ -32,10 +30,10 @@ public class Delete extends BaseCommand {
     if (resourceToDelete.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       switch (resourceToDelete.getMetadata().getResourceType()) {
         case GCS_BUCKET:
-          workspaceManager.deleteReferencedGcsBucket(name);
+          workspaceManager.deleteReferencedGcsBucket(resourceNameMixin.name);
           break;
         case BIG_QUERY_DATASET:
-          workspaceManager.deleteReferencedBigQueryDataset(name);
+          workspaceManager.deleteReferencedBigQueryDataset(resourceNameMixin.name);
           break;
         default:
           throw new UnsupportedOperationException(
@@ -47,10 +45,10 @@ public class Delete extends BaseCommand {
         .equals(StewardshipType.CONTROLLED)) {
       switch (resourceToDelete.getMetadata().getResourceType()) {
         case GCS_BUCKET:
-          workspaceManager.deleteControlledGcsBucket(name);
+          workspaceManager.deleteControlledGcsBucket(resourceNameMixin.name);
           break;
         case BIG_QUERY_DATASET:
-          workspaceManager.deleteControlledBigQueryDataset(name);
+          workspaceManager.deleteControlledBigQueryDataset(resourceNameMixin.name);
           break;
         default:
           throw new UnsupportedOperationException(
@@ -67,6 +65,6 @@ public class Delete extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully deleted resource.");
-    bio.terra.cli.command.resources.Describe.printText(returnValue);
+    PrintingUtils.printResource(returnValue);
   }
 }

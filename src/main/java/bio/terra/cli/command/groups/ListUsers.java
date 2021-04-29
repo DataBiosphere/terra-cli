@@ -1,7 +1,7 @@
 package bio.terra.cli.command.groups;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.utils.SamService;
 import java.util.List;
 import picocli.CommandLine;
@@ -19,7 +19,7 @@ public class ListUsers extends BaseCommand {
       description = "The name of the policy: ${COMPLETION-CANDIDATES}")
   private SamService.GroupPolicy policy;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List the groups to which the current user belongs. */
   @Override

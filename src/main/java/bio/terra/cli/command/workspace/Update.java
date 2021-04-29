@@ -1,7 +1,8 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.PrintingUtils;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
@@ -28,7 +29,7 @@ public class Update extends BaseCommand {
     private String description;
   }
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Update the mutable properties of an existing workspace. */
   @Override
@@ -40,6 +41,7 @@ public class Update extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(WorkspaceDescription returnValue) {
-    OUT.println("Workspace successfully updated: " + workspaceContext.getWorkspaceId());
+    OUT.println("Workspace successfully updated.");
+    PrintingUtils.printWorkspace(workspaceContext);
   }
 }

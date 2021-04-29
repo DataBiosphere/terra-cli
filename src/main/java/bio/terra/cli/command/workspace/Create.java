@@ -2,7 +2,8 @@ package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.PrintingUtils;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
@@ -21,7 +22,7 @@ public class Create extends BaseCommand {
       description = "workspace description")
   private String description;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Create a new workspace. */
   @Override
@@ -34,6 +35,7 @@ public class Create extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(WorkspaceDescription returnValue) {
-    OUT.println("Workspace successfully created: " + workspaceContext.getWorkspaceId());
+    OUT.println("Workspace successfully created.");
+    PrintingUtils.printWorkspace(workspaceContext);
   }
 }

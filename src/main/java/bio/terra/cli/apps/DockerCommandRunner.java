@@ -163,7 +163,7 @@ public class DockerCommandRunner {
         .forEach(
             resource ->
                 terraReferences.put(
-                    "TERRA_" + resource.getMetadata().getName().toUpperCase(),
+                    "TERRA_" + resource.getMetadata().getName(),
                     resolveResourceForDockerContainer(resource)));
 
     return terraReferences;

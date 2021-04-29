@@ -14,6 +14,7 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
+import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
@@ -40,6 +41,8 @@ import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.PrivateResourceIamRoles;
+import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.ResourceType;
@@ -474,6 +477,8 @@ public class WorkspaceManagerService {
    * @param cloningInstructions instructions for how to handle the resource when cloning the
    *     workspace
    * @param accessScope access to allow other workspaces users
+   * @param privateUserEmail email address for the private resource user
+   * @param privateUserIamRoles list of iam roles to grant the private resource user
    * @param gcsBucketName GCS bucket name (https://cloud.google.com/storage/docs/naming-buckets)
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
@@ -488,6 +493,8 @@ public class WorkspaceManagerService {
       String description,
       CloningInstructionsEnum cloningInstructions,
       AccessScope accessScope,
+      String privateUserEmail,
+      List<ControlledResourceIamRole> privateUserIamRoles,
       String gcsBucketName,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
       List<GcpGcsBucketLifecycleRule> lifecycleRules,
@@ -515,6 +522,10 @@ public class WorkspaceManagerService {
     }
 
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
+    if (privateUserIamRoles != null) {
+      privateResourceIamRoles.addAll(privateUserIamRoles);
+    }
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
             .common(
@@ -523,7 +534,14 @@ public class WorkspaceManagerService {
                     .description(description)
                     .cloningInstructions(cloningInstructions)
                     .accessScope(accessScope)
-                    .managedBy(ManagedBy.USER))
+                    .privateResourceUser(
+                        new PrivateResourceUser()
+                            .userName(privateUserEmail)
+                            .privateResourceIamRoles(privateResourceIamRoles))
+                    .managedBy(
+                        ManagedBy
+                            .USER)) // does the CLI need to handle APPLICATION-managed resources
+            // also?
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
                     .name(gcsBucketName)
@@ -548,6 +566,9 @@ public class WorkspaceManagerService {
    * @param cloningInstructions instructions for how to handle the resource when cloning the
    *     workspace
    * @param accessScope access to allow other workspaces users
+   * @param privateUserEmail email address for the private resource user
+   * @param privateUserIamRoles list of iam roles to grant the private resource user
+   * @param bigQueryDatasetId Big Query dataset id
    * @param bigQueryDatasetId Big Query dataset id
    *     (https://cloud.google.com/bigquery/docs/datasets#dataset-naming)
    * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
@@ -559,9 +580,15 @@ public class WorkspaceManagerService {
       String description,
       CloningInstructionsEnum cloningInstructions,
       AccessScope accessScope,
+      String privateUserEmail,
+      List<ControlledResourceIamRole> privateUserIamRoles,
       String bigQueryDatasetId,
       @Nullable String location) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
+    if (privateUserIamRoles != null) {
+      privateResourceIamRoles.addAll(privateUserIamRoles);
+    }
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
             .common(
@@ -570,7 +597,14 @@ public class WorkspaceManagerService {
                     .description(description)
                     .cloningInstructions(cloningInstructions)
                     .accessScope(accessScope)
-                    .managedBy(ManagedBy.USER))
+                    .privateResourceUser(
+                        new PrivateResourceUser()
+                            .userName(privateUserEmail)
+                            .privateResourceIamRoles(privateResourceIamRoles))
+                    .managedBy(
+                        ManagedBy
+                            .USER)) // does the CLI need to handle APPLICATION-managed resources
+            // also?
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(bigQueryDatasetId)

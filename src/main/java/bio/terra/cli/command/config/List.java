@@ -5,7 +5,7 @@ import static bio.terra.cli.command.config.getvalue.Logging.LoggingReturnValue;
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     description = "List all configuration properties and their values.")
 public class List extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Print out a list of all the config properties. */
   @Override

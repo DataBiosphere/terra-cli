@@ -1,7 +1,7 @@
 package bio.terra.cli.command.spend;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.utils.SpendProfileManagerService;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
@@ -14,7 +14,7 @@ import picocli.CommandLine.Command;
     description = "List the users enabled on the Workspace Manager default spend profile.")
 public class ListUsers extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List all users that have access to the WSM default spend profile. */
   @Override

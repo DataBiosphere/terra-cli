@@ -3,9 +3,9 @@ package bio.terra.cli.command.resources.resolve;
 import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.helperclasses.options.ResourceName;
 import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
 
@@ -14,46 +14,47 @@ import picocli.CommandLine;
     name = "bq-dataset",
     description = "Resolve a Big Query dataset resource to its cloud id or path.")
 public class BqDataset extends BaseCommand {
+  @CommandLine.Mixin ResourceName resourceNameMixin;
+
   @CommandLine.Option(
-      names = "--name",
-      required = true,
-      description = "Name of the resource, scoped to the workspace.")
-  private String name;
+      names = "--cloud-id-format",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
+      description =
+          "Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id]")
+  private BqDatasetResolveOptions cloudIdFormat = BqDatasetResolveOptions.FULL_PATH;
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  BqDataset.BqDatasetCloudIdArgGroup argGroup;
-
-  static class BqDatasetCloudIdArgGroup {
-    @CommandLine.Option(
-        names = "--dataset-id",
-        description = "Only return the Big Query dataset id.")
-    private boolean datasetId;
-
-    @CommandLine.Option(names = "--project-id", description = "Only return the GCP project id.")
-    private boolean projectId;
-  }
-
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Resolve a Big Query dataset resource in the workspace to its cloud identifier. */
   @Override
   protected void execute() {
     ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(name);
-    GcpBigQueryDatasetAttributes bigQueryDatasetAttributes =
-        resource.getResourceAttributes().getGcpBqDataset();
+        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameMixin.name);
+    formatOption.printReturnValue(cloudIdFormat.toCloudId(resource));
+  }
 
-    // either return 'project.dataset', or only the project or dataset if one of the optional flags
-    // is specified
-    String cloudId;
-    if (argGroup == null) {
-      cloudId = getBigQueryDatasetPath(resource);
-    } else if (argGroup.datasetId) {
-      cloudId = bigQueryDatasetAttributes.getDatasetId();
-    } else {
-      cloudId = bigQueryDatasetAttributes.getProjectId();
+  /** This enum specifies the possible ways to resolve a Big Query dataset resource. */
+  enum BqDatasetResolveOptions {
+    FULL_PATH, // [project id].[dataset id]
+    DATASET_ID_ONLY, // [dataset id]
+    PROJECT_ID_ONLY; // [project id]
+
+    /**
+     * Helper method to convert a Big Query dataset resource into a cloud id. Either returns
+     * [project id].[dataset id], only the project id, or only the dataset id, depending on the enum
+     * value.
+     */
+    String toCloudId(ResourceDescription resource) {
+      switch (this) {
+        case FULL_PATH:
+          return getBigQueryDatasetPath(resource);
+        case DATASET_ID_ONLY:
+          return resource.getResourceAttributes().getGcpBqDataset().getDatasetId();
+        case PROJECT_ID_ONLY:
+          return resource.getResourceAttributes().getGcpBqDataset().getProjectId();
+        default:
+          throw new IllegalArgumentException("Unknown Big Query dataset resolve operation.");
+      }
     }
-
-    formatOption.printReturnValue(cloudId);
   }
 }

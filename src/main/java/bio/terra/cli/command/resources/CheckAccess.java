@@ -1,7 +1,8 @@
 package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.helperclasses.options.ResourceName;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ResourceDescription;
@@ -12,13 +13,9 @@ import picocli.CommandLine;
     name = "check-access",
     description = "Check if you have access to a referenced resource.")
 public class CheckAccess extends BaseCommand {
-  @CommandLine.Option(
-      names = "--name",
-      required = true,
-      description = "Name of the resource, scoped to the workspace.")
-  private String name;
+  @CommandLine.Mixin ResourceName resourceNameMixin;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /**
    * Check if the user and their proxy group have access to a referenced resource in the workspace.
@@ -26,7 +23,7 @@ public class CheckAccess extends BaseCommand {
   @Override
   protected void execute() {
     WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    ResourceDescription resource = workspaceManager.getResource(name);
+    ResourceDescription resource = workspaceManager.getResource(resourceNameMixin.name);
 
     // call the appropriate check-access function for the resource
     // there is different logic for checking the access of each resource type, but all require only
@@ -39,13 +36,20 @@ public class CheckAccess extends BaseCommand {
     boolean userHasAccess, proxyGroupHasAccess;
     switch (resource.getMetadata().getResourceType()) {
       case GCS_BUCKET:
-        userHasAccess = workspaceManager.checkAccessToReferencedGcsBucket(resource, false);
-        proxyGroupHasAccess = workspaceManager.checkAccessToReferencedGcsBucket(resource, true);
+        userHasAccess =
+            workspaceManager.checkAccessToReferencedGcsBucket(
+                resource, WorkspaceManager.CheckAccessCredentials.USER);
+        proxyGroupHasAccess =
+            workspaceManager.checkAccessToReferencedGcsBucket(
+                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
         break;
       case BIG_QUERY_DATASET:
-        userHasAccess = workspaceManager.checkAccessToReferencedBigQueryDataset(resource, false);
+        userHasAccess =
+            workspaceManager.checkAccessToReferencedBigQueryDataset(
+                resource, WorkspaceManager.CheckAccessCredentials.USER);
         proxyGroupHasAccess =
-            workspaceManager.checkAccessToReferencedBigQueryDataset(resource, true);
+            workspaceManager.checkAccessToReferencedBigQueryDataset(
+                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
         break;
       default:
         throw new UnsupportedOperationException(

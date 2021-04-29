@@ -1,7 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
@@ -29,7 +29,7 @@ public class List extends BaseCommand {
       description = "The maximum number of workspaces to return.")
   private int limit;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List all workspaces a user has access to. */
   @Override
