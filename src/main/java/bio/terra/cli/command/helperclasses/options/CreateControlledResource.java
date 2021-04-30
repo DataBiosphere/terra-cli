@@ -6,6 +6,12 @@ import bio.terra.workspace.model.ControlledResourceIamRole;
 import java.util.List;
 import picocli.CommandLine;
 
+/**
+ * Command helper class that defines the relevant options for create a new controlled Terra
+ * resource: {@link CreateResource} and --access, --email, --iam-roles.
+ *
+ * <p>This class is meant to be used as a @CommandLine.Mixin.
+ */
 public class CreateControlledResource extends CreateResource {
   @CommandLine.Option(
       names = "--access",
