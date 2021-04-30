@@ -42,6 +42,6 @@ public class Update extends BaseCommand {
   /** Print this command's output in text format. */
   private void printText(WorkspaceDescription returnValue) {
     OUT.println("Workspace successfully updated.");
-    PrintingUtils.printWorkspace(workspaceContext);
+    PrintingUtils.printText(workspaceContext);
   }
 }

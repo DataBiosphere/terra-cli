@@ -36,6 +36,6 @@ public class Create extends BaseCommand {
   /** Print this command's output in text format. */
   private void printText(WorkspaceDescription returnValue) {
     OUT.println("Workspace successfully created.");
-    PrintingUtils.printWorkspace(workspaceContext);
+    PrintingUtils.printText(workspaceContext);
   }
 }

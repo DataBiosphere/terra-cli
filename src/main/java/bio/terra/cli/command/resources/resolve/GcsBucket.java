@@ -14,7 +14,7 @@ import picocli.CommandLine;
     name = "gcs-bucket",
     description = "Resolve a GCS bucket resource to its cloud id or path.")
 public class GcsBucket extends BaseCommand {
-  @CommandLine.Mixin ResourceName resourceNameMixin;
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(names = "--exclude-prefix", description = "Exclude the 'gs://' prefix.")
   private boolean excludePrefix;
@@ -25,7 +25,7 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameMixin.name);
+        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
     String bucketName =
         excludePrefix
             ? resource.getResourceAttributes().getGcpGcsBucket().getBucketName()

@@ -9,7 +9,7 @@ import bio.terra.workspace.model.ResourceDescription;
 public class PrintingUtils {
 
   /** Print out a workspace object in text format. */
-  public static void printWorkspace(WorkspaceContext workspaceContext) {
+  public static void printText(WorkspaceContext workspaceContext) {
     OUT.println("Terra workspace id: " + workspaceContext.getWorkspaceId());
     OUT.println("Display name: " + workspaceContext.getWorkspaceDisplayName().orElse(""));
     OUT.println("Description: " + workspaceContext.getWorkspaceDescription().orElse(""));
@@ -17,7 +17,7 @@ public class PrintingUtils {
   }
 
   /** Print out a resource object in text format. */
-  public static void printResource(ResourceDescription resource) {
+  public static void printText(ResourceDescription resource) {
     OUT.println("Name:         " + resource.getMetadata().getName());
     OUT.println("Description:  " + resource.getMetadata().getDescription());
     OUT.println("Stewardship:  " + resource.getMetadata().getStewardshipType());

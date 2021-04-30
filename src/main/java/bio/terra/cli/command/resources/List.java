@@ -29,20 +29,18 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<ResourceDescription> resources =
-        new WorkspaceManager(globalContext, workspaceContext).listResources();
-
-    if (stewardship != null) {
-      resources =
-          resources.stream()
-              .filter(resource -> resource.getMetadata().getStewardshipType().equals(stewardship))
-              .collect(Collectors.toList());
-    }
-    if (type != null) {
-      resources =
-          resources.stream()
-              .filter(resource -> resource.getMetadata().getResourceType().equals(type))
-              .collect(Collectors.toList());
-    }
+        new WorkspaceManager(globalContext, workspaceContext)
+            .listResources().stream()
+                .filter(
+                    (resource) -> {
+                      boolean stewardshipMatches =
+                          stewardship == null
+                              || resource.getMetadata().getStewardshipType().equals(stewardship);
+                      boolean typeMatches =
+                          type == null || resource.getMetadata().getResourceType().equals(type);
+                      return stewardshipMatches && typeMatches;
+                    })
+                .collect(Collectors.toList());
 
     formatOption.printReturnValue(resources, List::printText);
   }

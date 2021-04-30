@@ -31,6 +31,6 @@ public class Mount extends BaseCommand {
   /** Print this command's output in text format. */
   private void printText(WorkspaceDescription returnValue) {
     OUT.println("Workspace successfully mounted.");
-    PrintingUtils.printWorkspace(workspaceContext);
+    PrintingUtils.printText(workspaceContext);
   }
 }

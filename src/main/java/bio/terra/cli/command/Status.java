@@ -44,7 +44,7 @@ public class Status extends BaseCommand {
     if (workspaceContext.isEmpty()) {
       OUT.println("There is no current Terra workspace defined.");
     } else {
-      PrintingUtils.printWorkspace(workspaceContext);
+      PrintingUtils.printText(workspaceContext);
     }
   }
 

@@ -18,6 +18,6 @@ public class Delete extends BaseCommand {
         .deletePetSaCredentials(globalContext.requireCurrentTerraUser());
 
     OUT.println("Workspace successfully deleted.");
-    PrintingUtils.printWorkspace(workspaceContext);
+    PrintingUtils.printText(workspaceContext);
   }
 }

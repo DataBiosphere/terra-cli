@@ -13,7 +13,7 @@ import picocli.CommandLine;
     name = "check-access",
     description = "Check if you have access to a referenced resource.")
 public class CheckAccess extends BaseCommand {
-  @CommandLine.Mixin ResourceName resourceNameMixin;
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -23,7 +23,7 @@ public class CheckAccess extends BaseCommand {
   @Override
   protected void execute() {
     WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    ResourceDescription resource = workspaceManager.getResource(resourceNameMixin.name);
+    ResourceDescription resource = workspaceManager.getResource(resourceNameOption.name);
 
     // call the appropriate check-access function for the resource
     // there is different logic for checking the access of each resource type, but all require only

@@ -12,7 +12,7 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resources delete" command. */
 @CommandLine.Command(name = "delete", description = "Delete a resource from the workspace.")
 public class Delete extends BaseCommand {
-  @CommandLine.Mixin ResourceName resourceNameMixin;
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -21,7 +21,7 @@ public class Delete extends BaseCommand {
   protected void execute() {
     // get the resource summary object
     WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    ResourceDescription resourceToDelete = workspaceManager.getResource(resourceNameMixin.name);
+    ResourceDescription resourceToDelete = workspaceManager.getResource(resourceNameOption.name);
 
     // call the appropriate delete endpoint for the resource
     // there is a different endpoint(s) for deleting each combination of resource type and
@@ -30,10 +30,10 @@ public class Delete extends BaseCommand {
     if (resourceToDelete.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       switch (resourceToDelete.getMetadata().getResourceType()) {
         case GCS_BUCKET:
-          workspaceManager.deleteReferencedGcsBucket(resourceNameMixin.name);
+          workspaceManager.deleteReferencedGcsBucket(resourceNameOption.name);
           break;
         case BIG_QUERY_DATASET:
-          workspaceManager.deleteReferencedBigQueryDataset(resourceNameMixin.name);
+          workspaceManager.deleteReferencedBigQueryDataset(resourceNameOption.name);
           break;
         default:
           throw new UnsupportedOperationException(
@@ -45,10 +45,10 @@ public class Delete extends BaseCommand {
         .equals(StewardshipType.CONTROLLED)) {
       switch (resourceToDelete.getMetadata().getResourceType()) {
         case GCS_BUCKET:
-          workspaceManager.deleteControlledGcsBucket(resourceNameMixin.name);
+          workspaceManager.deleteControlledGcsBucket(resourceNameOption.name);
           break;
         case BIG_QUERY_DATASET:
-          workspaceManager.deleteControlledBigQueryDataset(resourceNameMixin.name);
+          workspaceManager.deleteControlledBigQueryDataset(resourceNameOption.name);
           break;
         default:
           throw new UnsupportedOperationException(
@@ -65,6 +65,6 @@ public class Delete extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully deleted resource.");
-    PrintingUtils.printResource(returnValue);
+    PrintingUtils.printText(returnValue);
   }
 }

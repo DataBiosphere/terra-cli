@@ -14,7 +14,7 @@ import picocli.CommandLine;
     name = "bq-dataset",
     description = "Resolve a Big Query dataset resource to its cloud id or path.")
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin ResourceName resourceNameMixin;
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
       names = "--cloud-id-format",
@@ -29,7 +29,7 @@ public class BqDataset extends BaseCommand {
   @Override
   protected void execute() {
     ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameMixin.name);
+        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
     formatOption.printReturnValue(cloudIdFormat.toCloudId(resource));
   }
 

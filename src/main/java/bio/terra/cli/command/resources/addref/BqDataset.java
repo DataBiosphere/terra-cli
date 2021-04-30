@@ -54,6 +54,6 @@ public class BqDataset extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully added referenced Big Query dataset.");
-    PrintingUtils.printResource(returnValue);
+    PrintingUtils.printText(returnValue);
   }
 }

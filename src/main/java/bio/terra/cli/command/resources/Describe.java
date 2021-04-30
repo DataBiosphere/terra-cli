@@ -11,7 +11,7 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resources describe" command. */
 @CommandLine.Command(name = "describe", description = "Describe a resource.")
 public class Describe extends BaseCommand {
-  @CommandLine.Mixin ResourceName resourceNameMixin;
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -19,7 +19,7 @@ public class Describe extends BaseCommand {
   @Override
   protected void execute() {
     ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameMixin.name);
-    formatOption.printReturnValue(resource, PrintingUtils::printResource);
+        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
+    formatOption.printReturnValue(resource, PrintingUtils::printText);
   }
 }

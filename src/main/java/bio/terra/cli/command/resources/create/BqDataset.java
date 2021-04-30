@@ -20,7 +20,7 @@ import picocli.CommandLine;
     description = "Add a controlled Big Query dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin CreateControlledResource createControlledResourceMixin;
+  @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
 
   @CommandLine.Option(names = "--dataset-id", required = true, description = "Big Query dataset id")
   private String bigQueryDatasetId;
@@ -35,27 +35,27 @@ public class BqDataset extends BaseCommand {
   /** Add a controlled Big Query dataset to the workspace. */
   @Override
   protected void execute() {
-    createControlledResourceMixin.validateAccessOptions();
+    createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createControlledResourceMixin.privateIamRoles != null
-        && !createControlledResourceMixin.privateIamRoles.isEmpty()) {
-      privateResourceIamRoles.addAll(createControlledResourceMixin.privateIamRoles);
+    if (createControlledResourceOptions.privateIamRoles != null
+        && !createControlledResourceOptions.privateIamRoles.isEmpty()) {
+      privateResourceIamRoles.addAll(createControlledResourceOptions.privateIamRoles);
     }
     ResourceDescription resourceToCreate =
         new ResourceDescription()
             .metadata(
                 new ResourceMetadata()
-                    .name(createControlledResourceMixin.name)
-                    .description(createControlledResourceMixin.description)
-                    .cloningInstructions(createControlledResourceMixin.cloning)
+                    .name(createControlledResourceOptions.name)
+                    .description(createControlledResourceOptions.description)
+                    .cloningInstructions(createControlledResourceOptions.cloning)
                     .controlledResourceMetadata(
                         new ControlledResourceMetadata()
-                            .accessScope(createControlledResourceMixin.access)
+                            .accessScope(createControlledResourceOptions.access)
                             .privateResourceUser(
                                 new PrivateResourceUser()
-                                    .userName(createControlledResourceMixin.privateUserEmail)
+                                    .userName(createControlledResourceOptions.privateUserEmail)
                                     .privateResourceIamRoles(privateResourceIamRoles))))
             .resourceAttributes(
                 new ResourceAttributesUnion()
@@ -70,6 +70,6 @@ public class BqDataset extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully added controlled Big Query dataset.");
-    PrintingUtils.printResource(returnValue);
+    PrintingUtils.printText(returnValue);
   }
 }

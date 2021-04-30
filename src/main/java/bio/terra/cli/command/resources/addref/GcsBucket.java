@@ -17,7 +17,7 @@ import picocli.CommandLine;
     description = "Add a referenced GCS bucket.",
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
-  @CommandLine.Mixin CreateResource createResourceMixin;
+  @CommandLine.Mixin CreateResource createResourceOptions;
 
   @CommandLine.Option(
       names = "--bucket-name",
@@ -36,9 +36,9 @@ public class GcsBucket extends BaseCommand {
         new ResourceDescription()
             .metadata(
                 new ResourceMetadata()
-                    .name(createResourceMixin.name)
-                    .description(createResourceMixin.description)
-                    .cloningInstructions(createResourceMixin.cloning))
+                    .name(createResourceOptions.name)
+                    .description(createResourceOptions.description)
+                    .cloningInstructions(createResourceOptions.cloning))
             .resourceAttributes(
                 new ResourceAttributesUnion()
                     .gcpGcsBucket(new GcpGcsBucketAttributes().bucketName(bucketName)));
@@ -52,6 +52,6 @@ public class GcsBucket extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully added referenced GCS bucket.");
-    PrintingUtils.printResource(returnValue);
+    PrintingUtils.printText(returnValue);
   }
 }

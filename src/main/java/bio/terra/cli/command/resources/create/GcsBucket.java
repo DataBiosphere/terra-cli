@@ -22,7 +22,7 @@ import picocli.CommandLine;
     description = "Add a controlled GCS bucket.",
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
-  @CommandLine.Mixin CreateControlledResource createControlledResourceMixin;
+  @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
 
   @CommandLine.Option(
       names = "--bucket-name",
@@ -47,27 +47,27 @@ public class GcsBucket extends BaseCommand {
   /** Add a controlled GCS bucket to the workspace. */
   @Override
   protected void execute() {
-    createControlledResourceMixin.validateAccessOptions();
+    createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createControlledResourceMixin.privateIamRoles != null
-        && !createControlledResourceMixin.privateIamRoles.isEmpty()) {
-      privateResourceIamRoles.addAll(createControlledResourceMixin.privateIamRoles);
+    if (createControlledResourceOptions.privateIamRoles != null
+        && !createControlledResourceOptions.privateIamRoles.isEmpty()) {
+      privateResourceIamRoles.addAll(createControlledResourceOptions.privateIamRoles);
     }
     ResourceDescription resourceToCreate =
         new ResourceDescription()
             .metadata(
                 new ResourceMetadata()
-                    .name(createControlledResourceMixin.name)
-                    .description(createControlledResourceMixin.description)
-                    .cloningInstructions(createControlledResourceMixin.cloning)
+                    .name(createControlledResourceOptions.name)
+                    .description(createControlledResourceOptions.description)
+                    .cloningInstructions(createControlledResourceOptions.cloning)
                     .controlledResourceMetadata(
                         new ControlledResourceMetadata()
-                            .accessScope(createControlledResourceMixin.access)
+                            .accessScope(createControlledResourceOptions.access)
                             .privateResourceUser(
                                 new PrivateResourceUser()
-                                    .userName(createControlledResourceMixin.privateUserEmail)
+                                    .userName(createControlledResourceOptions.privateUserEmail)
                                     .privateResourceIamRoles(privateResourceIamRoles))))
             .resourceAttributes(
                 new ResourceAttributesUnion()
@@ -84,6 +84,6 @@ public class GcsBucket extends BaseCommand {
   /** Print this command's output in text format. */
   private static void printText(ResourceDescription returnValue) {
     OUT.println("Successfully added controlled GCS bucket.");
-    PrintingUtils.printResource(returnValue);
+    PrintingUtils.printText(returnValue);
   }
 }
