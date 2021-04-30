@@ -7,9 +7,6 @@ import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
-import bio.terra.workspace.model.AccessScope;
-import bio.terra.workspace.model.CloningInstructionsEnum;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
@@ -301,75 +298,39 @@ public class WorkspaceManager {
    * Add a GCS bucket as a referenced resource in the workspace. Also updates the cached list of
    * resources.
    *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param gcsBucketName GCS bucket name
+   * @param resourceToAdd resource definition to add
    * @return the resource description object that was created
    */
-  public ResourceDescription createReferencedGcsBucket(
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      String gcsBucketName) {
+  public ResourceDescription createReferencedGcsBucket(ResourceDescription resourceToAdd) {
     return createResource(
-        name,
+        resourceToAdd.getMetadata().getName(),
         () ->
             new WorkspaceManagerService(
                     globalContext.server, globalContext.requireCurrentTerraUser())
-                .createReferencedGcsBucket(
-                    workspaceContext.getWorkspaceId(),
-                    name,
-                    description,
-                    cloningInstructions,
-                    gcsBucketName));
+                .createReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceToAdd));
   }
 
   /**
    * Add a Big Query dataset as a referenced resource in the workspace. Also updates the cached list
    * of resources.
    *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param googleProjectId Google project id where the Big Query dataset resides
-   * @param bigQueryDatasetId Big Query dataset id
+   * @param resourceToAdd resource definition to add
    * @return the resource description object that was created
    */
-  public ResourceDescription createReferencedBigQueryDataset(
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      String googleProjectId,
-      String bigQueryDatasetId) {
+  public ResourceDescription createReferencedBigQueryDataset(ResourceDescription resourceToAdd) {
     return createResource(
-        name,
+        resourceToAdd.getMetadata().getName(),
         () ->
             new WorkspaceManagerService(
                     globalContext.server, globalContext.requireCurrentTerraUser())
-                .createReferencedBigQueryDataset(
-                    workspaceContext.getWorkspaceId(),
-                    name,
-                    description,
-                    cloningInstructions,
-                    googleProjectId,
-                    bigQueryDatasetId));
+                .createReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceToAdd));
   }
 
   /**
    * Add a GCS bucket as a controlled resource in the workspace. Also updates the cached list of
    * resources.
    *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param accessScope access to allow other workspaces users
-   * @param privateUserEmail email address for the private resource user
-   * @param privateUserIamRoles list of iam roles to grant the private resource user
-   * @param gcsBucketName GCS bucket name (https://cloud.google.com/storage/docs/naming-buckets)
+   * @param resourceToCreate resource definition to create
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
    * @param lifecycleRules list of lifecycle rules for the bucket
@@ -378,30 +339,18 @@ public class WorkspaceManager {
    * @return the resource description object that was created
    */
   public ResourceDescription createControlledGcsBucket(
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      AccessScope accessScope,
-      String privateUserEmail,
-      List<ControlledResourceIamRole> privateUserIamRoles,
-      String gcsBucketName,
+      ResourceDescription resourceToCreate,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
       List<GcpGcsBucketLifecycleRule> lifecycleRules,
       @Nullable String location) {
     return createResource(
-        name,
+        resourceToCreate.getMetadata().getName(),
         () ->
             new WorkspaceManagerService(
                     globalContext.server, globalContext.requireCurrentTerraUser())
                 .createControlledGcsBucket(
                     workspaceContext.getWorkspaceId(),
-                    name,
-                    description,
-                    cloningInstructions,
-                    accessScope,
-                    privateUserEmail,
-                    privateUserIamRoles,
-                    gcsBucketName,
+                    resourceToCreate,
                     defaultStorageClass,
                     lifecycleRules,
                     location));
@@ -411,42 +360,19 @@ public class WorkspaceManager {
    * Add a Big Query dataset as a controlled resource in the workspace. Also updates the cached list
    * of resources.
    *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param accessScope access to allow other workspaces users
-   * @param privateUserEmail email address for the private resource user
-   * @param privateUserIamRoles list of iam roles to grant the private resource user
-   * @param bigQueryDatasetId Big Query dataset id
-   *     (https://cloud.google.com/bigquery/docs/datasets#dataset-naming)
+   * @param resourceToCreate resource definition to create
    * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
    * @return the resource description object that was created
    */
   public ResourceDescription createControlledBigQueryDataset(
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      AccessScope accessScope,
-      String privateUserEmail,
-      List<ControlledResourceIamRole> privateUserIamRoles,
-      String bigQueryDatasetId,
-      @Nullable String location) {
+      ResourceDescription resourceToCreate, @Nullable String location) {
     return createResource(
-        name,
+        resourceToCreate.getMetadata().getName(),
         () ->
             new WorkspaceManagerService(
                     globalContext.server, globalContext.requireCurrentTerraUser())
                 .createControlledBigQueryDataset(
-                    workspaceContext.getWorkspaceId(),
-                    name,
-                    description,
-                    cloningInstructions,
-                    accessScope,
-                    privateUserEmail,
-                    privateUserIamRoles,
-                    bigQueryDatasetId,
-                    location));
+                    workspaceContext.getWorkspaceId(), resourceToCreate, location));
   }
 
   /**

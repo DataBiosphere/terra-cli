@@ -5,6 +5,7 @@ import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -12,29 +13,15 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resources list" command. */
 @CommandLine.Command(name = "list", description = "List all resources.")
 public class List extends BaseCommand {
+  @CommandLine.Option(
+      names = "--stewardship",
+      description = "Filter on a particular stewardship type: ${COMPLETION-CANDIDATES}")
+  private StewardshipType stewardship;
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  List.ListResourcesArgGroup argGroup;
-
-  static class ListResourcesArgGroup {
-    @CommandLine.Option(names = "--controlled", description = "Only list controlled resources.")
-    private boolean controlled;
-
-    @CommandLine.Option(names = "--referenced", description = "Only list referenced resources.")
-    private boolean referenced;
-
-    StewardshipType toStewardshipType() {
-      if (controlled) {
-        return StewardshipType.CONTROLLED;
-      } else if (referenced) {
-        return StewardshipType.REFERENCED;
-      } else {
-        // this ArgGroup is defined with exclusive=true so we should never get here
-        throw new IllegalArgumentException(
-            "Expected either controlled or referenced to be defined.");
-      }
-    }
-  }
+  @CommandLine.Option(
+      names = "--type",
+      description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}")
+  private ResourceType type;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -44,15 +31,16 @@ public class List extends BaseCommand {
     java.util.List<ResourceDescription> resources =
         new WorkspaceManager(globalContext, workspaceContext).listResources();
 
-    if (argGroup != null) {
+    if (stewardship != null) {
       resources =
           resources.stream()
-              .filter(
-                  resource ->
-                      resource
-                          .getMetadata()
-                          .getStewardshipType()
-                          .equals(argGroup.toStewardshipType()))
+              .filter(resource -> resource.getMetadata().getStewardshipType().equals(stewardship))
+              .collect(Collectors.toList());
+    }
+    if (type != null) {
+      resources =
+          resources.stream()
+              .filter(resource -> resource.getMetadata().getResourceType().equals(type))
               .collect(Collectors.toList());
     }
 

@@ -14,7 +14,6 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
@@ -44,6 +43,7 @@ import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceIamRoles;
 import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
+import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.RoleBindingList;
@@ -396,20 +396,18 @@ public class WorkspaceManagerService {
    * bucket as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param gcsBucketName GCS bucket name
+   * @param resourceToAdd resource definition to add
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createReferencedGcsBucket(
-      UUID workspaceId,
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      String gcsBucketName) {
-    ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      UUID workspaceId, ResourceDescription resourceToAdd) {
+    // convert the ResourceDescription object to a CreateGcpGcsBucketReferenceRequestBody object
+    String name = resourceToAdd.getMetadata().getName();
+    String description = resourceToAdd.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToAdd.getMetadata().getCloningInstructions();
+    String gcsBucketName = resourceToAdd.getResourceAttributes().getGcpGcsBucket().getBucketName();
+
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
             .metadata(
@@ -418,7 +416,9 @@ public class WorkspaceManagerService {
                     .description(description)
                     .cloningInstructions(cloningInstructions))
             .bucket(new GcpGcsBucketAttributes().bucketName(gcsBucketName));
+
     try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
       return referencedGcpResourceApi.createBucketReference(createRequest, workspaceId);
     } catch (ApiException ex) {
       throw new SystemException("Error creating referenced GCS bucket in the workspace.", ex);
@@ -431,22 +431,21 @@ public class WorkspaceManagerService {
    * Big Query dataset as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the reference when cloning the
-   *     workspace
-   * @param googleProjectId Google project id where the Big Query dataset resides
-   * @param bigQueryDatasetId Big Query dataset id
+   * @param resourceToAdd resource definition to add
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
-      UUID workspaceId,
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      String googleProjectId,
-      String bigQueryDatasetId) {
-    ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      UUID workspaceId, ResourceDescription resourceToAdd) {
+    // convert the ResourceDescription object to a CreateGcpBigQueryDatasetReferenceRequestBody
+    // object
+    String name = resourceToAdd.getMetadata().getName();
+    String description = resourceToAdd.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToAdd.getMetadata().getCloningInstructions();
+    String gcpProjectId = resourceToAdd.getResourceAttributes().getGcpBqDataset().getProjectId();
+    String bigQueryDatasetId =
+        resourceToAdd.getResourceAttributes().getGcpBqDataset().getDatasetId();
+
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
             .metadata(
@@ -456,9 +455,11 @@ public class WorkspaceManagerService {
                     .cloningInstructions(cloningInstructions))
             .dataset(
                 new GcpBigQueryDatasetAttributes()
-                    .projectId(googleProjectId)
+                    .projectId(gcpProjectId)
                     .datasetId(bigQueryDatasetId));
+
     try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
       return referencedGcpResourceApi.createBigQueryDatasetReference(createRequest, workspaceId);
     } catch (ApiException ex) {
       throw new SystemException(
@@ -472,14 +473,7 @@ public class WorkspaceManagerService {
    * bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param accessScope access to allow other workspaces users
-   * @param privateUserEmail email address for the private resource user
-   * @param privateUserIamRoles list of iam roles to grant the private resource user
-   * @param gcsBucketName GCS bucket name (https://cloud.google.com/storage/docs/naming-buckets)
+   * @param resourceToCreate resource definition to create
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
    * @param lifecycleRules list of lifecycle rules for the bucket
@@ -489,13 +483,7 @@ public class WorkspaceManagerService {
    */
   public GcpGcsBucketResource createControlledGcsBucket(
       UUID workspaceId,
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      AccessScope accessScope,
-      String privateUserEmail,
-      List<ControlledResourceIamRole> privateUserIamRoles,
-      String gcsBucketName,
+      ResourceDescription resourceToCreate,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
       List<GcpGcsBucketLifecycleRule> lifecycleRules,
       @Nullable String location) {
@@ -521,11 +509,28 @@ public class WorkspaceManagerService {
       lifecycleRules = Collections.singletonList(lifecycleRule);
     }
 
-    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (privateUserIamRoles != null) {
-      privateResourceIamRoles.addAll(privateUserIamRoles);
-    }
+    // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
+    String name = resourceToCreate.getMetadata().getName();
+    String description = resourceToCreate.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToCreate.getMetadata().getCloningInstructions();
+    AccessScope accessScope =
+        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+    String privateUserEmail =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getUserName();
+    PrivateResourceIamRoles privateResourceIamRoles =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getPrivateResourceIamRoles();
+    String gcsBucketName =
+        resourceToCreate.getResourceAttributes().getGcpGcsBucket().getBucketName();
+
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
             .common(
@@ -538,17 +543,16 @@ public class WorkspaceManagerService {
                         new PrivateResourceUser()
                             .userName(privateUserEmail)
                             .privateResourceIamRoles(privateResourceIamRoles))
-                    .managedBy(
-                        ManagedBy
-                            .USER)) // does the CLI need to handle APPLICATION-managed resources
-            // also?
+                    .managedBy(ManagedBy.USER))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
                     .name(gcsBucketName)
                     .defaultStorageClass(defaultStorageClass)
                     .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
                     .location(location));
+
     try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
       return controlledGcpResourceApi.createBucket(createRequest, workspaceId).getGcpBucket();
     } catch (ApiException ex) {
       throw new SystemException("Error creating controlled GCS bucket in the workspace.", ex);
@@ -561,34 +565,35 @@ public class WorkspaceManagerService {
    * Query dataset as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @param description description of the resource
-   * @param cloningInstructions instructions for how to handle the resource when cloning the
-   *     workspace
-   * @param accessScope access to allow other workspaces users
-   * @param privateUserEmail email address for the private resource user
-   * @param privateUserIamRoles list of iam roles to grant the private resource user
-   * @param bigQueryDatasetId Big Query dataset id
-   * @param bigQueryDatasetId Big Query dataset id
-   *     (https://cloud.google.com/bigquery/docs/datasets#dataset-naming)
+   * @param resourceToCreate resource definition to create
    * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
-      UUID workspaceId,
-      String name,
-      String description,
-      CloningInstructionsEnum cloningInstructions,
-      AccessScope accessScope,
-      String privateUserEmail,
-      List<ControlledResourceIamRole> privateUserIamRoles,
-      String bigQueryDatasetId,
-      @Nullable String location) {
-    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (privateUserIamRoles != null) {
-      privateResourceIamRoles.addAll(privateUserIamRoles);
-    }
+      UUID workspaceId, ResourceDescription resourceToCreate, @Nullable String location) {
+    // convert the ResourceDescription object to a CreateControlledGcpBigQueryDatasetRequestBody
+    // object
+    String name = resourceToCreate.getMetadata().getName();
+    String description = resourceToCreate.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToCreate.getMetadata().getCloningInstructions();
+    AccessScope accessScope =
+        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+    String privateUserEmail =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getUserName();
+    PrivateResourceIamRoles privateResourceIamRoles =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getPrivateResourceIamRoles();
+    String bigQueryDatasetId =
+        resourceToCreate.getResourceAttributes().getGcpBqDataset().getDatasetId();
+
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
             .common(
@@ -601,15 +606,14 @@ public class WorkspaceManagerService {
                         new PrivateResourceUser()
                             .userName(privateUserEmail)
                             .privateResourceIamRoles(privateResourceIamRoles))
-                    .managedBy(
-                        ManagedBy
-                            .USER)) // does the CLI need to handle APPLICATION-managed resources
-            // also?
+                    .managedBy(ManagedBy.USER))
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(bigQueryDatasetId)
                     .location(location));
+
     try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
       return controlledGcpResourceApi
           .createBigQueryDataset(createRequest, workspaceId)
           .getBigQueryDataset();

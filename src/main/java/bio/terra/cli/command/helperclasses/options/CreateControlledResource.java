@@ -20,7 +20,8 @@ public class CreateControlledResource extends CreateResource {
   @CommandLine.Option(
       names = "--iam-roles",
       split = ",",
-      description = "[PRIVATE ACCESS ONLY] IAM roles to grant user of private resource")
+      description =
+          "[PRIVATE ACCESS ONLY] IAM roles to grant user of private resource: ${COMPLETION-CANDIDATES}")
   public List<ControlledResourceIamRole> privateIamRoles;
 
   /** Helper method to validate conditional required options. */

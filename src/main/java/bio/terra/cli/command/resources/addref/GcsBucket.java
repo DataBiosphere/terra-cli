@@ -5,7 +5,10 @@ import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateResource;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.GcpGcsBucketAttributes;
+import bio.terra.workspace.model.ResourceAttributesUnion;
 import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.workspace.model.ResourceMetadata;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources add-ref gcs-bucket" command. */
@@ -28,14 +31,22 @@ public class GcsBucket extends BaseCommand {
   /** Add a referenced GCS bucket to the workspace. */
   @Override
   protected void execute() {
-    ResourceDescription resource =
+    // build the resource object to add
+    ResourceDescription resourceToAdd =
+        new ResourceDescription()
+            .metadata(
+                new ResourceMetadata()
+                    .name(createResourceMixin.name)
+                    .description(createResourceMixin.description)
+                    .cloningInstructions(createResourceMixin.cloning))
+            .resourceAttributes(
+                new ResourceAttributesUnion()
+                    .gcpGcsBucket(new GcpGcsBucketAttributes().bucketName(bucketName)));
+
+    ResourceDescription resourceAdded =
         new WorkspaceManager(globalContext, workspaceContext)
-            .createReferencedGcsBucket(
-                createResourceMixin.name,
-                createResourceMixin.description,
-                createResourceMixin.cloning,
-                bucketName);
-    formatOption.printReturnValue(resource, GcsBucket::printText);
+            .createReferencedGcsBucket(resourceToAdd);
+    formatOption.printReturnValue(resourceAdded, GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */

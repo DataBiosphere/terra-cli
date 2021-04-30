@@ -5,7 +5,10 @@ import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateResource;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
+import bio.terra.workspace.model.ResourceAttributesUnion;
 import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.workspace.model.ResourceMetadata;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources add-ref bq-dataset" command. */
@@ -27,15 +30,25 @@ public class BqDataset extends BaseCommand {
   /** Add a referenced Big Query dataset to the workspace. */
   @Override
   protected void execute() {
-    ResourceDescription resource =
+    // build the resource object to add
+    ResourceDescription resourceToAdd =
+        new ResourceDescription()
+            .metadata(
+                new ResourceMetadata()
+                    .name(createResourceMixin.name)
+                    .description(createResourceMixin.description)
+                    .cloningInstructions(createResourceMixin.cloning))
+            .resourceAttributes(
+                new ResourceAttributesUnion()
+                    .gcpBqDataset(
+                        new GcpBigQueryDatasetAttributes()
+                            .projectId(gcpProjectId)
+                            .datasetId(bigQueryDatasetId)));
+
+    ResourceDescription resourceAdded =
         new WorkspaceManager(globalContext, workspaceContext)
-            .createReferencedBigQueryDataset(
-                createResourceMixin.name,
-                createResourceMixin.description,
-                createResourceMixin.cloning,
-                gcpProjectId,
-                bigQueryDatasetId);
-    formatOption.printReturnValue(resource, BqDataset::printText);
+            .createReferencedBigQueryDataset(resourceToAdd);
+    formatOption.printReturnValue(resourceAdded, BqDataset::printText);
   }
 
   /** Print this command's output in text format. */

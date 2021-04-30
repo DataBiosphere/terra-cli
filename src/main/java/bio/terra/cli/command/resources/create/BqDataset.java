@@ -5,7 +5,13 @@ import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.ControlledResourceMetadata;
+import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
+import bio.terra.workspace.model.PrivateResourceIamRoles;
+import bio.terra.workspace.model.PrivateResourceUser;
+import bio.terra.workspace.model.ResourceAttributesUnion;
 import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.workspace.model.ResourceMetadata;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources create bq-dataset" command. */
@@ -30,18 +36,35 @@ public class BqDataset extends BaseCommand {
   @Override
   protected void execute() {
     createControlledResourceMixin.validateAccessOptions();
-    ResourceDescription resource =
+
+    // build the resource object to create
+    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
+    if (createControlledResourceMixin.privateIamRoles != null
+        && !createControlledResourceMixin.privateIamRoles.isEmpty()) {
+      privateResourceIamRoles.addAll(createControlledResourceMixin.privateIamRoles);
+    }
+    ResourceDescription resourceToCreate =
+        new ResourceDescription()
+            .metadata(
+                new ResourceMetadata()
+                    .name(createControlledResourceMixin.name)
+                    .description(createControlledResourceMixin.description)
+                    .cloningInstructions(createControlledResourceMixin.cloning)
+                    .controlledResourceMetadata(
+                        new ControlledResourceMetadata()
+                            .accessScope(createControlledResourceMixin.access)
+                            .privateResourceUser(
+                                new PrivateResourceUser()
+                                    .userName(createControlledResourceMixin.privateUserEmail)
+                                    .privateResourceIamRoles(privateResourceIamRoles))))
+            .resourceAttributes(
+                new ResourceAttributesUnion()
+                    .gcpBqDataset(new GcpBigQueryDatasetAttributes().datasetId(bigQueryDatasetId)));
+
+    ResourceDescription resourceCreated =
         new WorkspaceManager(globalContext, workspaceContext)
-            .createControlledBigQueryDataset(
-                createControlledResourceMixin.name,
-                createControlledResourceMixin.description,
-                createControlledResourceMixin.cloning,
-                createControlledResourceMixin.access,
-                createControlledResourceMixin.privateUserEmail,
-                createControlledResourceMixin.privateIamRoles,
-                bigQueryDatasetId,
-                location);
-    formatOption.printReturnValue(resource, BqDataset::printText);
+            .createControlledBigQueryDataset(resourceToCreate, location);
+    formatOption.printReturnValue(resourceCreated, BqDataset::printText);
   }
 
   /** Print this command's output in text format. */
