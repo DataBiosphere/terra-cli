@@ -1,5 +1,6 @@
 package bio.terra.cli.context.utils;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -11,6 +12,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +32,30 @@ public class FileUtils {
    */
   public static <T> T readFileIntoJavaObject(File inputFile, Class<T> javaObjectClass)
       throws IOException {
+    return readFileIntoJavaObject(inputFile, javaObjectClass, Collections.emptyList());
+  }
+
+  /**
+   * Read a JSON-formatted file into a Java object using the Jackson object mapper.
+   *
+   * @param inputFile the file to read in
+   * @param javaObjectClass the Java object class
+   * @param mapperFeatures list of Jackson mapper features to enable
+   * @param <T> the Java object class to map the file contents to
+   * @return an instance of the Java object class
+   * @throws FileNotFoundException if the file to read in does not exist
+   */
+  public static <T> T readFileIntoJavaObject(
+      File inputFile, Class<T> javaObjectClass, List<MapperFeature> mapperFeatures)
+      throws IOException {
     // use Jackson to map the file contents to an instance of the specified class
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+
+    // enable any Jackson features specified
+    for (MapperFeature mapperFeature : mapperFeatures) {
+      objectMapper.enable(mapperFeature);
+    }
+
     try (FileInputStream inputStream = new FileInputStream(inputFile)) {
       return objectMapper.readValue(inputStream, javaObjectClass);
     }
@@ -50,7 +75,7 @@ public class FileUtils {
           "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
   public static <T> void writeJavaObjectToFile(File outputFile, T javaObject) throws IOException {
     // use Jackson to map the object to a JSON-formatted text block
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 
     // create the file and any parent directories if they don't already exist

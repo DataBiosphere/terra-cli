@@ -78,7 +78,7 @@ public class Format {
    */
   public static <T> void printJson(T returnValue) {
     // use Jackson to map the object to a JSON-formatted text block
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     try {
       Printer.getOut().println(objectWriter.writeValueAsString(returnValue));

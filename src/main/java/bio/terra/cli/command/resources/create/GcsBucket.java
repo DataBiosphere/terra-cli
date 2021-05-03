@@ -1,9 +1,12 @@
 package bio.terra.cli.command.resources.create;
 
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
 import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.context.resources.GcsBucketLifecycle;
+import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ControlledResourceMetadata;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
@@ -13,6 +16,9 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceAttributesUnion;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
+import com.fasterxml.jackson.databind.MapperFeature;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import picocli.CommandLine;
 
@@ -42,12 +48,30 @@ public class GcsBucket extends BaseCommand {
       description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 
+  @CommandLine.Option(
+      names = "--lifecycle",
+      description =
+          "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file")
+  private Path pathToLifecycleFile;
+
   @CommandLine.Mixin Format formatOption;
 
   /** Add a controlled GCS bucket to the workspace. */
   @Override
   protected void execute() {
     createControlledResourceOptions.validateAccessOptions();
+
+    // read in the lifecycle rules from a file
+    GcsBucketLifecycle lifecycle;
+    try {
+      lifecycle =
+          FileUtils.readFileIntoJavaObject(
+              pathToLifecycleFile.toFile(),
+              GcsBucketLifecycle.class,
+              Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    } catch (IOException ioEx) {
+      throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
+    }
 
     // build the resource object to create
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
@@ -73,11 +97,9 @@ public class GcsBucket extends BaseCommand {
                 new ResourceAttributesUnion()
                     .gcpGcsBucket(new GcpGcsBucketAttributes().bucketName(bucketName)));
 
-    // TODO (PF-486): allow the user to specify lifecycle rules on the bucket
     ResourceDescription resourceCreated =
         new WorkspaceManager(globalContext, workspaceContext)
-            .createControlledGcsBucket(
-                resourceToCreate, storageClass, Collections.emptyList(), location);
+            .createControlledGcsBucket(resourceToCreate, storageClass, lifecycle, location);
     formatOption.printReturnValue(resourceCreated, GcsBucket::printText);
   }
 

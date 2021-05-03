@@ -4,12 +4,12 @@ import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
-import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -333,7 +333,7 @@ public class WorkspaceManager {
    * @param resourceToCreate resource definition to create
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
-   * @param lifecycleRules list of lifecycle rules for the bucket
+   * @param lifecycle list of lifecycle rules for the bucket
    *     (https://cloud.google.com/storage/docs/lifecycle)
    * @param location GCS bucket location (https://cloud.google.com/storage/docs/locations)
    * @return the resource description object that was created
@@ -341,7 +341,7 @@ public class WorkspaceManager {
   public ResourceDescription createControlledGcsBucket(
       ResourceDescription resourceToCreate,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
-      List<GcpGcsBucketLifecycleRule> lifecycleRules,
+      GcsBucketLifecycle lifecycle,
       @Nullable String location) {
     return createResource(
         resourceToCreate.getMetadata().getName(),
@@ -352,7 +352,7 @@ public class WorkspaceManager {
                     workspaceContext.getWorkspaceId(),
                     resourceToCreate,
                     defaultStorageClass,
-                    lifecycleRules,
+                    lifecycle,
                     location));
   }
 
