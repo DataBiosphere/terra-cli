@@ -336,6 +336,11 @@ context, though that is not a requirement. For example, a Big Query dataset host
 It is sometimes useful to check whether you have access to a particular resource, particularly when the resource
 was created or added by a different user, and the workspace was subsequently shared with you.
 
+The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
+of resources locally, so that external tools (see section below) are not slowed down by round-trips to Workspace 
+Manager. The CLI updates the cache on every call to a `terra resources` command. So, if you are working in a shared
+workspace, you can run `terra resources list` (for example) to pick up any changes that your collaborators have made.
+
 #### Applications
 ```
 Usage: terra app [COMMAND]
