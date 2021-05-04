@@ -693,7 +693,12 @@ public class WorkspaceManagerService {
    * @param resourceId the resource id
    */
   public void deleteControlledBigQueryDataset(UUID workspaceId, UUID resourceId) {
-    // TODO (PF-419): update this once the endpoint for deleting a controlled BQ dataset is ready
-    throw new SystemException("Delete controlled BQ dataset endpoint not implemented yet.");
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    try {
+      controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId);
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error deleting controlled Big Query dataset in the workspace.", ex);
+    }
   }
 }
