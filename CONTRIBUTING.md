@@ -242,7 +242,7 @@ To add a new supported tool:
        - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
    8.  You can mount directories on the host machine to the Docker container by populating a second
    `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current workspace
-   is always mounted to the Docker container.
+   directory is always mounted to the Docker container.
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
    (see instructions in section above).
 
