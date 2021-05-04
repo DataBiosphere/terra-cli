@@ -47,7 +47,7 @@ public class GcsBucketLifecycle {
     public Integer daysSinceCustomTime;
     public Integer daysSinceNoncurrentTime;
     public Boolean isLive;
-    public List<GcsStorageClass> matchesStorageClass;
+    public List<GcsStorageClass> matchesStorageClass = new ArrayList<>();
     public LocalDate noncurrentTimeBefore;
     public Integer numNewerVersions;
   }
@@ -138,5 +138,29 @@ public class GcsBucketLifecycle {
       wsmLifecycleRules.add(lifecycleRuleRequestObject);
     }
     return wsmLifecycleRules;
+  }
+
+  /**
+   * Helper method to build a lifecycle rule that auto-deletes the contents of the bucket after some
+   * number of days.
+   *
+   * @param numDays number of days after which to delete an object in the bucket
+   * @return lifecycle rule definition
+   */
+  public static GcsBucketLifecycle buildAutoDeleteRule(Integer numDays) {
+    Action action = new Action();
+    action.type = ActionType.Delete;
+
+    Condition condition = new Condition();
+    condition.age = numDays;
+
+    Rule rule = new Rule();
+    rule.action = action;
+    rule.condition = condition;
+
+    GcsBucketLifecycle lifecycle = new GcsBucketLifecycle();
+    lifecycle.rule.add(rule);
+
+    return lifecycle;
   }
 }

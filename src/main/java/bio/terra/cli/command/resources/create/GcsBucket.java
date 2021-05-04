@@ -48,11 +48,22 @@ public class GcsBucket extends BaseCommand {
       description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 
-  @CommandLine.Option(
-      names = "--lifecycle",
-      description =
-          "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file")
-  private Path pathToLifecycleFile;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
+  GcsBucket.LifecycleArgGroup lifecycleArgGroup;
+
+  static class LifecycleArgGroup {
+    @CommandLine.Option(
+        names = "--lifecycle",
+        description =
+            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. Use --print-json-format option to see expected JSON format.")
+    private Path pathToLifecycleFile;
+
+    @CommandLine.Option(
+        names = "--auto-delete",
+        description =
+            "Number of days after which to auto-delete the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
+    private Integer autoDelete;
+  }
 
   @CommandLine.Mixin Format formatOption;
 
@@ -61,16 +72,25 @@ public class GcsBucket extends BaseCommand {
   protected void execute() {
     createControlledResourceOptions.validateAccessOptions();
 
-    // read in the lifecycle rules from a file
+    // build the lifecycle object
     GcsBucketLifecycle lifecycle;
-    try {
-      lifecycle =
-          FileUtils.readFileIntoJavaObject(
-              pathToLifecycleFile.toFile(),
-              GcsBucketLifecycle.class,
-              Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
-    } catch (IOException ioEx) {
-      throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
+    if (lifecycleArgGroup == null) {
+      // empty lifecycle rule object
+      lifecycle = new GcsBucketLifecycle();
+    } else if (lifecycleArgGroup.autoDelete != null) {
+      // build an auto-delete lifecycle rule and set the number of days
+      lifecycle = GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete);
+    } else {
+      // read in the lifecycle rules from a file
+      try {
+        lifecycle =
+            FileUtils.readFileIntoJavaObject(
+                lifecycleArgGroup.pathToLifecycleFile.toFile(),
+                GcsBucketLifecycle.class,
+                Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+      } catch (IOException ioEx) {
+        throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
+      }
     }
 
     // build the resource object to create
