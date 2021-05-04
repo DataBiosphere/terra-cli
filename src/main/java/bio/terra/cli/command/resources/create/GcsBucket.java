@@ -55,7 +55,7 @@ public class GcsBucket extends BaseCommand {
     @CommandLine.Option(
         names = "--lifecycle",
         description =
-            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. Use --print-json-format option to see expected JSON format.")
+            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.")
     private Path pathToLifecycleFile;
 
     @CommandLine.Option(
