@@ -326,8 +326,8 @@ A controlled resource is a cloud resource managed by the Terra workspace on beha
 Currently, the only supported controlled resource is a bucket.
 
 ##### GCS bucket lifecycle rules
-GCS bucket lifecycle rules are specified by passing a JSON-formatted file to the `terra resources create gcs-bucket`
-command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
+GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the
+`terra resources create gcs-bucket` command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This structure is a subset of the GCS
 resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle). Below are some
 example file contents for specifying a lifecycle rule.

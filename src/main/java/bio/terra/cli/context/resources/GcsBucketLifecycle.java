@@ -54,15 +54,12 @@ public class GcsBucketLifecycle {
 
   /**
    * This enum defines the possible ActionTypes for bucket lifecycle rules, and maps these types to
-   * the corresponding enum in the WSM client library.
-   *
-   * <p>This class mirrors the {@link GcpGcsBucketLifecycleRuleActionType} class in the WSM client
-   * library. The CLI defines its own version of this enum instead of using the WSM client library
-   * version so that:
+   * the corresponding {@link GcpGcsBucketLifecycleRuleActionType} enum in the WSM client library.
+   * The CLI defines its own version of this enum so that:
    *
    * <p>- The CLI can use different enum names. In this case, the publicly documented GCS resource
    * definition uses a slightly different casing of the enum values. In an effort to mimic the
-   * similar `gsutil lifecycle` command as closely as possible, the CLI will use the GCS version,
+   * similar `gsutil lifecycle` command as closely as possible, the CLI will use the GCS casing,
    * instead of the WSM client library version.
    * (https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle)
    *
@@ -71,7 +68,7 @@ public class GcsBucketLifecycle {
    *
    * <p>- The CLI can more easily control the JSON mapping behavior of the enum. In this case, the
    * WSM client library version of the enum provides a @JsonCreator fromValue method that is case
-   * sensitive, and the CLI wants to allow case insensitive deserialization.
+   * sensitive, and the CLI may want to allow case insensitive deserialization.
    */
   public enum ActionType {
     Delete(GcpGcsBucketLifecycleRuleActionType.DELETE),
