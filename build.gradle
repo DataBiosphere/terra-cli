@@ -45,7 +45,7 @@ dependencies {
         slf4j = '1.7.30'
 
         // serialization
-        jackson = '2.10.2'
+        jackson = '2.12.3'
 
         // GCP
         googleOauth2 = '0.22.0'

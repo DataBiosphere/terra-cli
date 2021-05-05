@@ -3,6 +3,7 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -476,7 +477,7 @@ public class WorkspaceManagerService {
    * @param resourceToCreate resource definition to create
    * @param defaultStorageClass GCS storage class
    *     (https://cloud.google.com/storage/docs/storage-classes)
-   * @param lifecycleRules list of lifecycle rules for the bucket
+   * @param lifecycle list of lifecycle rules for the bucket
    *     (https://cloud.google.com/storage/docs/lifecycle)
    * @param location GCS bucket location (https://cloud.google.com/storage/docs/locations)
    * @return the GCS bucket resource object
@@ -485,8 +486,11 @@ public class WorkspaceManagerService {
       UUID workspaceId,
       ResourceDescription resourceToCreate,
       @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
-      List<GcpGcsBucketLifecycleRule> lifecycleRules,
+      GcsBucketLifecycle lifecycle,
       @Nullable String location) {
+    // convert the CLI lifecycle rule object into the WSM request objects
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = lifecycle.toWsmLifecycleRules();
+
     // TODO (PF-718): default storage class and lifecycle rule are currently required. remove this
     // manual defaulting once they are made optional on the server
     if (defaultStorageClass == null) {

@@ -15,6 +15,7 @@
     * [Server](#server)
     * [Workspace](#workspace)
     * [Resources](#resources)
+        * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
     * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
@@ -340,6 +341,70 @@ The list of resources in a workspace is maintained on the Terra Workspace Manage
 of resources locally, so that external tools (see section below) are not slowed down by round-trips to Workspace 
 Manager. The CLI updates the cache on every call to a `terra resources` command. So, if you are working in a shared
 workspace, you can run `terra resources list` (for example) to pick up any changes that your collaborators have made.
+
+##### GCS bucket lifecycle rules
+GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the
+`terra resources create gcs-bucket` command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
+[command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This structure is a subset of the GCS
+resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle). Below are some
+example file contents for specifying a lifecycle rule.
+
+(1) Changes the storage class from `STANDARD` to `ARCHIVE` after 10 days.
+```json
+{
+    "rule": [
+      {
+        "action": {
+          "type": "SetStorageClass",
+          "storageClass": "ARCHIVE"
+        },
+        "condition": {
+          "age": 10,
+          "matchesStorageClass": [
+            "STANDARD"
+          ]
+        }
+      }
+    ]
+  }
+```
+
+(2) Deletes any objects with storage class `STANDARD` that were created before December 3, 2007.
+```json
+{
+    "rule": [
+      {
+        "action": {"type": "Delete"},
+        "condition": {
+          "createdBefore": "2007-12-03",
+          "matchesStorageClass": [
+            "STANDARD"
+          ]
+        }
+      }
+    ]
+  }
+```
+
+(3) Deletes any objects with storage class `STANDARD` that are more than 365 days old.
+```json
+{
+  "rule":
+  [
+    {
+      "action": {"type": "Delete"},
+      "condition": {
+      	"age": 365,
+      	"matchesStorageClass": ["STANDARD"]
+      }
+    }
+  ]
+}
+```
+There is also a command shortcut for specifying this type of lifecycle rule (3).
+```
+terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
+```
 
 #### Applications
 ```

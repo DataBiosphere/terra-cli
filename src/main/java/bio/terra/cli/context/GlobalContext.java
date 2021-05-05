@@ -5,7 +5,7 @@ import static bio.terra.cli.context.utils.Logger.LogLevel;
 import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
@@ -73,7 +73,8 @@ public class GlobalContext {
   public static GlobalContext readFromFile() {
     // try to read in an instance of the global context file
     try {
-      return FileUtils.readFileIntoJavaObject(getGlobalContextFile().toFile(), GlobalContext.class);
+      return JacksonMapper.readFileIntoJavaObject(
+          getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing global context file). we handle this by returning an object populated with
@@ -88,7 +89,7 @@ public class GlobalContext {
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(getGlobalContextFile().toFile(), this);
+      JacksonMapper.writeJavaObjectToFile(getGlobalContextFile().toFile(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting global context.", ioEx);
     }
