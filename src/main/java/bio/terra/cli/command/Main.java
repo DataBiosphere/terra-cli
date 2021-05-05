@@ -32,6 +32,7 @@ import picocli.CommandLine.ParseResult;
       Groups.class,
       Spend.class,
       Config.class,
+      Resolve.class,
       Gcloud.class,
       Gsutil.class,
       Bq.class,
