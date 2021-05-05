@@ -4,17 +4,22 @@
     * [Logging](#logging)
     * [Troubleshooting](#troubleshooting)
 2. [Publish a release](#publish-a-release)
+    * [download-install.sh](#download-installsh)
+    * [install.sh](#installsh)
+    * [terra](#terra)
 3. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
 4. [Code structure](#code-structure)
-    * [Servers](#servers)
-    * [Command structure](#command-structure)
-    * [Context classes](#context-classes)
     * [Supported tools](#supported-tools)
-5. [Adding a new supported tool](#adding-a-new-supported-tool)
+        * [Adding a new supported tool](#adding-a-new-supported-tool)
+    * [Authentication](#authentication)
+    * [Commands](#commands)
+    * [Context](#context)
+    * [Terra and cloud services](#terra-and-cloud-services)
+    * [Servers](#servers)
 
 -----
 
@@ -67,7 +72,6 @@ Note that GitHub automatically attaches an archive of the source code to the rel
 are not yet committed, then they may not be reflected in the source code archive, but they will be included in the
 install package. We don't use the source code archive for install.
 
-#### Install overview
 Three shell scripts are published for users.
 
 ##### `download-install.sh`
@@ -184,7 +188,6 @@ src/main/
   java/
     bio/terra/cli/
       apps/
-        interfaces/
       auth/
       command/
       context/
@@ -193,36 +196,13 @@ src/main/
       servers/
 ```
 
-#### Servers
-The `src/main/java/resources/servers/` directory contains the server specification files.
-Each file specifies a Terra environment, or set of connected Terra services, and maps to an instance of the 
-`ServerSpecification` class.
-
-The `ServerSpecification` class closely follows the Test Runner class of the same name.
-There's no need to keep these classes exactly in sync, but that may be a good place to consult when expanding the 
-class here.
-
-To add a new server specification, create a new file in this directory and add the file name to the `all-servers.json` 
-file.
-
-#### Command structure
-The `src/main/java/bio/terra/cli/command/` directory contains the hierarchy of the commands as they appear to the user.
-With the exception of the `app/supported` sub-directory, the directory structure matches the command hierarchy.
-
-`Main` is the top-level command and child commands are defined in class annotations.
-Most of the top-level commands (e.g. `auth`, `server`, `workspace`) are strictly for grouping; the command itself 
-doesn't do anything.
-An empty class body with child commands defined in the annotation creates such a grouping command.
-
-Supported tools are currently children of the top-level command, but are hidden from the usage help.
-
-#### Context classes
-The `src/main/java/bio/terra/cli/context/` directory contains the objects that represent the current state.
-Since the CLI Java code exits after each command, this state is persisted on disk by the `GlobalContext` and 
-`WorkspaceContext` classes.
-
-Other packages (e.g. `src/main/java/bio/terra/cli/app/`, `auth/`, `server/` and `workspace/`) contain classes that 
-manipulate the context objects. Classes are grouped into packages by general functional area.
+* `apps/` [Supported tools](#supported-tools)
+    * [Adding a new supported tool](#adding-a-new-supported-tool)
+* `auth/` [Authentication](#authentication)
+* `command/` [Commands](#commands)
+* `context/` [Context](#context)
+* `service/` [Terra and cloud services](#terra-and-cloud-services)
+* `servers/` [Servers](#servers)
 
 #### Supported tools
 The `src/main/java/bio/terra/cli/apps/` directory contains (external) tools that the CLI supports.
@@ -236,7 +216,7 @@ terra nextflow run hello
 
 The list of supported tools that can be called is specified in an enum in the `terra app list` class.
 
-### Add a new supported tool
+##### Add a new supported tool
 To add a new supported tool:
    1. Install the app in the `docker/Dockerfile`
    2. Build the new image (see instructions in section above).
@@ -254,14 +234,52 @@ To add a new supported tool:
       - Launches a Docker container
       - Runs the `terra_init.sh` script in the `docker/scripts` directory, which activates the user’s
       pet service account and sets the workspace project
-      - Runs the dsub command
+      - Runs the `dsub` command
    7. You can pass environment variables through to the Docker container by populating a `Map` and
    passing it to the `DockerAppsRunner.runToolCommand` method. Two environment variables are always
    passed:
        - `GOOGLE_CLOUD_PROJECT` = the workspace project id
        - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
    8.  You can mount directories on the host machine to the Docker container by populating a second
-   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The `nextflow` command
-   has an example of this (see `bio.terra.cli.command.app.passthrough.Nextflow` class `execute` method).
+   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current workspace
+   directory is always mounted to the Docker container.
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
    (see instructions in section above).
+
+#### Authentication
+The `src/main/java/bio/terra/cli/auth/` directory contains classes that handle authentication.
+Currently, the only supported authentication method is Google OAuth.
+
+#### Commands
+The `src/main/java/bio/terra/cli/command/` directory contains the hierarchy of the commands as they appear to the user.
+With the exception of the `app/passthrough` sub-directory, the directory structure matches the command hierarchy.
+
+`Main` is the top-level command and child commands are defined in class annotations.
+Most of the top-level commands (e.g. `auth`, `server`, `workspace`) are strictly for grouping; the command itself 
+doesn't do anything.
+An empty class body with child commands defined in the annotation creates such a grouping command.
+
+#### Context
+The `src/main/java/bio/terra/cli/context/` directory contains the objects that represent the current state.
+Since the CLI Java code exits after each command, this state is persisted on disk by the `GlobalContext` and 
+`WorkspaceContext` classes.
+
+#### Terra and cloud services
+The `src/main/java/bio/terra/cli/service/` directory contains classes that communicate with Terra and cloud services.
+The classes under the `utils/` sub-package wrap communications with these external services.
+The classes under the main package handle updating the context after communicating with external services.
+For example:
+- `WorkspaceManagerService` wraps calls to the Terra Workspace Manager service.
+- `WorkspaceManager` makes calls to `WorkspaceManagerService` and updates the `WorkspaceContext` accordingly.
+
+#### Servers
+The `src/main/java/resources/servers/` directory contains the server specification files.
+Each file specifies a Terra environment, or set of connected Terra services, and maps to an instance of the 
+`ServerSpecification` class.
+
+The `ServerSpecification` class closely follows the Test Runner class of the same name.
+There's no need to keep these classes exactly in sync, but that may be a good place to consult when expanding the 
+class here.
+
+To add a new server specification, create a new file in this directory and add the file name to the `all-servers.json` 
+file.
