@@ -2,6 +2,7 @@ package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.context.utils.JacksonMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,7 +47,7 @@ public class ServerSpecification {
    */
   public static ServerSpecification fromJSONFile(String fileName) throws IOException {
     // use Jackson to map the stream contents to a ServerSpecification object
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = JacksonMapper.getMapper();
 
     // read in the server file
     ServerSpecification server;
@@ -60,7 +61,7 @@ public class ServerSpecification {
       logger.debug(
           "Server file ({}) not found in resource directory, now trying as absolute path.",
           fileName);
-      server = FileUtils.readFileIntoJavaObject(new File(fileName), ServerSpecification.class);
+      server = JacksonMapper.readFileIntoJavaObject(new File(fileName), ServerSpecification.class);
     }
 
     if (server != null) {

@@ -1,6 +1,7 @@
 package bio.terra.cli.command.helperclasses.options;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.context.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +79,7 @@ public class Format {
    */
   public static <T> void printJson(T returnValue) {
     // use Jackson to map the object to a JSON-formatted text block
-    ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    ObjectMapper objectMapper = JacksonMapper.getMapper();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     try {
       Printer.getOut().println(objectWriter.writeValueAsString(returnValue));

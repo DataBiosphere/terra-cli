@@ -6,7 +6,7 @@ import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
-import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ControlledResourceMetadata;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
@@ -84,7 +84,7 @@ public class GcsBucket extends BaseCommand {
       // read in the lifecycle rules from a file
       try {
         lifecycle =
-            FileUtils.readFileIntoJavaObject(
+            JacksonMapper.readFileIntoJavaObject(
                 lifecycleArgGroup.pathToLifecycleFile.toFile(),
                 GcsBucketLifecycle.class,
                 Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));

@@ -1,7 +1,7 @@
 package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,7 +54,7 @@ public class WorkspaceContext {
   public static WorkspaceContext readFromFile() {
     // try to read in an instance of the workspace context file
     try {
-      return FileUtils.readFileIntoJavaObject(
+      return JacksonMapper.readFileIntoJavaObject(
           getWorkspaceContextFile().toFile(), WorkspaceContext.class);
     } catch (IOException ioEx) {
       logger.debug("Workspace context file not found or error reading it.", ioEx);
@@ -70,7 +70,7 @@ public class WorkspaceContext {
    */
   private void writeToFile() {
     try {
-      FileUtils.writeJavaObjectToFile(getWorkspaceContextFile().toFile(), this);
+      JacksonMapper.writeJavaObjectToFile(getWorkspaceContextFile().toFile(), this);
     } catch (IOException ioEx) {
       logger.error("Error persisting workspace context.", ioEx);
     }
