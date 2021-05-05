@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * This POJO class specifies a list of GCS bucket lifecycle rules. Its structure mimics the one used
@@ -92,7 +93,7 @@ public class GcsBucketLifecycle {
    * @param localDate date object with no time or zone/offset information included
    * @return object that specifies the date, time and zone/offest
    */
-  public static OffsetDateTime dateAtMidnightAndUTC(LocalDate localDate) {
+  public static OffsetDateTime dateAtMidnightAndUTC(@Nullable LocalDate localDate) {
     return localDate == null
         ? null
         : OffsetDateTime.of(localDate.atTime(LocalTime.MIDNIGHT), ZoneOffset.UTC);
@@ -124,7 +125,7 @@ public class GcsBucketLifecycle {
               .live(rule.condition.isLive)
               .matchesStorageClass(
                   rule.condition.matchesStorageClass.stream()
-                      .map(gcsStorageClass -> gcsStorageClass.toWSMEnum())
+                      .map(GcsStorageClass::toWSMEnum)
                       .collect(Collectors.toList()))
               .noncurrentTimeBefore(
                   GcsBucketLifecycle.dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))

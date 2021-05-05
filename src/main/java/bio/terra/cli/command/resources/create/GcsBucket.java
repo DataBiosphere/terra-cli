@@ -61,7 +61,7 @@ public class GcsBucket extends BaseCommand {
     @CommandLine.Option(
         names = "--auto-delete",
         description =
-            "Number of days after which to auto-delete the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
+            "Number of days after which to auto-delete the objects in the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
     private Integer autoDelete;
   }
 

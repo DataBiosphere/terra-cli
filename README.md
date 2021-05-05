@@ -333,7 +333,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
 example file contents for specifying a lifecycle rule.
 
 (1) Changes the storage class from `STANDARD` to `ARCHIVE` after 10 days.
-```
+```json
 {
     "rule": [
       {
@@ -353,7 +353,7 @@ example file contents for specifying a lifecycle rule.
 ```
 
 (2) Deletes any objects with storage class `STANDARD` that were created before December 3, 2007.
-```
+```json
 {
     "rule": [
       {
@@ -370,7 +370,7 @@ example file contents for specifying a lifecycle rule.
 ```
 
 (3) Deletes any objects with storage class `STANDARD` that are more than 365 days old.
-```
+```json
 {
   "rule":
   [
