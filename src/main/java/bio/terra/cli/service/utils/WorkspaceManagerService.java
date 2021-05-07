@@ -213,11 +213,11 @@ public class WorkspaceManagerService {
       // poll the result endpoint until the job is no longer RUNNING
       CreateCloudContextResult createContextResult =
           HttpUtils.pollWithRetries(
-              CREATE_WORKSPACE_MAXIMUM_RETRIES,
-              CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY,
               () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
               (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
-              WorkspaceManagerService::isRetryable);
+              WorkspaceManagerService::isRetryable,
+              CREATE_WORKSPACE_MAXIMUM_RETRIES,
+              CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
       logger.debug("create workspace context result: {}", createContextResult);
 
       throwIfJobNotCompleted(
