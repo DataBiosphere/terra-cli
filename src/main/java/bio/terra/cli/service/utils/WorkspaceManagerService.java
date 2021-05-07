@@ -382,15 +382,16 @@ public class WorkspaceManagerService {
     try {
       // poll the enumerate endpoint until no results are returned, or we hit the limit
       List<ResourceDescription> allResources = new ArrayList<>();
-      while (true) {
+      int numResultsReturned = 0;
+      do {
         int offset = allResources.size();
         ResourceList result =
             resourceApi.enumerateResources(
                 workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null);
 
         // add all fetched resources to the running list
-        logger.debug(
-            "Called enumerate endpoints, fetched {} resources", result.getResources().size());
+        numResultsReturned = result.getResources().size();
+        logger.debug("Called enumerate endpoints, fetched {} resources", numResultsReturned);
         allResources.addAll(result.getResources());
 
         // if we have fetched more than the limit, then throw an exception
@@ -405,10 +406,7 @@ public class WorkspaceManagerService {
 
         // if this fetch returned less than the maximum allowed per request, then that indicates
         // there are no more
-        if (result.getResources().size() < MAX_RESOURCES_PER_ENUMERATE_REQUEST) {
-          break;
-        }
-      }
+      } while (numResultsReturned >= MAX_RESOURCES_PER_ENUMERATE_REQUEST);
 
       logger.debug("Fetched total number of resources: {}", allResources.size());
       return allResources;
