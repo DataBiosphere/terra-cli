@@ -20,7 +20,10 @@ public class Resources extends BaseCommand {
         description = "maximum number to allow before throwing an error")
     private int max;
 
-    @CommandLine.Option(names = "--default", description = "use the default number of resources")
+    @CommandLine.Option(
+        names = "--default",
+        description =
+            "use the default number of resources: " + GlobalContext.DEFAULT_RESOURCES_CACHE_SIZE)
     private boolean useDefault;
   }
 
