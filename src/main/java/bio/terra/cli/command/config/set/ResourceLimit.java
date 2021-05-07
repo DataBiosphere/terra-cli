@@ -1,20 +1,21 @@
 package bio.terra.cli.command.config.set;
 
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.context.GlobalContext;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the fourth-level "terra config set resources" command. */
+/** This class corresponds to the fourth-level "terra config set resource-limit" command. */
 @Command(
-    name = "resources",
+    name = "resource-limit",
     description = "Set the maximum number of resources allowed per workspace.")
-public class Resources extends BaseCommand {
+public class ResourceLimit extends BaseCommand {
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
-  ImageIdArgGroup argGroup;
+  ResourceLimitArgGroup argGroup;
 
-  static class ImageIdArgGroup {
+  static class ResourceLimitArgGroup {
     @CommandLine.Option(
         names = "--max",
         description = "maximum number to allow before throwing an error")
@@ -33,6 +34,10 @@ public class Resources extends BaseCommand {
     int prevMaxResources = globalContext.resourcesCacheSize;
     int newMaxResources =
         argGroup.useDefault ? GlobalContext.DEFAULT_RESOURCES_CACHE_SIZE : argGroup.max;
+    if (newMaxResources <= 0) {
+      throw new UserActionableException(
+          "Maximum number of resources allowed per workspace must be positive.");
+    }
     globalContext.updateResourcesCacheSize(newMaxResources);
 
     if (globalContext.resourcesCacheSize == prevMaxResources) {

@@ -382,7 +382,7 @@ public class WorkspaceManagerService {
     try {
       // poll the enumerate endpoint until no results are returned, or we hit the limit
       List<ResourceDescription> allResources = new ArrayList<>();
-      do {
+      while (true) {
         int offset = allResources.size();
         ResourceList result =
             resourceApi.enumerateResources(
@@ -408,7 +408,7 @@ public class WorkspaceManagerService {
         if (result.getResources().size() < MAX_RESOURCES_PER_ENUMERATE_REQUEST) {
           break;
         }
-      } while (true);
+      }
 
       logger.debug("Fetched total number of resources: {}", allResources.size());
       return allResources;

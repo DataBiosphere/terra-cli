@@ -60,7 +60,8 @@ public class List extends BaseCommand {
     OUT.println("[browser] browser launch for login = " + returnValue.browser);
     OUT.println("[image] docker image id = " + returnValue.image);
     OUT.println(
-        "[resources] max number of resources to allow per workspace = " + returnValue.resources);
+        "[resource-limit] max number of resources to allow per workspace = "
+            + returnValue.resources);
     OUT.println();
     Logging.printText(returnValue.logging);
     OUT.println();

@@ -5,11 +5,11 @@ import bio.terra.cli.command.helperclasses.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the fourth-level "terra config get-value resources" command. */
+/** This class corresponds to the fourth-level "terra config get-value resource-limit" command. */
 @Command(
-    name = "resources",
+    name = "resource-limit",
     description = "Get the maximum number of resources allowed per workspace.")
-public class Resources extends BaseCommand {
+public class ResourceLimit extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
