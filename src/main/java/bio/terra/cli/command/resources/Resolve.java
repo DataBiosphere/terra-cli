@@ -19,7 +19,7 @@ public class Resolve extends BaseCommand {
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
       description = "[For GCS_BUCKET] Exclude the 'gs://' prefix.")
-  private boolean excludePrefix;
+  private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
       names = "--bq-path",
@@ -36,13 +36,12 @@ public class Resolve extends BaseCommand {
     ResourceDescription resource =
         new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
 
-    // return the "default" cloud identifier (i.e. the format returned by the `terra resource
-    // resolve ...` commands if no options are specified)
+    // the cloud identifier is resource-type specific
     String cloudId;
     switch (resource.getMetadata().getResourceType()) {
       case GCS_BUCKET:
         cloudId =
-            excludePrefix
+            excludeBucketPrefix
                 ? resource.getResourceAttributes().getGcpGcsBucket().getBucketName()
                 : getGcsBucketUrl(resource);
         break;
