@@ -260,7 +260,7 @@ public class WorkspaceManager {
     List<ResourceDescription> resourceList =
         new WorkspaceManagerService(globalContext.server, currentUser)
             .enumerateAllResources(
-                workspaceContext.getWorkspaceId(), WorkspaceContext.MAX_RESOURCES_CACHE_SIZE);
+                workspaceContext.getWorkspaceId(), globalContext.resourcesCacheSize);
 
     // update the cache with the list of resources fetched from WSM
     workspaceContext.updateResources(resourceList);

@@ -26,6 +26,7 @@ public class List extends BaseCommand {
         new ConfigListReturnValue(
             globalContext.browserLaunchOption,
             globalContext.dockerImageId,
+            globalContext.resourcesCacheSize,
             loggingLevels,
             globalContext.server);
 
@@ -36,16 +37,19 @@ public class List extends BaseCommand {
   private static class ConfigListReturnValue {
     public AuthenticationManager.BrowserLaunchOption browser;
     public String image;
+    public int resources;
     public LoggingReturnValue logging;
     public ServerSpecification server;
 
     public ConfigListReturnValue(
         AuthenticationManager.BrowserLaunchOption browser,
         String image,
+        int resources,
         LoggingReturnValue logging,
         ServerSpecification server) {
       this.browser = browser;
       this.image = image;
+      this.resources = resources;
       this.logging = logging;
       this.server = server;
     }
@@ -55,6 +59,8 @@ public class List extends BaseCommand {
   private static void printText(ConfigListReturnValue returnValue) {
     OUT.println("[browser] browser launch for login = " + returnValue.browser);
     OUT.println("[image] docker image id = " + returnValue.image);
+    OUT.println(
+        "[resources] max number of resources to allow per workspace = " + returnValue.resources);
     OUT.println();
     Logging.printText(returnValue.logging);
     OUT.println();

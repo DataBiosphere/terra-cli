@@ -3,6 +3,7 @@ package bio.terra.cli.command.config;
 import bio.terra.cli.command.config.set.Browser;
 import bio.terra.cli.command.config.set.Image;
 import bio.terra.cli.command.config.set.Logging;
+import bio.terra.cli.command.config.set.Resources;
 import bio.terra.cli.command.config.set.Server;
 import picocli.CommandLine.Command;
 
@@ -13,5 +14,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "set",
     description = "Set a configuration property value.",
-    subcommands = {Browser.class, Image.class, Logging.class, Server.class})
+    subcommands = {Browser.class, Image.class, Logging.class, Resources.class, Server.class})
 public class Set {}
