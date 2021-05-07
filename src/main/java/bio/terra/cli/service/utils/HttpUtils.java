@@ -22,7 +22,7 @@ public class HttpUtils {
   private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
   // default value for the maximum number of times to retry HTTP requests
-  public static final int DEFAULT_MAXIMUM_RETRIES = 10;
+  public static final int DEFAULT_MAXIMUM_RETRIES = 30;
 
   // default value for the time to sleep between retries
   public static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
