@@ -12,7 +12,6 @@ import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.StewardshipType;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -258,13 +257,13 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to get the list of resources for the existing workspace
-    // TODO (PF-706): keep calling the enumerate endpoint until no results are returned
-    ResourceList resourceList =
+    List<ResourceDescription> resourceList =
         new WorkspaceManagerService(globalContext.server, currentUser)
-            .enumerateResources(workspaceContext.getWorkspaceId(), 0, 100, null, null);
+            .enumerateAllResources(
+                workspaceContext.getWorkspaceId(), WorkspaceContext.MAX_RESOURCES_CACHE_SIZE);
 
     // update the cache with the list of resources fetched from WSM
-    workspaceContext.updateResources(resourceList.getResources());
+    workspaceContext.updateResources(resourceList);
   }
 
   /**

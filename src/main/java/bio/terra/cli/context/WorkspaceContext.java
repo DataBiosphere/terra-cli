@@ -33,6 +33,10 @@ public class WorkspaceContext {
   // map of cloud resources for this workspace (name -> WSM resource description object)
   public Map<String, ResourceDescription> resources;
 
+  // maximum number of resources to cache on disk before throwing an error (corresponds to ~1MB
+  // cache size on disk)
+  public static final int MAX_RESOURCES_CACHE_SIZE = 1000;
+
   // file paths related to persisting the workspace context on disk
   private static final String WORKSPACE_CONTEXT_DIRNAME = ".terra";
   private static final String WORKSPACE_CONTEXT_FILENAME = "workspace-context.json";
