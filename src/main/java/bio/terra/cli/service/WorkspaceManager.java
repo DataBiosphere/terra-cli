@@ -116,6 +116,9 @@ public class WorkspaceManager {
     // note that this state is persisted to disk. it will be useful for code called in the same or a
     // later CLI command/process
     workspaceContext.updateWorkspace(existingWorkspace);
+
+    // call WSM to fetch the list of resources in the workspace
+    updateResourcesCache();
   }
 
   /**
