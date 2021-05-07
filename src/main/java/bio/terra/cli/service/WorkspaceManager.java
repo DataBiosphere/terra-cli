@@ -8,6 +8,7 @@ import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
+import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.IamRole;
@@ -376,6 +377,18 @@ public class WorkspaceManager {
                     globalContext.server, globalContext.requireCurrentTerraUser())
                 .createControlledBigQueryDataset(
                     workspaceContext.getWorkspaceId(), resourceToCreate, location));
+  }
+
+  public ResourceDescription createControlledAiNotebookInstance(
+      ResourceDescription resourceToCreate,
+      GcpAiNotebookInstanceCreationParameters creationParameters) {
+    return createResource(
+        resourceToCreate.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledAiNotebookInstance(
+                    workspaceContext.getWorkspaceId(), resourceToCreate, creationParameters));
   }
 
   /**
