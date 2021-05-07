@@ -37,6 +37,11 @@ public class GlobalContext {
   // global apps context = docker image id or tag
   public String dockerImageId;
 
+  // maximum number of resources to cache on disk for a single workspace before throwing an error
+  // (corresponds to ~1MB cache size on disk)
+  public int resourcesCacheSize = DEFAULT_RESOURCES_CACHE_SIZE;
+  public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
+
   // global logging context = log levels for file and stdout
   public LogLevel fileLoggingLevel = LogLevel.INFO;
   public LogLevel consoleLoggingLevel = LogLevel.OFF;
@@ -152,6 +157,21 @@ public class GlobalContext {
         this.browserLaunchOption,
         browserLaunchOption);
     this.browserLaunchOption = browserLaunchOption;
+
+    writeToFile();
+  }
+
+  /**
+   * Setter for the resources cache size. Persists on disk.
+   *
+   * @param resourcesCacheSize new value for the resources cache size
+   */
+  public void updateResourcesCacheSize(int resourcesCacheSize) {
+    logger.info(
+        "Updating resources cache size from {} to {}.",
+        this.resourcesCacheSize,
+        resourcesCacheSize);
+    this.resourcesCacheSize = resourcesCacheSize;
 
     writeToFile();
   }

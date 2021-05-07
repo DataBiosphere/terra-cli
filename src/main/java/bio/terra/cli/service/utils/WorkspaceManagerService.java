@@ -48,9 +48,7 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
-import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.RoleBindingList;
-import bio.terra.workspace.model.StewardshipType;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
@@ -60,6 +58,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -84,7 +83,7 @@ public class WorkspaceManagerService {
   private static final int CREATE_WORKSPACE_MAXIMUM_RETRIES = 120;
   private static final Duration CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
 
-  // maximum number of resources to enumerate per request
+  // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
@@ -368,21 +367,49 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager GET "/api/workspaces/v1/{workspaceId}/resources" endpoint to get a
-   * list of resources (controlled and referenced).
+   * Call the Workspace Manager GET "/api/workspaces/v1/{workspaceId}/resources" endpoint, possibly
+   * multiple times, to get a list of all resources (controlled and referenced) in the workspace.
+   * Throw an exception if the number of resources in the workspace is greater than the specified
+   * limit.
    *
    * @param workspaceId the workspace to query
-   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
-   * @param limit the maximum number of workspaces to return
-   * @param resource the resource type to filter on
-   * @param stewardship the stewardship type to filter on
-   * @return a list of resources, wrapped in a the ResourceList object
+   * @param limit the maximum number of resources to return
+   * @return a list of resources
+   * @throws SystemException if the number of resources in the workspace > the specified limit
    */
-  public ResourceList enumerateResources(
-      UUID workspaceId, int offset, int limit, ResourceType resource, StewardshipType stewardship) {
+  public List<ResourceDescription> enumerateAllResources(UUID workspaceId, int limit) {
     ResourceApi resourceApi = new ResourceApi(apiClient);
     try {
-      return resourceApi.enumerateResources(workspaceId, offset, limit, resource, stewardship);
+      // poll the enumerate endpoint until no results are returned, or we hit the limit
+      List<ResourceDescription> allResources = new ArrayList<>();
+      int numResultsReturned = 0;
+      do {
+        int offset = allResources.size();
+        ResourceList result =
+            resourceApi.enumerateResources(
+                workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null);
+
+        // add all fetched resources to the running list
+        numResultsReturned = result.getResources().size();
+        logger.debug("Called enumerate endpoints, fetched {} resources", numResultsReturned);
+        allResources.addAll(result.getResources());
+
+        // if we have fetched more than the limit, then throw an exception
+        if (allResources.size() > limit) {
+          throw new SystemException(
+              "Total number of resources ("
+                  + allResources.size()
+                  + ") exceeds the CLI limit ("
+                  + limit
+                  + ")");
+        }
+
+        // if this fetch returned less than the maximum allowed per request, then that indicates
+        // there are no more
+      } while (numResultsReturned >= MAX_RESOURCES_PER_ENUMERATE_REQUEST);
+
+      logger.debug("Fetched total number of resources: {}", allResources.size());
+      return allResources;
     } catch (ApiException ex) {
       throw new SystemException("Error enumerating resources in the workspace.", ex);
     }
