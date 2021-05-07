@@ -130,8 +130,9 @@ public class HttpUtils {
    * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
-   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
-   *     number of retries was exhausted
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
    */
   public static <T, E extends Exception> T callWithRetries(
       SupplierWithCheckedException<T, E> makeRequest, Predicate<Exception> isRetryable)
@@ -149,8 +150,9 @@ public class HttpUtils {
    * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
-   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
-   *     number of retries was exhausted
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
    */
   public static <T, E extends Exception> T callWithRetries(
       int maxCalls,
@@ -170,8 +172,9 @@ public class HttpUtils {
    * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
-   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
-   *     number of retries was exhausted
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
    */
   public static <T, E extends Exception> T pollWithRetries(
       SupplierWithCheckedException<T, E> makeRequest,
@@ -206,8 +209,9 @@ public class HttpUtils {
    * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
-   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
-   *     number of retries was exhausted
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
    */
   public static <T, E extends Exception> T pollWithRetries(
       int maxCalls,
@@ -263,8 +267,8 @@ public class HttpUtils {
    * @param makeRequest function to perform the request
    * @param isOneTimeError function to test whether the exception is the expected one-time error
    * @param handleOneTimeError function to handle the one-time error before retrying the request
-   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
-   * @return the Http response
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
    * @throws E2 if handleOneTimeError throws an exception
    */
