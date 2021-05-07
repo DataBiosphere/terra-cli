@@ -22,10 +22,10 @@ public class HttpUtils {
   private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
   // default value for the maximum number of times to retry HTTP requests
-  private static final int DEFAULT_MAXIMUM_RETRIES = 10;
+  public static final int DEFAULT_MAXIMUM_RETRIES = 10;
 
   // default value for the time to sleep between retries
-  private static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
+  public static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
 
   private HttpUtils() {}
 
@@ -143,7 +143,7 @@ public class HttpUtils {
   /**
    * Helper method to call a function with retries.
    *
-   * @param maxRetries maximum number of times to retry
+   * @param maxCalls maximum number of times to retry
    * @param sleepDuration time to sleep between tries
    * @param makeRequest function to perform the request
    * @param isRetryable function to test whether the exception is retryable or not
@@ -153,13 +153,13 @@ public class HttpUtils {
    *     number of retries was exhausted
    */
   public static <T, E extends Exception> T callWithRetries(
-      int maxRetries,
+      int maxCalls,
       Duration sleepDuration,
       SupplierWithCheckedException<T, E> makeRequest,
       Predicate<Exception> isRetryable)
       throws E, InterruptedException {
     // isDone always return true
-    return pollWithRetries(maxRetries, sleepDuration, makeRequest, (result) -> true, isRetryable);
+    return pollWithRetries(maxCalls, sleepDuration, makeRequest, (result) -> true, isRetryable);
   }
 
   /**
@@ -189,7 +189,17 @@ public class HttpUtils {
   /**
    * Helper method to poll with retries.
    *
-   * @param maxRetries maximum number of times to retry
+   * <p>If there is no timeout, the method returns the last result.
+   *
+   * <p>If there is a timeout, the behavior depends on the last attempt.
+   *
+   * <p>- If the last attempt produced a result that is not done (i.e. isDone returns false), then
+   * the result is returned.
+   *
+   * <p>- If the last attempt threw a retryable exception, then this method re-throws that last
+   * exception wrapped in a {@link SystemException} with a timeout message.
+   *
+   * @param maxCalls maximum number of times to poll or retry
    * @param sleepDuration time to sleep between tries
    * @param makeRequest function to perform the request
    * @param isDone function to decide whether to keep polling or not, based on the result
@@ -200,7 +210,7 @@ public class HttpUtils {
    *     number of retries was exhausted
    */
   public static <T, E extends Exception> T pollWithRetries(
-      int maxRetries,
+      int maxCalls,
       Duration sleepDuration,
       SupplierWithCheckedException<T, E> makeRequest,
       Predicate<T> isDone,
@@ -215,7 +225,7 @@ public class HttpUtils {
         T result = makeRequest.makeRequest();
         logger.debug("Result: {}", result);
 
-        if (isDone.test(result) || numTries > maxRetries) {
+        if (isDone.test(result) || numTries > maxCalls) {
           // polling is either done (i.e. job completed) or timed out: return the last result
           return result;
         }
@@ -231,10 +241,10 @@ public class HttpUtils {
       }
 
       // sleep before retrying, unless this is the last try
-      if (numTries < maxRetries) {
+      if (numTries < maxCalls) {
         Thread.sleep(sleepDuration.toMillis());
       }
-    } while (numTries <= maxRetries);
+    } while (numTries <= maxCalls);
 
     // request with retries timed out: re-throw the last exception
     throw new SystemException(

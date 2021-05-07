@@ -48,7 +48,9 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
+import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.RoleBindingList;
+import bio.terra.workspace.model.StewardshipType;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
@@ -58,7 +60,6 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -367,48 +368,22 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Poll the Workspace Manager GET "/api/workspaces/v1/{workspaceId}/resources" endpoint to get a
-   * list of all resources (controlled and referenced) in the workspace.
+   * Call the Workspace Manager GET "/api/workspaces/v1/{workspaceId}/resources" endpoint to get a
+   * list of resources (controlled and referenced).
    *
    * @param workspaceId the workspace to query
-   * @param limit the maximum number of resources to return
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
+   * @param resource the resource type to filter on
+   * @param stewardship the stewardship type to filter on
    * @return a list of resources, wrapped in a the ResourceList object
    */
-  public List<ResourceDescription> enumerateAllResources(UUID workspaceId, int limit) {
+  public ResourceList enumerateResources(
+      UUID workspaceId, int offset, int limit, ResourceType resource, StewardshipType stewardship) {
     ResourceApi resourceApi = new ResourceApi(apiClient);
     try {
-      // poll the enumerate endpoint until no results are returned, or we hit the limit
-      List<ResourceDescription> allResources = new ArrayList<>();
-      HttpUtils.pollWithRetries(
-          () -> {
-            int offset = allResources.size();
-            ResourceList result =
-                resourceApi.enumerateResources(
-                    workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null);
-
-            // add all fetched resources to the running list
-            allResources.addAll(result.getResources());
-
-            // return the number of resources added
-            return result.getResources().size();
-          },
-          // quit polling when we've either fetched more than the limit, or this last fetch returned
-          // less than the maximum allowed per request (because that indicates there are no more)
-          (result) -> allResources.size() > limit || result < MAX_RESOURCES_PER_ENUMERATE_REQUEST,
-          WorkspaceManagerService::isRetryable);
-      logger.debug("fetched total number of resources: {}", allResources.size());
-
-      // if we have fetched more than the limit, then throw an exception
-      if (allResources.size() > limit) {
-        throw new SystemException(
-            "Total number of resources ("
-                + allResources.size()
-                + ") exceeds the CLI limit ("
-                + limit
-                + ")");
-      }
-      return allResources;
-    } catch (ApiException | InterruptedException ex) {
+      return resourceApi.enumerateResources(workspaceId, offset, limit, resource, stewardship);
+    } catch (ApiException ex) {
       throw new SystemException("Error enumerating resources in the workspace.", ex);
     }
   }
