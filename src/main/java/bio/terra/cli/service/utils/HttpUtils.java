@@ -229,8 +229,14 @@ public class HttpUtils {
         T result = makeRequest.makeRequest();
         logger.debug("Result: {}", result);
 
-        if (isDone.test(result) || numTries > maxCalls) {
+        boolean jobCompleted = isDone.test(result);
+        boolean timedOut = numTries > maxCalls;
+        if (jobCompleted || timedOut) {
           // polling is either done (i.e. job completed) or timed out: return the last result
+          logger.debug(
+              "polling with retries completed. jobCompleted = {}, timedOut = {}",
+              jobCompleted,
+              timedOut);
           return result;
         }
       } catch (Exception ex) {
