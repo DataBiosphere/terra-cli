@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.getvalue;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 @Command(name = "server", description = "Get the Terra server the CLI connects to.")
 public class Server extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Return the server property of the global context. */
   @Override

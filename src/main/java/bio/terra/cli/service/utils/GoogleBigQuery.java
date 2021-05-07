@@ -1,14 +1,11 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.BigQueryOptions;
-import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
-import com.google.cloud.bigquery.DatasetInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +22,6 @@ public class GoogleBigQuery {
             .setProjectId(projectId)
             .build()
             .getService();
-  }
-
-  public Dataset create(DatasetId datasetId) {
-    logger.info("Creating dataset: {}", datasetId);
-    return bigQuery.create(DatasetInfo.newBuilder(datasetId.getDataset()).build());
-  }
-
-  public void delete(DatasetId datasetId) {
-    logger.info("Deleting dataset: {}", datasetId);
-    boolean deleted = bigQuery.delete(datasetId);
-    if (!deleted) {
-      throw new SystemException("BigQuery dataset not found for deletion.");
-    }
   }
 
   /** Returns whether we have permission to list tables in the dataset. */

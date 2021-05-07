@@ -1,7 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.RoleBinding;
 import bio.terra.workspace.model.RoleBindingList;
@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 @Command(name = "list-users", description = "List the users of the workspace.")
 public class ListUsers extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List all users of the workspace. */
   @Override

@@ -1,7 +1,7 @@
 package bio.terra.cli.command.server;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.service.ServerManager;
 import picocli.CommandLine;
@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 @Command(name = "list", description = "List all available Terra servers.")
 public class List extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** List all Terra environments. */
   @Override

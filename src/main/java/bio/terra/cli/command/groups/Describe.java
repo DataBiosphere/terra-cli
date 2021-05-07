@@ -1,7 +1,7 @@
 package bio.terra.cli.command.groups;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.utils.SamService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -12,7 +12,7 @@ public class Describe extends BaseCommand {
   @CommandLine.Parameters(index = "0", description = "The name of the group")
   private String group;
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Describe an existing Terra group. */
   @Override

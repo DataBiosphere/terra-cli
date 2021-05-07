@@ -1,7 +1,7 @@
 package bio.terra.cli.command.server;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.service.ServerManager;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 @Command(name = "status", description = "Print status and details of the Terra server context.")
 public class Status extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Update the Terra environment to which the CLI is pointing. */
   @Override

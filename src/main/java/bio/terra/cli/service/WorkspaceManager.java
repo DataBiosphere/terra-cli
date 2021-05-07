@@ -1,21 +1,29 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.CloudResource;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
+import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
+import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.IamRole;
+import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.RoleBindingList;
+import bio.terra.workspace.model.StewardshipType;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.DatasetId;
-import com.google.cloud.storage.Bucket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +38,9 @@ public class WorkspaceManager {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
   }
+
+  // ====================================================
+  // Workspaces
 
   /**
    * List all workspaces that a user has read access to.
@@ -105,6 +116,9 @@ public class WorkspaceManager {
     // note that this state is persisted to disk. it will be useful for code called in the same or a
     // later CLI command/process
     workspaceContext.updateWorkspace(existingWorkspace);
+
+    // call WSM to fetch the list of resources in the workspace
+    updateResourcesCache();
   }
 
   /**
@@ -160,6 +174,9 @@ public class WorkspaceManager {
     // later CLI command/process
     workspaceContext.updateWorkspace(updatedWorkspace);
   }
+
+  // ====================================================
+  // Workspace users
 
   /**
    * Add a user to the workspace that is mounted to the current directory. Possible roles are
@@ -228,89 +245,165 @@ public class WorkspaceManager {
         .getRoles(workspaceContext.getWorkspaceId());
   }
 
+  // ====================================================
+  // Workspace resources, controlled & referenced
+
   /**
-   * Lookup a controlled resource by its name. Names are unique within a workspace.
-   *
-   * @param resourceName name of resource to lookup
-   * @return the cloud resource object
-   * @throws UserActionableException if the resource is not controlled (e.g. external bucket)
+   * Update the cached list of resources (controlled & referenced) in the workspace, by fetching the
+   * up-to-date list from WSM.
    */
-  public CloudResource getControlledResource(String resourceName) {
+  private void updateResourcesCache() {
+    // check that there is a workspace currently mounted
     workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM controlled resource endpoints once they're ready
-    CloudResource cloudResource = workspaceContext.getCloudResource(resourceName);
-    if (cloudResource == null) {
-      throw new UserActionableException(resourceName + " not found.");
-    }
-    if (!cloudResource.isControlled) {
-      throw new UserActionableException(resourceName + " is not a controlled resource.");
-    }
-    return cloudResource;
+
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+
+    // call WSM to get the list of resources for the existing workspace
+    List<ResourceDescription> resourceList =
+        new WorkspaceManagerService(globalContext.server, currentUser)
+            .enumerateAllResources(
+                workspaceContext.getWorkspaceId(), globalContext.resourcesCacheSize);
+
+    // update the cache with the list of resources fetched from WSM
+    workspaceContext.updateResources(resourceList);
   }
 
   /**
-   * Create a new controlled resource in the workspace.
+   * List all the resources in the workspace. Also updates the cached list of resources.
    *
-   * @param resourceType type of resource to create
-   * @param resourceName name of resource to create
-   * @return the cloud resource that was created
+   * @return a list of resources in the workspace
    */
-  public CloudResource createControlledResource(
-      CloudResource.Type resourceType, String resourceName) {
+  public List<ResourceDescription> listResources() {
+    updateResourcesCache();
+
+    return new ArrayList<>(workspaceContext.resources.values());
+  }
+
+  /**
+   * Get an existing resource in the workspace. Also updates the cached list of resources.
+   *
+   * @param name name of resource
+   * @return the resource description object
+   */
+  public ResourceDescription getResource(String name) {
+    updateResourcesCache();
+
+    ResourceDescription resource = workspaceContext.getResource(name);
+    if (resource == null) {
+      throw new UserActionableException(name + " not found.");
+    }
+    return resource;
+  }
+
+  /**
+   * Add a GCS bucket as a referenced resource in the workspace. Also updates the cached list of
+   * resources.
+   *
+   * @param resourceToAdd resource definition to add
+   * @return the resource description object that was created
+   */
+  public ResourceDescription createReferencedGcsBucket(ResourceDescription resourceToAdd) {
+    return createResource(
+        resourceToAdd.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceToAdd));
+  }
+
+  /**
+   * Add a Big Query dataset as a referenced resource in the workspace. Also updates the cached list
+   * of resources.
+   *
+   * @param resourceToAdd resource definition to add
+   * @return the resource description object that was created
+   */
+  public ResourceDescription createReferencedBigQueryDataset(ResourceDescription resourceToAdd) {
+    return createResource(
+        resourceToAdd.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceToAdd));
+  }
+
+  /**
+   * Add a GCS bucket as a controlled resource in the workspace. Also updates the cached list of
+   * resources.
+   *
+   * @param resourceToCreate resource definition to create
+   * @param defaultStorageClass GCS storage class
+   *     (https://cloud.google.com/storage/docs/storage-classes)
+   * @param lifecycle list of lifecycle rules for the bucket
+   *     (https://cloud.google.com/storage/docs/lifecycle)
+   * @param location GCS bucket location (https://cloud.google.com/storage/docs/locations)
+   * @return the resource description object that was created
+   */
+  public ResourceDescription createControlledGcsBucket(
+      ResourceDescription resourceToCreate,
+      @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
+      GcsBucketLifecycle lifecycle,
+      @Nullable String location) {
+    return createResource(
+        resourceToCreate.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledGcsBucket(
+                    workspaceContext.getWorkspaceId(),
+                    resourceToCreate,
+                    defaultStorageClass,
+                    lifecycle,
+                    location));
+  }
+
+  /**
+   * Add a Big Query dataset as a controlled resource in the workspace. Also updates the cached list
+   * of resources.
+   *
+   * @param resourceToCreate resource definition to create
+   * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
+   * @return the resource description object that was created
+   */
+  public ResourceDescription createControlledBigQueryDataset(
+      ResourceDescription resourceToCreate, @Nullable String location) {
+    return createResource(
+        resourceToCreate.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledBigQueryDataset(
+                    workspaceContext.getWorkspaceId(), resourceToCreate, location));
+  }
+
+  /**
+   * Create a new resource in the workspace. Also updates the cached list of resources.
+   *
+   * @param resourceName name of resource to create
+   * @param createResource function pointer to execute the create request for a particular
+   *     stewardship + resource type combination
+   * @param <T> type of the create response object. this is usually very similar to the
+   *     ResourceDescription object, but not quite identical.
+   * @return the resource description object that was created
+   */
+  private <T> ResourceDescription createResource(String resourceName, Supplier<T> createResource) {
     workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM controlled resource endpoints once they're ready
+
     if (!isValidEnvironmentVariableName(resourceName)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
-    // check for any collisions with existing references
-    if (workspaceContext.getCloudResource(resourceName) != null) {
-      throw new UserActionableException(
-          "A data reference or controlled resource with this name already exists.");
-    }
-
-    CloudResource resource;
-    switch (resourceType) {
-      case bucket:
-        resource = createControlledBucket(resourceName);
-        break;
-      case bigQueryDataset:
-        resource = createControlledBigQueryDataset(resourceName);
-        break;
-      default:
-        throw new UserActionableException("Unsupported resourceType " + resourceType);
-    }
+    // create response object
+    T createResponse = createResource.get();
+    logger.info("Created resource: {}", createResponse);
 
     // persist the cloud resource locally
-    workspaceContext.addCloudResource(resource);
-    return resource;
-  }
+    updateResourcesCache();
 
-  private CloudResource createControlledBucket(String resourceName) {
-    // replace underscores in the resource name with hyphens so that the bucket path will be a valid
-    // url
-    String bucketName =
-        workspaceContext.getGoogleProject() + "-" + resourceName.replaceAll("_", "-");
-
-    // create the bucket by calling GCS directly
-    Bucket bucket =
-        new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser().userCredentials,
-                workspaceContext.getGoogleProject())
-            .createBucket(bucketName);
-    return new CloudResource(
-        resourceName, "gs://" + bucket.getName(), CloudResource.Type.bucket, true);
-  }
-
-  private CloudResource createControlledBigQueryDataset(String resourceName) {
-    DatasetId datasetId = DatasetId.of(workspaceContext.getGoogleProject(), resourceName);
-    new GoogleBigQuery(
-            globalContext.requireCurrentTerraUser().userCredentials,
-            workspaceContext.getGoogleProject())
-        .create(datasetId);
-    return new CloudResource(
-        resourceName, CloudResource.toCloudId(datasetId), CloudResource.Type.bigQueryDataset, true);
+    // return just the summary object
+    return workspaceContext.getResource(resourceName);
   }
 
   /**
@@ -324,156 +417,195 @@ public class WorkspaceManager {
   }
 
   /**
-   * Delete an existing controlled resource in the workspace.
+   * Delete a GCS bucket referenced resource in the workspace. Also updates the cached list of
+   * resources.
+   *
+   * @param name name of the resource. this is unique across all resources in the workspace
+   * @return the resource description object that was deleted
+   */
+  public ResourceDescription deleteReferencedGcsBucket(String name) {
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
+        });
+  }
+
+  /**
+   * Delete a Big Query dataset referenced resource in the workspace. Also updates the cached list
+   * of resources.
+   *
+   * @param name name of the resource. this is unique across all resources in the workspace
+   * @return the resource description object that was deleted
+   */
+  public ResourceDescription deleteReferencedBigQueryDataset(String name) {
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
+        });
+  }
+
+  /**
+   * Delete a GCS bucket controlled resource in the workspace. Also updates the cached list of
+   * resources.
+   *
+   * @param name name of the resource. this is unique across all resources in the workspace
+   * @return the resource description object that was deleted
+   */
+  public ResourceDescription deleteControlledGcsBucket(String name) {
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteControlledGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
+        });
+  }
+
+  /**
+   * Delete a Big Query dataset controlled resource in the workspace. Also updates the cached list
+   * of resources.
+   *
+   * @param name name of the resource. this is unique across all resources in the workspace
+   * @return the resource description object that was deleted
+   */
+  public ResourceDescription deleteControlledBigQueryDataset(String name) {
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteControlledBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
+        });
+  }
+
+  /**
+   * Delete a resource in the workspace. Also updates the cached list of resources.
    *
    * @param resourceName name of resource to delete
-   * @return the cloud resource object that was removed
+   * @param deleteResource function pointer to execute the delete request for a particular
+   *     stewardship + resource type combination
+   * @return the resource description object that was deleted
    */
-  public CloudResource deleteControlledResource(String resourceName) {
+  private ResourceDescription deleteResource(String resourceName, Consumer<UUID> deleteResource) {
     workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM controlled resource endpoints once they're ready
-    // delete the bucket by calling GCS directly
-    CloudResource resource = getControlledResource(resourceName);
-    switch (resource.type) {
-      case bucket:
-        new GoogleCloudStorage(
-                globalContext.requireCurrentTerraUser().userCredentials,
-                workspaceContext.getGoogleProject())
-            .deleteBucket(resource.cloudId);
-        break;
-      case bigQueryDataset:
-        new GoogleBigQuery(
-                globalContext.requireCurrentTerraUser().userCredentials,
-                workspaceContext.getGoogleProject())
-            .delete(CloudResource.cloudIdToDatasetId(resource.cloudId));
-        break;
-      default:
-        throw new UserActionableException("Unsupported resourceType " + resource.type);
-    }
 
-    // remove the cloud resource and persist the updated list locally
-    workspaceContext.removeCloudResource(resourceName);
+    // get the summary object
+    ResourceDescription resourceToDelete = workspaceContext.getResource(resourceName);
 
-    return resource;
+    // delete the resource
+    deleteResource.accept(resourceToDelete.getMetadata().getResourceId());
+
+    // persist the cloud resource locally
+    updateResourcesCache();
+
+    // return just the summary object
+    return resourceToDelete;
   }
 
   /**
-   * List the controlled resources in a workspace.
+   * Check whether a user can access the referenced GCS bucket, either with their end-user or pet SA
+   * credentials.
    *
-   * @return a list of controlled resources in the workspace
+   * @param resource resource to check access for
+   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
+   *     checking access
+   * @return true if the user can access the referenced GCS bucket with the given credentials
    */
-  public List<CloudResource> listResources() {
-    workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM controlled resource endpoints once they're ready
-    return workspaceContext.listControlledResources();
-  }
-
-  /**
-   * Lookup a data reference by its name. Names are unique within a workspace.
-   *
-   * @param referenceName name of reference to lookup
-   * @return the data reference object
-   * @throws UserActionableException if the resource is not a data reference (e.g. VM)
-   */
-  public CloudResource getDataReference(String referenceName) {
-    workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM data reference endpoints once they're ready
-    CloudResource dataReference = workspaceContext.getCloudResource(referenceName);
-    if (dataReference == null) {
-      throw new UserActionableException(referenceName + " not found.");
-    }
-    if (!dataReference.type.isDataReference) {
-      throw new UserActionableException(dataReference + " is not a data reference.");
-    }
-    return dataReference;
-  }
-
-  /**
-   * Add a new data reference in the workspace.
-   *
-   * <p>This method checks that the data reference exists using the user's credentials. The
-   * reference does not have to be within the workspace project.
-   *
-   * @param referenceType type of reference to add
-   * @param referenceName name of reference to add
-   * @param cloudId unique identifier for this resource in the cloud (e.g. bucket uri, bq dataset
-   *     id)
-   * @return the data reference that was added
-   */
-  public CloudResource addDataReference(
-      CloudResource.Type referenceType, String referenceName, String cloudId) {
-    workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM data reference endpoints once they're ready
-    // check that the cloud id is valid and that the user has access.
-    switch (referenceType) {
-      case bucket:
-        boolean bucketFound =
-            new GoogleCloudStorage(
-                    globalContext.requireCurrentTerraUser().userCredentials,
-                    workspaceContext.getGoogleProject())
-                .checkObjectsListAccess(cloudId);
-        if (!bucketFound) {
-          throw new UserActionableException("Invalid or inaccessible bucket path: " + cloudId);
-        }
-        break;
-      case bigQueryDataset:
-        boolean tableAccess =
-            new GoogleBigQuery(
-                    globalContext.requireCurrentTerraUser().userCredentials,
-                    workspaceContext.getGoogleProject())
-                .checkListTablesAccess(CloudResource.cloudIdToDatasetId(cloudId));
-        if (!tableAccess) {
-          throw new UserActionableException(
-              "Invalid or inaccessible BigQuery dataset id: " + cloudId);
-        }
-        break;
-      default:
-        throw new UserActionableException("Unsupported resourceType " + referenceType);
-    }
-
-    // check for any collisions with existing references
-    if (workspaceContext.getCloudResource(referenceName) != null) {
+  public boolean checkAccessToReferencedGcsBucket(
+      ResourceDescription resource, CheckAccessCredentials credentialsToUse) {
+    if (!resource.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       throw new UserActionableException(
-          "A data reference or controlled resource with this name already exists.");
+          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // persist the data reference locally
-    CloudResource reference = new CloudResource(referenceName, cloudId, referenceType, false);
-    workspaceContext.addCloudResource(reference);
+    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+    GoogleCredentials credentials =
+        credentialsToUse.equals(CheckAccessCredentials.USER)
+            ? currentUser.userCredentials
+            : currentUser.petSACredentials;
 
-    return reference;
+    return new GoogleCloudStorage(credentials, workspaceContext.getGoogleProject())
+        .checkObjectsListAccess(getGcsBucketUrl(resource));
   }
 
   /**
-   * Delete an existing data reference in the workspace.
+   * Check whether a user can access the referenced Big Query dataset, either with their end-user or
+   * pet SA credentials.
    *
-   * @param referenceName name of reference to delete
-   * @return the data reference object that was removed
+   * @param resource resource to check access for
+   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
+   *     checking access
+   * @return true if the user can access the referenced Big Query dataset with the given credentials
    */
-  public CloudResource deleteDataReference(String referenceName) {
-    workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM data reference endpoints once they're ready
-    // only delete un-controlled cloud resources through the data references endpoints
-    CloudResource dataReference = getDataReference(referenceName);
-    if (dataReference.isControlled) {
+  public boolean checkAccessToReferencedBigQueryDataset(
+      ResourceDescription resource, CheckAccessCredentials credentialsToUse) {
+    if (!resource.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
       throw new UserActionableException(
-          "Cannot delete a reference to a controlled cloud resource. Delete the resource instead.");
+          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
 
-    // remove the cloud resource and persist the updated list locally
-    workspaceContext.removeCloudResource(referenceName);
+    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
+    TerraUser currentUser = globalContext.requireCurrentTerraUser();
+    GoogleCredentials credentials =
+        credentialsToUse.equals(CheckAccessCredentials.USER)
+            ? currentUser.userCredentials
+            : currentUser.petSACredentials;
 
-    return dataReference;
+    GcpBigQueryDatasetAttributes gcpBigQueryDatasetAttributes =
+        resource.getResourceAttributes().getGcpBqDataset();
+    return new GoogleBigQuery(credentials, workspaceContext.getGoogleProject())
+        .checkListTablesAccess(
+            DatasetId.of(
+                gcpBigQueryDatasetAttributes.getProjectId(),
+                gcpBigQueryDatasetAttributes.getDatasetId()));
   }
 
   /**
-   * List the data references in a workspace.
-   *
-   * @return a list of data references in the workspace
+   * Helper enum for the {@link #checkAccessToReferencedGcsBucket} method. Specifies whether to use
+   * end-user or pet SA credentials for checking access to a resource in the workspace.
    */
-  public List<CloudResource> listDataReferences() {
-    workspaceContext.requireCurrentWorkspace();
-    // TODO: change this method to call WSM data reference endpoints once they're ready
-    return workspaceContext.listDataReferences();
+  public enum CheckAccessCredentials {
+    USER,
+    PET_SA;
+  };
+
+  /** Prefix for GCS bucket to make a valid URL. */
+  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
+
+  /**
+   * Delimiter between the project id and dataset id for a Big Query dataset.
+   *
+   * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
+   * delimiter allows the path to be used directly in SQL calls with a Big Query extension.
+   */
+  private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
+
+  /**
+   * Utility method for getting the full URL to a GCS bucket, including the 'gs://' prefix.
+   *
+   * @param resource GCS bucket resource
+   * @return full URL to the bucket
+   */
+  public static String getGcsBucketUrl(ResourceDescription resource) {
+    return GCS_BUCKET_URL_PREFIX
+        + resource.getResourceAttributes().getGcpGcsBucket().getBucketName();
+  }
+
+  /**
+   * Utility method for getting the SQL path to a Big Query dataset: [GCP project id].[BQ dataset
+   * id]
+   *
+   * @param resource Big Query dataset resource
+   * @return full path to the dataset
+   */
+  public static String getBigQueryDatasetPath(ResourceDescription resource) {
+    GcpBigQueryDatasetAttributes datasetAttributes =
+        resource.getResourceAttributes().getGcpBqDataset();
+    return datasetAttributes.getProjectId()
+        + BQ_PROJECT_DATASET_DELIMITER
+        + datasetAttributes.getDatasetId();
   }
 }

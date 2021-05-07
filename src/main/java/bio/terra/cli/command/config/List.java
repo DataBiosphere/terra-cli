@@ -5,7 +5,7 @@ import static bio.terra.cli.command.config.getvalue.Logging.LoggingReturnValue;
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     description = "List all configuration properties and their values.")
 public class List extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Print out a list of all the config properties. */
   @Override
@@ -26,6 +26,7 @@ public class List extends BaseCommand {
         new ConfigListReturnValue(
             globalContext.browserLaunchOption,
             globalContext.dockerImageId,
+            globalContext.resourcesCacheSize,
             loggingLevels,
             globalContext.server);
 
@@ -36,16 +37,19 @@ public class List extends BaseCommand {
   private static class ConfigListReturnValue {
     public AuthenticationManager.BrowserLaunchOption browser;
     public String image;
+    public int resources;
     public LoggingReturnValue logging;
     public ServerSpecification server;
 
     public ConfigListReturnValue(
         AuthenticationManager.BrowserLaunchOption browser,
         String image,
+        int resources,
         LoggingReturnValue logging,
         ServerSpecification server) {
       this.browser = browser;
       this.image = image;
+      this.resources = resources;
       this.logging = logging;
       this.server = server;
     }
@@ -55,6 +59,9 @@ public class List extends BaseCommand {
   private static void printText(ConfigListReturnValue returnValue) {
     OUT.println("[browser] browser launch for login = " + returnValue.browser);
     OUT.println("[image] docker image id = " + returnValue.image);
+    OUT.println(
+        "[resource-limit] max number of resources to allow per workspace = "
+            + returnValue.resources);
     OUT.println();
     Logging.printText(returnValue.logging);
     OUT.println();

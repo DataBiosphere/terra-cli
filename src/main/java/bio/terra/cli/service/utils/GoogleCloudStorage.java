@@ -1,10 +1,7 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
@@ -50,35 +47,6 @@ public class GoogleCloudStorage {
     storageOptions.setCredentials(googleCredentials);
 
     return storageOptions.build().getService();
-  }
-
-  /**
-   * Create a new GCS bucket.
-   *
-   * @param bucketName name of the bucket
-   * @return the bucket object
-   */
-  public Bucket createBucket(String bucketName) {
-    logger.info("Creating bucket: {}", bucketName);
-
-    // TODO: optionally set lifecycle rules here
-    BucketInfo bucketInfo = BucketInfo.newBuilder(bucketName).build();
-    return storageClient.create(bucketInfo);
-  }
-
-  /**
-   * Delete an existing GCS bucket.
-   *
-   * @param bucketUri uri of the bucket (gs://...)
-   */
-  public void deleteBucket(String bucketUri) {
-    logger.info("Deleting bucket: {}", bucketUri);
-    String bucketName = bucketUri.replaceFirst("^gs://", "");
-
-    boolean deleted = storageClient.delete(bucketName);
-    if (!deleted) {
-      throw new SystemException("Bucket deletion failed.");
-    }
   }
 
   /**

@@ -1,6 +1,7 @@
-package bio.terra.cli.command.helperclasses;
+package bio.terra.cli.command.helperclasses.options;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.context.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +15,7 @@ import picocli.CommandLine;
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class FormatOption {
+public class Format {
 
   @CommandLine.Option(
       names = "--format",
@@ -36,7 +37,7 @@ public class FormatOption {
    * @param returnValue command return value
    */
   public <T> void printReturnValue(T returnValue) {
-    printReturnValue(returnValue, FormatOption::printText, FormatOption::printJson);
+    printReturnValue(returnValue, Format::printText, Format::printJson);
   }
 
   /**
@@ -48,7 +49,7 @@ public class FormatOption {
    *     it out in text format
    */
   public <T> void printReturnValue(T returnValue, Consumer<T> printTextFunction) {
-    printReturnValue(returnValue, printTextFunction, FormatOption::printJson);
+    printReturnValue(returnValue, printTextFunction, Format::printJson);
   }
 
   /**
@@ -78,7 +79,7 @@ public class FormatOption {
    */
   public static <T> void printJson(T returnValue) {
     // use Jackson to map the object to a JSON-formatted text block
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = JacksonMapper.getMapper();
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     try {
       Printer.getOut().println(objectWriter.writeValueAsString(returnValue));

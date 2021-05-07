@@ -2,7 +2,7 @@ package bio.terra.cli.command.auth;
 
 import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
 import java.util.Optional;
 import picocli.CommandLine;
@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 @Command(name = "status", description = "Print details about the currently authorized account.")
 public class Status extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /**
    * Populate the current user in the global context and print out a subset of the TerraUser

@@ -4,6 +4,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.utils.FileUtils;
+import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.service.utils.DataRepoService;
 import bio.terra.cli.service.utils.SamService;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
@@ -111,7 +112,7 @@ public class ServerManager {
   /** List all server specifications found on the classpath. */
   public static List<ServerSpecification> allPossibleServers() {
     // use Jackson to map the stream contents to a list of strings
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = JacksonMapper.getMapper();
 
     try {
       // read in the list of servers file

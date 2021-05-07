@@ -1,20 +1,53 @@
 package bio.terra.cli.service.utils;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.resources.GcsBucketLifecycle;
+import bio.terra.workspace.api.ControlledGcpResourceApi;
+import bio.terra.workspace.api.ReferencedGcpResourceApi;
+import bio.terra.workspace.api.ResourceApi;
 import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
+import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
+import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
+import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
+import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
+import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
+import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
+import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
+import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
+import bio.terra.workspace.model.ErrorReport;
+import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
+import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
+import bio.terra.workspace.model.GcpBigQueryDatasetResource;
+import bio.terra.workspace.model.GcpGcsBucketAttributes;
+import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
+import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
+import bio.terra.workspace.model.GcpGcsBucketLifecycle;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleActionType;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
+import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
+import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.PrivateResourceIamRoles;
+import bio.terra.workspace.model.PrivateResourceUser;
+import bio.terra.workspace.model.ReferenceResourceCommonFields;
+import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
@@ -24,6 +57,10 @@ import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -41,6 +78,13 @@ public class WorkspaceManagerService {
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
+
+  // the maximum number of retries and time to sleep for creating a new workspace
+  private static final int CREATE_WORKSPACE_MAXIMUM_RETRIES = 120;
+  private static final Duration CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
+
+  // maximum number of resources to fetch per call to the enumerate endpoint
+  private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
    * Constructor for class that talks to the Workspace Manager service. The user must be
@@ -65,6 +109,7 @@ public class WorkspaceManagerService {
   public WorkspaceManagerService(ServerSpecification server) {
     this(server, null);
   }
+
   /**
    * Build the Workspace Manager API client object for the given Terra user and global context. If
    * terraUser is null, this method returns the client object without an access token set.
@@ -118,7 +163,7 @@ public class WorkspaceManagerService {
    *
    * @param offset the offset to use when listing workspaces (zero to start from the beginning)
    * @param limit the maximum number of workspaces to return
-   * @return the Workspace Manager workspsace list object
+   * @return the Workspace Manager workspace list object
    */
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
@@ -138,6 +183,8 @@ public class WorkspaceManagerService {
    * @param displayName optional display name
    * @param description optional description
    * @return the Workspace Manager workspace description object
+   * @throws SystemException if the job to create the workspace cloud context fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
       @Nullable String displayName, @Nullable String description) {
@@ -158,36 +205,22 @@ public class WorkspaceManagerService {
       CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
       cloudContextRequest.setCloudPlatform(CloudPlatform.GCP);
       cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
+
+      // make the initial create context request
       workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
 
-      // poll the job result endpoint until the job status is completed
-      final int MAX_JOB_POLLING_TRIES = 120; // maximum 120 seconds sleep
-      int numJobPollingTries = 1;
-      CreateCloudContextResult cloudContextResult;
-      JobReport.StatusEnum jobReportStatus;
-      do {
-        logger.info(
-            "Job polling try #{}, workspace id: {}, job id: {}",
-            numJobPollingTries,
-            workspaceId,
-            jobId);
-        cloudContextResult =
-            workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString());
-        jobReportStatus = cloudContextResult.getJobReport().getStatus();
-        logger.debug("Create workspace cloudContextResult: {}", cloudContextResult);
-        numJobPollingTries++;
-        if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
-          Thread.sleep(1000);
-        }
-      } while (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)
-          && numJobPollingTries < MAX_JOB_POLLING_TRIES);
+      // poll the result endpoint until the job is no longer RUNNING
+      CreateCloudContextResult createContextResult =
+          HttpUtils.pollWithRetries(
+              () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
+              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              WorkspaceManagerService::isRetryable,
+              CREATE_WORKSPACE_MAXIMUM_RETRIES,
+              CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
+      logger.debug("create workspace context result: {}", createContextResult);
 
-      if (jobReportStatus.equals(JobReport.StatusEnum.FAILED)) {
-        logger.error(
-            "Job to create a new workspace failed: {}", cloudContextResult.getErrorReport());
-      } else if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
-        logger.error("Job to create a new workspace timed out in the CLI");
-      }
+      throwIfJobNotCompleted(
+          createContextResult.getJobReport(), createContextResult.getErrorReport());
 
       // call the get workspace endpoint to get the full description object
       return workspaceApi.getWorkspace(workspaceId);
@@ -331,5 +364,413 @@ public class WorkspaceManagerService {
     } catch (ApiException ex) {
       throw new SystemException("Error fetching users and their IAM roles for workspace", ex);
     }
+  }
+
+  /**
+   * Call the Workspace Manager GET "/api/workspaces/v1/{workspaceId}/resources" endpoint, possibly
+   * multiple times, to get a list of all resources (controlled and referenced) in the workspace.
+   * Throw an exception if the number of resources in the workspace is greater than the specified
+   * limit.
+   *
+   * @param workspaceId the workspace to query
+   * @param limit the maximum number of resources to return
+   * @return a list of resources
+   * @throws SystemException if the number of resources in the workspace > the specified limit
+   */
+  public List<ResourceDescription> enumerateAllResources(UUID workspaceId, int limit) {
+    ResourceApi resourceApi = new ResourceApi(apiClient);
+    try {
+      // poll the enumerate endpoint until no results are returned, or we hit the limit
+      List<ResourceDescription> allResources = new ArrayList<>();
+      int numResultsReturned = 0;
+      do {
+        int offset = allResources.size();
+        ResourceList result =
+            resourceApi.enumerateResources(
+                workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null);
+
+        // add all fetched resources to the running list
+        numResultsReturned = result.getResources().size();
+        logger.debug("Called enumerate endpoints, fetched {} resources", numResultsReturned);
+        allResources.addAll(result.getResources());
+
+        // if we have fetched more than the limit, then throw an exception
+        if (allResources.size() > limit) {
+          throw new SystemException(
+              "Total number of resources ("
+                  + allResources.size()
+                  + ") exceeds the CLI limit ("
+                  + limit
+                  + ")");
+        }
+
+        // if this fetch returned less than the maximum allowed per request, then that indicates
+        // there are no more
+      } while (numResultsReturned >= MAX_RESOURCES_PER_ENUMERATE_REQUEST);
+
+      logger.debug("Fetched total number of resources: {}", allResources.size());
+      return allResources;
+    } catch (ApiException ex) {
+      throw new SystemException("Error enumerating resources in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets" endpoint to add a GCS
+   * bucket as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToAdd resource definition to add
+   * @return the GCS bucket resource object
+   */
+  public GcpGcsBucketResource createReferencedGcsBucket(
+      UUID workspaceId, ResourceDescription resourceToAdd) {
+    // convert the ResourceDescription object to a CreateGcpGcsBucketReferenceRequestBody object
+    String name = resourceToAdd.getMetadata().getName();
+    String description = resourceToAdd.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToAdd.getMetadata().getCloningInstructions();
+    String gcsBucketName = resourceToAdd.getResourceAttributes().getGcpGcsBucket().getBucketName();
+
+    CreateGcpGcsBucketReferenceRequestBody createRequest =
+        new CreateGcpGcsBucketReferenceRequestBody()
+            .metadata(
+                new ReferenceResourceCommonFields()
+                    .name(name)
+                    .description(description)
+                    .cloningInstructions(cloningInstructions))
+            .bucket(new GcpGcsBucketAttributes().bucketName(gcsBucketName));
+
+    try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      return referencedGcpResourceApi.createBucketReference(createRequest, workspaceId);
+    } catch (ApiException ex) {
+      throw new SystemException("Error creating referenced GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets" endpoint to add a
+   * Big Query dataset as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToAdd resource definition to add
+   * @return the Big Query dataset resource object
+   */
+  public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
+      UUID workspaceId, ResourceDescription resourceToAdd) {
+    // convert the ResourceDescription object to a CreateGcpBigQueryDatasetReferenceRequestBody
+    // object
+    String name = resourceToAdd.getMetadata().getName();
+    String description = resourceToAdd.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToAdd.getMetadata().getCloningInstructions();
+    String gcpProjectId = resourceToAdd.getResourceAttributes().getGcpBqDataset().getProjectId();
+    String bigQueryDatasetId =
+        resourceToAdd.getResourceAttributes().getGcpBqDataset().getDatasetId();
+
+    CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
+        new CreateGcpBigQueryDatasetReferenceRequestBody()
+            .metadata(
+                new ReferenceResourceCommonFields()
+                    .name(name)
+                    .description(description)
+                    .cloningInstructions(cloningInstructions))
+            .dataset(
+                new GcpBigQueryDatasetAttributes()
+                    .projectId(gcpProjectId)
+                    .datasetId(bigQueryDatasetId));
+
+    try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      return referencedGcpResourceApi.createBigQueryDatasetReference(createRequest, workspaceId);
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error creating referenced Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
+   * bucket as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToCreate resource definition to create
+   * @param defaultStorageClass GCS storage class
+   *     (https://cloud.google.com/storage/docs/storage-classes)
+   * @param lifecycle list of lifecycle rules for the bucket
+   *     (https://cloud.google.com/storage/docs/lifecycle)
+   * @param location GCS bucket location (https://cloud.google.com/storage/docs/locations)
+   * @return the GCS bucket resource object
+   */
+  public GcpGcsBucketResource createControlledGcsBucket(
+      UUID workspaceId,
+      ResourceDescription resourceToCreate,
+      @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
+      GcsBucketLifecycle lifecycle,
+      @Nullable String location) {
+    // convert the CLI lifecycle rule object into the WSM request objects
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = lifecycle.toWsmLifecycleRules();
+
+    // TODO (PF-718): default storage class and lifecycle rule are currently required. remove this
+    // manual defaulting once they are made optional on the server
+    if (defaultStorageClass == null) {
+      defaultStorageClass = GcpGcsBucketDefaultStorageClass.STANDARD;
+    }
+    if (lifecycleRules.size() == 0) {
+      // this lifecycle rule will change the storage class from STANDARD -> ARCHIVE after 1 year
+      GcpGcsBucketLifecycleRule lifecycleRule =
+          new GcpGcsBucketLifecycleRule()
+              .action(
+                  new GcpGcsBucketLifecycleRuleAction()
+                      .type(GcpGcsBucketLifecycleRuleActionType.SET_STORAGE_CLASS)
+                      .storageClass(GcpGcsBucketDefaultStorageClass.ARCHIVE))
+              .condition(
+                  new GcpGcsBucketLifecycleRuleCondition()
+                      .age(365)
+                      .live(true)
+                      .addMatchesStorageClassItem(GcpGcsBucketDefaultStorageClass.STANDARD)
+                      .numNewerVersions(2));
+      lifecycleRules = Collections.singletonList(lifecycleRule);
+    }
+
+    // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
+    String name = resourceToCreate.getMetadata().getName();
+    String description = resourceToCreate.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToCreate.getMetadata().getCloningInstructions();
+    AccessScope accessScope =
+        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+    String privateUserEmail =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getUserName();
+    PrivateResourceIamRoles privateResourceIamRoles =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getPrivateResourceIamRoles();
+    String gcsBucketName =
+        resourceToCreate.getResourceAttributes().getGcpGcsBucket().getBucketName();
+
+    CreateControlledGcpGcsBucketRequestBody createRequest =
+        new CreateControlledGcpGcsBucketRequestBody()
+            .common(
+                new ControlledResourceCommonFields()
+                    .name(name)
+                    .description(description)
+                    .cloningInstructions(cloningInstructions)
+                    .accessScope(accessScope)
+                    .privateResourceUser(
+                        new PrivateResourceUser()
+                            .userName(privateUserEmail)
+                            .privateResourceIamRoles(privateResourceIamRoles))
+                    .managedBy(ManagedBy.USER))
+            .gcsBucket(
+                new GcpGcsBucketCreationParameters()
+                    .name(gcsBucketName)
+                    .defaultStorageClass(defaultStorageClass)
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
+                    .location(location));
+
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      return controlledGcpResourceApi.createBucket(createRequest, workspaceId).getGcpBucket();
+    } catch (ApiException ex) {
+      throw new SystemException("Error creating controlled GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets" endpoint to add a Big
+   * Query dataset as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToCreate resource definition to create
+   * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
+   * @return the Big Query dataset resource object
+   */
+  public GcpBigQueryDatasetResource createControlledBigQueryDataset(
+      UUID workspaceId, ResourceDescription resourceToCreate, @Nullable String location) {
+    // convert the ResourceDescription object to a CreateControlledGcpBigQueryDatasetRequestBody
+    // object
+    String name = resourceToCreate.getMetadata().getName();
+    String description = resourceToCreate.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+        resourceToCreate.getMetadata().getCloningInstructions();
+    AccessScope accessScope =
+        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+    String privateUserEmail =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getUserName();
+    PrivateResourceIamRoles privateResourceIamRoles =
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getPrivateResourceIamRoles();
+    String bigQueryDatasetId =
+        resourceToCreate.getResourceAttributes().getGcpBqDataset().getDatasetId();
+
+    CreateControlledGcpBigQueryDatasetRequestBody createRequest =
+        new CreateControlledGcpBigQueryDatasetRequestBody()
+            .common(
+                new ControlledResourceCommonFields()
+                    .name(name)
+                    .description(description)
+                    .cloningInstructions(cloningInstructions)
+                    .accessScope(accessScope)
+                    .privateResourceUser(
+                        new PrivateResourceUser()
+                            .userName(privateUserEmail)
+                            .privateResourceIamRoles(privateResourceIamRoles))
+                    .managedBy(ManagedBy.USER))
+            .dataset(
+                new GcpBigQueryDatasetCreationParameters()
+                    .datasetId(bigQueryDatasetId)
+                    .location(location));
+
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      return controlledGcpResourceApi
+          .createBigQueryDataset(createRequest, workspaceId)
+          .getBigQueryDataset();
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error creating controlled Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager DELETE
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * delete a GCS bucket as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   */
+  public void deleteReferencedGcsBucket(UUID workspaceId, UUID resourceId) {
+    ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+    try {
+      referencedGcpResourceApi.deleteBucketReference(workspaceId, resourceId);
+    } catch (ApiException ex) {
+      throw new SystemException("Error deleting referenced GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager DELETE
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
+   * endpoint to delete a Big Query dataset as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   */
+  public void deleteReferencedBigQueryDataset(UUID workspaceId, UUID resourceId) {
+    ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+    try {
+      referencedGcpResourceApi.deleteBigQueryDatasetReference(workspaceId, resourceId);
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error deleting referenced Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * delete a GCS bucket as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the bucket fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledGcsBucket(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledGcpGcsBucketRequest deleteRequest =
+        new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
+    try {
+      // make the initial delete request
+      controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
+
+      // poll the result endpoint until the job is no longer RUNNING
+      DeleteControlledGcpGcsBucketResult deleteResult =
+          HttpUtils.pollWithRetries(
+              () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
+              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              WorkspaceManagerService::isRetryable);
+      logger.debug("delete controlled gcs bucket result: {}", deleteResult);
+
+      throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error deleting controlled GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bqdatasets/{resourceId}" endpoint to
+   * delete a Big Query dataset as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   */
+  public void deleteControlledBigQueryDataset(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    try {
+      controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId);
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error deleting controlled Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Helper method that checks a JobReport's status and throws an exception if it's not COMPLETED.
+   *
+   * <p>- Throws a {@link SystemException} if the job FAILED.
+   *
+   * <p>- Throws a {@link UserActionableException} if the job is still RUNNING. Some actions are
+   * expected to take a long time (e.g. deleting a bucket with lots of objects), and a timeout is
+   * not necessarily a failure. The action the user can take is to wait a bit longer and then check
+   * back (e.g. by listing the buckets in the workspace) later to see if the job completed.
+   *
+   * @param jobReport WSM job report object
+   * @param errorReport WSM error report object
+   */
+  private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
+    switch (jobReport.getStatus()) {
+      case FAILED:
+        throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING:
+        throw new UserActionableException(
+            "CLI timed out waiting for the job to complete. It's still running on the server.");
+    }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  private static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    // TODO (PF-513): add retries for WSM calls after confirm what codes should be retryable
+    return false;
   }
 }

@@ -15,6 +15,7 @@
     * [Server](#server)
     * [Workspace](#workspace)
     * [Resources](#resources)
+        * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
     * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
@@ -38,7 +39,7 @@ curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/down
 
 To install a specific version:
 ```
-export TERRA_CLI_VERSION=0.7.0
+export TERRA_CLI_VERSION=0.36.0
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
 ./terra
 ```
@@ -85,8 +86,8 @@ user `policy=owner` instead.
 
 #### External data 
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
-external to the Terra workspace, you need to give the user's pet service account the appropriate
-access. To get the email of the user's pet service account, run `terra gcloud config get-value account`.
+external to the Terra workspace, you need to give the user's proxy group the appropriate access.
+To get the email of the user's proxy group, run `terra auth status`.
 
 #### Troubleshooting
 ##### Clear global context
@@ -166,7 +167,7 @@ This is the same example workflow used in the [GCLS tutorial](https://cloud.goog
     ```
 - Create a bucket in the workspace for Nextflow to use.
     ```
-    terra resources create --name=mybucket --type=bucket
+    terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket
     ```
 - Update the `gls` section of the `nextflow.config` file to point to the workspace project and the bucket we just created.
     ```
@@ -184,22 +185,22 @@ This is the same example workflow used in the [GCLS tutorial](https://cloud.goog
     ```
 - Do a dry-run to confirm the config is set correctly.
     ```
-    ./terra nextflow config rnaseq-nf/main.nf -profile gls
+    terra nextflow config rnaseq-nf/main.nf -profile gls
     ```
 - Kick off the workflow. (This takes about 10 minutes to complete.)
     ```
-    ./terra nextflow run rnaseq-nf/main.nf -profile gls
+    terra nextflow run rnaseq-nf/main.nf -profile gls
     ```
 
-Call the Gcloud CLI tools within the workspace context.
-This means the commands are executed against the workspace project and as the current user.
+- Call the Gcloud CLI tools within the workspace context.
+This means the commands are executed against the workspace project and as the current user's pet service account.
 ```
 terra gcloud config get-value project
 terra gsutil ls
 terra bq version
 ```
 
-See the list of supported (external) tools.
+- See the list of supported (external) tools.
 The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
 ```
 terra app list
@@ -216,30 +217,34 @@ Commands:
   auth       Retrieve and manage user credentials.
   server     Connect to a Terra server.
   workspace  Setup a Terra workspace.
-  resources  Manage controlled resources in the workspace.
-  data-refs  Reference data in the workspace context.
+  resources  Manage resources in the workspace.
   app        Run applications in the workspace.
   notebooks  Use AI Notebooks in the workspace.
   groups     Manage groups of users.
   spend      Manage spend profiles.
   config     Configure the CLI.
+  gcloud     Call gcloud in the Terra workspace.
+  gsutil     Call gsutil in the Terra workspace.
+  bq         Call bq in the Terra workspace.
+  nextflow   Call nextflow in the Terra workspace.
 ```
 
 The `status` command prints details about the current workspace and server.
 
 The `version` command prints the installed version string.
 
-Each sub-group of commands is described in a sub-section below:
-- Authentication
-- Server
-- Workspace
-- Resources
-- Data References
-- Applications
-- Notebooks
-- Groups
-- Spend
-- Config
+The `gcloud`, `gsutil`, `bq`, and `nextflow` commands call external applications in the context of a Terra workspace.
+
+The other commands are groupings of sub-commands, described in the sections below.
+* `auth` [Authentication](#authentication)
+* `server` [Server](#server)
+* `workspace` [Workspace](#workspace)
+* `resources` [Resources](#resources)
+* `app` [Applications](#applications)
+* `notebooks` [Notebooks](#notebooks)
+* `groups` [Groups](#groups)
+* `spend` [Spend](#spend)
+* `config` [Config](#config)
 
 #### Authentication
 ```
@@ -312,34 +317,94 @@ So if you change directories, you lose the workspace context.
 #### Resources
 ```
 Usage: terra resources [COMMAND]
-Manage controlled resources in the workspace.
+Manage resources in the workspace.
 Commands:
-  create    Create a new controlled resource.
-  delete    Delete an existing controlled resource.
-  describe  Describe an existing controlled resource.
-  list      List all controlled resources.
-  resolve   Resolve a resource to its cloud id or path.
+  add-ref, add-referenced    Add a new referenced resource.
+  check-access               Check if you have access to a referenced resource.
+  create, create-controlled  Add a new controlled resource.
+  delete                     Delete a resource from the workspace.
+  describe                   Describe a resource.
+  list                       List all resources.
+  resolve                    Resolve a resource to its cloud id or path.
 ```
 
-A controlled resource is a cloud resource managed by the Terra workspace on behalf of the user.
-Currently, the only supported controlled resource is a bucket.
+A controlled resource is a cloud resource that is managed by Terra. It typically exists within the workspace context.
+For example, a bucket within the workspace Google project.
 
-#### Data References
-```
-Usage: terra data-refs [COMMAND]
-Reference data in the workspace context.
-Commands:
-  list          List all data references.
-  add           Add a new data reference.
-  delete        Delete an existing data reference.
-  check-access  Check if you have access to a data reference.
-  resolve       Resolve a data reference to its cloud id or path.
+A referenced resource is a cloud resource that is NOT managed by Terra. It typically exists outside the workspace
+context, though that is not a requirement. For example, a Big Query dataset hosted outside of Terra.
+
+It is sometimes useful to check whether you have access to a particular resource, particularly when the resource
+was created or added by a different user, and the workspace was subsequently shared with you.
+
+The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
+of resources locally, so that external tools (see section below) are not slowed down by round-trips to Workspace 
+Manager. The CLI updates the cache on every call to a `terra resources` command. So, if you are working in a shared
+workspace, you can run `terra resources list` (for example) to pick up any changes that your collaborators have made.
+
+##### GCS bucket lifecycle rules
+GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the
+`terra resources create gcs-bucket` command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
+[command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This structure is a subset of the GCS
+resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle). Below are some
+example file contents for specifying a lifecycle rule.
+
+(1) Changes the storage class from `STANDARD` to `ARCHIVE` after 10 days.
+```json
+{
+    "rule": [
+      {
+        "action": {
+          "type": "SetStorageClass",
+          "storageClass": "ARCHIVE"
+        },
+        "condition": {
+          "age": 10,
+          "matchesStorageClass": [
+            "STANDARD"
+          ]
+        }
+      }
+    ]
+  }
 ```
 
-A data reference points to a data (i.e. not compute) type of cloud resource that the user wants to
-read or write to. Data references include some types of controlled resources (e.g. bucket but not
-VM) within the workspace and un-controlled resources external to the workspace.
-Currently, the only supported data reference is a GCS bucket.
+(2) Deletes any objects with storage class `STANDARD` that were created before December 3, 2007.
+```json
+{
+    "rule": [
+      {
+        "action": {"type": "Delete"},
+        "condition": {
+          "createdBefore": "2007-12-03",
+          "matchesStorageClass": [
+            "STANDARD"
+          ]
+        }
+      }
+    ]
+  }
+```
+
+(3) Deletes any objects with storage class `STANDARD` that are more than 365 days old.
+```json
+{
+  "rule":
+  [
+    {
+      "action": {"type": "Delete"},
+      "condition": {
+      	"age": 365,
+      	"matchesStorageClass": ["STANDARD"]
+      }
+    }
+  ]
+}
+```
+There is also a command shortcut for specifying this type of lifecycle rule (3).
+```
+terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
+```
 
 #### Applications
 ```
@@ -368,6 +433,7 @@ Commands:
   start     Start a stopped AI Notebook instance within your workspace.
   stop      Stop a running AI Notebook instance within your workspace.
 ```
+
 The Terra CLI provides convenience for running
 [AI Platform Notebooks](https://cloud.google.com/ai-platform-notebooks) within a workspace.
 
@@ -442,7 +508,7 @@ shell substitution on the host machine.
 
 Example commands for creating a new controlled bucket resource and then using `gsutil` to get its IAM bindings.
 ```
-> terra resources create --name=mybucket --type=bucket
+> terra resources create gcs-bucket --name=mybucket --type=bucket
 bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
 Workspace resource successfully added: mybucket
 

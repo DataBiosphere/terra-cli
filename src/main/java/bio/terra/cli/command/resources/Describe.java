@@ -1,36 +1,25 @@
 package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
-import bio.terra.cli.context.CloudResource;
+import bio.terra.cli.command.helperclasses.PrintingUtils;
+import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.helperclasses.options.ResourceName;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resources describe" command. */
-@Command(name = "describe", description = "Describe an existing controlled resource.")
+@CommandLine.Command(name = "describe", description = "Describe a resource.")
 public class Describe extends BaseCommand {
+  @CommandLine.Mixin ResourceName resourceNameOption;
 
-  @CommandLine.Option(
-      names = "--name",
-      required = true,
-      description = "The name of the resource, scoped to the workspace.")
-  private String name;
+  @CommandLine.Mixin Format formatOption;
 
-  @CommandLine.Mixin FormatOption formatOption;
-
-  /** Describe an existing controlled resource. */
+  /** Describe a resource. */
   @Override
   protected void execute() {
-    CloudResource resource =
-        new WorkspaceManager(globalContext, workspaceContext).getControlledResource(name);
-    formatOption.printReturnValue(resource, Describe::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(CloudResource returnValue) {
-    OUT.println("Name: " + returnValue.name);
-    OUT.println("Type: " + returnValue.type);
-    OUT.println("Cloud Id: " + returnValue.cloudId);
+    ResourceDescription resource =
+        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
+    formatOption.printReturnValue(resource, PrintingUtils::printText);
   }
 }

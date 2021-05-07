@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.getvalue;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Logger;
 import picocli.CommandLine;
@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config get-value logging" command. */
 @Command(name = "logging", description = "Get the logging level.")
 public class Logging extends BaseCommand {
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Return the logging level properties of the global context. */
   @Override

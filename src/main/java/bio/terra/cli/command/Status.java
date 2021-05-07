@@ -1,7 +1,8 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.FormatOption;
+import bio.terra.cli.command.helperclasses.PrintingUtils;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.workspace.model.WorkspaceDescription;
 import picocli.CommandLine;
@@ -11,7 +12,7 @@ import picocli.CommandLine.Command;
 @Command(name = "status", description = "Print details about the current workspace.")
 public class Status extends BaseCommand {
 
-  @CommandLine.Mixin FormatOption formatOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Build the return value from the global and workspace context. */
   @Override
@@ -43,10 +44,7 @@ public class Status extends BaseCommand {
     if (workspaceContext.isEmpty()) {
       OUT.println("There is no current Terra workspace defined.");
     } else {
-      OUT.println("Terra workspace id: " + workspaceContext.getWorkspaceId());
-      OUT.println("Display name: " + workspaceContext.getWorkspaceDisplayName().orElse(""));
-      OUT.println("Description: " + workspaceContext.getWorkspaceDescription().orElse(""));
-      OUT.println("Google project: " + workspaceContext.getGoogleProject());
+      PrintingUtils.printText(workspaceContext);
     }
   }
 
