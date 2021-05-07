@@ -1,6 +1,7 @@
 package bio.terra.cli.service.utils;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
@@ -24,6 +25,7 @@ import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
+import bio.terra.workspace.model.ErrorReport;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -57,10 +59,10 @@ import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +79,13 @@ public class WorkspaceManagerService {
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
+
+  // the maximum number of retries and time to sleep for creating a new workspace
+  private static final int CREATE_WORKSPACE_MAXIMUM_RETRIES = 120;
+  private static final Duration CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
+
+  // maximum number of resources to enumerate per request
+  private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
    * Constructor for class that talks to the Workspace Manager service. The user must be
@@ -175,6 +184,8 @@ public class WorkspaceManagerService {
    * @param displayName optional display name
    * @param description optional description
    * @return the Workspace Manager workspace description object
+   * @throws SystemException if the job to create the workspace cloud context fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
       @Nullable String displayName, @Nullable String description) {
@@ -195,36 +206,22 @@ public class WorkspaceManagerService {
       CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
       cloudContextRequest.setCloudPlatform(CloudPlatform.GCP);
       cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
+
+      // make the initial create context request
       workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
 
-      // poll the job result endpoint until the job status is completed
-      final int MAX_JOB_POLLING_TRIES = 120; // maximum 120 seconds sleep
-      int numJobPollingTries = 1;
-      CreateCloudContextResult cloudContextResult;
-      JobReport.StatusEnum jobReportStatus;
-      do {
-        logger.info(
-            "Job polling try #{}, workspace id: {}, job id: {}",
-            numJobPollingTries,
-            workspaceId,
-            jobId);
-        cloudContextResult =
-            workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString());
-        jobReportStatus = cloudContextResult.getJobReport().getStatus();
-        logger.debug("Create workspace cloudContextResult: {}", cloudContextResult);
-        numJobPollingTries++;
-        if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
-          Thread.sleep(1000);
-        }
-      } while (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)
-          && numJobPollingTries < MAX_JOB_POLLING_TRIES);
+      // poll the result endpoint until the job is no longer RUNNING
+      CreateCloudContextResult createContextResult =
+          HttpUtils.pollWithRetries(
+              () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
+              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              WorkspaceManagerService::isRetryable,
+              CREATE_WORKSPACE_MAXIMUM_RETRIES,
+              CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
+      logger.debug("create workspace context result: {}", createContextResult);
 
-      if (jobReportStatus.equals(JobReport.StatusEnum.FAILED)) {
-        logger.error(
-            "Job to create a new workspace failed: {}", cloudContextResult.getErrorReport());
-      } else if (jobReportStatus.equals(JobReport.StatusEnum.RUNNING)) {
-        logger.error("Job to create a new workspace timed out in the CLI");
-      }
+      throwIfJobNotCompleted(
+          createContextResult.getJobReport(), createContextResult.getErrorReport());
 
       // call the get workspace endpoint to get the full description object
       return workspaceApi.getWorkspace(workspaceId);
@@ -669,20 +666,27 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
+   * @throws SystemException if the job to delete the bucket fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledGcsBucket(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
     DeleteControlledGcpGcsBucketRequest deleteRequest =
         new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
-    // TODO (PF-719): factor out this polling pattern into a utility method
     try {
+      // make the initial delete request
+      controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
+
+      // poll the result endpoint until the job is no longer RUNNING
       DeleteControlledGcpGcsBucketResult deleteResult =
-          controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
-      while (deleteResult.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING)) {
-        TimeUnit.SECONDS.sleep(5);
-        deleteResult = controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId);
-      }
+          HttpUtils.pollWithRetries(
+              () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
+              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              WorkspaceManagerService::isRetryable);
+      logger.debug("delete controlled gcs bucket result: {}", deleteResult);
+
+      throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting controlled GCS bucket in the workspace.", ex);
     }
@@ -704,5 +708,42 @@ public class WorkspaceManagerService {
       throw new SystemException(
           "Error deleting controlled Big Query dataset in the workspace.", ex);
     }
+  }
+
+  /**
+   * Helper method that checks a JobReport's status and throws an exception if it's not COMPLETED.
+   *
+   * <p>- Throws a {@link SystemException} if the job FAILED.
+   *
+   * <p>- Throws a {@link UserActionableException} if the job is still RUNNING. Some actions are
+   * expected to take a long time (e.g. deleting a bucket with lots of objects), and a timeout is
+   * not necessarily a failure. The action the user can take is to wait a bit longer and then check
+   * back (e.g. by listing the buckets in the workspace) later to see if the job completed.
+   *
+   * @param jobReport WSM job report object
+   * @param errorReport WSM error report object
+   */
+  private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
+    switch (jobReport.getStatus()) {
+      case FAILED:
+        throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING:
+        throw new UserActionableException(
+            "CLI timed out waiting for the job to complete. It's still running on the server.");
+    }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  private static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    // TODO (PF-513): add retries for WSM calls after confirm what codes should be retryable
+    return false;
   }
 }
