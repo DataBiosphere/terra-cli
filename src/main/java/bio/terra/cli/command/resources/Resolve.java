@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resources;
 
+import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
 import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
 import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
 
@@ -47,6 +48,9 @@ public class Resolve extends BaseCommand {
         break;
       case BIG_QUERY_DATASET:
         cloudId = bqPathFormat.toCloudId(resource);
+        break;
+      case AI_NOTEBOOK:
+        cloudId = getAiNotebookInstanceName(resource);
         break;
       default:
         throw new UnsupportedOperationException(

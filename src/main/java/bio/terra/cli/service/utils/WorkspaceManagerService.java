@@ -25,6 +25,8 @@ import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
+import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
 import bio.terra.workspace.model.ErrorReport;
@@ -471,6 +473,48 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
+   * add an AI Platform Notebook instance as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToCreate resource definition to create
+   * @return the AI Platform Notebook instance resource object
+   */
+  public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
+      UUID workspaceId,
+      ResourceDescription resourceToCreate,
+      GcpAiNotebookInstanceCreationParameters creationParameters) {
+    String jobId = UUID.randomUUID().toString();
+    CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
+        new CreateControlledGcpAiNotebookInstanceRequestBody()
+            .common(createCommonFields(resourceToCreate))
+            .aiNotebookInstance(creationParameters)
+            .jobControl(new JobControl().id(jobId));
+
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      // Start the AI notebook creation job.
+      controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId);
+      // Poll the result endpoint until the job is no longer RUNNING.
+      CreatedControlledGcpAiNotebookInstanceResult createResult =
+          HttpUtils.pollWithRetries(
+              () -> controlledGcpResourceApi.getCreateAiNotebookInstanceResult(workspaceId, jobId),
+              (result) -> isDone(result.getJobReport()),
+              WorkspaceManagerService::isRetryable,
+              // Creating an AI notebook instance should take less than ~10 minutes.
+              60,
+              Duration.ofSeconds(10));
+      logger.debug("Create controlled AI notebook result {}", createResult);
+      throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+      return createResult.getAiNotebookInstance();
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error creating controlled AI Notebook instance in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
    * bucket as a controlled resource in the workspace.
    *
@@ -610,53 +654,6 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
-   * add an AI Platform Notebook instance as a controlled resource in the workspace.
-   *
-   * @param workspaceId the workspace to add the resource to
-   * @param resourceToCreate resource definition to create
-   * @return the AI Platform Notebook instance resource object
-   */
-  public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId,
-      ResourceDescription resourceToCreate,
-      GcpAiNotebookInstanceCreationParameters creationParameters) {
-    String jobId = UUID.randomUUID().toString();
-    CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
-        new CreateControlledGcpAiNotebookInstanceRequestBody()
-            .common(createCommonFields(resourceToCreate))
-            .aiNotebookInstance(creationParameters)
-            .jobControl(new JobControl().id(jobId));
-
-    try {
-      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      // Start the AI notebook creation job.
-      controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId);
-      // Poll the result endpoint until the job is no longer RUNNING.
-      CreatedControlledGcpAiNotebookInstanceResult createResult =
-          HttpUtils.pollWithRetries(
-              () -> controlledGcpResourceApi.getCreateAiNotebookInstanceResult(workspaceId, jobId),
-              (result) -> isDone(result.getJobReport()),
-              WorkspaceManagerService::isRetryable,
-              // Creating an AI notebook instance should take less than ~10 minutes.
-              60,
-              Duration.ofSeconds(10));
-      logger.debug("Create controlled AI notebook result {}", createResult);
-      throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
-      return createResult.getAiNotebookInstance();
-    } catch (ApiException | InterruptedException ex) {
-      if (ex instanceof ApiException) {
-        logger.debug(
-            "Create controlled AI notebook ApiException response {}",
-            ((ApiException) ex).getResponseBody());
-      }
-      throw new SystemException(
-          "Error creating controlled AI Notebook instance in the workspace.", ex);
-    }
-  }
-
-  /**
    * Call the Workspace Manager DELETE
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
    * delete a GCS bucket as a referenced resource in the workspace.
@@ -693,7 +690,44 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
+   * endpoint to delete a GCS bucket as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the bucket fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledAiNotebookInstance(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String asyncJobId = UUID.randomUUID().toString();
+    var deleteRequest =
+        new DeleteControlledGcpAiNotebookInstanceRequest()
+            .jobControl(new JobControl().id(asyncJobId));
+    try {
+      // make the initial delete request
+      controlledGcpResourceApi.deleteAiNotebookInstance(deleteRequest, workspaceId, resourceId);
+
+      // poll the result endpoint until the job is no longer RUNNING
+      DeleteControlledGcpAiNotebookInstanceResult deleteResult =
+          HttpUtils.pollWithRetries(
+              () ->
+                  controlledGcpResourceApi.getDeleteAiNotebookInstanceResult(
+                      workspaceId, asyncJobId),
+              (result) -> isDone(result.getJobReport()),
+              WorkspaceManagerService::isRetryable);
+      logger.debug("delete controlled AI notebook instance result: {}", deleteResult);
+
+      throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error deleting controlled AI Notebook instance in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
    * delete a GCS bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
@@ -726,7 +760,7 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bqdatasets/{resourceId}" endpoint to
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
    * delete a Big Query dataset as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
