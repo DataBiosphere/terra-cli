@@ -25,7 +25,7 @@ public class HttpUtils {
   private static final int DEFAULT_MAXIMUM_RETRIES = 10;
 
   // default value for the time to sleep between retries
-  private static final Duration DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
+  private static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
 
   private HttpUtils() {}
 
@@ -122,14 +122,14 @@ public class HttpUtils {
   }
 
   /**
-   * Helper method to do retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for maximum number of
-   * retries and {@link #DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY} for the time to sleep between
-   * retries.
+   * Helper method to call a function with retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for
+   * maximum number of retries and {@link #DEFAULT_DURATION_SLEEP_FOR_RETRY} for the time to sleep
+   * between retries.
    *
    * @param makeRequest function to perform the request
    * @param isRetryable function to test whether the exception is retryable or not
-   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
-   * @return the Http response
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the response object
    * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
    *     number of retries was exhausted
    */
@@ -137,18 +137,18 @@ public class HttpUtils {
       SupplierWithCheckedException<T, E> makeRequest, Predicate<Exception> isRetryable)
       throws E, InterruptedException {
     return callWithRetries(
-        DEFAULT_MAXIMUM_RETRIES, DEFAULT_MILLISECONDS_SLEEP_FOR_RETRY, makeRequest, isRetryable);
+        DEFAULT_MAXIMUM_RETRIES, DEFAULT_DURATION_SLEEP_FOR_RETRY, makeRequest, isRetryable);
   }
 
   /**
-   * Helper method to do retries.
+   * Helper method to call a function with retries.
    *
    * @param maxRetries maximum number of times to retry
    * @param sleepDuration time to sleep between tries
    * @param makeRequest function to perform the request
    * @param isRetryable function to test whether the exception is retryable or not
-   * @param <T> type of the Http response (i.e. return type of the makeRequest function)
-   * @return the Http response
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the response object
    * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
    *     number of retries was exhausted
    */
@@ -158,16 +158,70 @@ public class HttpUtils {
       SupplierWithCheckedException<T, E> makeRequest,
       Predicate<Exception> isRetryable)
       throws E, InterruptedException {
+    // isDone always return true
+    return pollWithRetries(maxRetries, sleepDuration, makeRequest, (result) -> true, isRetryable);
+  }
+
+  /**
+   * Helper method to poll with retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for maximum number of
+   * retries and {@link #DEFAULT_DURATION_SLEEP_FOR_RETRY} for the time to sleep between retries.
+   *
+   * @param makeRequest function to perform the request
+   * @param isRetryable function to test whether the exception is retryable or not
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the response object
+   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
+   *     number of retries was exhausted
+   */
+  public static <T, E extends Exception> T pollWithRetries(
+      SupplierWithCheckedException<T, E> makeRequest,
+      Predicate<T> isDone,
+      Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
+    return pollWithRetries(
+        DEFAULT_MAXIMUM_RETRIES,
+        DEFAULT_DURATION_SLEEP_FOR_RETRY,
+        makeRequest,
+        isDone,
+        isRetryable);
+  }
+
+  /**
+   * Helper method to poll with retries.
+   *
+   * @param maxRetries maximum number of times to retry
+   * @param sleepDuration time to sleep between tries
+   * @param makeRequest function to perform the request
+   * @param isDone function to decide whether to keep polling or not, based on the result
+   * @param isRetryable function to test whether the exception is retryable or not
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the response object
+   * @throws Exception if makeRequest throws an exception that is not retryable, or if the maximum
+   *     number of retries was exhausted
+   */
+  public static <T, E extends Exception> T pollWithRetries(
+      int maxRetries,
+      Duration sleepDuration,
+      SupplierWithCheckedException<T, E> makeRequest,
+      Predicate<T> isDone,
+      Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
     int numTries = 0;
     Exception lastRetryableException = null;
     do {
       numTries++;
       try {
-        logger.info("Http request attempt #{}", numTries);
-        return makeRequest.makeRequest();
+        logger.debug("Request attempt #{}", numTries);
+        T result = makeRequest.makeRequest();
+        logger.debug("Result: {}", result);
+
+        if (isDone.test(result) || numTries > maxRetries) {
+          // polling is either done (i.e. job completed) or timed out: return the last result
+          return result;
+        }
       } catch (Exception ex) {
-        // if the exception is not retryable, then quit polling
         if (!isRetryable.test(ex)) {
+          // the exception is not retryable: re-throw
           throw ex;
         } else {
           // keep track of the last retryable exception so we can re-throw it in case of a timeout
@@ -182,10 +236,9 @@ public class HttpUtils {
       }
     } while (numTries <= maxRetries);
 
-    // request with retries timed out
+    // request with retries timed out: re-throw the last exception
     throw new SystemException(
-        "Http request with retries timed out after " + numTries + " tries.",
-        lastRetryableException);
+        "Request with retries timed out after " + numTries + " tries.", lastRetryableException);
   }
 
   /**
