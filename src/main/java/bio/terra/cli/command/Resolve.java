@@ -1,45 +1,17 @@
 package bio.terra.cli.command;
 
-import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
-import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
-
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ResourceDescription;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
 
-/** This class corresponds to the second-level "terra resolve" command. */
-@Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
-public class Resolve extends BaseCommand {
-  @CommandLine.Parameters(
-      index = "0",
-      description = "Name of the resource, scoped to the workspace.")
-  private String resourceName;
-
-  @CommandLine.Mixin Format formatOption;
-
-  /** Resolve a resource in the workspace to its cloud identifier. */
-  @Override
-  protected void execute() {
-    ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceName);
-
-    // return the "default" cloud identifier (i.e. the format returned by the `terra resource
-    // resolve ...` commands if no options are specified)
-    String cloudId;
-    switch (resource.getMetadata().getResourceType()) {
-      case GCS_BUCKET:
-        cloudId = getGcsBucketUrl(resource);
-        break;
-      case BIG_QUERY_DATASET:
-        cloudId = getBigQueryDatasetPath(resource);
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
-    }
-    formatOption.printReturnValue(cloudId);
-  }
-}
+/**
+ * This class corresponds to the second-level "terra resolve" command. It is exactly the same
+ * command as "terra resources resolve".
+ */
+@CommandLine.Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
+@SuppressFBWarnings(
+    value = "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS",
+    justification =
+        "Command class names match the command name (e.g. Resolve -> terra resolve). In this case, we have a "
+            + "command with a shortcut/alias that has the same name, but is up one level in the command hierarchy "
+            + "(terra resolve = terra resources resolve).")
+public class Resolve extends bio.terra.cli.command.resources.Resolve {}
