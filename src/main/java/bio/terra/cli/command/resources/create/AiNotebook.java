@@ -78,7 +78,7 @@ public class AiNotebook extends BaseCommand {
               + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
   private String postStartupScript;
 
-  // TODO: Add boot disk types & gpu size configs.
+  // TODO(PF-747): Add parameters for all options supported by WSM API.
 
   @CommandLine.Mixin Format formatOption;
 

@@ -691,11 +691,11 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
-   * endpoint to delete a GCS bucket as a controlled resource in the workspace.
+   * endpoint to delete an AI notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
-   * @throws SystemException if the job to delete the bucket fails
+   * @throws SystemException if the job to delete the AI notebook instance fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAiNotebookInstance(UUID workspaceId, UUID resourceId) {
