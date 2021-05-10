@@ -7,6 +7,8 @@ import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.ControlledResourceMetadata;
+import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
+import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
 import bio.terra.workspace.model.PrivateResourceIamRoles;
@@ -24,8 +26,11 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resources create ai-notebook" command. */
 @CommandLine.Command(
     name = "ai-notebook",
-    description = "Add a controlled AI Platform Notebook instance resource.",
-    showDefaultValues = true)
+    description =
+        "Add a controlled AI Platform Notebook instance resource.\n"
+            + "For a detailed explanation of some parameters, see https://cloud.google.com/ai-platform/notebooks/docs/reference/rest/v1/projects.locations.instances#Instance",
+    showDefaultValues = true,
+    sortOptions = false)
 public class AiNotebook extends BaseCommand {
   private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
   private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
@@ -34,9 +39,8 @@ public class AiNotebook extends BaseCommand {
 
   @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
 
-  @CommandLine.Parameters(
-      index = "0",
-      paramLabel = "instanceId",
+  @CommandLine.Option(
+      names = "--instance-id",
       description =
           "The unique name to give to the notebook instance. Cannot be changed later. "
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
@@ -44,7 +48,7 @@ public class AiNotebook extends BaseCommand {
               + "letter and the last character cannot be a dash. If not specified, an "
               + "auto-generated name based on your email address and time will be used.",
       defaultValue = AUTO_GENERATE_NAME)
-  private String rawInstanceId;
+  private String instanceId;
 
   @CommandLine.Option(
       names = "--location",
@@ -59,6 +63,22 @@ public class AiNotebook extends BaseCommand {
   private String machineType;
 
   @CommandLine.Option(
+      names = "--post-startup-script",
+      description =
+          "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
+              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
+  private String postStartupScript;
+
+  @CommandLine.Option(
+      names = "--metadata",
+      description =
+          "Custom metadata to apply to this instance. By default sets some jupyterlab extensions and the Terra workspace id.")
+  private Map<String, String> metadata;
+
+  // Define the --vm-image-* options not in a ArgGroup so that they get default values without the
+  // user specifying anything in the ArgGroup. See
+  // https://picocli.info/#_default_values_in_argument_groups
+  @CommandLine.Option(
       names = "--vm-image-project",
       defaultValue = "deeplearning-platform-release",
       description = "The ID of the Google Cloud project that this VM image belongs to.")
@@ -68,17 +88,115 @@ public class AiNotebook extends BaseCommand {
       names = "--vm-image-family",
       defaultValue = "r-latest-cpu-experimental",
       description =
-          "Use this VM image family to find the image; the newest image in this family will be used.")
+          "Use this VM image family to find the image; the newest image in this family will be "
+              + "used.")
   private String vmImageFamily;
 
   @CommandLine.Option(
-      names = "--post-startup-script",
-      description =
-          "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
-              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
-  private String postStartupScript;
+      names = "--vm-image-name",
+      description = "Use this VM image name to find the image.")
+  private String vmImageName;
 
-  // TODO(PF-747): Add parameters for all options supported by WSM API.
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading =
+          "Definition of a container image for starting a notebook instance with the environment "
+              + "installed in a container.\nAlternative to the --vm-image-* options.\n")
+  AiNotebook.ContainerImage containerImage;
+
+  static class ContainerImage {
+    @CommandLine.Option(
+        names = "--container-repository",
+        required = true,
+        description =
+            "The path to the container image repository. For example: "
+                + "'gcr.io/{project_id}/{imageName}'")
+    private String repository;
+
+    @CommandLine.Option(
+        names = "--container-tag",
+        description =
+            "The tag of the container image. If not specified, this defaults to the latest tag.")
+    private String tag;
+  }
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "The hardware accelerator used on this instance.\n")
+  AiNotebook.AcceleratorConfig acceleratorConfig;
+
+  static class AcceleratorConfig {
+    @CommandLine.Option(names = "--accelerator-type", description = "type of this accelerator")
+    private String type;
+
+    @CommandLine.Option(
+        names = "--accelerator-core-count",
+        description = "Count of cores of this accelerator")
+    private Long coreCount;
+  }
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "GPU driver configurations.\n")
+  AiNotebook.GpuDriverConfiguration gpuDriverConfiguration;
+
+  static class GpuDriverConfiguration {
+    @CommandLine.Option(
+        names = "--install-gpu-driver",
+        description =
+            "Whether the end user authorizes Google Cloud to install a GPU driver on this instance")
+    private Boolean installGpuDriver;
+
+    @CommandLine.Option(
+        names = "--custom-gpu-driver-path",
+        description = "Specify a custom Cloud Storage path wheret eh GPU driver is stored.")
+    private String customGpuDriverPath;
+  }
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "Boot disk configurations.\n")
+  AiNotebook.BootDiskConfiguration bootDiskConfiguration;
+
+  static class BootDiskConfiguration {
+    @CommandLine.Option(
+        names = "--boot-disk-size",
+        description =
+            "The size of the disk in GB attached to this instance. Defaults to the minimum of 100 "
+                + "GB")
+    Long sizeGb;
+
+    @CommandLine.Option(
+        names = "--boot-disk-type",
+        description =
+            "The type of disk attached to this instance, defaults to the standard persistent disk.")
+    String type;
+  }
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "Data disk configurations.\n")
+  AiNotebook.DataDiskConfiguration dataDiskConfiguration;
+
+  static class DataDiskConfiguration {
+    @CommandLine.Option(
+        names = "--data-disk-size",
+        description =
+            "The size of the disk in GB attached to this instance. Defaults to the minimum of 100 "
+                + "GB")
+    Long sizeGb;
+
+    @CommandLine.Option(
+        names = "--data-disk-type",
+        description =
+            "The type of disk attached to this instance, defaults to the standard persistent disk.")
+    String type;
+  }
 
   @CommandLine.Mixin Format formatOption;
 
@@ -92,12 +210,35 @@ public class AiNotebook extends BaseCommand {
             .instanceId(getInstanceId(globalContext.requireCurrentTerraUser()))
             .location(location)
             .machineType(machineType)
-            .vmImage(
-                new GcpAiNotebookInstanceVmImage()
-                    .projectId(vmImageProject)
-                    .imageFamily(vmImageFamily))
             .postStartupScript(postStartupScript)
-            .metadata(createMetadata(workspaceContext.getWorkspaceId()));
+            .metadata(
+                metadata == null ? defaultMetadata(workspaceContext.getWorkspaceId()) : metadata);
+    if (acceleratorConfig != null) {
+      creationParameters.acceleratorConfig(
+          new GcpAiNotebookInstanceAcceleratorConfig()
+              .type(acceleratorConfig.type)
+              .coreCount(acceleratorConfig.coreCount));
+    }
+    if (bootDiskConfiguration != null) {
+      creationParameters.bootDiskType(bootDiskConfiguration.type);
+      creationParameters.bootDiskSizeGb(bootDiskConfiguration.sizeGb);
+    }
+    if (dataDiskConfiguration != null) {
+      creationParameters.dataDiskType(dataDiskConfiguration.type);
+      creationParameters.dataDiskSizeGb(dataDiskConfiguration.sizeGb);
+    }
+    if (containerImage != null) {
+      creationParameters.containerImage(
+          new GcpAiNotebookInstanceContainerImage()
+              .repository(containerImage.repository)
+              .tag(containerImage.tag));
+    } else {
+      creationParameters.vmImage(
+          new GcpAiNotebookInstanceVmImage()
+              .projectId(vmImageProject)
+              .imageFamily(vmImageFamily)
+              .imageName(vmImageName));
+    }
 
     ResourceDescription resourceCreated =
         new WorkspaceManager(globalContext, workspaceContext)
@@ -129,9 +270,8 @@ public class AiNotebook extends BaseCommand {
   }
 
   /** Create the metadata to put on the AI Notebook instance. */
-  private Map<String, String> createMetadata(UUID workspaceID) {
+  private Map<String, String> defaultMetadata(UUID workspaceID) {
     return ImmutableMap.<String, String>builder()
-
         // The metadata installed-extensions causes the AI Notebooks setup to install some
         // Google JupyterLab extensions. Found by manual inspection of what is created with the
         // cloud console GUI.
@@ -149,8 +289,8 @@ public class AiNotebook extends BaseCommand {
    */
   // TODO add some unit tests when we have a testing framework.
   private String getInstanceId(TerraUser user) {
-    if (!AUTO_GENERATE_NAME.equals(rawInstanceId)) {
-      return rawInstanceId;
+    if (!AUTO_GENERATE_NAME.equals(instanceId)) {
+      return instanceId;
     }
     String mangledUsername = mangleUsername(extractUsername(user.terraUserEmail));
     String localDateTimeSuffix =
