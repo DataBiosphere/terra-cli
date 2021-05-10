@@ -45,6 +45,7 @@ public class Delete extends BaseCommand {
         .equals(StewardshipType.CONTROLLED)) {
       switch (resourceToDelete.getMetadata().getResourceType()) {
         case AI_NOTEBOOK:
+          workspaceManager.deleteControlledAiNotebookInstance(resourceNameOption.name);
           break;
         case GCS_BUCKET:
           workspaceManager.deleteControlledGcsBucket(resourceNameOption.name);

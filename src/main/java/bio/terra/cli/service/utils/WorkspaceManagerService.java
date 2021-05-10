@@ -581,43 +581,6 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Create a common fields object from a ResourceDescription that is being used to create a
-   * controlled resource.
-   */
-  private static ControlledResourceCommonFields createCommonFields(
-      ResourceDescription resourceToCreate) {
-    String name = resourceToCreate.getMetadata().getName();
-    String description = resourceToCreate.getMetadata().getDescription();
-    CloningInstructionsEnum cloningInstructions =
-        resourceToCreate.getMetadata().getCloningInstructions();
-    AccessScope accessScope =
-        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
-    String privateUserEmail =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getUserName();
-    PrivateResourceIamRoles privateResourceIamRoles =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getPrivateResourceIamRoles();
-
-    return new ControlledResourceCommonFields()
-        .name(name)
-        .description(description)
-        .cloningInstructions(cloningInstructions)
-        .accessScope(accessScope)
-        .privateResourceUser(
-            new PrivateResourceUser()
-                .userName(privateUserEmail)
-                .privateResourceIamRoles(privateResourceIamRoles))
-        .managedBy(ManagedBy.USER);
-  }
-
-  /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets" endpoint to add a Big
    * Query dataset as a controlled resource in the workspace.
@@ -651,6 +614,43 @@ public class WorkspaceManagerService {
       throw new SystemException(
           "Error creating controlled Big Query dataset in the workspace.", ex);
     }
+  }
+
+  /**
+   * Create a common fields object from a ResourceDescription that is being used to create a
+   * controlled resource.
+   */
+  private static ControlledResourceCommonFields createCommonFields(
+          ResourceDescription resourceToCreate) {
+    String name = resourceToCreate.getMetadata().getName();
+    String description = resourceToCreate.getMetadata().getDescription();
+    CloningInstructionsEnum cloningInstructions =
+            resourceToCreate.getMetadata().getCloningInstructions();
+    AccessScope accessScope =
+            resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+    String privateUserEmail =
+            resourceToCreate
+                    .getMetadata()
+                    .getControlledResourceMetadata()
+                    .getPrivateResourceUser()
+                    .getUserName();
+    PrivateResourceIamRoles privateResourceIamRoles =
+            resourceToCreate
+                    .getMetadata()
+                    .getControlledResourceMetadata()
+                    .getPrivateResourceUser()
+                    .getPrivateResourceIamRoles();
+
+    return new ControlledResourceCommonFields()
+            .name(name)
+            .description(description)
+            .cloningInstructions(cloningInstructions)
+            .accessScope(accessScope)
+            .privateResourceUser(
+                    new PrivateResourceUser()
+                            .userName(privateUserEmail)
+                            .privateResourceIamRoles(privateResourceIamRoles))
+            .managedBy(ManagedBy.USER);
   }
 
   /**

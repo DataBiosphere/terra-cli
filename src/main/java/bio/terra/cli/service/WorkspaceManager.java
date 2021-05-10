@@ -471,7 +471,12 @@ public class WorkspaceManager {
    * @return the resource description object that was deleted
    */
   public ResourceDescription deleteControlledAiNotebookInstance(String name) {
-    return deleteResource(name, (resourceId) -> {});
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteControlledAiNotebookInstance(workspaceContext.getWorkspaceId(), resourceId);
+        });
   }
 
   /**
@@ -486,7 +491,7 @@ public class WorkspaceManager {
         name,
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
-              .deleteControlledAiNotebookInstance(workspaceContext.getWorkspaceId(), resourceId);
+              .deleteControlledGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
 
