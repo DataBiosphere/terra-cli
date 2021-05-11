@@ -621,36 +621,36 @@ public class WorkspaceManagerService {
    * controlled resource.
    */
   private static ControlledResourceCommonFields createCommonFields(
-          ResourceDescription resourceToCreate) {
+      ResourceDescription resourceToCreate) {
     String name = resourceToCreate.getMetadata().getName();
     String description = resourceToCreate.getMetadata().getDescription();
     CloningInstructionsEnum cloningInstructions =
-            resourceToCreate.getMetadata().getCloningInstructions();
+        resourceToCreate.getMetadata().getCloningInstructions();
     AccessScope accessScope =
-            resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
+        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
     String privateUserEmail =
-            resourceToCreate
-                    .getMetadata()
-                    .getControlledResourceMetadata()
-                    .getPrivateResourceUser()
-                    .getUserName();
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getUserName();
     PrivateResourceIamRoles privateResourceIamRoles =
-            resourceToCreate
-                    .getMetadata()
-                    .getControlledResourceMetadata()
-                    .getPrivateResourceUser()
-                    .getPrivateResourceIamRoles();
+        resourceToCreate
+            .getMetadata()
+            .getControlledResourceMetadata()
+            .getPrivateResourceUser()
+            .getPrivateResourceIamRoles();
 
     return new ControlledResourceCommonFields()
-            .name(name)
-            .description(description)
-            .cloningInstructions(cloningInstructions)
-            .accessScope(accessScope)
-            .privateResourceUser(
-                    new PrivateResourceUser()
-                            .userName(privateUserEmail)
-                            .privateResourceIamRoles(privateResourceIamRoles))
-            .managedBy(ManagedBy.USER);
+        .name(name)
+        .description(description)
+        .cloningInstructions(cloningInstructions)
+        .accessScope(accessScope)
+        .privateResourceUser(
+            new PrivateResourceUser()
+                .userName(privateUserEmail)
+                .privateResourceIamRoles(privateResourceIamRoles))
+        .managedBy(ManagedBy.USER);
   }
 
   /**
