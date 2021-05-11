@@ -30,7 +30,7 @@ public class Get extends BaseCommand {
     formatOption.printReturnValue(instance, Get::printText);
   }
 
-  /** Print the most interesting subset of the Instance.  */
+  /** Print the most interesting subset of the Instance. */
   private static void printText(Instance instance) {
     OUT.println("Instance name: " + instance.getName());
     OUT.println("State:         " + instance.getState());

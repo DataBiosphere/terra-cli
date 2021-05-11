@@ -4,7 +4,6 @@ import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.NotebookName;
 import bio.terra.cli.service.utils.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
-import com.google.api.services.notebooks.v1.model.Instance;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebooks start" command. */
