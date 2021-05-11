@@ -1,20 +1,23 @@
 package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.command.helperclasses.options.NotebookName;
 import bio.terra.cli.service.utils.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import com.google.api.services.notebooks.v1.model.Instance;
 import picocli.CommandLine;
 
-/** This class corresponds to the third-level "terra notebooks start" command. */
+/** This class corresponds to the third-level "terra notebooks get-url" command. */
 @CommandLine.Command(
-    name = "start",
-    description = "Start a stopped AI Notebook instance within your workspace.",
+    name = "get",
+    description = "Get the GCP data of an AI Notebook instance within your workspace.",
     showDefaultValues = true)
-public class Start extends BaseCommand {
+public class Get extends BaseCommand {
 
   @CommandLine.Mixin NotebookName nameOption;
+
+  @CommandLine.Mixin Format formatOption;
 
   @Override
   protected void execute() {
@@ -23,12 +26,15 @@ public class Start extends BaseCommand {
     InstanceName instanceName = nameOption.toInstanceName(globalContext, workspaceContext);
     GoogleAiNotebooks notebooks =
         new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
-    notebooks.start(instanceName);
-    OUT.println("Notebook instance starting. It may take a few minutes before it is available");
     Instance instance = notebooks.get(instanceName);
-    String proxyUri = instance.getProxyUri();
-    if (proxyUri != null) {
-      OUT.println("Proxy url: " + proxyUri);
-    }
+    formatOption.printReturnValue(instance, Get::printText);
+  }
+
+  /** Print this command's output in text format. */
+  private static void printText(Instance instance) {
+    OUT.println("Instance name: " + instance.getName());
+    OUT.println("State:         " + instance.getState());
+    OUT.println("Proxy URL:     " + instance.getProxyUri());
+    OUT.println("Create time:   " + instance.getCreateTime());
   }
 }

@@ -1,9 +1,9 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import java.util.HashMap;
-import java.util.Map;
+import bio.terra.cli.command.helperclasses.options.NotebookName;
+import bio.terra.cli.service.utils.GoogleAiNotebooks;
+import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebooks stop" command. */
@@ -13,24 +13,16 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class Stop extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "The name of the notebook instance.")
-  private String instanceName;
-
-  @CommandLine.Option(
-      names = "--location",
-      defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance.")
-  private String location;
+  @CommandLine.Mixin NotebookName nameOption;
 
   @Override
   protected void execute() {
     workspaceContext.requireCurrentWorkspace();
 
-    String command = "gcloud notebooks instances stop $INSTANCE_NAME --location=$LOCATION";
-    Map<String, String> envVars = new HashMap<>();
-    envVars.put("INSTANCE_NAME", instanceName);
-    envVars.put("LOCATION", location);
-
-    new DockerCommandRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
+    InstanceName instanceName = nameOption.toInstanceName(globalContext, workspaceContext);
+    GoogleAiNotebooks notebooks =
+        new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
+    notebooks.stop(instanceName);
+    OUT.println("Notebook instance stopped");
   }
 }
