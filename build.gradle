@@ -10,6 +10,7 @@ plugins {
     id 'application'
     id 'com.diffplug.gradle.spotless' version '3.27.2'
     id 'com.github.spotbugs' version '4.2.0'
+    // Fix guava -jre vs -android dependency resolution.
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
 }
 
