@@ -25,10 +25,5 @@ public class Start extends BaseCommand {
         new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
     notebooks.start(instanceName);
     OUT.println("Notebook instance starting. It may take a few minutes before it is available");
-    Instance instance = notebooks.get(instanceName);
-    String proxyUri = instance.getProxyUri();
-    if (proxyUri != null) {
-      OUT.println("Proxy url: " + proxyUri);
-    }
   }
 }
