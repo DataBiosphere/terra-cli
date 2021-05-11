@@ -18,14 +18,20 @@ import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
+import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
+import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
+import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
 import bio.terra.workspace.model.ErrorReport;
+import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
+import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -213,7 +219,7 @@ public class WorkspaceManagerService {
       CreateCloudContextResult createContextResult =
           HttpUtils.pollWithRetries(
               () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
-              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              (result) -> isDone(result.getJobReport()),
               WorkspaceManagerService::isRetryable,
               CREATE_WORKSPACE_MAXIMUM_RETRIES,
               CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
@@ -494,6 +500,48 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
+   * add an AI Platform Notebook instance as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param resourceToCreate resource definition to create
+   * @return the AI Platform Notebook instance resource object
+   */
+  public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
+      UUID workspaceId,
+      ResourceDescription resourceToCreate,
+      GcpAiNotebookInstanceCreationParameters creationParameters) {
+    String jobId = UUID.randomUUID().toString();
+    CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
+        new CreateControlledGcpAiNotebookInstanceRequestBody()
+            .common(createCommonFields(resourceToCreate))
+            .aiNotebookInstance(creationParameters)
+            .jobControl(new JobControl().id(jobId));
+
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      // Start the AI notebook creation job.
+      controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId);
+      // Poll the result endpoint until the job is no longer RUNNING.
+      CreatedControlledGcpAiNotebookInstanceResult createResult =
+          HttpUtils.pollWithRetries(
+              () -> controlledGcpResourceApi.getCreateAiNotebookInstanceResult(workspaceId, jobId),
+              (result) -> isDone(result.getJobReport()),
+              WorkspaceManagerService::isRetryable,
+              // Creating an AI notebook instance should take less than ~10 minutes.
+              60,
+              Duration.ofSeconds(10));
+      logger.debug("Create controlled AI notebook result {}", createResult);
+      throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+      return createResult.getAiNotebookInstance();
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error creating controlled AI Notebook instance in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
    * bucket as a controlled resource in the workspace.
    *
@@ -538,40 +586,12 @@ public class WorkspaceManagerService {
     }
 
     // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
-    String name = resourceToCreate.getMetadata().getName();
-    String description = resourceToCreate.getMetadata().getDescription();
-    CloningInstructionsEnum cloningInstructions =
-        resourceToCreate.getMetadata().getCloningInstructions();
-    AccessScope accessScope =
-        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
-    String privateUserEmail =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getUserName();
-    PrivateResourceIamRoles privateResourceIamRoles =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getPrivateResourceIamRoles();
     String gcsBucketName =
         resourceToCreate.getResourceAttributes().getGcpGcsBucket().getBucketName();
 
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
-            .common(
-                new ControlledResourceCommonFields()
-                    .name(name)
-                    .description(description)
-                    .cloningInstructions(cloningInstructions)
-                    .accessScope(accessScope)
-                    .privateResourceUser(
-                        new PrivateResourceUser()
-                            .userName(privateUserEmail)
-                            .privateResourceIamRoles(privateResourceIamRoles))
-                    .managedBy(ManagedBy.USER))
+            .common(createCommonFields(resourceToCreate))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
                     .name(gcsBucketName)
@@ -601,6 +621,34 @@ public class WorkspaceManagerService {
       UUID workspaceId, ResourceDescription resourceToCreate, @Nullable String location) {
     // convert the ResourceDescription object to a CreateControlledGcpBigQueryDatasetRequestBody
     // object
+    String bigQueryDatasetId =
+        resourceToCreate.getResourceAttributes().getGcpBqDataset().getDatasetId();
+
+    CreateControlledGcpBigQueryDatasetRequestBody createRequest =
+        new CreateControlledGcpBigQueryDatasetRequestBody()
+            .common(createCommonFields(resourceToCreate))
+            .dataset(
+                new GcpBigQueryDatasetCreationParameters()
+                    .datasetId(bigQueryDatasetId)
+                    .location(location));
+
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      return controlledGcpResourceApi
+          .createBigQueryDataset(createRequest, workspaceId)
+          .getBigQueryDataset();
+    } catch (ApiException ex) {
+      throw new SystemException(
+          "Error creating controlled Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Create a common fields object from a ResourceDescription that is being used to create a
+   * controlled resource.
+   */
+  private static ControlledResourceCommonFields createCommonFields(
+      ResourceDescription resourceToCreate) {
     String name = resourceToCreate.getMetadata().getName();
     String description = resourceToCreate.getMetadata().getDescription();
     CloningInstructionsEnum cloningInstructions =
@@ -619,36 +667,17 @@ public class WorkspaceManagerService {
             .getControlledResourceMetadata()
             .getPrivateResourceUser()
             .getPrivateResourceIamRoles();
-    String bigQueryDatasetId =
-        resourceToCreate.getResourceAttributes().getGcpBqDataset().getDatasetId();
 
-    CreateControlledGcpBigQueryDatasetRequestBody createRequest =
-        new CreateControlledGcpBigQueryDatasetRequestBody()
-            .common(
-                new ControlledResourceCommonFields()
-                    .name(name)
-                    .description(description)
-                    .cloningInstructions(cloningInstructions)
-                    .accessScope(accessScope)
-                    .privateResourceUser(
-                        new PrivateResourceUser()
-                            .userName(privateUserEmail)
-                            .privateResourceIamRoles(privateResourceIamRoles))
-                    .managedBy(ManagedBy.USER))
-            .dataset(
-                new GcpBigQueryDatasetCreationParameters()
-                    .datasetId(bigQueryDatasetId)
-                    .location(location));
-
-    try {
-      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      return controlledGcpResourceApi
-          .createBigQueryDataset(createRequest, workspaceId)
-          .getBigQueryDataset();
-    } catch (ApiException ex) {
-      throw new SystemException(
-          "Error creating controlled Big Query dataset in the workspace.", ex);
-    }
+    return new ControlledResourceCommonFields()
+        .name(name)
+        .description(description)
+        .cloningInstructions(cloningInstructions)
+        .accessScope(accessScope)
+        .privateResourceUser(
+            new PrivateResourceUser()
+                .userName(privateUserEmail)
+                .privateResourceIamRoles(privateResourceIamRoles))
+        .managedBy(ManagedBy.USER);
   }
 
   /**
@@ -688,7 +717,44 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
+   * endpoint to delete an AI notebook instance as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the AI notebook instance fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledAiNotebookInstance(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String asyncJobId = UUID.randomUUID().toString();
+    var deleteRequest =
+        new DeleteControlledGcpAiNotebookInstanceRequest()
+            .jobControl(new JobControl().id(asyncJobId));
+    try {
+      // make the initial delete request
+      controlledGcpResourceApi.deleteAiNotebookInstance(deleteRequest, workspaceId, resourceId);
+
+      // poll the result endpoint until the job is no longer RUNNING
+      DeleteControlledGcpAiNotebookInstanceResult deleteResult =
+          HttpUtils.pollWithRetries(
+              () ->
+                  controlledGcpResourceApi.getDeleteAiNotebookInstanceResult(
+                      workspaceId, asyncJobId),
+              (result) -> isDone(result.getJobReport()),
+              WorkspaceManagerService::isRetryable);
+      logger.debug("delete controlled AI notebook instance result: {}", deleteResult);
+
+      throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error deleting controlled AI Notebook instance in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
    * delete a GCS bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
@@ -709,7 +775,7 @@ public class WorkspaceManagerService {
       DeleteControlledGcpGcsBucketResult deleteResult =
           HttpUtils.pollWithRetries(
               () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
-              (result) -> !result.getJobReport().getStatus().equals(JobReport.StatusEnum.RUNNING),
+              (result) -> isDone(result.getJobReport()),
               WorkspaceManagerService::isRetryable);
       logger.debug("delete controlled gcs bucket result: {}", deleteResult);
 
@@ -721,7 +787,7 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bqdatasets/{resourceId}" endpoint to
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
    * delete a Big Query dataset as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
@@ -735,6 +801,10 @@ public class WorkspaceManagerService {
       throw new SystemException(
           "Error deleting controlled Big Query dataset in the workspace.", ex);
     }
+  }
+
+  private static boolean isDone(JobReport jobReport) {
+    return !jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING);
   }
 
   /**

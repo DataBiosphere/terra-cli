@@ -3,6 +3,7 @@ package bio.terra.cli.command.helperclasses;
 import static bio.terra.cli.command.helperclasses.BaseCommand.OUT;
 
 import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
 import bio.terra.workspace.model.ResourceDescription;
 
 /** Utility methods for printing command output. */
@@ -57,6 +58,13 @@ public class PrintingUtils {
         OUT.println(
             "GCS bucket name: "
                 + resource.getResourceAttributes().getGcpGcsBucket().getBucketName());
+        break;
+      case AI_NOTEBOOK:
+        GcpAiNotebookInstanceAttributes notebookAttributes =
+            resource.getResourceAttributes().getGcpAiNotebookInstance();
+        OUT.println("GCP project id:                " + notebookAttributes.getProjectId());
+        OUT.println("AI Notebook instance location: " + notebookAttributes.getLocation());
+        OUT.println("AI Notebook instance id:       " + notebookAttributes.getInstanceId());
         break;
       default:
     }
