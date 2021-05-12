@@ -60,6 +60,8 @@ public class PrintingUtils {
                 + resource.getResourceAttributes().getGcpGcsBucket().getBucketName());
         break;
       case AI_NOTEBOOK:
+        // TODO(PF-729): Consider how to print more resource specific information, such as the
+        // current state/proxy URL found in `terra notebooks get`.
         GcpAiNotebookInstanceAttributes notebookAttributes =
             resource.getResourceAttributes().getGcpAiNotebookInstance();
         OUT.println("GCP project id:                " + notebookAttributes.getProjectId());

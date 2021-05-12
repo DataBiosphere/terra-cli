@@ -11,6 +11,9 @@ plugins {
     id 'com.diffplug.gradle.spotless' version '3.27.2'
     id 'com.github.spotbugs' version '4.2.0'
     // Fix guava -jre vs -android dependency resolution.
+    // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
+    // use the wrong guava version, leading to runtime errors.
+    // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
 }
 

@@ -2,7 +2,7 @@ package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.command.helperclasses.options.NotebookName;
+import bio.terra.cli.command.helperclasses.options.NotebookInstance;
 import bio.terra.cli.service.utils.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import com.google.api.services.notebooks.v1.model.Instance;
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class Get extends BaseCommand {
 
-  @CommandLine.Mixin NotebookName nameOption;
+  @CommandLine.Mixin NotebookInstance instanceOption;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -23,7 +23,7 @@ public class Get extends BaseCommand {
   protected void execute() {
     workspaceContext.requireCurrentWorkspace();
 
-    InstanceName instanceName = nameOption.toInstanceName(globalContext, workspaceContext);
+    InstanceName instanceName = instanceOption.toInstanceName(globalContext, workspaceContext);
     GoogleAiNotebooks notebooks =
         new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
     Instance instance = notebooks.get(instanceName);

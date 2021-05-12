@@ -10,12 +10,12 @@ import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
 
 /**
- * Command helper class for identifying a notebook by either the resource name of the GCP instance
- * name in `terra notebooks` commands.
+ * Command helper class for identifying a notebook by either the workspace resource name or the GCP
+ * instance name in `terra notebooks` commands.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class NotebookName {
+public class NotebookInstance {
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
