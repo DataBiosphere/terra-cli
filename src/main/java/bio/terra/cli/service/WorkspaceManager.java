@@ -8,6 +8,8 @@ import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.GoogleCloudStorage;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
+import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
+import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.IamRole;
@@ -377,6 +379,18 @@ public class WorkspaceManager {
                     workspaceContext.getWorkspaceId(), resourceToCreate, location));
   }
 
+  public ResourceDescription createControlledAiNotebookInstance(
+      ResourceDescription resourceToCreate,
+      GcpAiNotebookInstanceCreationParameters creationParameters) {
+    return createResource(
+        resourceToCreate.getMetadata().getName(),
+        () ->
+            new WorkspaceManagerService(
+                    globalContext.server, globalContext.requireCurrentTerraUser())
+                .createControlledAiNotebookInstance(
+                    workspaceContext.getWorkspaceId(), resourceToCreate, creationParameters));
+  }
+
   /**
    * Create a new resource in the workspace. Also updates the cached list of resources.
    *
@@ -445,6 +459,22 @@ public class WorkspaceManager {
         (resourceId) -> {
           new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
               .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
+        });
+  }
+
+  /**
+   * Delete a AI Notebook instance controlled resource in the workspace. Also updates the cached
+   * list of resources.
+   *
+   * @param name name of the resource. this is unique across all resources in the workspace
+   * @return the resource description object that was deleted
+   */
+  public ResourceDescription deleteControlledAiNotebookInstance(String name) {
+    return deleteResource(
+        name,
+        (resourceId) -> {
+          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+              .deleteControlledAiNotebookInstance(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
 
@@ -607,5 +637,23 @@ public class WorkspaceManager {
     return datasetAttributes.getProjectId()
         + BQ_PROJECT_DATASET_DELIMITER
         + datasetAttributes.getDatasetId();
+  }
+
+  /**
+   * Utility method for getting the instance name
+   * projects/[project_id]/locations/[location]/instances/[instanceId] for an AI notebook instance
+   * resource.
+   *
+   * @param resource AI Notebook instance resource
+   * @return full name of the instance
+   */
+  public static String getAiNotebookInstanceName(ResourceDescription resource) {
+    GcpAiNotebookInstanceAttributes notebookAttributes =
+        resource.getResourceAttributes().getGcpAiNotebookInstance();
+    return String.format(
+        "projects/%s/locations/%s/instances/%s",
+        notebookAttributes.getProjectId(),
+        notebookAttributes.getLocation(),
+        notebookAttributes.getInstanceId());
   }
 }

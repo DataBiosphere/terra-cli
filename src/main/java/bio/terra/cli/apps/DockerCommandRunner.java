@@ -1,5 +1,6 @@
 package bio.terra.cli.apps;
 
+import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
 import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
 import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
 
@@ -182,6 +183,8 @@ public class DockerCommandRunner {
         return getGcsBucketUrl(resource);
       case BIG_QUERY_DATASET:
         return getBigQueryDatasetPath(resource);
+      case AI_NOTEBOOK:
+        return getAiNotebookInstanceName(resource);
       default:
         throw new UnsupportedOperationException(
             "Resource type not supported: " + resource.getMetadata().getResourceType());

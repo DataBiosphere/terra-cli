@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resources;
 
+import bio.terra.cli.command.resources.create.AiNotebook;
 import bio.terra.cli.command.resources.create.BqDataset;
 import bio.terra.cli.command.resources.create.GcsBucket;
 import picocli.CommandLine;
@@ -13,5 +14,5 @@ import picocli.CommandLine;
     name = "create",
     aliases = {"create-controlled"},
     description = "Add a new controlled resource.",
-    subcommands = {BqDataset.class, GcsBucket.class})
+    subcommands = {AiNotebook.class, BqDataset.class, GcsBucket.class})
 public class Create {}
