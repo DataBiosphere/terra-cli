@@ -2,10 +2,12 @@ package bio.terra.cli.command.resources.create;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.PrintingUtils;
-import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
+import bio.terra.cli.command.helperclasses.options.CreateResource;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ControlledResourceMetadata;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
 import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
@@ -19,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -37,7 +40,12 @@ public class AiNotebook extends BaseCommand {
   /** See {@link #mangleUsername(String)}. */
   private static final int MAX_INSTANCE_NAME_LENGTH = 61;
 
-  @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
+  private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
+  private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
+
+  // Use CreateResource instead of createControlledResource because only private notebooks are
+  // supported and we don't want to provide options that are not useful.
+  @CommandLine.Mixin CreateResource createResourceOptions;
 
   @CommandLine.Option(
       names = "--instance-id",
@@ -72,38 +80,61 @@ public class AiNotebook extends BaseCommand {
   @CommandLine.Option(
       names = "--metadata",
       description =
-          "Custom metadata to apply to this instance. By default sets some jupyterlab extensions and the Terra workspace id.")
+          "Custom metadata to apply to this instance.\nBy default sets some jupyterlab extensions "
+              + "(installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz) "
+              + "and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).")
   private Map<String, String> metadata;
 
-  // Define the --vm-image-* options not in a ArgGroup so that they get default values without the
-  // user specifying anything in the ArgGroup. See
-  // https://picocli.info/#_default_values_in_argument_groups
-  @CommandLine.Option(
-      names = "--vm-image-project",
-      defaultValue = "deeplearning-platform-release",
-      description = "The ID of the Google Cloud project that this VM image belongs to.")
-  private String vmImageProject;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
+  AiNotebook.VmOrContainerImage vmOrContainerImage;
 
-  @CommandLine.Option(
-      names = "--vm-image-family",
-      defaultValue = "r-latest-cpu-experimental",
-      description =
-          "Use this VM image family to find the image; the newest image in this family will be "
-              + "used.")
-  private String vmImageFamily;
+  static class VmOrContainerImage {
+    @CommandLine.ArgGroup(
+        exclusive = false,
+        multiplicity = "1",
+        heading =
+            "Definition of a custom Compute Engine virtual machine image for starting a "
+                + "notebook instance with the environment installed directly on the VM.\n"
+                + "If neither this nor --container-* are specified, default to \n"
+                + "'--vm-image-project="
+                + DEFAULT_VM_IMAGE_PROJECT
+                + " --vm-image-family="
+                + DEFAULT_VM_IMAGE_FAMILY
+                + " %n")
+    VmImage vm;
 
-  @CommandLine.Option(
-      names = "--vm-image-name",
-      description = "Use this VM image name to find the image.")
-  private String vmImageName;
+    @CommandLine.ArgGroup(
+        exclusive = false,
+        multiplicity = "1",
+        heading =
+            "Definition of a container image for starting a notebook instance with the environment "
+                + "installed in a container.%n")
+    ContainerImage container;
+  }
 
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading =
-          "Definition of a container image for starting a notebook instance with the environment "
-              + "installed in a container.\nAlternative to the --vm-image-* options.\n")
-  AiNotebook.ContainerImage containerImage;
+  static class VmImage {
+    @CommandLine.Option(
+        names = "--vm-image-project",
+        description = "The ID of the Google Cloud project that this VM image belongs to.")
+    private String project;
+
+    @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+    ImageConfig imageConfig;
+
+    static class ImageConfig {
+      @CommandLine.Option(
+          names = "--vm-image-family",
+          description =
+              "Use this VM image family to find the image; the newest image in this family will be "
+                  + "used.")
+      private String family;
+
+      @CommandLine.Option(
+          names = "--vm-image-name",
+          description = "Use this VM image name to find the image.")
+      private String name;
+    }
+  }
 
   static class ContainerImage {
     @CommandLine.Option(
@@ -124,7 +155,7 @@ public class AiNotebook extends BaseCommand {
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
-      heading = "The hardware accelerator used on this instance.\n")
+      heading = "The hardware accelerator used on this instance.%n")
   AiNotebook.AcceleratorConfig acceleratorConfig;
 
   static class AcceleratorConfig {
@@ -140,34 +171,32 @@ public class AiNotebook extends BaseCommand {
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
-      heading = "GPU driver configurations.\n")
+      heading = "GPU driver configurations.%n")
   AiNotebook.GpuDriverConfiguration gpuDriverConfiguration;
 
   static class GpuDriverConfiguration {
     @CommandLine.Option(
         names = "--install-gpu-driver",
         description =
-            "Whether the end user authorizes Google Cloud to install a GPU driver on this instance")
+            "If true, the end user authorizes Google Cloud to install a GPU driver on this instance")
     private Boolean installGpuDriver;
 
     @CommandLine.Option(
         names = "--custom-gpu-driver-path",
-        description = "Specify a custom Cloud Storage path wheret eh GPU driver is stored.")
+        description = "Specify a custom Cloud Storage path where the GPU driver is stored.")
     private String customGpuDriverPath;
   }
 
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
-      heading = "Boot disk configurations.\n")
+      heading = "Boot disk configurations.%n")
   AiNotebook.BootDiskConfiguration bootDiskConfiguration;
 
   static class BootDiskConfiguration {
     @CommandLine.Option(
         names = "--boot-disk-size",
-        description =
-            "The size of the disk in GB attached to this instance. Defaults to the minimum of 100 "
-                + "GB")
+        description = "The size of the disk in GB attached to this instance.")
     Long sizeGb;
 
     @CommandLine.Option(
@@ -180,15 +209,13 @@ public class AiNotebook extends BaseCommand {
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
-      heading = "Data disk configurations.\n")
+      heading = "Data disk configurations.%n")
   AiNotebook.DataDiskConfiguration dataDiskConfiguration;
 
   static class DataDiskConfiguration {
     @CommandLine.Option(
         names = "--data-disk-size",
-        description =
-            "The size of the disk in GB attached to this instance. Defaults to the minimum of 100 "
-                + "GB")
+        description = "The size of the disk in GB attached to this instance.")
     Long sizeGb;
 
     @CommandLine.Option(
@@ -203,8 +230,6 @@ public class AiNotebook extends BaseCommand {
   /** Add a controlled AI Notebook instance to the workspace. */
   @Override
   protected void execute() {
-    createControlledResourceOptions.validateAccessOptions();
-
     var creationParameters =
         new GcpAiNotebookInstanceCreationParameters()
             .instanceId(getInstanceId(globalContext.requireCurrentTerraUser()))
@@ -227,17 +252,24 @@ public class AiNotebook extends BaseCommand {
       creationParameters.dataDiskType(dataDiskConfiguration.type);
       creationParameters.dataDiskSizeGb(dataDiskConfiguration.sizeGb);
     }
-    if (containerImage != null) {
-      creationParameters.containerImage(
-          new GcpAiNotebookInstanceContainerImage()
-              .repository(containerImage.repository)
-              .tag(containerImage.tag));
-    } else {
+    if (vmOrContainerImage == null) {
       creationParameters.vmImage(
           new GcpAiNotebookInstanceVmImage()
-              .projectId(vmImageProject)
-              .imageFamily(vmImageFamily)
-              .imageName(vmImageName));
+              .projectId(DEFAULT_VM_IMAGE_PROJECT)
+              .imageFamily(DEFAULT_VM_IMAGE_FAMILY));
+    } else {
+      if (vmOrContainerImage.container != null) {
+        creationParameters.containerImage(
+            new GcpAiNotebookInstanceContainerImage()
+                .repository(vmOrContainerImage.container.repository)
+                .tag(vmOrContainerImage.container.tag));
+      } else {
+        creationParameters.vmImage(
+            new GcpAiNotebookInstanceVmImage()
+                .projectId(vmOrContainerImage.vm.project)
+                .imageFamily(vmOrContainerImage.vm.imageConfig.family)
+                .imageName(vmOrContainerImage.vm.imageConfig.name));
+      }
     }
 
     ResourceDescription resourceCreated =
@@ -246,26 +278,31 @@ public class AiNotebook extends BaseCommand {
     formatOption.printReturnValue(resourceCreated, AiNotebook::printText);
   }
 
-  /** Returns a {@link ResourceDescription} for the resource to be cretaed. */
+  /**
+   * Returns a {@link ResourceDescription} for the resource to be created.
+   *
+   * <p>For an AI Notebook instance, the user today always wants a private notebook for themselves,
+   * where they have full IAM control to edit & use.
+   */
   private ResourceDescription resourceToCreate() {
-    // build the resource object to create
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createControlledResourceOptions.privateIamRoles != null
-        && !createControlledResourceOptions.privateIamRoles.isEmpty()) {
-      privateResourceIamRoles.addAll(createControlledResourceOptions.privateIamRoles);
-    }
+    privateResourceIamRoles.addAll(
+        List.of(
+            ControlledResourceIamRole.EDITOR,
+            ControlledResourceIamRole.WRITER,
+            ControlledResourceIamRole.READER));
     return new ResourceDescription()
         .metadata(
             new ResourceMetadata()
-                .name(createControlledResourceOptions.name)
-                .description(createControlledResourceOptions.description)
-                .cloningInstructions(createControlledResourceOptions.cloning)
+                .name(createResourceOptions.name)
+                .description(createResourceOptions.description)
+                .cloningInstructions(createResourceOptions.cloning)
                 .controlledResourceMetadata(
                     new ControlledResourceMetadata()
-                        .accessScope(createControlledResourceOptions.access)
+                        .accessScope(AccessScope.PRIVATE_ACCESS)
                         .privateResourceUser(
                             new PrivateResourceUser()
-                                .userName(createControlledResourceOptions.privateUserEmail)
+                                .userName(globalContext.requireCurrentTerraUser().terraUserEmail)
                                 .privateResourceIamRoles(privateResourceIamRoles))));
   }
 
