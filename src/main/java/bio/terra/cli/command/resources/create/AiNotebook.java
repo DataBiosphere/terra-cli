@@ -100,7 +100,7 @@ public class AiNotebook extends BaseCommand {
                 + DEFAULT_VM_IMAGE_PROJECT
                 + " --vm-image-family="
                 + DEFAULT_VM_IMAGE_FAMILY
-                + " %n")
+                + "' %n")
     VmImage vm;
 
     @CommandLine.ArgGroup(
@@ -115,6 +115,7 @@ public class AiNotebook extends BaseCommand {
   static class VmImage {
     @CommandLine.Option(
         names = "--vm-image-project",
+        required = true,
         description = "The ID of the Google Cloud project that this VM image belongs to.")
     private String project;
 
@@ -152,6 +153,7 @@ public class AiNotebook extends BaseCommand {
     private String tag;
   }
 
+  // TODO(PF-767): Consider how to improve usability & validation of these parameters.
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
