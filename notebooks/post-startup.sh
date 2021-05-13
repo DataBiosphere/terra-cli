@@ -4,10 +4,11 @@
 exec >> /tmp/post-startup-output.txt
 exec 2>&1
 
-# Switch to the 'jupyter' user used in AI notebooks.
-su jupyter
+# The Linux user the notebook will be running as
+NOTEBOOK_USER="jupyter"
 
-echo $USER
+# Switch to the 'jupyter' user used in AI notebooks.
+cd /home/jupyter || echo "cd /home/${NOTEBOOK_USER} failed" && exit
 
 # Default post startup script for AI notebooks
 
@@ -23,10 +24,10 @@ nbstripout --install
 # Install & configure the Terra CLI
 
 # TODO should we just use the latest version?
-mkdir ~/bin
-cd ~/bin || exit
+mkdir bin
+cd bin || exit
 env TERRA_CLI_VERSION="0.38.0" curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
-echo 'export PATH=${HOME}/bin:${PATH}' >> ~/.bash_profile
+echo 'export PATH=${HOME}/bin:${PATH}' >> "/home/${NOTEBOOK_USER}/.bash_profile"
 ./terra
 
 # Set browser manual since that is always what we want for cloudtops.
