@@ -1,6 +1,14 @@
 #!/bin/bash
-echo $USER > /tmp/user.txt
-echo $PWD > /tmp/pwd.txt
+
+# Send the output from this script to a tmp file.
+exec >> /tmp/post-startup-output.txt
+exec 2>&1
+
+# Switch to the 'jupyter' user used in AI notebooks.
+su jupyter
+
+echo $USER
+
 # Default post startup script for AI notebooks
 
 # TODO git config?
