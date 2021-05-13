@@ -1,4 +1,6 @@
 #!/bin/bash
+echo $USER > /tmp/user.txt
+echo $PWD > /tmp/pwd.txt
 # Default post startup script for AI notebooks
 
 # TODO git config?

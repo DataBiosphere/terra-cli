@@ -73,6 +73,9 @@ public class AiNotebook extends BaseCommand {
 
   @CommandLine.Option(
       names = "--post-startup-script",
+      // DO NOT SUBMIT do not use dev branch.
+      defaultValue =
+          "https://raw.githubusercontent.com/DataBiosphere/terra-cli/wc-PF-763-post-startup-script/notebooks/post-startup.sh",
       description =
           "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
               + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
