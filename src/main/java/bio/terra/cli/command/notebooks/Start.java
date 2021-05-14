@@ -1,10 +1,9 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import bio.terra.cli.command.helperclasses.options.NotebookInstance;
+import bio.terra.cli.service.utils.GoogleAiNotebooks;
+import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebooks start" command. */
@@ -14,27 +13,16 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class Start extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "The name of the notebook instance.")
-  private String instanceName;
-
-  @CommandLine.Option(
-      names = "--location",
-      defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance.")
-  private String location;
+  @CommandLine.Mixin NotebookInstance instanceOption;
 
   @Override
   protected void execute() {
     workspaceContext.requireCurrentWorkspace();
 
-    String[] command = {
-      "gcloud", "notebooks", "instances", "start", "$INSTANCE_NAME", "--location=$LOCATION"
-    };
-    Map<String, String> envVars = new HashMap<>();
-    envVars.put("INSTANCE_NAME", instanceName);
-    envVars.put("LOCATION", location);
-
-    new DockerCommandRunner(globalContext, workspaceContext)
-        .runToolCommand(Arrays.asList(command), envVars);
+    InstanceName instanceName = instanceOption.toInstanceName(globalContext, workspaceContext);
+    GoogleAiNotebooks notebooks =
+        new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
+    notebooks.start(instanceName);
+    OUT.println("Notebook instance starting. It may take a few minutes before it is available");
   }
 }
