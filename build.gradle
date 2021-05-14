@@ -10,6 +10,11 @@ plugins {
     id 'application'
     id 'com.diffplug.gradle.spotless' version '3.27.2'
     id 'com.github.spotbugs' version '4.2.0'
+    // Fix guava -jre vs -android dependency resolution.
+    // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
+    // use the wrong guava version, leading to runtime errors.
+    // See also https://blog.gradle.org/guava
+    id 'de.jjohannes.missing-metadata-guava' version '0.4'
 }
 
 if (hasProperty('buildScan')) {
@@ -20,7 +25,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.38.0'
+version = '0.40.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -60,6 +65,7 @@ dependencies {
         findbugsAnnotations = '3.0.1u2'
 
         // terra libraries
+        crlGoogleNotebooks="0.5.0"
         samClient = "0.1-9435410-SNAP"
         workspaceManagerClient = "0.23.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
@@ -90,8 +96,9 @@ dependencies {
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
-    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
+    implementation "bio.terra.cloud-resource-lib:google-notebooks:${crlGoogleNotebooks}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
+    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
 
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
     compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
