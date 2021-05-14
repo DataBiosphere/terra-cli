@@ -1,7 +1,7 @@
 package bio.terra.cli.command.notebooks;
 
-import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.command.helperclasses.BaseCommand;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import picocli.CommandLine;
@@ -26,12 +26,14 @@ public class Describe extends BaseCommand {
   protected void execute() {
     workspaceContext.requireCurrentWorkspace();
 
-    String command = "gcloud notebooks instances describe $INSTANCE_NAME --location=$LOCATION";
+    String[] command = {
+      "gcloud", "notebooks", "instances", "describe", "$INSTANCE_NAME", "--location=$LOCATION"
+    };
     Map<String, String> envVars = new HashMap<>();
     envVars.put("INSTANCE_NAME", instanceName);
     envVars.put("LOCATION", location);
 
     // TODO(wchamber): Consider reformatting the ouptut or otherwise highlighting the proxy uri.
-    new DockerCommandRunner(globalContext, workspaceContext).runToolCommand(command, envVars);
+    globalContext.getRunner(workspaceContext).runToolCommand(Arrays.asList(command), envVars);
   }
 }

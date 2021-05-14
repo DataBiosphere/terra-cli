@@ -6,7 +6,7 @@ import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.context.utils.Logger;
 import bio.terra.cli.context.utils.Printer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
@@ -36,8 +36,8 @@ public abstract class BaseCommand implements Callable<Integer> {
   protected WorkspaceContext workspaceContext;
 
   // output streams for commands to write to
-  protected static PrintWriter OUT;
-  protected static PrintWriter ERR;
+  protected static PrintStream OUT;
+  protected static PrintStream ERR;
 
   @Override
   public Integer call() {

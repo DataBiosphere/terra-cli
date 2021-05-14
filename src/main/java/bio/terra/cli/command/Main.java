@@ -78,6 +78,7 @@ class Main implements Runnable {
     subcommands.get("gcloud").setStopAtPositional(true);
     subcommands.get("gsutil").setStopAtPositional(true);
     subcommands.get("nextflow").setStopAtPositional(true);
+    subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     int exitCode = cmd.execute(args);

@@ -1,9 +1,14 @@
 package bio.terra.cli.context;
 
+import static bio.terra.cli.context.GlobalContext.CommandRunners.DOCKER_CONTAINER;
+import static bio.terra.cli.context.GlobalContext.CommandRunners.LOCAL_PROCESS;
 import static bio.terra.cli.context.utils.Logger.LogLevel;
 
+import bio.terra.cli.apps.CommandRunner;
 import bio.terra.cli.apps.DockerCommandRunner;
+import bio.terra.cli.apps.LocalProcessCommandRunner;
 import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
+import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.JacksonMapper;
 import bio.terra.cli.service.ServerManager;
@@ -34,7 +39,8 @@ public class GlobalContext {
   // global server context = service uris, environment name
   public ServerSpecification server;
 
-  // global apps context = docker image id or tag
+  // global apps context = flag for how to launch tools, docker image id or tag
+  public CommandRunners commandRunnerOption = LOCAL_PROCESS;
   public String dockerImageId;
 
   // maximum number of resources to cache on disk for a single workspace before throwing an error
@@ -162,6 +168,21 @@ public class GlobalContext {
   }
 
   /**
+   * Setter for the command runner option. Persists on disk.
+   *
+   * @param commandRunnerOption new value for the command runner option
+   */
+  public void updateCommandRunnerOption(CommandRunners commandRunnerOption) {
+    logger.info(
+        "Updating command runner flag from {} to {}.",
+        this.commandRunnerOption,
+        commandRunnerOption);
+    this.commandRunnerOption = commandRunnerOption;
+
+    writeToFile();
+  }
+
+  /**
    * Setter for the resources cache size. Persists on disk.
    *
    * @param resourcesCacheSize new value for the resources cache size
@@ -224,6 +245,24 @@ public class GlobalContext {
     this.dockerImageId = dockerImageId;
 
     writeToFile();
+  }
+
+  /** This enum defines the different ways of running tool/app commands. */
+  public enum CommandRunners {
+    DOCKER_CONTAINER,
+    LOCAL_PROCESS;
+  }
+
+  /** Helper method to get the {@link CommandRunner} sub-class that maps to each enum value. */
+  public CommandRunner getRunner(WorkspaceContext workspaceContext) {
+    switch (commandRunnerOption) {
+      case DOCKER_CONTAINER:
+        return new DockerCommandRunner(this, workspaceContext);
+      case LOCAL_PROCESS:
+        return new LocalProcessCommandRunner(this, workspaceContext);
+      default:
+        throw new SystemException("Unsupported command runner type: " + this);
+    }
   }
 
   // ====================================================

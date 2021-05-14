@@ -1,14 +1,9 @@
 package bio.terra.cli.apps;
 
-import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
-import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
-import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
-
-import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.apps.utils.DockerClientWrapper;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
-import bio.terra.workspace.model.ResourceDescription;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -18,14 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class runs client-side tools and manipulates the tools-related properties of the global
- * context object.
+ * This class runs client-side tools in a Docker container and manipulates the tools-related
+ * properties of the global context object.
  */
-public class DockerCommandRunner {
+public class DockerCommandRunner extends CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(DockerCommandRunner.class);
 
-  private final GlobalContext globalContext;
-  private final WorkspaceContext workspaceContext;
   private final DockerClientWrapper dockerClientWrapper = new DockerClientWrapper();
 
   // default $HOME directory on the container (this is where we expect to look for the global
@@ -35,12 +28,8 @@ public class DockerCommandRunner {
   private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
 
   public DockerCommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    this.globalContext = globalContext;
-    this.workspaceContext = workspaceContext;
+    super(globalContext, workspaceContext);
   }
-
-  // ====================================================
-  // Docker images
 
   /** Returns the default image id. */
   public static String defaultImageId() {
@@ -65,63 +54,30 @@ public class DockerCommandRunner {
     globalContext.updateDockerImageId(imageId);
   }
 
-  // ====================================================
-  // Tool commands
-
   /**
-   * Utility method for concatenating a command and its arguments.
+   * Run a tool command inside a new Docker container.
    *
-   * @param cmd command name (e.g. gsutil)
-   * @param cmdArgs command arguments (e.g. ls, gs://my-bucket)
-   */
-  public static String buildFullCommand(String cmd, List<String> cmdArgs) {
-    String fullCommand = cmd;
-    if (cmdArgs != null && cmdArgs.size() > 0) {
-      final String argSeparator = " ";
-      fullCommand += argSeparator + String.join(argSeparator, cmdArgs);
-    }
-    return fullCommand;
-  }
-
-  /**
-   * Run a command inside the Docker container for external tools.
+   * <p>The terra_init.sh script that was copied into the Docker image will be run before the given
+   * command.
    *
-   * <p>This method substitutes any Terra references in the command and also adds the Terra
-   * references as environment variables in the container.
+   * <p>This method sets the GOOGLE_APPLICATION_CREDENTIALS env var = path to the pet SA key file on
+   * the container. This will overwrite any previous version, because the path will likely be
+   * different on the container.
    *
-   * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
-   */
-  public void runToolCommand(String command) {
-    runToolCommand(command, new HashMap<>());
-  }
-
-  /**
-   * Run a command inside the Docker container for external tools. Allows adding environment
-   * variables beyond what the terra_init script requires. The environment variables expected by the
-   * terra_init script will be added to those passed in.
-   *
-   * <p>This method substitutes any Terra references in the command and also adds the Terra
-   * references as environment variables in the container.
-   *
-   * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
+   * @param command the command and arguments to execute
    * @param envVars a mapping of environment variable names to values
-   * @throws SystemException if an environment variable or bind mount used by the terra_init script
-   *     overlaps or conflicts with one passed into this method
    */
-  public void runToolCommand(String command, Map<String, String> envVars) {
-    // check that the current workspace is defined
-    workspaceContext.requireCurrentWorkspace();
+  protected void runToolCommandImpl(List<String> command, Map<String, String> envVars) {
+    // call the terra_init script that was copied into the Docker image, before running the given
+    // command
+    String fullCommand = "terra_init.sh && " + buildFullCommand(command);
 
-    // add the Terra references as environment variables in the container
-    Map<String, String> terraReferences = buildMapOfTerraReferences();
-    for (Map.Entry<String, String> workspaceReferenceEnvVar : terraReferences.entrySet()) {
-      if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
-        throw new SystemException(
-            "Workspace reference cannot overwrite an environment variable used by the tool command: "
-                + workspaceReferenceEnvVar.getKey());
-      }
-    }
-    envVars.putAll(terraReferences);
+    // overwrite the path to the pet SA key file, because it will be different on the container vs
+    // the host
+    envVars.put(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        getPetSaKeyFileOnContainer(globalContext.requireCurrentTerraUser(), workspaceContext)
+            .toString());
 
     // mount the global context directory and the workspace directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
@@ -130,115 +86,24 @@ public class DockerCommandRunner {
     bindMounts.put(getGlobalContextDirOnContainer(), GlobalContext.getGlobalContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKSPACE_DIR), WorkspaceContext.getWorkspaceDir());
 
-    // create and start the docker container. run the terra_init script first, then the given
-    // command
-    String containerId = startDockerContainerWithTerraInit(command, envVars, bindMounts);
-
-    // read the container logs, which contains the command output, and write them to stdout
-    dockerClientWrapper.outputLogsForDockerContainer(containerId);
-
-    // block until the container exits
-    Integer statusCode = dockerClientWrapper.waitForDockerContainerToExit(containerId);
-    logger.debug("docker run status code: {}", statusCode);
-
-    // delete the container
-    dockerClientWrapper.deleteDockerContainer(containerId);
-  }
-
-  /**
-   * Build a map of Terra references to use in parsing the CLI command string, and in setting
-   * environment variables in the Docker container.
-   *
-   * <p>The list of references are TERRA_[...] where [...] is the name of a cloud resource. The
-   * cloud resource can be controlled or external.
-   *
-   * <p>e.g. TERRA_MY_BUCKET -> gs://terra-wsm-test-9b7511ab-my-bucket
-   *
-   * @return a map of Terra references (name -> cloud id)
-   */
-  private Map<String, String> buildMapOfTerraReferences() {
-    // build a map of reference string -> resolved value
-    Map<String, String> terraReferences = new HashMap<>();
-    workspaceContext
-        .listResources()
-        .forEach(
-            resource ->
-                terraReferences.put(
-                    "TERRA_" + resource.getMetadata().getName(),
-                    resolveResourceForDockerContainer(resource)));
-
-    return terraReferences;
-  }
-
-  /**
-   * Helper method for resolving a workspace resource into a cloud id, in order to pass it as an
-   * environment variable to the Docker container.
-   *
-   * @param resource workspace resource object
-   * @return cloud id to set the environment variable to
-   */
-  private String resolveResourceForDockerContainer(ResourceDescription resource) {
-    switch (resource.getMetadata().getResourceType()) {
-      case GCS_BUCKET:
-        return getGcsBucketUrl(resource);
-      case BIG_QUERY_DATASET:
-        return getBigQueryDatasetPath(resource);
-      case AI_NOTEBOOK:
-        return getAiNotebookInstanceName(resource);
-      default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
-    }
-  }
-
-  /**
-   * Add the environment variables and bind mounts expected by the terra_init script to those passed
-   * into this method. Then create and start the container. Login is required before running the
-   * terra_init script because it tries to read the pet key file.
-   *
-   * @param command the full string command to execute in a bash shell (bash -c ..cmd..)
-   * @param envVars a mapping of environment variable names to values
-   * @param bindMounts a mapping of container mount point to the local directory being mounted
-   * @throws SystemException if an environment variable or bind mount used by the terra_init script
-   *     overlaps or conflicts with one passed into this method
-   */
-  private String startDockerContainerWithTerraInit(
-      String command, Map<String, String> envVars, Map<Path, Path> bindMounts) {
-    // check that there is a current user, because the terra_init script will try to read the pet
-    // key file
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call the terra_init script that was copied into the Docker image, before running the given
-    // command
-    String fullCommand = "terra_init.sh && " + command;
-
-    // the terra_init script relies on environment variables to pass in global and workspace
-    // context information
-    Map<String, String> terraInitEnvVars = new HashMap<>();
-    terraInitEnvVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        getPetSaKeyFileOnContainer(currentUser, workspaceContext).toString());
-    terraInitEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
-
-    for (Map.Entry<String, String> terraInitEnvVar : terraInitEnvVars.entrySet()) {
-      if (envVars.get(terraInitEnvVar.getKey()) != null) {
-        throw new SystemException(
-            "Tool command cannot overwrite an environment variable used by the terra_init script: "
-                + terraInitEnvVar.getKey());
-      }
-    }
-    envVars.putAll(terraInitEnvVars);
-
-    return dockerClientWrapper.startDockerContainer(
+    // create and start the docker container
+    dockerClientWrapper.startContainer(
         globalContext.dockerImageId,
         fullCommand,
         getWorkingDirOnContainer().toString(),
         envVars,
         bindMounts);
-  }
 
-  // ====================================================
-  // Directory and file names
+    // read the container logs, which contains the command output, and write them to stdout
+    dockerClientWrapper.streamLogsForContainer();
+
+    // block until the container exits
+    Integer statusCode = dockerClientWrapper.waitForContainerToExit();
+    logger.debug("docker run status code: {}", statusCode);
+
+    // delete the container
+    dockerClientWrapper.deleteContainer();
+  }
 
   /**
    * Get the working directory on the container so that it matches the current working directory on

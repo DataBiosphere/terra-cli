@@ -1,4 +1,4 @@
-package bio.terra.cli.apps;
+package bio.terra.cli.apps.utils;
 
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
@@ -20,16 +20,21 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This class provides utility methods for running Docker containers. */
 public class DockerClientWrapper {
+  private static final Logger logger = LoggerFactory.getLogger(DockerClientWrapper.class);
+
   private final DockerClient dockerClient;
+  private String containerId;
 
   public DockerClientWrapper() {
     this.dockerClient = DockerClientWrapper.buildDockerClient();
@@ -71,10 +76,9 @@ public class DockerClientWrapper {
    * @param workingDir the directory where the commmand will be executed
    * @param envVars a mapping of environment variable names to values
    * @param bindMounts a mapping of container mount point to the local directory being mounted
-   * @return id of the container that started
    * @throws SystemException if the local directory does not exist or is not a directory
    */
-  public String startDockerContainer(
+  public void startContainer(
       String imageId,
       String command,
       String workingDir,
@@ -113,18 +117,15 @@ public class DockerClientWrapper {
     try {
       CreateContainerResponse container = createContainerCmd.exec();
       dockerClient.startContainerCmd(container.getId()).exec();
-      return container.getId();
+      containerId = container.getId();
+      logger.debug("container id: {}", containerId);
     } catch (RuntimeException rtEx) {
       throw wrapExceptionIfDockerConnectionFailed(rtEx);
     }
   }
 
-  /**
-   * Block until the Docker container exits, then return its status code.
-   *
-   * @param containerId id of the container
-   */
-  public Integer waitForDockerContainerToExit(String containerId) {
+  /** Block until the Docker container exits, then return its status code. */
+  public Integer waitForContainerToExit() {
     WaitContainerResultCallback waitContainerResultCallback = new WaitContainerResultCallback();
     try {
       WaitContainerResultCallback exec =
@@ -135,12 +136,8 @@ public class DockerClientWrapper {
     }
   }
 
-  /**
-   * Delete the Docker container.
-   *
-   * @param containerId id of the container
-   */
-  public void deleteDockerContainer(String containerId) {
+  /** Delete the Docker container. */
+  public void deleteContainer() {
     try {
       dockerClient.removeContainerCmd(containerId).exec();
     } catch (RuntimeException rtEx) {
@@ -148,12 +145,8 @@ public class DockerClientWrapper {
     }
   }
 
-  /**
-   * Read the Docker container logs and write them to standard out.
-   *
-   * @param containerId id of the container
-   */
-  public void outputLogsForDockerContainer(String containerId) {
+  /** Read the Docker container logs and write them to standard out. */
+  public void streamLogsForContainer() {
     try {
       dockerClient
           .logContainerCmd(containerId)
@@ -192,7 +185,7 @@ public class DockerClientWrapper {
     @Override
     public void onNext(Frame frame) {
       String logStr = new String(frame.getPayload(), StandardCharsets.UTF_8);
-      PrintWriter err = Printer.getErr();
+      PrintStream err = Printer.getErr();
       err.print(logStr);
       err.flush();
 

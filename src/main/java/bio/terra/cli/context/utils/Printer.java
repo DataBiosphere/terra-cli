@@ -14,23 +14,23 @@ import picocli.CommandLine;
 public class Printer {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Printer.class);
 
-  public static final PrintWriter DEFAULT_OUT_WRITER = getPrintWriter(System.out);
-  public static final PrintWriter DEFAULT_ERR_WRITER = getPrintWriter(System.err);
+  public static final PrintStream DEFAULT_OUT_STREAM = System.out;
+  public static final PrintStream DEFAULT_ERR_STREAM = System.err;
 
-  private final PrintWriter outWriter;
-  private final PrintWriter errWriter;
+  private final PrintStream out;
+  private final PrintStream err;
 
   private static Printer printer;
 
-  /** Constructor that initializes the printer with default values. */
+  /** Constructor that initializes the STREAM with default values. */
   private Printer() {
-    this(DEFAULT_OUT_WRITER, DEFAULT_ERR_WRITER);
+    this(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM);
   }
 
   /** Constructor that initializes the printer with the specified output streams. */
-  private Printer(PrintWriter outWriter, PrintWriter errWriter) {
-    this.outWriter = outWriter;
-    this.errWriter = errWriter;
+  private Printer(PrintStream out, PrintStream err) {
+    this.out = out;
+    this.err = err;
   }
 
   /**
@@ -52,8 +52,8 @@ public class Printer {
     } else {
       logger.warn("Printing setup called multiple times.");
     }
-    cmd.setOut(printer.outWriter);
-    cmd.setErr(printer.errWriter);
+    cmd.setOut(getPrintWriter(printer.out));
+    cmd.setErr(getPrintWriter(printer.err));
   }
 
   /**
@@ -61,12 +61,12 @@ public class Printer {
    *
    * @return stream to write output (e.g. stdout)
    */
-  public static PrintWriter getOut() {
+  public static PrintStream getOut() {
     if (printer == null) {
       logger.warn("Attempt to access printer output stream before setup.");
-      return DEFAULT_OUT_WRITER;
+      return DEFAULT_OUT_STREAM;
     }
-    return printer.outWriter;
+    return printer.out;
   }
 
   /**
@@ -74,12 +74,12 @@ public class Printer {
    *
    * @return stream to write errors and running status (e.g. stderr)
    */
-  public static PrintWriter getErr() {
+  public static PrintStream getErr() {
     if (printer == null) {
       logger.warn("Attempt to access printer error stream before setup.");
-      return DEFAULT_ERR_WRITER;
+      return DEFAULT_ERR_STREAM;
     }
-    return printer.errWriter;
+    return printer.err;
   }
 
   /** Utility method to get a UTF-8 encoded character output stream from a raw byte stream. */
