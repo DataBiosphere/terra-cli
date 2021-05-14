@@ -40,7 +40,7 @@ public class GlobalContext {
   public ServerSpecification server;
 
   // global apps context = flag for how to launch tools, docker image id or tag
-  public CommandRunners commandRunnerOption = LOCAL_PROCESS;
+  public CommandRunners commandRunnerOption = DOCKER_CONTAINER;
   public String dockerImageId;
 
   // maximum number of resources to cache on disk for a single workspace before throwing an error
