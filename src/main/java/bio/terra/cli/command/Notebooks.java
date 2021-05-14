@@ -1,7 +1,5 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.notebooks.Describe;
-import bio.terra.cli.command.notebooks.List;
 import bio.terra.cli.command.notebooks.Start;
 import bio.terra.cli.command.notebooks.Stop;
 import picocli.CommandLine;
@@ -13,5 +11,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "notebooks",
     description = "Use AI Notebooks in the workspace.",
-    subcommands = {Describe.class, List.class, Start.class, Stop.class})
+    subcommands = {Start.class, Stop.class})
 public class Notebooks {}
