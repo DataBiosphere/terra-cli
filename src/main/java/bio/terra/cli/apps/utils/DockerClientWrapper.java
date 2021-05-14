@@ -115,9 +115,10 @@ public class DockerClientWrapper {
       createContainerCmd.withWorkingDir(workingDir);
     }
     try {
-      CreateContainerResponse container = createContainerCmd.exec();
-      dockerClient.startContainerCmd(container.getId()).exec();
-      containerId = container.getId();
+      containerId = createContainerCmd.exec().getId();
+
+      dockerClient.startContainerCmd(containerId).exec();
+
       logger.debug("container id: {}", containerId);
     } catch (RuntimeException rtEx) {
       throw wrapExceptionIfDockerConnectionFailed(rtEx);

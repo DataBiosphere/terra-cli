@@ -14,6 +14,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Sub-classes of CommandRunner define different ways to run app/tool commands. */
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
@@ -87,6 +88,7 @@ public abstract class CommandRunner {
     runToolCommandImpl(command, envVars);
   }
 
+  /** This method defines how to execute the command, and must be implemented by each sub-class. */
   protected abstract void runToolCommandImpl(List<String> command, Map<String, String> envVars);
 
   /**
