@@ -1,11 +1,17 @@
 #!/bin/bash
 # Default post startup script for AI notebooks
 
-# Send the output from this script to a tmp file.
+# Send the output and console from this script to a tmp file for debugging.
 exec >> /tmp/post-startup-output.txt
 exec 2>&1
 
+set -x
+
 echo "USER: ${USER}"
+echo "whoami ${whoami}"
+
+# The linux user that JupyterLab will be running as.
+VM_USER="jupyter"
 
 # TODO git config?
 # TODO source Terra workspace id as env variable from metadata server?
@@ -14,10 +20,10 @@ echo "/etc/passwd"
 cat /etc/passwd
 
 # Install these globally (not in a virtual environment)\n",
-pip3 install --upgrade pre-commit nbdime nbstripout pylint pytest
+sudo -u ${VM_USER} pip3 install --upgrade pre-commit nbdime nbstripout pylint pytest
 
 # Install nbstripout globally
-nbstripout --install
+sudo -u ${VM_USER} nbstripout --install
 
 # Install & configure the Terra CLI
 
