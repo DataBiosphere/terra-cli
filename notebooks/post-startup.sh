@@ -13,16 +13,18 @@ echo "USER: ${USER}"
 # user space.
 VM_USER="jupyter"
 
+
 # TODO git config?
 # TODO source Terra workspace id as env variable from metadata server?
 
-conda info --envs
+CONDA="/opt/conda/bin/conda"
+${CONDA} info --envs
 
 # Install these globally (not in a virtual environment)\n",
 # sudo apt-get --assume-yes install python-setuptools DO NOT SUBMIT remove me?
 # TODO use conda directly? vm user still needed?
 # sudo -u ${VM_USER} sh -c '
-conda install -y pre-commit nbdime nbstripout pylint pytest
+${CONDA} install -y pre-commit nbdime nbstripout pylint pytest
 
 # Install nbstripout globally
 nbstripout --install --global
