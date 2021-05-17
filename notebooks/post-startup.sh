@@ -4,8 +4,11 @@
 # Send the output and console from this script to a tmp file for debugging.
 exec >> /tmp/post-startup-output.txt
 exec 2>&1
-
 set -x
+
+# Import GCP click to deploy convenience functions.
+# https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/vm/chef/cookbooks/c2d-config/files/c2d-utils
+source /opt/c2d/c2d-utils || exit 1
 
 echo "USER: ${USER}"
 
@@ -20,14 +23,11 @@ VM_USER="jupyter"
 CONDA="/opt/conda/bin/conda"
 ${CONDA} info --envs
 
-# Install these globally (not in a virtual environment)\n",
-# sudo apt-get --assume-yes install python-setuptools DO NOT SUBMIT remove me?
-# TODO use conda directly? vm user still needed?
-# sudo -u ${VM_USER} sh -c '
+# Install common packages in conda environment
 ${CONDA} install -y pre-commit nbdime nbstripout pylint pytest
 
 # Install nbstripout globally
-nbstripout --install --global
+/opt/conda/bin/nbstripout --install --global
 
 # Install & configure the Terra CLI
 
