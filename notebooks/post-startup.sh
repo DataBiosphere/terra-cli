@@ -16,11 +16,9 @@ VM_USER="jupyter"
 # TODO git config?
 # TODO source Terra workspace id as env variable from metadata server?
 
-echo "/etc/passwd"
-cat /etc/passwd
-
 # Install these globally (not in a virtual environment)\n",
-sudo apt-get install python-setuptools
+sudo apt-get --assume-yes install python-setuptools
+which pip3
 sudo -u ${VM_USER} sh -c 'pip3 install --user --upgrade pre-commit nbdime nbstripout pylint pytest'
 
 # Install nbstripout globally
