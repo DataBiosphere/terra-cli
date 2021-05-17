@@ -1,43 +1,24 @@
 #!/bin/bash
-# Default post startup script for AI notebooks
+# Default post startup script for AI notebooks.
+# AI Notebook post startup scrips are run only when the instance is first created.
 
-# Send the output and console from this script to a tmp file for debugging.
+# Send stdout and stderr from this script to a tmp file for debugging.
 exec >> /tmp/post-startup-output.txt
 exec 2>&1
 set -x
 
-# Import GCP click to deploy convenience functions.
-# https://github.com/GoogleCloudPlatform/click-to-deploy/blob/master/vm/chef/cookbooks/c2d-config/files/c2d-utils
-source /opt/c2d/c2d-utils || exit 1
-
-echo "USER: ${USER}"
-
-# The linux user that JupyterLab will be running as. It's important to do most installation in the
+# The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
 # user space.
-VM_USER="jupyter"
-
-
-# TODO git config?
-# TODO source Terra workspace id as env variable from metadata server?
-
-CONDA="/opt/conda/bin/conda"
-${CONDA} info --envs
+JUPYTER_USER="jupyter"
 
 # Install common packages in conda environment
-${CONDA} install -y pre-commit nbdime nbstripout pylint pytest
-
-# Install nbstripout globally
-/opt/conda/bin/nbstripout --install --global
+/opt/conda/bin/conda install -y pre-commit nbdime nbstripout pylint pytest
+# Install nbstripout for the jupyter user in all git repositories.
+sudo -u ${JUPYTER_USER} sh -c "/opt/conda/bin/nbstripout --install --global"
 
 # Install & configure the Terra CLI
-
-# TODO should we just use the latest version?
 cd /tmp || exit
-sudo -u ${VM_USER} sh -c 'env TERRA_CLI_VERSION="0.38.0" curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash'
-
-# Set browser manual since that is always what we want for cloudtops.
-sudo -u ${VM_USER} sh -c './terra config set browser manual'
-
+sudo -u ${JUPYTER_USER} sh -c "curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash"
+# Set browser manual login since that's the only login supported from an AI Notebook VM.
+sudo -u ${JUPYTER_USER} sh -c "./terra config set browser manual"
 sudo cp terra /usr/bin/terra
-
-# TODO mount the current workspace?
