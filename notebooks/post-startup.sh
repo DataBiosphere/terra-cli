@@ -16,6 +16,8 @@ VM_USER="jupyter"
 # TODO git config?
 # TODO source Terra workspace id as env variable from metadata server?
 
+condo info --envs
+
 # Install these globally (not in a virtual environment)\n",
 # sudo apt-get --assume-yes install python-setuptools DO NOT SUBMIT remove me?
 # TODO use conda directly? vm user still needed?
