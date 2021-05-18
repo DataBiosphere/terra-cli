@@ -40,9 +40,6 @@ import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
-import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
-import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleActionType;
-import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
@@ -65,7 +62,6 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -562,28 +558,6 @@ public class WorkspaceManagerService {
       @Nullable String location) {
     // convert the CLI lifecycle rule object into the WSM request objects
     List<GcpGcsBucketLifecycleRule> lifecycleRules = lifecycle.toWsmLifecycleRules();
-
-    // TODO (PF-718): default storage class and lifecycle rule are currently required. remove this
-    // manual defaulting once they are made optional on the server
-    if (defaultStorageClass == null) {
-      defaultStorageClass = GcpGcsBucketDefaultStorageClass.STANDARD;
-    }
-    if (lifecycleRules.size() == 0) {
-      // this lifecycle rule will change the storage class from STANDARD -> ARCHIVE after 1 year
-      GcpGcsBucketLifecycleRule lifecycleRule =
-          new GcpGcsBucketLifecycleRule()
-              .action(
-                  new GcpGcsBucketLifecycleRuleAction()
-                      .type(GcpGcsBucketLifecycleRuleActionType.SET_STORAGE_CLASS)
-                      .storageClass(GcpGcsBucketDefaultStorageClass.ARCHIVE))
-              .condition(
-                  new GcpGcsBucketLifecycleRuleCondition()
-                      .age(365)
-                      .live(true)
-                      .addMatchesStorageClassItem(GcpGcsBucketDefaultStorageClass.STANDARD)
-                      .numNewerVersions(2));
-      lifecycleRules = Collections.singletonList(lifecycleRule);
-    }
 
     // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
     String gcsBucketName =
