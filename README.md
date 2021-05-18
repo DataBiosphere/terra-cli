@@ -417,6 +417,9 @@ Commands:
 ```
 
 The Terra CLI allows running supported external tools within the context of a workspace.
+The `app-launch` configuration property controls how tools are run: in a Docker container,
+or a local child process.
+
 Nextflow and the Gcloud CLIs are the first examples of supported tools.
 Exactly what it means to be a "supported" tool is still under discussion.
 
@@ -484,8 +487,10 @@ Commands:
 These commands are property getters and setters for configuring the Terra CLI. Currently the available
 configuration properties are:
 ```
+[app-launch] app launch mode = DOCKER_CONTAINER
 [browser] browser launch for login = auto
-[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.33.0:stable
+[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.40.0:stable
+[resource-limit] max number of resources to allow per workspace = 1000
 
 [logging, console] logging level for printing directly to the terminal = OFF
 [logging, file] logging level for writing to files in /Users/marikomedlock/.terra/logs = INFO
@@ -499,7 +504,7 @@ The Terra CLI defines a workspace context for applications to run in. This conte
 via `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
 - Backing google project id passed in via `GOOGLE_CLOUD_PROJECT` environment variable.
 - Workspace references to controlled cloud resources resolved in an environment variable that is the name 
-of the workspace reference, all in uppercase, with `TERRA_` prefixed. (e.g. `mybucket` -> `TERRA_MYBUCKET`).
+of the workspace reference, prefixed with `TERRA_`. (e.g. `mybucket` -> `TERRA_mybucket`).
 - In the future, it will also include references to external cloud resources (e.g. a bucket outside the workspace).
 
 #### Reference in a CLI command
@@ -512,7 +517,7 @@ Example commands for creating a new controlled bucket resource and then using `g
 bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
 Workspace resource successfully added: mybucket
 
-> terra gsutil iam get \${TERRA_MYBUCKET}
+> terra gsutil iam get \$TERRA_MYBUCKET
   Setting up Terra app environment...
   Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
   Updated property [core/project].
@@ -540,7 +545,8 @@ Workspace resource successfully added: mybucket
 
 #### Reference in file
 To use a workspace reference in a file or config that will be read by an application, do not escape the
-environment variable. Since this will be running inside the Docker container, there is no need to escape it.
+environment variable. Since this will be running inside the Docker container or local process, there is
+no need to escape it.
 
 Example `nextflow.config` file that includes a reference to the backing Google project.
 ```
@@ -561,11 +567,33 @@ profiles {
 ```
 
 #### See all environment variables
-Run `terra app execute env` to see all environment variables defined in the Docker container where applications
-are run.
+Run `terra app execute env` to see all environment variables defined in the Docker container or local process
+where applications are run.
 
 The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
-container, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
+container or local process, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
+
+#### Run unsupported tools
+To run tools that are not yet "supported" by the Terra CLI, or to use local versions of tools, set the `app-launch`
+configuration property to launch a child process on the local machine instead of inside a Docker container.
+```
+terra config set app-launch LOCAL_PROCESS
+```
+
+Then call the tool with `terra app execute`. Before running the tool command, the CLI defines environment variables
+for each workspace reference and configures `gcloud` with the workspace project. After running the tool command, the
+CLI restores the original `gcloud` project configuration.
+```
+terra app execute dsub \
+    --provider google-v2 \
+    --project \$GOOGLE_CLOUD_PROJECT \
+    --regions us-central1 \
+    --logging \$TERRA_MY_BUCKET/logging/ \
+    --output OUT=\$TERRA_MY_BUCKET/output/out.txt \
+    --command 'echo "Hello World" > "${OUT}"' \
+    --wait
+```
+(Note: The command above came from the `dsub` [README](https://github.com/DataBiosphere/dsub/blob/main/README.md#getting-started-on-google-cloud).)
 
 ### Exit codes
 The CLI sets the process exit code as follows.
