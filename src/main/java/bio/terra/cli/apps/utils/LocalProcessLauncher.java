@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+/** This class provides utility methods for launching local child processes. */
 public class LocalProcessLauncher {
   private Process process;
   private Thread stdOutThread;
