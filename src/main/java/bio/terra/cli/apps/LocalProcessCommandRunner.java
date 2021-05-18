@@ -40,6 +40,12 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-c");
     processCommand.add(String.join("; ", bashCommands));
 
+    // set the path to the pet SA key file
+    envVars.put(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        GlobalContext.getPetSaKeyFile(globalContext.requireCurrentTerraUser(), workspaceContext)
+            .toString());
+
     // launch the child process
     localProcessLauncher.launchProcess(processCommand, envVars);
 

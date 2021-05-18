@@ -14,8 +14,8 @@ import picocli.CommandLine;
 public class Printer {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Printer.class);
 
-  public static final PrintStream DEFAULT_OUT_STREAM = System.out;
-  public static final PrintStream DEFAULT_ERR_STREAM = System.err;
+  private static final PrintStream DEFAULT_OUT_STREAM = System.out;
+  private static final PrintStream DEFAULT_ERR_STREAM = System.err;
 
   private final PrintStream out;
   private final PrintStream err;

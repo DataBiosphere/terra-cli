@@ -70,10 +70,7 @@ public abstract class CommandRunner {
 
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
-    terraEnvVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        GlobalContext.getPetSaKeyFile(globalContext.requireCurrentTerraUser(), workspaceContext)
-            .toString());
+    terraEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", "");
     terraEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {

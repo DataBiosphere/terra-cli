@@ -68,7 +68,10 @@ public class DockerClientWrapper {
   }
 
   /**
-   * Start a Docker container and run the given command. Return the container id.
+   * Start a Docker container and run the given command.
+   *
+   * <p>Note this method cannot be called concurrently, because it updates the internal state of
+   * this instance with the container id.
    *
    * @param imageId the id of the docker image to use for the container
    * @param command the full string command to execute in a bash shell (bash -c ..cmd..)

@@ -72,8 +72,7 @@ public class DockerCommandRunner extends CommandRunner {
     // command
     String fullCommand = "terra_init.sh && " + buildFullCommand(command);
 
-    // overwrite the path to the pet SA key file, because it will be different on the container vs
-    // the host
+    // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put(
         "GOOGLE_APPLICATION_CREDENTIALS",
         getPetSaKeyFileOnContainer(globalContext.requireCurrentTerraUser(), workspaceContext)
