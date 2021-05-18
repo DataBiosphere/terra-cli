@@ -55,6 +55,22 @@ public class DockerCommandRunner extends CommandRunner {
   }
 
   /**
+   * This method builds a command string that:
+   *
+   * <p>- calls the terra_init.sh script, which configures gcloud with the workspace project and pet
+   * SA
+   *
+   * <p>- runs the given command
+   *
+   * @param command the command and arguments to execute
+   * @return the full string of commands and arguments to execute
+   */
+  protected String wrapCommandInSetupCleanup(List<String> command) {
+    // the terra_init script is already copied into the Docker image
+    return "terra_init.sh && " + buildFullCommand(command);
+  }
+
+  /**
    * Run a tool command inside a new Docker container.
    *
    * <p>The terra_init.sh script that was copied into the Docker image will be run before the given
@@ -64,14 +80,10 @@ public class DockerCommandRunner extends CommandRunner {
    * the container. This will overwrite any previous version, because the path will likely be
    * different on the container.
    *
-   * @param command the command and arguments to execute
+   * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
    */
-  protected void runToolCommandImpl(List<String> command, Map<String, String> envVars) {
-    // call the terra_init script that was copied into the Docker image, before running the given
-    // command
-    String fullCommand = "terra_init.sh && " + buildFullCommand(command);
-
+  protected void runToolCommandImpl(String command, Map<String, String> envVars) {
     // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put(
         "GOOGLE_APPLICATION_CREDENTIALS",
@@ -88,7 +100,7 @@ public class DockerCommandRunner extends CommandRunner {
     // create and start the docker container
     dockerClientWrapper.startContainer(
         globalContext.dockerImageId,
-        fullCommand,
+        command,
         getWorkingDirOnContainer().toString(),
         envVars,
         bindMounts);

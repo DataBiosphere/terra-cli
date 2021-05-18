@@ -82,11 +82,24 @@ public abstract class CommandRunner {
     envVars.putAll(terraEnvVars);
 
     // call the sub-class implementation of running a tool command
-    runToolCommandImpl(command, envVars);
+    runToolCommandImpl(wrapCommandInSetupCleanup(command), envVars);
   }
 
-  /** This method defines how to execute the command, and must be implemented by each sub-class. */
-  protected abstract void runToolCommandImpl(List<String> command, Map<String, String> envVars);
+  /**
+   * This method modifies the command to include any setup/cleanup commands.
+   *
+   * @param command the command and arguments to execute
+   * @return the full string of commands and arguments to execute
+   */
+  protected abstract String wrapCommandInSetupCleanup(List<String> command);
+
+  /**
+   * This method defines how to execute the command, and must be implemented by each sub-class.
+   *
+   * @param command the full string of command and arguments to execute
+   * @param envVars a mapping of environment variable names to values
+   */
+  protected abstract void runToolCommandImpl(String command, Map<String, String> envVars);
 
   /**
    * Build a map of Terra references to use in setting environment variables when running commands.

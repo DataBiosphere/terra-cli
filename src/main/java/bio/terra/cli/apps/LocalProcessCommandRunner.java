@@ -20,25 +20,45 @@ public class LocalProcessCommandRunner extends CommandRunner {
   }
 
   /**
+   * This method builds a command string that:
+   *
+   * <p>- saves the current gcloud project configuration
+   *
+   * <p>- configures gcloud with the workspace project
+   *
+   * <p>- runs the given command
+   *
+   * <p>- restores the gcloud configuration to the original project
+   *
+   * @param command the command and arguments to execute
+   * @return the full string of commands and arguments to execute
+   */
+  protected String wrapCommandInSetupCleanup(List<String> command) {
+    List<String> bashCommands = new ArrayList<>();
+    bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
+    bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
+    bashCommands.add("gcloud config set project " + workspaceContext.getGoogleProject());
+    bashCommands.add(buildFullCommand(command));
+    bashCommands.add(
+        "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
+    bashCommands.add("gcloud config set project $TERRA_PREV_GCLOUD_PROJECT");
+    return String.join(" && ", bashCommands);
+  }
+
+  /**
    * Run a tool command in a local process.
    *
    * <p>Some setup/cleanup commands for gcloud authentication and configuration will be run
    * before/after the given command.
    *
-   * @param command the command and arguments to execute
+   * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
    */
-  protected void runToolCommandImpl(List<String> command, Map<String, String> envVars) {
-    List<String> bashCommands = new ArrayList<>();
-    bashCommands.add("gcloud config set project " + workspaceContext.getGoogleProject());
-    bashCommands.add(
-        "gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS");
-    bashCommands.add(buildFullCommand(command));
-
+  protected void runToolCommandImpl(String command, Map<String, String> envVars) {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
     processCommand.add("-c");
-    processCommand.add(String.join("; ", bashCommands));
+    processCommand.add(command);
 
     // set the path to the pet SA key file
     envVars.put(
