@@ -6,6 +6,7 @@ import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 
@@ -25,6 +26,7 @@ public class List extends BaseCommand {
     ConfigListReturnValue configList =
         new ConfigListReturnValue(
             globalContext.browserLaunchOption,
+            globalContext.commandRunnerOption,
             globalContext.dockerImageId,
             globalContext.resourcesCacheSize,
             loggingLevels,
@@ -36,6 +38,7 @@ public class List extends BaseCommand {
   /** POJO class for printing out this command's output. */
   private static class ConfigListReturnValue {
     public AuthenticationManager.BrowserLaunchOption browser;
+    public GlobalContext.CommandRunners appLaunch;
     public String image;
     public int resources;
     public LoggingReturnValue logging;
@@ -43,11 +46,13 @@ public class List extends BaseCommand {
 
     public ConfigListReturnValue(
         AuthenticationManager.BrowserLaunchOption browser,
+        GlobalContext.CommandRunners appLaunch,
         String image,
         int resources,
         LoggingReturnValue logging,
         ServerSpecification server) {
       this.browser = browser;
+      this.appLaunch = appLaunch;
       this.image = image;
       this.resources = resources;
       this.logging = logging;
@@ -57,6 +62,7 @@ public class List extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(ConfigListReturnValue returnValue) {
+    OUT.println("[app-launch] app launch mode = " + returnValue.appLaunch);
     OUT.println("[browser] browser launch for login = " + returnValue.browser);
     OUT.println("[image] docker image id = " + returnValue.image);
     OUT.println(

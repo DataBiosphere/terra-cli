@@ -1,5 +1,6 @@
 package bio.terra.cli.command.config;
 
+import bio.terra.cli.command.config.set.AppLaunch;
 import bio.terra.cli.command.config.set.Browser;
 import bio.terra.cli.command.config.set.Image;
 import bio.terra.cli.command.config.set.Logging;
@@ -14,5 +15,12 @@ import picocli.CommandLine.Command;
 @Command(
     name = "set",
     description = "Set a configuration property value.",
-    subcommands = {Browser.class, Image.class, Logging.class, ResourceLimit.class, Server.class})
+    subcommands = {
+      AppLaunch.class,
+      Browser.class,
+      Image.class,
+      Logging.class,
+      ResourceLimit.class,
+      Server.class
+    })
 public class Set {}
