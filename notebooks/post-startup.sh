@@ -13,8 +13,6 @@ cd /tmp || exit
 exec >> /tmp/post-startup-output.txt
 exec 2>&1
 
-# GCE Metadata Server operations
-
 #######################################
 # Retrieve a value from the GCE metadata server or return nothing.
 # See https://cloud.google.com/compute/docs/storing-retrieving-metadata
