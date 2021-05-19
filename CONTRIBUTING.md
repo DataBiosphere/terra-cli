@@ -112,9 +112,9 @@ This is the script users can add to their `$PATH` to invoke the CLI more easily 
 
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
-You can override this default by setting the `TERRA_CONTEXT_DIR` environment variable to a valid directory.
+You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
 ```
-export TERRA_CONTEXT_DIR="/Desktop/cli-testing"
+export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
 terra config list
 ```
 If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
