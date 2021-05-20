@@ -72,6 +72,8 @@ public class AiNotebook extends BaseCommand {
 
   @CommandLine.Option(
       names = "--post-startup-script",
+      defaultValue =
+          "https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh",
       description =
           "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
               + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
@@ -317,8 +319,9 @@ public class AiNotebook extends BaseCommand {
         .put(
             "installed-extensions",
             "jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz")
-        // Also set the id of this workspace as metadata on the VM instance.
+        // Set additional Terra context as metadata on the VM instance.
         .put("terra-workspace-id", workspaceID.toString())
+        .put("terra-cli-server", globalContext.server.name)
         .build();
   }
 
