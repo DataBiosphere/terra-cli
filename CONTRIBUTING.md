@@ -9,6 +9,7 @@
     * [terra](#terra)
 3. [Testing](#testing)
     * [Override context directory](#override-context-directory)
+    * [Setup test users](#setup-test-users)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
@@ -107,6 +108,20 @@ This is the run script that wraps the Java call to the CLI.
 It is included in the `terra-cli.tar` install package in each GitHub release.
 This is the script users can add to their `$PATH` to invoke the CLI more easily from another directory.
 
+
+### Testing
+
+#### Override context directory
+The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
+You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
+```
+export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
+terra config list
+```
+If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
+
+This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
+
 #### Setup test users
 Tests use domain-wide delegation (i.e. Harry Potter users). This avoids the Google OAuth flow, which requires
 interacting with a browser. Before running tests against a Terra server, the test users need to be setup there.
@@ -139,19 +154,6 @@ terra spend enable --policy=user Noah.Frostwolf@test.firecloud.org
 # ethan has no spend profile access
 # do nothing: Ethan.Bonechewer@test.firecloud.org
 ```
-
-### Testing
-
-#### Override context directory
-The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
-You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
-```
-export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
-terra config list
-```
-If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
-
-This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
 
 
 ### Docker

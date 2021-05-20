@@ -1,6 +1,5 @@
 package bio.terra.cli.auth;
 
-import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.utils.Printer;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
@@ -249,9 +248,9 @@ public final class GoogleCredentialUtils {
   public static AccessToken getAccessToken(GoogleCredentials credential) {
     try {
       credential.refreshIfExpired();
-      return credential.getAccessToken();
     } catch (IOException ioEx) {
-      throw new SystemException("Error refreshing access token", ioEx);
+      logger.warn("Error refreshing access token", ioEx);
     }
+    return credential.getAccessToken();
   }
 }

@@ -129,6 +129,7 @@ task unitTest(type: Test) {
     doFirst {
         if(!project.hasProperty("useDefaultContextDir")) {
             environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
+            mkdir "${project.buildDir}/test-context/"
         }
         String serverName = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
         systemProperty "TERRA_SERVER", serverName
