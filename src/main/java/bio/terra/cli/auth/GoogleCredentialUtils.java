@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,11 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for manipulating Google credentials. */
 public final class GoogleCredentialUtils {
   private static final Logger logger = LoggerFactory.getLogger(GoogleCredentialUtils.class);
+
+  // key name for the single credential persisted in the file data store.
+  // the CLI only stores a single credential at a time, so this key is hard-coded here instead of
+  // setting it to a generated id per user
+  public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
 
   private GoogleCredentialUtils() {}
 
@@ -44,7 +50,6 @@ public final class GoogleCredentialUtils {
    * access the specified scopes. This browser window is either launched automatically or the URL
    * printed to stdout, depending on the boolean flag.
    *
-   * @param userId key to use when persisting the Google credential in the local credential store
    * @param scopes list of scopes to request from the user
    * @param clientSecretFile stream to the client secret file
    * @param dataStoreDir directory in which to persist the local credential store
@@ -54,7 +59,6 @@ public final class GoogleCredentialUtils {
    * @return credentials object for the user
    */
   public static UserCredentials doLoginAndConsent(
-      String userId,
       List<String> scopes,
       InputStream clientSecretFile,
       File dataStoreDir,
@@ -73,12 +77,13 @@ public final class GoogleCredentialUtils {
     if (launchBrowserAutomatically) {
       // launch a browser window on this machine and listen on a local port for the token response
       LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
-      credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
+      credential =
+          new AuthorizationCodeInstalledApp(flow, receiver).authorize(CREDENTIAL_STORE_KEY);
     } else {
       // print the url to stdout and ask the user to copy/paste the token response to stdin
       credential =
           new AuthorizationCodeInstalledApp(flow, new StdinReceiver(), new NoLaunchBrowser())
-              .authorize(userId);
+              .authorize(CREDENTIAL_STORE_KEY);
     }
 
     // OAuth2 Credentials representing a user's identity and consent
@@ -87,8 +92,19 @@ public final class GoogleCredentialUtils {
             .setClientId(clientSecrets.getDetails().getClientId())
             .setClientSecret(clientSecrets.getDetails().getClientSecret())
             .setRefreshToken(credential.getRefreshToken())
+            .setAccessToken(
+                new AccessToken(
+                    credential.getAccessToken(),
+                    new Date(credential.getExpirationTimeMilliseconds())))
             .build();
-    credentials.refresh();
+
+    // only try to refresh if the refresh token is set
+    if (credentials.getRefreshToken() == null || credentials.getRefreshToken().isEmpty()) {
+      logger.info(
+          "Refresh token is not set. This is expected when testing, not during normal operation.");
+    } else {
+      credentials.refresh();
+    }
 
     return credentials;
   }
@@ -120,13 +136,12 @@ public final class GoogleCredentialUtils {
   /**
    * Delete the credential associated with the specified userId.
    *
-   * @param userId key to use when looking up the Google credential in the local credential store
    * @param scopes list of scopes requested of the user
    * @param clientSecretFile stream to the client secret file
    * @param dataStoreDir directory where the local credential store is persisted
    */
   public static void deleteExistingCredential(
-      String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
+      List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
@@ -138,26 +153,25 @@ public final class GoogleCredentialUtils {
     DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
 
     // check that the specified credential exists
-    if (!dataStore.containsKey(userId)) {
-      logger.debug("Credential for {} not found.", userId);
+    if (!dataStore.containsKey(CREDENTIAL_STORE_KEY)) {
+      logger.debug("Credential for {} not found.", CREDENTIAL_STORE_KEY);
       return;
     }
 
     // remove the specified credential
-    dataStore.delete(userId);
+    dataStore.delete(CREDENTIAL_STORE_KEY);
   }
 
   /**
    * Get the existing credential for the given user.
    *
-   * @param userId key to use when looking up the Google credential in the local credential store
    * @param scopes list of scopes requested of the user
    * @param clientSecretFile stream to the client secret file
    * @param dataStoreDir directory where the local credential store is persisted
    * @return credentials object for the user
    */
   public static UserCredentials getExistingUserCredential(
-      String userId, List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
+      List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
@@ -169,7 +183,7 @@ public final class GoogleCredentialUtils {
     DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
 
     // fetch the stored credential for the specified userId
-    StoredCredential storedCredential = dataStore.get(userId);
+    StoredCredential storedCredential = dataStore.get(CREDENTIAL_STORE_KEY);
     if (storedCredential == null) {
       return null; // there is no credential, return here
     }
@@ -181,6 +195,10 @@ public final class GoogleCredentialUtils {
             .setClientId(clientSecrets.getDetails().getClientId())
             .setClientSecret(clientSecrets.getDetails().getClientSecret())
             .setRefreshToken(storedCredential.getRefreshToken())
+            .setAccessToken(
+                new AccessToken(
+                    storedCredential.getAccessToken(),
+                    new Date(storedCredential.getExpirationTimeMilliseconds())))
             .build();
 
     return credentials;

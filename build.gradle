@@ -73,6 +73,10 @@ dependencies {
         // needed for WSM client library
         swaggerAnnotations = "2.1.5"
         jersey = "2.30.1"
+
+        // testing
+        junit = "5.7.2"
+        hamcrest = "2.2"
     }
 
     implementation "info.picocli:picocli:${picocli}"
@@ -103,11 +107,31 @@ dependencies {
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
     compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
 
+    testImplementation platform("org.junit:junit-bom:${junit}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.hamcrest:hamcrest:${hamcrest}"
 }
 
 test {
     testLogging {
         showStandardStreams = true // disable stdout & stderr redirection
+    }
+    useJUnitPlatform()
+}
+
+task unitTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'unit'
+    }
+    // force tests to always be re-run
+    outputs.upToDateWhen { false }
+
+    doFirst {
+        if(!project.hasProperty("useDefaultContextDir")) {
+            environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
+        }
+        String serverName = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
+        systemProperty "TERRA_SERVER", serverName
     }
 }
 

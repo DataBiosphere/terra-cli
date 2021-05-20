@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,19 +64,8 @@ public class AuthenticationManager {
   public void loginTerraUser() {
     // this will become the current Terra user if we are successful in getting all the various
     // information and credentials below
-    TerraUser terraUser;
     Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
-    if (!currentTerraUser.isPresent()) {
-      // generate a random string to use as the CLI user identifer
-      // it would be better to use the SAM subject id here instead, but we can't talk to SAM until
-      // we have Google (user) credentials, and we need to give the Google login flow an identifer
-      // for storing the credential in a persistent file. so, this is the id that we hand to Google
-      // and can use later to look up the persisted Google (user) credentials
-      String cliGeneratedUserKey = UUID.randomUUID().toString();
-      terraUser = new TerraUser(cliGeneratedUserKey);
-    } else {
-      terraUser = currentTerraUser.get();
-    }
+    TerraUser terraUser = currentTerraUser.orElseGet(() -> new TerraUser());
 
     // fetch the user credentials, prompt for login and consent if they do not already exist or are
     // expired.
@@ -91,7 +79,6 @@ public class AuthenticationManager {
           globalContext.browserLaunchOption.equals(BrowserLaunchOption.auto);
       userCredentials =
           GoogleCredentialUtils.doLoginAndConsent(
-              terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
               GlobalContext.getGlobalContextDir().toFile(),
@@ -113,10 +100,8 @@ public class AuthenticationManager {
     // always fetch the pet SA credentials because there is a different pet SA per workspace
     fetchPetSaCredentials(terraUser);
 
-    // update the global context with the current user, if it's changed
-    if (!currentTerraUser.isPresent()) {
-      globalContext.setCurrentTerraUser(terraUser);
-    }
+    // update the global context on disk with the current user
+    globalContext.setCurrentTerraUser(terraUser);
   }
 
   /** Delete all credentials associated with the current Terra user. */
@@ -133,10 +118,7 @@ public class AuthenticationManager {
 
       // delete the user credentials
       GoogleCredentialUtils.deleteExistingCredential(
-          currentTerraUser.cliGeneratedUserKey,
-          SCOPES,
-          inputStream,
-          GlobalContext.getGlobalContextDir().toFile());
+          SCOPES, inputStream, GlobalContext.getGlobalContextDir().toFile());
 
       // delete the pet SA credentials
       deletePetSaCredentials(currentTerraUser);
@@ -165,10 +147,7 @@ public class AuthenticationManager {
       // fetch any non-expired existing credentials for this user
       userCredentials =
           GoogleCredentialUtils.getExistingUserCredential(
-              currentTerraUser.cliGeneratedUserKey,
-              SCOPES,
-              inputStream,
-              GlobalContext.getGlobalContextDir().toFile());
+              SCOPES, inputStream, GlobalContext.getGlobalContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }

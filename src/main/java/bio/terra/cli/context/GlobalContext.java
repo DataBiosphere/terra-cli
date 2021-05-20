@@ -122,8 +122,15 @@ public class GlobalContext {
 
   /** Set the current terra user. Persists on disk. */
   public void setCurrentTerraUser(TerraUser terraUser) {
+    boolean isNewUser = this.terraUser == null;
     this.terraUser = terraUser;
-    writeToFile();
+
+    // only need to persist the user if there was no user defined previously
+    // otherwise, this method just updates the credentials stored on the TerraUser object, which are
+    // not persisted to disk
+    if (isNewUser) {
+      writeToFile();
+    }
   }
 
   /** Clear the current terra user. Persists on disk. */
