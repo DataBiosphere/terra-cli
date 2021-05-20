@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * This enum lists the test users available for CLI tests. They have varying permissions on the WSM
  * spend profile. These permissions were configured manually, and are not part of the CLI test
- * harness.
+ * harness. See CONTRIBUTING.md for more details about the manual setup.
  *
  * <p>This class also includes a {@link #login(GlobalContext)} method specifically for testing. Most
  * CLI tests will start with a call to this method to login a test user.

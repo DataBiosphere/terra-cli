@@ -34,10 +34,10 @@ public class LoginTestUser {
 
   @AfterEach
   void cleanup() throws IOException {
-    //    TestContext.deleteGlobalContext();
+    TestContext.deleteGlobalContext();
   }
 
-  //  @Test
+  @Test
   @DisplayName("test user login updates global context")
   void loginTestUser() throws IOException {
     // select a test user and login
