@@ -94,7 +94,7 @@ public class AuthenticationManager {
               terraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.getGlobalContextDir().toFile(),
+              GlobalContext.getGlobalContextDir().toFile(),
               launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
@@ -109,11 +109,13 @@ public class AuthenticationManager {
       terraUser.terraUserEmail = userInfo.getUserEmail();
       terraUser.terraProxyGroupEmail = samService.getProxyGroupEmail();
     }
+
+    // always fetch the pet SA credentials because there is a different pet SA per workspace
     fetchPetSaCredentials(terraUser);
 
     // update the global context with the current user, if it's changed
     if (!currentTerraUser.isPresent()) {
-      globalContext.addOrUpdateTerraUser(terraUser, true);
+      globalContext.setCurrentTerraUser(terraUser);
     }
   }
 
@@ -134,20 +136,19 @@ public class AuthenticationManager {
           currentTerraUser.cliGeneratedUserKey,
           SCOPES,
           inputStream,
-          globalContext.getGlobalContextDir().toFile());
+          GlobalContext.getGlobalContextDir().toFile());
 
       // delete the pet SA credentials
       deletePetSaCredentials(currentTerraUser);
+
+      // unset the current user in the global context
+      globalContext.unsetCurrentTerraUser();
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
   }
 
-  /**
-   * Populates user and SA credentials, and user information for the current Terra user. If there is
-   * no current user defined, or their credentials are expired, then this method does not populate
-   * anything.
-   */
+  /** Populates the user credentials for the current Terra user. */
   public void populateCurrentTerraUser() {
     Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
     if (!currentTerraUserOpt.isPresent()) {
@@ -167,33 +168,11 @@ public class AuthenticationManager {
               currentTerraUser.cliGeneratedUserKey,
               SCOPES,
               inputStream,
-              globalContext.getGlobalContextDir().toFile());
-
-      // if there are no valid credentials, then return here because there's nothing to populate
-      if (userCredentials == null) {
-        return;
-      }
+              GlobalContext.getGlobalContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
     currentTerraUser.userCredentials = userCredentials;
-
-    // fetch the user information from SAM
-    SamService samService = new SamService(globalContext.server, currentTerraUser);
-    UserStatusInfo userInfo = samService.getUserInfo();
-    currentTerraUser.terraUserId = userInfo.getUserSubjectId();
-    currentTerraUser.terraUserEmail = userInfo.getUserEmail();
-
-    if (currentTerraUser.terraUserId != null) {
-      // populate the user's proxy group email also
-      currentTerraUser.terraProxyGroupEmail = samService.getProxyGroupEmail();
-
-      // fetch the pet SA credentials if they don't already exist
-      fetchPetSaCredentials(currentTerraUser);
-    }
-
-    // update the global context with the populated information
-    globalContext.addOrUpdateTerraUser(currentTerraUser);
   }
 
   /** Fetch the pet SA credentials for the given user + current workspace. */

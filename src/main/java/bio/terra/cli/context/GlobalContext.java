@@ -16,8 +16,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +28,9 @@ import org.slf4j.LoggerFactory;
 public class GlobalContext {
   private static final Logger logger = LoggerFactory.getLogger(GlobalContext.class);
 
-  // global auth context =  list of Terra users, CLI-generated key of current Terra user,
+  // global auth context = current Terra user,
   //   flag indicating whether to launch a browser automatically or not
-  public Map<String, TerraUser> terraUsers;
-  public String currentTerraUserKey;
+  public TerraUser terraUser;
   public BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
   // global server context = service uris, environment name
@@ -63,7 +60,6 @@ public class GlobalContext {
   private GlobalContext() {}
 
   private GlobalContext(ServerSpecification server, String dockerImageId) {
-    this.terraUsers = new HashMap<>();
     this.server = server;
     this.dockerImageId = dockerImageId;
   }
@@ -112,10 +108,7 @@ public class GlobalContext {
   /** Getter for the current Terra user. Returns null if no current user is defined. */
   @JsonIgnore
   public Optional<TerraUser> getCurrentTerraUser() {
-    if (currentTerraUserKey == null) {
-      return Optional.empty();
-    }
-    return Optional.of(terraUsers.get(currentTerraUserKey));
+    return Optional.ofNullable(terraUser);
   }
 
   /** Utility method that throws an exception if the current Terra user is not defined. */
@@ -127,29 +120,16 @@ public class GlobalContext {
     return terraUserOpt.get();
   }
 
-  /**
-   * Add a new Terra user to the list of identity contexts, or update an existing one. Optionally
-   * update the current user. Persists on disk.
-   */
-  public void addOrUpdateTerraUser(TerraUser terraUser, boolean setAsCurrentUser) {
-    if (terraUsers.get(terraUser.cliGeneratedUserKey) != null) {
-      logger.info("Terra user {} already exists, updating.", terraUser.terraUserEmail);
-    }
-    terraUsers.put(terraUser.cliGeneratedUserKey, terraUser);
-
-    if (setAsCurrentUser) {
-      currentTerraUserKey = terraUser.cliGeneratedUserKey;
-    }
-
+  /** Set the current terra user. Persists on disk. */
+  public void setCurrentTerraUser(TerraUser terraUser) {
+    this.terraUser = terraUser;
     writeToFile();
   }
 
-  /**
-   * Add a new Terra user to the list of identity contexts, or update an existing one. Persists on
-   * disk.
-   */
-  public void addOrUpdateTerraUser(TerraUser terraUser) {
-    addOrUpdateTerraUser(terraUser, false);
+  /** Clear the current terra user. Persists on disk. */
+  public void unsetCurrentTerraUser() {
+    this.terraUser = null;
+    writeToFile();
   }
 
   /**
