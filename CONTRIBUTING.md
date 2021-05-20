@@ -7,12 +7,14 @@
     * [download-install.sh](#download-installsh)
     * [install.sh](#installsh)
     * [terra](#terra)
-3. [Docker](#docker)
+3. [Testing](#testing)
+    * [Override context directory](#override-context-directory)
+4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
-4. [Code structure](#code-structure)
+5. [Code structure](#code-structure)
     * [Supported tools](#supported-tools)
         * [Adding a new supported tool](#adding-a-new-supported-tool)
     * [Authentication](#authentication)
@@ -104,6 +106,20 @@ This is the run script that wraps the Java call to the CLI.
 
 It is included in the `terra-cli.tar` install package in each GitHub release.
 This is the script users can add to their `$PATH` to invoke the CLI more easily from another directory.
+
+
+### Testing
+
+#### Override context directory
+The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
+You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
+```
+export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
+terra config list
+```
+If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
+
+This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
 
 
 ### Docker

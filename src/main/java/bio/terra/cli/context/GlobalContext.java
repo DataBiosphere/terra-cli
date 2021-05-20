@@ -52,6 +52,9 @@ public class GlobalContext {
   public LogLevel fileLoggingLevel = LogLevel.INFO;
   public LogLevel consoleLoggingLevel = LogLevel.OFF;
 
+  // env var name to optionally override where the context is persisted on disk
+  private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
+
   // file paths related to persisting the global context on disk
   private static final String GLOBAL_CONTEXT_DIRNAME = ".terra";
   private static final String GLOBAL_CONTEXT_FILENAME = "global-context.json";
@@ -267,7 +270,7 @@ public class GlobalContext {
 
   // ====================================================
   // Directory and file names
-  //   - global context directory parent: $HOME/
+  //   - global context directory parent: $HOME/ or $TERRA_CONTEXT_PARENT_DIR/
   //       - global context directory: .terra/
   //           - persisted global context file: global-context.json
   //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
@@ -282,8 +285,22 @@ public class GlobalContext {
    */
   @JsonIgnore
   public static Path getGlobalContextDir() {
-    // TODO: allow overriding this (e.g. env var != user home directory)
+    // default to the user's home directory
     Path parentDir = Paths.get(System.getProperty("user.home"));
+
+    // if the override environment variable is set and points to a valid directory, then use it
+    // instead
+    String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
+    if (overrideDirName != null && !overrideDirName.isBlank()) {
+      Path overrideDir = Paths.get(overrideDirName).toAbsolutePath();
+      if (overrideDir.toFile().exists() && overrideDir.toFile().isDirectory()) {
+        parentDir = overrideDir;
+      } else {
+        throw new UserActionableException(
+            "Override environment variable does not point to a valid directory: " + overrideDir);
+      }
+    }
+
     return parentDir.resolve(GLOBAL_CONTEXT_DIRNAME).toAbsolutePath();
   }
 
