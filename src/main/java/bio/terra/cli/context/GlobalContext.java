@@ -108,7 +108,7 @@ public class GlobalContext {
   // ====================================================
   // Auth
 
-  /** Getter for the current Terra user. Returns null if no current user is defined. */
+  /** Getter for the current Terra user. Returns empty if no current user is defined. */
   @JsonIgnore
   public Optional<TerraUser> getCurrentTerraUser() {
     return Optional.ofNullable(terraUser);

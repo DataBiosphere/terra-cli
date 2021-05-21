@@ -250,6 +250,9 @@ public final class GoogleCredentialUtils {
       credential.refreshIfExpired();
     } catch (IOException ioEx) {
       logger.warn("Error refreshing access token", ioEx);
+      // don't throw an exception here because the token may not be expired, in which case it's fine
+      // to use it without refreshing first. if the token is expired, then we'll get a permission
+      // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getAccessToken();
   }

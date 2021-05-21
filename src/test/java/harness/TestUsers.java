@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -104,18 +105,17 @@ public enum TestUsers {
 
   /** Randomly chooses a test user. */
   public static TestUsers chooseTestUser() {
-    return chooseTestUser(Arrays.asList(SpendEnabled.values()));
+    return chooseTestUser(Set.of(SpendEnabled.values()));
   }
 
   /** Randomly chooses a test user with spend profile access. */
   public static TestUsers chooseTestUserWithSpendAccess() {
     return chooseTestUser(
-        Arrays.asList(
-            new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+        Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
   }
 
   /** Randomly chooses a test user that matches one of the specified spend enabled values. */
-  public static TestUsers chooseTestUser(List<SpendEnabled> spendEnabledFilter) {
+  public static TestUsers chooseTestUser(Set<SpendEnabled> spendEnabledFilter) {
     // filter the list of all test users to include only those that match one of the specified spend
     // enabled values
     List<TestUsers> testUsers =
