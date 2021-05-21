@@ -9,6 +9,7 @@
     * [terra](#terra)
 3. [Testing](#testing)
     * [Override context directory](#override-context-directory)
+    * [Setup test users](#setup-test-users)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
@@ -120,6 +121,39 @@ terra config list
 If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
 
 This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
+
+#### Setup test users
+Tests use domain-wide delegation (i.e. Harry Potter users). This avoids the Google OAuth flow, which requires
+interacting with a browser. Before running tests against a Terra server, the test users need to be setup there.
+Setup happens exclusively in SAM, so if there are multiple Terra servers that all talk to the same SAM instance,
+then you only need to do this setup once.
+
+The CLI only uses the test users defined in the `TestUsers` enum class. The list includes a mix of users that:
+- Have permission to use the default WSM spend profile via the `cli-test-users` SAM group.
+- Have permission to use the default WSM spend profile directly on the SAM resource.
+- Do not have permission to use the default WSM spend profile.
+
+Below is the script used to setup the initial set of test users on the SAM dev instance.
+```
+# create the cli-test-users SAM group and add it as a user on the spend profile
+terra groups create cli-test-users
+terra spend enable --policy=user $(terra groups describe cli-test-users)
+
+# penelope is an owner on both the cli-test-users group and the spend profile resource
+terra groups add-user --group=cli-test-users --policy=admin Penelope.TwilightsHammer@test.firecloud.org
+terra spend enable --policy=owner Penelope.TwilightsHammer@test.firecloud.org
+
+# john and lily are members of the cli-test-users group
+terra groups add-user --group=cli-test-users --policy=member John.Whiteclaw@test.firecloud.org
+terra groups add-user --group=cli-test-users --policy=member Lily.Shadowmoon@test.firecloud.org
+
+# brooklyn and noah are users of the spend profile resource
+terra spend enable --policy=user Brooklyn.Thunderlord@test.firecloud.org
+terra spend enable --policy=user Noah.Frostwolf@test.firecloud.org
+
+# ethan has no spend profile access
+# do nothing: Ethan.Bonechewer@test.firecloud.org
+```
 
 
 ### Docker

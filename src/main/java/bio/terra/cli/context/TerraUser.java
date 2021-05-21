@@ -16,11 +16,6 @@ import org.slf4j.LoggerFactory;
 public class TerraUser {
   private static final Logger logger = LoggerFactory.getLogger(TerraUser.class);
 
-  // The CLI generates a random UUID for each user, to keep track of which credentials belong to
-  // which user. (Note: It would be better to use the SAM/Terra subject id, but we don't have that
-  // until after logging in because we need Google credentials to get the subject id from SAM.)
-  public String cliGeneratedUserKey;
-
   // This field stores the id that Terra uses to identify a user. The CLI queries SAM for a user's
   // subject id to populate this field.
   public String terraUserId;
@@ -38,10 +33,6 @@ public class TerraUser {
   @JsonIgnore public ServiceAccountCredentials petSACredentials;
 
   public TerraUser() {}
-
-  public TerraUser(String cliGeneratedUserKey) {
-    this.cliGeneratedUserKey = cliGeneratedUserKey;
-  }
 
   /** Check if the user credentials are expired. */
   public boolean requiresReauthentication() {
