@@ -91,11 +91,6 @@ public enum TestUsers {
     new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).loginTerraUser();
   }
 
-  /** Utility method to logout the current user. */
-  public void logout(GlobalContext globalContext) {
-    new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).logoutTerraUser();
-  }
-
   /** Helper method that returns a pointer to the credential store on disk. */
   public static DataStore<StoredCredential> getCredentialStore() throws IOException {
     Path globalContextDir = GlobalContext.getGlobalContextDir();
