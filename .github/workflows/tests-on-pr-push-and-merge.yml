@@ -26,10 +26,11 @@ jobs:
         id: run_static_analysis
         run: |
           ./gradlew spotbugsMain spotbugsTest
-  unit-and-integration-tests:
+  tests-against-source-code:
     strategy:
       matrix:
         testTag: [ "unit", "integration" ]
+      fail-fast: false
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
