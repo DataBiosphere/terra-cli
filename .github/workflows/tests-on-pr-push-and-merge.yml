@@ -68,5 +68,6 @@ jobs:
       - name: Run tests
         id: run_tests
         run: |
+          # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
