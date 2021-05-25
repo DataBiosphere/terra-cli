@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
  * spend profile. These permissions were configured manually, and are not part of the CLI test
  * harness. See CONTRIBUTING.md for more details about the manual setup.
  *
- * <p>This class also includes a {@link #login(GlobalContext)} method specifically for testing. Most
- * CLI tests will start with a call to this method to login a test user.
+ * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
+ * will start with a call to this method to login a test user.
  */
 public enum TestUsers {
   PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),
@@ -72,6 +72,7 @@ public enum TestUsers {
             .createScoped(AuthenticationManager.SCOPES);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
+    System.out.println("Logging in test user: " + email);
     GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
     delegatedUserCredential.refreshIfExpired();
 

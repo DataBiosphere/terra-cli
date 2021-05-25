@@ -2,6 +2,16 @@
 set -e
 ## This script runs a demo Nextflow workflow on the GLS Pipelines API. The inline comments are talking notes for a demo.
 
+# [Before demo]
+#   - Run through commands once
+#       - Do this at least 10 minutes beforehand, so the Nextflow workflow has time to complete
+#       - Keep the directory and terminal tab open, so we can switch back to it at the end of the demo, to show a completed workflow
+#   - Open the following pages in a browser:
+#       - https://github.com/DataBiosphere/terra-cli/releases
+#       - https://github.com/nextflow-io/rnaseq-nf
+#       - https://cloud.google.com/life-sciences/docs/tutorials/nextflow
+#       - file:///Users/marikomedlock/Desktop/working-terra-cli/demo6/results/multiqc_report.html
+
 # Currently, we're connected to the Terra development server, and there is no current workspace defined.
 
 terra status

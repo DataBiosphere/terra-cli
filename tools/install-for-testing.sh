@@ -31,7 +31,7 @@ elif [ "$installMode" == "GITHUB_RELEASE" ]; then
   mkdir -p $(pwd)/build/test-install/
   cd build/test-install/
 
-  echo "Downloading from GitHub and running the install script"
+  echo "Downloading the install script from GitHub and running it"
   curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
 
 else

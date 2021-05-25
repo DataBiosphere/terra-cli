@@ -57,7 +57,7 @@ public class Main implements Runnable {
    * Create and execute the top-level command. Tests call this method instead of {@link
    * #main(String...)} so that the process isn't terminated.
    *
-   * @param args from stdin
+   * @param args command and arguments
    * @return process exit code
    */
   public static int runCommand(String... args) {
