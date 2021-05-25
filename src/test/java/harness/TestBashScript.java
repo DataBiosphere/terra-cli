@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.Map;
 import org.hamcrest.CoreMatchers;
 
-/** This class provides utility methods for launching local child processes. */
+/**
+ * This class provides utility methods for launching local child processes. This class is intended
+ * for integration tests because it calls the commands from a bash script in a separate process.
+ */
 public class TestBashScript {
   private Process process;
 
@@ -48,10 +51,10 @@ public class TestBashScript {
     bashCommand.add("-cx"); // -x option = print out the commands as they run
     bashCommand.add(String.join("; ", command));
 
-    // add the gradle install directory to the $PATH
+    // add to the $PATH the directory where the CLI is installed
     String installLocation = System.getProperty("TERRA_INSTALL_DIR");
     assertThat(
-        "terra install location is not defined",
+        "terra install directory is defined",
         installLocation,
         CoreMatchers.not(emptyOrNullString()));
     envVars.put("PATH", installLocation + ":" + System.getenv("PATH"));

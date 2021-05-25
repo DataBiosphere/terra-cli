@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Base class for integration tests that includes standard setup/cleanup. Because they are for
- * integration tests, these methods call the config commands from a bash script.
+ * integration tests, these methods call the setup/cleanup commands from a bash script.
  */
 public class ClearContextIntegration {
   @BeforeEach

@@ -3,6 +3,7 @@ set -e
 ## This script runs a demo Nextflow workflow on the GLS Pipelines API. The inline comments are talking notes for a demo.
 
 # Currently, we're connected to the Terra development server, and there is no current workspace defined.
+
 terra status
 
 # Now we can create a workspace. This will prompt a login. The scary-looking login screen is temporary, until we get our CLI app approved by Google.

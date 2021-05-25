@@ -8,6 +8,8 @@
     * [install.sh](#installsh)
     * [terra](#terra)
 3. [Testing](#testing)
+    * [Two types of tests](#two-types-of-tests)
+    * [Run tests](#run-tests)
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
 4. [Docker](#docker)
@@ -111,6 +113,35 @@ This is the script users can add to their `$PATH` to invoke the CLI more easily 
 
 ### Testing
 
+#### Two types of tests
+There are two types of CLI tests:
+- Unit tests call commands directly in Java. They run against source code; no CLI installation is required.
+Example unit test code:
+```
+    // `terra auth status --format=json`
+    TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
+```
+- Integration tests call commands from a bash script run in a separate process. They run against a CLI installation,
+either one built directly from source code via `./gradlew install` or one built from the latest GitHub release.
+Example integration test code:
+```
+    // run a script that includes a Nextflow workflow
+    int exitCode = new TestBashScript().runScript("NextflowRnaseq.sh");
+```
+
+Both types of tests:
+- Use the same code to authenticate a test user without requiring browser interaction.
+- Override the context directory to `build/test-context/`, so that tests don't overwrite the context for an existing
+CLI installation on the same machine.
+
+#### Run tests
+- Run unit tests directly against the source code:
+`./gradlew runTestsWithTag -PtestTag=unit`
+- Run integration tests against an installation built from source code:
+`./gradlew runTestsWithTag -PtestTag=integration`
+- Run integration tests against an installation built from the latest GitHub release:
+`./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
+
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
 You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
@@ -121,6 +152,12 @@ terra config list
 If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
 
 This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
+
+Note that this override does not apply to installed JAR dependencies. So if you run integration tests against a CLI
+installation built from the latest GitHub release, the dependent libraries will be overwritten in the `$HOME/.terra/lib`
+directory, though logs, credentials, and context files will be preserved. (This doesn't apply to unit tests or
+integration tests run against a CLI installation built directly from source code, because their dependent libraries are
+all in the Gradle build directory.)
 
 #### Setup test users
 Tests use domain-wide delegation (i.e. Harry Potter users). This avoids the Google OAuth flow, which requires

@@ -8,7 +8,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
-/** Utility methods for executing commands and reading their outputs during testing. */
+/**
+ * Utility methods for executing commands and reading their outputs during testing. This class is
+ * intended for unit tests because it calls the commands directly in Java.
+ */
 public class TestCommand {
 
   private static ObjectMapper objectMapper = new ObjectMapper();

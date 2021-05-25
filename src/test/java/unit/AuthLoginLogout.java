@@ -65,7 +65,7 @@ public class AuthLoginLogout extends ClearContextUnit {
     TestUsers testUser = TestUsers.chooseTestUser();
     testUser.login();
 
-    // run `terra auth revoke`
+    // `terra auth revoke`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
     assertEquals(0, cmd.exitCode);
 
@@ -73,8 +73,8 @@ public class AuthLoginLogout extends ClearContextUnit {
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
     assertEquals(0, dataStore.keySet().size(), "credential store is empty");
 
-    // check that the current user in the global context != the test user
-    // read the global context in from disk again to make sure it got persisted
+    // read the global context in from disk again to check what got persisted
+    // check that the current user in the global context is unset
     GlobalContext globalContext = GlobalContext.readFromFile();
     Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
     assertFalse(currentTerraUser.isPresent(), "current user unset in global context");
@@ -96,7 +96,7 @@ public class AuthLoginLogout extends ClearContextUnit {
       UserStatusInfo userStatusInfo = samService.getUserInfo();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
-      // run `terra auth revoke`
+      // `terra auth revoke`
       TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
       assertEquals(0, cmd.exitCode);
     }

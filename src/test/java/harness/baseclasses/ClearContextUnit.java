@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Base class for unit tests that includes standard setup/cleanup. Because they are for unit tests,
- * these methods call the config commands directly in Java.
+ * these methods call the setup/cleanup commands directly in Java.
  */
 public class ClearContextUnit {
   @BeforeEach
