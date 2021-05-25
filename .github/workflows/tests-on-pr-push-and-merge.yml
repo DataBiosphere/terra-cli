@@ -26,7 +26,10 @@ jobs:
         id: run_static_analysis
         run: |
           ./gradlew spotbugsMain spotbugsTest
-  unit-tests:
+  unit-and-integration-tests:
+    strategy:
+      matrix:
+        testTag: [ "unit", "integration" ]
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
@@ -61,46 +64,8 @@ jobs:
           echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
         env:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
-      - name: Run unit tests
-        id: run_unit_tests
+      - name: Run tests
+        id: run_tests
         run: |
-          ./gradlew runTestsWithTag -PtestTag=unit
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
-    steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-      - name: Set up AdoptOpenJDK 11
-        uses: joschi/setup-jdk@v2
-        with:
-          java-version: 11
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Render config
-        id: render_config
-        run: |
-          # this step does the equivalent of the tools/render-config.sh script.
-          # on local machines, the script fetches a SA from Vault.
-          # in GH actions, the SA key is stored in a GH repo secret.
-          # regardless of how it was fetched, tests expect this
-          # key to be stored in rendered/test-user-account.json
-          mkdir -p rendered
-          echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
-        env:
-          TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
-      - name: Run integration tests
-        id: run_integration_tests
-        run: |
-          ./gradlew runTestsWithTag -PtestTag=integration
+          echo "Running tests with tag: ${{ matrix.node }}"
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.node }}
