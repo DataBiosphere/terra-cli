@@ -129,6 +129,10 @@ Example integration test code:
     int exitCode = new TestBashScript().runScript("NextflowRnaseq.sh");
 ```
 
+While it's possible to mix both types of testing in the same JUnit method, that should be avoided because then the
+test is running commands against two different versions of the code (the source code directly in the same process
+as the test, and the installed code in a separate process as the test). This could be confusing to track down errors.
+
 Both types of tests:
 - Use the same code to authenticate a test user without requiring browser interaction.
 - Override the context directory to `build/test-context/`, so that tests don't overwrite the context for an existing
@@ -154,7 +158,7 @@ If the environment variable override does not point to a valid directory, then t
 This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
 
 Note that this override does not apply to installed JAR dependencies. So if you run integration tests against a CLI
-installation built from the latest GitHub release, the dependent libraries will be overwritten in the `$HOME/.terra/lib`
+installation built from the latest GitHub release, the dependent libraries will overwrite an existing `$HOME/.terra/lib`
 directory, though logs, credentials, and context files will be preserved. (This doesn't apply to unit tests or
 integration tests run against a CLI installation built directly from source code, because their dependent libraries are
 all in the Gradle build directory.)
@@ -192,6 +196,7 @@ terra spend enable --policy=user Noah.Frostwolf@test.firecloud.org
 # do nothing: Ethan.Bonechewer@test.firecloud.org
 ```
 
+Reference to list of available test users is [here](https://accounts.google.com/ServiceLogin?service=wise&passive=1209600&continue=https://docs.google.com/spreadsheets/u/1/d/17PjpwWedN-hxeOlEbepNahLmRDqhvLc25yYxbz6Oj3E/edit&followup=https://docs.google.com/spreadsheets/u/1/d/17PjpwWedN-hxeOlEbepNahLmRDqhvLc25yYxbz6Oj3E/edit&ltmpl=sheets&authuser=1#gid=0).
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.

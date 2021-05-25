@@ -38,7 +38,7 @@ public class ClearContextUnit {
     new Logger(globalContext).setupLogging();
 
     // set the server to the one specified by the test
-    // (see the Gradle unitTest task for how this env var gets set from a Gradle property)
+    // (see the Gradle test task for how this env var gets set from a Gradle property)
     cmd = TestCommand.runCommand("server", "set", System.getenv("TERRA_SERVER"));
     assertEquals(0, cmd.exitCode);
 
