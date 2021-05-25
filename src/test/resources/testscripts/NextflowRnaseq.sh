@@ -8,7 +8,7 @@ terra status
 
 # Now we can create a workspace. This will prompt a login. The scary-looking login screen is temporary, until we get our CLI app approved by Google.
 
-terra workspace create
+#terra workspace create
 
 # [While that's running] This calls WSM to get a new Terra workspace. WSM in turn calls RBS to get a buffered GCP project, because creating a new project from scratch takes a while. The next part of this demo will run Nextflow against this GCP project. There were some short-term modifications we had to make to the buffered project configuration to support Nextflow.
 
@@ -20,8 +20,9 @@ terra status
 
 # Nextflow requires a bucket to store temporary files. We can create a controlled resource for this, which means a cloud resource (a bucket in this case) within the backing GCP project.
 
-resourceName="terraclitesting$RANDOM"
-echo "resourceName = $resourceName  ($RANDOM)"
+randomnumber=$RANDOM
+resourceName="terraclitesting$randomnumber"
+echo "resourceName = $resourceName  ($randomnumber)"
 terra resources create gcs-bucket --name=$resourceName --bucket-name=$resourceName
 terra resources list
 
