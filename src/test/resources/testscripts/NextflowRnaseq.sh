@@ -20,10 +20,10 @@ terra status
 
 # Nextflow requires a bucket to store temporary files. We can create a controlled resource for this, which means a cloud resource (a bucket in this case) within the backing GCP project.
 
-randomnumber=$RANDOM
-resourceName="terraclitesting$randomnumber"
-echo "resourceName = $resourceName  ($randomnumber)"
-terra resources create gcs-bucket --name=$resourceName --bucket-name=$resourceName
+bucketName=$(uuidgen | sed -e 's/-//g')
+echo "bucketName = $bucketName"
+exit 3
+terra resources create gcs-bucket --name=terraclitesting --bucket-name=$resourceName
 terra resources list
 
 # I will use an example Nextflow workflow from a GitHub repository [show webpage], and checkout a tag that I have tested beforehand. This is the same example workflow that is used on the GCP + Nextflow tutorial [show webpage].

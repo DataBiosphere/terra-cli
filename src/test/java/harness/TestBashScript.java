@@ -31,7 +31,7 @@ public class TestBashScript {
   public int runScript(String scriptName) {
     // build the command from the script name
     Path script = TestBashScript.getPathFromScriptName(scriptName);
-    List<String> command = Collections.singletonList("sh " + script);
+    List<String> command = Collections.singletonList("bash " + script);
 
     return runCommands(command, new HashMap<>());
   }
