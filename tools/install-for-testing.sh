@@ -16,6 +16,7 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
 fi
 
 installMode=$1
+echo "installMode: $installMode"
 if [ "$installMode" == "SOURCE_CODE" ]; then
   echo "Assuming the Java code is already built and installed by Gradle"
   terra=$(pwd)/build/install/terra-cli/bin/terra
