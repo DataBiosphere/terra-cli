@@ -71,3 +71,10 @@ jobs:
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
+      - name: Archive logs and context file
+        uses: actions/upload-artifact@v2
+        with:
+          name: archive_logs_and_context
+          path: |
+            build/test-context/.terra/logs/
+            build/test-context/.terra/global-context.json
