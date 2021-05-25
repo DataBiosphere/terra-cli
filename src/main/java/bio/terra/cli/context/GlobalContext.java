@@ -264,6 +264,8 @@ public class GlobalContext {
   //               - pet SA key filename: [workspace id]
   //           - sub-directory for log files: logs/
   //               -*.terra.log
+  //           - sub-directory for Java library dependencies: lib/
+  //               -*.jar
 
   /**
    * Get the global context directory.

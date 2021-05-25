@@ -8,10 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.command.auth.Status;
-import bio.terra.cli.context.GlobalContext;
 import harness.TestCommand;
 import harness.TestUsers;
-import harness.baseclasses.ClearContext;
+import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +19,13 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra auth status` command. */
 @Tag("unit")
-public class AuthStatus extends ClearContext {
+public class AuthStatus extends ClearContextUnit {
   @Test
   @DisplayName("auth status includes user email and says logged in")
   void authStatusWhenLoggedIn() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login();
 
     // `terra auth status --format=json`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
@@ -70,7 +69,7 @@ public class AuthStatus extends ClearContext {
   void authRevokeChanges() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login();
 
     // `terra auth status --format=json`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");

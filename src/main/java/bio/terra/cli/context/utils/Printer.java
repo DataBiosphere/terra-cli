@@ -45,7 +45,8 @@ public class Printer {
     if (printer == null) {
       initialize(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM);
     } else {
-      logger.warn("Printing setup called multiple times.");
+      logger.warn(
+          "Printing setup called multiple times. This is expected when testing, not during normal operation.");
     }
     cmd.setOut(getPrintWriter(printer.out));
     cmd.setErr(getPrintWriter(printer.err));

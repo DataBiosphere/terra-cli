@@ -55,8 +55,10 @@ public enum TestUsers {
    * This method mimics the typical CLI login flow, in a way that is more useful for testing. It
    * uses domain-wide delegation to populate test user credentials, instead of the usual Google
    * Oauth login flow, which requires manual interaction with a browser.
+   *
+   * @return global context object, populated with the user's credentials
    */
-  public void login(GlobalContext globalContext) throws IOException {
+  public GlobalContext login() throws IOException {
     // get a credential for the test-user SA
     Path jsonKey = Path.of("rendered", "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
@@ -85,10 +87,13 @@ public enum TestUsers {
     dataStore.set(GoogleCredentialUtils.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     // unset the current user in the global context if already specified
+    GlobalContext globalContext = GlobalContext.readFromFile();
     globalContext.unsetCurrentTerraUser();
 
     // do the login flow to populate the global context with the current user
     new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).loginTerraUser();
+
+    return globalContext;
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */

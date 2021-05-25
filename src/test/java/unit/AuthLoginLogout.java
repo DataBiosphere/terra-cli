@@ -15,7 +15,7 @@ import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import harness.TestCommand;
 import harness.TestUsers;
-import harness.baseclasses.ClearContext;
+import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,13 +30,13 @@ import org.junit.jupiter.api.Test;
  * disk.
  */
 @Tag("unit")
-public class AuthLoginLogout extends ClearContext {
+public class AuthLoginLogout extends ClearContextUnit {
   @Test
   @DisplayName("test user login updates global context")
   void loginTestUser() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login();
 
     // check that the credential exists in the store on disk
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
@@ -63,7 +63,7 @@ public class AuthLoginLogout extends ClearContext {
   void logoutTestUser() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login();
 
     // run `terra auth revoke`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
@@ -86,8 +86,7 @@ public class AuthLoginLogout extends ClearContext {
     // check that each test user is enabled in SAM
     for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
       // login the user, so we have their credentials
-      GlobalContext globalContext = GlobalContext.readFromFile();
-      testUser.login(globalContext);
+      GlobalContext globalContext = testUser.login();
 
       // build a SAM client with the test user's credentials
       SamService samService =
