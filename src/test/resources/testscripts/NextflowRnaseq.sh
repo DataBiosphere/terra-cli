@@ -53,6 +53,6 @@ terra nextflow config rnaseq-nf/main.nf -profile gls
 
 # And kick off the actual Nextflow workflow.
 
-#terra nextflow run rnaseq-nf/main.nf -profile gls
+terra nextflow run rnaseq-nf/main.nf -profile gls
 
 # This will take about 10 minutes to complete. [Switch tabs] I started this workflow in a different workspace earlier and here is the resulting HTML report [show local webpage].
