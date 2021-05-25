@@ -72,6 +72,7 @@ jobs:
           echo "Running tests with tag: ${{ matrix.testTag }}"
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
       - name: Archive logs and context file
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: archive_logs_and_context
