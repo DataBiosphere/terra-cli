@@ -1,0 +1,55 @@
+name: Run tests against PRs (pre and post merge)
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint-and-static-analysis:
+    runs-on: ubuntu-latest
+    if: "!contains( github.event.sender.login, 'broadbot')"
+    steps:
+      - name: Checkout current code
+        id: checkout_code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          ref: main
+      - name: Run linter
+        id: run_linter
+        run: |
+          ./gradlew spotlessCheck
+      - name: Run static analysis
+        id: run_static_analysis
+        run: |
+          ./gradlew spotbugsMain spotbugsTest
+  unit-tests:
+    runs-on: ubuntu-latest
+    if: "!contains( github.event.sender.login, 'broadbot')"
+    steps:
+      - name: Checkout current code
+        id: checkout_code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          ref: main
+      - name: Render config
+        id: render_config
+        run: |
+          # this step does the equivalent of the tools/render-config.sh script.
+          # on local machines, the script fetches a SA from Vault.
+          # in GH actions, the SA key is stored in a GH repo secret.
+          # regardless of how it was fetched, tests expect this
+          # key to be stored in rendered/test-user-account.json
+          mkdir -p rendered
+          echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
+        env:
+          TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
+      - name: Run unit tests
+        id: run_linter
+        run: |
+          ./gradlew runTestsWithTag -PtestTag=unit
