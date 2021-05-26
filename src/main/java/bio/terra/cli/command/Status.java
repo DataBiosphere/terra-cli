@@ -5,6 +5,7 @@ import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -27,6 +28,7 @@ public class Status extends BaseCommand {
       value = {"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"},
       justification = "This POJO class is used for easy serialization to JSON using Jackson.")
   /** POJO class for printing out this command's output. */
+  @VisibleForTesting
   public static class StatusReturnValue {
     // global server context = service uris, environment name
     public ServerSpecification server;

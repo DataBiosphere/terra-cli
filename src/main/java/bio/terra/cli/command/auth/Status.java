@@ -4,6 +4,7 @@ import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -41,6 +42,7 @@ public class Status extends BaseCommand {
   }
 
   /** POJO class for printing out this command's output. */
+  @VisibleForTesting
   public static class AuthStatusReturnValue {
     // Terra user email associated with the current user
     public String userEmail;

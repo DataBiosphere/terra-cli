@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Printer;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -60,6 +61,7 @@ public class Main implements Runnable {
    * @param args command and arguments
    * @return process exit code
    */
+  @VisibleForTesting
   public static int runCommand(String... args) {
     CommandLine cmd = new CommandLine(new Main());
     cmd.setExecutionStrategy(new CommandLine.RunLast());
