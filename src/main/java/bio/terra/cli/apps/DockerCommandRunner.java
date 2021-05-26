@@ -34,7 +34,17 @@ public class DockerCommandRunner extends CommandRunner {
   /** Returns the default image id. */
   public static String defaultImageId() {
     // read from the JAR Manifest file
-    return DockerCommandRunner.class.getPackage().getImplementationVersion();
+    String fromJarManifest = DockerCommandRunner.class.getPackage().getImplementationVersion();
+    if (fromJarManifest != null) {
+      return fromJarManifest;
+    } else {
+      // during testing, the JAR may not be built or called, so we use a system property to pass the
+      // implementation version instead. this is only expected for testing, not during normal
+      // operation.
+      logger.warn(
+          "Implementation version not defined in the JAR manifest. This is expected when testing, not during normal operation.");
+      return System.getProperty("TERRA_JAR_IMPLEMENTATION_VERSION");
+    }
   }
 
   /**

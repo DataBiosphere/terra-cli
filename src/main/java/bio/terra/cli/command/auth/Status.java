@@ -4,6 +4,7 @@ import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -41,25 +42,25 @@ public class Status extends BaseCommand {
   }
 
   /** POJO class for printing out this command's output. */
-  private static class AuthStatusReturnValue {
+  @VisibleForTesting
+  public static class AuthStatusReturnValue {
     // Terra user email associated with the current user
-    public final String userEmail;
+    public String userEmail;
 
     // Terra proxy group email associated with the current user
-    public final String proxyGroupEmail;
+    public String proxyGroupEmail;
 
     // true if the current user does not need to re-authenticate
-    public final boolean loggedIn;
+    public boolean loggedIn;
 
-    // true if there is a current user defined in the global context
-    public final boolean currentUserDefined;
+    // public constructor for Jackson serialization
+    public AuthStatusReturnValue() {}
 
     private AuthStatusReturnValue(
         String userEmail, String proxyGroupEmail, boolean loggedIn, boolean currentUserDefined) {
       this.userEmail = userEmail;
       this.proxyGroupEmail = proxyGroupEmail;
       this.loggedIn = loggedIn;
-      this.currentUserDefined = currentUserDefined;
     }
 
     /** Constructor for when there is a current user defined. */

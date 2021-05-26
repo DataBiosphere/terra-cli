@@ -1,9 +1,10 @@
-package auth;
+package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.auth.GoogleCredentialUtils;
@@ -12,37 +13,30 @@ import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.utils.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
-import harness.TestContext;
+import harness.TestCommand;
 import harness.TestUsers;
+import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for the authentication part of the test harness, and the state of the credential store on
+ * disk.
+ */
 @Tag("unit")
-public class LoginTestUser {
-  @BeforeEach
-  void setup() throws IOException {
-    TestContext.resetGlobalContext();
-  }
-
-  @AfterEach
-  void cleanup() throws IOException {
-    TestContext.deleteGlobalContext();
-  }
-
+public class AuthLoginLogout extends ClearContextUnit {
   @Test
   @DisplayName("test user login updates global context")
   void loginTestUser() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login();
 
     // check that the credential exists in the store on disk
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
@@ -65,13 +59,34 @@ public class LoginTestUser {
   }
 
   @Test
+  @DisplayName("test user logout updates global context")
+  void logoutTestUser() throws IOException {
+    // select a test user and login
+    TestUsers testUser = TestUsers.chooseTestUser();
+    testUser.login();
+
+    // `terra auth revoke`
+    TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
+    assertEquals(0, cmd.exitCode);
+
+    // check that the credential store on disk is empty
+    DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
+    assertEquals(0, dataStore.keySet().size(), "credential store is empty");
+
+    // read the global context in from disk again to check what got persisted
+    // check that the current user in the global context is unset
+    GlobalContext globalContext = GlobalContext.readFromFile();
+    Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
+    assertFalse(currentTerraUser.isPresent(), "current user unset in global context");
+  }
+
+  @Test
   @DisplayName("all test users enabled in SAM")
   void checkEnabled() throws IOException {
     // check that each test user is enabled in SAM
     for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
       // login the user, so we have their credentials
-      GlobalContext globalContext = GlobalContext.readFromFile();
-      testUser.login(globalContext);
+      GlobalContext globalContext = testUser.login();
 
       // build a SAM client with the test user's credentials
       SamService samService =
@@ -81,7 +96,9 @@ public class LoginTestUser {
       UserStatusInfo userStatusInfo = samService.getUserInfo();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
-      testUser.logout(globalContext);
+      // `terra auth revoke`
+      TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
+      assertEquals(0, cmd.exitCode);
     }
   }
 }
