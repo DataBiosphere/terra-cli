@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hamcrest.CoreMatchers;
@@ -47,7 +48,7 @@ public class TestBashScript {
     bashCommand.add(String.join("; ", command));
 
     // add to the $PATH the directory where the CLI is installed
-    Map<String, String> envVarsCopy = Map.copyOf(envVars);
+    Map<String, String> envVarsCopy = new HashMap<>(envVars);
     String installLocation = System.getProperty("TERRA_INSTALL_DIR");
     assertThat(
         "terra install directory is defined",
