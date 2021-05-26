@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hamcrest.CoreMatchers;
@@ -17,10 +16,6 @@ import org.hamcrest.CoreMatchers;
  * for integration tests because it calls the commands from a bash script in a separate process.
  */
 public class TestBashScript {
-  private Process process;
-
-  public TestBashScript() {}
-
   /**
    * Executes a test script in a separate process from the current working directory.
    *
@@ -28,12 +23,12 @@ public class TestBashScript {
    *     NextflowRnaseq.sh)
    * @return process exit code
    */
-  public int runScript(String scriptName) {
+  public static int runScript(String scriptName) {
     // build the command from the script name
     Path script = TestBashScript.getPathFromScriptName(scriptName);
     List<String> command = Collections.singletonList("bash " + script);
 
-    return runCommands(command, new HashMap<>());
+    return runCommands(command, Collections.emptyMap());
   }
 
   /**
@@ -44,7 +39,7 @@ public class TestBashScript {
    * @param envVars the environment variables to set or overwrite if already defined
    * @return process exit code
    */
-  public int runCommands(List<String> command, Map<String, String> envVars) {
+  public static int runCommands(List<String> command, Map<String, String> envVars) {
     // execute the commands via bash
     List<String> bashCommand = new ArrayList<>();
     bashCommand.add("bash");
@@ -77,7 +72,7 @@ public class TestBashScript {
    * @param workingDirectory the working directory to launch the process from
    * @return process exit code
    */
-  public int launchChildProcess(
+  public static int launchChildProcess(
       List<String> command, Map<String, String> envVars, Path workingDirectory) {
     // build and run process from the specified working directory
     ProcessBuilder procBuilder = new ProcessBuilder(command);
@@ -86,13 +81,12 @@ public class TestBashScript {
     }
     if (envVars != null) {
       Map<String, String> procEnvVars = procBuilder.environment();
-      for (Map.Entry<String, String> envVar : envVars.entrySet()) {
-        procEnvVars.put(envVar.getKey(), envVar.getValue());
-      }
+      envVars.entrySet().forEach(envVar -> procEnvVars.put(envVar.getKey(), envVar.getValue()));
     }
     procBuilder.inheritIO();
 
     // kick off the child process
+    Process process;
     try {
       process = procBuilder.start();
     } catch (IOException ioEx) {

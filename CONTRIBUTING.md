@@ -131,7 +131,7 @@ Example integration test code:
 
 While it's possible to mix both types of testing in the same JUnit method, that should be avoided because then the
 test is running commands against two different versions of the code (the source code directly in the same process
-as the test, and the installed code in a separate process as the test). This could be confusing to track down errors.
+as the test, and the installed code in a separate process from the test). This could be confusing to track down errors.
 
 Both types of tests:
 - Use the same code to authenticate a test user without requiring browser interaction.
@@ -196,7 +196,8 @@ terra spend enable --policy=user Noah.Frostwolf@test.firecloud.org
 # do nothing: Ethan.Bonechewer@test.firecloud.org
 ```
 
-Reference to list of available test users is [here](https://accounts.google.com/ServiceLogin?service=wise&passive=1209600&continue=https://docs.google.com/spreadsheets/u/1/d/17PjpwWedN-hxeOlEbepNahLmRDqhvLc25yYxbz6Oj3E/edit&followup=https://docs.google.com/spreadsheets/u/1/d/17PjpwWedN-hxeOlEbepNahLmRDqhvLc25yYxbz6Oj3E/edit&ltmpl=sheets&authuser=1#gid=0).
+You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
+`test.firecloud.org` GSuite account.
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.

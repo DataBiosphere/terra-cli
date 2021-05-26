@@ -19,7 +19,7 @@ public class ClearContextIntegration {
     TestContext.clearWorkingDirectory();
 
     // run a script that resets the global context
-    int exitCode = new TestBashScript().runScript("SetupContext.sh");
+    int exitCode = TestBashScript.runScript("SetupContext.sh");
     assertEquals(0, exitCode, "SetupContext script completed without errors");
   }
 
@@ -27,6 +27,6 @@ public class ClearContextIntegration {
   protected void cleanupEachTime() throws IOException {
     // run a script that deletes the current workspace, but don't fail the test for any errors
     // during cleanup
-    new TestBashScript().runScript("DeleteWorkspace.sh");
+    TestBashScript.runScript("DeleteWorkspace.sh");
   }
 }

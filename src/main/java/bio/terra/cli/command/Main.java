@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Printer;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -57,9 +58,10 @@ public class Main implements Runnable {
    * Create and execute the top-level command. Tests call this method instead of {@link
    * #main(String...)} so that the process isn't terminated.
    *
-   * @param args from stdin
+   * @param args command and arguments
    * @return process exit code
    */
+  @VisibleForTesting
   public static int runCommand(String... args) {
     CommandLine cmd = new CommandLine(new Main());
     cmd.setExecutionStrategy(new CommandLine.RunLast());

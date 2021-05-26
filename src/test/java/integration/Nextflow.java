@@ -21,7 +21,7 @@ public class Nextflow extends ClearContextIntegration {
     testUser.login();
 
     // run the script that downloads the NF workflow from GH and runs it
-    int exitCode = new TestBashScript().runScript("NextflowRnaseq.sh");
+    int exitCode = TestBashScript.runScript("NextflowRnaseq.sh");
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");
