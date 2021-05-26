@@ -47,19 +47,20 @@ public class TestBashScript {
     bashCommand.add(String.join("; ", command));
 
     // add to the $PATH the directory where the CLI is installed
+    Map<String, String> envVarsCopy = Map.copyOf(envVars);
     String installLocation = System.getProperty("TERRA_INSTALL_DIR");
     assertThat(
         "terra install directory is defined",
         installLocation,
         CoreMatchers.not(emptyOrNullString()));
-    envVars.put("PATH", installLocation + ":" + System.getenv("PATH"));
+    envVarsCopy.put("PATH", installLocation + ":" + System.getenv("PATH"));
 
     // use a working directory inside the gradle build directory, so it gets cleaned up with the
     // clean task
     Path workingDirectory = Path.of(System.getProperty("TERRA_WORKING_DIR"));
 
     // run the commands in a child process
-    return launchChildProcess(bashCommand, envVars, workingDirectory);
+    return launchChildProcess(bashCommand, envVarsCopy, workingDirectory);
   }
 
   /**
