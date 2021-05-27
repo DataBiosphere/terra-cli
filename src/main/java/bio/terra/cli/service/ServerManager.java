@@ -74,7 +74,7 @@ public class ServerManager {
 
     bio.terra.workspace.model.SystemStatus wsmStatus = null;
     try {
-      wsmStatus = new WorkspaceManagerService(globalContext.server).getStatus();
+      wsmStatus = new WorkspaceManagerService().getStatus();
       logger.info("WSM status: {}", wsmStatus);
     } catch (Exception ex) {
       logger.error("Error getting WSM status.", ex);

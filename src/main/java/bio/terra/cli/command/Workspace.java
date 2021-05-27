@@ -5,7 +5,7 @@ import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
 import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
-import bio.terra.cli.command.workspace.Mount;
+import bio.terra.cli.command.workspace.Load;
 import bio.terra.cli.command.workspace.RemoveUser;
 import bio.terra.cli.command.workspace.Update;
 import picocli.CommandLine.Command;
@@ -20,7 +20,7 @@ import picocli.CommandLine.Command;
     subcommands = {
       List.class,
       Create.class,
-      Mount.class,
+      Load.class,
       Delete.class,
       Update.class,
       ListUsers.class,

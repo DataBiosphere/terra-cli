@@ -1,7 +1,6 @@
 package bio.terra.cli.context;
 
 import static bio.terra.cli.context.GlobalContext.CommandRunners.DOCKER_CONTAINER;
-import static bio.terra.cli.context.GlobalContext.CommandRunners.LOCAL_PROCESS;
 import static bio.terra.cli.context.utils.Logger.LogLevel;
 
 import bio.terra.cli.apps.CommandRunner;
@@ -36,6 +35,9 @@ public class GlobalContext {
   // global server context = service uris, environment name
   public ServerSpecification server;
 
+  // global workspaces context = current workspace
+  public Workspace workspace;
+
   // global apps context = flag for how to launch tools, docker image id or tag
   public CommandRunners commandRunnerOption = DOCKER_CONTAINER;
   public String dockerImageId;
@@ -59,20 +61,14 @@ public class GlobalContext {
   private static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
-  // defaut constructor needed for Jackson de/serialization
+  private static GlobalContext globalContext;
+
   private GlobalContext() {}
 
-  private GlobalContext(ServerSpecification server, String dockerImageId) {
-    this.server = server;
-    this.dockerImageId = dockerImageId;
-  }
-
-  // ====================================================
-  // Persisting on disk
-
   /**
-   * Read in an instance of this class from a JSON-formatted file in the global context directory.
-   * If there is no existing file, this method returns an object populated with default values.
+   * Return the singleton instance of this class. If the instance is not already defined, then read
+   * it in from a JSON-formatted file in the global context directory. If there is no existing file,
+   * then build an object populated with default values.
    *
    * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
    * the logging levels specified in the global context, the loggers have not been setup when we
@@ -80,33 +76,30 @@ public class GlobalContext {
    *
    * @return an instance of this class
    */
-  public static GlobalContext readFromFile() {
-    // try to read in an instance of the global context file
+  public static GlobalContext get() {
+    if (globalContext != null) {
+      return globalContext;
+    }
+
     try {
-      return JacksonMapper.readFileIntoJavaObject(
-          getGlobalContextFile().toFile(), GlobalContext.class);
+      // try to read in an instance of the global context file
+      globalContext =
+          JacksonMapper.readFileIntoJavaObject(
+              getGlobalContextFile().toFile(), GlobalContext.class);
     } catch (IOException ioEx) {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing global context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
+      globalContext = new GlobalContext();
+      globalContext.server = ServerManager.defaultServer();
+      globalContext.dockerImageId = DockerCommandRunner.defaultImageId();
     }
 
-    // if the global context file does not exist or there is an error reading it, return an object
-    // populated with default values
-    return new GlobalContext(ServerManager.defaultServer(), DockerCommandRunner.defaultImageId());
-  }
-
-  /** Write an instance of this class to a JSON-formatted file in the global context directory. */
-  private void writeToFile() {
-    try {
-      JacksonMapper.writeJavaObjectToFile(getGlobalContextFile().toFile(), this);
-    } catch (IOException ioEx) {
-      logger.error("Error persisting global context.", ioEx);
-    }
+    return globalContext;
   }
 
   // ====================================================
-  // Auth
+  // Property get/setters.
 
   /** Getter for the current Terra user. Returns empty if no current user is defined. */
   @JsonIgnore
@@ -139,6 +132,38 @@ public class GlobalContext {
   /** Clear the current terra user. Persists on disk. */
   public void unsetCurrentTerraUser() {
     this.terraUser = null;
+    writeToFile();
+  }
+
+  /** Getter for the current workspace. Returns empty if no current workspace is defined. */
+  @JsonIgnore
+  public Optional<Workspace> getCurrentWorkspace() {
+    return Optional.ofNullable(workspace);
+  }
+
+  /** Utility method that throws an exception if the current workspace is not defined. */
+  public Workspace requireCurrentWorkspace() {
+    Optional<Workspace> workspaceOpt = getCurrentWorkspace();
+    if (!workspaceOpt.isPresent()) {
+      throw new UserActionableException("The current workspace is not defined.");
+    }
+    return workspaceOpt.get();
+  }
+
+  /** Sets the current workspace. Persists on disk */
+  public void setCurrentWorkspace(Workspace workspace) {
+    logger.info(
+        "Updating workspace from {} to {}.",
+        this.workspace == null ? "undefined" : this.workspace.id,
+        workspace.id);
+    this.workspace = workspace;
+
+    writeToFile();
+  }
+
+  /** Clear the current workspace. Persists on disk. */
+  public void unsetCurrentWorkspace() {
+    this.workspace = null;
     writeToFile();
   }
 
@@ -215,9 +240,6 @@ public class GlobalContext {
     writeToFile();
   }
 
-  // ====================================================
-  // Server
-
   /** Setter for the current Terra server. Persists on disk. */
   public void updateServer(ServerSpecification server) {
     logger.info("Updating server from {} to {}.", this.server.name, server.name);
@@ -225,9 +247,6 @@ public class GlobalContext {
 
     writeToFile();
   }
-
-  // ====================================================
-  // Apps
 
   /** Setter for the Docker image id. Persists on disk. */
   public void updateDockerImageId(String dockerImageId) {
@@ -237,6 +256,7 @@ public class GlobalContext {
     writeToFile();
   }
 
+  // TODO (mariko): move this to CommandRunner
   /** This enum defines the different ways of running tool/app commands. */
   public enum CommandRunners {
     DOCKER_CONTAINER,
@@ -256,7 +276,7 @@ public class GlobalContext {
   }
 
   // ====================================================
-  // Directory and file names
+  // Directory and file names for persisting on disk
   //   - global context directory parent: $HOME/ or $TERRA_CONTEXT_PARENT_DIR/
   //       - global context directory: .terra/
   //           - persisted global context file: global-context.json
@@ -264,6 +284,15 @@ public class GlobalContext {
   //               - pet SA key filename: [workspace id]
   //           - sub-directory for log files: logs/
   //               -*.terra.log
+
+  /** Write an instance of this class to a JSON-formatted file in the global context directory. */
+  private void writeToFile() {
+    try {
+      JacksonMapper.writeJavaObjectToFile(getGlobalContextFile().toFile(), this);
+    } catch (IOException ioEx) {
+      logger.error("Error persisting global context.", ioEx);
+    }
+  }
 
   /**
    * Get the global context directory.

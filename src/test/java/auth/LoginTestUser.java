@@ -42,7 +42,7 @@ public class LoginTestUser {
   void loginTestUser() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUser();
-    testUser.login(GlobalContext.readFromFile());
+    testUser.login(GlobalContext.get());
 
     // check that the credential exists in the store on disk
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
@@ -54,9 +54,7 @@ public class LoginTestUser {
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user
-    // read the global context in from disk again to make sure it got persisted
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
+    Optional<TerraUser> currentTerraUser = GlobalContext.get().getCurrentTerraUser();
     assertTrue(currentTerraUser.isPresent(), "current user set in global context");
     assertThat(
         "test user email matches the current user set in global context",
@@ -70,7 +68,7 @@ public class LoginTestUser {
     // check that each test user is enabled in SAM
     for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
       // login the user, so we have their credentials
-      GlobalContext globalContext = GlobalContext.readFromFile();
+      GlobalContext globalContext = GlobalContext.get();
       testUser.login(globalContext);
 
       // build a SAM client with the test user's credentials

@@ -39,7 +39,7 @@ public class TestContext {
    */
   public static void resetGlobalContext() throws IOException {
     deleteGlobalContext();
-    GlobalContext globalContext = GlobalContext.readFromFile();
+    GlobalContext globalContext = GlobalContext.get();
 
     // setup logging for testing (console = OFF, file = DEBUG)
     globalContext.consoleLoggingLevel = Logger.LogLevel.OFF;

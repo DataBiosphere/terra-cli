@@ -16,7 +16,6 @@ import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.StewardshipType;
-import bio.terra.workspace.model.WorkspaceDescription;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.DatasetId;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This class manipulates the workspace properties of the workspace context object. */
+/** This class manipulates the workspace properties of the global context object. */
 public class WorkspaceManager {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManager.class);
 
@@ -39,142 +38,6 @@ public class WorkspaceManager {
   public WorkspaceManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
-  }
-
-  // ====================================================
-  // Workspaces
-
-  /**
-   * List all workspaces that a user has read access to.
-   *
-   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
-   * @param limit the maximum number of workspaces to return
-   * @return list of workspaces
-   */
-  public List<WorkspaceDescription> listWorkspaces(int offset, int limit) {
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // fetch the list of workspaces from WSM
-    return new WorkspaceManagerService(globalContext.server, currentUser)
-        .listWorkspaces(offset, limit)
-        .getWorkspaces();
-  }
-
-  /**
-   * Create a new workspace.
-   *
-   * @param displayName optional display name
-   * @param description optional description
-   */
-  public void createWorkspace(String displayName, String description) {
-    // check that there is no existing workspace already mounted
-    if (!workspaceContext.isEmpty()) {
-      throw new UserActionableException("There is already a workspace mounted to this directory.");
-    }
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to create the workspace object and backing Google context
-    WorkspaceDescription createdWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser)
-            .createWorkspace(displayName, description);
-    logger.info("Created workspace: id={}, {}", createdWorkspace.getId(), createdWorkspace);
-
-    // update the workspace context with the current workspace
-    // note that this state is persisted to disk. it will be useful for code called in the same or a
-    // later CLI command/process
-    workspaceContext.updateWorkspace(createdWorkspace);
-  }
-
-  /**
-   * Fetch an existing workspace and mount it to the current directory.
-   *
-   * @throws UserActionableException if there is already a different workspace mounted to the
-   *     current directory
-   */
-  public void mountWorkspace(String workspaceId) {
-    // check that the workspace id is a valid UUID
-    UUID workspaceIdParsed = UUID.fromString(workspaceId);
-
-    // check that either there is no workspace currently mounted, or its id matches this one
-    if (!(workspaceContext.isEmpty()
-        || workspaceContext.getWorkspaceId().equals(workspaceIdParsed))) {
-      throw new UserActionableException(
-          "There is already a different workspace mounted to this directory.");
-    }
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription existingWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser)
-            .getWorkspace(workspaceIdParsed);
-    logger.info("Existing workspace: id={}, {}", existingWorkspace.getId(), existingWorkspace);
-
-    // update the workspace context with the current workspace
-    // note that this state is persisted to disk. it will be useful for code called in the same or a
-    // later CLI command/process
-    workspaceContext.updateWorkspace(existingWorkspace);
-
-    // call WSM to fetch the list of resources in the workspace
-    updateResourcesCache();
-  }
-
-  /**
-   * Delete the workspace that is mounted to the current directory.
-   *
-   * @return the deleted workspace id
-   * @throws UserActionableException if there is no workspace currently mounted
-   */
-  public UUID deleteWorkspace() {
-    // check that there is a workspace currently mounted
-    workspaceContext.requireCurrentWorkspace();
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to delete the existing workspace object
-    WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
-    new WorkspaceManagerService(globalContext.server, currentUser)
-        .deleteWorkspace(workspaceContext.getWorkspaceId());
-    logger.info("Deleted workspace: id={}, {}", workspace.getId(), workspace);
-
-    // unset the workspace in the current context
-    // note that this state is persisted to disk. it will be useful for code called in the same or a
-    // later CLI command/process
-    workspaceContext.deleteWorkspace();
-
-    return workspace.getId();
-  }
-
-  /**
-   * Update the mutable properties of the workspace that is mounted to the current directory.
-   *
-   * @param displayName optional display name
-   * @param description optional description
-   * @throws UserActionableException if there is no workspace currently mounted
-   */
-  public void updateWorkspace(String displayName, String description) {
-    // check that there is a workspace currently mounted
-    workspaceContext.requireCurrentWorkspace();
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to update the existing workspace object
-    WorkspaceDescription workspace = workspaceContext.terraWorkspaceModel;
-    WorkspaceDescription updatedWorkspace =
-        new WorkspaceManagerService(globalContext.server, currentUser)
-            .updateWorkspace(workspaceContext.getWorkspaceId(), displayName, description);
-    logger.info("Updated workspace: id={}, {}", workspace.getId(), workspace);
-
-    // update the workspace in the current context
-    // note that this state is persisted to disk. it will be useful for code called in the same or a
-    // later CLI command/process
-    workspaceContext.updateWorkspace(updatedWorkspace);
   }
 
   // ====================================================
@@ -196,7 +59,7 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to add a user + role to the existing workspace
-    new WorkspaceManagerService(globalContext.server, currentUser)
+    new WorkspaceManagerService()
         .grantIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
         "Added user to workspace: id={}, user={}, role={}",
@@ -221,7 +84,7 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to remove a user + role from the existing workspace
-    new WorkspaceManagerService(globalContext.server, currentUser)
+    new WorkspaceManagerService()
         .removeIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
     logger.info(
         "Removed user from workspace: id={}, user={}, role={}",
@@ -243,8 +106,7 @@ public class WorkspaceManager {
     TerraUser currentUser = globalContext.requireCurrentTerraUser();
 
     // call WSM to get the users + roles for the existing workspace
-    return new WorkspaceManagerService(globalContext.server, currentUser)
-        .getRoles(workspaceContext.getWorkspaceId());
+    return new WorkspaceManagerService().getRoles(workspaceContext.getWorkspaceId());
   }
 
   // ====================================================
@@ -263,7 +125,7 @@ public class WorkspaceManager {
 
     // call WSM to get the list of resources for the existing workspace
     List<ResourceDescription> resourceList =
-        new WorkspaceManagerService(globalContext.server, currentUser)
+        new WorkspaceManagerService()
             .enumerateAllResources(
                 workspaceContext.getWorkspaceId(), globalContext.resourcesCacheSize);
 
@@ -309,8 +171,7 @@ public class WorkspaceManager {
     return createResource(
         resourceToAdd.getMetadata().getName(),
         () ->
-            new WorkspaceManagerService(
-                    globalContext.server, globalContext.requireCurrentTerraUser())
+            new WorkspaceManagerService()
                 .createReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceToAdd));
   }
 
@@ -325,8 +186,7 @@ public class WorkspaceManager {
     return createResource(
         resourceToAdd.getMetadata().getName(),
         () ->
-            new WorkspaceManagerService(
-                    globalContext.server, globalContext.requireCurrentTerraUser())
+            new WorkspaceManagerService()
                 .createReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceToAdd));
   }
 
@@ -350,8 +210,7 @@ public class WorkspaceManager {
     return createResource(
         resourceToCreate.getMetadata().getName(),
         () ->
-            new WorkspaceManagerService(
-                    globalContext.server, globalContext.requireCurrentTerraUser())
+            new WorkspaceManagerService()
                 .createControlledGcsBucket(
                     workspaceContext.getWorkspaceId(),
                     resourceToCreate,
@@ -373,8 +232,7 @@ public class WorkspaceManager {
     return createResource(
         resourceToCreate.getMetadata().getName(),
         () ->
-            new WorkspaceManagerService(
-                    globalContext.server, globalContext.requireCurrentTerraUser())
+            new WorkspaceManagerService()
                 .createControlledBigQueryDataset(
                     workspaceContext.getWorkspaceId(), resourceToCreate, location));
   }
@@ -385,8 +243,7 @@ public class WorkspaceManager {
     return createResource(
         resourceToCreate.getMetadata().getName(),
         () ->
-            new WorkspaceManagerService(
-                    globalContext.server, globalContext.requireCurrentTerraUser())
+            new WorkspaceManagerService()
                 .createControlledAiNotebookInstance(
                     workspaceContext.getWorkspaceId(), resourceToCreate, creationParameters));
   }
@@ -441,7 +298,7 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         (resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+          new WorkspaceManagerService()
               .deleteReferencedGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -457,7 +314,7 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         (resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+          new WorkspaceManagerService()
               .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -473,7 +330,7 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         (resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+          new WorkspaceManagerService()
               .deleteControlledAiNotebookInstance(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -489,7 +346,7 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         (resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+          new WorkspaceManagerService()
               .deleteControlledGcsBucket(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
@@ -505,7 +362,7 @@ public class WorkspaceManager {
     return deleteResource(
         name,
         (resourceId) -> {
-          new WorkspaceManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+          new WorkspaceManagerService()
               .deleteControlledBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
         });
   }

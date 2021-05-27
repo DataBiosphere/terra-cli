@@ -47,7 +47,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     ERR = Printer.getErr();
 
     // read in the global context and setup logging
-    globalContext = GlobalContext.readFromFile();
+    globalContext = GlobalContext.get();
     new Logger(globalContext).setupLogging();
 
     // read in the workspace context

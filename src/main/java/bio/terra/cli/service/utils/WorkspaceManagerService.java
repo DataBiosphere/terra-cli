@@ -2,6 +2,7 @@ package bio.terra.cli.service.utils;
 
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
+import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.ServerSpecification;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
@@ -72,12 +73,6 @@ import org.slf4j.LoggerFactory;
 public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
 
-  // the Terra environment where the WSM service lives
-  private final ServerSpecification server;
-
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final TerraUser terraUser;
-
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
@@ -91,25 +86,12 @@ public class WorkspaceManagerService {
   /**
    * Constructor for class that talks to the Workspace Manager service. The user must be
    * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
-   *
-   * @param server the Terra environment where the Workspace Manager service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
    */
-  public WorkspaceManagerService(ServerSpecification server, TerraUser terraUser) {
-    this.server = server;
-    this.terraUser = terraUser;
+  public WorkspaceManagerService() {
     this.apiClient = new ApiClient();
-    buildClientForTerraUser(server, terraUser);
-  }
-
-  /**
-   * Constructor for class that talks to the Workspace Manager service. No user is specified, so
-   * only unauthenticated endpoints can be called.
-   *
-   * @param server the Terra environment where the Workspace Manager service lives
-   */
-  public WorkspaceManagerService(ServerSpecification server) {
-    this(server, null);
+    GlobalContext globalContext = GlobalContext.get();
+    // check that there is a current user, we will use their credentials to communicate with WSM
+    buildClientForTerraUser(globalContext.server, globalContext.requireCurrentTerraUser());
   }
 
   /**
@@ -300,6 +282,7 @@ public class WorkspaceManagerService {
    * @param iamRole the role to assign
    */
   public void grantIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
+    GlobalContext globalContext = GlobalContext.get();
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
     try {
@@ -313,7 +296,8 @@ public class WorkspaceManagerService {
           },
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(server, terraUser).inviteUser(userEmail);
+            new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+                .inviteUser(userEmail);
             return null;
           });
     } catch (Exception secondEx) {

@@ -1,10 +1,10 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Workspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -34,14 +34,18 @@ public class Update extends BaseCommand {
   /** Update the mutable properties of an existing workspace. */
   @Override
   protected void execute() {
-    new WorkspaceManager(globalContext, workspaceContext)
-        .updateWorkspace(argGroup.displayName, argGroup.description);
-    formatOption.printReturnValue(workspaceContext.terraWorkspaceModel, this::printText);
+    Workspace workspaceToUpdate =
+        GlobalContext.get()
+            .requireCurrentWorkspace()
+            .update(argGroup.displayName, argGroup.description);
+    new AuthenticationManager(globalContext, workspaceContext)
+        .deletePetSaCredentials(globalContext.requireCurrentTerraUser());
+    formatOption.printReturnValue(workspaceToUpdate, this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(WorkspaceDescription returnValue) {
+  private void printText(Workspace returnValue) {
     OUT.println("Workspace successfully updated.");
-    PrintingUtils.printText(workspaceContext);
+    returnValue.printText();
   }
 }
