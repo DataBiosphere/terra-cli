@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hamcrest.CoreMatchers;
@@ -26,7 +27,7 @@ public class TestBashScript {
   public static int runScript(String scriptName) {
     // build the command from the script name
     Path script = TestBashScript.getPathFromScriptName(scriptName);
-    List<String> command = Collections.singletonList("sh " + script);
+    List<String> command = Collections.singletonList("bash " + script);
 
     return runCommands(command, Collections.emptyMap());
   }
@@ -47,19 +48,20 @@ public class TestBashScript {
     bashCommand.add(String.join("; ", command));
 
     // add to the $PATH the directory where the CLI is installed
+    Map<String, String> envVarsCopy = new HashMap<>(envVars);
     String installLocation = System.getProperty("TERRA_INSTALL_DIR");
     assertThat(
         "terra install directory is defined",
         installLocation,
         CoreMatchers.not(emptyOrNullString()));
-    envVars.put("PATH", installLocation + ":" + System.getenv("PATH"));
+    envVarsCopy.put("PATH", installLocation + ":" + System.getenv("PATH"));
 
     // use a working directory inside the gradle build directory, so it gets cleaned up with the
     // clean task
     Path workingDirectory = Path.of(System.getProperty("TERRA_WORKING_DIR"));
 
     // run the commands in a child process
-    return launchChildProcess(bashCommand, envVars, workingDirectory);
+    return launchChildProcess(bashCommand, envVarsCopy, workingDirectory);
   }
 
   /**

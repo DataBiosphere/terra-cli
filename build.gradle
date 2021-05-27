@@ -117,7 +117,7 @@ dependencies {
 task runInstallForTesting(type: Exec){
     boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
     String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
-    commandLine "sh", "./tools/install-for-testing.sh", installMode
+    commandLine "bash", "./tools/install-for-testing.sh", installMode
 
     dependsOn installDist
 }
