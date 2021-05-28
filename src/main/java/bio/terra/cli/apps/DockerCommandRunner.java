@@ -2,9 +2,7 @@ package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.DockerClientWrapper;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +22,7 @@ public class DockerCommandRunner extends CommandRunner {
   // context)
   private static final String CONTAINER_HOME_DIR = "/root";
   // mount point for the workspace directory
-  private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
+  private static final String CONTAINER_WORKING_DIR = "/usr/local/etc";
 
   public DockerCommandRunner() {}
 
@@ -84,20 +82,16 @@ public class DockerCommandRunner extends CommandRunner {
     // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
 
-    // mount the global context directory and the workspace directory to the container
+    // mount the global context directory and the current working directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
-    //       workspace context dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
+    //       current working dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
     Map<Path, Path> bindMounts = new HashMap<>();
     bindMounts.put(getGlobalContextDirOnContainer(), GlobalContext.getGlobalContextDir());
-    bindMounts.put(Path.of(CONTAINER_WORKSPACE_DIR), WorkspaceContext.getWorkspaceDir());
+    bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
     // create and start the docker container
     dockerClientWrapper.startContainer(
-        GlobalContext.get().dockerImageId,
-        command,
-        getWorkingDirOnContainer().toString(),
-        envVars,
-        bindMounts);
+        GlobalContext.get().dockerImageId, command, CONTAINER_WORKING_DIR, envVars, bindMounts);
 
     // read the container logs, which contains the command output, and write them to stdout
     dockerClientWrapper.streamLogsForContainer();
@@ -108,28 +102,6 @@ public class DockerCommandRunner extends CommandRunner {
 
     // delete the container
     dockerClientWrapper.deleteContainer();
-  }
-
-  /**
-   * Get the working directory on the container so that it matches the current working directory on
-   * the host.
-   *
-   * <p>e.g. working dir on host = /Users/mm/workspace123/nextflow/rnaseq-nf
-   *
-   * <p>working dir on container = CONTAINER_WORKSPACE_DIR/nextflow/rnaseq-nf
-   *
-   * @return absolute path to the working directory on the container
-   */
-  private static Path getWorkingDirOnContainer() {
-    // get the current working directory and the workspace directory on the host
-    Path currentDir = Paths.get("").toAbsolutePath();
-    Path workspaceDirOnHost = WorkspaceContext.getWorkspaceDir();
-
-    // remove the workspace directory part of the current working directory
-    Path relativePathToCurrentDir = workspaceDirOnHost.relativize(currentDir);
-
-    // working directory on container = workspace dir on container + relative path to current dir
-    return Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir);
   }
 
   /**
