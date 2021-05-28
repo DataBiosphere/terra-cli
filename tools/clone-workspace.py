@@ -5,6 +5,8 @@ import os
 import pprint
 import shutil
 import subprocess
+import time
+import uuid
 
 # command fragments
 TERRA = 'terra'
@@ -41,7 +43,7 @@ def clone_notebook(resource):
     print(f"Cloning AI notebook {resource['metadata']['name']}...")
     return get_json_stdout(
         [TERRA, 'resources', 'create', 'ai-notebook',
-         f"--name=Copy of {resource['metadata']['name']}",
+         f"--name=copy_of_{resource['metadata']['name']}",
          f"--description={resource['metadata']['description']}",
          JSON_FORMAT])
 
@@ -50,7 +52,7 @@ def clone_bucket(resource):
     print(f"Cloning bucket {resource['metadata']['name']}...")
     return get_json_stdout(
         [TERRA, 'resources', 'create', 'gcs-bucket',
-         f"--bucket-name={'copy-of-' + resource['resourceAttributes']['gcpGcsBucket']['bucketName']}",
+         f"--bucket-name={random_name('clone')}",
          f"--name=copy_of_{resource['metadata']['name']}",
          f"--description={resource['metadata']['description']}",
          JSON_FORMAT])
@@ -61,11 +63,16 @@ def clone_bq_dataset(resource):
     return get_json_stdout(
         [TERRA, 'resources', 'create', 'bq-dataset',
          f"--dataset-id={'copy_of_' + resource['resourceAttributes']['gcpBqDataset']['datasetId']}",
-         f"--name=Copy of {resource['metadata']['name']}",
+         f"--name=copy_of_{resource['metadata']['name']}",
          f"--description={resource['metadata']['description']}",
          JSON_FORMAT])
 
 
+def random_name(prefix):
+    return prefix + '-' + uuid.uuid4().hex
+
+
+start_time = time.time()
 status = get_status()
 workspace = status['workspace']
 source_workspace_id = workspace['id']
@@ -98,3 +105,6 @@ for r in resources:
 print('Cloned Resources:')
 resources = get_resources()
 pp.pprint(resources)
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f'Completed in {elapsed_time} seconds.')
