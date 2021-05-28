@@ -306,7 +306,7 @@ public class AiNotebook extends BaseCommand {
                         .accessScope(AccessScope.PRIVATE_ACCESS)
                         .privateResourceUser(
                             new PrivateResourceUser()
-                                .userName(globalContext.requireCurrentTerraUser().terraUserEmail)
+                                .userName(globalContext.requireCurrentTerraUser().getEmail())
                                 .privateResourceIamRoles(privateResourceIamRoles))));
   }
 
@@ -334,7 +334,7 @@ public class AiNotebook extends BaseCommand {
     if (!AUTO_GENERATE_NAME.equals(instanceId)) {
       return instanceId;
     }
-    String mangledUsername = mangleUsername(extractUsername(user.terraUserEmail));
+    String mangledUsername = mangleUsername(extractUsername(user.getEmail()));
     String localDateTimeSuffix =
         DateTimeFormatter.ofPattern(AUTO_NAME_DATE_FORMAT)
             .format(Instant.now().atZone(ZoneId.systemDefault()));

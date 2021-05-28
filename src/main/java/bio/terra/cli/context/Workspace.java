@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -23,12 +24,9 @@ public class Workspace {
 
   // properties of the workspace
   public final UUID id;
-  public String name = ""; // not unique
-  public String description = "";
+  public final String name; // not unique
+  public final String description;
   public final String googleProjectId;
-
-  // list of resources (controlled & referenced)
-  public List<ResourceDescription> resources;
 
   // name of the server where this workspace exists
   public final String serverName;
@@ -36,13 +34,20 @@ public class Workspace {
   // email of the user that loaded the workspace to this machine
   public final String terraUserEmail;
 
+  // list of resources (controlled & referenced)
+  private List<ResourceDescription> resources = new ArrayList<>();
+
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
   private Workspace(
       @JsonProperty("id") UUID id,
+      @JsonProperty("name") String name,
+      @JsonProperty("description") String description,
       @JsonProperty("googleProjectId") String googleProjectId,
       @JsonProperty("serverName") String serverName,
       @JsonProperty("terraUserEmail") String terraUserEmail) {
     this.id = id;
+    this.name = name;
+    this.description = description;
     this.googleProjectId = googleProjectId;
     this.serverName = serverName;
     this.terraUserEmail = terraUserEmail;
@@ -160,12 +165,11 @@ public class Workspace {
     Workspace workspace =
         new Workspace(
             wsmObject.getId(),
+            wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName(),
+            wsmObject.getDescription() == null ? "" : wsmObject.getDescription(),
             wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId(),
             globalContext.server.name,
-            globalContext.terraUser.terraUserEmail);
-    workspace.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
-    workspace.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
-    workspace.resources = new ArrayList<>();
+            globalContext.terraUser.getEmail());
     return workspace;
   }
 
@@ -179,5 +183,10 @@ public class Workspace {
     OUT.println(
         "Cloud console: https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
+  }
+
+  /** Getter for the resources list. Returns an immutable copy. */
+  public List<ResourceDescription> getResources() {
+    return Collections.unmodifiableList(resources);
   }
 }

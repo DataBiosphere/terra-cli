@@ -10,6 +10,7 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -38,24 +39,26 @@ public class TerraUser {
 
   // This field stores the id that Terra uses to identify a user. The CLI queries SAM for a user's
   // subject id to populate this field.
-  public String terraUserId;
+  private String terraUserId;
 
   // This field stores the name that Terra associates with this user. The CLI queries SAM for a
   // user's email to populate this field.
-  public String terraUserEmail;
+  private String terraUserEmail;
 
   // This field stores the proxy group email that Terra associates with this user. Permissions
   // granted to the proxy group are transitively granted to the user and all of their pet SAs. The
   // CLI queries SAM to populate this field.
-  public String terraProxyGroupEmail;
+  private String terraProxyGroupEmail;
 
   @JsonIgnore public UserCredentials userCredentials;
   @JsonIgnore public ServiceAccountCredentials petSACredentials;
 
+  @VisibleForTesting
   public static final List<String> SCOPES =
       Collections.unmodifiableList(
           Arrays.asList(
               "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
+
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
   public TerraUser() {}
@@ -67,10 +70,6 @@ public class TerraUser {
   public static void login() {
     GlobalContext globalContext = GlobalContext.get();
     Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
-
-    // this will become the current Terra user if we are successful in getting all the various
-    // information and credentials below
-    TerraUser terraUser = currentTerraUser.orElseGet(() -> new TerraUser());
 
     // fetch the user credentials, prompt for login and consent if they do not already exist or are
     // expired.
@@ -91,6 +90,9 @@ public class TerraUser {
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
+
+    // build or populate the current terra user object
+    TerraUser terraUser = currentTerraUser.orElseGet(() -> new TerraUser());
     terraUser.userCredentials = userCredentials;
 
     // fetch the user information from SAM, if it's not already populated
@@ -224,5 +226,23 @@ public class TerraUser {
       throw new SystemException(
           "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
     }
+  }
+
+  /** Getter for the Terra user id. */
+  @JsonIgnore
+  public String getId() {
+    return terraUserId;
+  }
+
+  /** Getter for the Terra user email. */
+  @JsonIgnore
+  public String getEmail() {
+    return terraUserEmail;
+  }
+
+  /** Getter for the Terra user proxy group email. */
+  @JsonIgnore
+  public String getProxyGroupEmail() {
+    return terraProxyGroupEmail;
   }
 }

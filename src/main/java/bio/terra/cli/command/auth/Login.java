@@ -14,6 +14,6 @@ public class Login extends BaseCommand {
   protected void execute() {
     // the base class will always login the user unless the {@link CommandSetup#doLogin}
     // method is overridden
-    OUT.println("Login successful: " + globalContext.requireCurrentTerraUser().terraUserEmail);
+    OUT.println("Login successful: " + globalContext.requireCurrentTerraUser().getEmail());
   }
 }

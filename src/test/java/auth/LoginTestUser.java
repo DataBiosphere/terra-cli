@@ -59,7 +59,7 @@ public class LoginTestUser {
     assertThat(
         "test user email matches the current user set in global context",
         testUser.email,
-        equalToIgnoringCase(currentTerraUser.get().terraUserEmail));
+        equalToIgnoringCase(currentTerraUser.get().getEmail()));
   }
 
   @Test

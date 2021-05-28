@@ -181,7 +181,7 @@ public class SamService {
     GoogleApi googleApi = new GoogleApi(apiClient);
     try {
       return HttpUtils.callWithRetries(
-          () -> googleApi.getProxyGroup(terraUser.terraUserEmail), SamService::isRetryable);
+          () -> googleApi.getProxyGroup(terraUser.getEmail()), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting proxy group email from SAM.", ex);
     } finally {

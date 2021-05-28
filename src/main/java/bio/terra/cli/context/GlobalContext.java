@@ -344,7 +344,7 @@ public class GlobalContext {
    */
   @JsonIgnore
   public static Path getPetSaKeyDir(TerraUser terraUser) {
-    return getGlobalContextDir().resolve(PET_KEYS_DIRNAME).resolve(terraUser.terraUserId);
+    return getGlobalContextDir().resolve(PET_KEYS_DIRNAME).resolve(terraUser.getId());
   }
 
   /**

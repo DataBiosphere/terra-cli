@@ -26,7 +26,7 @@ public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
 
   public final String email;
-  public List<IamRole> roles;
+  private List<IamRole> roles;
 
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
   private WorkspaceUser(

@@ -80,13 +80,13 @@ public class CheckAccess extends BaseCommand {
     TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
     OUT.println(
         "User ("
-            + currentTerraUser.terraUserEmail
+            + currentTerraUser.getEmail()
             + ") DOES "
             + (returnValue.userHasAccess ? "" : "NOT ")
             + "have access to this resource.");
     OUT.println(
         "User's pet SA in their proxy group ("
-            + currentTerraUser.terraProxyGroupEmail
+            + currentTerraUser.getProxyGroupEmail()
             + ") DOES "
             + (returnValue.proxyGroupHasAccess ? "" : "NOT ")
             + "have access to this resource.");

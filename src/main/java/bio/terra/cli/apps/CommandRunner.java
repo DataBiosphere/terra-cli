@@ -112,7 +112,7 @@ public abstract class CommandRunner {
     Map<String, String> terraReferences = new HashMap<>();
     GlobalContext.get()
         .requireCurrentWorkspace()
-        .resources
+        .getResources()
         .forEach(
             resource ->
                 terraReferences.put(

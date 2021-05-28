@@ -28,8 +28,8 @@ public class Status extends BaseCommand {
       TerraUser currentTerraUser = currentTerraUserOpt.get();
       authStatusReturnValue =
           AuthStatusReturnValue.createWhenCurrentUserIsDefined(
-              currentTerraUser.terraUserEmail,
-              currentTerraUser.terraProxyGroupEmail,
+              currentTerraUser.getEmail(),
+              currentTerraUser.getProxyGroupEmail(),
               !currentTerraUser.requiresReauthentication());
     }
 
