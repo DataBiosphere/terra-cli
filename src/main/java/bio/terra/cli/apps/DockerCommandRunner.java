@@ -2,7 +2,6 @@ package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.DockerClientWrapper;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,9 +26,7 @@ public class DockerCommandRunner extends CommandRunner {
   // mount point for the workspace directory
   private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
 
-  public DockerCommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    super(globalContext, workspaceContext);
-  }
+  public DockerCommandRunner() {}
 
   /** Returns the default image id. */
   public static String defaultImageId() {
@@ -51,7 +48,7 @@ public class DockerCommandRunner extends CommandRunner {
       logger.warn("Image not found: {}", imageId);
     }
 
-    globalContext.updateDockerImageId(imageId);
+    GlobalContext.get().updateDockerImageId(imageId);
   }
 
   /**
@@ -85,10 +82,7 @@ public class DockerCommandRunner extends CommandRunner {
    */
   protected void runToolCommandImpl(String command, Map<String, String> envVars) {
     // set the path to the pet SA key file, which may be different on the container vs the host
-    envVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        getPetSaKeyFileOnContainer(globalContext.requireCurrentTerraUser(), workspaceContext)
-            .toString());
+    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
 
     // mount the global context directory and the workspace directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
@@ -99,7 +93,7 @@ public class DockerCommandRunner extends CommandRunner {
 
     // create and start the docker container
     dockerClientWrapper.startContainer(
-        globalContext.dockerImageId,
+        GlobalContext.get().dockerImageId,
         command,
         getWorkingDirOnContainer().toString(),
         envVars,
@@ -158,10 +152,9 @@ public class DockerCommandRunner extends CommandRunner {
    *
    * @return absolute path to the pet SA key file for the given user and workspace on the container
    */
-  private static Path getPetSaKeyFileOnContainer(
-      TerraUser terraUser, WorkspaceContext workspaceContext) {
+  private static Path getPetSaKeyFileOnContainer() {
     // get the full path of the key file and global context directory on the host
-    Path keyFileOnHost = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext);
+    Path keyFileOnHost = GlobalContext.get().getPetSaKeyFile();
     Path globalContextDirOnHost = GlobalContext.getGlobalContextDir();
 
     // remove the global context directory part of the key file path

@@ -26,7 +26,7 @@ public class Image extends BaseCommand {
     String prevImageId = globalContext.dockerImageId;
     String newImageId =
         argGroup.useDefault ? DockerCommandRunner.defaultImageId() : argGroup.imageId;
-    new DockerCommandRunner(globalContext, workspaceContext).updateImageId(newImageId);
+    new DockerCommandRunner().updateImageId(newImageId);
 
     if (globalContext.dockerImageId.equals(prevImageId)) {
       OUT.println("Docker image: " + globalContext.dockerImageId + " (UNCHANGED)");

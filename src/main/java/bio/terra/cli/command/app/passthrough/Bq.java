@@ -18,6 +18,6 @@ public class Bq extends BaseCommand {
     // no need for any special setup or teardown logic since bq is already initialized when the
     // container starts
     command.add(0, "bq");
-    globalContext.getRunner(workspaceContext).runToolCommand(command);
+    globalContext.commandRunnerOption.getCommandRunner().runToolCommand(command);
   }
 }

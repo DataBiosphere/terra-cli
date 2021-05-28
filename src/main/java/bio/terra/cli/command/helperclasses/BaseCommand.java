@@ -1,7 +1,7 @@
 package bio.terra.cli.command.helperclasses;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.context.utils.Logger;
 import bio.terra.cli.context.utils.Printer;
@@ -55,7 +55,7 @@ public abstract class BaseCommand implements Callable<Integer> {
 
     // do the login flow if required
     if (requiresLogin()) {
-      new AuthenticationManager(globalContext, workspaceContext).loginTerraUser();
+      TerraUser.login();
     }
 
     // execute the command

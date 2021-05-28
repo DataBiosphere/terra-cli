@@ -6,7 +6,6 @@ import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
 
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.workspace.model.ResourceDescription;
 import java.util.HashMap;
 import java.util.List;
@@ -23,13 +22,7 @@ import org.slf4j.LoggerFactory;
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
-  protected final GlobalContext globalContext;
-  protected final WorkspaceContext workspaceContext;
-
-  public CommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    this.globalContext = globalContext;
-    this.workspaceContext = workspaceContext;
-  }
+  public CommandRunner() {}
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -70,13 +63,11 @@ public abstract class CommandRunner {
       logger.debug("tokenized command string: {}", commandToken);
     }
 
-    // check that the current workspace is defined
-    workspaceContext.requireCurrentWorkspace();
-
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
     terraEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", "");
-    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
+    terraEnvVars.put(
+        "GOOGLE_CLOUD_PROJECT", GlobalContext.get().requireCurrentWorkspace().googleProjectId);
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
         throw new SystemException(
@@ -119,8 +110,9 @@ public abstract class CommandRunner {
   private Map<String, String> buildMapOfTerraReferences() {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
-    workspaceContext
-        .listResources()
+    GlobalContext.get()
+        .requireCurrentWorkspace()
+        .resources
         .forEach(
             resource ->
                 terraReferences.put(

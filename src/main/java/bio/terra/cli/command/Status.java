@@ -17,7 +17,8 @@ public class Status extends BaseCommand {
   @Override
   protected void execute() {
     StatusReturnValue statusReturnValue =
-        new StatusReturnValue(globalContext.server, globalContext.workspace);
+        new StatusReturnValue(
+            globalContext.server, globalContext.getCurrentWorkspace().orElse(null));
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 

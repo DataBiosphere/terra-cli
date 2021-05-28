@@ -1,9 +1,8 @@
 package harness;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.auth.GoogleCredentialUtils;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.context.TerraUser;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -67,7 +66,7 @@ public enum TestUsers {
     }
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(AuthenticationManager.SCOPES);
+            .createScoped(TerraUser.SCOPES);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
     GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
@@ -88,12 +87,7 @@ public enum TestUsers {
     globalContext.unsetCurrentTerraUser();
 
     // do the login flow to populate the global context with the current user
-    new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).loginTerraUser();
-  }
-
-  /** Utility method to logout the current user. */
-  public void logout(GlobalContext globalContext) {
-    new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).logoutTerraUser();
+    TerraUser.login();
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */

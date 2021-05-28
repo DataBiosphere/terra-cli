@@ -3,7 +3,6 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.context.WorkspaceContext;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
@@ -72,7 +71,7 @@ public class SamService {
     if (terraUser != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = terraUser.fetchUserAccessToken();
+      AccessToken userAccessToken = terraUser.getUserAccessToken();
       this.apiClient.setAccessToken(userAccessToken.getTokenValue());
     }
   }
@@ -502,13 +501,13 @@ public class SamService {
    * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
    * to the apiClient object).
    *
-   * @param workspaceContext the current workspace
+   * @param googleProjectId
    * @return the HTTP response to the SAM request
    */
-  public HttpUtils.HttpResponse getPetSaKeyForProject(WorkspaceContext workspaceContext) {
+  public HttpUtils.HttpResponse getPetSaKeyForProject(String googleProjectId) {
     try {
       return HttpUtils.callWithRetries(
-          () -> getPetSaKeyForProjectApiClientWrapper(workspaceContext), SamService::isRetryable);
+          () -> getPetSaKeyForProjectApiClientWrapper(googleProjectId), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error fetching the pet SA key file from SAM.", ex);
     }
@@ -518,12 +517,12 @@ public class SamService {
    * Helper method for getting the pet SA key for the current user. This method wraps a raw HTTP
    * request and throws an ApiException on error, mimicing the behavior of the client library.
    *
-   * @param workspaceContext
+   * @param googleProjectId
    * @return the HTTP response to the SAM request
    * @throws ApiException if the HTTP status code is not successful
    */
-  private HttpUtils.HttpResponse getPetSaKeyForProjectApiClientWrapper(
-      WorkspaceContext workspaceContext) throws ApiException {
+  private HttpUtils.HttpResponse getPetSaKeyForProjectApiClientWrapper(String googleProjectId)
+      throws ApiException {
     // The code below should be changed to use the SAM client library. For example:
     //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
     //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
@@ -532,11 +531,8 @@ public class SamService {
     // response. So for now, this is making a direct (i.e. without the client library) HTTP request
     // to get the key file contents.
     String apiEndpoint =
-        server.samUri
-            + "/api/google/v1/user/petServiceAccount/"
-            + workspaceContext.getGoogleProject()
-            + "/key";
-    String userAccessToken = terraUser.fetchUserAccessToken().getTokenValue();
+        server.samUri + "/api/google/v1/user/petServiceAccount/" + googleProjectId + "/key";
+    String userAccessToken = terraUser.getUserAccessToken().getTokenValue();
     int statusCode;
     try {
       HttpUtils.HttpResponse response =

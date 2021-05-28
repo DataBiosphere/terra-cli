@@ -1,6 +1,5 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.GlobalContext;
@@ -19,8 +18,6 @@ public class Delete extends BaseCommand {
   protected void execute() {
     Workspace workspaceToDelete = GlobalContext.get().requireCurrentWorkspace();
     workspaceToDelete.delete();
-    new AuthenticationManager(globalContext, workspaceContext)
-        .deletePetSaCredentials(globalContext.requireCurrentTerraUser());
     formatOption.printReturnValue(workspaceToDelete, this::printText);
   }
 

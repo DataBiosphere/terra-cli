@@ -1,6 +1,5 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.Workspace;
@@ -21,8 +20,6 @@ public class Set extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspace = Workspace.load(id);
-    new AuthenticationManager(globalContext, workspaceContext)
-        .fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
     formatOption.printReturnValue(workspace, this::printText);
   }
 

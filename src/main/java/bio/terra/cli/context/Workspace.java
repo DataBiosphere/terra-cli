@@ -63,6 +63,10 @@ public class Workspace {
     // convert the WSM object to a CLI object
     Workspace workspace = fromWSMObject(createdWorkspace);
 
+    // fetch the pet SA credentials for the user + this workspace
+    GlobalContext globalContext = GlobalContext.get();
+    globalContext.requireCurrentTerraUser().fetchPetSaCredentials();
+
     // update the global context with the current workspace
     GlobalContext.get().setCurrentWorkspace(workspace);
     return workspace;
@@ -80,6 +84,10 @@ public class Workspace {
 
     // convert the WSM object to a CLI object
     Workspace workspace = fromWSMObject(loadedWorkspace);
+
+    // fetch the pet SA credentials for the user + this workspace
+    GlobalContext globalContext = GlobalContext.get();
+    globalContext.requireCurrentTerraUser().fetchPetSaCredentials();
 
     // update the global context with the current workspace
     GlobalContext.get().setCurrentWorkspace(workspace);
@@ -117,8 +125,12 @@ public class Workspace {
     new WorkspaceManagerService().deleteWorkspace(id);
     logger.info("Deleted workspace: {}", this);
 
+    // delete the pet SA credentials for the user
+    GlobalContext globalContext = GlobalContext.get();
+    globalContext.requireCurrentTerraUser().deletePetSaCredentials();
+
     // unset the workspace in the current context
-    GlobalContext.get().unsetCurrentWorkspace();
+    globalContext.unsetCurrentWorkspace();
   }
 
   /**

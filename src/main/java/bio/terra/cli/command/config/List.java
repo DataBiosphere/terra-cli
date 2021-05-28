@@ -2,7 +2,6 @@ package bio.terra.cli.command.config;
 
 import static bio.terra.cli.command.config.getvalue.Logging.LoggingReturnValue;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
@@ -37,7 +36,7 @@ public class List extends BaseCommand {
 
   /** POJO class for printing out this command's output. */
   private static class ConfigListReturnValue {
-    public AuthenticationManager.BrowserLaunchOption browser;
+    public GlobalContext.BrowserLaunchOption browser;
     public GlobalContext.CommandRunners appLaunch;
     public String image;
     public int resources;
@@ -45,7 +44,7 @@ public class List extends BaseCommand {
     public Server server;
 
     public ConfigListReturnValue(
-        AuthenticationManager.BrowserLaunchOption browser,
+        GlobalContext.BrowserLaunchOption browser,
         GlobalContext.CommandRunners appLaunch,
         String image,
         int resources,

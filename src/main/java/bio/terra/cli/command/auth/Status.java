@@ -1,6 +1,5 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.TerraUser;
@@ -20,10 +19,8 @@ public class Status extends BaseCommand {
    */
   @Override
   protected void execute() {
-    new AuthenticationManager(globalContext, workspaceContext).populateCurrentTerraUser();
-    Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
-
     // check if current user is defined
+    Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
     AuthStatusReturnValue authStatusReturnValue;
     if (!currentTerraUserOpt.isPresent()) {
       authStatusReturnValue = AuthStatusReturnValue.createWhenCurrentUserIsUndefined();

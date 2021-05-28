@@ -79,7 +79,7 @@ public class LoginTestUser {
       UserStatusInfo userStatusInfo = samService.getUserInfo();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
-      testUser.logout(globalContext);
+      globalContext.requireCurrentTerraUser().logout();
     }
   }
 }

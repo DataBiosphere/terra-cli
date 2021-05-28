@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.context.GlobalContext.BrowserLaunchOption;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 

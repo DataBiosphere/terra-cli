@@ -1,6 +1,5 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.GlobalContext;
@@ -38,8 +37,6 @@ public class Update extends BaseCommand {
         GlobalContext.get()
             .requireCurrentWorkspace()
             .update(argGroup.displayName, argGroup.description);
-    new AuthenticationManager(globalContext, workspaceContext)
-        .deletePetSaCredentials(globalContext.requireCurrentTerraUser());
     formatOption.printReturnValue(workspaceToUpdate, this::printText);
   }
 

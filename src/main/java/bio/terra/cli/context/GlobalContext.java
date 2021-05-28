@@ -6,8 +6,6 @@ import static bio.terra.cli.context.utils.Logger.LogLevel;
 import bio.terra.cli.apps.CommandRunner;
 import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.apps.LocalProcessCommandRunner;
-import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
-import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.JacksonMapper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,7 +33,7 @@ public class GlobalContext {
   public Server server;
 
   // global workspaces context = current workspace
-  public Workspace workspace;
+  private Workspace workspace;
 
   // global apps context = flag for how to launch tools, docker image id or tag
   public CommandRunners commandRunnerOption = DOCKER_CONTAINER;
@@ -167,6 +165,16 @@ public class GlobalContext {
   }
 
   /**
+   * This enum configures the browser for authentication. Currently, there are only two possible
+   * values, so this could be a boolean flag instead. However, this may change in the future and
+   * it's useful to have the flag values mapped to strings that can be displayed to the user.
+   */
+  public enum BrowserLaunchOption {
+    manual,
+    auto;
+  }
+
+  /**
    * Setter for the browser launch option. Persists on disk.
    *
    * @param browserLaunchOption new value for the browser launch option
@@ -179,6 +187,23 @@ public class GlobalContext {
     this.browserLaunchOption = browserLaunchOption;
 
     writeToFile();
+  }
+
+  /** This enum defines the different ways of running tool/app commands. */
+  public enum CommandRunners {
+    DOCKER_CONTAINER(new DockerCommandRunner()),
+    LOCAL_PROCESS(new LocalProcessCommandRunner());
+
+    private CommandRunner commandRunner;
+
+    CommandRunners(CommandRunner commandRunner) {
+      this.commandRunner = commandRunner;
+    }
+
+    /** Helper method to get the {@link CommandRunner} sub-class that maps to each enum value. */
+    public CommandRunner getCommandRunner() {
+      return commandRunner;
+    }
   }
 
   /**
@@ -255,25 +280,6 @@ public class GlobalContext {
     writeToFile();
   }
 
-  // TODO (mariko): move this to CommandRunner
-  /** This enum defines the different ways of running tool/app commands. */
-  public enum CommandRunners {
-    DOCKER_CONTAINER,
-    LOCAL_PROCESS;
-  }
-
-  /** Helper method to get the {@link CommandRunner} sub-class that maps to each enum value. */
-  public CommandRunner getRunner(WorkspaceContext workspaceContext) {
-    switch (commandRunnerOption) {
-      case DOCKER_CONTAINER:
-        return new DockerCommandRunner(this, workspaceContext);
-      case LOCAL_PROCESS:
-        return new LocalProcessCommandRunner(this, workspaceContext);
-      default:
-        throw new SystemException("Unsupported command runner type: " + this);
-    }
-  }
-
   // ====================================================
   // Directory and file names for persisting on disk
   //   - global context directory parent: $HOME/ or $TERRA_CONTEXT_PARENT_DIR/
@@ -342,16 +348,16 @@ public class GlobalContext {
   }
 
   /**
-   * Get the pet SA key file for the given user and workspace. This is stored in a sub-directory of
-   * the global context directory.
+   * Get the pet SA key file for the current user and workspace. This is stored in a sub-directory
+   * of the global context directory.
    *
-   * @param terraUser user whose key file we want
-   * @param workspaceContext workspace the key file was created for
-   * @return absolute path to the pet SA key file for the given user and workspace
+   * @return absolute path to the pet SA key file for the current user and workspace
+   * @throws UserActionableException if the current user or workspace is not defined
    */
   @JsonIgnore
-  public static Path getPetSaKeyFile(TerraUser terraUser, WorkspaceContext workspaceContext) {
-    return getPetSaKeyDir(terraUser).resolve(workspaceContext.getWorkspaceId().toString());
+  public Path getPetSaKeyFile() {
+    return getPetSaKeyDir(requireCurrentTerraUser())
+        .resolve(requireCurrentWorkspace().id.toString());
   }
 
   /**

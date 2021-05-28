@@ -114,7 +114,7 @@ public class WorkspaceManagerService {
     if (terraUser != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = terraUser.fetchUserAccessToken();
+      AccessToken userAccessToken = terraUser.getUserAccessToken();
       this.apiClient.setAccessToken(userAccessToken.getTokenValue());
     }
   }
