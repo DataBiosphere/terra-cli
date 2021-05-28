@@ -3,7 +3,7 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -87,11 +87,18 @@ public class WorkspaceManagerService {
    * Constructor for class that talks to the Workspace Manager service. The user must be
    * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
    */
-  public WorkspaceManagerService() {
+  public WorkspaceManagerService(Server server, TerraUser terraUser) {
     this.apiClient = new ApiClient();
-    GlobalContext globalContext = GlobalContext.get();
     // check that there is a current user, we will use their credentials to communicate with WSM
-    buildClientForTerraUser(globalContext.server, globalContext.requireCurrentTerraUser());
+    buildClientForTerraUser(server, terraUser);
+  }
+
+  /**
+   * Constructor for class that talks to the Workspace Manager service. The user must be
+   * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
+   */
+  public WorkspaceManagerService() {
+    this(GlobalContext.get().server, GlobalContext.get().requireCurrentTerraUser());
   }
 
   /**
@@ -101,7 +108,7 @@ public class WorkspaceManagerService {
    * @param server the Terra environment where the Workspace Manager service lives
    * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
    */
-  private void buildClientForTerraUser(ServerSpecification server, TerraUser terraUser) {
+  private void buildClientForTerraUser(Server server, TerraUser terraUser) {
     this.apiClient.setBasePath(server.workspaceManagerUri);
 
     if (terraUser != null) {

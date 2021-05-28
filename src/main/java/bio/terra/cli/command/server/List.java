@@ -2,8 +2,7 @@ package bio.terra.cli.command.server;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.ServerSpecification;
-import bio.terra.cli.service.ServerManager;
+import bio.terra.cli.context.Server;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,14 +15,14 @@ public class List extends BaseCommand {
   /** List all Terra environments. */
   @Override
   protected void execute() {
-    java.util.List<ServerSpecification> allPossibleServers = ServerManager.allPossibleServers();
+    java.util.List<Server> allPossibleServers = Server.list();
     formatOption.printReturnValue(allPossibleServers, this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<ServerSpecification> returnValue) {
-    for (ServerSpecification server : returnValue) {
-      String prefix = (globalContext.server.equals(server)) ? " * " : "   ";
+  private void printText(java.util.List<Server> returnValue) {
+    for (Server server : returnValue) {
+      String prefix = (globalContext.server.name.equals(server.name)) ? " * " : "   ";
       OUT.println(prefix + server.name + ": " + server.description);
     }
   }

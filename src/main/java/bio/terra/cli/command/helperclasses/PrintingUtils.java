@@ -2,20 +2,11 @@ package bio.terra.cli.command.helperclasses;
 
 import static bio.terra.cli.command.helperclasses.BaseCommand.OUT;
 
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
 import bio.terra.workspace.model.ResourceDescription;
 
 /** Utility methods for printing command output. */
 public class PrintingUtils {
-
-  /** Print out a workspace object in text format. */
-  public static void printText(WorkspaceContext workspaceContext) {
-    OUT.println("Terra workspace id: " + workspaceContext.getWorkspaceId());
-    OUT.println("Display name: " + workspaceContext.getWorkspaceDisplayName().orElse(""));
-    OUT.println("Description: " + workspaceContext.getWorkspaceDescription().orElse(""));
-    OUT.println("Google project: " + workspaceContext.getGoogleProject());
-  }
 
   /** Print out a resource object in text format. */
   public static void printText(ResourceDescription resource) {

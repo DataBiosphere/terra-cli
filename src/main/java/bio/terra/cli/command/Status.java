@@ -1,15 +1,14 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.ServerSpecification;
-import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.cli.context.Server;
+import bio.terra.cli.context.Workspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra status" command. */
-@Command(name = "status", description = "Print details about the current workspace.")
+@Command(name = "status", description = "Print details about the current workspace and server.")
 public class Status extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
@@ -18,19 +17,19 @@ public class Status extends BaseCommand {
   @Override
   protected void execute() {
     StatusReturnValue statusReturnValue =
-        new StatusReturnValue(globalContext.server, workspaceContext.terraWorkspaceModel);
+        new StatusReturnValue(globalContext.server, globalContext.workspace);
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
   /** POJO class for printing out this command's output. */
   private static class StatusReturnValue {
     // global server context = service uris, environment name
-    public final ServerSpecification server;
+    public final Server server;
 
-    // workspace description object returned by WSM
-    public final WorkspaceDescription workspace;
+    // global workspace context
+    public final Workspace workspace;
 
-    public StatusReturnValue(ServerSpecification server, WorkspaceDescription workspace) {
+    public StatusReturnValue(Server server, Workspace workspace) {
       this.server = server;
       this.workspace = workspace;
     }
@@ -38,13 +37,24 @@ public class Status extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(StatusReturnValue returnValue) {
-    OUT.println("Terra server: " + globalContext.server.name);
-
     // check if current workspace is defined
-    if (workspaceContext.isEmpty()) {
+    if (returnValue.workspace == null) {
       OUT.println("There is no current Terra workspace defined.");
     } else {
-      PrintingUtils.printText(workspaceContext);
+      returnValue.workspace.printText();
+    }
+
+    OUT.println();
+    OUT.println("Terra server: " + globalContext.server.name);
+
+    if (returnValue.workspace != null
+        && !returnValue.server.name.equals(returnValue.workspace.serverName)) {
+      OUT.println(
+          "WARNING: The current workspace exists on a different server ("
+              + returnValue.workspace.serverName
+              + ") than the current one ("
+              + returnValue.server.name
+              + ").");
     }
   }
 

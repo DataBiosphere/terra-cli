@@ -1,8 +1,8 @@
 package harness;
 
 import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Server;
 import bio.terra.cli.context.utils.Logger;
-import bio.terra.cli.service.ServerManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,6 +49,6 @@ public class TestContext {
     // set the server to the one specified by the test
     // (see the Gradle unitTest task for how this system property gets set from a Gradle property)
     String serverName = System.getProperty("TERRA_SERVER");
-    new ServerManager(globalContext).updateServer(serverName);
+    Server.switchTo(serverName);
   }
 }

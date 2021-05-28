@@ -10,7 +10,6 @@ import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.JacksonMapper;
-import bio.terra.cli.service.ServerManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,7 +32,7 @@ public class GlobalContext {
   public BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
   // global server context = service uris, environment name
-  public ServerSpecification server;
+  public Server server;
 
   // global workspaces context = current workspace
   public Workspace workspace;
@@ -91,7 +90,7 @@ public class GlobalContext {
       // pre-existing global context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
       globalContext = new GlobalContext();
-      globalContext.server = ServerManager.defaultServer();
+      globalContext.server = Server.getDefault();
       globalContext.dockerImageId = DockerCommandRunner.defaultImageId();
     }
 
@@ -241,7 +240,7 @@ public class GlobalContext {
   }
 
   /** Setter for the current Terra server. Persists on disk. */
-  public void updateServer(ServerSpecification server) {
+  public void updateServer(Server server) {
     logger.info("Updating server from {} to {}.", this.server.name, server.name);
     this.server = server;
 

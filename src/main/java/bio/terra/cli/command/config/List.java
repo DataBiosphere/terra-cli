@@ -7,7 +7,7 @@ import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.Server;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra config list" command. */
@@ -42,7 +42,7 @@ public class List extends BaseCommand {
     public String image;
     public int resources;
     public LoggingReturnValue logging;
-    public ServerSpecification server;
+    public Server server;
 
     public ConfigListReturnValue(
         AuthenticationManager.BrowserLaunchOption browser,
@@ -50,7 +50,7 @@ public class List extends BaseCommand {
         String image,
         int resources,
         LoggingReturnValue logging,
-        ServerSpecification server) {
+        Server server) {
       this.browser = browser;
       this.appLaunch = appLaunch;
       this.image = image;

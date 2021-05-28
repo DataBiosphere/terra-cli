@@ -1,7 +1,7 @@
 package bio.terra.cli.service.utils;
 
 import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;
@@ -26,7 +26,7 @@ public class DataRepoService {
    * @param server the Terra environment where the Data Repo service lives
    * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
    */
-  public DataRepoService(ServerSpecification server, TerraUser terraUser) {
+  public DataRepoService(Server server, TerraUser terraUser) {
     this.apiClient = new ApiClient();
     buildClientForTerraUser(server, terraUser);
   }
@@ -37,7 +37,7 @@ public class DataRepoService {
    *
    * @param server the Terra environment where the Data Repo service lives
    */
-  public DataRepoService(ServerSpecification server) {
+  public DataRepoService(Server server) {
     this(server, null);
   }
 
@@ -48,7 +48,7 @@ public class DataRepoService {
    * @param server the Terra environment where the Data Repo service lives
    * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
    */
-  private void buildClientForTerraUser(ServerSpecification server, TerraUser terraUser) {
+  private void buildClientForTerraUser(Server server, TerraUser terraUser) {
     this.apiClient.setBasePath(server.dataRepoUri);
 
     if (terraUser != null) {

@@ -2,7 +2,6 @@ package bio.terra.cli.command.config.getvalue;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.ServerSpecification;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,11 +14,12 @@ public class Server extends BaseCommand {
   /** Return the server property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.server, Server::printText);
+    formatOption.printReturnValue(
+        globalContext.server, bio.terra.cli.command.config.getvalue.Server::printText);
   }
 
   /** Print this command's output in text format. */
-  public static void printText(ServerSpecification returnValue) {
+  public static void printText(bio.terra.cli.context.Server returnValue) {
     OUT.println(returnValue.name);
   }
 
