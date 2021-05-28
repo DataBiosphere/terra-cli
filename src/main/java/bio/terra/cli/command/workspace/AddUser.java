@@ -1,7 +1,8 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.context.WorkspaceUser;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -10,16 +11,27 @@ import picocli.CommandLine.Command;
 @Command(name = "add-user", description = "Add a user or group to the workspace.")
 public class AddUser extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "user or group email")
-  private String userEmail;
+  @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
+  private String email;
 
-  @CommandLine.Parameters(index = "1", description = "Role to grant: ${COMPLETION-CANDIDATES}")
+  @CommandLine.Option(
+      names = "--role",
+      required = true,
+      description = "Role to grant: ${COMPLETION-CANDIDATES}")
   private IamRole role;
+
+  @CommandLine.Mixin Format formatOption;
 
   /** Add an email to the workspace. */
   @Override
   protected void execute() {
-    new WorkspaceManager(globalContext, workspaceContext).addUserToWorkspace(userEmail, role);
-    OUT.println("Email added to workspace: " + userEmail + ", " + role);
+    WorkspaceUser workspaceUser = WorkspaceUser.add(email, role);
+    formatOption.printReturnValue(workspaceUser, AddUser::printText);
+  }
+
+  /** Print this command's output in text format. */
+  private static void printText(WorkspaceUser returnValue) {
+    OUT.println("Email + role added to workspace.");
+    returnValue.printText();
   }
 }

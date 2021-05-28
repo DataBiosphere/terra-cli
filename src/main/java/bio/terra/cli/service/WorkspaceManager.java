@@ -12,9 +12,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
-import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.StewardshipType;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.DatasetId;
@@ -38,75 +36,6 @@ public class WorkspaceManager {
   public WorkspaceManager(GlobalContext globalContext, WorkspaceContext workspaceContext) {
     this.globalContext = globalContext;
     this.workspaceContext = workspaceContext;
-  }
-
-  // ====================================================
-  // Workspace users
-
-  /**
-   * Add a user to the workspace that is mounted to the current directory. Possible roles are
-   * defined by the WSM client library.
-   *
-   * @param userEmail the user to add
-   * @param iamRole the role to assign the user
-   * @throws UserActionableException if there is no workspace currently mounted
-   */
-  public void addUserToWorkspace(String userEmail, IamRole iamRole) {
-    // check that there is a workspace currently mounted
-    workspaceContext.requireCurrentWorkspace();
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to add a user + role to the existing workspace
-    new WorkspaceManagerService()
-        .grantIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
-    logger.info(
-        "Added user to workspace: id={}, user={}, role={}",
-        workspaceContext.getWorkspaceId(),
-        userEmail,
-        iamRole);
-  }
-
-  /**
-   * Remove a user + role from the workspace that is mounted to the current directory. Possible
-   * roles are defined by the WSM client library.
-   *
-   * @param userEmail the user to remove
-   * @param iamRole the role to remove from the user
-   * @throws UserActionableException if there is no workspace currently mounted
-   */
-  public void removeUserFromWorkspace(String userEmail, IamRole iamRole) {
-    // check that there is a workspace currently mounted
-    workspaceContext.requireCurrentWorkspace();
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to remove a user + role from the existing workspace
-    new WorkspaceManagerService()
-        .removeIamRole(workspaceContext.getWorkspaceId(), userEmail, iamRole);
-    logger.info(
-        "Removed user from workspace: id={}, user={}, role={}",
-        workspaceContext.getWorkspaceId(),
-        userEmail,
-        iamRole);
-  }
-
-  /**
-   * List the roles in a workspace and all the users that have each role.
-   *
-   * @return a map of roles to the list of users that have that role
-   */
-  public RoleBindingList listUsersOfWorkspace() {
-    // check that there is a workspace currently mounted
-    workspaceContext.requireCurrentWorkspace();
-
-    // check that there is a current user, we will use their credentials to communicate with WSM
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-
-    // call WSM to get the users + roles for the existing workspace
-    return new WorkspaceManagerService().getRoles(workspaceContext.getWorkspaceId());
   }
 
   // ====================================================

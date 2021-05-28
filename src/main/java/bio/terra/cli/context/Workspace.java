@@ -15,9 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * POJO class for storing a workspace reference. This class is serialized to disk as part of the
- * global context. It is also used as the user-facing JSON output for commands that return a
- * workspace.
+ * POJO class that represents a workspace. This class is serialized to disk as part of the global
+ * context. It is also used as the user-facing JSON output for commands that return a workspace.
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
@@ -140,6 +139,10 @@ public class Workspace {
     return workspaces;
   }
 
+  /**
+   * Helper method to convert a WSM client library WorkspaceDescription object to a CLI Workspace
+   * object.
+   */
   private static Workspace fromWSMObject(WorkspaceDescription wsmObject) {
     GlobalContext globalContext = GlobalContext.get();
     Workspace workspace =

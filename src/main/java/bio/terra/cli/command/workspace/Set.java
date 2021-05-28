@@ -8,9 +8,9 @@ import java.util.UUID;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra workspace load" command. */
-@Command(name = "load", description = "Load an existing workspace.")
-public class Load extends BaseCommand {
+/** This class corresponds to the third-level "terra workspace set" command. */
+@Command(name = "set", description = "Set the workspace to an existing one.")
+public class Set extends BaseCommand {
 
   @CommandLine.Option(names = "--id", required = true, description = "workspace id")
   private UUID id;
