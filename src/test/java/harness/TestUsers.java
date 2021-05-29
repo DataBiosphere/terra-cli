@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
  * spend profile. These permissions were configured manually, and are not part of the CLI test
  * harness. See CONTRIBUTING.md for more details about the manual setup.
  *
- * <p>This class also includes a {@link #login(GlobalContext)} method specifically for testing. Most
- * CLI tests will start with a call to this method to login a test user.
+ * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
+ * will start with a call to this method to login a test user.
  */
 public enum TestUsers {
   PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),
@@ -54,8 +54,10 @@ public enum TestUsers {
    * This method mimics the typical CLI login flow, in a way that is more useful for testing. It
    * uses domain-wide delegation to populate test user credentials, instead of the usual Google
    * Oauth login flow, which requires manual interaction with a browser.
+   *
+   * @return global context object, populated with the user's credentials
    */
-  public void login(GlobalContext globalContext) throws IOException {
+  public GlobalContext login() throws IOException {
     // get a credential for the test-user SA
     Path jsonKey = Path.of("rendered", "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
@@ -69,6 +71,7 @@ public enum TestUsers {
             .createScoped(TerraUser.SCOPES);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
+    System.out.println("Logging in test user: " + email);
     GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
     delegatedUserCredential.refreshIfExpired();
 
@@ -84,10 +87,12 @@ public enum TestUsers {
     dataStore.set(GoogleCredentialUtils.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     // unset the current user in the global context if already specified
+    GlobalContext globalContext = GlobalContext.get();
     globalContext.unsetCurrentTerraUser();
 
     // do the login flow to populate the global context with the current user
     TerraUser.login();
+    return globalContext;
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */

@@ -25,7 +25,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.43.0'
+version = '0.45.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -98,6 +98,7 @@ dependencies {
     implementation "com.github.docker-java:docker-java-transport-httpclient5:${docker}"
 
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
+    testCompileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
     implementation "bio.terra.cloud-resource-lib:google-notebooks:${crlGoogleNotebooks}"
@@ -112,28 +113,86 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:${hamcrest}"
 }
 
-test {
+// install the CLI, either from source code directly or from a GH release, before starting tests
+task runInstallForTesting(type: Exec){
+    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
+    String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
+    commandLine "bash", "./tools/install-for-testing.sh", installMode
+
+    dependsOn installDist
+}
+
+// run tests with the specified tag and install mode.
+// 1) run unit tests directly against the source code
+//    ./gradlew runTestsWithTag -PtestTag=unit
+// 2) run integration tests against an installation built from source code
+//    ./gradlew runTestsWithTag -PtestTag=integration
+// 3) run integration tests against an installation built from the latest GitHub release
+//    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
+task runTestsWithTag(type: Test) {
+    beforeTest { descriptor ->
+        println "========================================================="
+        println "Running test: ${descriptor.name} [${descriptor.className}]"
+    }
+    afterTest { descriptor, result ->
+        println "Finished running test ${descriptor.name} [${descriptor.className}] with result: ${result.resultType}"
+    }
     testLogging {
         showStandardStreams = true // disable stdout & stderr redirection
     }
-    useJUnitPlatform()
-}
-
-task unitTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'unit'
-    }
-    // force tests to always be re-run
-    outputs.upToDateWhen { false }
 
     doFirst {
-        if(!project.hasProperty("useDefaultContextDir")) {
+        // gradle project properties define which tests to run and how to do the install before running them
+        String testTag = project.findProperty("testTag");
+        boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
+        boolean writeContextToHomeDir = project.hasProperty("writeContextToHomeDir")
+
+        // if the test tag is not defined, then throw an error. we don't know what tests to run
+        if (testTag == null) {
+            throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
+        }
+
+        // tell junit to run tests with this tag: unit or integration
+        useJUnitPlatform {
+            includeTags testTag
+        }
+
+        // by default, tests override the global context directory with a sub-directory of the gradle build directory
+        // this makes it easier to clean up after tests and makes sure the tests don't overwrite any context that
+        // exists on this same machine. you can override this default behavior by specifying -PwriteContextToHomeDir.
+        // this will cause context to be written to the user's $HOME directory, as it would during normal operation.
+        if (!writeContextToHomeDir) {
             environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
             mkdir "${project.buildDir}/test-context/"
         }
-        String serverName = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
-        systemProperty "TERRA_SERVER", serverName
+
+        // specify the server to run tests against (e.g. -Pserver=verily-cli). defaults to "terra-dev"
+        String terraServer = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
+        environment "TERRA_SERVER", terraServer
+
+        if (testTag == "unit") {
+            // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
+            // run against the code directly, and so there is no JAR manifest. this implementation version is
+            // used to get the default docker image id.
+            systemProperty("TERRA_JAR_IMPLEMENTATION_VERSION",
+                    "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
+        } else if (testTag == "integration") {
+            // [for integration tests] specify the install location for the terra application (i.e. launch script)
+            // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
+            // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
+            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
+            systemProperty "TERRA_INSTALL_DIR", installDir
+
+            // [for integration tests] specify the working directory to use when running scripts. this makes
+            // it easier to clean up after tests (./gradlew clean) that generate files.
+            mkdir "${project.buildDir}/test-working-dir/"
+            systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
+        }
     }
+
+    dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
+
+    outputs.upToDateWhen { false } // force tests to always be re-run
 }
 
 // automatic code formatting
@@ -209,11 +268,11 @@ startScripts {
 jar {
     // set attributes in the JAR manifest file that we can access from the Java code
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
-     manifest {
+    manifest {
         attributes  'Specification-Title' : 'Terra CLI',
-                    'Specification-Version' : "${project.version}", // this matches the top-level version property
-                    'Implementation-Title': 'bio.terra.cli',
-                    'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
+                'Specification-Version' : "${project.version}", // this matches the top-level version property
+                'Implementation-Title': 'bio.terra.cli',
+                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
     }
 }
 

@@ -8,6 +8,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.utils.Printer;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -39,7 +40,7 @@ import picocli.CommandLine.ParseResult;
       Nextflow.class
     },
     description = "Terra CLI")
-class Main implements Runnable {
+public class Main implements Runnable {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
 
   // color scheme used by all commands
@@ -54,12 +55,14 @@ class Main implements Runnable {
           .build();
 
   /**
-   * Main entry point into the CLI application. For picocli, this creates and executes the top-level
-   * command Main.
+   * Create and execute the top-level command. Tests call this method instead of {@link
+   * #main(String...)} so that the process isn't terminated.
    *
-   * @param args from stdin
+   * @param args command and arguments
+   * @return process exit code
    */
-  public static void main(String... args) {
+  @VisibleForTesting
+  public static int runCommand(String... args) {
     CommandLine cmd = new CommandLine(new Main());
     cmd.setExecutionStrategy(new CommandLine.RunLast());
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
@@ -85,6 +88,19 @@ class Main implements Runnable {
     if (args.length == 0) {
       cmd.usage(cmd.getOut());
     }
+
+    return exitCode;
+  }
+
+  /**
+   * Main entry point into the CLI application. This creates and executes the top-level command,
+   * sets the exit code and terminates the process.
+   *
+   * @param args from stdin
+   */
+  public static void main(String... args) {
+    // run the command
+    int exitCode = runCommand(args);
 
     // set the exit code and terminate the process
     System.exit(exitCode);

@@ -143,6 +143,9 @@ public class TerraUser {
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
+    if (userCredentials == null) {
+      return true;
+    }
 
     // fetch the user access token
     // this method call will attempt to refresh the token if it's already expired

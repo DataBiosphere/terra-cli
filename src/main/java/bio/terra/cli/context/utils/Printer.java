@@ -22,11 +22,6 @@ public class Printer {
 
   private static Printer printer;
 
-  /** Constructor that initializes the STREAM with default values. */
-  private Printer() {
-    this(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM);
-  }
-
   /** Constructor that initializes the printer with the specified output streams. */
   private Printer(PrintStream out, PrintStream err) {
     this.out = out;
@@ -48,12 +43,28 @@ public class Printer {
    */
   public static void setupPrinting(CommandLine cmd) {
     if (printer == null) {
-      printer = new Printer();
+      initialize(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM);
     } else {
-      logger.warn("Printing setup called multiple times.");
+      logger.warn(
+          "Printing setup called multiple times. This is expected when testing, not during normal operation.");
     }
     cmd.setOut(getPrintWriter(printer.out));
     cmd.setErr(getPrintWriter(printer.err));
+  }
+
+  /**
+   * This method initializes the singleton Printer object with the given output streams.
+   *
+   * <p>- Tests call this method directly to redirect the output.
+   *
+   * <p>- In normal operation, this method is called once from the {@link
+   * #setupPrinting(CommandLine)} method.
+   *
+   * @param standardOut stream to write standard out to
+   * @param standardErr stream to write standard err to
+   */
+  public static void initialize(PrintStream standardOut, PrintStream standardErr) {
+    printer = new Printer(standardOut, standardErr);
   }
 
   /**

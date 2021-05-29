@@ -26,7 +26,6 @@ public class LocalProcessLauncher {
    *
    * @param command the command and arguments to execute
    * @param envVars the environment variables to set or overwrite if already defined
-   * @return the process object
    */
   public void launchProcess(List<String> command, Map<String, String> envVars) {
     launchProcess(command, envVars, null);
@@ -39,7 +38,6 @@ public class LocalProcessLauncher {
    * @param command the command and arguments to execute
    * @param envVars the environment variables to set or overwrite if already defined
    * @param workingDirectory the working directory to launch the process from
-   * @return the process object
    */
   public void launchProcess(
       List<String> command, Map<String, String> envVars, Path workingDirectory) {

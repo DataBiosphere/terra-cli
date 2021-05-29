@@ -1,54 +1,89 @@
 package harness;
 
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.utils.Logger;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.function.Consumer;
 
+@SuppressFBWarnings(
+    value = {"RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"},
+    justification =
+        "Ignore return value of File.delete. This is just a best effort cleanup method. If delete fails, then the next test will likely fail anyway.")
 /** Utility methods for manipulating the context during testing. */
 public class TestContext {
 
   private TestContext() {}
 
-  /** Delete the global context directory. */
-  public static void deleteGlobalContext() throws IOException {
+  /**
+   * Delete the contents of the global context directory, except for the Java library dependencies
+   * in the "lib" sub-directory and the running log files in the "logs" sub-directory.
+   */
+  public static void clearGlobalContextDir() throws IOException {
     Path globalContextDir = GlobalContext.getGlobalContextDir();
     if (!globalContextDir.toFile().exists()) {
       return;
     }
+    Path globalContextLibDir = globalContextDir.resolve("lib");
+    Path globalContextLogsDir = globalContextDir.resolve("logs");
 
-    //   - walk the file tree and build a list of paths
-    //   - sort the list from longest paths to shortest
-    //   - delete the files in this order
-    // File.delete only works on file or empty directories
-    // since longer paths come first, all children of a directory will be deleted before we get to
-    // the directory
-    Files.walk(globalContextDir)
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(File::delete);
+    // delete all children of the global context directory, except for:
+    //  - "lib" sub-directory that contains all the JAR dependencies
+    //  - "logs" sub-directory that contains the rolling log files
+    walkUpFileTree(
+        globalContextDir,
+        childPath -> {
+          if (!childPath.startsWith(globalContextLibDir)
+              && !childPath.startsWith(globalContextLogsDir)) {
+            childPath.toFile().delete();
+          }
+        });
+  }
+
+  /** Delete the contents of the working directory. */
+  public static void clearWorkingDirectory() throws IOException {
+    Path workingDir = Path.of(System.getProperty("TERRA_WORKING_DIR")).toAbsolutePath();
+    if (!workingDir.toFile().exists()) {
+      return;
+    }
+
+    // delete all children of the working directory
+    walkUpFileTree(workingDir, childPath -> childPath.toFile().delete());
   }
 
   /**
-   * Reset the global context: delete the existing directory and setup a new global context for
-   * testing. This setup includes logging and setting the server.
+   * Walks a file tree from the bottom up, excluding the root. This means that all children of a
+   * directory are walked before their parent.
+   *
+   * <p>Outline of algorithm:
+   *
+   * <p>- Walk the file tree and build a list of child paths
+   *
+   * <p>- Sort the list from longest paths to shortest
+   *
+   * <p>- Process the paths in this order, skipping the root path
+   *
+   * <p>This is useful for deleting a directory tree. Java's {@link File#delete()} only works on
+   * files or empty directories. In this method, since longer paths come first, all children of a
+   * directory will be processed before we get to the parent directory.
+   *
+   * @param root
+   * @param processChildPath
+   * @throws IOException
    */
-  public static void resetGlobalContext() throws IOException {
-    deleteGlobalContext();
-    GlobalContext globalContext = GlobalContext.get();
-
-    // setup logging for testing (console = OFF, file = DEBUG)
-    globalContext.consoleLoggingLevel = Logger.LogLevel.OFF;
-    globalContext.fileLoggingLevel = Logger.LogLevel.DEBUG;
-    new Logger(globalContext).setupLogging();
-
-    // set the server to the one specified by the test
-    // (see the Gradle unitTest task for how this system property gets set from a Gradle property)
-    String serverName = System.getProperty("TERRA_SERVER");
-    Server.switchTo(serverName);
+  private static void walkUpFileTree(Path root, Consumer<Path> processChildPath)
+      throws IOException {
+    Files.walk(root)
+        .sorted(Comparator.reverseOrder())
+        .forEach(
+            childPath -> {
+              // only process children of the root, not the root itself
+              if (!childPath.equals(root)) {
+                processChildPath.accept(childPath);
+              }
+            });
   }
 }
