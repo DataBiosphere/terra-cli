@@ -2,9 +2,7 @@ package bio.terra.cli.command.resources;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.cli.context.Resource;
 import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
@@ -28,35 +26,30 @@ public class List extends BaseCommand {
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
-    java.util.List<ResourceDescription> resources =
-        new WorkspaceManager(globalContext, workspaceContext)
-            .listResources().stream()
-                .filter(
-                    (resource) -> {
-                      boolean stewardshipMatches =
-                          stewardship == null
-                              || resource.getMetadata().getStewardshipType().equals(stewardship);
-                      boolean typeMatches =
-                          type == null || resource.getMetadata().getResourceType().equals(type);
-                      return stewardshipMatches && typeMatches;
-                    })
-                .collect(Collectors.toList());
-
+    java.util.List<Resource> resources =
+        Resource.listAndSync().stream()
+            .filter(
+                (resource) -> {
+                  boolean stewardshipMatches =
+                      stewardship == null || resource.stewardshipType.equals(stewardship);
+                  boolean typeMatches = type == null || resource.resourceType.equals(type);
+                  return stewardshipMatches && typeMatches;
+                })
+            .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(java.util.List<ResourceDescription> returnValue) {
-    for (ResourceDescription resource : returnValue) {
-      ResourceMetadata metadata = resource.getMetadata();
+  private static void printText(java.util.List<Resource> returnValue) {
+    for (Resource resource : returnValue) {
       OUT.println(
-          metadata.getName()
+          resource.name
               + " ("
-              + metadata.getResourceType()
+              + resource.resourceType
               + ", "
-              + metadata.getStewardshipType()
+              + resource.stewardshipType
               + "): "
-              + metadata.getDescription());
+              + resource.description);
     }
   }
 }

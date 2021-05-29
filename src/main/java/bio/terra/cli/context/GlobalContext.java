@@ -8,6 +8,7 @@ import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.apps.LocalProcessCommandRunner;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.JacksonMapper;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,12 +22,13 @@ import org.slf4j.LoggerFactory;
  * primarily for authentication and connection-related context values that will span multiple
  * workspaces.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GlobalContext {
   private static final Logger logger = LoggerFactory.getLogger(GlobalContext.class);
 
   // global auth context = current Terra user,
   //   flag indicating whether to launch a browser automatically or not
-  public TerraUser terraUser;
+  private TerraUser terraUser;
   public BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
   // global server context = service uris, environment name
@@ -291,7 +293,7 @@ public class GlobalContext {
   //               -*.terra.log
 
   /** Write an instance of this class to a JSON-formatted file in the global context directory. */
-  private void writeToFile() {
+  public void writeToFile() {
     try {
       JacksonMapper.writeJavaObjectToFile(getGlobalContextFile().toFile(), this);
     } catch (IOException ioEx) {

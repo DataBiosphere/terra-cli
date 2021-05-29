@@ -1,12 +1,7 @@
 package bio.terra.cli.apps;
 
-import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
-import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
-import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
-
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.workspace.model.ResourceDescription;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,33 +108,8 @@ public abstract class CommandRunner {
     GlobalContext.get()
         .requireCurrentWorkspace()
         .getResources()
-        .forEach(
-            resource ->
-                terraReferences.put(
-                    "TERRA_" + resource.getMetadata().getName(),
-                    resolveResourceForCommandEnvVar(resource)));
+        .forEach(resource -> terraReferences.put("TERRA_" + resource.name, resource.resolve()));
 
     return terraReferences;
-  }
-
-  /**
-   * Helper method for resolving a workspace resource into a cloud id, in order to pass it as an
-   * environment variable to a tool command.
-   *
-   * @param resource workspace resource object
-   * @return cloud id to set the environment variable to
-   */
-  private String resolveResourceForCommandEnvVar(ResourceDescription resource) {
-    switch (resource.getMetadata().getResourceType()) {
-      case GCS_BUCKET:
-        return getGcsBucketUrl(resource);
-      case BIG_QUERY_DATASET:
-        return getBigQueryDatasetPath(resource);
-      case AI_NOTEBOOK:
-        return getAiNotebookInstanceName(resource);
-      default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
-    }
   }
 }

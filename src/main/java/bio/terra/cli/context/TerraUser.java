@@ -5,6 +5,7 @@ import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.utils.FileUtils;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.SamService;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
     value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
     justification =
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class TerraUser {
   private static final Logger logger = LoggerFactory.getLogger(TerraUser.class);
 

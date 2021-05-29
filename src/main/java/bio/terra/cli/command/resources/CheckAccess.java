@@ -3,9 +3,9 @@ package bio.terra.cli.command.resources;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.command.helperclasses.options.ResourceName;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources check-access" command. */
@@ -22,39 +22,31 @@ public class CheckAccess extends BaseCommand {
    */
   @Override
   protected void execute() {
-    WorkspaceManager workspaceManager = new WorkspaceManager(globalContext, workspaceContext);
-    ResourceDescription resource = workspaceManager.getResource(resourceNameOption.name);
+    Resource resource =
+        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
 
-    // call the appropriate check-access function for the resource
     // there is different logic for checking the access of each resource type, but all require only
     // the user/pet SA credentials and resource definition, so calling them looks very similar from
     // the CLI user's perspective.
     // still, it may be better to break this command into sub-commands for each resource type. that
     // would allow different options per resource, e.g. checking different resource-specific
     // permissions.
-    // TODO (PF-717): revisit this command once the WSM endpoints are complete
-    boolean userHasAccess, proxyGroupHasAccess;
-    switch (resource.getMetadata().getResourceType()) {
-      case GCS_BUCKET:
-        userHasAccess =
-            workspaceManager.checkAccessToReferencedGcsBucket(
-                resource, WorkspaceManager.CheckAccessCredentials.USER);
-        proxyGroupHasAccess =
-            workspaceManager.checkAccessToReferencedGcsBucket(
-                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
-        break;
-      case BIG_QUERY_DATASET:
-        userHasAccess =
-            workspaceManager.checkAccessToReferencedBigQueryDataset(
-                resource, WorkspaceManager.CheckAccessCredentials.USER);
-        proxyGroupHasAccess =
-            workspaceManager.checkAccessToReferencedBigQueryDataset(
-                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
-    }
+    boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
+    boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);
+    ;
+
+    // call the appropriate check-access function for the resource
+    //    boolean userHasAccess, proxyGroupHasAccess;
+    //    switch (resource.getMetadata().getResourceType()) {
+    //      case BIG_QUERY_DATASET:
+    //        userHasAccess =
+    //            workspaceManager.checkAccessToReferencedBigQueryDataset(
+    //                resource, WorkspaceManager.CheckAccessCredentials.USER);
+    //        proxyGroupHasAccess =
+    //            workspaceManager.checkAccessToReferencedBigQueryDataset(
+    //                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
+    //        break;
+    //    }
 
     CheckAccess.CheckAccessReturnValue checkAccessReturnValue =
         new CheckAccess.CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);

@@ -3,14 +3,16 @@ package bio.terra.cli.context;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.Printer;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
-import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
  * POJO class that represents a workspace. This class is serialized to disk as part of the global
  * context. It is also used as the user-facing JSON output for commands that return a workspace.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
 
@@ -35,7 +38,7 @@ public class Workspace {
   public final String terraUserEmail;
 
   // list of resources (controlled & referenced)
-  private List<ResourceDescription> resources = new ArrayList<>();
+  private List<Resource> resources;
 
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
   private Workspace(
@@ -44,13 +47,15 @@ public class Workspace {
       @JsonProperty("description") String description,
       @JsonProperty("googleProjectId") String googleProjectId,
       @JsonProperty("serverName") String serverName,
-      @JsonProperty("terraUserEmail") String terraUserEmail) {
+      @JsonProperty("terraUserEmail") String terraUserEmail,
+      @JsonProperty("resources") List<Resource> resources) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.googleProjectId = googleProjectId;
     this.serverName = serverName;
     this.terraUserEmail = terraUserEmail;
+    this.resources = resources;
   }
 
   /**
@@ -169,7 +174,8 @@ public class Workspace {
             wsmObject.getDescription() == null ? "" : wsmObject.getDescription(),
             wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId(),
             globalContext.server.name,
-            globalContext.terraUser.getEmail());
+            globalContext.requireCurrentTerraUser().getEmail(),
+            new ArrayList<>());
     return workspace;
   }
 
@@ -186,7 +192,46 @@ public class Workspace {
   }
 
   /** Getter for the resources list. Returns an immutable copy. */
-  public List<ResourceDescription> getResources() {
+  @JsonIgnore
+  public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
+  }
+
+  /** Setter for the resources list. */
+  @JsonIgnore
+  public void setResources(List<Resource> resources) {
+    this.resources = resources;
+    GlobalContext.get().writeToFile();
+  }
+
+  /**
+   * Get a resource by name.
+   *
+   * @throws UserActionableException if there is no resource with that name
+   */
+  @JsonIgnore
+  public Resource getResource(String name) {
+    Optional<Resource> resourceOpt =
+        GlobalContext.get().requireCurrentWorkspace().getResources().stream()
+            .filter(resource -> resource.name.equals(name))
+            .findFirst();
+    if (resourceOpt.isEmpty()) {
+      throw new UserActionableException("Resource not found: " + name);
+    }
+    return resourceOpt.get();
+  }
+
+  /** Add a new resource to the list. */
+  @JsonIgnore
+  public void addResource(Resource resource) {
+    resources.add(resource);
+    GlobalContext.get().writeToFile();
+  }
+
+  /** Remove a resource from the list. */
+  @JsonIgnore
+  public void removeResource(String name) {
+    resources.removeIf(resource -> resource.name.equals(name));
+    GlobalContext.get().writeToFile();
   }
 }

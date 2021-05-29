@@ -1,5 +1,6 @@
 package bio.terra.cli.command.helperclasses.options;
 
+import bio.terra.cli.context.Resource;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 
@@ -18,4 +19,12 @@ public class CreateResource extends ResourceName {
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}")
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.NOTHING;
+
+  /**
+   * Helper method to populate a {@link bio.terra.cli.context.Resource.ResourceBuilder} with the
+   * resource metadata fields.
+   */
+  public void populateMetadataFields(Resource.ResourceBuilder builder) {
+    builder.name(name).description(description).cloningInstructions(cloning);
+  }
 }

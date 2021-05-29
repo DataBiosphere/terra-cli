@@ -3,9 +3,12 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
+import bio.terra.cli.context.resources.GcsStorageClass;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -38,9 +41,10 @@ import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
-import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
+import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
@@ -62,9 +66,14 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -414,26 +423,19 @@ public class WorkspaceManagerService {
    * bucket as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToAdd resource definition to add
+   * @param resourceToAdd resource to add
    * @return the GCS bucket resource object
    */
-  public GcpGcsBucketResource createReferencedGcsBucket(
-      UUID workspaceId, ResourceDescription resourceToAdd) {
-    // convert the ResourceDescription object to a CreateGcpGcsBucketReferenceRequestBody object
-    String name = resourceToAdd.getMetadata().getName();
-    String description = resourceToAdd.getMetadata().getDescription();
-    CloningInstructionsEnum cloningInstructions =
-        resourceToAdd.getMetadata().getCloningInstructions();
-    String gcsBucketName = resourceToAdd.getResourceAttributes().getGcpGcsBucket().getBucketName();
-
+  public GcpGcsBucketResource createReferencedGcsBucket(UUID workspaceId, GcsBucket resourceToAdd) {
+    // convert the GcsBucket object to a CreateGcpGcsBucketReferenceRequestBody object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(name)
-                    .description(description)
-                    .cloningInstructions(cloningInstructions))
-            .bucket(new GcpGcsBucketAttributes().bucketName(gcsBucketName));
+                    .name(resourceToAdd.name)
+                    .description(resourceToAdd.description)
+                    .cloningInstructions(resourceToAdd.cloningInstructions))
+            .bucket(new GcpGcsBucketAttributes().bucketName(resourceToAdd.bucketName));
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
@@ -534,35 +536,23 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param resourceToCreate resource definition to create
-   * @param defaultStorageClass GCS storage class
-   *     (https://cloud.google.com/storage/docs/storage-classes)
-   * @param lifecycle list of lifecycle rules for the bucket
-   *     (https://cloud.google.com/storage/docs/lifecycle)
-   * @param location GCS bucket location (https://cloud.google.com/storage/docs/locations)
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createControlledGcsBucket(
-      UUID workspaceId,
-      ResourceDescription resourceToCreate,
-      @Nullable GcpGcsBucketDefaultStorageClass defaultStorageClass,
-      GcsBucketLifecycle lifecycle,
-      @Nullable String location) {
+      UUID workspaceId, GcsBucket resourceToCreate) {
     // convert the CLI lifecycle rule object into the WSM request objects
-    List<GcpGcsBucketLifecycleRule> lifecycleRules = lifecycle.toWsmLifecycleRules();
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(resourceToCreate.lifecycle);
 
     // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
-    String gcsBucketName =
-        resourceToCreate.getResourceAttributes().getGcpGcsBucket().getBucketName();
-
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
             .common(createCommonFields(resourceToCreate))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
-                    .name(gcsBucketName)
-                    .defaultStorageClass(defaultStorageClass)
+                    .name(resourceToCreate.bucketName)
+                    .defaultStorageClass(resourceToCreate.defaultStorageClass)
                     .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
-                    .location(location));
+                    .location(resourceToCreate.location));
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
@@ -570,6 +560,56 @@ public class WorkspaceManagerService {
     } catch (ApiException ex) {
       throw new SystemException("Error creating controlled GCS bucket in the workspace.", ex);
     }
+  }
+
+  /**
+   * This method converts this CLI-defined POJO class into a list of WSM client library-defined
+   * request objects.
+   *
+   * @return list of lifecycle rules in the format expected by the WSM client library
+   */
+  public static List<GcpGcsBucketLifecycleRule> fromCLIObject(GcsBucketLifecycle lifecycle) {
+    List<GcpGcsBucketLifecycleRule> wsmLifecycleRules = new ArrayList<>();
+    for (GcsBucketLifecycle.Rule rule : lifecycle.rule) {
+      GcpGcsBucketLifecycleRuleAction action =
+          new GcpGcsBucketLifecycleRuleAction().type(rule.action.type.toWSMEnum());
+      if (rule.action.storageClass != null) {
+        action.storageClass(rule.action.storageClass.toWSMEnum());
+      }
+
+      GcpGcsBucketLifecycleRuleCondition condition =
+          new GcpGcsBucketLifecycleRuleCondition()
+              .age(rule.condition.age)
+              .createdBefore(dateAtMidnightAndUTC(rule.condition.createdBefore))
+              .customTimeBefore(dateAtMidnightAndUTC(rule.condition.customTimeBefore))
+              .daysSinceCustomTime(rule.condition.daysSinceCustomTime)
+              .daysSinceNoncurrentTime(rule.condition.daysSinceNoncurrentTime)
+              .live(rule.condition.isLive)
+              .matchesStorageClass(
+                  rule.condition.matchesStorageClass.stream()
+                      .map(GcsStorageClass::toWSMEnum)
+                      .collect(Collectors.toList()))
+              .noncurrentTimeBefore(dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))
+              .numNewerVersions(rule.condition.numNewerVersions);
+
+      GcpGcsBucketLifecycleRule lifecycleRuleRequestObject =
+          new GcpGcsBucketLifecycleRule().action(action).condition(condition);
+      wsmLifecycleRules.add(lifecycleRuleRequestObject);
+    }
+    return wsmLifecycleRules;
+  }
+
+  /**
+   * Helper method to convert a local date (e.g. 2014-01-02) into an object that includes time and
+   * zone. The time is set to midnight, the zone to UTC.
+   *
+   * @param localDate date object with no time or zone/offset information included
+   * @return object that specifies the date, time and zone/offest
+   */
+  private static OffsetDateTime dateAtMidnightAndUTC(@Nullable LocalDate localDate) {
+    return localDate == null
+        ? null
+        : OffsetDateTime.of(localDate.atTime(LocalTime.MIDNIGHT), ZoneOffset.UTC);
   }
 
   /**
@@ -632,6 +672,34 @@ public class WorkspaceManagerService {
             .getControlledResourceMetadata()
             .getPrivateResourceUser()
             .getPrivateResourceIamRoles();
+
+    return new ControlledResourceCommonFields()
+        .name(name)
+        .description(description)
+        .cloningInstructions(cloningInstructions)
+        .accessScope(accessScope)
+        .privateResourceUser(
+            new PrivateResourceUser()
+                .userName(privateUserEmail)
+                .privateResourceIamRoles(privateResourceIamRoles))
+        .managedBy(ManagedBy.USER);
+  }
+
+  /**
+   * Create a common fields WSM object from a Resource that is being used to create a controlled
+   * resource.
+   */
+  private static ControlledResourceCommonFields createCommonFields(Resource resourceToCreate) {
+    String name = resourceToCreate.name;
+    String description = resourceToCreate.description;
+    CloningInstructionsEnum cloningInstructions = resourceToCreate.cloningInstructions;
+    AccessScope accessScope = resourceToCreate.accessScope;
+    String privateUserEmail = resourceToCreate.privateUserName;
+
+    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
+    if (resourceToCreate.privateUserRoles != null) {
+      privateResourceIamRoles.addAll(resourceToCreate.privateUserRoles);
+    }
 
     return new ControlledResourceCommonFields()
         .name(name)

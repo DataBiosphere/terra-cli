@@ -1,13 +1,13 @@
 package bio.terra.cli.command.resources;
 
-import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
 import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
-import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.command.helperclasses.options.ResourceName;
-import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Resource;
+import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.workspace.model.ResourceDescription;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -34,27 +34,22 @@ public class Resolve extends BaseCommand {
   /** Resolve a resource in the workspace to its cloud identifier. */
   @Override
   protected void execute() {
-    ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
+    Resource resource =
+        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
 
-    // the cloud identifier is resource-type specific
     String cloudId;
-    switch (resource.getMetadata().getResourceType()) {
+    switch (resource.resourceType) {
       case GCS_BUCKET:
-        cloudId =
-            excludeBucketPrefix
-                ? resource.getResourceAttributes().getGcpGcsBucket().getBucketName()
-                : getGcsBucketUrl(resource);
+        cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
         break;
-      case BIG_QUERY_DATASET:
-        cloudId = bqPathFormat.toCloudId(resource);
-        break;
-      case AI_NOTEBOOK:
-        cloudId = getAiNotebookInstanceName(resource);
-        break;
+        //      case BIG_QUERY_DATASET:
+        //        cloudId = bqPathFormat.toCloudId(resource);
+        //        break;
+        //      case AI_NOTEBOOK:
+        //        cloudId = getAiNotebookInstanceName(resource);
+        //        break;
       default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
+        cloudId = resource.resolve();
     }
     formatOption.printReturnValue(cloudId);
   }

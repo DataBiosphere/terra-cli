@@ -1,6 +1,7 @@
 package bio.terra.cli.command.helperclasses.options;
 
 import bio.terra.cli.command.exception.UserActionableException;
+import bio.terra.cli.context.Resource;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import java.util.List;
@@ -42,5 +43,14 @@ public class CreateControlledResource extends CreateResource {
             "IAM roles (--iam-roles) are required for private resources.");
       }
     }
+  }
+
+  /**
+   * Helper method to populate a {@link bio.terra.cli.context.Resource.ResourceBuilder} with the
+   * controlled resource metadata fields.
+   */
+  public void populateMetadataFields(Resource.ResourceBuilder builder) {
+    super.populateMetadataFields(builder);
+    builder.accessScope(access).privateUserName(privateUserEmail).privateUserRoles(privateIamRoles);
   }
 }

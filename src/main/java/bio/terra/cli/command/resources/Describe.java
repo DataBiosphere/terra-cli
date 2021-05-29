@@ -4,7 +4,8 @@ import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.Format;
 import bio.terra.cli.command.helperclasses.options.ResourceName;
-import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Resource;
 import bio.terra.cli.service.utils.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
@@ -24,10 +25,9 @@ public class Describe extends BaseCommand {
   /** Describe a resource. */
   @Override
   protected void execute() {
-    ResourceDescription resource =
-        new WorkspaceManager(globalContext, workspaceContext).getResource(resourceNameOption.name);
-    ResourceInfo resourceInfo = new ResourceInfo(resource, getInstance(resource));
-    formatOption.printReturnValue(resourceInfo, ResourceInfo::printText);
+    Resource resource =
+        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
+    formatOption.printReturnValue(resource, Resource::printText);
   }
 
   @Nullable
