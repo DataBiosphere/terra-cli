@@ -6,6 +6,7 @@ import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.context.resources.GcsStorageClass;
@@ -427,7 +428,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createReferencedGcsBucket(UUID workspaceId, GcsBucket resourceToAdd) {
-    // convert the GcsBucket object to a CreateGcpGcsBucketReferenceRequestBody object
+    // convert the CLI object to a WSM request object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
             .metadata(
@@ -455,28 +456,19 @@ public class WorkspaceManagerService {
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
-      UUID workspaceId, ResourceDescription resourceToAdd) {
-    // convert the ResourceDescription object to a CreateGcpBigQueryDatasetReferenceRequestBody
-    // object
-    String name = resourceToAdd.getMetadata().getName();
-    String description = resourceToAdd.getMetadata().getDescription();
-    CloningInstructionsEnum cloningInstructions =
-        resourceToAdd.getMetadata().getCloningInstructions();
-    String gcpProjectId = resourceToAdd.getResourceAttributes().getGcpBqDataset().getProjectId();
-    String bigQueryDatasetId =
-        resourceToAdd.getResourceAttributes().getGcpBqDataset().getDatasetId();
-
+      UUID workspaceId, BqDataset resourceToAdd) {
+    // convert the CLI object to a WSM request object
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(name)
-                    .description(description)
-                    .cloningInstructions(cloningInstructions))
+                    .name(resourceToAdd.name)
+                    .description(resourceToAdd.description)
+                    .cloningInstructions(resourceToAdd.cloningInstructions))
             .dataset(
                 new GcpBigQueryDatasetAttributes()
-                    .projectId(gcpProjectId)
-                    .datasetId(bigQueryDatasetId));
+                    .projectId(resourceToAdd.projectId)
+                    .datasetId(resourceToAdd.datasetId));
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
@@ -543,7 +535,7 @@ public class WorkspaceManagerService {
     // convert the CLI lifecycle rule object into the WSM request objects
     List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(resourceToCreate.lifecycle);
 
-    // convert the ResourceDescription object to a CreateControlledGcpGcsBucketRequestBody object
+    // convert the CLI object to a WSM request object
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
             .common(createCommonFields(resourceToCreate))
@@ -619,23 +611,18 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param resourceToCreate resource definition to create
-   * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
-      UUID workspaceId, ResourceDescription resourceToCreate, @Nullable String location) {
-    // convert the ResourceDescription object to a CreateControlledGcpBigQueryDatasetRequestBody
-    // object
-    String bigQueryDatasetId =
-        resourceToCreate.getResourceAttributes().getGcpBqDataset().getDatasetId();
-
+      UUID workspaceId, BqDataset resourceToCreate) {
+    // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
             .common(createCommonFields(resourceToCreate))
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
-                    .datasetId(bigQueryDatasetId)
-                    .location(location));
+                    .datasetId(resourceToCreate.datasetId)
+                    .location(resourceToCreate.location));
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);

@@ -33,20 +33,6 @@ public class CheckAccess extends BaseCommand {
     // permissions.
     boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
     boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);
-    ;
-
-    // call the appropriate check-access function for the resource
-    //    boolean userHasAccess, proxyGroupHasAccess;
-    //    switch (resource.getMetadata().getResourceType()) {
-    //      case BIG_QUERY_DATASET:
-    //        userHasAccess =
-    //            workspaceManager.checkAccessToReferencedBigQueryDataset(
-    //                resource, WorkspaceManager.CheckAccessCredentials.USER);
-    //        proxyGroupHasAccess =
-    //            workspaceManager.checkAccessToReferencedBigQueryDataset(
-    //                resource, WorkspaceManager.CheckAccessCredentials.PET_SA);
-    //        break;
-    //    }
 
     CheckAccess.CheckAccessReturnValue checkAccessReturnValue =
         new CheckAccess.CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);

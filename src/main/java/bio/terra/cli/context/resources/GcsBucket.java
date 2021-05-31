@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 @JsonDeserialize(builder = GcsBucket.GcsBucketBuilder.class)
 public class GcsBucket extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(Resource.class);
+  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
 
   public String bucketName;
   public GcsBucketLifecycle lifecycle;
@@ -108,6 +108,7 @@ public class GcsBucket extends Resource {
    * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
    *     checking access
    * @return true if the user can access the referenced GCS bucket with the given credentials
+   * @throws UserActionableException if the resource is CONTROLLED
    */
   public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
     if (!stewardshipType.equals(StewardshipType.REFERENCED)) {

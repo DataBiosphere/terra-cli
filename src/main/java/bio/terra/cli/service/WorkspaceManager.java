@@ -2,24 +2,16 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.context.WorkspaceContext;
-import bio.terra.cli.service.utils.GoogleBigQuery;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
-import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.StewardshipType;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.DatasetId;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,39 +59,6 @@ public class WorkspaceManager {
       throw new UserActionableException(name + " not found.");
     }
     return resource;
-  }
-
-  /**
-   * Add a Big Query dataset as a referenced resource in the workspace. Also updates the cached list
-   * of resources.
-   *
-   * @param resourceToAdd resource definition to add
-   * @return the resource description object that was created
-   */
-  public ResourceDescription createReferencedBigQueryDataset(ResourceDescription resourceToAdd) {
-    return createResource(
-        resourceToAdd.getMetadata().getName(),
-        () ->
-            new WorkspaceManagerService()
-                .createReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceToAdd));
-  }
-
-  /**
-   * Add a Big Query dataset as a controlled resource in the workspace. Also updates the cached list
-   * of resources.
-   *
-   * @param resourceToCreate resource definition to create
-   * @param location Big Query dataset location (https://cloud.google.com/bigquery/docs/locations)
-   * @return the resource description object that was created
-   */
-  public ResourceDescription createControlledBigQueryDataset(
-      ResourceDescription resourceToCreate, @Nullable String location) {
-    return createResource(
-        resourceToCreate.getMetadata().getName(),
-        () ->
-            new WorkspaceManagerService()
-                .createControlledBigQueryDataset(
-                    workspaceContext.getWorkspaceId(), resourceToCreate, location));
   }
 
   public ResourceDescription createControlledAiNotebookInstance(
@@ -153,22 +112,6 @@ public class WorkspaceManager {
   }
 
   /**
-   * Delete a Big Query dataset referenced resource in the workspace. Also updates the cached list
-   * of resources.
-   *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @return the resource description object that was deleted
-   */
-  public ResourceDescription deleteReferencedBigQueryDataset(String name) {
-    return deleteResource(
-        name,
-        (resourceId) -> {
-          new WorkspaceManagerService()
-              .deleteReferencedBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
-        });
-  }
-
-  /**
    * Delete a AI Notebook instance controlled resource in the workspace. Also updates the cached
    * list of resources.
    *
@@ -181,22 +124,6 @@ public class WorkspaceManager {
         (resourceId) -> {
           new WorkspaceManagerService()
               .deleteControlledAiNotebookInstance(workspaceContext.getWorkspaceId(), resourceId);
-        });
-  }
-
-  /**
-   * Delete a Big Query dataset controlled resource in the workspace. Also updates the cached list
-   * of resources.
-   *
-   * @param name name of the resource. this is unique across all resources in the workspace
-   * @return the resource description object that was deleted
-   */
-  public ResourceDescription deleteControlledBigQueryDataset(String name) {
-    return deleteResource(
-        name,
-        (resourceId) -> {
-          new WorkspaceManagerService()
-              .deleteControlledBigQueryDataset(workspaceContext.getWorkspaceId(), resourceId);
         });
   }
 
@@ -222,61 +149,6 @@ public class WorkspaceManager {
 
     // return just the summary object
     return resourceToDelete;
-  }
-
-  /**
-   * Check whether a user can access the referenced Big Query dataset, either with their end-user or
-   * pet SA credentials.
-   *
-   * @param resource resource to check access for
-   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
-   *     checking access
-   * @return true if the user can access the referenced Big Query dataset with the given credentials
-   */
-  public boolean checkAccessToReferencedBigQueryDataset(
-      ResourceDescription resource, Resource.CheckAccessCredentials credentialsToUse) {
-    if (!resource.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
-      throw new UserActionableException(
-          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
-    }
-
-    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
-    TerraUser currentUser = globalContext.requireCurrentTerraUser();
-    GoogleCredentials credentials =
-        credentialsToUse.equals(Resource.CheckAccessCredentials.USER)
-            ? currentUser.userCredentials
-            : currentUser.petSACredentials;
-
-    GcpBigQueryDatasetAttributes gcpBigQueryDatasetAttributes =
-        resource.getResourceAttributes().getGcpBqDataset();
-    return new GoogleBigQuery(credentials, workspaceContext.getGoogleProject())
-        .checkListTablesAccess(
-            DatasetId.of(
-                gcpBigQueryDatasetAttributes.getProjectId(),
-                gcpBigQueryDatasetAttributes.getDatasetId()));
-  }
-
-  /**
-   * Delimiter between the project id and dataset id for a Big Query dataset.
-   *
-   * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the path to be used directly in SQL calls with a Big Query extension.
-   */
-  private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
-
-  /**
-   * Utility method for getting the SQL path to a Big Query dataset: [GCP project id].[BQ dataset
-   * id]
-   *
-   * @param resource Big Query dataset resource
-   * @return full path to the dataset
-   */
-  public static String getBigQueryDatasetPath(ResourceDescription resource) {
-    GcpBigQueryDatasetAttributes datasetAttributes =
-        resource.getResourceAttributes().getGcpBqDataset();
-    return datasetAttributes.getProjectId()
-        + BQ_PROJECT_DATASET_DELIMITER
-        + datasetAttributes.getDatasetId();
   }
 
   /**

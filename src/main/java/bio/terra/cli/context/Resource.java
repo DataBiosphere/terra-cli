@@ -1,6 +1,7 @@
 package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.UserActionableException;
+import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.utils.Printer;
 import bio.terra.cli.service.utils.WorkspaceManagerService;
@@ -282,6 +283,8 @@ public abstract class Resource {
       switch (wsmObject.getMetadata().getResourceType()) {
         case GCS_BUCKET:
           return new GcsBucket.GcsBucketBuilder(wsmObject);
+        case BIG_QUERY_DATASET:
+          return new BqDataset.BqDatasetBuilder(wsmObject);
         default:
           throw new IllegalArgumentException(
               "Unexpected resource type: " + wsmObject.getMetadata().getResourceType());

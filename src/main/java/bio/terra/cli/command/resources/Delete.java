@@ -22,13 +22,6 @@ public class Delete extends BaseCommand {
     resource.delete();
     formatOption.printReturnValue(resource, Delete::printText);
 
-    //    if
-    // (resourceToDelete.getMetadata().getStewardshipType().equals(StewardshipType.REFERENCED)) {
-    //      switch (resourceToDelete.getMetadata().getResourceType()) {
-    //        case BIG_QUERY_DATASET:
-    //          workspaceManager.deleteReferencedBigQueryDataset(resourceNameOption.name);
-    //          break;
-    //      }
     //    } else if (resourceToDelete
     //        .getMetadata()
     //        .getStewardshipType()
@@ -36,10 +29,6 @@ public class Delete extends BaseCommand {
     //      switch (resourceToDelete.getMetadata().getResourceType()) {
     //        case AI_NOTEBOOK:
     //          workspaceManager.deleteControlledAiNotebookInstance(resourceNameOption.name);
-    //          break;
-    //        case BIG_QUERY_DATASET:
-    //          workspaceManager.deleteControlledBigQueryDataset(resourceNameOption.name);
-    //          break;
   }
 
   /** Print this command's output in text format. */
