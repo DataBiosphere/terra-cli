@@ -2,7 +2,7 @@ package bio.terra.cli.command.groups;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.utils.SamService;
+import bio.terra.cli.service.SamService;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

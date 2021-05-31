@@ -2,7 +2,7 @@ package bio.terra.cli.command.notebooks;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.NotebookInstance;
-import bio.terra.cli.service.utils.GoogleAiNotebooks;
+import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 

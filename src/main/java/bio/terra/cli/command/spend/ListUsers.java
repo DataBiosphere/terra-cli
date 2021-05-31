@@ -2,7 +2,7 @@ package bio.terra.cli.command.spend;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.utils.SpendProfileManagerService;
+import bio.terra.cli.service.SpendProfileManagerService;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import picocli.CommandLine;

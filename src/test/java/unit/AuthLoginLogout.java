@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.auth.GoogleCredentialUtils;
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.service.utils.SamService;
+import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import harness.TestCommand;

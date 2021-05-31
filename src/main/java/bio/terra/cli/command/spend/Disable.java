@@ -1,7 +1,7 @@
 package bio.terra.cli.command.spend;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.service.utils.SpendProfileManagerService;
+import bio.terra.cli.service.SpendProfileManagerService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 

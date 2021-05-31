@@ -5,7 +5,7 @@ import bio.terra.cli.context.resources.AiNotebook;
 import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.utils.Printer;
-import bio.terra.cli.service.utils.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;

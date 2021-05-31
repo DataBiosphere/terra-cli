@@ -2,7 +2,6 @@ package bio.terra.cli.command.helperclasses;
 
 import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.context.WorkspaceContext;
 import bio.terra.cli.context.utils.Logger;
 import bio.terra.cli.context.utils.Printer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -33,7 +32,6 @@ import picocli.CommandLine;
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   protected GlobalContext globalContext;
-  protected WorkspaceContext workspaceContext;
 
   // output streams for commands to write to
   protected static PrintStream OUT;
@@ -49,9 +47,6 @@ public abstract class BaseCommand implements Callable<Integer> {
     // read in the global context and setup logging
     globalContext = GlobalContext.get();
     new Logger(globalContext).setupLogging();
-
-    // read in the workspace context
-    workspaceContext = WorkspaceContext.readFromFile();
 
     // do the login flow if required
     if (requiresLogin()) {

@@ -1,4 +1,4 @@
-package bio.terra.cli.service.utils;
+package bio.terra.cli.service;
 
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.GoogleCredentials;

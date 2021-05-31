@@ -2,7 +2,7 @@ package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.utils.Printer;
-import bio.terra.cli.service.utils.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.RoleBindingList;
 import com.fasterxml.jackson.annotation.JsonCreator;

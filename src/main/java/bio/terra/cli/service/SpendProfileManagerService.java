@@ -1,4 +1,4 @@
-package bio.terra.cli.service.utils;
+package bio.terra.cli.service;
 
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
