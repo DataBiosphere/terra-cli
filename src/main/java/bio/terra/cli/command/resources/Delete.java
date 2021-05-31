@@ -21,14 +21,6 @@ public class Delete extends BaseCommand {
         GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
     resource.delete();
     formatOption.printReturnValue(resource, Delete::printText);
-
-    //    } else if (resourceToDelete
-    //        .getMetadata()
-    //        .getStewardshipType()
-    //        .equals(StewardshipType.CONTROLLED)) {
-    //      switch (resourceToDelete.getMetadata().getResourceType()) {
-    //        case AI_NOTEBOOK:
-    //          workspaceManager.deleteControlledAiNotebookInstance(resourceNameOption.name);
   }
 
   /** Print this command's output in text format. */

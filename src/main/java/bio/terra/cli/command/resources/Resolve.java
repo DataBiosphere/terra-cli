@@ -43,9 +43,6 @@ public class Resolve extends BaseCommand {
       case BIG_QUERY_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);
         break;
-        //      case AI_NOTEBOOK:
-        //        cloudId = getAiNotebookInstanceName(resource);
-        //        break;
       default:
         cloudId = resource.resolve();
     }

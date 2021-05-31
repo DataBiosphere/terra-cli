@@ -6,6 +6,7 @@ import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.context.resources.AiNotebook;
 import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
@@ -35,8 +36,11 @@ import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
 import bio.terra.workspace.model.ErrorReport;
+import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
+import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
+import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -489,14 +493,13 @@ public class WorkspaceManagerService {
    * @return the AI Platform Notebook instance resource object
    */
   public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId,
-      ResourceDescription resourceToCreate,
-      GcpAiNotebookInstanceCreationParameters creationParameters) {
+      UUID workspaceId, AiNotebook resourceToCreate) {
+    // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
         new CreateControlledGcpAiNotebookInstanceRequestBody()
             .common(createCommonFields(resourceToCreate))
-            .aiNotebookInstance(creationParameters)
+            .aiNotebookInstance(fromCLIObject(resourceToCreate))
             .jobControl(new JobControl().id(jobId));
 
     try {
@@ -519,6 +522,50 @@ public class WorkspaceManagerService {
       throw new SystemException(
           "Error creating controlled AI Notebook instance in the workspace.", ex);
     }
+  }
+
+  /**
+   * This method converts this CLI-defined POJO class into the WSM client library-defined request
+   * object.
+   *
+   * @return AI Platform notebook attributes in the format expected by the WSM client library
+   */
+  private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
+      AiNotebook resourceToCreate) {
+    GcpAiNotebookInstanceCreationParameters aiNotebookParams =
+        new GcpAiNotebookInstanceCreationParameters()
+            .instanceId(resourceToCreate.instanceId)
+            .location(resourceToCreate.location)
+            .machineType(resourceToCreate.machineType)
+            .postStartupScript(resourceToCreate.postStartupScript)
+            .metadata(resourceToCreate.metadata)
+            .installGpuDriver(resourceToCreate.installGpuDriver)
+            .customGpuDriverPath(resourceToCreate.customGpuDriverPath)
+            .bootDiskType(resourceToCreate.bootDiskType)
+            .bootDiskSizeGb(resourceToCreate.bootDiskSizeGb)
+            .dataDiskType(resourceToCreate.dataDiskType)
+            .dataDiskSizeGb(resourceToCreate.dataDiskSizeGb);
+    if (resourceToCreate.acceleratorType != null || resourceToCreate.acceleratorCoreCount != null) {
+      aiNotebookParams.acceleratorConfig(
+          new GcpAiNotebookInstanceAcceleratorConfig()
+              .type(resourceToCreate.acceleratorType)
+              .coreCount(resourceToCreate.acceleratorCoreCount));
+    }
+    if (resourceToCreate.vmImageProject != null) {
+      aiNotebookParams.vmImage(
+          new GcpAiNotebookInstanceVmImage()
+              .projectId(resourceToCreate.vmImageProject)
+              .imageFamily(resourceToCreate.vmImageFamily)
+              .imageName(resourceToCreate.vmImageName));
+    } else if (resourceToCreate.containerRepository != null) {
+      aiNotebookParams.containerImage(
+          new GcpAiNotebookInstanceContainerImage()
+              .repository(resourceToCreate.containerRepository)
+              .tag(resourceToCreate.containerTag));
+    } else {
+      throw new SystemException("Expected either VM or Container image definition.");
+    }
+    return aiNotebookParams;
   }
 
   /**
@@ -560,7 +607,7 @@ public class WorkspaceManagerService {
    *
    * @return list of lifecycle rules in the format expected by the WSM client library
    */
-  public static List<GcpGcsBucketLifecycleRule> fromCLIObject(GcsBucketLifecycle lifecycle) {
+  private static List<GcpGcsBucketLifecycleRule> fromCLIObject(GcsBucketLifecycle lifecycle) {
     List<GcpGcsBucketLifecycleRule> wsmLifecycleRules = new ArrayList<>();
     for (GcsBucketLifecycle.Rule rule : lifecycle.rule) {
       GcpGcsBucketLifecycleRuleAction action =
@@ -633,43 +680,6 @@ public class WorkspaceManagerService {
       throw new SystemException(
           "Error creating controlled Big Query dataset in the workspace.", ex);
     }
-  }
-
-  /**
-   * Create a common fields object from a ResourceDescription that is being used to create a
-   * controlled resource.
-   */
-  private static ControlledResourceCommonFields createCommonFields(
-      ResourceDescription resourceToCreate) {
-    String name = resourceToCreate.getMetadata().getName();
-    String description = resourceToCreate.getMetadata().getDescription();
-    CloningInstructionsEnum cloningInstructions =
-        resourceToCreate.getMetadata().getCloningInstructions();
-    AccessScope accessScope =
-        resourceToCreate.getMetadata().getControlledResourceMetadata().getAccessScope();
-    String privateUserEmail =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getUserName();
-    PrivateResourceIamRoles privateResourceIamRoles =
-        resourceToCreate
-            .getMetadata()
-            .getControlledResourceMetadata()
-            .getPrivateResourceUser()
-            .getPrivateResourceIamRoles();
-
-    return new ControlledResourceCommonFields()
-        .name(name)
-        .description(description)
-        .cloningInstructions(cloningInstructions)
-        .accessScope(accessScope)
-        .privateResourceUser(
-            new PrivateResourceUser()
-                .userName(privateUserEmail)
-                .privateResourceIamRoles(privateResourceIamRoles))
-        .managedBy(ManagedBy.USER);
   }
 
   /**

@@ -2,11 +2,11 @@ package bio.terra.cli.command.helperclasses.options;
 
 import bio.terra.cli.command.exception.UserActionableException;
 import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
-import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.cli.context.Resource;
+import bio.terra.cli.context.Workspace;
+import bio.terra.cli.context.resources.AiNotebook;
 import bio.terra.cloudres.google.notebooks.InstanceName;
-import bio.terra.workspace.model.GcpAiNotebookInstanceAttributes;
-import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.workspace.model.ResourceType;
 import picocli.CommandLine;
 
 /**
@@ -37,26 +37,24 @@ public class NotebookInstance {
       description = "The Google Cloud location of the instance (if using --instance-id).")
   public String location;
 
-  public InstanceName toInstanceName(
-      GlobalContext globalContext, WorkspaceContext workspaceContext) {
+  public InstanceName toInstanceName() {
+    Workspace workspace = GlobalContext.get().requireCurrentWorkspace();
     if (argGroup.resourceName != null) {
-      ResourceDescription resource =
-          new WorkspaceManager(globalContext, workspaceContext).getResource(argGroup.resourceName);
-      GcpAiNotebookInstanceAttributes attributes =
-          resource.getResourceAttributes().getGcpAiNotebookInstance();
-      if (attributes == null) {
+      Resource resource = workspace.getResource(argGroup.resourceName);
+      if (!resource.resourceType.equals(ResourceType.AI_NOTEBOOK)) {
         throw new UserActionableException(
             "Only able to use notebook commands on notebook resources, but specified resource is "
-                + resource.getMetadata().getResourceType());
+                + resource.resourceType);
       }
+      AiNotebook aiNotebook = (AiNotebook) resource;
       return InstanceName.builder()
-          .projectId(attributes.getProjectId())
-          .location(attributes.getLocation())
-          .instanceId(attributes.getInstanceId())
+          .projectId(aiNotebook.projectId)
+          .location(aiNotebook.location)
+          .instanceId(aiNotebook.instanceId)
           .build();
     } else {
       return InstanceName.builder()
-          .projectId(workspaceContext.getGoogleProject())
+          .projectId(workspace.googleProjectId)
           .location(location)
           .instanceId(argGroup.instanceId)
           .build();

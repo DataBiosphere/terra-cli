@@ -1,6 +1,7 @@
 package bio.terra.cli.context;
 
 import bio.terra.cli.command.exception.UserActionableException;
+import bio.terra.cli.context.resources.AiNotebook;
 import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.utils.Printer;
@@ -130,10 +131,6 @@ public abstract class Resource {
 
   /** Subclass-specific method to resolve a resource. */
   public abstract String resolve();
-  /**
-   * case BIG_QUERY_DATASET: return getBigQueryDatasetPath(resource); case AI_NOTEBOOK: return
-   * getAiNotebookInstanceName(resource);
-   */
 
   /**
    * Helper enum for the {@link #checkAccess(CheckAccessCredentials)} method. Specifies whether to
@@ -162,6 +159,12 @@ public abstract class Resource {
     globalContext.requireCurrentWorkspace().setResources(resources);
     return resources;
   }
+
+  /**
+   * Optional subclass-specific method to populate additional information about a resource (e.g. by
+   * querying the cloud).
+   */
+  public void populateAdditionalInfo() {}
 
   /** Print out a resource object in text format. */
   public void printText() {
@@ -285,6 +288,8 @@ public abstract class Resource {
           return new GcsBucket.GcsBucketBuilder(wsmObject);
         case BIG_QUERY_DATASET:
           return new BqDataset.BqDatasetBuilder(wsmObject);
+        case AI_NOTEBOOK:
+          return new AiNotebook.AiNotebookBuilder(wsmObject);
         default:
           throw new IllegalArgumentException(
               "Unexpected resource type: " + wsmObject.getMetadata().getResourceType());

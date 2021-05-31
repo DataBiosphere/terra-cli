@@ -17,9 +17,7 @@ public class Start extends BaseCommand {
 
   @Override
   protected void execute() {
-    workspaceContext.requireCurrentWorkspace();
-
-    InstanceName instanceName = instanceOption.toInstanceName(globalContext, workspaceContext);
+    InstanceName instanceName = instanceOption.toInstanceName();
     GoogleAiNotebooks notebooks =
         new GoogleAiNotebooks(globalContext.requireCurrentTerraUser().userCredentials);
     notebooks.start(instanceName);

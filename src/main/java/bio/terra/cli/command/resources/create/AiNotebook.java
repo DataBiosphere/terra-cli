@@ -1,22 +1,14 @@
 package bio.terra.cli.command.resources.create;
 
 import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
 import bio.terra.cli.command.helperclasses.options.CreateResource;
 import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.service.WorkspaceManager;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
-import bio.terra.workspace.model.ControlledResourceMetadata;
-import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
-import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
-import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
-import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
-import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.workspace.model.StewardshipType;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -234,80 +226,67 @@ public class AiNotebook extends BaseCommand {
   /** Add a controlled AI Notebook instance to the workspace. */
   @Override
   protected void execute() {
-    var creationParameters =
-        new GcpAiNotebookInstanceCreationParameters()
+    // build the resource object to create
+    bio.terra.cli.context.resources.AiNotebook.AiNotebookBuilder resourceToCreate =
+        new bio.terra.cli.context.resources.AiNotebook.AiNotebookBuilder()
             .instanceId(getInstanceId(globalContext.requireCurrentTerraUser()))
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
             .metadata(
-                metadata == null ? defaultMetadata(workspaceContext.getWorkspaceId()) : metadata);
+                metadata == null
+                    ? defaultMetadata(GlobalContext.get().requireCurrentWorkspace().id)
+                    : metadata);
+    resourceToCreate.stewardshipType(StewardshipType.CONTROLLED);
+    createResourceOptions.populateMetadataFields(resourceToCreate);
+
+    // force the resource to be private
+    resourceToCreate
+        .accessScope(AccessScope.PRIVATE_ACCESS)
+        .privateUserName(globalContext.requireCurrentTerraUser().getEmail())
+        .privateUserRoles(
+            List.of(
+                ControlledResourceIamRole.EDITOR,
+                ControlledResourceIamRole.WRITER,
+                ControlledResourceIamRole.READER));
+
     if (acceleratorConfig != null) {
-      creationParameters.acceleratorConfig(
-          new GcpAiNotebookInstanceAcceleratorConfig()
-              .type(acceleratorConfig.type)
-              .coreCount(acceleratorConfig.coreCount));
+      resourceToCreate
+          .acceleratorType(acceleratorConfig.type)
+          .acceleratorCoreCount(acceleratorConfig.coreCount);
+    }
+    if (gpuDriverConfiguration != null) {
+      resourceToCreate
+          .installGpuDriver(gpuDriverConfiguration.installGpuDriver)
+          .customGpuDriverPath(gpuDriverConfiguration.customGpuDriverPath);
     }
     if (bootDiskConfiguration != null) {
-      creationParameters.bootDiskType(bootDiskConfiguration.type);
-      creationParameters.bootDiskSizeGb(bootDiskConfiguration.sizeGb);
+      resourceToCreate
+          .bootDiskType(bootDiskConfiguration.type)
+          .bootDiskSizeGb(bootDiskConfiguration.sizeGb);
     }
     if (dataDiskConfiguration != null) {
-      creationParameters.dataDiskType(dataDiskConfiguration.type);
-      creationParameters.dataDiskSizeGb(dataDiskConfiguration.sizeGb);
+      resourceToCreate
+          .dataDiskType(dataDiskConfiguration.type)
+          .dataDiskSizeGb(dataDiskConfiguration.sizeGb);
     }
     if (vmOrContainerImage == null) {
-      creationParameters.vmImage(
-          new GcpAiNotebookInstanceVmImage()
-              .projectId(DEFAULT_VM_IMAGE_PROJECT)
-              .imageFamily(DEFAULT_VM_IMAGE_FAMILY));
+      resourceToCreate
+          .vmImageProject(DEFAULT_VM_IMAGE_PROJECT)
+          .vmImageFamily(DEFAULT_VM_IMAGE_FAMILY);
+    } else if (vmOrContainerImage.container != null) {
+      resourceToCreate
+          .containerRepository(vmOrContainerImage.container.repository)
+          .containerTag(vmOrContainerImage.container.tag);
     } else {
-      if (vmOrContainerImage.container != null) {
-        creationParameters.containerImage(
-            new GcpAiNotebookInstanceContainerImage()
-                .repository(vmOrContainerImage.container.repository)
-                .tag(vmOrContainerImage.container.tag));
-      } else {
-        creationParameters.vmImage(
-            new GcpAiNotebookInstanceVmImage()
-                .projectId(vmOrContainerImage.vm.project)
-                .imageFamily(vmOrContainerImage.vm.imageConfig.family)
-                .imageName(vmOrContainerImage.vm.imageConfig.name));
-      }
+      resourceToCreate
+          .vmImageProject(vmOrContainerImage.vm.project)
+          .vmImageFamily(vmOrContainerImage.vm.imageConfig.family)
+          .vmImageName(vmOrContainerImage.vm.imageConfig.name);
     }
 
-    ResourceDescription resourceCreated =
-        new WorkspaceManager(globalContext, workspaceContext)
-            .createControlledAiNotebookInstance(resourceToCreate(), creationParameters);
-    formatOption.printReturnValue(resourceCreated, AiNotebook::printText);
-  }
-
-  /**
-   * Returns a {@link ResourceDescription} for the resource to be created.
-   *
-   * <p>For an AI Notebook instance, the user today always wants a private notebook for themselves,
-   * where they have full IAM control to edit & use.
-   */
-  private ResourceDescription resourceToCreate() {
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    privateResourceIamRoles.addAll(
-        List.of(
-            ControlledResourceIamRole.EDITOR,
-            ControlledResourceIamRole.WRITER,
-            ControlledResourceIamRole.READER));
-    return new ResourceDescription()
-        .metadata(
-            new ResourceMetadata()
-                .name(createResourceOptions.name)
-                .description(createResourceOptions.description)
-                .cloningInstructions(createResourceOptions.cloning)
-                .controlledResourceMetadata(
-                    new ControlledResourceMetadata()
-                        .accessScope(AccessScope.PRIVATE_ACCESS)
-                        .privateResourceUser(
-                            new PrivateResourceUser()
-                                .userName(globalContext.requireCurrentTerraUser().getEmail())
-                                .privateResourceIamRoles(privateResourceIamRoles))));
+    Resource resource = resourceToCreate.build().addOrCreate();
+    formatOption.printReturnValue(resource, AiNotebook::printText);
   }
 
   /** Create the metadata to put on the AI Notebook instance. */
@@ -369,8 +348,8 @@ public class AiNotebook extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(ResourceDescription returnValue) {
+  private static void printText(Resource returnValue) {
     OUT.println("Successfully added controlled AI Notebook instance.");
-    PrintingUtils.printText(returnValue);
+    returnValue.printText();
   }
 }

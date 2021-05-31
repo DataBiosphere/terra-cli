@@ -101,6 +101,10 @@ public class Workspace {
 
     // update the global context with the current workspace
     GlobalContext.get().setCurrentWorkspace(workspace);
+
+    // fetch the list of resources in this workspace
+    Resource.listAndSync();
+
     return workspace;
   }
 
