@@ -25,7 +25,7 @@ public class ListUsers extends BaseCommand {
   @Override
   protected void execute() {
     List<String> users =
-        new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
             .listUsersInGroup(group, policy);
     formatOption.printReturnValue(users, ListUsers::printText);
   }

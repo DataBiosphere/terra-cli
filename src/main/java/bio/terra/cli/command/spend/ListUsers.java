@@ -21,7 +21,7 @@ public class ListUsers extends BaseCommand {
   protected void execute() {
     List<AccessPolicyResponseEntry> policies =
         new SpendProfileManagerService(
-                globalContext.server, globalContext.requireCurrentTerraUser())
+                globalContext.getServer(), globalContext.requireCurrentTerraUser())
             .listUsersOfDefaultSpendProfile();
     formatOption.printReturnValue(policies, ListUsers::printText);
   }

@@ -25,29 +25,29 @@ import org.slf4j.LoggerFactory;
 public class AiNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AiNotebook.class);
 
-  public String projectId;
-  public String instanceId;
-  public String location;
-  public String machineType;
-  public String postStartupScript;
-  public Map<String, String> metadata;
-  public String vmImageProject;
-  public String vmImageFamily;
-  public String vmImageName;
-  public String containerRepository;
-  public String containerTag;
-  public String acceleratorType;
-  public Long acceleratorCoreCount;
-  public Boolean installGpuDriver;
-  public String customGpuDriverPath;
-  public Long bootDiskSizeGb;
-  public String bootDiskType;
-  public Long dataDiskSizeGb;
-  public String dataDiskType;
+  public final String projectId;
+  public final String instanceId;
+  public final String location;
+  public final String machineType;
+  public final String postStartupScript;
+  public final Map<String, String> metadata;
+  public final String vmImageProject;
+  public final String vmImageFamily;
+  public final String vmImageName;
+  public final String containerRepository;
+  public final String containerTag;
+  public final String acceleratorType;
+  public final Long acceleratorCoreCount;
+  public final Boolean installGpuDriver;
+  public final String customGpuDriverPath;
+  public final Long bootDiskSizeGb;
+  public final String bootDiskType;
+  public final Long dataDiskSizeGb;
+  public final String dataDiskType;
 
   // only include this property when serializing (e.g. writing out to the user), not when
   // deserializing (e.g. reading in from the context file)
-  @JsonIgnore public Instance instance;
+  @JsonIgnore private Instance instance;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   public void setInstance(Instance instance) {

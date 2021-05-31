@@ -23,7 +23,7 @@ public class AddUser extends BaseCommand {
   /** Add a user to a Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
         .addUserToGroup(group, policy, user);
     OUT.println("User " + user + " successfully added to group " + group + ".");
   }

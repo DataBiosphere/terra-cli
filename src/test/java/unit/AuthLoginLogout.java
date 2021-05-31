@@ -88,7 +88,7 @@ public class AuthLoginLogout extends ClearContextUnit {
 
       // build a SAM client with the test user's credentials
       SamService samService =
-          new SamService(globalContext.server, globalContext.requireCurrentTerraUser());
+          new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser());
 
       // check that the user is enabled
       UserStatusInfo userStatusInfo = samService.getUserInfo();

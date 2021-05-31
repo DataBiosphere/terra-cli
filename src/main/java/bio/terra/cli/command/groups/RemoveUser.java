@@ -23,7 +23,7 @@ public class RemoveUser extends BaseCommand {
   /** Delete an existing Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
         .removeUserFromGroup(group, policy, user);
     OUT.println("User " + user + " successfully removed from group " + group + ".");
   }

@@ -26,31 +26,34 @@ import org.slf4j.LoggerFactory;
 public class GlobalContext {
   private static final Logger logger = LoggerFactory.getLogger(GlobalContext.class);
 
-  // global auth context = current Terra user,
-  //   flag indicating whether to launch a browser automatically or not
+  // global auth context = current Terra user
   private TerraUser terraUser;
-  public BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
   // global server context = service uris, environment name
-  public Server server;
+  private Server server;
 
-  // global workspaces context = current workspace
+  // global workspace context = current workspace
   private Workspace workspace;
 
-  // global apps context = flag for how to launch tools, docker image id or tag
-  public CommandRunners commandRunnerOption = DOCKER_CONTAINER;
-  public String dockerImageId;
+  // global config context
+  //   - flag indicating whether to launch a browser automatically or not
+  private BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
 
-  // maximum number of resources to cache on disk for a single workspace before throwing an error
-  // (corresponds to ~1MB cache size on disk)
-  public int resourcesCacheSize = DEFAULT_RESOURCES_CACHE_SIZE;
+  //   - flag for how to launch tools, docker image id or tag
+  private CommandRunners commandRunnerOption = DOCKER_CONTAINER;
+  private String dockerImageId;
+
+  //   - maximum number of resources to cache on disk for a single workspace before throwing an
+  // error
+  //     (corresponds to ~1MB cache size on disk)
+  private int resourcesCacheSize = DEFAULT_RESOURCES_CACHE_SIZE;
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
-  // global logging context = log levels for file and stdout
-  public LogLevel fileLoggingLevel = LogLevel.INFO;
-  public LogLevel consoleLoggingLevel = LogLevel.OFF;
+  //   - log levels for file and stdout
+  private LogLevel fileLoggingLevel = LogLevel.INFO;
+  private LogLevel consoleLoggingLevel = LogLevel.OFF;
 
-  // env var name to optionally override where the context is persisted on disk
+  //   - env var name to optionally override where the context is persisted on disk
   private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
 
   // file paths related to persisting the global context on disk
@@ -134,6 +137,19 @@ public class GlobalContext {
     writeToFile();
   }
 
+  /** Getter for the current server. */
+  public Server getServer() {
+    return server;
+  }
+
+  /** Setter for the current Terra server. Persists on disk. */
+  public void updateServer(Server server) {
+    logger.info("Updating server from {} to {}.", this.server.name, server.name);
+    this.server = server;
+
+    writeToFile();
+  }
+
   /** Getter for the current workspace. Returns empty if no current workspace is defined. */
   @JsonIgnore
   public Optional<Workspace> getCurrentWorkspace() {
@@ -176,12 +192,17 @@ public class GlobalContext {
     auto;
   }
 
+  /** Getter for the browser launch option. */
+  public BrowserLaunchOption getBrowserLaunchOption() {
+    return this.browserLaunchOption;
+  }
+
   /**
    * Setter for the browser launch option. Persists on disk.
    *
    * @param browserLaunchOption new value for the browser launch option
    */
-  public void updateBrowserLaunchFlag(BrowserLaunchOption browserLaunchOption) {
+  public void updateBrowserLaunchOption(BrowserLaunchOption browserLaunchOption) {
     logger.info(
         "Updating browser launch flag from {} to {}.",
         this.browserLaunchOption,
@@ -208,6 +229,11 @@ public class GlobalContext {
     }
   }
 
+  /** Getter for the command runner option. */
+  public CommandRunners getCommandRunnerOption() {
+    return commandRunnerOption;
+  }
+
   /**
    * Setter for the command runner option. Persists on disk.
    *
@@ -221,6 +247,24 @@ public class GlobalContext {
     this.commandRunnerOption = commandRunnerOption;
 
     writeToFile();
+  }
+
+  /** Getter for the Docker image id. */
+  public String getDockerImageId() {
+    return dockerImageId;
+  }
+
+  /** Setter for the Docker image id. Persists on disk. */
+  public void updateDockerImageId(String dockerImageId) {
+    logger.info("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
+    this.dockerImageId = dockerImageId;
+
+    writeToFile();
+  }
+
+  /** Getter for the resources cache size. */
+  public int getResourcesCacheSize() {
+    return resourcesCacheSize;
   }
 
   /**
@@ -238,6 +282,11 @@ public class GlobalContext {
     writeToFile();
   }
 
+  /** Getter for the console logging level. */
+  public LogLevel getConsoleLoggingLevel() {
+    return consoleLoggingLevel;
+  }
+
   /**
    * Setter for the console logging level. Persists on disk.
    *
@@ -253,6 +302,11 @@ public class GlobalContext {
     writeToFile();
   }
 
+  /** Getter for the file logging level. */
+  public LogLevel getFileLoggingLevel() {
+    return fileLoggingLevel;
+  }
+
   /**
    * Setter for the file logging level. Persists on disk.
    *
@@ -262,22 +316,6 @@ public class GlobalContext {
     logger.info(
         "Updating file logging level from {} to {}.", this.fileLoggingLevel, fileLoggingLevel);
     this.fileLoggingLevel = fileLoggingLevel;
-
-    writeToFile();
-  }
-
-  /** Setter for the current Terra server. Persists on disk. */
-  public void updateServer(Server server) {
-    logger.info("Updating server from {} to {}.", this.server.name, server.name);
-    this.server = server;
-
-    writeToFile();
-  }
-
-  /** Setter for the Docker image id. Persists on disk. */
-  public void updateDockerImageId(String dockerImageId) {
-    logger.info("Updating Docker image id from {} to {}.", this.dockerImageId, dockerImageId);
-    this.dockerImageId = dockerImageId;
 
     writeToFile();
   }

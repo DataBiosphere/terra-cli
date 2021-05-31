@@ -101,7 +101,11 @@ public class DockerCommandRunner extends CommandRunner {
 
     // create and start the docker container
     dockerClientWrapper.startContainer(
-        GlobalContext.get().dockerImageId, command, CONTAINER_WORKING_DIR, envVars, bindMounts);
+        GlobalContext.get().getDockerImageId(),
+        command,
+        CONTAINER_WORKING_DIR,
+        envVars,
+        bindMounts);
 
     // read the container logs, which contains the command output, and write them to stdout
     dockerClientWrapper.streamLogsForContainer();

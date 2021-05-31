@@ -15,14 +15,16 @@ public class AppLaunch extends BaseCommand {
   /** Updates the command runner option property of the global context. */
   @Override
   protected void execute() {
-    GlobalContext.CommandRunners prevAppLaunchOption = globalContext.commandRunnerOption;
+    GlobalContext.CommandRunners prevAppLaunchOption = globalContext.getCommandRunnerOption();
     globalContext.updateCommandRunnerOption(mode);
 
     OUT.println(
         "App launch mode is "
-            + globalContext.commandRunnerOption
+            + globalContext.getCommandRunnerOption()
             + " ("
-            + (globalContext.commandRunnerOption == prevAppLaunchOption ? "UNCHANGED" : "CHANGED")
+            + (globalContext.getCommandRunnerOption() == prevAppLaunchOption
+                ? "UNCHANGED"
+                : "CHANGED")
             + ").");
   }
 

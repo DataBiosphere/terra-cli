@@ -98,7 +98,7 @@ public class Logger {
     rollingPolicy.start();
 
     setupEncoderAndFilter(
-        rollingFileAppender, loggerContext, globalContext.fileLoggingLevel.getLogLevelImpl());
+        rollingFileAppender, loggerContext, globalContext.getFileLoggingLevel().getLogLevelImpl());
     rollingFileAppender.start();
 
     // build the console appender
@@ -106,7 +106,7 @@ public class Logger {
     consoleAppender.setName("ConsoleAppender");
     consoleAppender.setContext(loggerContext);
     setupEncoderAndFilter(
-        consoleAppender, loggerContext, globalContext.consoleLoggingLevel.getLogLevelImpl());
+        consoleAppender, loggerContext, globalContext.getConsoleLoggingLevel().getLogLevelImpl());
     consoleAppender.start();
 
     // on the root logger, clear any existing appenders and attach the two created above

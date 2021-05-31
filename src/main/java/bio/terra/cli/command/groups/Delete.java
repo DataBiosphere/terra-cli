@@ -14,7 +14,7 @@ public class Delete extends BaseCommand {
   /** Delete an existing Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
         .deleteGroup(group);
     OUT.println("Group " + group + " successfully deleted.");
   }

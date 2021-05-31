@@ -16,7 +16,8 @@ public class Logging extends BaseCommand {
   @Override
   protected void execute() {
     LoggingReturnValue loggingLevels =
-        new LoggingReturnValue(globalContext.consoleLoggingLevel, globalContext.fileLoggingLevel);
+        new LoggingReturnValue(
+            globalContext.getConsoleLoggingLevel(), globalContext.getFileLoggingLevel());
     formatOption.printReturnValue(loggingLevels, Logging::printText);
   }
 

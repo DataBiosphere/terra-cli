@@ -14,7 +14,7 @@ public class Create extends BaseCommand {
   /** Create a new Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
         .createGroup(group);
     OUT.println("Group " + group + " successfully created.");
   }

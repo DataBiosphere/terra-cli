@@ -31,7 +31,7 @@ public class ResourceLimit extends BaseCommand {
   /** Updates the resources cache size property of the global context. */
   @Override
   protected void execute() {
-    int prevMaxResources = globalContext.resourcesCacheSize;
+    int prevMaxResources = globalContext.getResourcesCacheSize();
     int newMaxResources =
         argGroup.useDefault ? GlobalContext.DEFAULT_RESOURCES_CACHE_SIZE : argGroup.max;
     if (newMaxResources <= 0) {
@@ -40,15 +40,15 @@ public class ResourceLimit extends BaseCommand {
     }
     globalContext.updateResourcesCacheSize(newMaxResources);
 
-    if (globalContext.resourcesCacheSize == prevMaxResources) {
+    if (globalContext.getResourcesCacheSize() == prevMaxResources) {
       OUT.println(
           "Max number of resources per workspace: "
-              + globalContext.resourcesCacheSize
+              + globalContext.getResourcesCacheSize()
               + " (UNCHANGED)");
     } else {
       OUT.println(
           "Max number of resources per workspace: "
-              + globalContext.resourcesCacheSize
+              + globalContext.getResourcesCacheSize()
               + " (CHANGED FROM "
               + prevMaxResources
               + ")");

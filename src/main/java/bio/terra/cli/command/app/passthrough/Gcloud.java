@@ -18,6 +18,6 @@ public class Gcloud extends BaseCommand {
     // no need for any special setup or teardown logic since gcloud is already initialized when the
     // container starts
     command.add(0, "gcloud");
-    globalContext.commandRunnerOption.getCommandRunner().runToolCommand(command);
+    globalContext.getCommandRunnerOption().getCommandRunner().runToolCommand(command);
   }
 }

@@ -20,6 +20,6 @@ public class Nextflow extends BaseCommand {
     command.add(0, "nextflow");
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
-    globalContext.commandRunnerOption.getCommandRunner().runToolCommand(command, envVars);
+    globalContext.getCommandRunnerOption().getCommandRunner().runToolCommand(command, envVars);
   }
 }

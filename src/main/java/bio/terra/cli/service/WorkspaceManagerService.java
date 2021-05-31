@@ -112,7 +112,7 @@ public class WorkspaceManagerService {
    * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
    */
   public WorkspaceManagerService() {
-    this(GlobalContext.get().server, GlobalContext.get().requireCurrentTerraUser());
+    this(GlobalContext.get().getServer(), GlobalContext.get().requireCurrentTerraUser());
   }
 
   /**
@@ -317,7 +317,7 @@ public class WorkspaceManagerService {
           },
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+            new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
                 .inviteUser(userEmail);
             return null;
           });

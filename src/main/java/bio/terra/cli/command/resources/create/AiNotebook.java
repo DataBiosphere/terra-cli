@@ -300,7 +300,7 @@ public class AiNotebook extends BaseCommand {
             "jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz")
         // Set additional Terra context as metadata on the VM instance.
         .put("terra-workspace-id", workspaceID.toString())
-        .put("terra-cli-server", globalContext.server.name)
+        .put("terra-cli-server", globalContext.getServer().name)
         .build();
   }
 

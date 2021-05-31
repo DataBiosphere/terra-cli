@@ -16,7 +16,8 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<ManagedGroupMembershipEntry> groups =
-        new SamService(globalContext.server, globalContext.requireCurrentTerraUser()).listGroups();
+        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
+            .listGroups();
     formatOption.printReturnValue(groups, List::printText);
   }
 

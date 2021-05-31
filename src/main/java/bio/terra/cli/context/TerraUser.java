@@ -82,7 +82,7 @@ public class TerraUser {
       // if there are already credentials for this user, and they are not expired, then return them
       // otherwise, log the user in and get their consent
       boolean launchBrowserAutomatically =
-          globalContext.browserLaunchOption.equals(GlobalContext.BrowserLaunchOption.auto);
+          globalContext.getBrowserLaunchOption().equals(GlobalContext.BrowserLaunchOption.auto);
       userCredentials =
           GoogleCredentialUtils.doLoginAndConsent(
               SCOPES,
@@ -99,7 +99,7 @@ public class TerraUser {
 
     // fetch the user information from SAM, if it's not already populated
     if (!currentTerraUser.isPresent()) {
-      SamService samService = new SamService(globalContext.server, terraUser);
+      SamService samService = new SamService(globalContext.getServer(), terraUser);
       UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
       terraUser.terraUserId = userInfo.getUserSubjectId();
       terraUser.terraUserEmail = userInfo.getUserEmail();
@@ -180,7 +180,7 @@ public class TerraUser {
     } else {
       // ask SAM for the project-specific pet SA key
       HttpUtils.HttpResponse petSaKeySamResponse =
-          new SamService(globalContext.server, this)
+          new SamService(globalContext.getServer(), this)
               .getPetSaKeyForProject(globalContext.requireCurrentWorkspace().googleProjectId);
       if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
         logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);

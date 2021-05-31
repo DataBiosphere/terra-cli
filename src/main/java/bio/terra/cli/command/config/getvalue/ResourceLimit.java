@@ -16,7 +16,7 @@ public class ResourceLimit extends BaseCommand {
   /** Return the resources cache size property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.resourcesCacheSize);
+    formatOption.printReturnValue(globalContext.getResourcesCacheSize());
   }
 
   /** This command never requires login. */

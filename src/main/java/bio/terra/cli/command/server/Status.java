@@ -14,7 +14,7 @@ public class Status extends BaseCommand {
   /** Update the Terra environment to which the CLI is pointing. */
   @Override
   protected void execute() {
-    boolean serverIsOk = globalContext.server.ping();
+    boolean serverIsOk = globalContext.getServer().ping();
     String serverIsOkMsg = serverIsOk ? "OKAY" : "ERROR CONNECTING";
     formatOption.printReturnValue(serverIsOkMsg, this::printText);
   }
@@ -23,9 +23,9 @@ public class Status extends BaseCommand {
   private void printText(String returnValue) {
     OUT.println(
         "Current server: "
-            + globalContext.server.name
+            + globalContext.getServer().name
             + " ("
-            + globalContext.server.description
+            + globalContext.getServer().description
             + ")");
     OUT.println("Server status: " + returnValue);
   }

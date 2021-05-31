@@ -177,7 +177,7 @@ public class Workspace {
             wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName(),
             wsmObject.getDescription() == null ? "" : wsmObject.getDescription(),
             wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId(),
-            globalContext.server.name,
+            globalContext.getServer().name,
             globalContext.requireCurrentTerraUser().getEmail(),
             new ArrayList<>());
     return workspace;

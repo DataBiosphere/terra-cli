@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
 public class GcsBucket extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
 
-  public String bucketName;
-  public GcsBucketLifecycle lifecycle;
+  public final String bucketName;
+  public final GcsBucketLifecycle lifecycle;
 
   // storage class (https://cloud.google.com/storage/docs/storage-classes)
-  public GcpGcsBucketDefaultStorageClass defaultStorageClass;
+  public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
 
   // bucket location (https://cloud.google.com/storage/docs/locations)
-  public String location;
+  public final String location;
 
   // prefix for GCS bucket to make a valid URL.
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";

@@ -20,7 +20,7 @@ public class Status extends BaseCommand {
   protected void execute() {
     StatusReturnValue statusReturnValue =
         new StatusReturnValue(
-            globalContext.server, globalContext.getCurrentWorkspace().orElse(null));
+            globalContext.getServer(), globalContext.getCurrentWorkspace().orElse(null));
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
@@ -52,7 +52,7 @@ public class Status extends BaseCommand {
     }
 
     OUT.println();
-    OUT.println("Terra server: " + globalContext.server.name);
+    OUT.println("Terra server: " + globalContext.getServer().name);
 
     if (returnValue.workspace != null
         && !returnValue.server.name.equals(returnValue.workspace.serverName)) {

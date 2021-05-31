@@ -21,15 +21,16 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     LoggingReturnValue loggingLevels =
-        new LoggingReturnValue(globalContext.consoleLoggingLevel, globalContext.fileLoggingLevel);
+        new LoggingReturnValue(
+            globalContext.getConsoleLoggingLevel(), globalContext.getFileLoggingLevel());
     ConfigListReturnValue configList =
         new ConfigListReturnValue(
-            globalContext.browserLaunchOption,
-            globalContext.commandRunnerOption,
-            globalContext.dockerImageId,
-            globalContext.resourcesCacheSize,
+            globalContext.getBrowserLaunchOption(),
+            globalContext.getCommandRunnerOption(),
+            globalContext.getDockerImageId(),
+            globalContext.getResourcesCacheSize(),
             loggingLevels,
-            globalContext.server);
+            globalContext.getServer());
 
     formatOption.printReturnValue(configList, List::printText);
   }

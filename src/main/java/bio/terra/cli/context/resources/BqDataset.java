@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 public class BqDataset extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
 
-  public String projectId;
-  public String datasetId;
-  public String location;
+  public final String projectId;
+  public final String datasetId;
+  public final String location;
 
   /**
    * Delimiter between the project id and dataset id for a Big Query dataset.

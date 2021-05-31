@@ -18,14 +18,14 @@ public class Set extends BaseCommand {
   /** Update the Terra environment to which the CLI is pointing. */
   @Override
   protected void execute() {
-    String prevServerName = globalContext.server.name;
+    String prevServerName = globalContext.getServer().name;
     Server.switchTo(name);
 
     OUT.println(
         "Terra server is set to "
-            + globalContext.server.name
+            + globalContext.getServer().name
             + " ("
-            + (globalContext.server.name.equals(prevServerName) ? "UNCHANGED" : "CHANGED")
+            + (globalContext.getServer().name.equals(prevServerName) ? "UNCHANGED" : "CHANGED")
             + ").");
   }
 

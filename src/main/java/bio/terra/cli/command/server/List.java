@@ -22,7 +22,7 @@ public class List extends BaseCommand {
   /** Print this command's output in text format. */
   private void printText(java.util.List<Server> returnValue) {
     for (Server server : returnValue) {
-      String prefix = (globalContext.server.name.equals(server.name)) ? " * " : "   ";
+      String prefix = (globalContext.getServer().name.equals(server.name)) ? " * " : "   ";
       OUT.println(prefix + server.name + ": " + server.description);
     }
   }

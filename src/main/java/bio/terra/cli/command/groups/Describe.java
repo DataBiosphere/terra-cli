@@ -18,7 +18,7 @@ public class Describe extends BaseCommand {
   @Override
   protected void execute() {
     String groupEmail =
-        new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
             .getGroupEmail(group);
     formatOption.printReturnValue(groupEmail);
   }

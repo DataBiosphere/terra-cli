@@ -19,14 +19,14 @@ public class Browser extends BaseCommand {
   /** Updates the browser launch option property of the global context. */
   @Override
   protected void execute() {
-    BrowserLaunchOption prevBrowserLaunchOption = globalContext.browserLaunchOption;
-    globalContext.updateBrowserLaunchFlag(mode);
+    BrowserLaunchOption prevBrowserLaunchOption = globalContext.getBrowserLaunchOption();
+    globalContext.updateBrowserLaunchOption(mode);
 
     OUT.println(
         "Browser launch mode for login is "
-            + globalContext.browserLaunchOption
+            + globalContext.getBrowserLaunchOption()
             + " ("
-            + (globalContext.browserLaunchOption == prevBrowserLaunchOption
+            + (globalContext.getBrowserLaunchOption() == prevBrowserLaunchOption
                 ? "UNCHANGED"
                 : "CHANGED")
             + ").");

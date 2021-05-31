@@ -14,7 +14,7 @@ public class AppLaunch extends BaseCommand {
   /** Return the command runner option property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.commandRunnerOption);
+    formatOption.printReturnValue(globalContext.getCommandRunnerOption());
   }
 
   /** This command never requires login. */

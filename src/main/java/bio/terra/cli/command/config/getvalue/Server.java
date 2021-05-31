@@ -15,7 +15,7 @@ public class Server extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        globalContext.server, bio.terra.cli.command.config.getvalue.Server::printText);
+        globalContext.getServer(), bio.terra.cli.command.config.getvalue.Server::printText);
   }
 
   /** Print this command's output in text format. */

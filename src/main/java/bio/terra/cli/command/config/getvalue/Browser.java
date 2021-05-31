@@ -16,7 +16,7 @@ public class Browser extends BaseCommand {
   /** Return the browser launch option property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.browserLaunchOption);
+    formatOption.printReturnValue(globalContext.getBrowserLaunchOption());
   }
 
   /** This command never requires login. */

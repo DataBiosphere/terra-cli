@@ -22,6 +22,6 @@ public class Execute extends BaseCommand {
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
-    globalContext.commandRunnerOption.getCommandRunner().runToolCommand(command);
+    globalContext.getCommandRunnerOption().getCommandRunner().runToolCommand(command);
   }
 }

@@ -23,7 +23,8 @@ public class Disable extends BaseCommand {
   /** Remove access to the WSM default spend profile for the given email. */
   @Override
   protected void execute() {
-    new SpendProfileManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SpendProfileManagerService(
+            globalContext.getServer(), globalContext.requireCurrentTerraUser())
         .disableUserForDefaultSpendProfile(policy, email);
 
     OUT.println(

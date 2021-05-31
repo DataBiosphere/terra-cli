@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * POJO class that represents a workspace resource. This class is serialized to disk as part of the
@@ -33,8 +31,6 @@ import org.slf4j.LoggerFactory;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class Resource {
-  private static final Logger logger = LoggerFactory.getLogger(Resource.class);
-
   // all resources
   public final UUID resourceId;
   public final String name;
@@ -150,7 +146,7 @@ public abstract class Resource {
     List<ResourceDescription> wsmObjects =
         new WorkspaceManagerService()
             .enumerateAllResources(
-                globalContext.requireCurrentWorkspace().id, globalContext.resourcesCacheSize);
+                globalContext.requireCurrentWorkspace().id, globalContext.getResourcesCacheSize());
     List<Resource> resources =
         wsmObjects.stream()
             .map(wsmObject -> ResourceBuilder.fromWSMObject(wsmObject).build())
