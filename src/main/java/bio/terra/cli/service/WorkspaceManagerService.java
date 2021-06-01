@@ -11,6 +11,7 @@ import bio.terra.cli.context.resources.BqDataset;
 import bio.terra.cli.context.resources.GcsBucket;
 import bio.terra.cli.context.resources.GcsBucketLifecycle;
 import bio.terra.cli.context.resources.GcsStorageClass;
+import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -98,13 +99,22 @@ public class WorkspaceManagerService {
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. The user must be
-   * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
+   * Constructor for class that talks to the Workspace Manager service. If the user is null, then
+   * only unauthenticated endpoints can be called. Methods in this class will use its credentials to
+   * call authenticated endpoints.
    */
-  public WorkspaceManagerService(Server server, TerraUser terraUser) {
+  public WorkspaceManagerService(@Nullable TerraUser terraUser, Server server) {
     this.apiClient = new ApiClient();
     // check that there is a current user, we will use their credentials to communicate with WSM
     buildClientForTerraUser(server, terraUser);
+  }
+
+  /**
+   * Constructor for class that talks to the Workspace Manager service. If the user is null, then
+   * only unauthenticated endpoints can be called.
+   */
+  public WorkspaceManagerService(@Nullable TerraUser terraUser) {
+    this(terraUser, GlobalContext.get().getServer());
   }
 
   /**
@@ -112,7 +122,7 @@ public class WorkspaceManagerService {
    * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
    */
   public WorkspaceManagerService() {
-    this(GlobalContext.get().getServer(), GlobalContext.get().requireCurrentTerraUser());
+    this(GlobalContext.get().requireCurrentTerraUser(), GlobalContext.get().getServer());
   }
 
   /**

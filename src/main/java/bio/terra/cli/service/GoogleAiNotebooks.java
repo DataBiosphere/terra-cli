@@ -1,6 +1,7 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;

@@ -1,4 +1,4 @@
-package bio.terra.cli.service;
+package bio.terra.cli.service.utils;
 
 import bio.terra.cli.command.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;

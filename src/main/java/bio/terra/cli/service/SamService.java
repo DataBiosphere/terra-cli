@@ -3,6 +3,7 @@ package bio.terra.cli.service;
 import bio.terra.cli.command.exception.SystemException;
 import bio.terra.cli.context.Server;
 import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.service.utils.HttpUtils;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
