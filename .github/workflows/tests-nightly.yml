@@ -1,38 +1,16 @@
-name: Run tests against PRs (pre and post merge)
+name: Run tests nightly
 on:
   workflow_dispatch: {}
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - '**'
+  schedule:
+    - cron: '0 5 * * *' # 5AM UTC = 12AM EST
 
 jobs:
-  lint-and-static-analysis:
-    runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
-    steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-      - name: Run linter
-        id: run_linter
-        run: |
-          ./gradlew spotlessCheck
-      - name: Run static analysis
-        id: run_static_analysis
-        run: |
-          ./gradlew spotbugsMain spotbugsTest
-  tests-against-source-code:
+  tests-against-source-code-and-latest-install:
     strategy:
       matrix:
-        testTag: [ "unit", "integration" ]
+        testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
       fail-fast: false
     runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - name: Checkout current code
         id: checkout_code
@@ -72,14 +50,14 @@ jobs:
         id: run_tests
         run: |
           # runs against the default server: terra-dev
-          echo "Running tests with tag: ${{ matrix.testTag }}"
-          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
+          echo "Running tests with options: ${{ matrix.testOptions }}"
+          ./gradlew runTestsWithTag ${{ matrix.testOptions }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: logs-and-context-${{ matrix.testTag }}
+          name: logs-and-context-[${{ matrix.testOptions }}]
           path: |
             build/test-context/.terra/logs/
             build/test-context/.terra/global-context.json
