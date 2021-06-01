@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   schedule:
     - cron: '0 5 * * *' # 5AM UTC = 12AM EST
-   # TODO: remove this before merging
+   # TODO: remove this pull_request section before merging. it's just for testing this GH action pre-merge
   pull_request:
     branches:
       - '**'
