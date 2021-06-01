@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
-  public CommandRunner() {}
-
   /**
    * Utility method for concatenating a command and its arguments.
    *

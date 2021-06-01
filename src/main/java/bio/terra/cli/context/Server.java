@@ -35,7 +35,8 @@ public class Server {
   // (e.g. Terra for development purposes)
   public final String description;
 
-  // Terra services: information required to hit service endpoints
+  // Terra services: information required to hit service endpoints (e.g. URLs, name of the WSM
+  // singleton spend profile)
   public final String samUri;
   public final String workspaceManagerUri;
   public final String dataRepoUri;
@@ -68,7 +69,7 @@ public class Server {
    * @param fileName file name
    * @return an instance of this class
    */
-  public static Server fromJSONFile(String fileName) {
+  public static Server fromJsonFile(String fileName) {
     Server server;
     try {
       try {
@@ -97,7 +98,7 @@ public class Server {
    * file.
    */
   public static Server getDefault() {
-    return fromJSONFile(DEFAULT_SERVER_FILENAME);
+    return fromJsonFile(DEFAULT_SERVER_FILENAME);
   }
 
   /**
@@ -111,7 +112,7 @@ public class Server {
   public static Server switchTo(String name) {
     // lookup the server file on disk, then update the global context server property
     name = name.endsWith(".json") ? name : name + ".json";
-    Server newServer = Server.fromJSONFile(name);
+    Server newServer = Server.fromJsonFile(name);
     GlobalContext.get().updateServer(newServer);
     return newServer;
   }
@@ -145,7 +146,7 @@ public class Server {
       // loop through the file names, reading in from JSON
       List<Server> servers = new ArrayList<>();
       for (String serverFileName : allServerFileNames) {
-        servers.add(Server.fromJSONFile(serverFileName));
+        servers.add(Server.fromJsonFile(serverFileName));
       }
       return servers;
     } catch (IOException ioEx) {

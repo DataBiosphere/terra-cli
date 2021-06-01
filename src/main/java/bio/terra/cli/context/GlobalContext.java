@@ -37,7 +37,7 @@ public class GlobalContext {
 
   // global config context
   //   - flag indicating whether to launch a browser automatically or not
-  private BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.auto;
+  private BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.AUTO;
 
   //   - flag for how to launch tools, docker image id or tag
   private CommandRunners commandRunnerOption = DOCKER_CONTAINER;
@@ -120,21 +120,24 @@ public class GlobalContext {
 
   /** Set the current terra user. Persists on disk. */
   public void setCurrentTerraUser(TerraUser terraUser) {
-    boolean isNewUser = this.terraUser == null;
+    boolean userUnchanged =
+        (this.terraUser == null && terraUser == null)
+            || (this.terraUser != null
+                && terraUser != null
+                && this.terraUser.getEmail().equals(terraUser.getEmail()));
     this.terraUser = terraUser;
 
-    // only need to persist the user if there was no user defined previously
+    // only persist the user if the user changed
     // otherwise, this method just updates the credentials stored on the TerraUser object, which are
     // not persisted to disk
-    if (isNewUser) {
+    if (!userUnchanged) {
       writeToFile();
     }
   }
 
   /** Clear the current terra user. Persists on disk. */
   public void unsetCurrentTerraUser() {
-    this.terraUser = null;
-    writeToFile();
+    setCurrentTerraUser(null);
   }
 
   /** Getter for the current server. */
@@ -188,8 +191,8 @@ public class GlobalContext {
    * it's useful to have the flag values mapped to strings that can be displayed to the user.
    */
   public enum BrowserLaunchOption {
-    manual,
-    auto;
+    MANUAL,
+    AUTO;
   }
 
   /** Getter for the browser launch option. */

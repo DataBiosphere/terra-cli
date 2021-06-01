@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 public class LocalProcessCommandRunner extends CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(LocalProcessCommandRunner.class);
 
-  public LocalProcessCommandRunner() {}
-
   /**
    * This method builds a command string that:
    *

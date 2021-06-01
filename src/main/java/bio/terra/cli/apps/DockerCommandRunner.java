@@ -24,8 +24,6 @@ public class DockerCommandRunner extends CommandRunner {
   // mount point for the workspace directory
   private static final String CONTAINER_WORKING_DIR = "/usr/local/etc";
 
-  public DockerCommandRunner() {}
-
   /** Returns the default image id. */
   public static String defaultImageId() {
     // read from the JAR Manifest file

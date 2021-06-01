@@ -82,7 +82,7 @@ public class TerraUser {
       // if there are already credentials for this user, and they are not expired, then return them
       // otherwise, log the user in and get their consent
       boolean launchBrowserAutomatically =
-          globalContext.getBrowserLaunchOption().equals(GlobalContext.BrowserLaunchOption.auto);
+          globalContext.getBrowserLaunchOption().equals(GlobalContext.BrowserLaunchOption.AUTO);
       userCredentials =
           GoogleCredentialUtils.doLoginAndConsent(
               SCOPES,

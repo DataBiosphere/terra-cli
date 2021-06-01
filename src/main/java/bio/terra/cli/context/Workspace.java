@@ -78,7 +78,7 @@ public class Workspace {
     globalContext.requireCurrentTerraUser().fetchPetSaCredentials();
 
     // update the global context with the current workspace
-    GlobalContext.get().setCurrentWorkspace(workspace);
+    globalContext.setCurrentWorkspace(workspace);
     return workspace;
   }
 
@@ -100,7 +100,7 @@ public class Workspace {
     globalContext.requireCurrentTerraUser().fetchPetSaCredentials();
 
     // update the global context with the current workspace
-    GlobalContext.get().setCurrentWorkspace(workspace);
+    globalContext.setCurrentWorkspace(workspace);
 
     // fetch the list of resources in this workspace
     Resource.listAndSync();

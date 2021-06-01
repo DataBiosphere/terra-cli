@@ -85,15 +85,19 @@ public abstract class Resource {
     return resource;
   }
 
-  /** Subclass-specific method to add a referenced resource. */
+  /** Call WSM to add a referenced resource. */
   protected abstract <T extends Resource> T addReferenced();
 
-  /** Subclass-specific method to create a controlled resource. */
+  /** Call WSM to create a controlled resource. */
   protected abstract <T extends Resource> T createControlled();
 
   /**
    * Check if the name only contains alphanumeric and underscore characters. Sync the cached list of
    * resources.
+   *
+   * <p>When launching an app, either in a Docker container or a local process, we pass a map of all
+   * the resources in the workspace to their resolved cloud identifiers (e.g. TERRA_MYBUCKET ->
+   * gs://mybucket). This is the reason for this restriction at resource creation time.
    *
    * @param name string to check
    * @return true if the string is a valid environment variable name
@@ -119,13 +123,13 @@ public abstract class Resource {
     GlobalContext.get().requireCurrentWorkspace().removeResource(name);
   }
 
-  /** Subclass-specific method to delete a referenced resource. */
+  /** Call WSM to delete a referenced resource. */
   protected abstract void deleteReferenced();
 
-  /** Subclass-specific method to delete a controlled resource. */
+  /** Call WSM to delete a controlled resource. */
   protected abstract void deleteControlled();
 
-  /** Subclass-specific method to resolve a resource. */
+  /** Resolve a resource to its cloud identifier. */
   public abstract String resolve();
 
   /**
@@ -137,7 +141,7 @@ public abstract class Resource {
     PET_SA;
   };
 
-  /** Subclass-specific method to check whether the current user has access to a resource. */
+  /** Call WSM to check whether the current user has access to a resource. */
   public abstract boolean checkAccess(CheckAccessCredentials credentialsToUse);
 
   /** Fetch the list of resources for the current workspace. Sync the cached list of resources. */
@@ -241,10 +245,10 @@ public abstract class Resource {
       return this;
     }
 
-    /** Subclass-specific method that returns the resource type. */
+    /** Method that returns the resource type. Should be hard-coded in sub-classes. */
     public abstract ResourceType getResourceType();
 
-    /** Subclass-specific method that calls the sub-class constructor. */
+    /** Call the sub-class constructor. */
     public abstract Resource build();
 
     /** Default constructor for Jackson. */
