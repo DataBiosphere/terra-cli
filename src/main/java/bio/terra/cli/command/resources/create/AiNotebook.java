@@ -3,7 +3,6 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.command.helperclasses.BaseCommand;
 import bio.terra.cli.command.helperclasses.options.CreateResource;
 import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.GlobalContext;
 import bio.terra.cli.context.Resource;
 import bio.terra.cli.context.TerraUser;
 import bio.terra.workspace.model.AccessScope;
@@ -235,7 +234,7 @@ public class AiNotebook extends BaseCommand {
             .postStartupScript(postStartupScript)
             .metadata(
                 metadata == null
-                    ? defaultMetadata(GlobalContext.get().requireCurrentWorkspace().id)
+                    ? defaultMetadata(globalContext.requireCurrentWorkspace().id)
                     : metadata);
     resourceToCreate.stewardshipType(StewardshipType.CONTROLLED);
     createResourceOptions.populateMetadataFields(resourceToCreate);

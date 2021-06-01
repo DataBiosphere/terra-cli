@@ -68,7 +68,6 @@ public class Status extends BaseCommand {
 
     /** Constructor for when there is NOT a current user defined. */
     public static AuthStatusReturnValue createWhenCurrentUserIsUndefined() {
-      System.out.println("createWhenCurrentUserIsUndefined");
       return new AuthStatusReturnValue(null, null, false, false);
     }
   }

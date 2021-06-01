@@ -191,10 +191,10 @@ public abstract class Resource {
     private String description;
     private StewardshipType stewardshipType;
     private CloningInstructionsEnum cloningInstructions;
-    public AccessScope accessScope;
-    public ManagedBy managedBy;
-    public String privateUserName;
-    public List<ControlledResourceIamRole> privateUserRoles;
+    private AccessScope accessScope;
+    private ManagedBy managedBy;
+    private String privateUserName;
+    private List<ControlledResourceIamRole> privateUserRoles;
 
     public ResourceBuilder resourceId(UUID resourceId) {
       this.resourceId = resourceId;

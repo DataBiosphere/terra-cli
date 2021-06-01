@@ -138,10 +138,10 @@ public class GcsBucket extends Resource {
   /** Builder class to help construct an immutable GcsBucket object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class GcsBucketBuilder extends ResourceBuilder {
-    public String bucketName;
-    public GcsBucketLifecycle lifecycle;
-    public GcpGcsBucketDefaultStorageClass defaultStorageClass;
-    public String location;
+    private String bucketName;
+    private GcsBucketLifecycle lifecycle;
+    private GcpGcsBucketDefaultStorageClass defaultStorageClass;
+    private String location;
 
     public GcsBucketBuilder bucketName(String bucketName) {
       this.bucketName = bucketName;

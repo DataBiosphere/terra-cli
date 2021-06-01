@@ -24,13 +24,6 @@ public class CheckAccess extends BaseCommand {
   protected void execute() {
     Resource resource =
         GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
-
-    // there is different logic for checking the access of each resource type, but all require only
-    // the user/pet SA credentials and resource definition, so calling them looks very similar from
-    // the CLI user's perspective.
-    // still, it may be better to break this command into sub-commands for each resource type. that
-    // would allow different options per resource, e.g. checking different resource-specific
-    // permissions.
     boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
     boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);
 

@@ -162,25 +162,25 @@ public class AiNotebook extends Resource {
   /** Builder class to help construct an immutable AiNotebook object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class AiNotebookBuilder extends ResourceBuilder {
-    public String projectId;
-    public String instanceId;
-    public String location;
-    public String machineType;
-    public String postStartupScript;
-    public Map<String, String> metadata;
-    public String vmImageProject;
-    public String vmImageFamily;
-    public String vmImageName;
-    public String containerRepository;
-    public String containerTag;
-    public String acceleratorType;
-    public Long acceleratorCoreCount;
-    public Boolean installGpuDriver;
-    public String customGpuDriverPath;
-    public Long bootDiskSizeGb;
-    public String bootDiskType;
-    public Long dataDiskSizeGb;
-    public String dataDiskType;
+    private String projectId;
+    private String instanceId;
+    private String location;
+    private String machineType;
+    private String postStartupScript;
+    private Map<String, String> metadata;
+    private String vmImageProject;
+    private String vmImageFamily;
+    private String vmImageName;
+    private String containerRepository;
+    private String containerTag;
+    private String acceleratorType;
+    private Long acceleratorCoreCount;
+    private Boolean installGpuDriver;
+    private String customGpuDriverPath;
+    private Long bootDiskSizeGb;
+    private String bootDiskType;
+    private Long dataDiskSizeGb;
+    private String dataDiskType;
 
     public AiNotebookBuilder projectId(String projectId) {
       this.projectId = projectId;

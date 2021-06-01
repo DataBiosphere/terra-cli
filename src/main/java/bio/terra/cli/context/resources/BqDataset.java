@@ -121,7 +121,7 @@ public class BqDataset extends Resource {
       case PROJECT_ID_ONLY:
         return projectId;
       default:
-        throw new IllegalArgumentException("Unknown Big Query dataset resolve operation.");
+        throw new IllegalArgumentException("Unknown Big Query dataset resolve option.");
     }
   }
 
@@ -162,9 +162,9 @@ public class BqDataset extends Resource {
   /** Builder class to help construct an immutable BqDataset object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class BqDatasetBuilder extends ResourceBuilder {
-    public String projectId;
-    public String datasetId;
-    public String location;
+    private String projectId;
+    private String datasetId;
+    private String location;
 
     public BqDatasetBuilder projectId(String projectId) {
       this.projectId = projectId;

@@ -19,8 +19,6 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.AccessScope;
-import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
@@ -88,6 +86,12 @@ import org.slf4j.LoggerFactory;
 public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
 
+  // the Terra environment where the WSM service lives
+  private final Server server;
+
+  // the Terra user whose credentials will be used to call authenticated requests
+  private final TerraUser terraUser;
+
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
@@ -99,18 +103,20 @@ public class WorkspaceManagerService {
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. If the user is null, then
-   * only unauthenticated endpoints can be called. Methods in this class will use its credentials to
-   * call authenticated endpoints.
+   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
+   * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
+   * only unauthenticated endpoints can be called.
    */
   public WorkspaceManagerService(@Nullable TerraUser terraUser, Server server) {
+    this.server = server;
+    this.terraUser = terraUser;
     this.apiClient = new ApiClient();
-    // check that there is a current user, we will use their credentials to communicate with WSM
     buildClientForTerraUser(server, terraUser);
   }
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. If the user is null, then
+   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
+   * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
    * only unauthenticated endpoints can be called.
    */
   public WorkspaceManagerService(@Nullable TerraUser terraUser) {
@@ -118,8 +124,8 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. The user must be
-   * authenticated. Methods in this class will use its credentials to call authenticated endpoints.
+   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
+   * use the current TerraUser's credentials to call authenticated endpoints.
    */
   public WorkspaceManagerService() {
     this(GlobalContext.get().requireCurrentTerraUser(), GlobalContext.get().getServer());
@@ -313,7 +319,6 @@ public class WorkspaceManagerService {
    * @param iamRole the role to assign
    */
   public void grantIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
-    GlobalContext globalContext = GlobalContext.get();
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
     try {
@@ -327,8 +332,7 @@ public class WorkspaceManagerService {
           },
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
-                .inviteUser(userEmail);
+            new SamService(server, terraUser).inviteUser(userEmail);
             return null;
           });
     } catch (Exception secondEx) {
@@ -697,25 +701,18 @@ public class WorkspaceManagerService {
    * resource.
    */
   private static ControlledResourceCommonFields createCommonFields(Resource resourceToCreate) {
-    String name = resourceToCreate.name;
-    String description = resourceToCreate.description;
-    CloningInstructionsEnum cloningInstructions = resourceToCreate.cloningInstructions;
-    AccessScope accessScope = resourceToCreate.accessScope;
-    String privateUserEmail = resourceToCreate.privateUserName;
-
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
     if (resourceToCreate.privateUserRoles != null) {
       privateResourceIamRoles.addAll(resourceToCreate.privateUserRoles);
     }
-
     return new ControlledResourceCommonFields()
-        .name(name)
-        .description(description)
-        .cloningInstructions(cloningInstructions)
-        .accessScope(accessScope)
+        .name(resourceToCreate.name)
+        .description(resourceToCreate.description)
+        .cloningInstructions(resourceToCreate.cloningInstructions)
+        .accessScope(resourceToCreate.accessScope)
         .privateResourceUser(
             new PrivateResourceUser()
-                .userName(privateUserEmail)
+                .userName(resourceToCreate.privateUserName)
                 .privateResourceIamRoles(privateResourceIamRoles))
         .managedBy(ManagedBy.USER);
   }

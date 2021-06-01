@@ -7,7 +7,7 @@ terra status
 # delete any resources
 terra resources list --format=json > resources.json
 jq -c '.[]' resources.json | while read i; do
-  name=$(echo $i | jq -r '.metadata.name');
+  name=$(echo $i | jq -r '.name');
   echo "deleting workspace resource $name"
   terra resources delete --name=$name;
 done
