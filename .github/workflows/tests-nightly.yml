@@ -15,7 +15,6 @@ jobs:
         testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
       fail-fast: false
     runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - name: Checkout current code
         id: checkout_code
