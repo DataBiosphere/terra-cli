@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - '**'
+   # TODO: uncomment this before merging
+#  pull_request:
+#    branches:
+#      - '**'
 
 jobs:
   lint-and-static-analysis:
