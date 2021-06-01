@@ -1,6 +1,7 @@
 #! /usr/bin/python3
-
+# from google.cloud import storage
 import json
+# from oauth2client.client import GoogleCredentials
 import os
 import pprint
 import shutil
@@ -18,7 +19,7 @@ pp = pprint.PrettyPrinter(indent=2)
 def get_json_stdout(args):
     command = subprocess.run(args, capture_output=True)
     if command.stderr:
-        pp.pprint(command.stderr)
+        print(command.stderr)
         exit(1)
     return json.loads(command.stdout or "{}")
 
@@ -50,16 +51,25 @@ def clone_notebook(resource):
 
 def clone_bucket(resource):
     print(f"Cloning bucket {resource['metadata']['name']}...")
-    return get_json_stdout(
+    destination_bucket_name = random_name('clone')
+    result = get_json_stdout(
         [TERRA, 'resources', 'create', 'gcs-bucket',
-         f"--bucket-name={random_name('clone')}",
-         f"--name=copy_of_{resource['metadata']['name']}",
+         f"--bucket-name={destination_bucket_name}",
+         f"--name={resource['metadata']['name']}",
          f"--description={resource['metadata']['description']}",
          JSON_FORMAT])
-
+    args = ['gsutil', 'cp', '-r', f"gs://{resource['resourceAttributes']['gcpGcsBucket']['bucketName']}",
+            f'gs://{destination_bucket_name}']
+    print(args)
+    command = subprocess.run(args, capture_output=True)
+    print(command.stdout)
+    if command.stderr:
+        print(command.stderr)
+        exit(1)
+    return result
 
 def clone_bq_dataset(resource):
-    print(f"Cloning BQ dataset {resource}...")
+    print(f"Cloning BQ dataset {resource['metadata']['name']}...")
     return get_json_stdout(
         [TERRA, 'resources', 'create', 'bq-dataset',
          f"--dataset-id={'copy_of_' + resource['resourceAttributes']['gcpBqDataset']['datasetId']}",
@@ -78,7 +88,7 @@ workspace = status['workspace']
 source_workspace_id = workspace['id']
 source_workspace_name = workspace['displayName']
 # print(source_workspace_id)
-pp.pprint(status)
+# pp.pprint(status)
 
 pp.pprint('Gathering resources...')
 resources = get_resources()
@@ -95,7 +105,7 @@ args = ['terra', 'workspace', 'create', JSON_FORMAT,
         f" Cloned from {source_workspace_id}\""]
 create_workspace = subprocess.run(args)  # no output
 status2 = get_status()
-pp.pprint(status2)
+# pp.pprint(status2)
 
 # Clone each resource in the new workspace
 for r in resources:
