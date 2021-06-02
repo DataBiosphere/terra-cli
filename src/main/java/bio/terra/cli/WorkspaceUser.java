@@ -1,0 +1,118 @@
+package bio.terra.cli;
+
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.IamRole;
+import bio.terra.workspace.model.RoleBindingList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * POJO class that represents a workspace user (i.e. someone a workspace is shared with). This is
+ * different from a regular {@link bio.terra.cli.User} because they are never logged in. This is
+ * just a reference to another Terra user who has some level of workspace access. This class is not
+ * serialized to disk as part of the global context. It is used as the user-facing JSON output for
+ * commands that return a workspace user.
+ */
+public class WorkspaceUser {
+  private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
+
+  private String email;
+  private List<IamRole> roles;
+
+  private WorkspaceUser(String email, List<IamRole> roles) {
+    this.email = email;
+    this.roles = roles;
+  }
+
+  /**
+   * Add a user to the current workspace. Possible roles are defined by the WSM client library.
+   *
+   * @param email email of the user to add
+   * @param role role to assign the user
+   * @throws UserActionableException if there is no current workspace
+   */
+  public static WorkspaceUser add(String email, IamRole role) {
+    Workspace currentWorkspace = Context.requireWorkspace();
+
+    // call WSM to add a user + role to the current workspace
+    new WorkspaceManagerService().grantIamRole(currentWorkspace.getId(), email, role);
+    logger.info("Added user to workspace: user={}, role={}", email, role);
+
+    // return a WorkspaceUser that includes all roles this email has
+    return listUsersInMap().get(email);
+  }
+
+  /**
+   * Remove a user + role from the current workspace. Possible roles are defined by the WSM client
+   * library.
+   *
+   * @param email email of the user to add
+   * @param role role to assign the user
+   * @throws UserActionableException if there is no current workspace
+   */
+  public static WorkspaceUser remove(String email, IamRole role) {
+    Workspace currentWorkspace = Context.requireWorkspace();
+
+    // call WSM to remove a user + role from the current workspace
+    new WorkspaceManagerService().removeIamRole(currentWorkspace.getId(), email, role);
+    logger.info("Removed user from workspace: user={}, role={}", email, role);
+
+    // return a WorkspaceUser that includes all roles this email has
+    return listUsersInMap().get(email);
+  }
+
+  /**
+   * List the workspace users for the current workspace.
+   *
+   * @return a list of workspace users
+   */
+  public static List<WorkspaceUser> list() {
+    return listUsersInMap().values().stream().collect(Collectors.toList());
+  }
+
+  /**
+   * Get the workspace users for the current workspace in a map, to make it easy to lookup a
+   * particular user.
+   *
+   * @return a map of email -> workspace user object
+   */
+  private static Map<String, WorkspaceUser> listUsersInMap() {
+    Workspace currentWorkspace = Context.requireWorkspace();
+
+    // call WSM to get the users + roles for the existing workspace
+    RoleBindingList roleBindings = new WorkspaceManagerService().getRoles(currentWorkspace.getId());
+
+    // convert the WSM objects (role -> list of emails) to CLI objects (email -> list of roles)
+    Map<String, WorkspaceUser> workspaceUsers = new HashMap<>();
+    roleBindings.forEach(
+        roleBinding -> {
+          IamRole role = roleBinding.getRole();
+          for (String email : roleBinding.getMembers()) {
+            WorkspaceUser workspaceUser = workspaceUsers.get(email);
+            if (workspaceUser == null) {
+              workspaceUser = new WorkspaceUser(email, new ArrayList<>());
+              workspaceUsers.put(email, workspaceUser);
+            }
+            workspaceUser.roles.add(role);
+          }
+        });
+    return workspaceUsers;
+  }
+
+  // ====================================================
+  // Property getters.
+
+  public String getEmail() {
+    return email;
+  }
+
+  public List<IamRole> getRoles() {
+    return roles;
+  }
+}

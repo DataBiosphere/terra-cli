@@ -1,7 +1,8 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,7 +17,7 @@ public class Browser extends BaseCommand {
   /** Return the browser launch option property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.getBrowserLaunchOption());
+    formatOption.printReturnValue(Context.getConfig().getBrowserLaunchOption());
   }
 
   /** This command never requires login. */

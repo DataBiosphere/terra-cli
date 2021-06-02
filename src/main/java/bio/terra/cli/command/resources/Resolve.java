@@ -1,12 +1,12 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.command.helperclasses.options.ResourceName;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.resources.BqDataset;
-import bio.terra.cli.context.resources.GcsBucket;
+import bio.terra.cli.Context;
+import bio.terra.cli.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceName;
+import bio.terra.cli.resources.BqDataset;
+import bio.terra.cli.resources.GcsBucket;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -32,15 +32,14 @@ public class Resolve extends BaseCommand {
   /** Resolve a resource in the workspace to its cloud identifier. */
   @Override
   protected void execute() {
-    Resource resource =
-        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
 
     String cloudId;
-    switch (resource.resourceType) {
+    switch (resource.getResourceType()) {
       case GCS_BUCKET:
         cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
         break;
-      case BIG_QUERY_DATASET:
+      case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);
         break;
       default:

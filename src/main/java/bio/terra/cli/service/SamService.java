@@ -1,8 +1,8 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Server;
+import bio.terra.cli.User;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
@@ -32,7 +32,7 @@ public class SamService {
   private final Server server;
 
   // the Terra user whose credentials will be used to call authenticated requests
-  private final TerraUser terraUser;
+  private final User user;
 
   // the client object used for talking to SAM
   private final ApiClient apiClient;
@@ -42,11 +42,11 @@ public class SamService {
    * this class will use its credentials to call authenticated endpoints.
    *
    * @param server the Terra environment where the SAM service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the Terra user whose credentials will be used to call authenticated endpoints
    */
-  public SamService(Server server, TerraUser terraUser) {
+  public SamService(Server server, User user) {
     this.server = server;
-    this.terraUser = terraUser;
+    this.user = user;
     this.apiClient = new ApiClient();
     buildClientForTerraUser();
   }
@@ -66,13 +66,13 @@ public class SamService {
    * null, this method builds the client object without an access token set.
    */
   private void buildClientForTerraUser() {
-    this.apiClient.setBasePath(server.samUri);
+    this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
 
-    if (terraUser != null) {
+    if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = terraUser.getUserAccessToken();
+      AccessToken userAccessToken = user.getUserAccessToken();
       this.apiClient.setAccessToken(userAccessToken.getTokenValue());
     }
   }
@@ -182,7 +182,7 @@ public class SamService {
     GoogleApi googleApi = new GoogleApi(apiClient);
     try {
       return HttpUtils.callWithRetries(
-          () -> googleApi.getProxyGroup(terraUser.getEmail()), SamService::isRetryable);
+          () -> googleApi.getProxyGroup(user.getEmail()), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting proxy group email from SAM.", ex);
     } finally {
@@ -525,15 +525,15 @@ public class SamService {
   private HttpUtils.HttpResponse getPetSaKeyForProjectApiClientWrapper(String googleProjectId)
       throws ApiException {
     // The code below should be changed to use the SAM client library. For example:
-    //  ApiClient apiClient = getClientForTerraUser(terraUser, globalContext.server);
+    //  ApiClient apiClient = getClientForTerraUser(Context.requireUser(), Context.getServer());
     //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
     //  samGoogleApi.getPetServiceAccount(workspaceContext.getGoogleProject());
     // But I couldn't get this to work. The ApiClient throws an exception, I think in parsing the
     // response. So for now, this is making a direct (i.e. without the client library) HTTP request
     // to get the key file contents.
     String apiEndpoint =
-        server.samUri + "/api/google/v1/user/petServiceAccount/" + googleProjectId + "/key";
-    String userAccessToken = terraUser.getUserAccessToken().getTokenValue();
+        server.getSamUri() + "/api/google/v1/user/petServiceAccount/" + googleProjectId + "/key";
+    String userAccessToken = user.getUserAccessToken().getTokenValue();
     int statusCode;
     try {
       HttpUtils.HttpResponse response =

@@ -1,9 +1,10 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Workspace;
+import bio.terra.cli.Context;
+import bio.terra.cli.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,14 +17,15 @@ public class Delete extends BaseCommand {
   /** Delete an existing workspace. */
   @Override
   protected void execute() {
-    Workspace workspaceToDelete = GlobalContext.get().requireCurrentWorkspace();
+    Workspace workspaceToDelete = Context.requireWorkspace();
     workspaceToDelete.delete();
-    formatOption.printReturnValue(workspaceToDelete, this::printText);
+    formatOption.printReturnValue(
+        new CommandWorkspace.Builder(workspaceToDelete).build(), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(Workspace returnValue) {
+  private void printText(CommandWorkspace returnValue) {
     OUT.println("Workspace successfully deleted.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

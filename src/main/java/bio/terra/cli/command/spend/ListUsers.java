@@ -1,7 +1,8 @@
 package bio.terra.cli.command.spend;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.service.SpendProfileManagerService;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
@@ -20,8 +21,7 @@ public class ListUsers extends BaseCommand {
   @Override
   protected void execute() {
     List<AccessPolicyResponseEntry> policies =
-        new SpendProfileManagerService(
-                globalContext.getServer(), globalContext.requireCurrentTerraUser())
+        new SpendProfileManagerService(Context.getServer(), Context.requireUser())
             .listUsersOfDefaultSpendProfile();
     formatOption.printReturnValue(policies, ListUsers::printText);
   }

@@ -1,16 +1,16 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.context.resources.AiNotebook;
-import bio.terra.cli.context.resources.BqDataset;
-import bio.terra.cli.context.resources.GcsBucket;
-import bio.terra.cli.context.resources.GcsBucketLifecycle;
-import bio.terra.cli.context.resources.GcsStorageClass;
+import bio.terra.cli.Context;
+import bio.terra.cli.Server;
+import bio.terra.cli.User;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
+import bio.terra.cli.serialization.command.createupdate.GcsBucketLifecycle;
+import bio.terra.cli.serialization.command.createupdate.GcsStorageClass;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
@@ -68,7 +68,6 @@ import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
-import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -90,7 +89,7 @@ public class WorkspaceManagerService {
   private final Server server;
 
   // the Terra user whose credentials will be used to call authenticated requests
-  private final TerraUser terraUser;
+  private final User user;
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
@@ -107,11 +106,11 @@ public class WorkspaceManagerService {
    * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
    * only unauthenticated endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable TerraUser terraUser, Server server) {
+  public WorkspaceManagerService(@Nullable User user, Server server) {
     this.server = server;
-    this.terraUser = terraUser;
+    this.user = user;
     this.apiClient = new ApiClient();
-    buildClientForTerraUser(server, terraUser);
+    buildClientForTerraUser(server, user);
   }
 
   /**
@@ -119,8 +118,8 @@ public class WorkspaceManagerService {
    * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
    * only unauthenticated endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable TerraUser terraUser) {
-    this(terraUser, GlobalContext.get().getServer());
+  public WorkspaceManagerService(@Nullable User user) {
+    this(user, Context.getServer());
   }
 
   /**
@@ -128,7 +127,7 @@ public class WorkspaceManagerService {
    * use the current TerraUser's credentials to call authenticated endpoints.
    */
   public WorkspaceManagerService() {
-    this(GlobalContext.get().requireCurrentTerraUser(), GlobalContext.get().getServer());
+    this(Context.requireUser(), Context.getServer());
   }
 
   /**
@@ -136,16 +135,15 @@ public class WorkspaceManagerService {
    * terraUser is null, this method returns the client object without an access token set.
    *
    * @param server the Terra environment where the Workspace Manager service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the Terra user whose credentials will be used to call authenticated endpoints
    */
-  private void buildClientForTerraUser(Server server, TerraUser terraUser) {
-    this.apiClient.setBasePath(server.workspaceManagerUri);
+  private void buildClientForTerraUser(Server server, User user) {
+    this.apiClient.setBasePath(server.getWorkspaceManagerUri());
 
-    if (terraUser != null) {
+    if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = terraUser.getUserAccessToken();
-      this.apiClient.setAccessToken(userAccessToken.getTokenValue());
+      this.apiClient.setAccessToken(user.getUserAccessToken().getTokenValue());
     }
   }
 
@@ -332,7 +330,7 @@ public class WorkspaceManagerService {
           },
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(server, terraUser).inviteUser(userEmail);
+            new SamService(server, user).inviteUser(userEmail);
             return null;
           });
     } catch (Exception secondEx) {
@@ -442,19 +440,20 @@ public class WorkspaceManagerService {
    * bucket as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToAdd resource to add
+   * @param createParams creation parameters
    * @return the GCS bucket resource object
    */
-  public GcpGcsBucketResource createReferencedGcsBucket(UUID workspaceId, GcsBucket resourceToAdd) {
+  public GcpGcsBucketResource createReferencedGcsBucket(
+      UUID workspaceId, CreateUpdateGcsBucket createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(resourceToAdd.name)
-                    .description(resourceToAdd.description)
-                    .cloningInstructions(resourceToAdd.cloningInstructions))
-            .bucket(new GcpGcsBucketAttributes().bucketName(resourceToAdd.bucketName));
+                    .name(createParams.name)
+                    .description(createParams.description)
+                    .cloningInstructions(createParams.cloningInstructions))
+            .bucket(new GcpGcsBucketAttributes().bucketName(createParams.bucketName));
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
@@ -470,23 +469,23 @@ public class WorkspaceManagerService {
    * Big Query dataset as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToAdd resource definition to add
+   * @param createParams resource definition to add
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
-      UUID workspaceId, BqDataset resourceToAdd) {
+      UUID workspaceId, CreateUpdateBqDataset createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(resourceToAdd.name)
-                    .description(resourceToAdd.description)
-                    .cloningInstructions(resourceToAdd.cloningInstructions))
+                    .name(createParams.name)
+                    .description(createParams.description)
+                    .cloningInstructions(createParams.cloningInstructions))
             .dataset(
                 new GcpBigQueryDatasetAttributes()
-                    .projectId(resourceToAdd.projectId)
-                    .datasetId(resourceToAdd.datasetId));
+                    .projectId(createParams.projectId)
+                    .datasetId(createParams.datasetId));
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
@@ -503,17 +502,17 @@ public class WorkspaceManagerService {
    * add an AI Platform Notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToCreate resource definition to create
+   * @param createParams resource definition to create
    * @return the AI Platform Notebook instance resource object
    */
   public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId, AiNotebook resourceToCreate) {
+      UUID workspaceId, CreateUpdateAiNotebook createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
         new CreateControlledGcpAiNotebookInstanceRequestBody()
-            .common(createCommonFields(resourceToCreate))
-            .aiNotebookInstance(fromCLIObject(resourceToCreate))
+            .common(createCommonFields(createParams))
+            .aiNotebookInstance(fromCLIObject(createParams))
             .jobControl(new JobControl().id(jobId));
 
     try {
@@ -545,37 +544,37 @@ public class WorkspaceManagerService {
    * @return AI Platform notebook attributes in the format expected by the WSM client library
    */
   private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
-      AiNotebook resourceToCreate) {
+      CreateUpdateAiNotebook createParams) {
     GcpAiNotebookInstanceCreationParameters aiNotebookParams =
         new GcpAiNotebookInstanceCreationParameters()
-            .instanceId(resourceToCreate.instanceId)
-            .location(resourceToCreate.location)
-            .machineType(resourceToCreate.machineType)
-            .postStartupScript(resourceToCreate.postStartupScript)
-            .metadata(resourceToCreate.metadata)
-            .installGpuDriver(resourceToCreate.installGpuDriver)
-            .customGpuDriverPath(resourceToCreate.customGpuDriverPath)
-            .bootDiskType(resourceToCreate.bootDiskType)
-            .bootDiskSizeGb(resourceToCreate.bootDiskSizeGb)
-            .dataDiskType(resourceToCreate.dataDiskType)
-            .dataDiskSizeGb(resourceToCreate.dataDiskSizeGb);
-    if (resourceToCreate.acceleratorType != null || resourceToCreate.acceleratorCoreCount != null) {
+            .instanceId(createParams.instanceId)
+            .location(createParams.location)
+            .machineType(createParams.machineType)
+            .postStartupScript(createParams.postStartupScript)
+            .metadata(createParams.metadata)
+            .installGpuDriver(createParams.installGpuDriver)
+            .customGpuDriverPath(createParams.customGpuDriverPath)
+            .bootDiskType(createParams.bootDiskType)
+            .bootDiskSizeGb(createParams.bootDiskSizeGb)
+            .dataDiskType(createParams.dataDiskType)
+            .dataDiskSizeGb(createParams.dataDiskSizeGb);
+    if (createParams.acceleratorType != null || createParams.acceleratorCoreCount != null) {
       aiNotebookParams.acceleratorConfig(
           new GcpAiNotebookInstanceAcceleratorConfig()
-              .type(resourceToCreate.acceleratorType)
-              .coreCount(resourceToCreate.acceleratorCoreCount));
+              .type(createParams.acceleratorType)
+              .coreCount(createParams.acceleratorCoreCount));
     }
-    if (resourceToCreate.vmImageProject != null) {
+    if (createParams.vmImageProject != null) {
       aiNotebookParams.vmImage(
           new GcpAiNotebookInstanceVmImage()
-              .projectId(resourceToCreate.vmImageProject)
-              .imageFamily(resourceToCreate.vmImageFamily)
-              .imageName(resourceToCreate.vmImageName));
-    } else if (resourceToCreate.containerRepository != null) {
+              .projectId(createParams.vmImageProject)
+              .imageFamily(createParams.vmImageFamily)
+              .imageName(createParams.vmImageName));
+    } else if (createParams.containerRepository != null) {
       aiNotebookParams.containerImage(
           new GcpAiNotebookInstanceContainerImage()
-              .repository(resourceToCreate.containerRepository)
-              .tag(resourceToCreate.containerTag));
+              .repository(createParams.containerRepository)
+              .tag(createParams.containerTag));
     } else {
       throw new SystemException("Expected either VM or Container image definition.");
     }
@@ -588,24 +587,24 @@ public class WorkspaceManagerService {
    * bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToCreate resource definition to create
+   * @param createParams creation parameters
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createControlledGcsBucket(
-      UUID workspaceId, GcsBucket resourceToCreate) {
+      UUID workspaceId, CreateUpdateGcsBucket createParams) {
     // convert the CLI lifecycle rule object into the WSM request objects
-    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(resourceToCreate.lifecycle);
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
 
     // convert the CLI object to a WSM request object
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
-            .common(createCommonFields(resourceToCreate))
+            .common(createCommonFields(createParams))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
-                    .name(resourceToCreate.bucketName)
-                    .defaultStorageClass(resourceToCreate.defaultStorageClass)
+                    .name(createParams.bucketName)
+                    .defaultStorageClass(createParams.defaultStorageClass)
                     .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
-                    .location(resourceToCreate.location));
+                    .location(createParams.location));
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
@@ -671,19 +670,19 @@ public class WorkspaceManagerService {
    * Query dataset as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
-   * @param resourceToCreate resource definition to create
+   * @param createParams resource definition to create
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
-      UUID workspaceId, BqDataset resourceToCreate) {
+      UUID workspaceId, CreateUpdateBqDataset createParams) {
     // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
-            .common(createCommonFields(resourceToCreate))
+            .common(createCommonFields(createParams))
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
-                    .datasetId(resourceToCreate.datasetId)
-                    .location(resourceToCreate.location));
+                    .datasetId(createParams.datasetId)
+                    .location(createParams.location));
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
@@ -700,19 +699,20 @@ public class WorkspaceManagerService {
    * Create a common fields WSM object from a Resource that is being used to create a controlled
    * resource.
    */
-  private static ControlledResourceCommonFields createCommonFields(Resource resourceToCreate) {
+  private static ControlledResourceCommonFields createCommonFields(
+      CreateUpdateResource createParams) {
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (resourceToCreate.privateUserRoles != null) {
-      privateResourceIamRoles.addAll(resourceToCreate.privateUserRoles);
+    if (createParams.privateUserRoles != null) {
+      privateResourceIamRoles.addAll(createParams.privateUserRoles);
     }
     return new ControlledResourceCommonFields()
-        .name(resourceToCreate.name)
-        .description(resourceToCreate.description)
-        .cloningInstructions(resourceToCreate.cloningInstructions)
-        .accessScope(resourceToCreate.accessScope)
+        .name(createParams.name)
+        .description(createParams.description)
+        .cloningInstructions(createParams.cloningInstructions)
+        .accessScope(createParams.accessScope)
         .privateResourceUser(
             new PrivateResourceUser()
-                .userName(resourceToCreate.privateUserName)
+                .userName(createParams.privateUserName)
                 .privateResourceIamRoles(privateResourceIamRoles))
         .managedBy(ManagedBy.USER);
   }

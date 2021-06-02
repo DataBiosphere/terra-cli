@@ -1,11 +1,11 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.command.helperclasses.options.ResourceName;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Context;
+import bio.terra.cli.Resource;
+import bio.terra.cli.User;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceName;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources check-access" command. */
@@ -22,8 +22,7 @@ public class CheckAccess extends BaseCommand {
    */
   @Override
   protected void execute() {
-    Resource resource =
-        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
     boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);
 
@@ -48,16 +47,16 @@ public class CheckAccess extends BaseCommand {
 
   /** Print this command's output in text format. */
   public void printText(CheckAccess.CheckAccessReturnValue returnValue) {
-    TerraUser currentTerraUser = globalContext.requireCurrentTerraUser();
+    User currentUser = Context.requireUser();
     OUT.println(
         "User ("
-            + currentTerraUser.getEmail()
+            + currentUser.getEmail()
             + ") DOES "
             + (returnValue.userHasAccess ? "" : "NOT ")
             + "have access to this resource.");
     OUT.println(
         "User's pet SA in their proxy group ("
-            + currentTerraUser.getProxyGroupEmail()
+            + currentUser.getProxyGroupEmail()
             + ") DOES "
             + (returnValue.proxyGroupHasAccess ? "" : "NOT ")
             + "have access to this resource.");

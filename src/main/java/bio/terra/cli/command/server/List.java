@@ -1,8 +1,11 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Server;
+import bio.terra.cli.Context;
+import bio.terra.cli.Server;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandServer;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,13 +19,17 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<Server> allPossibleServers = Server.list();
-    formatOption.printReturnValue(allPossibleServers, this::printText);
+    formatOption.printReturnValue(
+        allPossibleServers.stream()
+            .map(server -> new CommandServer.Builder(server).build())
+            .collect(Collectors.toList()),
+        this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<Server> returnValue) {
-    for (Server server : returnValue) {
-      String prefix = (globalContext.getServer().name.equals(server.name)) ? " * " : "   ";
+  private void printText(java.util.List<CommandServer> returnValue) {
+    for (CommandServer server : returnValue) {
+      String prefix = (Context.getServer().getName().equals(server.name)) ? " * " : "   ";
       OUT.println(prefix + server.name + ": " + server.description);
     }
   }

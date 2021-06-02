@@ -1,9 +1,10 @@
 package bio.terra.cli.command.resources.addref;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.CreateResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.command.resources.CommandBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -27,20 +28,20 @@ public class BqDataset extends BaseCommand {
   @Override
   protected void execute() {
     // build the resource object to add
-    bio.terra.cli.context.resources.BqDataset.BqDatasetBuilder resourceToAdd =
-        new bio.terra.cli.context.resources.BqDataset.BqDatasetBuilder()
-            .projectId(gcpProjectId)
-            .datasetId(bigQueryDatasetId);
-    resourceToAdd.stewardshipType(StewardshipType.REFERENCED);
-    createResourceOptions.populateMetadataFields(resourceToAdd);
+    CreateUpdateBqDataset.Builder createParams =
+        new CreateUpdateBqDataset.Builder().projectId(gcpProjectId).datasetId(bigQueryDatasetId);
+    createParams.stewardshipType(StewardshipType.REFERENCED);
+    createResourceOptions.populateMetadataFields(createParams);
 
-    Resource resource = resourceToAdd.build().addOrCreate();
-    formatOption.printReturnValue(resource, BqDataset::printText);
+    bio.terra.cli.resources.BqDataset createdResource =
+        bio.terra.cli.resources.BqDataset.addReferenced(createParams.build());
+    formatOption.printReturnValue(
+        new CommandBqDataset.Builder(createdResource).build(), BqDataset::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(Resource returnValue) {
+  private static void printText(CommandBqDataset returnValue) {
     OUT.println("Successfully added referenced Big Query dataset.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

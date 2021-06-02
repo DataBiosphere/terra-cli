@@ -1,9 +1,10 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Workspace;
+import bio.terra.cli.Context;
+import bio.terra.cli.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -34,15 +35,14 @@ public class Update extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspaceToUpdate =
-        GlobalContext.get()
-            .requireCurrentWorkspace()
-            .update(argGroup.displayName, argGroup.description);
-    formatOption.printReturnValue(workspaceToUpdate, this::printText);
+        Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
+    formatOption.printReturnValue(
+        new CommandWorkspace.Builder(workspaceToUpdate).build(), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(Workspace returnValue) {
+  private void printText(CommandWorkspace returnValue) {
     OUT.println("Workspace successfully updated.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

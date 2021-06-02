@@ -1,9 +1,10 @@
 package bio.terra.cli.command.resources.addref;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.CreateResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -28,18 +29,20 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     // build the resource object to add
-    bio.terra.cli.context.resources.GcsBucket.GcsBucketBuilder resourceToAdd =
-        new bio.terra.cli.context.resources.GcsBucket.GcsBucketBuilder().bucketName(bucketName);
-    resourceToAdd.stewardshipType(StewardshipType.REFERENCED);
-    createResourceOptions.populateMetadataFields(resourceToAdd);
+    CreateUpdateGcsBucket.Builder createParams =
+        new CreateUpdateGcsBucket.Builder().bucketName(bucketName);
+    createParams.stewardshipType(StewardshipType.REFERENCED);
+    createResourceOptions.populateMetadataFields(createParams);
 
-    Resource resource = resourceToAdd.build().addOrCreate();
-    formatOption.printReturnValue(resource, GcsBucket::printText);
+    bio.terra.cli.resources.GcsBucket addedResource =
+        bio.terra.cli.resources.GcsBucket.addReferenced(createParams.build());
+    formatOption.printReturnValue(
+        new CommandGcsBucket.Builder(addedResource).build(), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(Resource returnValue) {
+  private static void printText(CommandGcsBucket returnValue) {
     OUT.println("Successfully added referenced GCS bucket.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

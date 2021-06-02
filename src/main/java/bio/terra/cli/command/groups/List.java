@@ -1,7 +1,8 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.service.SamService;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import picocli.CommandLine;
@@ -16,8 +17,7 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<ManagedGroupMembershipEntry> groups =
-        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
-            .listGroups();
+        new SamService(Context.getServer(), Context.requireUser()).listGroups();
     formatOption.printReturnValue(groups, List::printText);
   }
 

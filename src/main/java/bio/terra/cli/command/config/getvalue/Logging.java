@@ -1,9 +1,9 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.utils.Logger;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.utils.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -17,7 +17,8 @@ public class Logging extends BaseCommand {
   protected void execute() {
     LoggingReturnValue loggingLevels =
         new LoggingReturnValue(
-            globalContext.getConsoleLoggingLevel(), globalContext.getFileLoggingLevel());
+            Context.getConfig().getConsoleLoggingLevel(),
+            Context.getConfig().getFileLoggingLevel());
     formatOption.printReturnValue(loggingLevels, Logging::printText);
   }
 
@@ -44,7 +45,7 @@ public class Logging extends BaseCommand {
             + returnValue.consoleLoggingLevel);
     OUT.println(
         "[logging, file] logging level for writing to files in "
-            + GlobalContext.getLogFile().getParent()
+            + Context.getLogFile().getParent()
             + " = "
             + returnValue.fileLoggingLevel);
   }

@@ -1,6 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import java.util.ArrayList;
 import java.util.List;
 import picocli.CommandLine;
@@ -18,6 +19,6 @@ public class Gsutil extends BaseCommand {
     // no need for any special setup or teardown logic since gsutil is already initialized when the
     // container starts
     command.add(0, "gsutil");
-    globalContext.getCommandRunnerOption().getCommandRunner().runToolCommand(command);
+    Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 }

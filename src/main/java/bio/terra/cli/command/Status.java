@@ -1,9 +1,12 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.Workspace;
+import bio.terra.cli.Context;
+import bio.terra.cli.Server;
+import bio.terra.cli.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandServer;
+import bio.terra.cli.serialization.command.CommandWorkspace;
 import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import picocli.CommandLine;
@@ -19,8 +22,7 @@ public class Status extends BaseCommand {
   @Override
   protected void execute() {
     StatusReturnValue statusReturnValue =
-        new StatusReturnValue(
-            globalContext.getServer(), globalContext.getCurrentWorkspace().orElse(null));
+        new StatusReturnValue(Context.getServer(), Context.getWorkspace().orElse(null));
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
@@ -31,14 +33,14 @@ public class Status extends BaseCommand {
   @VisibleForTesting
   public static class StatusReturnValue {
     // global server context = service uris, environment name
-    public final Server server;
+    public final CommandServer server;
 
     // global workspace context
-    public final Workspace workspace;
+    public final CommandWorkspace workspace;
 
     public StatusReturnValue(Server server, Workspace workspace) {
-      this.server = server;
-      this.workspace = workspace;
+      this.server = new CommandServer.Builder(server).build();
+      this.workspace = workspace != null ? new CommandWorkspace.Builder(workspace).build() : null;
     }
   }
 
@@ -48,11 +50,11 @@ public class Status extends BaseCommand {
     if (returnValue.workspace == null) {
       OUT.println("There is no current Terra workspace defined.");
     } else {
-      returnValue.workspace.printText();
+      returnValue.workspace.print();
     }
 
     OUT.println();
-    OUT.println("Terra server: " + globalContext.getServer().name);
+    OUT.println("Terra server: " + returnValue.server.name);
 
     if (returnValue.workspace != null
         && !returnValue.server.name.equals(returnValue.workspace.serverName)) {

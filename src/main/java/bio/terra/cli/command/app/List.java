@@ -1,7 +1,7 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import picocli.CommandLine;

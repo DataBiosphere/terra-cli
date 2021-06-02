@@ -1,6 +1,7 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.service.SamService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -14,8 +15,7 @@ public class Create extends BaseCommand {
   /** Create a new Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
-        .createGroup(group);
+    new SamService(Context.getServer(), Context.requireUser()).createGroup(group);
     OUT.println("Group " + group + " successfully created.");
   }
 }

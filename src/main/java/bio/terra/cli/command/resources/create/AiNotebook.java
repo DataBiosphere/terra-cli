@@ -1,10 +1,12 @@
 package bio.terra.cli.command.resources.create;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.CreateResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Context;
+import bio.terra.cli.User;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.StewardshipType;
@@ -226,23 +228,21 @@ public class AiNotebook extends BaseCommand {
   @Override
   protected void execute() {
     // build the resource object to create
-    bio.terra.cli.context.resources.AiNotebook.AiNotebookBuilder resourceToCreate =
-        new bio.terra.cli.context.resources.AiNotebook.AiNotebookBuilder()
-            .instanceId(getInstanceId(globalContext.requireCurrentTerraUser()))
+    CreateUpdateAiNotebook.Builder createParams =
+        new CreateUpdateAiNotebook.Builder()
+            .instanceId(getInstanceId(Context.requireUser()))
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
             .metadata(
-                metadata == null
-                    ? defaultMetadata(globalContext.requireCurrentWorkspace().id)
-                    : metadata);
-    resourceToCreate.stewardshipType(StewardshipType.CONTROLLED);
-    createResourceOptions.populateMetadataFields(resourceToCreate);
+                metadata == null ? defaultMetadata(Context.requireWorkspace().getId()) : metadata);
+    createParams.stewardshipType(StewardshipType.CONTROLLED);
+    createResourceOptions.populateMetadataFields(createParams);
 
     // force the resource to be private
-    resourceToCreate
+    createParams
         .accessScope(AccessScope.PRIVATE_ACCESS)
-        .privateUserName(globalContext.requireCurrentTerraUser().getEmail())
+        .privateUserName(Context.requireUser().getEmail())
         .privateUserRoles(
             List.of(
                 ControlledResourceIamRole.EDITOR,
@@ -250,42 +250,42 @@ public class AiNotebook extends BaseCommand {
                 ControlledResourceIamRole.READER));
 
     if (acceleratorConfig != null) {
-      resourceToCreate
+      createParams
           .acceleratorType(acceleratorConfig.type)
           .acceleratorCoreCount(acceleratorConfig.coreCount);
     }
     if (gpuDriverConfiguration != null) {
-      resourceToCreate
+      createParams
           .installGpuDriver(gpuDriverConfiguration.installGpuDriver)
           .customGpuDriverPath(gpuDriverConfiguration.customGpuDriverPath);
     }
     if (bootDiskConfiguration != null) {
-      resourceToCreate
+      createParams
           .bootDiskType(bootDiskConfiguration.type)
           .bootDiskSizeGb(bootDiskConfiguration.sizeGb);
     }
     if (dataDiskConfiguration != null) {
-      resourceToCreate
+      createParams
           .dataDiskType(dataDiskConfiguration.type)
           .dataDiskSizeGb(dataDiskConfiguration.sizeGb);
     }
     if (vmOrContainerImage == null) {
-      resourceToCreate
-          .vmImageProject(DEFAULT_VM_IMAGE_PROJECT)
-          .vmImageFamily(DEFAULT_VM_IMAGE_FAMILY);
+      createParams.vmImageProject(DEFAULT_VM_IMAGE_PROJECT).vmImageFamily(DEFAULT_VM_IMAGE_FAMILY);
     } else if (vmOrContainerImage.container != null) {
-      resourceToCreate
+      createParams
           .containerRepository(vmOrContainerImage.container.repository)
           .containerTag(vmOrContainerImage.container.tag);
     } else {
-      resourceToCreate
+      createParams
           .vmImageProject(vmOrContainerImage.vm.project)
           .vmImageFamily(vmOrContainerImage.vm.imageConfig.family)
           .vmImageName(vmOrContainerImage.vm.imageConfig.name);
     }
 
-    Resource resource = resourceToCreate.build().addOrCreate();
-    formatOption.printReturnValue(resource, AiNotebook::printText);
+    bio.terra.cli.resources.AiNotebook createdResource =
+        bio.terra.cli.resources.AiNotebook.createControlled(createParams.build());
+    formatOption.printReturnValue(
+        new CommandAiNotebook.Builder(createdResource).build(), AiNotebook::printText);
   }
 
   /** Create the metadata to put on the AI Notebook instance. */
@@ -299,7 +299,7 @@ public class AiNotebook extends BaseCommand {
             "jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz")
         // Set additional Terra context as metadata on the VM instance.
         .put("terra-workspace-id", workspaceID.toString())
-        .put("terra-cli-server", globalContext.getServer().name)
+        .put("terra-cli-server", Context.getServer().getName())
         .build();
   }
 
@@ -308,7 +308,7 @@ public class AiNotebook extends BaseCommand {
    * time.
    */
   // TODO add some unit tests when we have a testing framework.
-  private String getInstanceId(TerraUser user) {
+  private String getInstanceId(User user) {
     if (!AUTO_GENERATE_NAME.equals(instanceId)) {
       return instanceId;
     }
@@ -347,8 +347,8 @@ public class AiNotebook extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(Resource returnValue) {
+  private static void printText(CommandAiNotebook returnValue) {
     OUT.println("Successfully added controlled AI Notebook instance.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

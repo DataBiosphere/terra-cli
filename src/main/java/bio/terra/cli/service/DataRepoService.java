@@ -1,14 +1,13 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Server;
+import bio.terra.cli.User;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;
 import bio.terra.datarepo.client.ApiException;
 import bio.terra.datarepo.model.RepositoryConfigurationModel;
 import bio.terra.datarepo.model.RepositoryStatusModel;
-import com.google.auth.oauth2.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +23,11 @@ public class DataRepoService {
    * Methods in this class will use its credentials to call authenticated endpoints.
    *
    * @param server the Terra environment where the Data Repo service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the Terra user whose credentials will be used to call authenticated endpoints
    */
-  public DataRepoService(Server server, TerraUser terraUser) {
+  public DataRepoService(Server server, User user) {
     this.apiClient = new ApiClient();
-    buildClientForTerraUser(server, terraUser);
+    buildClientForTerraUser(server, user);
   }
 
   /**
@@ -46,16 +45,15 @@ public class DataRepoService {
    * is null, this method builds the client object without an access token set.
    *
    * @param server the Terra environment where the Data Repo service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the Terra user whose credentials will be used to call authenticated endpoints
    */
-  private void buildClientForTerraUser(Server server, TerraUser terraUser) {
-    this.apiClient.setBasePath(server.dataRepoUri);
+  private void buildClientForTerraUser(Server server, User user) {
+    this.apiClient.setBasePath(server.getDataRepoUri());
 
-    if (terraUser != null) {
+    if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = terraUser.getUserAccessToken();
-      this.apiClient.setAccessToken(userAccessToken.getTokenValue());
+      this.apiClient.setAccessToken(user.getUserAccessToken().getTokenValue());
     }
   }
 

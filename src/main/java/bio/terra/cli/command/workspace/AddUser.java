@@ -1,8 +1,9 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.WorkspaceUser;
+import bio.terra.cli.WorkspaceUser;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandWorkspaceUser;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -26,12 +27,12 @@ public class AddUser extends BaseCommand {
   @Override
   protected void execute() {
     WorkspaceUser workspaceUser = WorkspaceUser.add(email, role);
-    formatOption.printReturnValue(workspaceUser, AddUser::printText);
+    formatOption.printReturnValue(new CommandWorkspaceUser(workspaceUser), AddUser::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(WorkspaceUser returnValue) {
+  private static void printText(CommandWorkspaceUser returnValue) {
     OUT.println("Email + role added to workspace.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

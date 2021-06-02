@@ -1,7 +1,7 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.context.Server;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Server;
+import bio.terra.cli.User;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class SpendProfileManagerService {
   private final Server server;
 
   // the Terra user whose credentials will be used to call authenticated requests
-  private final TerraUser terraUser;
+  private final User user;
 
   // there currently is no SPM service, so this class just wraps calls to SAM
   // keep a reference to the SAM service instance here
@@ -32,12 +32,12 @@ public class SpendProfileManagerService {
    * this class will use its credentials to call authenticated endpoints.
    *
    * @param server the Terra environment where the SAM service lives
-   * @param terraUser the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the Terra user whose credentials will be used to call authenticated endpoints
    */
-  public SpendProfileManagerService(Server server, TerraUser terraUser) {
+  public SpendProfileManagerService(Server server, User user) {
     this.server = server;
-    this.terraUser = terraUser;
-    this.samService = new SamService(server, terraUser);
+    this.user = user;
+    this.samService = new SamService(server, user);
   }
 
   /**

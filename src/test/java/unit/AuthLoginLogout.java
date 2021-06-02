@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.Context;
+import bio.terra.cli.User;
 import bio.terra.cli.auth.GoogleCredentialUtils;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.TerraUser;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
@@ -48,12 +48,12 @@ public class AuthLoginLogout extends ClearContextUnit {
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user
-    Optional<TerraUser> currentTerraUser = GlobalContext.get().getCurrentTerraUser();
-    assertTrue(currentTerraUser.isPresent(), "current user set in global context");
+    Optional<User> currentUser = Context.getUser();
+    assertTrue(currentUser.isPresent(), "current user set in global context");
     assertThat(
         "test user email matches the current user set in global context",
         testUser.email,
-        equalToIgnoringCase(currentTerraUser.get().getEmail()));
+        equalToIgnoringCase(currentUser.get().getEmail()));
   }
 
   @Test
@@ -73,9 +73,8 @@ public class AuthLoginLogout extends ClearContextUnit {
 
     // read the global context in from disk again to check what got persisted
     // check that the current user in the global context is unset
-    GlobalContext globalContext = GlobalContext.get();
-    Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
-    assertFalse(currentTerraUser.isPresent(), "current user unset in global context");
+    Optional<User> currentUser = Context.getUser();
+    assertFalse(currentUser.isPresent(), "current user unset in global context");
   }
 
   @Test
@@ -84,11 +83,10 @@ public class AuthLoginLogout extends ClearContextUnit {
     // check that each test user is enabled in SAM
     for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
       // login the user, so we have their credentials
-      GlobalContext globalContext = testUser.login();
+      testUser.login();
 
       // build a SAM client with the test user's credentials
-      SamService samService =
-          new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser());
+      SamService samService = new SamService(Context.getServer(), Context.requireUser());
 
       // check that the user is enabled
       UserStatusInfo userStatusInfo = samService.getUserInfo();

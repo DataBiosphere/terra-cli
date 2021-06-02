@@ -1,6 +1,7 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,6 +23,6 @@ public class Execute extends BaseCommand {
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
-    globalContext.getCommandRunnerOption().getCommandRunner().runToolCommand(command);
+    Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 }

@@ -1,8 +1,8 @@
 package harness;
 
+import bio.terra.cli.Context;
+import bio.terra.cli.User;
 import bio.terra.cli.auth.GoogleCredentialUtils;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.TerraUser;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -57,7 +57,7 @@ public enum TestUsers {
    *
    * @return global context object, populated with the user's credentials
    */
-  public GlobalContext login() throws IOException {
+  public void login() throws IOException {
     // get a credential for the test-user SA
     Path jsonKey = Path.of("rendered", "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
@@ -68,7 +68,7 @@ public enum TestUsers {
     }
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(TerraUser.SCOPES);
+            .createScoped(User.SCOPES);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
     System.out.println("Logging in test user: " + email);
@@ -87,17 +87,15 @@ public enum TestUsers {
     dataStore.set(GoogleCredentialUtils.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     // unset the current user in the global context if already specified
-    GlobalContext globalContext = GlobalContext.get();
-    globalContext.unsetCurrentTerraUser();
+    Context.setUser(null);
 
     // do the login flow to populate the global context with the current user
-    TerraUser.login();
-    return globalContext;
+    User.login();
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */
   public static DataStore<StoredCredential> getCredentialStore() throws IOException {
-    Path globalContextDir = GlobalContext.getGlobalContextDir();
+    Path globalContextDir = Context.getContextDir();
     FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
   }

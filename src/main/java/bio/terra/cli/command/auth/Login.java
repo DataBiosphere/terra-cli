@@ -1,6 +1,7 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra auth login" command. */
@@ -14,6 +15,6 @@ public class Login extends BaseCommand {
   protected void execute() {
     // the base class will always login the user unless the {@link CommandSetup#doLogin}
     // method is overridden
-    OUT.println("Login successful: " + globalContext.requireCurrentTerraUser().getEmail());
+    OUT.println("Login successful: " + Context.requireUser().getEmail());
   }
 }

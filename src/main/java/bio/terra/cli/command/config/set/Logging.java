@@ -1,7 +1,8 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.context.utils.Logger;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.utils.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -34,10 +35,10 @@ public class Logging extends BaseCommand {
     // currently no reason to update the log level in the same command because this command exits
     // immediately after updating the global context, so keeping it simple for now.
     if (argGroup.console) {
-      globalContext.updateConsoleLoggingLevel(level);
+      Context.getConfig().setConsoleLoggingLevel(level);
       OUT.println("CONSOLE logging level set to: " + level);
     } else {
-      globalContext.updateFileLoggingLevel(level);
+      Context.getConfig().setFileLoggingLevel(level);
       OUT.println("FILE logging level set to: " + level);
     }
   }

@@ -1,10 +1,12 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Workspace;
+import bio.terra.cli.Context;
+import bio.terra.cli.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.command.CommandWorkspace;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -36,15 +38,19 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
-    formatOption.printReturnValue(workspaces, this::printText);
+    formatOption.printReturnValue(
+        workspaces.stream()
+            .map(workspace -> new CommandWorkspace.Builder(workspace).build())
+            .collect(Collectors.toList()),
+        this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<Workspace> returnValue) {
-    Optional<Workspace> currentWorkspace = GlobalContext.get().getCurrentWorkspace();
-    for (Workspace workspace : returnValue) {
+  private void printText(java.util.List<CommandWorkspace> returnValue) {
+    Optional<Workspace> currentWorkspace = Context.getWorkspace();
+    for (CommandWorkspace workspace : returnValue) {
       String prefix =
-          (currentWorkspace.isPresent() && currentWorkspace.get().id.equals(workspace.id))
+          (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
               ? " * "
               : "   ";
       OUT.println(prefix + workspace.id);

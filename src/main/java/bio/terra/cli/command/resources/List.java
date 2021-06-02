@@ -1,9 +1,10 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Resource;
-import bio.terra.workspace.model.ResourceType;
+import bio.terra.cli.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.resources.ResourceType;
+import bio.terra.cli.serialization.command.CommandResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -26,22 +27,23 @@ public class List extends BaseCommand {
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
-    java.util.List<Resource> resources =
+    java.util.List<CommandResource> resources =
         Resource.listAndSync().stream()
             .filter(
                 (resource) -> {
                   boolean stewardshipMatches =
-                      stewardship == null || resource.stewardshipType.equals(stewardship);
-                  boolean typeMatches = type == null || resource.resourceType.equals(type);
+                      stewardship == null || resource.getStewardshipType().equals(stewardship);
+                  boolean typeMatches = type == null || resource.getResourceType().equals(type);
                   return stewardshipMatches && typeMatches;
                 })
+            .map(resource -> resource.getResourceType().getCommandBuilder(resource).build())
             .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(java.util.List<Resource> returnValue) {
-    for (Resource resource : returnValue) {
+  private static void printText(java.util.List<CommandResource> returnValue) {
+    for (CommandResource resource : returnValue) {
       OUT.println(
           resource.name
               + " ("

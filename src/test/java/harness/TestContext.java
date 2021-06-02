@@ -1,6 +1,6 @@
 package harness;
 
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.Context;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class TestContext {
    * in the "lib" sub-directory and the running log files in the "logs" sub-directory.
    */
   public static void clearGlobalContextDir() throws IOException {
-    Path globalContextDir = GlobalContext.getGlobalContextDir();
+    Path globalContextDir = Context.getContextDir();
     if (!globalContextDir.toFile().exists()) {
       return;
     }

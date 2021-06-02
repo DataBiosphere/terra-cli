@@ -1,7 +1,8 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.service.SamService;
 import java.util.List;
 import picocli.CommandLine;
@@ -25,8 +26,7 @@ public class ListUsers extends BaseCommand {
   @Override
   protected void execute() {
     List<String> users =
-        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
-            .listUsersInGroup(group, policy);
+        new SamService(Context.getServer(), Context.requireUser()).listUsersInGroup(group, policy);
     formatOption.printReturnValue(users, ListUsers::printText);
   }
 

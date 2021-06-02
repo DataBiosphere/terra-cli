@@ -1,7 +1,8 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.context.Server;
+import bio.terra.cli.Context;
+import bio.terra.cli.Server;
+import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,14 +19,14 @@ public class Set extends BaseCommand {
   /** Update the Terra environment to which the CLI is pointing. */
   @Override
   protected void execute() {
-    String prevServerName = globalContext.getServer().name;
-    Server.switchTo(name);
+    String prevServerName = Context.getServer().getName();
+    Context.setServer(Server.get(name));
 
     OUT.println(
         "Terra server is set to "
-            + globalContext.getServer().name
+            + Context.getServer().getName()
             + " ("
-            + (globalContext.getServer().name.equals(prevServerName) ? "UNCHANGED" : "CHANGED")
+            + (Context.getServer().getName().equals(prevServerName) ? "UNCHANGED" : "CHANGED")
             + ").");
   }
 

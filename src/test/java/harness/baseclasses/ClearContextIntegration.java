@@ -2,6 +2,7 @@ package harness.baseclasses;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.cli.Context;
 import harness.TestBashScript;
 import harness.TestContext;
 import java.io.IOException;
@@ -21,6 +22,9 @@ public class ClearContextIntegration {
     // run a script that resets the global context
     int exitCode = TestBashScript.runScript("SetupContext.sh");
     assertEquals(0, exitCode, "SetupContext script completed without errors");
+
+    // initialize the Context from disk, so we can login with TestUsers
+    Context.initializeFromDisk();
   }
 
   @AfterEach

@@ -1,7 +1,9 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.Server;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,19 +16,15 @@ public class Status extends BaseCommand {
   /** Update the Terra environment to which the CLI is pointing. */
   @Override
   protected void execute() {
-    boolean serverIsOk = globalContext.getServer().ping();
+    boolean serverIsOk = Context.getServer().ping();
     String serverIsOkMsg = serverIsOk ? "OKAY" : "ERROR CONNECTING";
     formatOption.printReturnValue(serverIsOkMsg, this::printText);
   }
 
   /** Print this command's output in text format. */
   private void printText(String returnValue) {
-    OUT.println(
-        "Current server: "
-            + globalContext.getServer().name
-            + " ("
-            + globalContext.getServer().description
-            + ")");
+    Server server = Context.getServer();
+    OUT.println("Current server: " + server.getName() + " (" + server.getDescription() + ")");
     OUT.println("Server status: " + returnValue);
   }
 

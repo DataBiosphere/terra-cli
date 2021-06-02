@@ -1,7 +1,7 @@
 package bio.terra.cli.apps;
 
+import bio.terra.cli.Context;
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
-import bio.terra.cli.context.GlobalContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +31,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
     bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
     bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
     bashCommands.add(
-        "gcloud config set project "
-            + GlobalContext.get().requireCurrentWorkspace().googleProjectId);
+        "gcloud config set project " + Context.requireWorkspace().getGoogleProjectId());
     bashCommands.add(buildFullCommand(command));
     bashCommands.add(
         "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
@@ -56,7 +55,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add(command);
 
     // set the path to the pet SA key file
-    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", GlobalContext.get().getPetSaKeyFile().toString());
+    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", Context.getPetSaKeyFile().toString());
 
     // launch the child process
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();

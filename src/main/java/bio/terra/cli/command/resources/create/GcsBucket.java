@@ -1,12 +1,13 @@
 package bio.terra.cli.command.resources.create;
 
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.Resource;
-import bio.terra.cli.context.resources.GcsBucketLifecycle;
-import bio.terra.cli.context.utils.JacksonMapper;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateControlledResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.createupdate.GcsBucketLifecycle;
+import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
+import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -66,26 +67,25 @@ public class GcsBucket extends BaseCommand {
     createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create
-    bio.terra.cli.context.resources.GcsBucket.GcsBucketBuilder resourceToCreate =
-        new bio.terra.cli.context.resources.GcsBucket.GcsBucketBuilder()
+    CreateUpdateGcsBucket.Builder createParams =
+        new CreateUpdateGcsBucket.Builder()
             .bucketName(bucketName)
             .defaultStorageClass(storageClass)
             .location(location);
-    resourceToCreate.stewardshipType(StewardshipType.CONTROLLED);
-    createControlledResourceOptions.populateMetadataFields(resourceToCreate);
+    createParams.stewardshipType(StewardshipType.CONTROLLED);
+    createControlledResourceOptions.populateMetadataFields(createParams);
 
     // build the lifecycle object
     if (lifecycleArgGroup == null) {
       // empty lifecycle rule object
-      resourceToCreate.lifecycle(new GcsBucketLifecycle());
+      createParams.lifecycle(new GcsBucketLifecycle());
     } else if (lifecycleArgGroup.autoDelete != null) {
       // build an auto-delete lifecycle rule and set the number of days
-      resourceToCreate.lifecycle(
-          GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete));
+      createParams.lifecycle(GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete));
     } else {
       // read in the lifecycle rules from a file
       try {
-        resourceToCreate.lifecycle(
+        createParams.lifecycle(
             JacksonMapper.readFileIntoJavaObject(
                 lifecycleArgGroup.pathToLifecycleFile.toFile(),
                 GcsBucketLifecycle.class,
@@ -95,13 +95,15 @@ public class GcsBucket extends BaseCommand {
       }
     }
 
-    Resource resource = resourceToCreate.build().addOrCreate();
-    formatOption.printReturnValue(resource, GcsBucket::printText);
+    bio.terra.cli.resources.GcsBucket createdResource =
+        bio.terra.cli.resources.GcsBucket.createControlled(createParams.build());
+    formatOption.printReturnValue(
+        new CommandGcsBucket.Builder(createdResource).build(), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(Resource returnValue) {
+  private static void printText(CommandGcsBucket returnValue) {
     OUT.println("Successfully added controlled GCS bucket.");
-    returnValue.printText();
+    returnValue.print();
   }
 }

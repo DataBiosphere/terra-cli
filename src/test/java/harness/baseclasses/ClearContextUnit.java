@@ -2,8 +2,9 @@ package harness.baseclasses;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.utils.Logger;
+import bio.terra.cli.Context;
+import bio.terra.cli.User;
+import bio.terra.cli.utils.Logger;
 import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
@@ -17,14 +18,14 @@ public class ClearContextUnit {
   @BeforeEach
   protected void setupEachTime() throws IOException {
     TestContext.clearGlobalContextDir();
-    resetGlobalContext();
+    resetContext();
   }
 
   /**
    * Reset the global context for a unit test. This setup includes logging, setting the server, and
    * setting the docker image id.
    */
-  private static void resetGlobalContext() {
+  private static void resetContext() {
     // setup logging for testing (console = OFF, file = DEBUG)
     TestCommand.Result cmd =
         TestCommand.runCommand("config", "set", "logging", "--console", "--level=OFF");
@@ -34,11 +35,12 @@ public class ClearContextUnit {
 
     // also update the logging directly in this process, because the config commands only affect
     // future processes
-    GlobalContext globalContext = GlobalContext.get();
-    new Logger(globalContext).setupLogging();
+    Context.initializeFromDisk();
+    Logger.setupLogging(
+        Context.getConfig().getConsoleLoggingLevel(), Context.getConfig().getFileLoggingLevel());
 
     // logout the current user
-    globalContext.getCurrentTerraUser().ifPresent(terraUser -> terraUser.logout());
+    Context.getUser().ifPresent(User::logout);
 
     // set the server to the one specified by the test
     // (see the Gradle test task for how this env var gets set from a Gradle property)

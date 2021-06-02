@@ -1,7 +1,7 @@
 package harness;
 
 import bio.terra.cli.command.Main;
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;

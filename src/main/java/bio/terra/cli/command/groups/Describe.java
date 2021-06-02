@@ -1,7 +1,8 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.service.SamService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,8 +19,7 @@ public class Describe extends BaseCommand {
   @Override
   protected void execute() {
     String groupEmail =
-        new SamService(globalContext.getServer(), globalContext.requireCurrentTerraUser())
-            .getGroupEmail(group);
+        new SamService(Context.getServer(), Context.requireUser()).getGroupEmail(group);
     formatOption.printReturnValue(groupEmail);
   }
 }

@@ -1,7 +1,7 @@
 package bio.terra.cli.apps;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.Context;
+import bio.terra.cli.exception.SystemException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +59,7 @@ public abstract class CommandRunner {
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
     terraEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", "");
-    terraEnvVars.put(
-        "GOOGLE_CLOUD_PROJECT", GlobalContext.get().requireCurrentWorkspace().googleProjectId);
+    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
         throw new SystemException(
@@ -103,10 +102,10 @@ public abstract class CommandRunner {
   private Map<String, String> buildMapOfTerraReferences() {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
-    GlobalContext.get()
-        .requireCurrentWorkspace()
+    Context.requireWorkspace()
         .getResources()
-        .forEach(resource -> terraReferences.put("TERRA_" + resource.name, resource.resolve()));
+        .forEach(
+            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve()));
 
     return terraReferences;
   }

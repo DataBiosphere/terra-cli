@@ -1,6 +1,6 @@
 package bio.terra.cli.auth;
 
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.utils.Printer;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;

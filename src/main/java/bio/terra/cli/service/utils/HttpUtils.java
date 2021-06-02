@@ -1,6 +1,6 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.command.exception.SystemException;
+import bio.terra.cli.exception.SystemException;
 import com.google.api.client.http.HttpStatusCodes;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

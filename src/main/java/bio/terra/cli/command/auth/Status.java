@@ -1,8 +1,9 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.TerraUser;
+import bio.terra.cli.Context;
+import bio.terra.cli.User;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import picocli.CommandLine;
@@ -21,17 +22,17 @@ public class Status extends BaseCommand {
   @Override
   protected void execute() {
     // check if current user is defined
-    Optional<TerraUser> currentTerraUserOpt = globalContext.getCurrentTerraUser();
+    Optional<User> currentUserOpt = Context.getUser();
     AuthStatusReturnValue authStatusReturnValue;
-    if (!currentTerraUserOpt.isPresent()) {
+    if (!currentUserOpt.isPresent()) {
       authStatusReturnValue = AuthStatusReturnValue.createWhenCurrentUserIsUndefined();
     } else {
-      TerraUser currentTerraUser = currentTerraUserOpt.get();
+      User currentUser = currentUserOpt.get();
       authStatusReturnValue =
           AuthStatusReturnValue.createWhenCurrentUserIsDefined(
-              currentTerraUser.getEmail(),
-              currentTerraUser.getProxyGroupEmail(),
-              !currentTerraUser.requiresReauthentication());
+              currentUser.getEmail(),
+              currentUser.getProxyGroupEmail(),
+              !currentUser.requiresReauthentication());
     }
 
     formatOption.printReturnValue(

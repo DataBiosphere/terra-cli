@@ -1,10 +1,11 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.command.helperclasses.options.ResourceName;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.Resource;
+import bio.terra.cli.Context;
+import bio.terra.cli.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceName;
+import bio.terra.cli.serialization.command.CommandResource;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources describe" command. */
@@ -17,9 +18,8 @@ public class Describe extends BaseCommand {
   /** Describe a resource. */
   @Override
   protected void execute() {
-    Resource resource =
-        GlobalContext.get().requireCurrentWorkspace().getResource(resourceNameOption.name);
-    resource.populateAdditionalInfo();
-    formatOption.printReturnValue(resource, Resource::printText);
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
+    formatOption.printReturnValue(
+        resource.getResourceType().getCommandBuilder(resource).build(), CommandResource::print);
   }
 }
