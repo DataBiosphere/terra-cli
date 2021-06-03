@@ -21,7 +21,7 @@ public class Delete extends BaseCommand {
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     resource.delete();
     formatOption.printReturnValue(
-        resource.getResourceType().getCommandBuilder(resource).build(), Delete::printText);
+        CommandResource.serializeFromInternal(resource), Delete::printText);
   }
 
   /** Print this command's output in text format. */

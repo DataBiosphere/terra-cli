@@ -21,7 +21,7 @@ public class List extends BaseCommand {
     java.util.List<Server> allPossibleServers = Server.list();
     formatOption.printReturnValue(
         allPossibleServers.stream()
-            .map(server -> new CommandServer.Builder(server).build())
+            .map(server -> new CommandServer(server))
             .collect(Collectors.toList()),
         this::printText);
   }

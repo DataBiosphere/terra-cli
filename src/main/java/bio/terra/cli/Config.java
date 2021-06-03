@@ -8,6 +8,10 @@ import bio.terra.cli.serialization.disk.DiskConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of a configuration. An instance of this class is part of the current
+ * context or state.
+ */
 public class Config {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
 

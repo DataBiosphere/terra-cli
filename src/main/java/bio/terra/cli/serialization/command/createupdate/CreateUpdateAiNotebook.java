@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.Map;
 
+/**
+ * Parameters for creating/updating an AI notebook workspace resource. This class is not currently
+ * user-facing, but could be exposed as a command input format in the future.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateUpdateGcsBucket.Builder.class)
+@JsonDeserialize(builder = CreateUpdateAiNotebook.Builder.class)
 public class CreateUpdateAiNotebook extends CreateUpdateResource {
   public final String instanceId;
   public final String location;
@@ -49,7 +53,6 @@ public class CreateUpdateAiNotebook extends CreateUpdateResource {
     this.dataDiskType = builder.dataDiskType;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends CreateUpdateResource.Builder {
     private String instanceId;

@@ -26,7 +26,7 @@ public class Create extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspace = Workspace.create(displayName, description);
-    formatOption.printReturnValue(new CommandWorkspace.Builder(workspace).build(), this::printText);
+    formatOption.printReturnValue(new CommandWorkspace(workspace), this::printText);
   }
 
   /** Print this command's output in text format. */

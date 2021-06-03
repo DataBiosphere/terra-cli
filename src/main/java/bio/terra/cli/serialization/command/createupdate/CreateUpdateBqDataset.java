@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * Parameters for creating/updating a BQ dataset workspace resource. This class is not currently
+ * user-facing, but could be exposed as a command input format in the future.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateUpdateGcsBucket.Builder.class)
+@JsonDeserialize(builder = CreateUpdateBqDataset.Builder.class)
 public class CreateUpdateBqDataset extends CreateUpdateResource {
   public final String projectId;
   public final String datasetId;
@@ -18,7 +22,6 @@ public class CreateUpdateBqDataset extends CreateUpdateResource {
     this.location = builder.location;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends CreateUpdateResource.Builder {
     private String projectId;

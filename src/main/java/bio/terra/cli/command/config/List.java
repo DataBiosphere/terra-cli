@@ -18,8 +18,7 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        new CommandConfig.Builder(Context.getConfig(), Context.getServer()).build(),
-        List::printText);
+        new CommandConfig(Context.getConfig(), Context.getServer()), List::printText);
   }
 
   /** Print this command's output in text format. */

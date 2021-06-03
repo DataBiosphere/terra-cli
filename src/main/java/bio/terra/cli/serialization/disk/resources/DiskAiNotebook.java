@@ -6,12 +6,27 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * External representation of a workspace AI notebook resource for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link AiNotebook} class for a notebook's internal representation.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = DiskAiNotebook.Builder.class)
 public class DiskAiNotebook extends DiskResource {
   public final String projectId;
   public final String instanceId;
   public final String location;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskAiNotebook(AiNotebook internalObj) {
+    super(internalObj);
+    this.projectId = internalObj.getProjectId();
+    this.instanceId = internalObj.getInstanceId();
+    this.location = internalObj.getLocation();
+  }
 
   private DiskAiNotebook(Builder builder) {
     super(builder);
@@ -20,7 +35,6 @@ public class DiskAiNotebook extends DiskResource {
     this.location = builder.location;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends DiskResource.Builder {
     private String projectId;
@@ -49,13 +63,5 @@ public class DiskAiNotebook extends DiskResource {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(AiNotebook internalObj) {
-      super(internalObj);
-      this.projectId = internalObj.getProjectId();
-      this.instanceId = internalObj.getInstanceId();
-      this.location = internalObj.getLocation();
-    }
   }
 }

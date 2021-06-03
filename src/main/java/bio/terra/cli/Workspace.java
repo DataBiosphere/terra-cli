@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of a workspace. An instance of this class is part of the current context
+ * or state.
+ */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
 
@@ -52,7 +56,7 @@ public class Workspace {
     this.userEmail = configFromDisk.userEmail;
     this.resources =
         configFromDisk.resources.stream()
-            .map(diskResource -> diskResource.resourceType.getBuilder(diskResource).build())
+            .map(diskResource -> Resource.deserializeFromDisk(diskResource))
             .collect(Collectors.toList());
   }
 

@@ -16,8 +16,7 @@ public class Server extends BaseCommand {
   /** Return the server property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(
-        new CommandServer.Builder(Context.getServer()).build(), Server::printText);
+    formatOption.printReturnValue(new CommandServer(Context.getServer()), Server::printText);
   }
 
   /** Print this command's output in text format. */

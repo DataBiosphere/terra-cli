@@ -4,6 +4,13 @@ import bio.terra.cli.Server;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * External representation of a server for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link Server} class for a server's internal representation.
+ */
 @JsonDeserialize(builder = DiskServer.Builder.class)
 public class DiskServer {
   public final String name;
@@ -11,6 +18,15 @@ public class DiskServer {
   public final String samUri;
   public final String workspaceManagerUri;
   public final String dataRepoUri;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskServer(Server internalObj) {
+    this.name = internalObj.getName();
+    this.description = internalObj.getDescription();
+    this.samUri = internalObj.getSamUri();
+    this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
+    this.dataRepoUri = internalObj.getDataRepoUri();
+  }
 
   private DiskServer(DiskServer.Builder builder) {
     this.name = builder.name;
@@ -20,7 +36,6 @@ public class DiskServer {
     this.dataRepoUri = builder.dataRepoUri;
   }
 
-  /** Builder class to construct an immutable Config object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String name;
@@ -61,14 +76,5 @@ public class DiskServer {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(Server internalObj) {
-      this.name = internalObj.getName();
-      this.description = internalObj.getDescription();
-      this.samUri = internalObj.getSamUri();
-      this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
-      this.dataRepoUri = internalObj.getDataRepoUri();
-    }
   }
 }

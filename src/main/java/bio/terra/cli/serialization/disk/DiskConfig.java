@@ -8,6 +8,13 @@ import bio.terra.cli.utils.Logger;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * External representation of a configuration for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link Config} class for a configuration's internal representation.
+ */
 @JsonDeserialize(builder = DiskConfig.Builder.class)
 public class DiskConfig {
   public final BrowserLaunchOption browserLaunchOption;
@@ -16,6 +23,16 @@ public class DiskConfig {
   public final int resourcesCacheSize;
   public final Logger.LogLevel fileLoggingLevel;
   public final Logger.LogLevel consoleLoggingLevel;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskConfig(Config internalObj) {
+    this.browserLaunchOption = internalObj.getBrowserLaunchOption();
+    this.commandRunnerOption = internalObj.getCommandRunnerOption();
+    this.dockerImageId = internalObj.getDockerImageId();
+    this.resourcesCacheSize = internalObj.getResourcesCacheSize();
+    this.fileLoggingLevel = internalObj.getFileLoggingLevel();
+    this.consoleLoggingLevel = internalObj.getConsoleLoggingLevel();
+  }
 
   private DiskConfig(Builder builder) {
     this.browserLaunchOption = builder.browserLaunchOption;
@@ -26,7 +43,6 @@ public class DiskConfig {
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
   }
 
-  /** Builder class to construct an immutable Config object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private BrowserLaunchOption browserLaunchOption;
@@ -73,15 +89,5 @@ public class DiskConfig {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(Config internalObj) {
-      this.browserLaunchOption = internalObj.getBrowserLaunchOption();
-      this.commandRunnerOption = internalObj.getCommandRunnerOption();
-      this.dockerImageId = internalObj.getDockerImageId();
-      this.resourcesCacheSize = internalObj.getResourcesCacheSize();
-      this.fileLoggingLevel = internalObj.getFileLoggingLevel();
-      this.consoleLoggingLevel = internalObj.getConsoleLoggingLevel();
-    }
   }
 }

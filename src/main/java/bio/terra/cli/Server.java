@@ -18,6 +18,10 @@ import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of a server. An instance of this class is part of the current context or
+ * state.
+ */
 public class Server {
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
@@ -36,8 +40,8 @@ public class Server {
   private String dataRepoUri;
 
   private static final String DEFAULT_SERVER_FILENAME = "verily-cli.json";
-  public static final String RESOURCE_DIRECTORY = "servers";
-  public static final String ALL_SERVERS_FILENAME = "all-servers.json";
+  private static final String RESOURCE_DIRECTORY = "servers";
+  private static final String ALL_SERVERS_FILENAME = "all-servers.json";
 
   /** Build an instance of this class from the serialized format on disk. */
   public Server(DiskServer configFromDisk) {
@@ -53,7 +57,7 @@ public class Server {
     this(fromJsonFile(DEFAULT_SERVER_FILENAME));
   }
 
-  /** Return an instance of this class with the given server name. */
+  /** Return an instance of this class from the given server name. */
   public static Server get(String name) {
     name = name.endsWith(".json") ? name : name + ".json";
     return new Server(fromJsonFile(name));

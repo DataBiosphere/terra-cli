@@ -284,8 +284,7 @@ public class AiNotebook extends BaseCommand {
 
     bio.terra.cli.resources.AiNotebook createdResource =
         bio.terra.cli.resources.AiNotebook.createControlled(createParams.build());
-    formatOption.printReturnValue(
-        new CommandAiNotebook.Builder(createdResource).build(), AiNotebook::printText);
+    formatOption.printReturnValue(new CommandAiNotebook(createdResource), AiNotebook::printText);
   }
 
   /** Create the metadata to put on the AI Notebook instance. */

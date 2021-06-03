@@ -11,6 +11,10 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of the current context or state. This class maintains singleton instances
+ * of the internal state classes (Config, Server, User, Workspace).
+ */
 public class Context {
   private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
@@ -62,8 +66,7 @@ public class Context {
   public static void synchronizeToDisk() {
     try {
       DiskContext diskContext =
-          new DiskContext.Builder(currentConfig, currentServer, currentUser, currentWorkspace)
-              .build();
+          new DiskContext(currentConfig, currentServer, currentUser, currentWorkspace);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
     } catch (IOException ioEx) {
       logger.error("Error persisting context to disk.", ioEx);

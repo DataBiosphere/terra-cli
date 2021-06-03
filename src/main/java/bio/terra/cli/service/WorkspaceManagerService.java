@@ -103,8 +103,8 @@ public class WorkspaceManagerService {
 
   /**
    * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
-   * only unauthenticated endpoints can be called.
+   * use the user's credentials to call authenticated endpoints. If the user is null, then only
+   * unauthenticated endpoints can be called.
    */
   public WorkspaceManagerService(@Nullable User user, Server server) {
     this.server = server;
@@ -115,8 +115,8 @@ public class WorkspaceManagerService {
 
   /**
    * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the TerraUser's credentials to call authenticated endpoints. If the TerraUser is null, then
-   * only unauthenticated endpoints can be called.
+   * use the current server and the given user's credentials to call authenticated endpoints. If the
+   * user is null, then only unauthenticated endpoints can be called.
    */
   public WorkspaceManagerService(@Nullable User user) {
     this(user, Context.getServer());
@@ -124,18 +124,18 @@ public class WorkspaceManagerService {
 
   /**
    * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the current TerraUser's credentials to call authenticated endpoints.
+   * use the current server and the current user's credentials to call authenticated endpoints.
    */
   public WorkspaceManagerService() {
     this(Context.requireUser(), Context.getServer());
   }
 
   /**
-   * Build the Workspace Manager API client object for the given Terra user and global context. If
-   * terraUser is null, this method returns the client object without an access token set.
+   * Build the Workspace Manager API client object for the given user and server. If user is null,
+   * this method returns the client object without an access token set.
    *
    * @param server the Terra environment where the Workspace Manager service lives
-   * @param user the Terra user whose credentials will be used to call authenticated endpoints
+   * @param user the user whose credentials will be used to call authenticated endpoints
    */
   private void buildClientForTerraUser(Server server, User user) {
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());

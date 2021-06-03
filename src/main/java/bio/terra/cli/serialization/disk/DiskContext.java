@@ -8,12 +8,31 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import javax.annotation.Nullable;
 
+/**
+ * External representation of the current context or state for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link bio.terra.cli.Context} class for the current context's internal representation.
+ */
 @JsonDeserialize(builder = DiskContext.Builder.class)
 public class DiskContext {
   public final DiskConfig config;
   public final DiskServer server;
   public final DiskUser user;
   public final DiskWorkspace workspace;
+
+  /** Serialize an instance of the internal classes to the disk format. */
+  public DiskContext(
+      Config internalConfig,
+      Server internalServer,
+      @Nullable User internalUser,
+      @Nullable Workspace internalWorkspace) {
+    this.config = new DiskConfig(internalConfig);
+    this.server = new DiskServer(internalServer);
+    this.user = internalUser == null ? null : new DiskUser(internalUser);
+    this.workspace = internalWorkspace == null ? null : new DiskWorkspace(internalWorkspace);
+  }
 
   private DiskContext(DiskContext.Builder builder) {
     this.config = builder.config;
@@ -22,7 +41,6 @@ public class DiskContext {
     this.workspace = builder.workspace;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private DiskConfig config;
@@ -57,18 +75,5 @@ public class DiskContext {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal classes to the disk format. */
-    public Builder(
-        Config internalConfig,
-        Server internalServer,
-        @Nullable User internalUser,
-        @Nullable Workspace internalWorkspace) {
-      this.config = new DiskConfig.Builder(internalConfig).build();
-      this.server = new DiskServer.Builder(internalServer).build();
-      this.user = internalUser == null ? null : new DiskUser.Builder(internalUser).build();
-      this.workspace =
-          internalWorkspace == null ? null : new DiskWorkspace.Builder(internalWorkspace).build();
-    }
   }
 }

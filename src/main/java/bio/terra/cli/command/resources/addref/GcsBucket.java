@@ -36,8 +36,7 @@ public class GcsBucket extends BaseCommand {
 
     bio.terra.cli.resources.GcsBucket addedResource =
         bio.terra.cli.resources.GcsBucket.addReferenced(createParams.build());
-    formatOption.printReturnValue(
-        new CommandGcsBucket.Builder(addedResource).build(), GcsBucket::printText);
+    formatOption.printReturnValue(new CommandGcsBucket(addedResource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */

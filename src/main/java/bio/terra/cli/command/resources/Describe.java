@@ -20,6 +20,6 @@ public class Describe extends BaseCommand {
   protected void execute() {
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     formatOption.printReturnValue(
-        resource.getResourceType().getCommandBuilder(resource).build(), CommandResource::print);
+        CommandResource.serializeFromInternal(resource), CommandResource::print);
   }
 }

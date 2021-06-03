@@ -16,6 +16,10 @@ import com.google.cloud.bigquery.DatasetId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of a Big Query dataset workspace resource. Instances of this class are
+ * part of the current context or state.
+ */
 public class BqDataset extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
 
@@ -30,17 +34,31 @@ public class BqDataset extends Resource {
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
 
-  // prefix for GCS bucket to make a valid URL.
-  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  /** Deserialize an instance of the disk format to the internal object. */
+  public BqDataset(DiskBqDataset configFromDisk) {
+    super(configFromDisk);
+    this.projectId = configFromDisk.projectId;
+    this.datasetId = configFromDisk.datasetId;
+  }
 
-  protected BqDataset(Builder builder) {
-    super(builder);
-    this.projectId = builder.projectId;
-    this.datasetId = builder.datasetId;
+  /** Deserialize an instance of the WSM client library object to the internal object. */
+  public BqDataset(ResourceDescription wsmObject) {
+    super(wsmObject.getMetadata());
+    this.resourceType = Type.BQ_DATASET;
+    this.projectId = wsmObject.getResourceAttributes().getGcpBqDataset().getProjectId();
+    this.datasetId = wsmObject.getResourceAttributes().getGcpBqDataset().getDatasetId();
+  }
+
+  /** Deserialize an instance of the WSM client library create object to the internal object. */
+  public BqDataset(GcpBigQueryDatasetResource wsmObject) {
+    super(wsmObject.getMetadata());
+    this.resourceType = Type.BQ_DATASET;
+    this.projectId = wsmObject.getAttributes().getProjectId();
+    this.datasetId = wsmObject.getAttributes().getDatasetId();
   }
 
   /**
-   * Add a GCS bucket as a referenced resource in the workspace.
+   * Add a Big Query dataset as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
@@ -58,11 +76,11 @@ public class BqDataset extends Resource {
 
     // convert the WSM object to a CLI object
     listAndSync();
-    return new Builder(addedResource).build();
+    return new BqDataset(addedResource);
   }
 
   /**
-   * Create a GCS bucket as a controlled resource in the workspace.
+   * Create a Big Query dataset as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
@@ -72,7 +90,7 @@ public class BqDataset extends Resource {
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
-    // call WSM to add the reference
+    // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
         new WorkspaceManagerService()
             .createControlledBigQueryDataset(Context.requireWorkspace().getId(), createParams);
@@ -80,17 +98,17 @@ public class BqDataset extends Resource {
 
     // convert the WSM object to a CLI object
     listAndSync();
-    return new Builder(createdResource).build();
+    return new BqDataset(createdResource);
   }
 
-  /** Delete a GCS bucket referenced resource in the workspace. */
+  /** Delete a Big Query dataset referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     new WorkspaceManagerService()
         .deleteReferencedBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
-  /** Delete a GCS bucket controlled resource in the workspace. */
+  /** Delete a Big Query dataset controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     new WorkspaceManagerService()
@@ -163,61 +181,5 @@ public class BqDataset extends Resource {
 
   public String getDatasetId() {
     return datasetId;
-  }
-
-  /**
-   * Builder class to help construct an immutable Resource object with lots of properties.
-   * Sub-classes extend this with resource type-specific properties.
-   */
-  public static class Builder extends Resource.Builder {
-    private String projectId;
-    private String datasetId;
-
-    public Builder projectId(String projectId) {
-      this.projectId = projectId;
-      return this;
-    }
-
-    public Builder datasetId(String datasetId) {
-      this.datasetId = datasetId;
-      return this;
-    }
-
-    /** Method that returns the resource type. Should be hard-coded in sub-classes. */
-    public ResourceType getResourceType() {
-      return ResourceType.BQ_DATASET;
-    }
-
-    /** Call the sub-class constructor. */
-    public BqDataset build() {
-      return new BqDataset(this);
-    }
-
-    /**
-     * Populate this Builder object with properties from the WSM ResourceDescription object. This
-     * method handles the metadata fields that apply to GCS buckets only.
-     */
-    public Builder(ResourceDescription wsmObject) {
-      super(wsmObject.getMetadata());
-      this.projectId = wsmObject.getResourceAttributes().getGcpBqDataset().getProjectId();
-      this.datasetId = wsmObject.getResourceAttributes().getGcpBqDataset().getDatasetId();
-    }
-
-    /** Populate this Builder object with properties from the WSM GcpGcsBucketResource object. */
-    public Builder(GcpBigQueryDatasetResource wsmObject) {
-      super(wsmObject.getMetadata());
-      this.projectId = wsmObject.getAttributes().getProjectId();
-      this.datasetId = wsmObject.getAttributes().getDatasetId();
-    }
-
-    /**
-     * Populate this Builder object with properties from the on-disk object. This method handles the
-     * fields that apply to all resource types.
-     */
-    public Builder(DiskBqDataset configFromDisk) {
-      super(configFromDisk);
-      this.projectId = configFromDisk.projectId;
-      this.datasetId = configFromDisk.datasetId;
-    }
   }
 }

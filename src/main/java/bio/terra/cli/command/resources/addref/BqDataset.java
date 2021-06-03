@@ -35,8 +35,7 @@ public class BqDataset extends BaseCommand {
 
     bio.terra.cli.resources.BqDataset createdResource =
         bio.terra.cli.resources.BqDataset.addReferenced(createParams.build());
-    formatOption.printReturnValue(
-        new CommandBqDataset.Builder(createdResource).build(), BqDataset::printText);
+    formatOption.printReturnValue(new CommandBqDataset(createdResource), BqDataset::printText);
   }
 
   /** Print this command's output in text format. */

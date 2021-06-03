@@ -4,11 +4,25 @@ import bio.terra.cli.User;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * External representation of a user for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link User} class for a user's internal representation.
+ */
 @JsonDeserialize(builder = DiskUser.Builder.class)
 public class DiskUser {
   public final String id;
   public final String email;
   public final String proxyGroupEmail;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskUser(User internalObj) {
+    this.id = internalObj.getId();
+    this.email = internalObj.getEmail();
+    this.proxyGroupEmail = internalObj.getProxyGroupEmail();
+  }
 
   private DiskUser(DiskUser.Builder builder) {
     this.id = builder.id;
@@ -16,7 +30,6 @@ public class DiskUser {
     this.proxyGroupEmail = builder.proxyGroupEmail;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String id;
@@ -45,12 +58,5 @@ public class DiskUser {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(User internalObj) {
-      this.id = internalObj.getId();
-      this.email = internalObj.getEmail();
-      this.proxyGroupEmail = internalObj.getProxyGroupEmail();
-    }
   }
 }

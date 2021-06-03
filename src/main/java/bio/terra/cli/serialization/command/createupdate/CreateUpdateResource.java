@@ -10,9 +10,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 
+/**
+ * Parameters for creating/updating a workspace resource. This class is not currently user-facing,
+ * but could be exposed as a command input format in the future. This class handles properties that
+ * are common to all resource types. Sub-classes include additional resource-type specific
+ * properties.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateResource.Builder.class)
-public class CreateUpdateResource {
+public abstract class CreateUpdateResource {
   public final String name;
   public final String description;
   public final ResourceType resourceType;
@@ -33,7 +39,6 @@ public class CreateUpdateResource {
     this.privateUserRoles = builder.privateUserRoles;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String name;
@@ -83,11 +88,6 @@ public class CreateUpdateResource {
     public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
       this.privateUserRoles = privateUserRoles;
       return this;
-    }
-
-    /** Call the private constructor. */
-    public CreateUpdateResource build() {
-      return new CreateUpdateResource(this);
     }
 
     /** Default constructor for Jackson. */

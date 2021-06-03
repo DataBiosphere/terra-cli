@@ -5,7 +5,6 @@ import bio.terra.cli.Resource;
 import bio.terra.cli.Workspace;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.resources.AiNotebook;
-import bio.terra.cli.resources.ResourceType;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 
@@ -41,7 +40,7 @@ public class NotebookInstance {
     Workspace workspace = Context.requireWorkspace();
     if (argGroup.resourceName != null) {
       Resource resource = workspace.getResource(argGroup.resourceName);
-      if (!resource.getResourceType().equals(ResourceType.AI_NOTEBOOK)) {
+      if (!resource.getResourceType().equals(Resource.Type.AI_NOTEBOOK)) {
         throw new UserActionableException(
             "Only able to use notebook commands on notebook resources, but specified resource is "
                 + resource.getResourceType());

@@ -6,17 +6,29 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * External representation of a workspace GCS bucket resource for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link GcsBucket} class for a bucket's internal representation.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = DiskGcsBucket.Builder.class)
 public class DiskGcsBucket extends DiskResource {
   public final String bucketName;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskGcsBucket(GcsBucket internalObj) {
+    super(internalObj);
+    this.bucketName = internalObj.getBucketName();
+  }
 
   private DiskGcsBucket(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends DiskResource.Builder {
     private String bucketName;
@@ -33,11 +45,5 @@ public class DiskGcsBucket extends DiskResource {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(GcsBucket internalObj) {
-      super(internalObj);
-      this.bucketName = internalObj.getBucketName();
-    }
   }
 }

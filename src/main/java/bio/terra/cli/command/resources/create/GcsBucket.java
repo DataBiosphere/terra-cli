@@ -97,8 +97,7 @@ public class GcsBucket extends BaseCommand {
 
     bio.terra.cli.resources.GcsBucket createdResource =
         bio.terra.cli.resources.GcsBucket.createControlled(createParams.build());
-    formatOption.printReturnValue(
-        new CommandGcsBucket.Builder(createdResource).build(), GcsBucket::printText);
+    formatOption.printReturnValue(new CommandGcsBucket(createdResource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */

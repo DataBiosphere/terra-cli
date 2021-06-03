@@ -13,11 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * POJO class that represents a workspace user (i.e. someone a workspace is shared with). This is
+ * Internal representation of a workspace user (i.e. someone a workspace is shared with). This is
  * different from a regular {@link bio.terra.cli.User} because they are never logged in. This is
  * just a reference to another Terra user who has some level of workspace access. This class is not
- * serialized to disk as part of the global context. It is used as the user-facing JSON output for
- * commands that return a workspace user.
+ * part of the current context or state.
  */
 public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);

@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * External representation of a workspace for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link Workspace} class for a workspace's internal representation.
+ */
 @JsonDeserialize(builder = DiskWorkspace.Builder.class)
 public class DiskWorkspace {
   public final UUID id;
@@ -16,6 +23,20 @@ public class DiskWorkspace {
   public final String serverName;
   public final String userEmail;
   public final List<DiskResource> resources;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskWorkspace(Workspace internalObj) {
+    this.id = internalObj.getId();
+    this.name = internalObj.getName();
+    this.description = internalObj.getDescription();
+    this.googleProjectId = internalObj.getGoogleProjectId();
+    this.serverName = internalObj.getServerName();
+    this.userEmail = internalObj.getUserEmail();
+    this.resources =
+        internalObj.getResources().stream()
+            .map(resource -> DiskResource.serializeFromInternal(resource))
+            .collect(Collectors.toList());
+  }
 
   private DiskWorkspace(DiskWorkspace.Builder builder) {
     this.id = builder.id;
@@ -27,7 +48,6 @@ public class DiskWorkspace {
     this.resources = builder.resources;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UUID id;
@@ -80,19 +100,5 @@ public class DiskWorkspace {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(Workspace internalObj) {
-      this.id = internalObj.getId();
-      this.name = internalObj.getName();
-      this.description = internalObj.getDescription();
-      this.googleProjectId = internalObj.getGoogleProjectId();
-      this.serverName = internalObj.getServerName();
-      this.userEmail = internalObj.getUserEmail();
-      this.resources =
-          internalObj.getResources().stream()
-              .map(resource -> resource.getResourceType().getDiskBuilder(resource).build())
-              .collect(Collectors.toList());
-    }
   }
 }

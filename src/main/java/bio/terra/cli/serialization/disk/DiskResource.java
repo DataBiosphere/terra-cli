@@ -1,7 +1,12 @@
 package bio.terra.cli.serialization.disk;
 
 import bio.terra.cli.Resource;
-import bio.terra.cli.resources.ResourceType;
+import bio.terra.cli.resources.AiNotebook;
+import bio.terra.cli.resources.BqDataset;
+import bio.terra.cli.resources.GcsBucket;
+import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
+import bio.terra.cli.serialization.disk.resources.DiskBqDataset;
+import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -13,19 +18,58 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * External representation of a workspace resource for writing to disk.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ *
+ * <p>See the {@link Resource} class for a resource's internal representation.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = DiskResource.Builder.class)
 public abstract class DiskResource {
   public final UUID id;
   public final String name;
   public final String description;
-  public final ResourceType resourceType;
+  public final Resource.Type resourceType;
   public final StewardshipType stewardshipType;
   public final CloningInstructionsEnum cloningInstructions;
   public final AccessScope accessScope;
   public final ManagedBy managedBy;
   public final String privateUserName;
   public final List<ControlledResourceIamRole> privateUserRoles;
+
+  /** Serialize an instance of the internal class to the disk format. */
+  public DiskResource(Resource internalObj) {
+    this.id = internalObj.getId();
+    this.name = internalObj.getName();
+    this.description = internalObj.getDescription();
+    this.resourceType = internalObj.getResourceType();
+    this.stewardshipType = internalObj.getStewardshipType();
+    this.cloningInstructions = internalObj.getCloningInstructions();
+    this.accessScope = internalObj.getAccessScope();
+    this.managedBy = internalObj.getManagedBy();
+    this.privateUserName = internalObj.getPrivateUserName();
+    this.privateUserRoles = internalObj.getPrivateUserRoles();
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for writing to disk. Calls
+   * the appropriate sub-class constructor based on the resource type.
+   */
+  public static DiskResource serializeFromInternal(Resource internalObj) {
+    Resource.Type resourceType = internalObj.getResourceType();
+    switch (resourceType) {
+      case GCS_BUCKET:
+        return new DiskGcsBucket((GcsBucket) internalObj);
+      case BQ_DATASET:
+        return new DiskBqDataset((BqDataset) internalObj);
+      case AI_NOTEBOOK:
+        return new DiskAiNotebook((AiNotebook) internalObj);
+      default:
+        throw new IllegalArgumentException("Unexpected resource type: " + resourceType);
+    }
+  }
 
   protected DiskResource(DiskResource.Builder builder) {
     this.id = builder.id;
@@ -40,13 +84,12 @@ public abstract class DiskResource {
     this.privateUserRoles = builder.privateUserRoles;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
     private UUID id;
     private String name;
     private String description;
-    private ResourceType resourceType;
+    private Resource.Type resourceType;
     private StewardshipType stewardshipType;
     private CloningInstructionsEnum cloningInstructions;
     private AccessScope accessScope;
@@ -69,7 +112,7 @@ public abstract class DiskResource {
       return this;
     }
 
-    public Builder resourceType(ResourceType resourceType) {
+    public Builder resourceType(Resource.Type resourceType) {
       this.resourceType = resourceType;
       return this;
     }
@@ -109,19 +152,5 @@ public abstract class DiskResource {
 
     /** Default constructor for Jackson. */
     public Builder() {}
-
-    /** Serialize an instance of the internal class to the disk format. */
-    public Builder(Resource internalObj) {
-      this.id = internalObj.getId();
-      this.name = internalObj.getName();
-      this.description = internalObj.getDescription();
-      this.resourceType = internalObj.getResourceType();
-      this.stewardshipType = internalObj.getStewardshipType();
-      this.cloningInstructions = internalObj.getCloningInstructions();
-      this.accessScope = internalObj.getAccessScope();
-      this.managedBy = internalObj.getManagedBy();
-      this.privateUserName = internalObj.getPrivateUserName();
-      this.privateUserRoles = internalObj.getPrivateUserRoles();
-    }
   }
 }

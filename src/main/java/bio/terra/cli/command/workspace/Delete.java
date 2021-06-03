@@ -19,8 +19,7 @@ public class Delete extends BaseCommand {
   protected void execute() {
     Workspace workspaceToDelete = Context.requireWorkspace();
     workspaceToDelete.delete();
-    formatOption.printReturnValue(
-        new CommandWorkspace.Builder(workspaceToDelete).build(), this::printText);
+    formatOption.printReturnValue(new CommandWorkspace(workspaceToDelete), this::printText);
   }
 
   /** Print this command's output in text format. */

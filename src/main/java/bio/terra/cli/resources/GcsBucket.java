@@ -15,6 +15,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Internal representation of a GCS bucket workspace resource. Instances of this class are part of
+ * the current context or state.
+ */
 public class GcsBucket extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
 
@@ -23,9 +27,24 @@ public class GcsBucket extends Resource {
   // prefix for GCS bucket to make a valid URL.
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";
 
-  protected GcsBucket(Builder builder) {
-    super(builder);
-    this.bucketName = builder.bucketName;
+  /** Deserialize an instance of the disk format to the internal object. */
+  public GcsBucket(DiskGcsBucket configFromDisk) {
+    super(configFromDisk);
+    this.bucketName = configFromDisk.bucketName;
+  }
+
+  /** Deserialize an instance of the WSM client library object to the internal object. */
+  public GcsBucket(ResourceDescription wsmObject) {
+    super(wsmObject.getMetadata());
+    this.resourceType = Type.GCS_BUCKET;
+    this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucket().getBucketName();
+  }
+
+  /** Deserialize an instance of the WSM client library create object to the internal object. */
+  public GcsBucket(GcpGcsBucketResource wsmObject) {
+    super(wsmObject.getMetadata());
+    this.resourceType = Type.GCS_BUCKET;
+    this.bucketName = wsmObject.getAttributes().getBucketName();
   }
 
   /**
@@ -47,7 +66,7 @@ public class GcsBucket extends Resource {
 
     // convert the WSM object to a CLI object
     listAndSync();
-    return new Builder(addedResource).build();
+    return new GcsBucket(addedResource);
   }
 
   /**
@@ -61,7 +80,7 @@ public class GcsBucket extends Resource {
           "Resource name can contain only alphanumeric and underscore characters.");
     }
 
-    // call WSM to add the reference
+    // call WSM to create the resource
     GcpGcsBucketResource createdResource =
         new WorkspaceManagerService()
             .createControlledGcsBucket(Context.requireWorkspace().getId(), createParams);
@@ -69,7 +88,7 @@ public class GcsBucket extends Resource {
 
     // convert the WSM object to a CLI object
     listAndSync();
-    return new Builder(createdResource).build();
+    return new GcsBucket(createdResource);
   }
 
   /** Delete a GCS bucket referenced resource in the workspace. */
@@ -126,52 +145,5 @@ public class GcsBucket extends Resource {
 
   public String getBucketName() {
     return bucketName;
-  }
-
-  /**
-   * Builder class to help construct an immutable Resource object with lots of properties.
-   * Sub-classes extend this with resource type-specific properties.
-   */
-  public static class Builder extends Resource.Builder {
-    private String bucketName;
-
-    public Builder bucketName(String bucketName) {
-      this.bucketName = bucketName;
-      return this;
-    }
-
-    /** Method that returns the resource type. Should be hard-coded in sub-classes. */
-    public ResourceType getResourceType() {
-      return ResourceType.GCS_BUCKET;
-    }
-
-    /** Call the sub-class constructor. */
-    public GcsBucket build() {
-      return new GcsBucket(this);
-    }
-
-    /**
-     * Populate this Builder object with properties from the WSM ResourceDescription object. This
-     * method handles the metadata fields that apply to GCS buckets only.
-     */
-    public Builder(ResourceDescription wsmObject) {
-      super(wsmObject.getMetadata());
-      this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucket().getBucketName();
-    }
-
-    /** Populate this Builder object with properties from the WSM GcpGcsBucketResource object. */
-    public Builder(GcpGcsBucketResource wsmObject) {
-      super(wsmObject.getMetadata());
-      this.bucketName = wsmObject.getAttributes().getBucketName();
-    }
-
-    /**
-     * Populate this Builder object with properties from the on-disk object. This method handles the
-     * fields that apply to all resource types.
-     */
-    public Builder(DiskGcsBucket configFromDisk) {
-      super(configFromDisk);
-      this.bucketName = configFromDisk.bucketName;
-    }
   }
 }

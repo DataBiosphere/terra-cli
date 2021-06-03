@@ -39,8 +39,8 @@ public class Status extends BaseCommand {
     public final CommandWorkspace workspace;
 
     public StatusReturnValue(Server server, Workspace workspace) {
-      this.server = new CommandServer.Builder(server).build();
-      this.workspace = workspace != null ? new CommandWorkspace.Builder(workspace).build() : null;
+      this.server = new CommandServer(server);
+      this.workspace = workspace != null ? new CommandWorkspace(workspace) : null;
     }
   }
 

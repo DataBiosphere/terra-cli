@@ -34,10 +34,9 @@ public class Update extends BaseCommand {
   /** Update the mutable properties of an existing workspace. */
   @Override
   protected void execute() {
-    Workspace workspaceToUpdate =
+    Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
-    formatOption.printReturnValue(
-        new CommandWorkspace.Builder(workspaceToUpdate).build(), this::printText);
+    formatOption.printReturnValue(new CommandWorkspace(updatedWorkspace), this::printText);
   }
 
   /** Print this command's output in text format. */

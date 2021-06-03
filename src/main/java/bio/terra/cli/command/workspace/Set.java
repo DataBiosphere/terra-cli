@@ -21,7 +21,7 @@ public class Set extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspace = Workspace.load(id);
-    formatOption.printReturnValue(new CommandWorkspace.Builder(workspace).build(), this::printText);
+    formatOption.printReturnValue(new CommandWorkspace(workspace), this::printText);
   }
 
   /** Print this command's output in text format. */

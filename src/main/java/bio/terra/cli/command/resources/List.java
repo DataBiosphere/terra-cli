@@ -3,7 +3,6 @@ package bio.terra.cli.command.resources;
 import bio.terra.cli.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.resources.ResourceType;
 import bio.terra.cli.serialization.command.CommandResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
@@ -20,7 +19,7 @@ public class List extends BaseCommand {
   @CommandLine.Option(
       names = "--type",
       description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}")
-  private ResourceType type;
+  private Resource.Type type;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -36,7 +35,7 @@ public class List extends BaseCommand {
                   boolean typeMatches = type == null || resource.getResourceType().equals(type);
                   return stewardshipMatches && typeMatches;
                 })
-            .map(resource -> resource.getResourceType().getCommandBuilder(resource).build())
+            .map(resource -> CommandResource.serializeFromInternal(resource))
             .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
   }

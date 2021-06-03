@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * Parameters for creating/updating a GCS bucket workspace resource. This class is not currently
+ * user-facing, but could be exposed as a command input format in the future.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateGcsBucket.Builder.class)
 public class CreateUpdateGcsBucket extends CreateUpdateResource {
   public final String bucketName;
   public final GcsBucketLifecycle lifecycle;
-
-  // storage class (https://cloud.google.com/storage/docs/storage-classes)
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
-
-  // bucket location (https://cloud.google.com/storage/docs/locations)
   public final String location;
 
   protected CreateUpdateGcsBucket(CreateUpdateGcsBucket.Builder builder) {
@@ -25,7 +25,6 @@ public class CreateUpdateGcsBucket extends CreateUpdateResource {
     this.location = builder.location;
   }
 
-  /** Builder class to construct an immutable object with lots of properties. */
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends CreateUpdateResource.Builder {
     private String bucketName;

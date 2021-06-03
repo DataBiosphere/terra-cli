@@ -3,8 +3,10 @@ package bio.terra.cli;
 import bio.terra.cli.resources.AiNotebook;
 import bio.terra.cli.resources.BqDataset;
 import bio.terra.cli.resources.GcsBucket;
-import bio.terra.cli.resources.ResourceType;
 import bio.terra.cli.serialization.disk.DiskResource;
+import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
+import bio.terra.cli.serialization.disk.resources.DiskBqDataset;
+import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -15,18 +17,22 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Internal representation of a workspace resource. This abstract class contains properties common
+ * to all resource types. Sub-classes represent a specific resource type. Instances of the
+ * sub-classes are part of the current context or state.
+ */
 public abstract class Resource {
   // all resources
   protected UUID id;
   protected String name;
   protected String description;
-  protected ResourceType resourceType;
+  protected Type resourceType;
   protected StewardshipType stewardshipType;
   protected CloningInstructionsEnum cloningInstructions;
 
@@ -38,19 +44,90 @@ public abstract class Resource {
   protected String privateUserName;
   protected List<ControlledResourceIamRole> privateUserRoles;
 
-  protected Resource(Builder builder) {
-    this.id = builder.id;
-    this.name = builder.name;
-    this.description = builder.description;
-    this.resourceType = builder.getResourceType();
-    this.stewardshipType = builder.stewardshipType;
-    this.cloningInstructions = builder.cloningInstructions;
+  /**
+   * Enum for the types of workspace resources supported by the CLI. Each enum value maps to a
+   * single WSM client library ({@link bio.terra.workspace.model.ResourceType}) enum value.
+   *
+   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the
+   * resource types supported (e.g. no Data Repo snapshots). It also gives the CLI control over what
+   * the enum names are, which are exposed to users as command options.
+   */
+  public enum Type {
+    GCS_BUCKET,
+    BQ_DATASET,
+    AI_NOTEBOOK;
+  }
 
-    this.accessScope = builder.accessScope;
-    this.managedBy = builder.managedBy;
+  /** Deserialize an instance of the disk format to the internal object. */
+  protected Resource(DiskResource configFromDisk) {
+    this.id = configFromDisk.id;
+    this.name = configFromDisk.name;
+    this.description = configFromDisk.description;
+    this.resourceType = configFromDisk.resourceType;
+    this.stewardshipType = configFromDisk.stewardshipType;
+    this.cloningInstructions = configFromDisk.cloningInstructions;
+    this.accessScope = configFromDisk.accessScope;
+    this.managedBy = configFromDisk.managedBy;
+    this.privateUserName = configFromDisk.privateUserName;
+    this.privateUserRoles = configFromDisk.privateUserRoles;
+  }
 
-    this.privateUserName = builder.privateUserName;
-    this.privateUserRoles = builder.privateUserRoles;
+  /** Deserialize an instance of the WSM client library object to the internal object. */
+  protected Resource(ResourceMetadata metadata) {
+    this.id = metadata.getResourceId();
+    this.name = metadata.getName();
+    this.description = metadata.getDescription();
+    this.stewardshipType = metadata.getStewardshipType();
+    this.cloningInstructions = metadata.getCloningInstructions();
+
+    if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
+      ControlledResourceMetadata controlledMetadata = metadata.getControlledResourceMetadata();
+      this.accessScope = controlledMetadata.getAccessScope();
+      this.managedBy = controlledMetadata.getManagedBy();
+
+      PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
+      if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
+        this.privateUserName = privateMetadata.getUserName();
+        this.privateUserRoles = privateMetadata.getPrivateResourceIamRoles();
+      }
+    }
+  }
+
+  /**
+   * Deserialize to the internal representation of the resource from the format for writing to disk.
+   * Calls the appropriate sub-class constructor based on the resource type.
+   */
+  public static Resource deserializeFromDisk(DiskResource diskResource) {
+    switch (diskResource.resourceType) {
+      case GCS_BUCKET:
+        return new GcsBucket((DiskGcsBucket) diskResource);
+      case BQ_DATASET:
+        return new BqDataset((DiskBqDataset) diskResource);
+      case AI_NOTEBOOK:
+        return new AiNotebook((DiskAiNotebook) diskResource);
+      default:
+        throw new IllegalArgumentException(
+            "Unexpected resource type: " + diskResource.resourceType);
+    }
+  }
+
+  /**
+   * Deserialize to the internal representation of the resource from the WSM client library format.
+   * Calls the appropriate sub-class constructor based on the resource type.
+   */
+  public static Resource deserializeFromWsm(ResourceDescription wsmObject) {
+    bio.terra.workspace.model.ResourceType wsmResourceType =
+        wsmObject.getMetadata().getResourceType();
+    switch (wsmResourceType) {
+      case GCS_BUCKET:
+        return new GcsBucket(wsmObject);
+      case BIG_QUERY_DATASET:
+        return new BqDataset(wsmObject);
+      case AI_NOTEBOOK:
+        return new AiNotebook(wsmObject);
+      default:
+        throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
+    }
   }
 
   /**
@@ -112,7 +189,7 @@ public abstract class Resource {
                 Context.requireWorkspace().getId(), Context.getConfig().getResourcesCacheSize());
     List<Resource> resources =
         wsmObjects.stream()
-            .map(wsmObject -> Builder.fromWSMObject(wsmObject).build())
+            .map(wsmObject -> deserializeFromWsm(wsmObject))
             .collect(Collectors.toList());
 
     Context.requireWorkspace().setResources(resources);
@@ -134,7 +211,7 @@ public abstract class Resource {
     return description;
   }
 
-  public ResourceType getResourceType() {
+  public Type getResourceType() {
     return resourceType;
   }
 
@@ -160,128 +237,5 @@ public abstract class Resource {
 
   public List<ControlledResourceIamRole> getPrivateUserRoles() {
     return privateUserRoles;
-  }
-
-  /**
-   * Builder class to help construct an immutable Resource object with lots of properties.
-   * Sub-classes extend this with resource type-specific properties.
-   */
-  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public abstract static class Builder {
-    private UUID id;
-    private String name;
-    private String description;
-    private StewardshipType stewardshipType;
-    private CloningInstructionsEnum cloningInstructions;
-    private AccessScope accessScope;
-    private ManagedBy managedBy;
-    private String privateUserName;
-    private List<ControlledResourceIamRole> privateUserRoles;
-
-    public Builder id(UUID id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder name(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder description(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder stewardshipType(StewardshipType stewardshipType) {
-      this.stewardshipType = stewardshipType;
-      return this;
-    }
-
-    public Builder cloningInstructions(CloningInstructionsEnum cloningInstructions) {
-      this.cloningInstructions = cloningInstructions;
-      return this;
-    }
-
-    public Builder accessScope(AccessScope accessScope) {
-      this.accessScope = accessScope;
-      return this;
-    }
-
-    public Builder managedBy(ManagedBy managedBy) {
-      this.managedBy = managedBy;
-      return this;
-    }
-
-    public Builder privateUserName(String privateUserName) {
-      this.privateUserName = privateUserName;
-      return this;
-    }
-
-    public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
-      this.privateUserRoles = privateUserRoles;
-      return this;
-    }
-
-    /** Method that returns the resource type. Should be hard-coded in sub-classes. */
-    public abstract ResourceType getResourceType();
-
-    /** Call the sub-class constructor. */
-    public abstract Resource build();
-
-    /**
-     * Populate this Builder object with properties from the WSM ResourceDescription object. This
-     * method handles the metadata fields that apply to all resource types.
-     */
-    protected Builder(ResourceMetadata wsmObject) {
-      this.id = wsmObject.getResourceId();
-      this.name = wsmObject.getName();
-      this.description = wsmObject.getDescription();
-      this.stewardshipType = wsmObject.getStewardshipType();
-      this.cloningInstructions = wsmObject.getCloningInstructions();
-
-      if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
-        ControlledResourceMetadata controlledMetadata = wsmObject.getControlledResourceMetadata();
-        this.accessScope = controlledMetadata.getAccessScope();
-        this.managedBy = controlledMetadata.getManagedBy();
-
-        PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
-        if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
-          this.privateUserName = privateMetadata.getUserName();
-          this.privateUserRoles = privateMetadata.getPrivateResourceIamRoles();
-        }
-      }
-    }
-
-    /**
-     * Populate this Builder object with properties from the on-disk object. This method handles the
-     * fields that apply to all resource types.
-     */
-    protected Builder(DiskResource configFromDisk) {
-      this.id = configFromDisk.id;
-      this.name = configFromDisk.name;
-      this.description = configFromDisk.description;
-      this.stewardshipType = configFromDisk.stewardshipType;
-      this.cloningInstructions = configFromDisk.cloningInstructions;
-      this.accessScope = configFromDisk.accessScope;
-      this.managedBy = configFromDisk.managedBy;
-      this.privateUserName = configFromDisk.privateUserName;
-      this.privateUserRoles = configFromDisk.privateUserRoles;
-    }
-
-    /** Helper method to get the appropriate sub-class of Builder for the given resource type. */
-    public static Builder fromWSMObject(ResourceDescription wsmObject) {
-      switch (wsmObject.getMetadata().getResourceType()) {
-        case GCS_BUCKET:
-          return new GcsBucket.Builder(wsmObject);
-        case BIG_QUERY_DATASET:
-          return new BqDataset.Builder(wsmObject);
-        case AI_NOTEBOOK:
-          return new AiNotebook.Builder(wsmObject);
-        default:
-          throw new IllegalArgumentException(
-              "Unexpected resource type: " + wsmObject.getMetadata().getResourceType());
-      }
-    }
   }
 }

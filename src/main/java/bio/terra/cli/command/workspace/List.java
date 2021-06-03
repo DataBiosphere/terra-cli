@@ -40,7 +40,7 @@ public class List extends BaseCommand {
     java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
     formatOption.printReturnValue(
         workspaces.stream()
-            .map(workspace -> new CommandWorkspace.Builder(workspace).build())
+            .map(workspace -> new CommandWorkspace(workspace))
             .collect(Collectors.toList()),
         this::printText);
   }

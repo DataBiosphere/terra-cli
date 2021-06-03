@@ -7,6 +7,14 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * External representation of a workspace user (i.e. someone who the workspace is shared with) for
+ * command input/output.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
+ *
+ * <p>See the {@link WorkspaceUser} class for a workspace user's internal representation.
+ */
 public class CommandWorkspaceUser {
   public final String email;
   public final List<IamRole> roles;
