@@ -18,11 +18,11 @@
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
 5. [Code structure](#code-structure)
+    * [Top-level package](#top-level-package)
     * [Supported tools](#supported-tools)
-        * [Adding a new supported tool](#adding-a-new-supported-tool)
-    * [Authentication](#authentication)
+        * [Adding a new supported tool](#add-a-new-supported-tool)
     * [Commands](#commands)
-    * [Context](#context)
+    * [Serialization](#serialization)
     * [Terra and cloud services](#terra-and-cloud-services)
     * [Servers](#servers)
 
@@ -275,30 +275,33 @@ It's best to do this as part of a release, but if it's necessary to update the d
 
 
 ### Code structure
-Below is an outline of the directory structure. Details about each are included in the sub-sections below.
+Below is an outline of the package structure. More details are included in the sub-sections below.
 ```
-src/main/
-  java/
-    bio/terra/cli/
-      apps/
-      auth/
-      command/
-      context/
-      service/
-  resources/
-      servers/
+bio.terra.cli      # internal state classes and business logic
+    apps           # external supported tools
+    command        # command definitions
+    exception      # exception classes that map to an exit code
+    resources      # sub-classes of the generic `Resource` class
+    serialization  # serialization format classes for command input/output and writing to disk
+    service        # helper/wrapper classes for talking to Terra and cloud services
+    utils          # uncategorized
 ```
 
-* `apps/` [Supported tools](#supported-tools)
-    * [Adding a new supported tool](#adding-a-new-supported-tool)
-* `auth/` [Authentication](#authentication)
-* `command/` [Commands](#commands)
-* `context/` [Context](#context)
-* `service/` [Terra and cloud services](#terra-and-cloud-services)
-* `servers/` [Servers](#servers)
+* [Top-level package](#top-level-package)
+* [Supported tools](#supported-tools)
+    * [Adding a new supported tool](#add-a-new-supported-tool)
+* [Commands](#commands)
+* [Serialization](#serialization)
+* [Terra and cloud services](#terra-and-cloud-services)
+* [Servers](#servers)
+
+#### Top-level package
+Objects that represent the internal state are in the top-level package: `Config`, `Server`, `User`, `Workspace`.
+Since the CLI Java code exits after each command, the `Context` class persists the state on disk in the context
+directory `$HOME/.terra`.
 
 #### Supported tools
-The `src/main/java/bio/terra/cli/apps/` directory contains (external) tools that the CLI supports.
+The `apps` package contains (external) tools that the CLI supports.
 Currently these tools can be called from the top-level, so it looks the same as it would if you called it on your 
 local terminal, only with a `terra` prefix. For example:
 ```
@@ -339,23 +342,31 @@ To add a new supported tool:
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
    (see instructions in section above).
 
-#### Authentication
-The `src/main/java/bio/terra/cli/auth/` directory contains classes that handle authentication.
-Currently, the only supported authentication method is Google OAuth.
-
 #### Commands
-The `src/main/java/bio/terra/cli/command/` directory contains the hierarchy of the commands as they appear to the user.
-With the exception of the `app/passthrough` sub-directory, the directory structure matches the command hierarchy.
+The `command` package contains the hierarchy of the commands as they appear to the user.
+The directory structure matches the command hierarchy. The only exception to this are the pass-through app
+commands (e.g. `terra gsutil`), which are at the top level of the hierarchy, but in the `app/passthrough` sub-directory.
 
 `Main` is the top-level command and child commands are defined in class annotations.
 Most of the top-level commands (e.g. `auth`, `server`, `workspace`) are strictly for grouping; the command itself 
 doesn't do anything.
-An empty class body with child commands defined in the annotation creates such a grouping command.
 
-#### Context
-The `src/main/java/bio/terra/cli/context/` directory contains the objects that represent the current state.
-Since the CLI Java code exits after each command, this state is persisted on disk by the `GlobalContext` and 
-`WorkspaceContext` classes.
+#### Serialization
+There are 4 types of objects.
+- Internal state and business logic
+  - Top-level package
+  - May be a part of the state (e.g. `Workspace`, `User`) or just contain business logic (e.g. `WorkspaceUser`)
+- Serialization format for writing to disk
+  - `serialization.disk` package
+  - Prefixed with "Disk" (e.g. `DiskWorkspace`, `DiskUser`)
+- Serialization format for command input/ouput
+  - `serialization.command` package
+  - Prefixed with "Command" (e.g. `CommandWorkspace`, `CommandUser`)
+- Create/update parameters
+  - `serialization.command.createupdate package`
+  - Most of these parameter classes are not actually being used for command input/output. I put them in a sub-package 
+  under `serialization.command` because I think we might want to expose them to users in the future. e.g. By passing 
+  in a json file instead of specifying lots of options, as we do now for bucket lifecycle rules.
 
 #### Terra and cloud services
 The `src/main/java/bio/terra/cli/service/` directory contains classes that communicate with Terra and cloud services.
