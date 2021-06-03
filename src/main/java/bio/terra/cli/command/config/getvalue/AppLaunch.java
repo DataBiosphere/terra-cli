@@ -1,6 +1,6 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import picocli.CommandLine;

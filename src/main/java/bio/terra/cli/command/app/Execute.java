@@ -1,6 +1,6 @@
 package bio.terra.cli.command.app;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import java.util.List;
 import picocli.CommandLine;

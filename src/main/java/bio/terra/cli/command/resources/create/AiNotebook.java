@@ -1,11 +1,12 @@
 package bio.terra.cli.command.resources.create;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
 import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -227,27 +228,27 @@ public class AiNotebook extends BaseCommand {
   /** Add a controlled AI Notebook instance to the workspace. */
   @Override
   protected void execute() {
-    // build the resource object to create
+    // build the resource object to create. force the resource to be private
+    CreateUpdateResource.Builder createResourceParams =
+        createResourceOptions
+            .populateMetadataFields()
+            .stewardshipType(StewardshipType.CONTROLLED)
+            .accessScope(AccessScope.PRIVATE_ACCESS)
+            .privateUserName(Context.requireUser().getEmail())
+            .privateUserRoles(
+                List.of(
+                    ControlledResourceIamRole.EDITOR,
+                    ControlledResourceIamRole.WRITER,
+                    ControlledResourceIamRole.READER));
     CreateUpdateAiNotebook.Builder createParams =
         new CreateUpdateAiNotebook.Builder()
+            .resourceFields(createResourceParams.build())
             .instanceId(getInstanceId(Context.requireUser()))
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
             .metadata(
                 metadata == null ? defaultMetadata(Context.requireWorkspace().getId()) : metadata);
-    createParams.stewardshipType(StewardshipType.CONTROLLED);
-    createResourceOptions.populateMetadataFields(createParams);
-
-    // force the resource to be private
-    createParams
-        .accessScope(AccessScope.PRIVATE_ACCESS)
-        .privateUserName(Context.requireUser().getEmail())
-        .privateUserRoles(
-            List.of(
-                ControlledResourceIamRole.EDITOR,
-                ControlledResourceIamRole.WRITER,
-                ControlledResourceIamRole.READER));
 
     if (acceleratorConfig != null) {
       createParams
@@ -282,8 +283,8 @@ public class AiNotebook extends BaseCommand {
           .vmImageName(vmOrContainerImage.vm.imageConfig.name);
     }
 
-    bio.terra.cli.resources.AiNotebook createdResource =
-        bio.terra.cli.resources.AiNotebook.createControlled(createParams.build());
+    bio.terra.cli.businessobject.resources.AiNotebook createdResource =
+        bio.terra.cli.businessobject.resources.AiNotebook.createControlled(createParams.build());
     formatOption.printReturnValue(new CommandAiNotebook(createdResource), AiNotebook::printText);
   }
 

@@ -1,6 +1,6 @@
 package harness;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;

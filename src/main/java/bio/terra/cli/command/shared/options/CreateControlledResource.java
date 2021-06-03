@@ -46,11 +46,13 @@ public class CreateControlledResource extends CreateResource {
   }
 
   /**
-   * Helper method to populate a {@link CreateUpdateResource.Builder} with the controlled resource
-   * metadata fields.
+   * Helper method to return a {@link CreateUpdateResource.Builder} with the controlled resource
+   * metadata fields populated.
    */
-  public void populateMetadataFields(CreateUpdateResource.Builder builder) {
-    super.populateMetadataFields(builder);
-    builder.accessScope(access).privateUserName(privateUserEmail).privateUserRoles(privateIamRoles);
+  public CreateUpdateResource.Builder populateMetadataFields() {
+    return super.populateMetadataFields()
+        .accessScope(access)
+        .privateUserName(privateUserEmail)
+        .privateUserRoles(privateIamRoles);
   }
 }

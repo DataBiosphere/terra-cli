@@ -10,23 +10,30 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateBqDataset.Builder.class)
-public class CreateUpdateBqDataset extends CreateUpdateResource {
+public class CreateUpdateBqDataset {
+  public final CreateUpdateResource resourceFields;
   public final String projectId;
   public final String datasetId;
   public final String location;
 
   protected CreateUpdateBqDataset(CreateUpdateBqDataset.Builder builder) {
-    super(builder);
+    this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.location = builder.location;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends CreateUpdateResource.Builder {
+  public static class Builder {
+    private CreateUpdateResource resourceFields;
     private String projectId;
     private String datasetId;
     private String location;
+
+    public Builder resourceFields(CreateUpdateResource resourceFields) {
+      this.resourceFields = resourceFields;
+      return this;
+    }
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;

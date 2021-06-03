@@ -1,6 +1,6 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.WorkspaceUser;
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.command.CommandWorkspaceUser;

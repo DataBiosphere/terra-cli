@@ -1,8 +1,8 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.disk.DiskContext;
+import bio.terra.cli.serialization.persisted.DiskContext;
 import bio.terra.cli.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,6 +37,10 @@ public class Context {
   /**
    * Reads the context file from disk and initializes the singleton internal state classes (Config,
    * Server, User, Workspace).
+   *
+   * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
+   * the logging levels specified in the global context, the loggers have not been setup when we
+   * first call this function.
    */
   public static void initializeFromDisk() {
     try {

@@ -1,7 +1,7 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.serialization.disk.DiskUser;
+import bio.terra.cli.serialization.persisted.DiskUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -60,6 +60,8 @@ public class User {
           Arrays.asList(
               "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
 
+  // google OAuth client secret file
+  // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
   /** Build an instance of this class from the serialized format on disk. */

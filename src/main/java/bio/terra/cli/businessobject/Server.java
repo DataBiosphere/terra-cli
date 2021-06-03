@@ -1,7 +1,7 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.serialization.disk.DiskServer;
+import bio.terra.cli.serialization.persisted.DiskServer;
 import bio.terra.cli.service.DataRepoService;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;

@@ -1,7 +1,7 @@
 package harness.baseclasses;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
 import harness.TestCommand;
 import harness.TestContext;

@@ -1,11 +1,10 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
-import bio.terra.cli.resources.AiNotebook;
-import bio.terra.cli.resources.BqDataset;
-import bio.terra.cli.resources.GcsBucket;
+import bio.terra.cli.businessobject.resources.AiNotebook;
+import bio.terra.cli.businessobject.resources.BqDataset;
+import bio.terra.cli.businessobject.resources.GcsBucket;
 import bio.terra.cli.serialization.command.CommandResource;
-import bio.terra.cli.serialization.disk.DiskResource;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.serialization.persisted.DiskResource;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -18,7 +17,6 @@ import bio.terra.workspace.model.StewardshipType;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
@@ -145,7 +143,7 @@ public abstract class Resource {
       default:
         throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-    listAndSync();
+    Context.requireWorkspace().listResourcesAndSync();
   }
 
   /** Call WSM to delete a referenced resource. */
@@ -168,21 +166,6 @@ public abstract class Resource {
 
   /** Call WSM to check whether the current user has access to a resource. */
   public abstract boolean checkAccess(CheckAccessCredentials credentialsToUse);
-
-  /** Fetch the list of resources for the current workspace. Sync the cached list of resources. */
-  public static List<Resource> listAndSync() {
-    List<ResourceDescription> wsmObjects =
-        new WorkspaceManagerService()
-            .enumerateAllResources(
-                Context.requireWorkspace().getId(), Context.getConfig().getResourcesCacheSize());
-    List<Resource> resources =
-        wsmObjects.stream()
-            .map(wsmObject -> deserializeFromWsm(wsmObject))
-            .collect(Collectors.toList());
-
-    Context.requireWorkspace().setResources(resources);
-    return resources;
-  }
 
   // ====================================================
   // Property getters.

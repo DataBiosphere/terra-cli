@@ -1,9 +1,10 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.disk.DiskResource;
-import bio.terra.cli.serialization.disk.DiskWorkspace;
+import bio.terra.cli.serialization.persisted.DiskResource;
+import bio.terra.cli.serialization.persisted.DiskWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +78,15 @@ public class Workspace {
     // convert the WSM object to a CLI object
     Workspace workspace = new Workspace(createdWorkspace);
 
-    // fetch the pet SA credentials for the user + this workspace
-    Context.requireUser().fetchPetSaCredentials();
-
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
+
+    // fetch the pet SA credentials for the user + this workspace
+    // do this here so we have them stored locally before the user tries to run an app in the
+    // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
+    // down an app call
+    Context.requireUser().fetchPetSaCredentials();
+
     return workspace;
   }
 
@@ -100,11 +106,14 @@ public class Workspace {
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
 
-    // fetch the pet SA credentials for the user + this workspace
-    Context.requireUser().fetchPetSaCredentials();
-
     // fetch the list of resources in this workspace
-    Resource.listAndSync();
+    workspace.listResourcesAndSync();
+
+    // fetch the pet SA credentials for the user + this workspace
+    // do this here so we have them stored locally before the user tries to run an app in the
+    // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
+    // down an app call
+    Context.requireUser().fetchPetSaCredentials();
 
     return workspace;
   }
@@ -116,7 +125,7 @@ public class Workspace {
    * @param description optional description
    * @throws UserActionableException if there is no current workspace
    */
-  public Workspace update(String name, String description) {
+  public Workspace update(@Nullable String name, @Nullable String description) {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspace =
         new WorkspaceManagerService().updateWorkspace(id, name, description);
@@ -156,9 +165,7 @@ public class Workspace {
         new WorkspaceManagerService().listWorkspaces(offset, limit).getWorkspaces();
 
     // convert the WSM objects to CLI objects
-    List<Workspace> workspaces = new ArrayList<>();
-    listedWorkspaces.forEach(wsmObject -> workspaces.add(new Workspace(wsmObject)));
-    return workspaces;
+    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
   }
 
   /**
@@ -169,10 +176,21 @@ public class Workspace {
   public Resource getResource(String name) {
     Optional<Resource> resourceOpt =
         resources.stream().filter(resource -> resource.name.equals(name)).findFirst();
-    if (resourceOpt.isEmpty()) {
-      throw new UserActionableException("Resource not found: " + name);
-    }
-    return resourceOpt.get();
+    return resourceOpt.orElseThrow(
+        () -> new UserActionableException("Resource not found: " + name));
+  }
+
+  /** Fetch the list of resources for the current workspace. Sync the cached list of resources. */
+  public List<Resource> listResourcesAndSync() {
+    List<ResourceDescription> wsmObjects =
+        new WorkspaceManagerService()
+            .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
+    List<Resource> resources =
+        wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
+
+    this.resources = resources;
+    Context.synchronizeToDisk();
+    return resources;
   }
 
   // ====================================================
@@ -203,10 +221,5 @@ public class Workspace {
 
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
-  }
-
-  public void setResources(List<Resource> resources) {
-    this.resources = resources;
-    Context.synchronizeToDisk();
   }
 }

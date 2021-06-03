@@ -1,9 +1,9 @@
-package bio.terra.cli.serialization.disk;
+package bio.terra.cli.serialization.persisted;
 
-import static bio.terra.cli.Config.BrowserLaunchOption;
-import static bio.terra.cli.Config.CommandRunnerOption;
+import static bio.terra.cli.businessobject.Config.BrowserLaunchOption;
+import static bio.terra.cli.businessobject.Config.CommandRunnerOption;
 
-import bio.terra.cli.Config;
+import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.utils.Logger;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

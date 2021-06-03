@@ -18,7 +18,7 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateResource.Builder.class)
-public abstract class CreateUpdateResource {
+public class CreateUpdateResource {
   public final String name;
   public final String description;
   public final ResourceType resourceType;
@@ -88,6 +88,11 @@ public abstract class CreateUpdateResource {
     public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
       this.privateUserRoles = privateUserRoles;
       return this;
+    }
+
+    /** Call the private constructor. */
+    public CreateUpdateResource build() {
+      return new CreateUpdateResource(this);
     }
 
     /** Default constructor for Jackson. */

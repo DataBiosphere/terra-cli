@@ -1,7 +1,7 @@
 package bio.terra.cli.command.auth;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.command.CommandAuthStatus;
@@ -24,7 +24,7 @@ public class Status extends BaseCommand {
     // check if current user is defined
     Optional<User> currentUserOpt = Context.getUser();
     CommandAuthStatus authStatusReturnValue;
-    if (!currentUserOpt.isPresent()) {
+    if (currentUserOpt.isEmpty()) {
       authStatusReturnValue = CommandAuthStatus.createWhenCurrentUserIsUndefined();
     } else {
       User currentUser = currentUserOpt.get();

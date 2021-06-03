@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.command;
 
-import bio.terra.cli.Server;
-import bio.terra.cli.Workspace;
+import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

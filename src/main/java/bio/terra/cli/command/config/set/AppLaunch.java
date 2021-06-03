@@ -1,7 +1,7 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.Config;
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

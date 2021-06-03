@@ -1,7 +1,7 @@
 package bio.terra.cli.apps;
 
-import bio.terra.cli.Context;
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
+import bio.terra.cli.businessobject.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

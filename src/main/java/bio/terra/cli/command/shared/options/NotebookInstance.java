@@ -1,10 +1,10 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.Resource;
-import bio.terra.cli.Workspace;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.businessobject.resources.AiNotebook;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.resources.AiNotebook;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 

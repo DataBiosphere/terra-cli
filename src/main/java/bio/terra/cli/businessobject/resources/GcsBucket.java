@@ -1,12 +1,12 @@
-package bio.terra.cli.resources;
+package bio.terra.cli.businessobject.resources;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.Resource;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
 import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
-import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
+import bio.terra.cli.serialization.persisted.resources.DiskGcsBucket;
 import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -66,7 +66,7 @@ public class GcsBucket extends Resource {
    * @return the resource that was added
    */
   public static GcsBucket addReferenced(CreateUpdateGcsBucket createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.name)) {
+    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
@@ -78,7 +78,7 @@ public class GcsBucket extends Resource {
     logger.info("Created GCS bucket: {}", addedResource);
 
     // convert the WSM object to a CLI object
-    listAndSync();
+    Context.requireWorkspace().listResourcesAndSync();
     return new GcsBucket(addedResource);
   }
 
@@ -88,7 +88,7 @@ public class GcsBucket extends Resource {
    * @return the resource that was created
    */
   public static GcsBucket createControlled(CreateUpdateGcsBucket createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.name)) {
+    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
@@ -100,7 +100,7 @@ public class GcsBucket extends Resource {
     logger.info("Created GCS bucket: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    listAndSync();
+    Context.requireWorkspace().listResourcesAndSync();
     return new GcsBucket(createdResource);
   }
 

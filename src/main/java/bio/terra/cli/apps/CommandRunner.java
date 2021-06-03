@@ -1,6 +1,6 @@
 package bio.terra.cli.apps;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import java.util.HashMap;
 import java.util.List;

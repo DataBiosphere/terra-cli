@@ -21,10 +21,13 @@ public class CreateResource extends ResourceName {
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.NOTHING;
 
   /**
-   * Helper method to populate a {@link CreateUpdateResource.Builder} with the resource metadata
-   * fields.
+   * Helper method to return a {@link CreateUpdateResource.Builder} with the resource metadata
+   * fields populated.
    */
-  public void populateMetadataFields(CreateUpdateResource.Builder builder) {
-    builder.name(name).description(description).cloningInstructions(cloning);
+  public CreateUpdateResource.Builder populateMetadataFields() {
+    return new CreateUpdateResource.Builder()
+        .name(name)
+        .description(description)
+        .cloningInstructions(cloning);
   }
 }
