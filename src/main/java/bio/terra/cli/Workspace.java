@@ -1,6 +1,7 @@
 package bio.terra.cli;
 
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.disk.DiskResource;
 import bio.terra.cli.serialization.disk.DiskWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -56,7 +57,7 @@ public class Workspace {
     this.userEmail = configFromDisk.userEmail;
     this.resources =
         configFromDisk.resources.stream()
-            .map(diskResource -> Resource.deserializeFromDisk(diskResource))
+            .map(DiskResource::deserializeToInternal)
             .collect(Collectors.toList());
   }
 

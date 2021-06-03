@@ -29,6 +29,11 @@ public class DiskGcsBucket extends DiskResource {
     this.bucketName = builder.bucketName;
   }
 
+  /** Deserialize the format for writing to disk to the internal representation of the resource. */
+  public GcsBucket deserializeToInternal() {
+    return new GcsBucket(this);
+  }
+
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends DiskResource.Builder {
     private String bucketName;

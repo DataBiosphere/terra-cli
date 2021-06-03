@@ -5,6 +5,7 @@ import bio.terra.cli.Resource;
 import bio.terra.cli.User;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
 import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
 import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -45,6 +46,18 @@ public class GcsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.GCS_BUCKET;
     this.bucketName = wsmObject.getAttributes().getBucketName();
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public CommandGcsBucket serializeToCommand() {
+    return new CommandGcsBucket(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public DiskGcsBucket serializeToDisk() {
+    return new DiskGcsBucket(this);
   }
 
   /**

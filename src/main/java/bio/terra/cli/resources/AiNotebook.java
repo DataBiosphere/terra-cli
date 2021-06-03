@@ -4,6 +4,7 @@ import bio.terra.cli.Context;
 import bio.terra.cli.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
 import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
 import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -49,6 +50,18 @@ public class AiNotebook extends Resource {
     this.projectId = wsmObject.getAttributes().getProjectId();
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getLocation();
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public CommandAiNotebook serializeToCommand() {
+    return new CommandAiNotebook(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public DiskAiNotebook serializeToDisk() {
+    return new DiskAiNotebook(this);
   }
 
   /**

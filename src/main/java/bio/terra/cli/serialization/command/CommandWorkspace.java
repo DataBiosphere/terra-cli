@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.command;
 
+import bio.terra.cli.Resource;
 import bio.terra.cli.Workspace;
 import bio.terra.cli.utils.Printer;
 import java.io.PrintStream;
@@ -33,7 +34,7 @@ public class CommandWorkspace {
     this.userEmail = internalObj.getUserEmail();
     this.resources =
         internalObj.getResources().stream()
-            .map(resource -> CommandResource.serializeFromInternal(resource))
+            .map(Resource::serializeToCommand)
             .collect(Collectors.toList());
   }
 

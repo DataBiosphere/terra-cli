@@ -32,6 +32,11 @@ public class DiskBqDataset extends DiskResource {
     this.datasetId = builder.datasetId;
   }
 
+  /** Deserialize the format for writing to disk to the internal representation of the resource. */
+  public BqDataset deserializeToInternal() {
+    return new BqDataset(this);
+  }
+
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends DiskResource.Builder {
     private String projectId;

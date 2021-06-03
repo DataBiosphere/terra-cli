@@ -3,10 +3,8 @@ package bio.terra.cli;
 import bio.terra.cli.resources.AiNotebook;
 import bio.terra.cli.resources.BqDataset;
 import bio.terra.cli.resources.GcsBucket;
+import bio.terra.cli.serialization.command.CommandResource;
 import bio.terra.cli.serialization.disk.DiskResource;
-import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
-import bio.terra.cli.serialization.disk.resources.DiskBqDataset;
-import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -94,24 +92,6 @@ public abstract class Resource {
   }
 
   /**
-   * Deserialize to the internal representation of the resource from the format for writing to disk.
-   * Calls the appropriate sub-class constructor based on the resource type.
-   */
-  public static Resource deserializeFromDisk(DiskResource diskResource) {
-    switch (diskResource.resourceType) {
-      case GCS_BUCKET:
-        return new GcsBucket((DiskGcsBucket) diskResource);
-      case BQ_DATASET:
-        return new BqDataset((DiskBqDataset) diskResource);
-      case AI_NOTEBOOK:
-        return new AiNotebook((DiskAiNotebook) diskResource);
-      default:
-        throw new IllegalArgumentException(
-            "Unexpected resource type: " + diskResource.resourceType);
-    }
-  }
-
-  /**
    * Deserialize to the internal representation of the resource from the WSM client library format.
    * Calls the appropriate sub-class constructor based on the resource type.
    */
@@ -129,6 +109,14 @@ public abstract class Resource {
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
   }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public abstract CommandResource serializeToCommand();
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public abstract DiskResource serializeToDisk();
 
   /**
    * Check if the name only contains alphanumeric and underscore characters. Sync the cached list of

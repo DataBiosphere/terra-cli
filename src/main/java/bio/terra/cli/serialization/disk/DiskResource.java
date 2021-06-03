@@ -1,12 +1,6 @@
 package bio.terra.cli.serialization.disk;
 
 import bio.terra.cli.Resource;
-import bio.terra.cli.resources.AiNotebook;
-import bio.terra.cli.resources.BqDataset;
-import bio.terra.cli.resources.GcsBucket;
-import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
-import bio.terra.cli.serialization.disk.resources.DiskBqDataset;
-import bio.terra.cli.serialization.disk.resources.DiskGcsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -53,24 +47,6 @@ public abstract class DiskResource {
     this.privateUserRoles = internalObj.getPrivateUserRoles();
   }
 
-  /**
-   * Serialize the internal representation of the resource to the format for writing to disk. Calls
-   * the appropriate sub-class constructor based on the resource type.
-   */
-  public static DiskResource serializeFromInternal(Resource internalObj) {
-    Resource.Type resourceType = internalObj.getResourceType();
-    switch (resourceType) {
-      case GCS_BUCKET:
-        return new DiskGcsBucket((GcsBucket) internalObj);
-      case BQ_DATASET:
-        return new DiskBqDataset((BqDataset) internalObj);
-      case AI_NOTEBOOK:
-        return new DiskAiNotebook((AiNotebook) internalObj);
-      default:
-        throw new IllegalArgumentException("Unexpected resource type: " + resourceType);
-    }
-  }
-
   protected DiskResource(DiskResource.Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
@@ -83,6 +59,9 @@ public abstract class DiskResource {
     this.privateUserName = builder.privateUserName;
     this.privateUserRoles = builder.privateUserRoles;
   }
+
+  /** Deserialize the format for writing to disk to the internal representation of the resource. */
+  public abstract Resource deserializeToInternal();
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {

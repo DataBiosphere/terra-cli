@@ -19,7 +19,6 @@ public class Describe extends BaseCommand {
   @Override
   protected void execute() {
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    formatOption.printReturnValue(
-        CommandResource.serializeFromInternal(resource), CommandResource::print);
+    formatOption.printReturnValue(resource.serializeToCommand(), CommandResource::print);
   }
 }

@@ -35,7 +35,7 @@ public class List extends BaseCommand {
                   boolean typeMatches = type == null || resource.getResourceType().equals(type);
                   return stewardshipMatches && typeMatches;
                 })
-            .map(resource -> CommandResource.serializeFromInternal(resource))
+            .map(Resource::serializeToCommand)
             .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
   }

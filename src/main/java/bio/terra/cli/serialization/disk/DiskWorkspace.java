@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.disk;
 
+import bio.terra.cli.Resource;
 import bio.terra.cli.Workspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -34,7 +35,7 @@ public class DiskWorkspace {
     this.userEmail = internalObj.getUserEmail();
     this.resources =
         internalObj.getResources().stream()
-            .map(resource -> DiskResource.serializeFromInternal(resource))
+            .map(Resource::serializeToDisk)
             .collect(Collectors.toList());
   }
 

@@ -5,6 +5,7 @@ import bio.terra.cli.Resource;
 import bio.terra.cli.User;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.command.resources.CommandBqDataset;
 import bio.terra.cli.serialization.disk.resources.DiskBqDataset;
 import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -55,6 +56,18 @@ public class BqDataset extends Resource {
     this.resourceType = Type.BQ_DATASET;
     this.projectId = wsmObject.getAttributes().getProjectId();
     this.datasetId = wsmObject.getAttributes().getDatasetId();
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public CommandBqDataset serializeToCommand() {
+    return new CommandBqDataset(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public DiskBqDataset serializeToDisk() {
+    return new DiskBqDataset(this);
   }
 
   /**

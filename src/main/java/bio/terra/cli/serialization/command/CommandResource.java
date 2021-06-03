@@ -1,12 +1,6 @@
 package bio.terra.cli.serialization.command;
 
 import bio.terra.cli.Resource;
-import bio.terra.cli.resources.AiNotebook;
-import bio.terra.cli.resources.BqDataset;
-import bio.terra.cli.resources.GcsBucket;
-import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
-import bio.terra.cli.serialization.command.resources.CommandBqDataset;
-import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
 import bio.terra.cli.utils.Printer;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -50,24 +44,6 @@ public abstract class CommandResource {
     this.managedBy = internalObj.getManagedBy();
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRoles = internalObj.getPrivateUserRoles();
-  }
-
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   * Calls the appropriate sub-class constructor based on the resource type.
-   */
-  public static CommandResource serializeFromInternal(Resource internalObj) {
-    Resource.Type resourceType = internalObj.getResourceType();
-    switch (resourceType) {
-      case GCS_BUCKET:
-        return new CommandGcsBucket((GcsBucket) internalObj);
-      case BQ_DATASET:
-        return new CommandBqDataset((BqDataset) internalObj);
-      case AI_NOTEBOOK:
-        return new CommandAiNotebook((AiNotebook) internalObj);
-      default:
-        throw new IllegalArgumentException("Unexpected resource type: " + resourceType);
-    }
   }
 
   /** Print out this object in text format. */
