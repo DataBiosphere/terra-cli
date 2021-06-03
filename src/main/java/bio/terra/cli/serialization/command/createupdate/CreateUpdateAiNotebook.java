@@ -11,7 +11,8 @@ import java.util.Map;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateAiNotebook.Builder.class)
-public class CreateUpdateAiNotebook extends CreateUpdateResource {
+public class CreateUpdateAiNotebook {
+  public final CreateUpdateResource resourceFields;
   public final String instanceId;
   public final String location;
   public final String machineType;
@@ -32,7 +33,7 @@ public class CreateUpdateAiNotebook extends CreateUpdateResource {
   public final String dataDiskType;
 
   protected CreateUpdateAiNotebook(Builder builder) {
-    super(builder);
+    this.resourceFields = builder.resourceFields;
     this.instanceId = builder.instanceId;
     this.location = builder.location;
     this.machineType = builder.machineType;
@@ -54,7 +55,8 @@ public class CreateUpdateAiNotebook extends CreateUpdateResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends CreateUpdateResource.Builder {
+  public static class Builder {
+    private CreateUpdateResource resourceFields;
     private String instanceId;
     private String location;
     private String machineType;
@@ -73,6 +75,11 @@ public class CreateUpdateAiNotebook extends CreateUpdateResource {
     private String bootDiskType;
     private Long dataDiskSizeGb;
     private String dataDiskType;
+
+    public Builder resourceFields(CreateUpdateResource resourceFields) {
+      this.resourceFields = resourceFields;
+      return this;
+    }
 
     public Builder instanceId(String instanceId) {
       this.instanceId = instanceId;

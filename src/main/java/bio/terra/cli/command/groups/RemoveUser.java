@@ -1,6 +1,6 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.service.SamService;
 import picocli.CommandLine;

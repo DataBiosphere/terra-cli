@@ -1,11 +1,11 @@
-package bio.terra.cli.resources;
+package bio.terra.cli.businessobject.resources;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.Resource;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
 import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
-import bio.terra.cli.serialization.disk.resources.DiskAiNotebook;
+import bio.terra.cli.serialization.persisted.resources.DiskAiNotebook;
 import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
@@ -78,7 +78,7 @@ public class AiNotebook extends Resource {
    * @return the resource that was created
    */
   public static AiNotebook createControlled(CreateUpdateAiNotebook createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.name)) {
+    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
@@ -90,7 +90,7 @@ public class AiNotebook extends Resource {
     logger.info("Created AI notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    listAndSync();
+    Context.requireWorkspace().listResourcesAndSync();
     return new AiNotebook(createdResource);
   }
 

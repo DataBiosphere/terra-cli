@@ -1,10 +1,10 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.apps.CommandRunner;
 import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.apps.LocalProcessCommandRunner;
 import bio.terra.cli.apps.utils.DockerClientWrapper;
-import bio.terra.cli.serialization.disk.DiskConfig;
+import bio.terra.cli.serialization.persisted.DiskConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class Config {
     this.dockerImageId = getDefaultImageId();
   }
 
-  /** Returns the default image id. */
+  /** Returns the default Docker image id for launching apps. */
   public static String getDefaultImageId() {
     // read from the JAR Manifest file
     String fromJarManifest = Config.class.getPackage().getImplementationVersion();

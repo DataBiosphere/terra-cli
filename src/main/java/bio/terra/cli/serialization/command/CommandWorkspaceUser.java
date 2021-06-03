@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.command;
 
-import bio.terra.cli.WorkspaceUser;
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.utils.Printer;
 import bio.terra.workspace.model.IamRole;
 import java.io.PrintStream;

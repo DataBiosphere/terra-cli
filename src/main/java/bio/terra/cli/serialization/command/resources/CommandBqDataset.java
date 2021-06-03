@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.command.resources;
 
-import bio.terra.cli.resources.BqDataset;
+import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.serialization.command.CommandResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

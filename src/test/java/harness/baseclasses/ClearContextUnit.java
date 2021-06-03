@@ -2,8 +2,8 @@ package harness.baseclasses;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
 import harness.TestCommand;
 import harness.TestContext;

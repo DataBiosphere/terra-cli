@@ -2,7 +2,7 @@ package bio.terra.cli.utils;
 
 import static ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;

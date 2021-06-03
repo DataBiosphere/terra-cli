@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;

@@ -1,6 +1,6 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
 import bio.terra.cli.command.app.passthrough.Gsutil;

@@ -4,6 +4,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
 import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -29,13 +30,15 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     // build the resource object to add
+    CreateUpdateResource.Builder createResourceParams =
+        createResourceOptions.populateMetadataFields().stewardshipType(StewardshipType.REFERENCED);
     CreateUpdateGcsBucket.Builder createParams =
-        new CreateUpdateGcsBucket.Builder().bucketName(bucketName);
-    createParams.stewardshipType(StewardshipType.REFERENCED);
-    createResourceOptions.populateMetadataFields(createParams);
+        new CreateUpdateGcsBucket.Builder()
+            .resourceFields(createResourceParams.build())
+            .bucketName(bucketName);
 
-    bio.terra.cli.resources.GcsBucket addedResource =
-        bio.terra.cli.resources.GcsBucket.addReferenced(createParams.build());
+    bio.terra.cli.businessobject.resources.GcsBucket addedResource =
+        bio.terra.cli.businessobject.resources.GcsBucket.addReferenced(createParams.build());
     formatOption.printReturnValue(new CommandGcsBucket(addedResource), GcsBucket::printText);
   }
 

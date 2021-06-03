@@ -1,7 +1,7 @@
-package bio.terra.cli.serialization.disk.resources;
+package bio.terra.cli.serialization.persisted.resources;
 
-import bio.terra.cli.resources.AiNotebook;
-import bio.terra.cli.serialization.disk.DiskResource;
+import bio.terra.cli.businessobject.resources.AiNotebook;
+import bio.terra.cli.serialization.persisted.DiskResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

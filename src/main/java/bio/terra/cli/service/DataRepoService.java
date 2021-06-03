@@ -1,7 +1,7 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.Server;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;

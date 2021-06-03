@@ -11,14 +11,15 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = CreateUpdateGcsBucket.Builder.class)
-public class CreateUpdateGcsBucket extends CreateUpdateResource {
+public class CreateUpdateGcsBucket {
+  public final CreateUpdateResource resourceFields;
   public final String bucketName;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
   public final String location;
 
   protected CreateUpdateGcsBucket(CreateUpdateGcsBucket.Builder builder) {
-    super(builder);
+    this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.lifecycle = builder.lifecycle;
     this.defaultStorageClass = builder.defaultStorageClass;
@@ -26,11 +27,17 @@ public class CreateUpdateGcsBucket extends CreateUpdateResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends CreateUpdateResource.Builder {
+  public static class Builder {
+    private CreateUpdateResource resourceFields;
     private String bucketName;
     private GcsBucketLifecycle lifecycle;
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
     private String location;
+
+    public Builder resourceFields(CreateUpdateResource resourceFields) {
+      this.resourceFields = resourceFields;
+      return this;
+    }
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;

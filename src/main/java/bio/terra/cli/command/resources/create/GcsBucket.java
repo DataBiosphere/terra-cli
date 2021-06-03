@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.options.CreateControlledResource;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
 import bio.terra.cli.serialization.command.createupdate.GcsBucketLifecycle;
 import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
 import bio.terra.cli.utils.JacksonMapper;
@@ -67,13 +68,16 @@ public class GcsBucket extends BaseCommand {
     createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create
+    CreateUpdateResource.Builder createResourceParams =
+        createControlledResourceOptions
+            .populateMetadataFields()
+            .stewardshipType(StewardshipType.CONTROLLED);
     CreateUpdateGcsBucket.Builder createParams =
         new CreateUpdateGcsBucket.Builder()
+            .resourceFields(createResourceParams.build())
             .bucketName(bucketName)
             .defaultStorageClass(storageClass)
             .location(location);
-    createParams.stewardshipType(StewardshipType.CONTROLLED);
-    createControlledResourceOptions.populateMetadataFields(createParams);
 
     // build the lifecycle object
     if (lifecycleArgGroup == null) {
@@ -95,8 +99,8 @@ public class GcsBucket extends BaseCommand {
       }
     }
 
-    bio.terra.cli.resources.GcsBucket createdResource =
-        bio.terra.cli.resources.GcsBucket.createControlled(createParams.build());
+    bio.terra.cli.businessobject.resources.GcsBucket createdResource =
+        bio.terra.cli.businessobject.resources.GcsBucket.createControlled(createParams.build());
     formatOption.printReturnValue(new CommandGcsBucket(createdResource), GcsBucket::printText);
   }
 

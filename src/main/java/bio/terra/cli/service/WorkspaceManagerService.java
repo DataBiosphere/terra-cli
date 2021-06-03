@@ -1,8 +1,8 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.Server;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
@@ -450,9 +450,9 @@ public class WorkspaceManagerService {
         new CreateGcpGcsBucketReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(createParams.name)
-                    .description(createParams.description)
-                    .cloningInstructions(createParams.cloningInstructions))
+                    .name(createParams.resourceFields.name)
+                    .description(createParams.resourceFields.description)
+                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
             .bucket(new GcpGcsBucketAttributes().bucketName(createParams.bucketName));
 
     try {
@@ -479,9 +479,9 @@ public class WorkspaceManagerService {
         new CreateGcpBigQueryDatasetReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
-                    .name(createParams.name)
-                    .description(createParams.description)
-                    .cloningInstructions(createParams.cloningInstructions))
+                    .name(createParams.resourceFields.name)
+                    .description(createParams.resourceFields.description)
+                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
             .dataset(
                 new GcpBigQueryDatasetAttributes()
                     .projectId(createParams.projectId)
@@ -511,7 +511,7 @@ public class WorkspaceManagerService {
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
         new CreateControlledGcpAiNotebookInstanceRequestBody()
-            .common(createCommonFields(createParams))
+            .common(createCommonFields(createParams.resourceFields))
             .aiNotebookInstance(fromCLIObject(createParams))
             .jobControl(new JobControl().id(jobId));
 
@@ -598,7 +598,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
-            .common(createCommonFields(createParams))
+            .common(createCommonFields(createParams.resourceFields))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
                     .name(createParams.bucketName)
@@ -678,7 +678,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
-            .common(createCommonFields(createParams))
+            .common(createCommonFields(createParams.resourceFields))
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(createParams.datasetId)

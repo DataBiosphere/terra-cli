@@ -1,7 +1,7 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.Server;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.User;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;

@@ -1,7 +1,7 @@
 package bio.terra.cli.command.shared;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.Printer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.Context;
-import bio.terra.cli.Resource;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;

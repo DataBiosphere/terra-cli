@@ -1,4 +1,4 @@
-package bio.terra.cli;
+package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Internal representation of a workspace user (i.e. someone a workspace is shared with). This is
- * different from a regular {@link bio.terra.cli.User} because they are never logged in. This is
- * just a reference to another Terra user who has some level of workspace access. This class is not
- * part of the current context or state.
+ * different from a regular {@link User} because they are never logged in. This is just a reference
+ * to another Terra user who has some level of workspace access. This class is not part of the
+ * current context or state.
  */
 public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
@@ -43,7 +43,7 @@ public class WorkspaceUser {
     new WorkspaceManagerService().grantIamRole(currentWorkspace.getId(), email, role);
     logger.info("Added user to workspace: user={}, role={}", email, role);
 
-    // return a WorkspaceUser that includes all roles this email has
+    // return a WorkspaceUser = email + all roles (not just the one that was added here)
     return listUsersInMap().get(email);
   }
 
@@ -62,7 +62,7 @@ public class WorkspaceUser {
     new WorkspaceManagerService().removeIamRole(currentWorkspace.getId(), email, role);
     logger.info("Removed user from workspace: user={}, role={}", email, role);
 
-    // return a WorkspaceUser that includes all roles this email has
+    // return a WorkspaceUser = email + all roles (not just the one that was added here)
     return listUsersInMap().get(email);
   }
 

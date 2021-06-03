@@ -1,6 +1,6 @@
-package bio.terra.cli.serialization.disk;
+package bio.terra.cli.serialization.persisted;
 
-import bio.terra.cli.User;
+import bio.terra.cli.businessobject.User;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

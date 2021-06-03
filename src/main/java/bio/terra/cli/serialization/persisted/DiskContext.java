@@ -1,9 +1,10 @@
-package bio.terra.cli.serialization.disk;
+package bio.terra.cli.serialization.persisted;
 
-import bio.terra.cli.Config;
-import bio.terra.cli.Server;
-import bio.terra.cli.User;
-import bio.terra.cli.Workspace;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.User;
+import bio.terra.cli.businessobject.Workspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import javax.annotation.Nullable;
@@ -13,7 +14,7 @@ import javax.annotation.Nullable;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link bio.terra.cli.Context} class for the current context's internal representation.
+ * <p>See the {@link Context} class for the current context's internal representation.
  */
 @JsonDeserialize(builder = DiskContext.Builder.class)
 public class DiskContext {

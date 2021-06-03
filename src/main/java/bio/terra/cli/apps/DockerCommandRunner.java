@@ -1,7 +1,7 @@
 package bio.terra.cli.apps;
 
-import bio.terra.cli.Context;
 import bio.terra.cli.apps.utils.DockerClientWrapper;
+import bio.terra.cli.businessobject.Context;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;

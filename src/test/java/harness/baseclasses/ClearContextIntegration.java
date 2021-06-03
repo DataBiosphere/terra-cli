@@ -2,7 +2,7 @@ package harness.baseclasses;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.cli.Context;
+import bio.terra.cli.businessobject.Context;
 import harness.TestBashScript;
 import harness.TestContext;
 import java.io.IOException;

@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.command;
 
-import bio.terra.cli.Config;
-import bio.terra.cli.Context;
-import bio.terra.cli.Server;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.Printer;
 import java.io.PrintStream;
