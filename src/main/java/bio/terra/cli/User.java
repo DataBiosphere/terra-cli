@@ -1,8 +1,8 @@
 package bio.terra.cli;
 
-import bio.terra.cli.auth.GoogleCredentialUtils;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.disk.DiskUser;
+import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.FileUtils;
@@ -90,7 +90,7 @@ public class User {
       boolean launchBrowserAutomatically =
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
       userCredentials =
-          GoogleCredentialUtils.doLoginAndConsent(
+          GoogleOauth.doLoginAndConsent(
               SCOPES, inputStream, Context.getContextDir().toFile(), launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
@@ -124,8 +124,7 @@ public class User {
         User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // delete the user credentials
-      GoogleCredentialUtils.deleteExistingCredential(
-          SCOPES, inputStream, Context.getContextDir().toFile());
+      GoogleOauth.deleteExistingCredential(SCOPES, inputStream, Context.getContextDir().toFile());
 
       // delete the pet SA credentials
       deletePetSaCredentials();
@@ -144,7 +143,7 @@ public class User {
       try (InputStream inputStream =
           User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
         userCredentials =
-            GoogleCredentialUtils.getExistingUserCredential(
+            GoogleOauth.getExistingUserCredential(
                 SCOPES, inputStream, Context.getContextDir().toFile());
         if (userCredentials == null) {
           return true;
@@ -165,7 +164,7 @@ public class User {
 
   /** Get the access token for the user credentials. */
   public AccessToken getUserAccessToken() {
-    return GoogleCredentialUtils.getAccessToken(userCredentials);
+    return GoogleOauth.getAccessToken(userCredentials);
   }
 
   /** Fetch the pet SA credentials for this user + current workspace. */
@@ -208,8 +207,7 @@ public class User {
 
     try {
       // create a credentials object from the key
-      petSACredentials =
-          GoogleCredentialUtils.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
+      petSACredentials = GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
     } catch (IOException ioEx) {
       throw new SystemException(
           "Error reading pet SA credentials from the global context directory.", ioEx);

@@ -2,7 +2,7 @@ package harness;
 
 import bio.terra.cli.Context;
 import bio.terra.cli.User;
-import bio.terra.cli.auth.GoogleCredentialUtils;
+import bio.terra.cli.service.GoogleOauth;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -84,7 +84,7 @@ public enum TestUsers {
     // update the credential store on disk
     // set the single entry to the stored credential for the test user
     DataStore<StoredCredential> dataStore = getCredentialStore();
-    dataStore.set(GoogleCredentialUtils.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+    dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     // unset the current user in the global context if already specified
     Context.setUser(null);

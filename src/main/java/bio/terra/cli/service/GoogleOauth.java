@@ -1,4 +1,4 @@
-package bio.terra.cli.auth;
+package bio.terra.cli.service;
 
 import bio.terra.cli.utils.Printer;
 import com.google.api.client.auth.oauth2.Credential;
@@ -31,15 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating Google credentials. */
-public final class GoogleCredentialUtils {
-  private static final Logger logger = LoggerFactory.getLogger(GoogleCredentialUtils.class);
+public final class GoogleOauth {
+  private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
 
   // key name for the single credential persisted in the file data store.
   // the CLI only stores a single credential at a time, so this key is hard-coded here instead of
   // setting it to a generated id per user
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
 
-  private GoogleCredentialUtils() {}
+  private GoogleOauth() {}
 
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 

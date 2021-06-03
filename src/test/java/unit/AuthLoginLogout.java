@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.Context;
 import bio.terra.cli.User;
-import bio.terra.cli.auth.GoogleCredentialUtils;
+import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
@@ -42,9 +42,9 @@ public class AuthLoginLogout extends ClearContextUnit {
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
     assertEquals(1, dataStore.keySet().size(), "credential store only contains one entry");
     assertTrue(
-        dataStore.containsKey(GoogleCredentialUtils.CREDENTIAL_STORE_KEY),
+        dataStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
         "credential store contains hard-coded single user key");
-    StoredCredential storedCredential = dataStore.get(GoogleCredentialUtils.CREDENTIAL_STORE_KEY);
+    StoredCredential storedCredential = dataStore.get(GoogleOauth.CREDENTIAL_STORE_KEY);
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user
