@@ -1,14 +1,9 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.Context;
-import bio.terra.cli.Server;
-import bio.terra.cli.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandServer;
-import bio.terra.cli.serialization.command.CommandWorkspace;
-import com.google.common.annotations.VisibleForTesting;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import bio.terra.cli.serialization.command.CommandStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -21,31 +16,13 @@ public class Status extends BaseCommand {
   /** Build the return value from the global and workspace context. */
   @Override
   protected void execute() {
-    StatusReturnValue statusReturnValue =
-        new StatusReturnValue(Context.getServer(), Context.getWorkspace().orElse(null));
+    CommandStatus statusReturnValue =
+        new CommandStatus(Context.getServer(), Context.getWorkspace().orElse(null));
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
-  @SuppressFBWarnings(
-      value = {"URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"},
-      justification = "This POJO class is used for easy serialization to JSON using Jackson.")
-  /** POJO class for printing out this command's output. */
-  @VisibleForTesting
-  public static class StatusReturnValue {
-    // global server context = service uris, environment name
-    public final CommandServer server;
-
-    // global workspace context
-    public final CommandWorkspace workspace;
-
-    public StatusReturnValue(Server server, Workspace workspace) {
-      this.server = new CommandServer(server);
-      this.workspace = workspace != null ? new CommandWorkspace(workspace) : null;
-    }
-  }
-
   /** Print this command's output in text format. */
-  private void printText(StatusReturnValue returnValue) {
+  private void printText(CommandStatus returnValue) {
     // check if current workspace is defined
     if (returnValue.workspace == null) {
       OUT.println("There is no current Terra workspace defined.");

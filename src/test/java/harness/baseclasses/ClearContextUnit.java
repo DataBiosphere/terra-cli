@@ -1,7 +1,5 @@
 package harness.baseclasses;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import bio.terra.cli.Context;
 import bio.terra.cli.User;
 import bio.terra.cli.utils.Logger;
@@ -27,11 +25,8 @@ public class ClearContextUnit {
    */
   private static void resetContext() {
     // setup logging for testing (console = OFF, file = DEBUG)
-    TestCommand.Result cmd =
-        TestCommand.runCommand("config", "set", "logging", "--console", "--level=OFF");
-    assertEquals(0, cmd.exitCode);
-    cmd = TestCommand.runCommand("config", "set", "logging", "--file", "--level=DEBUG");
-    assertEquals(0, cmd.exitCode);
+    TestCommand.runCommandExpectSuccess("config", "set", "logging", "--console", "--level=OFF");
+    TestCommand.runCommandExpectSuccess("config", "set", "logging", "--file", "--level=DEBUG");
 
     // also update the logging directly in this process, because the config commands only affect
     // future processes
@@ -44,11 +39,9 @@ public class ClearContextUnit {
 
     // set the server to the one specified by the test
     // (see the Gradle test task for how this env var gets set from a Gradle property)
-    cmd = TestCommand.runCommand("server", "set", "--name", System.getenv("TERRA_SERVER"));
-    assertEquals(0, cmd.exitCode);
+    TestCommand.runCommandExpectSuccess("server", "set", "--name", System.getenv("TERRA_SERVER"));
 
     // set the docker image id to the default
-    cmd = TestCommand.runCommand("config", "set", "image", "--default");
-    assertEquals(0, cmd.exitCode);
+    TestCommand.runCommandExpectSuccess("config", "set", "image", "--default");
   }
 }

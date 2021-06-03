@@ -8,6 +8,8 @@ import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +22,7 @@ import java.util.UUID;
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonDeserialize(builder = CommandResource.Builder.class)
 public abstract class CommandResource {
   public final UUID id;
   public final String name;
@@ -46,6 +49,20 @@ public abstract class CommandResource {
     this.privateUserRoles = internalObj.getPrivateUserRoles();
   }
 
+  /** Constructor for Jackson deserialization during testing. */
+  protected CommandResource(Builder builder) {
+    this.id = builder.id;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.resourceType = builder.resourceType;
+    this.stewardshipType = builder.stewardshipType;
+    this.cloningInstructions = builder.cloningInstructions;
+    this.accessScope = builder.accessScope;
+    this.managedBy = builder.managedBy;
+    this.privateUserName = builder.privateUserName;
+    this.privateUserRoles = builder.privateUserRoles;
+  }
+
   /** Print out this object in text format. */
   public void print() {
     PrintStream OUT = Printer.getOut();
@@ -62,5 +79,75 @@ public abstract class CommandResource {
         OUT.println("Private user: " + privateUserName);
       }
     }
+  }
+
+  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+  public abstract static class Builder {
+    private UUID id;
+    private String name;
+    private String description;
+    private Resource.Type resourceType;
+    private StewardshipType stewardshipType;
+    private CloningInstructionsEnum cloningInstructions;
+    private AccessScope accessScope;
+    private ManagedBy managedBy;
+    private String privateUserName;
+    private List<ControlledResourceIamRole> privateUserRoles;
+
+    public Builder id(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder resourceType(Resource.Type resourceType) {
+      this.resourceType = resourceType;
+      return this;
+    }
+
+    public Builder stewardshipType(StewardshipType stewardshipType) {
+      this.stewardshipType = stewardshipType;
+      return this;
+    }
+
+    public Builder cloningInstructions(CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
+      return this;
+    }
+
+    public Builder accessScope(AccessScope accessScope) {
+      this.accessScope = accessScope;
+      return this;
+    }
+
+    public Builder managedBy(ManagedBy managedBy) {
+      this.managedBy = managedBy;
+      return this;
+    }
+
+    public Builder privateUserName(String privateUserName) {
+      this.privateUserName = privateUserName;
+      return this;
+    }
+
+    public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
+      this.privateUserRoles = privateUserRoles;
+      return this;
+    }
+
+    /** Call the private constructor. */
+    public abstract CommandResource build();
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
   }
 }

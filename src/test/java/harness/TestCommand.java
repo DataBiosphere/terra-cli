@@ -1,8 +1,11 @@
 package harness;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -41,10 +44,45 @@ public class TestCommand {
         exitCode, stdOut.toString(StandardCharsets.UTF_8), stdErr.toString(StandardCharsets.UTF_8));
   }
 
-  /** Helper method to convert what's written to standard out into a Java object. */
+  /** Convert what's written to standard out into a Java object. */
   public static <T> T readObjectFromStdOut(Result cmd, Class<T> objectType)
       throws JsonProcessingException {
     return objectMapper.readValue(cmd.stdOut, objectType);
+  }
+
+  /** Convert what's written to standard out into a Java object. */
+  public static <T> T readObjectFromStdOut(Result cmd, TypeReference<T> objectType)
+      throws JsonProcessingException {
+    return objectMapper.readValue(cmd.stdOut, objectType);
+  }
+
+  /** Helper method to run a command and check its exit code is 0=success. */
+  public static Result runCommandExpectSuccess(String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode);
+    return cmd;
+  }
+
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and read what's written to
+   * standard out into a Java object.
+   */
+  public static <T> T runCommandExpectSuccess(Class<T> objectType, String... args)
+      throws JsonProcessingException {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode);
+    return readObjectFromStdOut(cmd, objectType);
+  }
+
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and read what's written to
+   * standard out into a Java object.
+   */
+  public static <T> T runCommandExpectSuccess(TypeReference<T> objectType, String... args)
+      throws JsonProcessingException {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode);
+    return readObjectFromStdOut(cmd, objectType);
   }
 
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */
