@@ -15,18 +15,18 @@ import java.util.stream.Collectors;
  *
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
-@JsonDeserialize(builder = DiskWorkspace.Builder.class)
-public class DiskWorkspace {
+@JsonDeserialize(builder = PDWorkspace.Builder.class)
+public class PDWorkspace {
   public final UUID id;
   public final String name;
   public final String description;
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
-  public final List<DiskResource> resources;
+  public final List<PDResource> resources;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskWorkspace(Workspace internalObj) {
+  public PDWorkspace(Workspace internalObj) {
     this.id = internalObj.getId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
@@ -39,7 +39,7 @@ public class DiskWorkspace {
             .collect(Collectors.toList());
   }
 
-  private DiskWorkspace(DiskWorkspace.Builder builder) {
+  private PDWorkspace(PDWorkspace.Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
@@ -57,7 +57,7 @@ public class DiskWorkspace {
     private String googleProjectId;
     private String serverName;
     private String userEmail;
-    private List<DiskResource> resources;
+    private List<PDResource> resources;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -89,14 +89,14 @@ public class DiskWorkspace {
       return this;
     }
 
-    public Builder resources(List<DiskResource> resources) {
+    public Builder resources(List<PDResource> resources) {
       this.resources = resources;
       return this;
     }
 
     /** Call the private constructor. */
-    public DiskWorkspace build() {
-      return new DiskWorkspace(this);
+    public PDWorkspace build() {
+      return new PDWorkspace(this);
     }
 
     /** Default constructor for Jackson. */

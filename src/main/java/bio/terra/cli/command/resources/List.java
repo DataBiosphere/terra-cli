@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -27,7 +27,7 @@ public class List extends BaseCommand {
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
-    java.util.List<CommandResource> resources =
+    java.util.List<UFResource> resources =
         Context.requireWorkspace().listResourcesAndSync().stream()
             .filter(
                 (resource) -> {
@@ -42,8 +42,8 @@ public class List extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(java.util.List<CommandResource> returnValue) {
-    for (CommandResource resource : returnValue) {
+  private static void printText(java.util.List<UFResource> returnValue) {
+    for (UFResource resource : returnValue) {
       OUT.println(
           resource.name
               + " ("

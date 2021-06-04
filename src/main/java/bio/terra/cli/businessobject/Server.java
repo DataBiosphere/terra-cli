@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.serialization.persisted.DiskServer;
+import bio.terra.cli.serialization.persisted.PDServer;
 import bio.terra.cli.service.DataRepoService;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -44,7 +44,7 @@ public class Server {
   private static final String ALL_SERVERS_FILENAME = "all-servers.json";
 
   /** Build an instance of this class from the serialized format on disk. */
-  public Server(DiskServer configFromDisk) {
+  public Server(PDServer configFromDisk) {
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.samUri = configFromDisk.samUri;
@@ -127,21 +127,21 @@ public class Server {
    * @param fileName file name
    * @return an instance of this class
    */
-  private static DiskServer fromJsonFile(String fileName) {
-    DiskServer server;
+  private static PDServer fromJsonFile(String fileName) {
+    PDServer server;
     try {
       try {
         // first check for a servers/[filename] resource on the classpath
         InputStream inputStream =
             FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + fileName);
-        server = JacksonMapper.getMapper().readValue(inputStream, DiskServer.class);
+        server = JacksonMapper.getMapper().readValue(inputStream, PDServer.class);
 
       } catch (FileNotFoundException fnfEx) {
         // second treat the [filename] as an absolute path
         logger.debug(
             "Server file ({}) not found in resource directory, now trying as absolute path.",
             fileName);
-        server = JacksonMapper.readFileIntoJavaObject(new File(fileName), DiskServer.class);
+        server = JacksonMapper.readFileIntoJavaObject(new File(fileName), PDServer.class);
       }
     } catch (IOException ioEx) {
       throw new SystemException("Error reading in server file: " + fileName, ioEx);

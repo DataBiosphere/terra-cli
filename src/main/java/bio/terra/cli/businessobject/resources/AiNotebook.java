@@ -3,9 +3,9 @@ package bio.terra.cli.businessobject.resources;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
-import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
-import bio.terra.cli.serialization.persisted.resources.DiskAiNotebook;
+import bio.terra.cli.serialization.persisted.resources.PDAiNotebook;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
@@ -27,7 +27,7 @@ public class AiNotebook extends Resource {
   private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public AiNotebook(DiskAiNotebook configFromDisk) {
+  public AiNotebook(PDAiNotebook configFromDisk) {
     super(configFromDisk);
     this.projectId = configFromDisk.projectId;
     this.instanceId = configFromDisk.instanceId;
@@ -55,13 +55,13 @@ public class AiNotebook extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public CommandAiNotebook serializeToCommand() {
-    return new CommandAiNotebook(this);
+  public UFAiNotebook serializeToCommand() {
+    return new UFAiNotebook(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public DiskAiNotebook serializeToDisk() {
-    return new DiskAiNotebook(this);
+  public PDAiNotebook serializeToDisk() {
+    return new PDAiNotebook(this);
   }
 
   /**

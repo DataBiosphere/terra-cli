@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.utils.Printer;
@@ -11,7 +11,7 @@ import java.io.PrintStream;
  *
  * <p>See the {@link Server} class for a server's internal representation.
  */
-public class CommandServer {
+public class UFServer {
   public final String name;
   public final String description;
   public final String samUri;
@@ -19,7 +19,7 @@ public class CommandServer {
   public final String dataRepoUri;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandServer(Server internalObj) {
+  public UFServer(Server internalObj) {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();

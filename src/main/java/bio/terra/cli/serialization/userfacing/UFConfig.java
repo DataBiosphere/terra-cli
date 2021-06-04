@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
@@ -14,7 +14,7 @@ import java.io.PrintStream;
  *
  * <p>See the {@link Config} class for a configuration's internal representation.
  */
-public class CommandConfig {
+public class UFConfig {
   public final Config.BrowserLaunchOption browserLaunchOption;
   public final Config.CommandRunnerOption commandRunnerOption;
   public final String dockerImageId;
@@ -24,7 +24,7 @@ public class CommandConfig {
   public final String serverName;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandConfig(Config internalConfig, Server internalServer) {
+  public UFConfig(Config internalConfig, Server internalServer) {
     this.browserLaunchOption = internalConfig.getBrowserLaunchOption();
     this.commandRunnerOption = internalConfig.getCommandRunnerOption();
     this.dockerImageId = internalConfig.getDockerImageId();

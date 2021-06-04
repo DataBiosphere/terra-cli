@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Printer;
@@ -11,14 +11,14 @@ import java.io.PrintStream;
  *
  * <p>See the {@link User} class for a user's internal representation.
  */
-public class CommandUser {
+public class UFUser {
   public final String id;
   public final String email;
   public final String proxyGroupEmail;
   public final boolean loggedIn;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public CommandUser(User internalObj) {
+  public UFUser(User internalObj) {
     this.id = internalObj.getId();
     this.email = internalObj.getEmail();
     this.proxyGroupEmail = internalObj.getProxyGroupEmail();

@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -36,11 +36,11 @@ public class Update extends BaseCommand {
   protected void execute() {
     Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
-    formatOption.printReturnValue(new CommandWorkspace(updatedWorkspace), this::printText);
+    formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(CommandWorkspace returnValue) {
+  private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully updated.");
     returnValue.print();
   }

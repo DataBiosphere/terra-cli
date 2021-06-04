@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.persisted.resources;
 
 import bio.terra.cli.businessobject.resources.AiNotebook;
-import bio.terra.cli.serialization.persisted.DiskResource;
+import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -14,21 +14,21 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>See the {@link AiNotebook} class for a notebook's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = DiskAiNotebook.Builder.class)
-public class DiskAiNotebook extends DiskResource {
+@JsonDeserialize(builder = PDAiNotebook.Builder.class)
+public class PDAiNotebook extends PDResource {
   public final String projectId;
   public final String instanceId;
   public final String location;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskAiNotebook(AiNotebook internalObj) {
+  public PDAiNotebook(AiNotebook internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
   }
 
-  private DiskAiNotebook(Builder builder) {
+  private PDAiNotebook(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.instanceId = builder.instanceId;
@@ -41,7 +41,7 @@ public class DiskAiNotebook extends DiskResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends DiskResource.Builder {
+  public static class Builder extends PDResource.Builder {
     private String projectId;
     private String instanceId;
     private String location;
@@ -62,8 +62,8 @@ public class DiskAiNotebook extends DiskResource {
     }
 
     /** Call the private constructor. */
-    public DiskAiNotebook build() {
-      return new DiskAiNotebook(this);
+    public PDAiNotebook build() {
+      return new PDAiNotebook(this);
     }
 
     /** Default constructor for Jackson. */

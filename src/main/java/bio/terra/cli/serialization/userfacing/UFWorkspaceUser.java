@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.utils.Printer;
@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
  *
  * <p>See the {@link WorkspaceUser} class for a workspace user's internal representation.
  */
-public class CommandWorkspaceUser {
+public class UFWorkspaceUser {
   public final String email;
   public final List<IamRole> roles;
 
-  public CommandWorkspaceUser(WorkspaceUser internalObj) {
+  public UFWorkspaceUser(WorkspaceUser internalObj) {
     this.email = internalObj.getEmail();
     this.roles = internalObj.getRoles();
   }

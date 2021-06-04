@@ -1,7 +1,7 @@
-package bio.terra.cli.serialization.command.resources;
+package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.GcsBucket;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.PrintStream;
@@ -14,11 +14,11 @@ import java.io.PrintStream;
  * <p>See the {@link GcsBucket} class for a bucket's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class CommandGcsBucket extends CommandResource {
+public class UFGcsBucket extends UFResource {
   public final String bucketName;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandGcsBucket(GcsBucket internalObj) {
+  public UFGcsBucket(GcsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
   }

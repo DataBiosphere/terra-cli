@@ -1,7 +1,7 @@
-package bio.terra.cli.serialization.command.resources;
+package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.AiNotebook;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.api.services.notebooks.v1.model.Instance;
@@ -15,7 +15,7 @@ import java.io.PrintStream;
  * <p>See the {@link AiNotebook} class for a notebook's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class CommandAiNotebook extends CommandResource {
+public class UFAiNotebook extends UFResource {
   public final String projectId;
   public final String instanceId;
   public final String location;
@@ -25,7 +25,7 @@ public class CommandAiNotebook extends CommandResource {
   public final String createTime;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandAiNotebook(AiNotebook internalObj) {
+  public UFAiNotebook(AiNotebook internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.instanceId = internalObj.getInstanceId();

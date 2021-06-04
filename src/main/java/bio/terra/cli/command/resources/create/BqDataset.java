@@ -3,9 +3,9 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateControlledResource;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateBqDataset;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
-import bio.terra.cli.serialization.command.resources.CommandBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -45,11 +45,11 @@ public class BqDataset extends BaseCommand {
 
     bio.terra.cli.businessobject.resources.BqDataset createdResource =
         bio.terra.cli.businessobject.resources.BqDataset.createControlled(createParams.build());
-    formatOption.printReturnValue(new CommandBqDataset(createdResource), BqDataset::printText);
+    formatOption.printReturnValue(new UFBqDataset(createdResource), BqDataset::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandBqDataset returnValue) {
+  private static void printText(UFBqDataset returnValue) {
     OUT.println("Successfully added controlled Big Query dataset.");
     returnValue.print();
   }

@@ -4,10 +4,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateControlledResource;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
-import bio.terra.cli.serialization.command.createupdate.GcsBucketLifecycle;
-import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
+import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.StewardshipType;
@@ -101,11 +101,11 @@ public class GcsBucket extends BaseCommand {
 
     bio.terra.cli.businessobject.resources.GcsBucket createdResource =
         bio.terra.cli.businessobject.resources.GcsBucket.createControlled(createParams.build());
-    formatOption.printReturnValue(new CommandGcsBucket(createdResource), GcsBucket::printText);
+    formatOption.printReturnValue(new UFGcsBucket(createdResource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandGcsBucket returnValue) {
+  private static void printText(UFGcsBucket returnValue) {
     OUT.println("Successfully added controlled GCS bucket.");
     returnValue.print();
   }

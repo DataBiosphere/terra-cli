@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command.createupdate;
+package bio.terra.cli.serialization.userfacing.inputs;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

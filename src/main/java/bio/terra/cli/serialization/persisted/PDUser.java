@@ -11,20 +11,20 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>See the {@link User} class for a user's internal representation.
  */
-@JsonDeserialize(builder = DiskUser.Builder.class)
-public class DiskUser {
+@JsonDeserialize(builder = PDUser.Builder.class)
+public class PDUser {
   public final String id;
   public final String email;
   public final String proxyGroupEmail;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskUser(User internalObj) {
+  public PDUser(User internalObj) {
     this.id = internalObj.getId();
     this.email = internalObj.getEmail();
     this.proxyGroupEmail = internalObj.getProxyGroupEmail();
   }
 
-  private DiskUser(DiskUser.Builder builder) {
+  private PDUser(PDUser.Builder builder) {
     this.id = builder.id;
     this.email = builder.email;
     this.proxyGroupEmail = builder.proxyGroupEmail;
@@ -52,8 +52,8 @@ public class DiskUser {
     }
 
     /** Call the private constructor. */
-    public DiskUser build() {
-      return new DiskUser(this);
+    public PDUser build() {
+      return new PDUser(this);
     }
 
     /** Default constructor for Jackson. */

@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspaceUser;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -27,11 +27,11 @@ public class RemoveUser extends BaseCommand {
   @Override
   protected void execute() {
     WorkspaceUser workspaceUser = WorkspaceUser.remove(email, role);
-    formatOption.printReturnValue(new CommandWorkspaceUser(workspaceUser), RemoveUser::printText);
+    formatOption.printReturnValue(new UFWorkspaceUser(workspaceUser), RemoveUser::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandWorkspaceUser returnValue) {
+  private static void printText(UFWorkspaceUser returnValue) {
     OUT.println("Email + role removed from workspace.");
     returnValue.print();
   }

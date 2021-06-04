@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.utils.Printer;
@@ -20,7 +20,7 @@ import java.util.UUID;
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class CommandResource {
+public abstract class UFResource {
   public final UUID id;
   public final String name;
   public final String description;
@@ -33,7 +33,7 @@ public abstract class CommandResource {
   public final List<ControlledResourceIamRole> privateUserRoles;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandResource(Resource internalObj) {
+  public UFResource(Resource internalObj) {
     this.id = internalObj.getId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();

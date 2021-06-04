@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
  *
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
-public class CommandWorkspace {
+public class UFWorkspace {
   public final UUID id;
   public final String name;
   public final String description;
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
-  public final List<CommandResource> resources;
+  public final List<UFResource> resources;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public CommandWorkspace(Workspace internalObj) {
+  public UFWorkspace(Workspace internalObj) {
     this.id = internalObj.getId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();

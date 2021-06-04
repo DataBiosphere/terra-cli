@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>See the {@link Server} class for a server's internal representation.
  */
-@JsonDeserialize(builder = DiskServer.Builder.class)
-public class DiskServer {
+@JsonDeserialize(builder = PDServer.Builder.class)
+public class PDServer {
   public final String name;
   public final String description;
   public final String samUri;
@@ -20,7 +20,7 @@ public class DiskServer {
   public final String dataRepoUri;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskServer(Server internalObj) {
+  public PDServer(Server internalObj) {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();
@@ -28,7 +28,7 @@ public class DiskServer {
     this.dataRepoUri = internalObj.getDataRepoUri();
   }
 
-  private DiskServer(DiskServer.Builder builder) {
+  private PDServer(PDServer.Builder builder) {
     this.name = builder.name;
     this.description = builder.description;
     this.samUri = builder.samUri;
@@ -70,8 +70,8 @@ public class DiskServer {
     }
 
     /** Call the private constructor. */
-    public DiskServer build() {
-      return new DiskServer(this);
+    public PDServer build() {
+      return new PDServer(this);
     }
 
     /** Default constructor for Jackson. */

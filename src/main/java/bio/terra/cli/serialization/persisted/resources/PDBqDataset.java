@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.persisted.resources;
 
 import bio.terra.cli.businessobject.resources.BqDataset;
-import bio.terra.cli.serialization.persisted.DiskResource;
+import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -14,19 +14,19 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>See the {@link BqDataset} class for a dataset's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = DiskBqDataset.Builder.class)
-public class DiskBqDataset extends DiskResource {
+@JsonDeserialize(builder = PDBqDataset.Builder.class)
+public class PDBqDataset extends PDResource {
   public final String projectId;
   public final String datasetId;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskBqDataset(BqDataset internalObj) {
+  public PDBqDataset(BqDataset internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
   }
 
-  private DiskBqDataset(Builder builder) {
+  private PDBqDataset(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
@@ -38,7 +38,7 @@ public class DiskBqDataset extends DiskResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends DiskResource.Builder {
+  public static class Builder extends PDResource.Builder {
     private String projectId;
     private String datasetId;
 
@@ -53,8 +53,8 @@ public class DiskBqDataset extends DiskResource {
     }
 
     /** Call the private constructor. */
-    public DiskBqDataset build() {
-      return new DiskBqDataset(this);
+    public PDBqDataset build() {
+      return new PDBqDataset(this);
     }
 
     /** Default constructor for Jackson. */

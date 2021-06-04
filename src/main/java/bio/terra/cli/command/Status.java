@@ -5,8 +5,8 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandServer;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFServer;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import picocli.CommandLine;
@@ -33,14 +33,14 @@ public class Status extends BaseCommand {
   @VisibleForTesting
   public static class StatusReturnValue {
     // global server context = service uris, environment name
-    public final CommandServer server;
+    public final UFServer server;
 
     // global workspace context
-    public final CommandWorkspace workspace;
+    public final UFWorkspace workspace;
 
     public StatusReturnValue(Server server, Workspace workspace) {
-      this.server = new CommandServer(server);
-      this.workspace = workspace != null ? new CommandWorkspace(workspace) : null;
+      this.server = new UFServer(server);
+      this.workspace = workspace != null ? new UFWorkspace(workspace) : null;
     }
   }
 
