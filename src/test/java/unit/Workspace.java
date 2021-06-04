@@ -15,6 +15,7 @@ import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -191,7 +192,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("status reflects workspace set")
-  void statusReflectSet() throws IOException {
+  void statusReflectsSet() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -247,5 +248,21 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace delete` (workspace 1)
     TestCommand.runCommandExpectSuccess("workspace", "delete");
+  }
+
+  @Test
+  @DisplayName("workspace create fails without spend profile access")
+  void createFailsWithoutSpendAccess() throws IOException {
+    // select a test user and login
+    TestUsers testUser = TestUsers.chooseTestUserWithoutSpendAccess();
+    testUser.login();
+
+    // `terra workspace create`
+    TestCommand.Result cmd = TestCommand.runCommand("workspace", "create");
+    assertEquals(2, cmd.exitCode, "exit code = system exception");
+    assertThat(
+        "error message includes spend profile unauthorized",
+        cmd.stdErr,
+        CoreMatchers.containsString("User is unauthorized to link spend profile"));
   }
 }

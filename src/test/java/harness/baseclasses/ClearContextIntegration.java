@@ -28,7 +28,7 @@ public class ClearContextIntegration {
   }
 
   @AfterEach
-  protected void cleanupEachTime() throws IOException {
+  protected void cleanupEachTime() {
     // run a script that deletes the current workspace, but don't fail the test for any errors
     // during cleanup
     TestBashScript.runScript("DeleteWorkspace.sh");

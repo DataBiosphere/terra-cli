@@ -23,7 +23,7 @@ public class ClearContextUnit {
    * Reset the global context for a unit test. This setup includes logging, setting the server, and
    * setting the docker image id.
    */
-  private static void resetContext() {
+  public static void resetContext() {
     // setup logging for testing (console = OFF, file = DEBUG)
     TestCommand.runCommandExpectSuccess("config", "set", "logging", "--console", "--level=OFF");
     TestCommand.runCommandExpectSuccess("config", "set", "logging", "--file", "--level=DEBUG");

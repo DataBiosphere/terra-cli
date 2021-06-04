@@ -100,6 +100,18 @@ public enum TestUsers {
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
   }
 
+  /** Randomly chooses a test user, who is anyone except for the given test user. */
+  public static TestUsers chooseTestUserWhoIsNot(TestUsers testUser) {
+    final int maxNumTries = 50;
+    for (int ctr = 0; ctr < maxNumTries; ctr++) {
+      TestUsers chosen = chooseTestUser(Set.of(SpendEnabled.values()));
+      if (!chosen.equals(testUser)) {
+        return chosen;
+      }
+    }
+    throw new RuntimeException("Error choosing a test user who is anyone except for: " + testUser);
+  }
+
   /** Randomly chooses a test user. */
   public static TestUsers chooseTestUser() {
     return chooseTestUser(Set.of(SpendEnabled.values()));
@@ -109,6 +121,11 @@ public enum TestUsers {
   public static TestUsers chooseTestUserWithSpendAccess() {
     return chooseTestUser(
         Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+  }
+
+  /** Randomly chooses a test user without spend profile access. */
+  public static TestUsers chooseTestUserWithoutSpendAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.NO));
   }
 
   /** Randomly chooses a test user that matches one of the specified spend enabled values. */

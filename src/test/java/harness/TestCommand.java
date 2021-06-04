@@ -37,11 +37,20 @@ public class TestCommand {
         new PrintStream(stdErr, true, StandardCharsets.UTF_8));
 
     // execute the command from the top-level Main class
+    System.out.println("COMMAND: " + String.join(" ", args));
     int exitCode = Main.runCommand(args);
 
+    // log the stdout and stderr to the console
+    String stdOutStr = stdOut.toString(StandardCharsets.UTF_8);
+    String stdErrStr = stdErr.toString(StandardCharsets.UTF_8);
+    System.out.println(stdOutStr);
+    if (!stdErrStr.isEmpty()) {
+      System.out.println("STDERR --------------");
+      System.out.println(stdErrStr);
+    }
+
     // return a result object with all the command outputs
-    return new Result(
-        exitCode, stdOut.toString(StandardCharsets.UTF_8), stdErr.toString(StandardCharsets.UTF_8));
+    return new Result(exitCode, stdOutStr, stdErrStr);
   }
 
   /** Convert what's written to standard out into a Java object. */
@@ -59,7 +68,7 @@ public class TestCommand {
   /** Helper method to run a command and check its exit code is 0=success. */
   public static Result runCommandExpectSuccess(String... args) {
     Result cmd = runCommand(args);
-    assertEquals(0, cmd.exitCode);
+    assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd;
   }
 
@@ -70,7 +79,7 @@ public class TestCommand {
   public static <T> T runCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
     Result cmd = runCommand(args);
-    assertEquals(0, cmd.exitCode);
+    assertEquals(0, cmd.exitCode, "exit code = success");
     return readObjectFromStdOut(cmd, objectType);
   }
 
@@ -81,7 +90,7 @@ public class TestCommand {
   public static <T> T runCommandExpectSuccess(TypeReference<T> objectType, String... args)
       throws JsonProcessingException {
     Result cmd = runCommand(args);
-    assertEquals(0, cmd.exitCode);
+    assertEquals(0, cmd.exitCode, "exit code = success");
     return readObjectFromStdOut(cmd, objectType);
   }
 
