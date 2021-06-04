@@ -44,7 +44,7 @@ public class WorkspaceUser {
     logger.info("Added user to workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was added here)
-    return listUsersInMap().get(email.toLowerCase());
+    return getUser(email);
   }
 
   /**
@@ -63,6 +63,13 @@ public class WorkspaceUser {
     logger.info("Removed user from workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was added here)
+    return getUser(email);
+  }
+
+  /** Get the workspace user object in the current workspace. */
+  private static WorkspaceUser getUser(String email) {
+    // lowercase the email so there is a consistent way of looking up the email address
+    // the email address casing in SAM may not match the case of what is provided by the user
     return listUsersInMap().get(email.toLowerCase());
   }
 
@@ -94,7 +101,8 @@ public class WorkspaceUser {
           IamRole role = roleBinding.getRole();
           for (String email : roleBinding.getMembers()) {
             // lowercase the email so there is a consistent way of looking up the email address
-            // the email address casing in SAM may not match what is provided by the user
+            // the email address casing in SAM may not match the case of what is provided by the
+            // user
             String emailLowercase = email.toLowerCase();
             WorkspaceUser workspaceUser = workspaceUsers.get(emailLowercase);
             if (workspaceUser == null) {

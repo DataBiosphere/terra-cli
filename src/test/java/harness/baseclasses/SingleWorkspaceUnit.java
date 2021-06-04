@@ -9,6 +9,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
+/**
+ * Base class for unit tests that only need a single workspace for all test methods. This makes the
+ * tests run faster because we don't have to create a new workspace for each method. It does mean
+ * we're not starting with a completely clean state each time, but that's easy to do just for
+ * debugging a particular failure.
+ */
 public class SingleWorkspaceUnit extends ClearContextUnit {
   protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();;
   private static UUID workspaceId;

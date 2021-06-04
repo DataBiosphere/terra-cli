@@ -117,6 +117,7 @@ public class User {
     }
 
     // always fetch the pet SA credentials because there is a different pet SA per workspace
+    // do this after updating the context so that we can call Context.requireUser in this method
     user.fetchPetSaCredentials();
   }
 

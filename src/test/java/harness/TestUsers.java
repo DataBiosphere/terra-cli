@@ -100,7 +100,10 @@ public enum TestUsers {
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
   }
 
-  /** Randomly chooses a test user, who is anyone except for the given test user. */
+  /**
+   * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
+   * choosing a user that is not the workspace creator.
+   */
   public static TestUsers chooseTestUserWhoIsNot(TestUsers testUser) {
     final int maxNumTries = 50;
     for (int ctr = 0; ctr < maxNumTries; ctr++) {
