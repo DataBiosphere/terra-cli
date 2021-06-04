@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.serialization.persisted.DiskUser;
+import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -65,7 +65,7 @@ public class User {
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
   /** Build an instance of this class from the serialized format on disk. */
-  public User(DiskUser configFromDisk) {
+  public User(PDUser configFromDisk) {
     this.id = configFromDisk.id;
     this.email = configFromDisk.email;
     this.proxyGroupEmail = configFromDisk.proxyGroupEmail;

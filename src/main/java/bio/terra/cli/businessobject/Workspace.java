@@ -1,8 +1,8 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.persisted.DiskResource;
-import bio.terra.cli.serialization.persisted.DiskWorkspace;
+import bio.terra.cli.serialization.persisted.PDResource;
+import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -50,7 +50,7 @@ public class Workspace {
   }
 
   /** Build an instance of this class from the serialized format on disk. */
-  public Workspace(DiskWorkspace configFromDisk) {
+  public Workspace(PDWorkspace configFromDisk) {
     this.id = configFromDisk.id;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
@@ -59,7 +59,7 @@ public class Workspace {
     this.userEmail = configFromDisk.userEmail;
     this.resources =
         configFromDisk.resources.stream()
-            .map(DiskResource::deserializeToInternal)
+            .map(PDResource::deserializeToInternal)
             .collect(Collectors.toList());
   }
 

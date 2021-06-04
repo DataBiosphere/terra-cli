@@ -1,7 +1,6 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.utils.Printer;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -10,20 +9,19 @@ import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * External representation of a workspace resource for command input/output.
+ * External representation of a workspace resource for writing to disk.
  *
- * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
+ * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CommandResource.Builder.class)
-public abstract class CommandResource {
+@JsonDeserialize(builder = PDResource.Builder.class)
+public abstract class PDResource {
   public final UUID id;
   public final String name;
   public final String description;
@@ -35,8 +33,8 @@ public abstract class CommandResource {
   public final String privateUserName;
   public final List<ControlledResourceIamRole> privateUserRoles;
 
-  /** Serialize an instance of the internal class to the command format. */
-  public CommandResource(Resource internalObj) {
+  /** Serialize an instance of the internal class to the disk format. */
+  public PDResource(Resource internalObj) {
     this.id = internalObj.getId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
@@ -49,8 +47,7 @@ public abstract class CommandResource {
     this.privateUserRoles = internalObj.getPrivateUserRoles();
   }
 
-  /** Constructor for Jackson deserialization during testing. */
-  protected CommandResource(Builder builder) {
+  protected PDResource(PDResource.Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
@@ -63,23 +60,8 @@ public abstract class CommandResource {
     this.privateUserRoles = builder.privateUserRoles;
   }
 
-  /** Print out this object in text format. */
-  public void print() {
-    PrintStream OUT = Printer.getOut();
-    OUT.println("Name:         " + name);
-    OUT.println("Description:  " + description);
-    OUT.println("Stewardship:  " + stewardshipType);
-    OUT.println("Cloning:      " + cloningInstructions);
-
-    if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
-      OUT.println("Access scope: " + accessScope);
-      OUT.println("Managed by:   " + managedBy);
-
-      if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
-        OUT.println("Private user: " + privateUserName);
-      }
-    }
-  }
+  /** Deserialize the format for writing to disk to the internal representation of the resource. */
+  public abstract Resource deserializeToInternal();
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
@@ -145,7 +127,7 @@ public abstract class CommandResource {
     }
 
     /** Call the private constructor. */
-    public abstract CommandResource build();
+    public abstract PDResource build();
 
     /** Default constructor for Jackson. */
     public Builder() {}

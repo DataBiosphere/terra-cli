@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonDeserialize(builder = CommandAuthStatus.Builder.class)
-public class CommandAuthStatus {
+@JsonDeserialize(builder = UFAuthStatus.Builder.class)
+public class UFAuthStatus {
   // Terra user email associated with the current user
   public final String userEmail;
 
@@ -20,14 +20,14 @@ public class CommandAuthStatus {
   public final boolean loggedIn;
 
   /** Constructor for Jackson deserialization during testing. */
-  private CommandAuthStatus(Builder builder) {
+  private UFAuthStatus(Builder builder) {
     this.userEmail = builder.userEmail;
     this.proxyGroupEmail = builder.proxyGroupEmail;
     this.loggedIn = builder.loggedIn;
   }
 
   /** Constructor for when there is a current user defined. */
-  public static CommandAuthStatus createWhenCurrentUserIsDefined(
+  public static UFAuthStatus createWhenCurrentUserIsDefined(
       String userEmail, String proxyGroupEmail, boolean loggedIn) {
     return new Builder()
         .userEmail(userEmail)
@@ -37,7 +37,7 @@ public class CommandAuthStatus {
   }
 
   /** Constructor for when there is NOT a current user defined. */
-  public static CommandAuthStatus createWhenCurrentUserIsUndefined() {
+  public static UFAuthStatus createWhenCurrentUserIsUndefined() {
     return new Builder().loggedIn(false).build();
   }
 
@@ -63,8 +63,8 @@ public class CommandAuthStatus {
     }
 
     /** Call the private constructor. */
-    public CommandAuthStatus build() {
-      return new CommandAuthStatus(this);
+    public UFAuthStatus build() {
+      return new UFAuthStatus(this);
     }
 
     /** Default constructor for Jackson. */

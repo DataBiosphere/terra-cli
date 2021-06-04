@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import java.util.UUID;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -21,11 +21,11 @@ public class Set extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspace = Workspace.load(id);
-    formatOption.printReturnValue(new CommandWorkspace(workspace), this::printText);
+    formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(CommandWorkspace returnValue) {
+  private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully loaded.");
     returnValue.print();
   }

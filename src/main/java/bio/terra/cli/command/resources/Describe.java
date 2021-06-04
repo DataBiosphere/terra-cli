@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources describe" command. */
@@ -19,6 +19,6 @@ public class Describe extends BaseCommand {
   @Override
   protected void execute() {
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    formatOption.printReturnValue(resource.serializeToCommand(), CommandResource::print);
+    formatOption.printReturnValue(resource.serializeToCommand(), UFResource::print);
   }
 }

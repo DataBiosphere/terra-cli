@@ -5,9 +5,9 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateAiNotebook;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
-import bio.terra.cli.serialization.command.resources.CommandAiNotebook;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.StewardshipType;
@@ -285,7 +285,7 @@ public class AiNotebook extends BaseCommand {
 
     bio.terra.cli.businessobject.resources.AiNotebook createdResource =
         bio.terra.cli.businessobject.resources.AiNotebook.createControlled(createParams.build());
-    formatOption.printReturnValue(new CommandAiNotebook(createdResource), AiNotebook::printText);
+    formatOption.printReturnValue(new UFAiNotebook(createdResource), AiNotebook::printText);
   }
 
   /** Create the metadata to put on the AI Notebook instance. */
@@ -347,7 +347,7 @@ public class AiNotebook extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandAiNotebook returnValue) {
+  private static void printText(UFAiNotebook returnValue) {
     OUT.println("Successfully added controlled AI Notebook instance.");
     returnValue.print();
   }

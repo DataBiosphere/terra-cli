@@ -3,7 +3,7 @@ package bio.terra.cli.command.config.getvalue;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandLoggingConfig;
+import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,8 +15,8 @@ public class Logging extends BaseCommand {
   /** Return the logging level properties of the global context. */
   @Override
   protected void execute() {
-    CommandLoggingConfig loggingLevels =
-        new CommandLoggingConfig.Builder()
+    UFLoggingConfig loggingLevels =
+        new UFLoggingConfig.Builder()
             .consoleLoggingLevel(Context.getConfig().getConsoleLoggingLevel())
             .fileLoggingLevel(Context.getConfig().getFileLoggingLevel())
             .build();
@@ -24,7 +24,7 @@ public class Logging extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  public static void printText(CommandLoggingConfig returnValue) {
+  public static void printText(UFLoggingConfig returnValue) {
     OUT.println(
         "[logging, console] logging level for printing directly to the terminal = "
             + returnValue.consoleLoggingLevel);

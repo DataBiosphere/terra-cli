@@ -6,7 +6,7 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.serialization.command.CommandAuthStatus;
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import harness.TestCommand;
 import harness.TestUsers;
 import harness.baseclasses.ClearContextUnit;
@@ -27,9 +27,8 @@ public class AuthStatus extends ClearContextUnit {
     testUser.login();
 
     // `terra auth status --format=json`
-    CommandAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(
-            CommandAuthStatus.class, "auth", "status", "--format=json");
+    UFAuthStatus authStatus =
+        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged in and includes the user & proxy emails
     assertThat(
@@ -47,9 +46,8 @@ public class AuthStatus extends ClearContextUnit {
   @DisplayName("auth status does not include user email and says logged out")
   void authStatusWhenLoggedOut() throws IOException {
     // `terra auth status --format=json`
-    CommandAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(
-            CommandAuthStatus.class, "auth", "status", "--format=json");
+    UFAuthStatus authStatus =
+        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged out and doesn't include user or proxy emails
     assertThat(
@@ -69,9 +67,8 @@ public class AuthStatus extends ClearContextUnit {
     testUser.login();
 
     // `terra auth status --format=json`
-    CommandAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(
-            CommandAuthStatus.class, "auth", "status", "--format=json");
+    UFAuthStatus authStatus =
+        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged in
     assertTrue(authStatus.loggedIn, "auth status indicates user is logged in");
@@ -81,8 +78,7 @@ public class AuthStatus extends ClearContextUnit {
 
     // `terra auth status --format=json`
     authStatus =
-        TestCommand.runCommandExpectSuccess(
-            CommandAuthStatus.class, "auth", "status", "--format=json");
+        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged out
     assertFalse(authStatus.loggedIn, "auth status indicates user is logged out");

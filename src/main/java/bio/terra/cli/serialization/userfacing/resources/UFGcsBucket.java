@@ -1,7 +1,7 @@
-package bio.terra.cli.serialization.command.resources;
+package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.GcsBucket;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -16,18 +16,18 @@ import java.io.PrintStream;
  * <p>See the {@link GcsBucket} class for a bucket's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CommandGcsBucket.Builder.class)
-public class CommandGcsBucket extends CommandResource {
+@JsonDeserialize(builder = UFGcsBucket.Builder.class)
+public class UFGcsBucket extends UFResource {
   public final String bucketName;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandGcsBucket(GcsBucket internalObj) {
+  public UFGcsBucket(GcsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private CommandGcsBucket(Builder builder) {
+  private UFGcsBucket(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
   }
@@ -40,7 +40,7 @@ public class CommandGcsBucket extends CommandResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends CommandResource.Builder {
+  public static class Builder extends UFResource.Builder {
     private String bucketName;
 
     public Builder bucketName(String bucketName) {
@@ -49,8 +49,8 @@ public class CommandGcsBucket extends CommandResource {
     }
 
     /** Call the private constructor. */
-    public CommandGcsBucket build() {
-      return new CommandGcsBucket(this);
+    public UFGcsBucket build() {
+      return new UFGcsBucket(this);
     }
 
     /** Default constructor for Jackson. */

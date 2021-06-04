@@ -4,9 +4,9 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
-import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
-import bio.terra.cli.serialization.persisted.resources.DiskGcsBucket;
+import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -29,7 +29,7 @@ public class GcsBucket extends Resource {
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public GcsBucket(DiskGcsBucket configFromDisk) {
+  public GcsBucket(PDGcsBucket configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
   }
@@ -51,13 +51,13 @@ public class GcsBucket extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public CommandGcsBucket serializeToCommand() {
-    return new CommandGcsBucket(this);
+  public UFGcsBucket serializeToCommand() {
+    return new UFGcsBucket(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public DiskGcsBucket serializeToDisk() {
-    return new DiskGcsBucket(this);
+  public PDGcsBucket serializeToDisk() {
+    return new PDGcsBucket(this);
   }
 
   /**

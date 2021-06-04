@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -26,11 +26,11 @@ public class Create extends BaseCommand {
   @Override
   protected void execute() {
     Workspace workspace = Workspace.create(displayName, description);
-    formatOption.printReturnValue(new CommandWorkspace(workspace), this::printText);
+    formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(CommandWorkspace returnValue) {
+  private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully created.");
     returnValue.print();
   }

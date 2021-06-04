@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspaceUser;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -20,14 +20,14 @@ public class ListUsers extends BaseCommand {
     java.util.List<WorkspaceUser> workspaceUsers = WorkspaceUser.list();
     formatOption.printReturnValue(
         workspaceUsers.stream()
-            .map(workspaceUser -> new CommandWorkspaceUser(workspaceUser))
+            .map(workspaceUser -> new UFWorkspaceUser(workspaceUser))
             .collect(Collectors.toList()),
         ListUsers::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(java.util.List<CommandWorkspaceUser> returnValue) {
-    for (CommandWorkspaceUser workspaceUser : returnValue) {
+  private static void printText(java.util.List<UFWorkspaceUser> returnValue) {
+    for (UFWorkspaceUser workspaceUser : returnValue) {
       workspaceUser.print();
     }
   }

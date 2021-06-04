@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>See the {@link Config} class for a configuration's internal representation.
  */
-@JsonDeserialize(builder = DiskConfig.Builder.class)
-public class DiskConfig {
+@JsonDeserialize(builder = PDConfig.Builder.class)
+public class PDConfig {
   public final BrowserLaunchOption browserLaunchOption;
   public final CommandRunnerOption commandRunnerOption;
   public final String dockerImageId;
@@ -25,7 +25,7 @@ public class DiskConfig {
   public final Logger.LogLevel consoleLoggingLevel;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public DiskConfig(Config internalObj) {
+  public PDConfig(Config internalObj) {
     this.browserLaunchOption = internalObj.getBrowserLaunchOption();
     this.commandRunnerOption = internalObj.getCommandRunnerOption();
     this.dockerImageId = internalObj.getDockerImageId();
@@ -34,7 +34,7 @@ public class DiskConfig {
     this.consoleLoggingLevel = internalObj.getConsoleLoggingLevel();
   }
 
-  private DiskConfig(Builder builder) {
+  private PDConfig(Builder builder) {
     this.browserLaunchOption = builder.browserLaunchOption;
     this.commandRunnerOption = builder.commandRunnerOption;
     this.dockerImageId = builder.dockerImageId;
@@ -83,8 +83,8 @@ public class DiskConfig {
     }
 
     /** Call the private constructor. */
-    public DiskConfig build() {
-      return new DiskConfig(this);
+    public PDConfig build() {
+      return new PDConfig(this);
     }
 
     /** Default constructor for Jackson. */

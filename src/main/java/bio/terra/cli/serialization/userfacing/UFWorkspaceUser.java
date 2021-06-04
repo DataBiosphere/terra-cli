@@ -1,4 +1,4 @@
-package bio.terra.cli.serialization.command;
+package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.utils.Printer;
@@ -17,18 +17,18 @@ import java.util.stream.Collectors;
  *
  * <p>See the {@link WorkspaceUser} class for a workspace user's internal representation.
  */
-@JsonDeserialize(builder = CommandWorkspaceUser.Builder.class)
-public class CommandWorkspaceUser {
+@JsonDeserialize(builder = UFWorkspaceUser.Builder.class)
+public class UFWorkspaceUser {
   public final String email;
   public final List<IamRole> roles;
 
-  public CommandWorkspaceUser(WorkspaceUser internalObj) {
+  public UFWorkspaceUser(WorkspaceUser internalObj) {
     this.email = internalObj.getEmail();
     this.roles = internalObj.getRoles();
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private CommandWorkspaceUser(Builder builder) {
+  private UFWorkspaceUser(Builder builder) {
     this.email = builder.email;
     this.roles = builder.roles;
   }
@@ -56,8 +56,8 @@ public class CommandWorkspaceUser {
     }
 
     /** Call the private constructor. */
-    public CommandWorkspaceUser build() {
-      return new CommandWorkspaceUser(this);
+    public UFWorkspaceUser build() {
+      return new UFWorkspaceUser(this);
     }
 
     /** Default constructor for Jackson. */

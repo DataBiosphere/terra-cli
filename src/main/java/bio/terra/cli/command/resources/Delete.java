@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources delete" command. */
@@ -24,7 +24,7 @@ public class Delete extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandResource returnValue) {
+  private static void printText(UFResource returnValue) {
     OUT.println("Successfully deleted resource.");
     returnValue.print();
   }

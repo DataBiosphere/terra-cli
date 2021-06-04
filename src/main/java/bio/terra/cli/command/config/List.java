@@ -3,7 +3,7 @@ package bio.terra.cli.command.config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandConfig;
+import bio.terra.cli.serialization.userfacing.UFConfig;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra config list" command. */
@@ -18,11 +18,11 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        new CommandConfig(Context.getConfig(), Context.getServer()), List::printText);
+        new UFConfig(Context.getConfig(), Context.getServer()), List::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandConfig returnValue) {
+  private static void printText(UFConfig returnValue) {
     OUT.println("[app-launch] app launch mode = " + returnValue.commandRunnerOption);
     OUT.println("[browser] browser launch for login = " + returnValue.browserLaunchOption);
     OUT.println("[image] docker image id = " + returnValue.dockerImageId);

@@ -3,8 +3,8 @@ package bio.terra.cli.businessobject;
 import bio.terra.cli.businessobject.resources.AiNotebook;
 import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.businessobject.resources.GcsBucket;
-import bio.terra.cli.serialization.command.CommandResource;
-import bio.terra.cli.serialization.persisted.DiskResource;
+import bio.terra.cli.serialization.persisted.PDResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -55,7 +55,7 @@ public abstract class Resource {
   }
 
   /** Deserialize an instance of the disk format to the internal object. */
-  protected Resource(DiskResource configFromDisk) {
+  protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
@@ -111,10 +111,10 @@ public abstract class Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public abstract CommandResource serializeToCommand();
+  public abstract UFResource serializeToCommand();
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public abstract DiskResource serializeToDisk();
+  public abstract PDResource serializeToDisk();
 
   /**
    * Check if the name only contains alphanumeric and underscore characters. Sync the cached list of

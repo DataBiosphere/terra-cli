@@ -2,7 +2,7 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.persisted.DiskContext;
+import bio.terra.cli.serialization.persisted.PDContext;
 import bio.terra.cli.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,8 +45,8 @@ public class Context {
   public static void initializeFromDisk() {
     try {
       // try to read in an instance of the context file
-      DiskContext diskContext =
-          JacksonMapper.readFileIntoJavaObject(getContextFile().toFile(), DiskContext.class);
+      PDContext diskContext =
+          JacksonMapper.readFileIntoJavaObject(getContextFile().toFile(), PDContext.class);
       currentConfig = new Config(diskContext.config);
       currentServer = new Server(diskContext.server);
       currentUser = diskContext.user == null ? null : new User(diskContext.user);
@@ -69,8 +69,8 @@ public class Context {
    */
   public static void synchronizeToDisk() {
     try {
-      DiskContext diskContext =
-          new DiskContext(currentConfig, currentServer, currentUser, currentWorkspace);
+      PDContext diskContext =
+          new PDContext(currentConfig, currentServer, currentUser, currentWorkspace);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
     } catch (IOException ioEx) {
       logger.error("Error persisting context to disk.", ioEx);

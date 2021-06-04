@@ -1,44 +1,50 @@
-package bio.terra.cli.serialization.persisted.resources;
+package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.BqDataset;
-import bio.terra.cli.serialization.persisted.DiskResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.io.PrintStream;
 
 /**
- * External representation of a workspace BQ dataset resource for writing to disk.
+ * External representation of a workspace Big Query dataset resource for command input/output.
  *
- * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
+ * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
  * <p>See the {@link BqDataset} class for a dataset's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = DiskBqDataset.Builder.class)
-public class DiskBqDataset extends DiskResource {
+@JsonDeserialize(builder = UFBqDataset.Builder.class)
+public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
 
-  /** Serialize an instance of the internal class to the disk format. */
-  public DiskBqDataset(BqDataset internalObj) {
+  /** Serialize an instance of the internal class to the command format. */
+  public UFBqDataset(BqDataset internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
   }
 
-  private DiskBqDataset(Builder builder) {
+  /** Constructor for Jackson deserialization during testing. */
+  private UFBqDataset(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
   }
 
-  /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public BqDataset deserializeToInternal() {
-    return new BqDataset(this);
+  /** Print out this object in text format. */
+  public void print() {
+    super.print();
+    PrintStream OUT = Printer.getOut();
+    OUT.println("GCP project id: " + projectId);
+    OUT.println("Big Query dataset id: " + datasetId);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends DiskResource.Builder {
+  public static class Builder extends UFResource.Builder {
     private String projectId;
     private String datasetId;
 
@@ -53,8 +59,8 @@ public class DiskBqDataset extends DiskResource {
     }
 
     /** Call the private constructor. */
-    public DiskBqDataset build() {
-      return new DiskBqDataset(this);
+    public UFBqDataset build() {
+      return new UFBqDataset(this);
     }
 
     /** Default constructor for Jackson. */

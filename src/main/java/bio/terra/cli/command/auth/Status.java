@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandAuthStatus;
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -23,13 +23,13 @@ public class Status extends BaseCommand {
   protected void execute() {
     // check if current user is defined
     Optional<User> currentUserOpt = Context.getUser();
-    CommandAuthStatus authStatusReturnValue;
+    UFAuthStatus authStatusReturnValue;
     if (currentUserOpt.isEmpty()) {
-      authStatusReturnValue = CommandAuthStatus.createWhenCurrentUserIsUndefined();
+      authStatusReturnValue = UFAuthStatus.createWhenCurrentUserIsUndefined();
     } else {
       User currentUser = currentUserOpt.get();
       authStatusReturnValue =
-          CommandAuthStatus.createWhenCurrentUserIsDefined(
+          UFAuthStatus.createWhenCurrentUserIsDefined(
               currentUser.getEmail(),
               currentUser.getProxyGroupEmail(),
               !currentUser.requiresReauthentication());
@@ -40,7 +40,7 @@ public class Status extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private void printText(CommandAuthStatus returnValue) {
+  private void printText(UFAuthStatus returnValue) {
     // check if current user is defined
     if (returnValue.userEmail == null) {
       OUT.println("No current Terra user defined.");

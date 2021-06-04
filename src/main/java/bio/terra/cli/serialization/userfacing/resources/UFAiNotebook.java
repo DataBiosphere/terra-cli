@@ -1,7 +1,7 @@
-package bio.terra.cli.serialization.command.resources;
+package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.AiNotebook;
-import bio.terra.cli.serialization.command.CommandResource;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,8 +17,8 @@ import java.io.PrintStream;
  * <p>See the {@link AiNotebook} class for a notebook's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CommandAiNotebook.Builder.class)
-public class CommandAiNotebook extends CommandResource {
+@JsonDeserialize(builder = UFAiNotebook.Builder.class)
+public class UFAiNotebook extends UFResource {
   public final String projectId;
   public final String instanceId;
   public final String location;
@@ -28,7 +28,7 @@ public class CommandAiNotebook extends CommandResource {
   public final String createTime;
 
   /** Serialize an instance of the internal class to the command format. */
-  public CommandAiNotebook(AiNotebook internalObj) {
+  public UFAiNotebook(AiNotebook internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.instanceId = internalObj.getInstanceId();
@@ -42,7 +42,7 @@ public class CommandAiNotebook extends CommandResource {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private CommandAiNotebook(Builder builder) {
+  private UFAiNotebook(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.instanceId = builder.instanceId;
@@ -67,7 +67,7 @@ public class CommandAiNotebook extends CommandResource {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public static class Builder extends CommandResource.Builder {
+  public static class Builder extends UFResource.Builder {
     private String projectId;
     private String instanceId;
     private String location;
@@ -112,8 +112,8 @@ public class CommandAiNotebook extends CommandResource {
     }
 
     /** Call the private constructor. */
-    public CommandAiNotebook build() {
-      return new CommandAiNotebook(this);
+    public UFAiNotebook build() {
+      return new UFAiNotebook(this);
     }
 
     /** Default constructor for Jackson. */

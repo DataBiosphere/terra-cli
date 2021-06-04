@@ -4,7 +4,7 @@ import bio.terra.cli.apps.CommandRunner;
 import bio.terra.cli.apps.DockerCommandRunner;
 import bio.terra.cli.apps.LocalProcessCommandRunner;
 import bio.terra.cli.apps.utils.DockerClientWrapper;
-import bio.terra.cli.serialization.persisted.DiskConfig;
+import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class Config {
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
   /** Build an instance of this class from the serialized format on disk. */
-  public Config(DiskConfig configFromDisk) {
+  public Config(PDConfig configFromDisk) {
     this.browserLaunchOption = configFromDisk.browserLaunchOption;
     this.commandRunnerOption = configFromDisk.commandRunnerOption;
     this.dockerImageId = configFromDisk.dockerImageId;

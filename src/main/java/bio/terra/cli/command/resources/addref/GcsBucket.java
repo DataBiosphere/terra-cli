@@ -3,9 +3,9 @@ package bio.terra.cli.command.resources.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateGcsBucket;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateResource;
-import bio.terra.cli.serialization.command.resources.CommandGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -39,11 +39,11 @@ public class GcsBucket extends BaseCommand {
 
     bio.terra.cli.businessobject.resources.GcsBucket addedResource =
         bio.terra.cli.businessobject.resources.GcsBucket.addReferenced(createParams.build());
-    formatOption.printReturnValue(new CommandGcsBucket(addedResource), GcsBucket::printText);
+    formatOption.printReturnValue(new UFGcsBucket(addedResource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(CommandGcsBucket returnValue) {
+  private static void printText(UFGcsBucket returnValue) {
     OUT.println("Successfully added referenced GCS bucket.");
     returnValue.print();
   }

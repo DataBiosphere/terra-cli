@@ -16,26 +16,26 @@ import javax.annotation.Nullable;
  *
  * <p>See the {@link Context} class for the current context's internal representation.
  */
-@JsonDeserialize(builder = DiskContext.Builder.class)
-public class DiskContext {
-  public final DiskConfig config;
-  public final DiskServer server;
-  public final DiskUser user;
-  public final DiskWorkspace workspace;
+@JsonDeserialize(builder = PDContext.Builder.class)
+public class PDContext {
+  public final PDConfig config;
+  public final PDServer server;
+  public final PDUser user;
+  public final PDWorkspace workspace;
 
   /** Serialize an instance of the internal classes to the disk format. */
-  public DiskContext(
+  public PDContext(
       Config internalConfig,
       Server internalServer,
       @Nullable User internalUser,
       @Nullable Workspace internalWorkspace) {
-    this.config = new DiskConfig(internalConfig);
-    this.server = new DiskServer(internalServer);
-    this.user = internalUser == null ? null : new DiskUser(internalUser);
-    this.workspace = internalWorkspace == null ? null : new DiskWorkspace(internalWorkspace);
+    this.config = new PDConfig(internalConfig);
+    this.server = new PDServer(internalServer);
+    this.user = internalUser == null ? null : new PDUser(internalUser);
+    this.workspace = internalWorkspace == null ? null : new PDWorkspace(internalWorkspace);
   }
 
-  private DiskContext(DiskContext.Builder builder) {
+  private PDContext(PDContext.Builder builder) {
     this.config = builder.config;
     this.server = builder.server;
     this.user = builder.user;
@@ -44,34 +44,34 @@ public class DiskContext {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private DiskConfig config;
-    private DiskServer server;
-    private DiskUser user;
-    private DiskWorkspace workspace;
+    private PDConfig config;
+    private PDServer server;
+    private PDUser user;
+    private PDWorkspace workspace;
 
-    public Builder config(DiskConfig config) {
+    public Builder config(PDConfig config) {
       this.config = config;
       return this;
     }
 
-    public Builder server(DiskServer server) {
+    public Builder server(PDServer server) {
       this.server = server;
       return this;
     }
 
-    public Builder user(DiskUser user) {
+    public Builder user(PDUser user) {
       this.user = user;
       return this;
     }
 
-    public Builder workspace(DiskWorkspace workspace) {
+    public Builder workspace(PDWorkspace workspace) {
       this.workspace = workspace;
       return this;
     }
 
     /** Call the private constructor. */
-    public DiskContext build() {
-      return new DiskContext(this);
+    public PDContext build() {
+      return new PDContext(this);
     }
 
     /** Default constructor for Jackson. */

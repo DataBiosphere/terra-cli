@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -40,15 +40,15 @@ public class List extends BaseCommand {
     java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
     formatOption.printReturnValue(
         workspaces.stream()
-            .map(workspace -> new CommandWorkspace(workspace))
+            .map(workspace -> new UFWorkspace(workspace))
             .collect(Collectors.toList()),
         this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<CommandWorkspace> returnValue) {
+  private void printText(java.util.List<UFWorkspace> returnValue) {
     Optional<Workspace> currentWorkspace = Context.getWorkspace();
-    for (CommandWorkspace workspace : returnValue) {
+    for (UFWorkspace workspace : returnValue) {
       String prefix =
           (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
               ? " * "

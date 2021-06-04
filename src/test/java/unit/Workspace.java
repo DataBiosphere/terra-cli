@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import bio.terra.cli.serialization.command.CommandStatus;
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFStatus;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUsers;
@@ -31,9 +31,9 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create --format=json`
-    CommandWorkspace createWorkspace =
+    UFWorkspace createWorkspace =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "create", "--format=json");
+            UFWorkspace.class, "workspace", "create", "--format=json");
 
     // check the created workspace has an id and a google project
     assertNotNull(createWorkspace.id, "create workspace returned a workspace id");
@@ -44,8 +44,8 @@ public class Workspace extends ClearContextUnit {
         equalToIgnoringCase(testUser.email));
 
     // `terra status --format=json`
-    CommandStatus status =
-        TestCommand.runCommandExpectSuccess(CommandStatus.class, "status", "--format=json");
+    UFStatus status =
+        TestCommand.runCommandExpectSuccess(UFStatus.class, "status", "--format=json");
 
     // check the current status reflects the new workspace
     assertThat(
@@ -59,12 +59,12 @@ public class Workspace extends ClearContextUnit {
         "workspace gcp project matches current status");
 
     // `terra workspace list --format=json`
-    List<CommandWorkspace> listWorkspaces =
+    List<UFWorkspace> listWorkspaces =
         TestCommand.runCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list", "--format=json");
 
     // check the new workspace is included in the list
-    List<CommandWorkspace> matchingWorkspaces =
+    List<UFWorkspace> matchingWorkspaces =
         listWorkspaces.stream()
             .filter(workspace -> workspace.id.equals(createWorkspace.id))
             .collect(Collectors.toList());
@@ -87,14 +87,14 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create --format=json`
-    CommandWorkspace createWorkspace =
+    UFWorkspace createWorkspace =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "create", "--format=json");
+            UFWorkspace.class, "workspace", "create", "--format=json");
 
     // `terra workspace delete --format=json`
-    CommandWorkspace deleteWorkspace =
+    UFWorkspace deleteWorkspace =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "delete", "--format=json");
+            UFWorkspace.class, "workspace", "delete", "--format=json");
 
     // check the deleted workspace matches the created workspace
     assertEquals(createWorkspace.id, deleteWorkspace.id, "deleted workspace id matches created");
@@ -104,19 +104,19 @@ public class Workspace extends ClearContextUnit {
         "deleted workspace gcp project matches created");
 
     // `terra status --format=json`
-    CommandStatus status =
-        TestCommand.runCommandExpectSuccess(CommandStatus.class, "status", "--format=json");
+    UFStatus status =
+        TestCommand.runCommandExpectSuccess(UFStatus.class, "status", "--format=json");
 
     // check the current status reflects the deleted workspace
     assertNull(status.workspace, "status has no workspace after delete");
 
     // `terra workspace list --format=json`
-    List<CommandWorkspace> listWorkspaces =
+    List<UFWorkspace> listWorkspaces =
         TestCommand.runCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list", "--format=json");
 
     // check the deleted workspace is not included in the list
-    List<CommandWorkspace> matchingWorkspaces =
+    List<UFWorkspace> matchingWorkspaces =
         listWorkspaces.stream()
             .filter(workspace -> workspace.id.equals(createWorkspace.id))
             .collect(Collectors.toList());
@@ -133,9 +133,9 @@ public class Workspace extends ClearContextUnit {
     // `terra workspace create --format=json --name=$name --description=$description`
     String name = "statusListReflectUpdate";
     String description = "status list reflect update";
-    CommandWorkspace createWorkspace =
+    UFWorkspace createWorkspace =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class,
+            UFWorkspace.class,
             "workspace",
             "create",
             "--format=json",
@@ -157,8 +157,8 @@ public class Workspace extends ClearContextUnit {
         "--description=" + newDescription);
 
     // `terra status --format=json`
-    CommandStatus status =
-        TestCommand.runCommandExpectSuccess(CommandStatus.class, "status", "--format=json");
+    UFStatus status =
+        TestCommand.runCommandExpectSuccess(UFStatus.class, "status", "--format=json");
 
     // check the current status reflects the update
     assertEquals(newName, status.workspace.name, "status matches updated workspace name");
@@ -168,12 +168,12 @@ public class Workspace extends ClearContextUnit {
         "status matches updated workspace description");
 
     // `terra workspace list --format=json`
-    List<CommandWorkspace> listWorkspaces =
+    List<UFWorkspace> listWorkspaces =
         TestCommand.runCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list", "--format=json");
 
     // check the workspace list reflects the update
-    List<CommandWorkspace> matchingWorkspaces =
+    List<UFWorkspace> matchingWorkspaces =
         listWorkspaces.stream()
             .filter(workspace -> workspace.id.equals(createWorkspace.id))
             .collect(Collectors.toList());
@@ -198,44 +198,36 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create --format=json` (workspace 1)
-    CommandWorkspace createWorkspace1 =
+    UFWorkspace createWorkspace1 =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "create", "--format=json");
+            UFWorkspace.class, "workspace", "create", "--format=json");
 
     // `terra workspace create --format=json` (workspace 2)
-    CommandWorkspace createWorkspace2 =
+    UFWorkspace createWorkspace2 =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "create", "--format=json");
+            UFWorkspace.class, "workspace", "create", "--format=json");
 
     // set current workspace = workspace 1
-    CommandWorkspace setWorkspace1 =
+    UFWorkspace setWorkspace1 =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class,
-            "workspace",
-            "set",
-            "--id=" + createWorkspace1.id,
-            "--format=json");
+            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace1.id, "--format=json");
     assertEquals(createWorkspace1.id, setWorkspace1.id, "set returned the expected workspace (1)");
 
     // `terra status --format=json`
-    CommandStatus status =
-        TestCommand.runCommandExpectSuccess(CommandStatus.class, "status", "--format=json");
+    UFStatus status =
+        TestCommand.runCommandExpectSuccess(UFStatus.class, "status", "--format=json");
 
     // check the current status reflects the workspace set
     assertEquals(createWorkspace1.id, status.workspace.id, "status matches set workspace id (1)");
 
     // set current workspace = workspace 2
-    CommandWorkspace setWorkspace2 =
+    UFWorkspace setWorkspace2 =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class,
-            "workspace",
-            "set",
-            "--id=" + createWorkspace2.id,
-            "--format=json");
+            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace2.id, "--format=json");
     assertEquals(createWorkspace2.id, setWorkspace2.id, "set returned the expected workspace (2)");
 
     // `terra status --format=json`
-    status = TestCommand.runCommandExpectSuccess(CommandStatus.class, "status", "--format=json");
+    status = TestCommand.runCommandExpectSuccess(UFStatus.class, "status", "--format=json");
 
     // check the current status reflects the workspace set
     assertEquals(createWorkspace2.id, status.workspace.id, "status matches set workspace id (2)");

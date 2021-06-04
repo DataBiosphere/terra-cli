@@ -3,7 +3,7 @@ package bio.terra.cli.command;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.command.CommandStatus;
+import bio.terra.cli.serialization.userfacing.UFStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,13 +16,13 @@ public class Status extends BaseCommand {
   /** Build the return value from the global and workspace context. */
   @Override
   protected void execute() {
-    CommandStatus statusReturnValue =
-        new CommandStatus(Context.getServer(), Context.getWorkspace().orElse(null));
+    UFStatus statusReturnValue =
+        new UFStatus(Context.getServer(), Context.getWorkspace().orElse(null));
     formatOption.printReturnValue(statusReturnValue, this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(CommandStatus returnValue) {
+  private void printText(UFStatus returnValue) {
     // check if current workspace is defined
     if (returnValue.workspace == null) {
       OUT.println("There is no current Terra workspace defined.");

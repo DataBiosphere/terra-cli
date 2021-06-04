@@ -4,9 +4,9 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.command.createupdate.CreateUpdateBqDataset;
-import bio.terra.cli.serialization.command.resources.CommandBqDataset;
-import bio.terra.cli.serialization.persisted.resources.DiskBqDataset;
+import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -36,7 +36,7 @@ public class BqDataset extends Resource {
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public BqDataset(DiskBqDataset configFromDisk) {
+  public BqDataset(PDBqDataset configFromDisk) {
     super(configFromDisk);
     this.projectId = configFromDisk.projectId;
     this.datasetId = configFromDisk.datasetId;
@@ -61,13 +61,13 @@ public class BqDataset extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public CommandBqDataset serializeToCommand() {
-    return new CommandBqDataset(this);
+  public UFBqDataset serializeToCommand() {
+    return new UFBqDataset(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public DiskBqDataset serializeToDisk() {
-    return new DiskBqDataset(this);
+  public PDBqDataset serializeToDisk() {
+    return new PDBqDataset(this);
   }
 
   /**

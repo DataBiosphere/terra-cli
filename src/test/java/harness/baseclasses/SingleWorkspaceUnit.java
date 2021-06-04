@@ -1,6 +1,6 @@
 package harness.baseclasses;
 
-import bio.terra.cli.serialization.command.CommandWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUsers;
@@ -25,9 +25,9 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     workspaceCreator.login();
 
     // `terra workspace create --format=json`
-    CommandWorkspace createWorkspace =
+    UFWorkspace createWorkspace =
         TestCommand.runCommandExpectSuccess(
-            CommandWorkspace.class, "workspace", "create", "--format=json");
+            UFWorkspace.class, "workspace", "create", "--format=json");
     workspaceId = createWorkspace.id;
   }
 
