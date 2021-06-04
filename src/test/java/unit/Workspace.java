@@ -69,10 +69,11 @@ public class Workspace extends ClearContextUnit {
             .filter(workspace -> workspace.id.equals(createWorkspace.id))
             .collect(Collectors.toList());
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
-    assertEquals(createWorkspace.id, listWorkspaces.get(0).id, "workspace id matches that in list");
+    assertEquals(
+        createWorkspace.id, matchingWorkspaces.get(0).id, "workspace id matches that in list");
     assertEquals(
         createWorkspace.googleProjectId,
-        listWorkspaces.get(0).googleProjectId,
+        matchingWorkspaces.get(0).googleProjectId,
         "workspace gcp project matches that in list");
 
     // `terra workspace delete`
