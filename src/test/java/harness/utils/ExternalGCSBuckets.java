@@ -1,4 +1,4 @@
-package harness;
+package harness.utils;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -19,12 +19,21 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /** Utility methods for creating external GCS buckets for testing workspace references. */
-public class TestGCSBucketReferences {
+public class ExternalGCSBuckets {
   public static final String gcpProjectId = "terra-cli-dev";
 
   private static final String saKeyFile = "./rendered/ci-account.json";
   private static final List<String> cloudPlatformScope =
       Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+
+  /**
+   * Get a bucket. This is helpful for testing controlled GCS bucket resources. It allows tests to
+   * check metadata that is not stored in WSM, only in GCS.
+   */
+  public static Bucket getBucket(String bucketName, GoogleCredentials credentials)
+      throws IOException {
+    return getStorageClient(credentials).get(bucketName);
+  }
 
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
@@ -89,9 +98,14 @@ public class TestGCSBucketReferences {
     GoogleCredentials saCredentials =
         ServiceAccountCredentials.fromStream(new FileInputStream(saKeyFile))
             .createScoped(cloudPlatformScope);
+    return getStorageClient(saCredentials);
+  }
+
+  /** Helper method to build the GCS client object with the given credentials. */
+  private static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
     return StorageOptions.newBuilder()
         .setProjectId(gcpProjectId)
-        .setCredentials(saCredentials)
+        .setCredentials(credentials)
         .build()
         .getService();
   }

@@ -65,11 +65,16 @@ public class TestCommand {
     return objectMapper.readValue(cmd.stdOut, objectType);
   }
 
+  /** Helper method to run a command and check its exit code matches that specified. */
+  public static Result runCommandExpectExitCode(int exitCode, String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(exitCode, cmd.exitCode, "exit code = " + exitCode);
+    return cmd;
+  }
+
   /** Helper method to run a command and check its exit code is 0=success. */
   public static Result runCommandExpectSuccess(String... args) {
-    Result cmd = runCommand(args);
-    assertEquals(0, cmd.exitCode, "exit code = success");
-    return cmd;
+    return runCommandExpectExitCode(0, args);
   }
 
   /**

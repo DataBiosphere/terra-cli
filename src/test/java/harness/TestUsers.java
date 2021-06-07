@@ -58,22 +58,9 @@ public enum TestUsers {
    * @return global context object, populated with the user's credentials
    */
   public void login() throws IOException {
-    // get a credential for the test-user SA
-    Path jsonKey = Path.of("rendered", "test-user-account.json");
-    if (!jsonKey.toFile().exists()) {
-      throw new FileNotFoundException(
-          "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
-              + jsonKey.toAbsolutePath()
-              + ")");
-    }
-    GoogleCredentials serviceAccountCredential =
-        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(User.SCOPES);
-
-    // use the test-user SA to get a domain-wide delegated credential for the test user
+    // get domain-wide delegated credentials for this user
     System.out.println("Logging in test user: " + email);
-    GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
-    delegatedUserCredential.refreshIfExpired();
+    GoogleCredentials delegatedUserCredential = getCredentials();
 
     // use the domain-wide delegated credential to build a stored credential for the test user
     StoredCredential dwdStoredCredential = new StoredCredential();
@@ -91,6 +78,27 @@ public enum TestUsers {
 
     // do the login flow to populate the global context with the current user
     User.login();
+  }
+
+  /** Get domain-wide delegated Google credentials for this user. */
+  public GoogleCredentials getCredentials() throws IOException {
+    // get a credential for the test-user SA
+    Path jsonKey = Path.of("rendered", "test-user-account.json");
+    if (!jsonKey.toFile().exists()) {
+      throw new FileNotFoundException(
+          "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
+              + jsonKey.toAbsolutePath()
+              + ")");
+    }
+    GoogleCredentials serviceAccountCredential =
+        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
+            .createScoped(User.SCOPES);
+
+    // use the test-user SA to get a domain-wide delegated credential for the test user
+    System.out.println("Logging in test user: " + email);
+    GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
+    delegatedUserCredential.refreshIfExpired();
+    return delegatedUserCredential;
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */

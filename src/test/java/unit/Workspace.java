@@ -251,8 +251,7 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create`
-    TestCommand.Result cmd = TestCommand.runCommand("workspace", "create");
-    assertEquals(2, cmd.exitCode, "exit code = system exception");
+    TestCommand.Result cmd = TestCommand.runCommandExpectExitCode(2, "workspace", "create");
     assertThat(
         "error message includes spend profile unauthorized",
         cmd.stdErr,
