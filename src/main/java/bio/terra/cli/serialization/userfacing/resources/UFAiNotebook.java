@@ -3,7 +3,6 @@ package bio.terra.cli.serialization.userfacing.resources;
 import bio.terra.cli.businessobject.resources.AiNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.api.services.notebooks.v1.model.Instance;
@@ -16,7 +15,6 @@ import java.io.PrintStream;
  *
  * <p>See the {@link AiNotebook} class for a notebook's internal representation.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UFAiNotebook.Builder.class)
 public class UFAiNotebook extends UFResource {
   public final String projectId;

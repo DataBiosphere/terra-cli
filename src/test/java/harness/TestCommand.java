@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class TestCommand {
 
-  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   private TestCommand() {}
 

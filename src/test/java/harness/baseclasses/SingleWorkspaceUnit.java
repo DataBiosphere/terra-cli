@@ -24,7 +24,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   }
 
   @BeforeAll
-  static void setupOnce() throws IOException {
+  protected static void setupOnce() throws IOException {
     TestContext.clearGlobalContextDir();
     resetContext();
 
@@ -38,7 +38,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   }
 
   @AfterAll
-  static void cleanupOnce() throws IOException {
+  protected static void cleanupOnce() throws IOException {
     TestContext.clearGlobalContextDir();
     resetContext();
 
