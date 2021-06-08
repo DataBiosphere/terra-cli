@@ -1,7 +1,9 @@
 package harness.utils;
 
+import static harness.TestExternalResources.getProjectId;
+import static harness.TestExternalResources.getSACredentials;
+
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.storage.Bucket;
@@ -10,8 +12,6 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
-import harness.TestExternalResources;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,8 +28,8 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for an external project.
+   * Create a bucket in the external project. This is helpful for testing referenced GCS bucket
+   * resources. This method uses SA credentials for the external project.
    */
   public static Bucket createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
@@ -52,20 +52,20 @@ public class ExternalGCSBuckets {
             + " with storage class "
             + bucket.getStorageClass()
             + " in project "
-            + TestExternalResources.gcpProjectId);
+            + getProjectId());
     return bucket;
   }
 
   /**
-   * Delete a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for an external project.
+   * Delete a bucket in the external project. This is helpful for testing referenced GCS bucket
+   * resources. This method uses SA credentials for the external project.
    */
   public static void deleteBucket(Bucket bucket) throws IOException {
     getStorageClient().delete(bucket.getName());
   }
 
   /**
-   * Grant a given user object viewer access to a bucket. This method uses SA credentials for an
+   * Grant a given user object viewer access to a bucket. This method uses SA credentials for the
    * external project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
@@ -83,18 +83,15 @@ public class ExternalGCSBuckets {
     getStorageClient().setIamPolicy(bucket.getName(), updatedPolicy);
   }
 
-  /** Helper method to build the GCS client object with SA credentials for an external project. */
+  /** Helper method to build the GCS client object with SA credentials for the external project. */
   private static Storage getStorageClient() throws IOException {
-    GoogleCredentials saCredentials =
-        ServiceAccountCredentials.fromStream(new FileInputStream(TestExternalResources.saKeyFile))
-            .createScoped(TestExternalResources.cloudPlatformScope);
-    return getStorageClient(saCredentials);
+    return getStorageClient(getSACredentials());
   }
 
   /** Helper method to build the GCS client object with the given credentials. */
   private static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
     return StorageOptions.newBuilder()
-        .setProjectId(TestExternalResources.gcpProjectId)
+        .setProjectId(getProjectId())
         .setCredentials(credentials)
         .build()
         .getService();

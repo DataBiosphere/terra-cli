@@ -32,8 +32,10 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
   void listDescribeReflectCreate() throws IOException {
     workspaceCreator.login();
 
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    // `terra workspace set --id=$id --format=json`
+    UFWorkspace workspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--format=json");
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listDescribeReflectCreate";
@@ -48,8 +50,10 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "--dataset-id=" + datasetId,
             "--format=json");
 
-    // check that the name and dataset id match
+    // check that the name, project id, and dataset id match
     assertEquals(name, createdDataset.name, "create output matches name");
+    assertEquals(
+        workspace.googleProjectId, createdDataset.projectId, "create output matches project id");
     assertEquals(datasetId, createdDataset.datasetId, "create output matches dataset id");
 
     // check that the dataset is in the list
@@ -62,8 +66,12 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resources", "describe", "--name=" + name, "--format=json");
 
-    // check that the name and bucket name match
+    // check that the name, project id, and dataset id match
     assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        workspace.googleProjectId,
+        describeResource.projectId,
+        "describe resource output matches project id");
     assertEquals(
         datasetId, describeResource.datasetId, "describe resource output matches dataset id");
 
@@ -76,8 +84,10 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
   void listReflectsDelete() throws IOException {
     workspaceCreator.login();
 
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    // `terra workspace set --id=$id --format=json`
+    UFWorkspace workspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--format=json");
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listReflectsDelete";
@@ -95,11 +105,13 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resources", "delete", "--name=" + name, "--format=json");
 
-    // check that the name and bucket name match
+    // check that the name, project id, and dataset id match
     assertEquals(name, deletedDataset.name, "delete output matches name");
+    assertEquals(
+        workspace.googleProjectId, deletedDataset.projectId, "delete output matches project id");
     assertEquals(datasetId, deletedDataset.datasetId, "delete output matches dataset id");
 
-    // check that the bucket is not in the list
+    // check that the dataset is not in the list
     List<UFBqDataset> matchedResources = listDatasetResourceWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
@@ -235,6 +247,8 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
     // check that the properties match
     assertEquals(name, createdDataset.name, "create output matches name");
+    assertEquals(
+        workspace.googleProjectId, createdDataset.projectId, "create output matches project id");
     assertEquals(datasetId, createdDataset.datasetId, "create output matches dataset id");
     assertEquals(access, createdDataset.accessScope, "create output matches access");
     assertEquals(cloning, createdDataset.cloningInstructions, "create output matches cloning");
@@ -294,7 +308,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "resources", "list", "--type=BQ_DATASET", "--format=json");
 
-    // find the matching bucket in the list
+    // find the matching dataset in the list
     return listedResources.stream()
         .filter(resource -> resource.name.equals(resourceName))
         .collect(Collectors.toList());

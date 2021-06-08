@@ -55,7 +55,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
-    assertEquals(bucketName, (matchedResource).bucketName, "list output matches bucket name");
+    assertEquals(bucketName, matchedResource.bucketName, "list output matches bucket name");
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =

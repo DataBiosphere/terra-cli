@@ -68,7 +68,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
-        externalBucket.getName(), (matchedResource).bucketName, "list output matches bucket name");
+        externalBucket.getName(), matchedResource.bucketName, "list output matches bucket name");
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
