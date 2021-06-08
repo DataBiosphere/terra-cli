@@ -10,21 +10,13 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
+import harness.TestExternalResources;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 /** Utility methods for creating external GCS buckets for testing workspace references. */
 public class ExternalGCSBuckets {
-  public static final String gcpProjectId = "terra-cli-dev";
-
-  private static final String saKeyFile = "./rendered/ci-account.json";
-  private static final List<String> cloudPlatformScope =
-      Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
-
   /**
    * Get a bucket. This is helpful for testing controlled GCS bucket resources. It allows tests to
    * check metadata that is not stored in WSM, only in GCS. This method takes in the credentials to
@@ -60,7 +52,7 @@ public class ExternalGCSBuckets {
             + " with storage class "
             + bucket.getStorageClass()
             + " in project "
-            + gcpProjectId);
+            + TestExternalResources.gcpProjectId);
     return bucket;
   }
 
@@ -94,15 +86,15 @@ public class ExternalGCSBuckets {
   /** Helper method to build the GCS client object with SA credentials for an external project. */
   private static Storage getStorageClient() throws IOException {
     GoogleCredentials saCredentials =
-        ServiceAccountCredentials.fromStream(new FileInputStream(saKeyFile))
-            .createScoped(cloudPlatformScope);
+        ServiceAccountCredentials.fromStream(new FileInputStream(TestExternalResources.saKeyFile))
+            .createScoped(TestExternalResources.cloudPlatformScope);
     return getStorageClient(saCredentials);
   }
 
   /** Helper method to build the GCS client object with the given credentials. */
   private static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
     return StorageOptions.newBuilder()
-        .setProjectId(gcpProjectId)
+        .setProjectId(TestExternalResources.gcpProjectId)
         .setCredentials(credentials)
         .build()
         .getService();
