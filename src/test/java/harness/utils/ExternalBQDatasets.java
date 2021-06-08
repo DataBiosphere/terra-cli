@@ -43,14 +43,6 @@ public class ExternalBQDatasets {
   }
 
   /**
-   * Delete a dataset in the external project. This is helpful for testing referenced BQ dataset
-   * resources. This method uses SA credentials for the external project.
-   */
-  public static void deleteDataset(Dataset dataset) throws IOException {
-    getBQClient().delete(dataset.getDatasetId());
-  }
-
-  /**
    * Grant a given user reader access to a dataset. This method uses SA credentials for the external
    * project.
    */

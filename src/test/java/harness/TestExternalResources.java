@@ -33,6 +33,7 @@ public class TestExternalResources {
         .createScoped(TestExternalResources.cloudPlatformScope);
   }
 
+  /** Get the external project id. */
   public static String getProjectId() {
     return gcpProjectId;
   }
