@@ -68,6 +68,7 @@ def clone_bucket(resource):
         exit(1)
     return result
 
+
 def clone_bq_dataset(resource):
     print(f"Cloning BQ dataset {resource['metadata']['name']}...")
     return get_json_stdout(
