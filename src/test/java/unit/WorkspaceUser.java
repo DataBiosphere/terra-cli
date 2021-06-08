@@ -33,7 +33,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
         TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
+            new TypeReference<>() {}, "workspace", "list-users");
 
     for (UFWorkspaceUser user : listWorkspaceUsers) {
       if (user.email.equalsIgnoreCase(workspaceCreator.email)) {
@@ -78,8 +78,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
             "workspace",
             "add-user",
             "--email=" + testUser.email,
-            "--role=READER",
-            "--format=json");
+            "--role=READER");
 
     // check that the user has the READER role
     assertTrue(addUserReader.roles.contains(IamRole.READER), "reader role returned by add-user");
@@ -94,8 +93,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
             "workspace",
             "add-user",
             "--email=" + testUser.email,
-            "--role=WRITER",
-            "--format=json");
+            "--role=WRITER");
 
     // check that the user has both the READER and WRITER roles
     assertTrue(
@@ -163,7 +161,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
         TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
+            new TypeReference<>() {}, "workspace", "list-users");
 
     // find the user in the list
     return listWorkspaceUsers.stream()

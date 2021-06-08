@@ -45,8 +45,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "create",
             "gcs-bucket",
             "--name=" + name,
-            "--bucket-name=" + bucketName,
-            "--format=json");
+            "--bucket-name=" + bucketName);
 
     // check that the name and bucket name match
     assertEquals(name, createdBucket.name, "create output matches name");
@@ -55,12 +54,12 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
-    assertEquals(bucketName, (matchedResource).bucketName, "list output matches bucket name");
+    assertEquals(bucketName, matchedResource.bucketName, "list output matches bucket name");
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "describe", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -93,7 +92,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "delete", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "delete", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, deletedBucket.name, "delete output matches name");
@@ -126,18 +125,13 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name, "--format=json");
+            String.class, "resources", "resolve", "--name=" + name);
     assertEquals("gs://" + bucketName, resolved, "default resolve includes gs:// prefix");
 
     // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class,
-            "resources",
-            "resolve",
-            "--name=" + name,
-            "--exclude-bucket-prefix",
-            "--format=json");
+            String.class, "resources", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         bucketName, resolvedExcludePrefix, "exclude prefix resolve only includes bucket name");
 
@@ -209,8 +203,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "--email=" + workspaceCreator.email.toLowerCase(),
             "--iam-roles=" + iamRole,
             "--location=" + location,
-            "--storage=" + storage,
-            "--format=json");
+            "--storage=" + storage);
 
     // check that the properties match
     assertEquals(name, createdBucket.name, "create output matches name");
@@ -225,7 +218,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getBucket(bucketName, workspaceCreator.getCredentials());
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         location, createdBucketOnCloud.getLocation(), "bucket location matches create input");
@@ -237,7 +230,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -274,7 +267,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources list --type=GCS_BUCKET --format=json`
     List<UFGcsBucket> listedResources =
         TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET", "--format=json");
+            new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET");
 
     // find the matching bucket in the list
     return listedResources.stream()
