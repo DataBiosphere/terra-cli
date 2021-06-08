@@ -4,6 +4,8 @@ import bio.terra.cli.businessobject.resources.AiNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.api.services.notebooks.v1.model.Instance;
 import java.io.PrintStream;
 
@@ -15,6 +17,7 @@ import java.io.PrintStream;
  * <p>See the {@link AiNotebook} class for a notebook's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonDeserialize(builder = UFAiNotebook.Builder.class)
 public class UFAiNotebook extends UFResource {
   public final String projectId;
   public final String instanceId;
@@ -38,6 +41,18 @@ public class UFAiNotebook extends UFResource {
     this.createTime = instance.getCreateTime();
   }
 
+  /** Constructor for Jackson deserialization during testing. */
+  private UFAiNotebook(Builder builder) {
+    super(builder);
+    this.projectId = builder.projectId;
+    this.instanceId = builder.instanceId;
+    this.location = builder.location;
+    this.instanceName = builder.instanceName;
+    this.state = builder.state;
+    this.proxyUri = builder.proxyUri;
+    this.createTime = builder.createTime;
+  }
+
   /** Print out this object in text format. */
   public void print() {
     super.print();
@@ -49,5 +64,59 @@ public class UFAiNotebook extends UFResource {
     OUT.println("State:         " + state);
     OUT.println("Proxy URL:     " + proxyUri);
     OUT.println("Create time:   " + createTime);
+  }
+
+  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+  public static class Builder extends UFResource.Builder {
+    private String projectId;
+    private String instanceId;
+    private String location;
+    private String instanceName;
+    private String state;
+    private String proxyUri;
+    private String createTime;
+
+    public Builder projectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public Builder instanceId(String instanceId) {
+      this.instanceId = instanceId;
+      return this;
+    }
+
+    public Builder location(String location) {
+      this.location = location;
+      return this;
+    }
+
+    public Builder instanceName(String instanceName) {
+      this.instanceName = instanceName;
+      return this;
+    }
+
+    public Builder state(String state) {
+      this.state = state;
+      return this;
+    }
+
+    public Builder proxyUri(String proxyUri) {
+      this.proxyUri = proxyUri;
+      return this;
+    }
+
+    public Builder createTime(String createTime) {
+      this.createTime = createTime;
+      return this;
+    }
+
+    /** Call the private constructor. */
+    public UFAiNotebook build() {
+      return new UFAiNotebook(this);
+    }
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
   }
 }

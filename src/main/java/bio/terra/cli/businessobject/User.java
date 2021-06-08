@@ -111,13 +111,14 @@ public class User {
       user.proxyGroupEmail = samService.getProxyGroupEmail();
     }
 
-    // always fetch the pet SA credentials because there is a different pet SA per workspace
-    user.fetchPetSaCredentials();
-
     // update the global context on disk with the current user
     if (!currentUser.isPresent()) {
       Context.setUser(user);
     }
+
+    // always fetch the pet SA credentials because there is a different pet SA per workspace
+    // do this after updating the context so that we can call Context.requireUser in this method
+    user.fetchPetSaCredentials();
   }
 
   /** Delete all credentials associated with this user. */

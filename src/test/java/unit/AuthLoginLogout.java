@@ -64,8 +64,7 @@ public class AuthLoginLogout extends ClearContextUnit {
     testUser.login();
 
     // `terra auth revoke`
-    TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
-    assertEquals(0, cmd.exitCode);
+    TestCommand.runCommandExpectSuccess("auth", "revoke");
 
     // check that the credential store on disk is empty
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
@@ -93,8 +92,7 @@ public class AuthLoginLogout extends ClearContextUnit {
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
       // `terra auth revoke`
-      TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
-      assertEquals(0, cmd.exitCode);
+      TestCommand.runCommandExpectSuccess("auth", "revoke");
     }
   }
 }

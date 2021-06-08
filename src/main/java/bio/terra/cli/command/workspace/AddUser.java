@@ -32,7 +32,7 @@ public class AddUser extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(UFWorkspaceUser returnValue) {
-    OUT.println("Email + role added to workspace.");
+    OUT.println("User added to workspace.");
     returnValue.print();
   }
 }

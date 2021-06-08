@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import com.google.common.annotations.VisibleForTesting;
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -23,13 +23,13 @@ public class Status extends BaseCommand {
   protected void execute() {
     // check if current user is defined
     Optional<User> currentUserOpt = Context.getUser();
-    AuthStatusReturnValue authStatusReturnValue;
+    UFAuthStatus authStatusReturnValue;
     if (currentUserOpt.isEmpty()) {
-      authStatusReturnValue = AuthStatusReturnValue.createWhenCurrentUserIsUndefined();
+      authStatusReturnValue = UFAuthStatus.createWhenCurrentUserIsUndefined();
     } else {
       User currentUser = currentUserOpt.get();
       authStatusReturnValue =
-          AuthStatusReturnValue.createWhenCurrentUserIsDefined(
+          UFAuthStatus.createWhenCurrentUserIsDefined(
               currentUser.getEmail(),
               currentUser.getProxyGroupEmail(),
               !currentUser.requiresReauthentication());
@@ -39,42 +39,8 @@ public class Status extends BaseCommand {
         authStatusReturnValue, returnValue -> this.printText(returnValue));
   }
 
-  /** POJO class for printing out this command's output. */
-  @VisibleForTesting
-  public static class AuthStatusReturnValue {
-    // Terra user email associated with the current user
-    public String userEmail;
-
-    // Terra proxy group email associated with the current user
-    public String proxyGroupEmail;
-
-    // true if the current user does not need to re-authenticate
-    public boolean loggedIn;
-
-    // public constructor for Jackson serialization
-    public AuthStatusReturnValue() {}
-
-    private AuthStatusReturnValue(
-        String userEmail, String proxyGroupEmail, boolean loggedIn, boolean currentUserDefined) {
-      this.userEmail = userEmail;
-      this.proxyGroupEmail = proxyGroupEmail;
-      this.loggedIn = loggedIn;
-    }
-
-    /** Constructor for when there is a current user defined. */
-    public static AuthStatusReturnValue createWhenCurrentUserIsDefined(
-        String userEmail, String proxyGroupEmail, boolean loggedIn) {
-      return new AuthStatusReturnValue(userEmail, proxyGroupEmail, loggedIn, true);
-    }
-
-    /** Constructor for when there is NOT a current user defined. */
-    public static AuthStatusReturnValue createWhenCurrentUserIsUndefined() {
-      return new AuthStatusReturnValue(null, null, false, false);
-    }
-  }
-
   /** Print this command's output in text format. */
-  private void printText(AuthStatusReturnValue returnValue) {
+  private void printText(UFAuthStatus returnValue) {
     // check if current user is defined
     if (returnValue.userEmail == null) {
       OUT.println("No current Terra user defined.");

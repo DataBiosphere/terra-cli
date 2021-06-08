@@ -146,6 +146,9 @@ CLI installation on the same machine.
 - Run integration tests against an installation built from the latest GitHub release:
 `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
 
+- Run a single test by specifying the `--tests` option:
+`./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
+
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
 You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.

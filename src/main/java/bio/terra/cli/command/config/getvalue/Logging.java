@@ -3,7 +3,7 @@ package bio.terra.cli.command.config.getvalue;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.utils.Logger;
+import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,31 +15,16 @@ public class Logging extends BaseCommand {
   /** Return the logging level properties of the global context. */
   @Override
   protected void execute() {
-    LoggingReturnValue loggingLevels =
-        new LoggingReturnValue(
-            Context.getConfig().getConsoleLoggingLevel(),
-            Context.getConfig().getFileLoggingLevel());
+    UFLoggingConfig loggingLevels =
+        new UFLoggingConfig.Builder()
+            .consoleLoggingLevel(Context.getConfig().getConsoleLoggingLevel())
+            .fileLoggingLevel(Context.getConfig().getFileLoggingLevel())
+            .build();
     formatOption.printReturnValue(loggingLevels, Logging::printText);
   }
 
-  /**
-   * POJO class for printing out this command's output. This class is also used by the `terra config
-   * list` command, so it needs to be public.
-   */
-  public static class LoggingReturnValue {
-    // global logging context = log levels for file and stdout
-    public Logger.LogLevel consoleLoggingLevel;
-    public Logger.LogLevel fileLoggingLevel;
-
-    public LoggingReturnValue(
-        Logger.LogLevel consoleLoggingLevel, Logger.LogLevel fileLoggingLevel) {
-      this.consoleLoggingLevel = consoleLoggingLevel;
-      this.fileLoggingLevel = fileLoggingLevel;
-    }
-  }
-
   /** Print this command's output in text format. */
-  public static void printText(LoggingReturnValue returnValue) {
+  public static void printText(UFLoggingConfig returnValue) {
     OUT.println(
         "[logging, console] logging level for printing directly to the terminal = "
             + returnValue.consoleLoggingLevel);

@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
  *
  * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
  * will start with a call to this method to login a test user.
+ *
+ * <p>This class has several utility methods that randomly choose a test user. The test users are
+ * static, so this can help catch errors that are due to some leftover state on a particular test
+ * user (e.g. they have some permission that should've been deleted).
  */
 public enum TestUsers {
   PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),
@@ -100,6 +104,21 @@ public enum TestUsers {
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
   }
 
+  /**
+   * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
+   * choosing a user that is not the workspace creator.
+   */
+  public static TestUsers chooseTestUserWhoIsNot(TestUsers testUser) {
+    final int maxNumTries = 50;
+    for (int ctr = 0; ctr < maxNumTries; ctr++) {
+      TestUsers chosen = chooseTestUser(Set.of(SpendEnabled.values()));
+      if (!chosen.equals(testUser)) {
+        return chosen;
+      }
+    }
+    throw new RuntimeException("Error choosing a test user who is anyone except for: " + testUser);
+  }
+
   /** Randomly chooses a test user. */
   public static TestUsers chooseTestUser() {
     return chooseTestUser(Set.of(SpendEnabled.values()));
@@ -109,6 +128,11 @@ public enum TestUsers {
   public static TestUsers chooseTestUserWithSpendAccess() {
     return chooseTestUser(
         Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+  }
+
+  /** Randomly chooses a test user without spend profile access. */
+  public static TestUsers chooseTestUserWithoutSpendAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.NO));
   }
 
   /** Randomly chooses a test user that matches one of the specified spend enabled values. */

@@ -4,6 +4,8 @@ import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
 /**
@@ -14,6 +16,7 @@ import java.io.PrintStream;
  * <p>See the {@link BqDataset} class for a dataset's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonDeserialize(builder = UFBqDataset.Builder.class)
 public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
@@ -25,11 +28,42 @@ public class UFBqDataset extends UFResource {
     this.datasetId = internalObj.getDatasetId();
   }
 
+  /** Constructor for Jackson deserialization during testing. */
+  private UFBqDataset(Builder builder) {
+    super(builder);
+    this.projectId = builder.projectId;
+    this.datasetId = builder.datasetId;
+  }
+
   /** Print out this object in text format. */
   public void print() {
     super.print();
     PrintStream OUT = Printer.getOut();
     OUT.println("GCP project id: " + projectId);
     OUT.println("Big Query dataset id: " + datasetId);
+  }
+
+  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+  public static class Builder extends UFResource.Builder {
+    private String projectId;
+    private String datasetId;
+
+    public Builder projectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public Builder datasetId(String datasetId) {
+      this.datasetId = datasetId;
+      return this;
+    }
+
+    /** Call the private constructor. */
+    public UFBqDataset build() {
+      return new UFBqDataset(this);
+    }
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
   }
 }

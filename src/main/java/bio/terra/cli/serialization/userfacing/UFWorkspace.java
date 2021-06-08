@@ -1,12 +1,11 @@
 package bio.terra.cli.serialization.userfacing;
 
-import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.Printer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * External representation of a workspace for command input/output.
@@ -15,6 +14,7 @@ import java.util.stream.Collectors;
  *
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
+@JsonDeserialize(builder = UFWorkspace.Builder.class)
 public class UFWorkspace {
   public final UUID id;
   public final String name;
@@ -22,7 +22,6 @@ public class UFWorkspace {
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
-  public final List<UFResource> resources;
 
   /** Serialize an instance of the internal class to the disk format. */
   public UFWorkspace(Workspace internalObj) {
@@ -32,10 +31,16 @@ public class UFWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
-    this.resources =
-        internalObj.getResources().stream()
-            .map(Resource::serializeToCommand)
-            .collect(Collectors.toList());
+  }
+
+  /** Constructor for Jackson deserialization during testing. */
+  private UFWorkspace(Builder builder) {
+    this.id = builder.id;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.googleProjectId = builder.googleProjectId;
+    this.serverName = builder.serverName;
+    this.userEmail = builder.userEmail;
   }
 
   /** Print out a workspace object in text format. */
@@ -48,5 +53,53 @@ public class UFWorkspace {
     OUT.println(
         "Cloud console: https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
+  }
+
+  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
+  public static class Builder {
+    private UUID id;
+    private String name;
+    private String description;
+    private String googleProjectId;
+    private String serverName;
+    private String userEmail;
+
+    public Builder id(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder googleProjectId(String googleProjectId) {
+      this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder serverName(String serverName) {
+      this.serverName = serverName;
+      return this;
+    }
+
+    public Builder userEmail(String userEmail) {
+      this.userEmail = userEmail;
+      return this;
+    }
+
+    /** Call the private constructor. */
+    public UFWorkspace build() {
+      return new UFWorkspace(this);
+    }
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
   }
 }
