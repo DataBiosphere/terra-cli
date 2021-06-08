@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class TestCommand {
 
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static ObjectMapper objectMapper = new ObjectMapper();
 
   private TestCommand() {}
 
@@ -53,7 +53,10 @@ public class TestCommand {
     return new Result(exitCode, stdOutStr, stdErrStr);
   }
 
-  /** Helper method to run a command and check its exit code matches that specified. */
+  /**
+   * Helper method to run a command and check its exit code matches that specified. Returns the
+   * standard error string for validating an error message.
+   */
   public static String runCommandExpectExitCode(int exitCode, String... args) {
     Result cmd = runCommand(args);
     assertEquals(exitCode, cmd.exitCode, "exit code = " + exitCode);

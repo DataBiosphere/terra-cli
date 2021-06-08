@@ -184,8 +184,9 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --cloning=$cloning
-    // --description=$description --format=json`
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --access=$access
+    // --cloning=$cloning --description=$description --email=$email --iam-roles=$iamRole
+    // --location=$location --storage=$storage --format=json`
     String name = "createWithAllOptionsExceptLifecycle";
     String bucketName = UUID.randomUUID().toString();
     AccessScope access = AccessScope.PRIVATE_ACCESS;

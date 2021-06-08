@@ -28,7 +28,8 @@ public class ExternalGCSBuckets {
 
   /**
    * Get a bucket. This is helpful for testing controlled GCS bucket resources. It allows tests to
-   * check metadata that is not stored in WSM, only in GCS.
+   * check metadata that is not stored in WSM, only in GCS. This method takes in the credentials to
+   * use because tests typically want to check metadata as the test user.
    */
   public static Bucket getBucket(String bucketName, GoogleCredentials credentials)
       throws IOException {
@@ -37,7 +38,7 @@ public class ExternalGCSBuckets {
 
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources.
+   * resources. This method uses SA credentials for an external project.
    */
   public static Bucket createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
@@ -66,13 +67,16 @@ public class ExternalGCSBuckets {
 
   /**
    * Delete a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources.
+   * resources. This method uses SA credentials for an external project.
    */
   public static void deleteBucket(Bucket bucket) throws IOException {
     getStorageClient().delete(bucket.getName());
   }
 
-  /** Grant a given user object viewer access to a bucket. */
+  /**
+   * Grant a given user object viewer access to a bucket. This method uses SA credentials for an
+   * external project.
+   */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
     Storage storage = getStorageClient();
     Policy currentPolicy = storage.getIamPolicy(bucket.getName());
@@ -93,7 +97,7 @@ public class ExternalGCSBuckets {
     }
   }
 
-  /** Helper method to build the GCS client object with the appropriate SA credentials. */
+  /** Helper method to build the GCS client object with SA credentials for an external project. */
   private static Storage getStorageClient() throws IOException {
     GoogleCredentials saCredentials =
         ServiceAccountCredentials.fromStream(new FileInputStream(saKeyFile))
