@@ -1,17 +1,17 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static unit.GcsBucketControlled.listBucketResourceWithName;
+import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -64,27 +64,11 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     assertEquals(
         externalBucket.getName(), addedBucket.bucketName, "add ref output matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
-    List<UFGcsBucket> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {},
-            "resources",
-            "list",
-            "--type=GCS_BUCKET",
-            "--stewardship=REFERENCED",
-            "--format=json");
-
     // check that the bucket is in the list
-    List<UFGcsBucket> matchedResources =
-        listedResources.stream()
-            .filter(resource -> resource.name.equals(name))
-            .collect(Collectors.toList());
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    assertEquals(name, matchedResources.get(0).name, "list output matches name");
+    UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
+    assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
-        externalBucket.getName(),
-        (matchedResources.get(0)).bucketName,
-        "list output matches bucket name");
+        externalBucket.getName(), (matchedResource).bucketName, "list output matches bucket name");
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
@@ -130,21 +114,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     assertEquals(
         externalBucket.getName(), deletedBucket.bucketName, "delete output matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
-    List<UFGcsBucket> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {},
-            "resources",
-            "list",
-            "--type=GCS_BUCKET",
-            "--stewardship=REFERENCED",
-            "--format=json");
-
     // check that the bucket is not in the list
-    List<UFGcsBucket> matchedResources =
-        listedResources.stream()
-            .filter(resource -> resource.name.equals(name))
-            .collect(Collectors.toList());
+    List<UFGcsBucket> matchedResources = listBucketResourceWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 
@@ -253,7 +224,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
-    // check that the name and bucket name match
+    // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
         externalBucket.getName(),

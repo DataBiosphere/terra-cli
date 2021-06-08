@@ -9,6 +9,7 @@ import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.IamRole;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
@@ -51,25 +52,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(name, createdBucket.name, "create output matches name");
     assertEquals(bucketName, createdBucket.bucketName, "create output matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET --stewardship=CONTROLLED --format=json`
-    List<UFGcsBucket> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {},
-            "resources",
-            "list",
-            "--type=GCS_BUCKET",
-            "--stewardship=CONTROLLED",
-            "--format=json");
-
     // check that the bucket is in the list
-    List<UFGcsBucket> matchedResources =
-        listedResources.stream()
-            .filter(resource -> resource.name.equals(name))
-            .collect(Collectors.toList());
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    assertEquals(name, matchedResources.get(0).name, "list output matches name");
-    assertEquals(
-        bucketName, (matchedResources.get(0)).bucketName, "list output matches bucket name");
+    UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
+    assertEquals(name, matchedResource.name, "list output matches name");
+    assertEquals(bucketName, (matchedResource).bucketName, "list output matches bucket name");
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
@@ -113,21 +99,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(name, deletedBucket.name, "delete output matches name");
     assertEquals(bucketName, deletedBucket.bucketName, "delete output matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
-    List<UFGcsBucket> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {},
-            "resources",
-            "list",
-            "--type=GCS_BUCKET",
-            "--stewardship=CONTROLLED",
-            "--format=json");
-
     // check that the bucket is not in the list
-    List<UFGcsBucket> matchedResources =
-        listedResources.stream()
-            .filter(resource -> resource.name.equals(name))
-            .collect(Collectors.toList());
+    List<UFGcsBucket> matchedResources = listBucketResourceWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 
@@ -249,12 +222,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         createdBucket.privateUserName.toLowerCase(),
         "create output matches private user name");
     // TODO (PF-616): check the private user roles once WSM returns them
-    //    assertEquals(
-    //        1, createdBucket.privateUserRoles.size(), "create output matches private user roles
-    // size");
-    //    assertEquals(
-    //        iamRole, createdBucket.privateUserRoles.get(0), "create output matches private user
-    // roles");
 
     Bucket createdBucketOnCloud =
         ExternalGCSBuckets.getBucket(bucketName, workspaceCreator.getCredentials());
@@ -271,7 +238,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
-    // check that the name and bucket name match
+    // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
         bucketName, describeResource.bucketName, "describe resource output matches bucket name");
@@ -283,16 +250,34 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
     // TODO (PF-616): check the private user roles once WSM returns them
-    //    assertEquals(
-    //        1,
-    //        describeResource.privateUserRoles.size(),
-    //        "describe output matches private user roles size");
-    //    assertEquals(
-    //        iamRole,
-    //        describeResource.privateUserRoles.get(0),
-    //        "describe output matches private user roles");
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+  }
+
+  /** Helper method to call `terra resources list` and expect one resource with this name. */
+  static UFGcsBucket listOneBucketResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources = listBucketResourceWithName(resourceName);
+
+    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
+    return matchedResources.get(0);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name.
+   */
+  static List<UFGcsBucket> listBucketResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    // `terra resources list --type=GCS_BUCKET --format=json`
+    List<UFGcsBucket> listedResources =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET", "--format=json");
+
+    // find the matching bucket in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
   }
 }
