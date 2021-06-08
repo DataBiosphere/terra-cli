@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility methods for executing commands and reading their outputs during testing. This class is
@@ -71,24 +74,31 @@ public class TestCommand {
 
   /**
    * Helper method to run a command, check its exit code is 0=success, and read what's written to
-   * standard out into a Java object.
+   * standard out into a Java object. Adds `--format=json` to the argument list.
    */
   public static <T> T runAndParseCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runCommand(args);
+    Result cmd = runCommand(addFormatJsonArg(args));
     assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd.readObjectFromStdOut(objectType);
   }
 
   /**
    * Helper method to run a command, check its exit code is 0=success, and read what's written to
-   * standard out into a Java object.
+   * standard out into a Java object. Adds `--format=json` to the argument list.
    */
   public static <T> T runAndParseCommandExpectSuccess(TypeReference<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runCommand(args);
+    Result cmd = runCommand(addFormatJsonArg(args));
     assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd.readObjectFromStdOut(objectType);
+  }
+
+  /** Add the `--format=json` argument to the end of the arguments list. */
+  private static String[] addFormatJsonArg(String... args) {
+    List<String> argsWithFormatJson = new ArrayList<>(Arrays.asList(args));
+    argsWithFormatJson.add("--format=json");
+    return argsWithFormatJson.toArray(new String[0]);
   }
 
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */

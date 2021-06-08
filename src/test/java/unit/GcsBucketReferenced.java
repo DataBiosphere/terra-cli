@@ -12,8 +12,8 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,17 +25,19 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   // external bucket to use for creating GCS bucket references in the workspace
   private Bucket externalBucket;
 
-  @BeforeEach
+  @BeforeAll
   @Override
-  protected void setupEachTime() throws IOException {
-    super.setupEachTime();
+  protected void setupOnce() throws IOException {
+    super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucket();
     ExternalGCSBuckets.grantReadAccess(externalBucket, workspaceCreator.email);
   }
 
-  @AfterEach
-  protected void cleanupEachTime() throws IOException {
-    ExternalGCSBuckets.deleteBucket(externalBucket);
+  @AfterAll
+  @Override
+  protected void cleanupOnce() throws IOException {
+    super.cleanupOnce();
+    ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
     externalBucket = null;
   }
 
@@ -56,8 +58,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "gcs-bucket",
             "--name=" + name,
-            "--bucket-name=" + externalBucket.getName(),
-            "--format=json");
+            "--bucket-name=" + externalBucket.getName());
 
     // check that the name and bucket name match
     assertEquals(name, addedBucket.name, "add ref output matches name");
@@ -73,7 +74,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "describe", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -107,7 +108,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // `terra resources delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "delete", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "delete", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, deletedBucket.name, "delete output matches name");
@@ -140,19 +141,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // `terra resources resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name, "--format=json");
+            String.class, "resources", "resolve", "--name=" + name);
     assertEquals(
         "gs://" + externalBucket.getName(), resolved, "default resolve includes gs:// prefix");
 
     // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class,
-            "resources",
-            "resolve",
-            "--name=" + name,
-            "--exclude-bucket-prefix",
-            "--format=json");
+            String.class, "resources", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalBucket.getName(),
         resolvedExcludePrefix,
@@ -188,8 +184,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add a referenced bucket, specifying all options except lifecycle")
-  void addWithAllOptionsExceptLifecycle() throws IOException {
+  @DisplayName("add a referenced bucket, specifying all options")
+  void addWithAllOptions() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -209,8 +205,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "--name=" + name,
             "--bucket-name=" + externalBucket.getName(),
             "--cloning=" + cloning,
-            "--description=" + description,
-            "--format=json");
+            "--description=" + description);
 
     // check that the properties match
     assertEquals(name, addedBucket.name, "add ref output matches name");
@@ -222,7 +217,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
+            UFGcsBucket.class, "resources", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");

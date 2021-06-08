@@ -18,18 +18,8 @@ import java.util.UUID;
 /** Utility methods for creating external GCS buckets for testing workspace references. */
 public class ExternalGCSBuckets {
   /**
-   * Get a bucket. This is helpful for testing controlled GCS bucket resources. It allows tests to
-   * check metadata that is not stored in WSM, only in GCS. This method takes in the credentials to
-   * use because tests typically want to check metadata as the test user.
-   */
-  public static Bucket getBucket(String bucketName, GoogleCredentials credentials)
-      throws IOException {
-    return getStorageClient(credentials).get(bucketName);
-  }
-
-  /**
-   * Create a bucket in the external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for the external project.
+   * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
+   * resources. This method uses SA credentials for an external project.
    */
   public static Bucket createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
@@ -57,15 +47,7 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Delete a bucket in the external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for the external project.
-   */
-  public static void deleteBucket(Bucket bucket) throws IOException {
-    getStorageClient().delete(bucket.getName());
-  }
-
-  /**
-   * Grant a given user object viewer access to a bucket. This method uses SA credentials for the
+   * Grant a given user object viewer access to a bucket. This method uses SA credentials for an
    * external project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
@@ -84,12 +66,12 @@ public class ExternalGCSBuckets {
   }
 
   /** Helper method to build the GCS client object with SA credentials for the external project. */
-  private static Storage getStorageClient() throws IOException {
+  public static Storage getStorageClient() throws IOException {
     return getStorageClient(getSACredentials());
   }
 
   /** Helper method to build the GCS client object with the given credentials. */
-  private static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
+  public static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
     return StorageOptions.newBuilder()
         .setProjectId(getProjectId())
         .setCredentials(credentials)
