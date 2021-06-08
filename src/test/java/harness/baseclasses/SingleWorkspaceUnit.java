@@ -32,7 +32,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     // `terra workspace create --format=json`
     UFWorkspace createWorkspace =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "workspace", "create", "--format=json");
     workspaceId = createWorkspace.id;
   }

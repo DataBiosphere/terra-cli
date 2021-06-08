@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.workspace.model.IamRole;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUsers;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +32,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
 
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list-users", "--format=json");
 
     for (UFWorkspaceUser user : listWorkspaceUsers) {
@@ -55,18 +57,8 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra workspace list-users --format=json`
-    List<UFWorkspaceUser> listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
-
     // check that the workspace creator is in the list as an owner
-    Optional<UFWorkspaceUser> workspaceUser =
-        listWorkspaceUsers.stream()
-            .filter(user -> user.email.equalsIgnoreCase(workspaceCreator.email))
-            .findAny();
-    assertTrue(workspaceUser.isPresent(), "workspace creator is in users list");
-    assertTrue(workspaceUser.get().roles.contains(IamRole.OWNER), "workspace creator is an owner");
+    expectListedUserWithRoles(workspaceCreator.email, IamRole.OWNER);
   }
 
   @Test
@@ -81,7 +73,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
 
     // `terra workspace add-user --email=$email --role=READER --format=json
     UFWorkspaceUser addUserReader =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspaceUser.class,
             "workspace",
             "add-user",
@@ -92,23 +84,12 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     // check that the user has the READER role
     assertTrue(addUserReader.roles.contains(IamRole.READER), "reader role returned by add-user");
 
-    // `terra workspace list-users --format=json`
-    List<UFWorkspaceUser> listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
-
     // check that the user is in the list as a reader
-    Optional<UFWorkspaceUser> workspaceUser =
-        listWorkspaceUsers.stream()
-            .filter(user -> user.email.equalsIgnoreCase(testUser.email))
-            .findAny();
-    assertTrue(workspaceUser.isPresent(), "test user is in users list");
-    assertEquals(1, workspaceUser.get().roles.size(), "test user has one role");
-    assertTrue(workspaceUser.get().roles.contains(IamRole.READER), "test user has reader role");
+    expectListedUserWithRoles(testUser.email, IamRole.READER);
 
     // `terra workspace add-user --email=$email --role=WRITER --format=json
     UFWorkspaceUser addUserWriter =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspaceUser.class,
             "workspace",
             "add-user",
@@ -117,23 +98,12 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
             "--format=json");
 
     // check that the user has both the READER and WRITER roles
-    assertTrue(addUserWriter.roles.contains(IamRole.READER), "reader role returned by add-user");
-    assertTrue(addUserWriter.roles.contains(IamRole.WRITER), "writer role returned by add-user");
-
-    // `terra workspace list-users --format=json`
-    listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
+    assertTrue(
+        addUserWriter.roles.containsAll(Arrays.asList(IamRole.READER, IamRole.WRITER)),
+        "reader and writer roles returned by add-user");
 
     // check that the user is in the list as a reader + writer
-    workspaceUser =
-        listWorkspaceUsers.stream()
-            .filter(user -> user.email.equalsIgnoreCase(testUser.email))
-            .findAny();
-    assertTrue(workspaceUser.isPresent(), "test user is in users list");
-    assertEquals(2, workspaceUser.get().roles.size(), "test user has two roles");
-    assertTrue(workspaceUser.get().roles.contains(IamRole.READER), "test user has reader role");
-    assertTrue(workspaceUser.get().roles.contains(IamRole.WRITER), "test user has writer role");
+    expectListedUserWithRoles(testUser.email, IamRole.READER, IamRole.WRITER);
   }
 
   @Test
@@ -158,34 +128,46 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace", "remove-user", "--email=" + testUser.email, "--role=READER");
 
-    // `terra workspace list-users --format=json`
-    List<UFWorkspaceUser> listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users", "--format=json");
-
     // check that the user is in the list as an OWNER only
-    Optional<UFWorkspaceUser> workspaceUser =
-        listWorkspaceUsers.stream()
-            .filter(user -> user.email.equalsIgnoreCase(testUser.email))
-            .findAny();
-    assertTrue(workspaceUser.isPresent(), "test user is in users list");
-    assertEquals(1, workspaceUser.get().roles.size(), "test user has one role");
-    assertTrue(workspaceUser.get().roles.contains(IamRole.OWNER), "test user has owner role");
+    expectListedUserWithRoles(testUser.email, IamRole.OWNER);
 
     // `terra workspace remove-user --email=$email --role=READER`
     TestCommand.runCommandExpectSuccess(
         "workspace", "remove-user", "--email=" + testUser.email, "--role=OWNER");
 
+    // check that the user is not in the list
+    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(testUser.email);
+    assertTrue(workspaceUser.isEmpty(), "test user is not in users list");
+  }
+
+  /**
+   * Helper method to check that a workspace user is included in the list with the specified roles.
+   */
+  private static void expectListedUserWithRoles(String userEmail, IamRole... roles)
+      throws JsonProcessingException {
+    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(userEmail);
+    assertTrue(workspaceUser.isPresent(), "test user is in users list");
+    assertEquals(
+        roles.length, workspaceUser.get().roles.size(), "test user has the right number of roles");
+    assertTrue(
+        workspaceUser.get().roles.containsAll(Arrays.asList(roles)),
+        "test user has the right roles");
+  }
+
+  /**
+   * Helper method to call `terra workspace list` and filter the results on the specified user
+   * email.
+   */
+  private static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail)
+      throws JsonProcessingException {
     // `terra workspace list-users --format=json`
-    listWorkspaceUsers =
-        TestCommand.runCommandExpectSuccess(
+    List<UFWorkspaceUser> listWorkspaceUsers =
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list-users", "--format=json");
 
-    // check that the user is not in the list
-    workspaceUser =
-        listWorkspaceUsers.stream()
-            .filter(user -> user.email.equalsIgnoreCase(testUser.email))
-            .findAny();
-    assertTrue(workspaceUser.isEmpty(), "test user is not in users list");
+    // find the user in the list
+    return listWorkspaceUsers.stream()
+        .filter(user -> user.email.equalsIgnoreCase(userEmail))
+        .findAny();
   }
 }

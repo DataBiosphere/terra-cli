@@ -53,50 +53,39 @@ public class TestCommand {
     return new Result(exitCode, stdOutStr, stdErrStr);
   }
 
-  /** Convert what's written to standard out into a Java object. */
-  public static <T> T readObjectFromStdOut(Result cmd, Class<T> objectType)
-      throws JsonProcessingException {
-    return objectMapper.readValue(cmd.stdOut, objectType);
-  }
-
-  /** Convert what's written to standard out into a Java object. */
-  public static <T> T readObjectFromStdOut(Result cmd, TypeReference<T> objectType)
-      throws JsonProcessingException {
-    return objectMapper.readValue(cmd.stdOut, objectType);
-  }
-
   /** Helper method to run a command and check its exit code matches that specified. */
-  public static Result runCommandExpectExitCode(int exitCode, String... args) {
+  public static String runCommandExpectExitCode(int exitCode, String... args) {
     Result cmd = runCommand(args);
     assertEquals(exitCode, cmd.exitCode, "exit code = " + exitCode);
-    return cmd;
+    return cmd.stdErr;
   }
 
   /** Helper method to run a command and check its exit code is 0=success. */
-  public static Result runCommandExpectSuccess(String... args) {
-    return runCommandExpectExitCode(0, args);
+  public static void runCommandExpectSuccess(String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode, "exit code = success");
   }
 
   /**
    * Helper method to run a command, check its exit code is 0=success, and read what's written to
    * standard out into a Java object.
    */
-  public static <T> T runCommandExpectSuccess(Class<T> objectType, String... args)
+  public static <T> T runAndParseCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
     Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
-    return readObjectFromStdOut(cmd, objectType);
+    return cmd.readObjectFromStdOut(objectType);
   }
 
   /**
    * Helper method to run a command, check its exit code is 0=success, and read what's written to
    * standard out into a Java object.
    */
-  public static <T> T runCommandExpectSuccess(TypeReference<T> objectType, String... args)
+  public static <T> T runAndParseCommandExpectSuccess(TypeReference<T> objectType, String... args)
       throws JsonProcessingException {
     Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
-    return readObjectFromStdOut(cmd, objectType);
+    return cmd.readObjectFromStdOut(objectType);
   }
 
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */
@@ -109,6 +98,16 @@ public class TestCommand {
       this.exitCode = exitCode;
       this.stdOut = stdOut;
       this.stdErr = stdErr;
+    }
+
+    /** Convert what's written to standard out into a Java object. */
+    private <T> T readObjectFromStdOut(Class<T> objectType) throws JsonProcessingException {
+      return objectMapper.readValue(stdOut, objectType);
+    }
+
+    /** Convert what's written to standard out into a Java object. */
+    private <T> T readObjectFromStdOut(TypeReference<T> objectType) throws JsonProcessingException {
+      return objectMapper.readValue(stdOut, objectType);
     }
   }
 }

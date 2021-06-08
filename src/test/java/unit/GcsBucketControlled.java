@@ -38,7 +38,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String name = "listDescribeReflectCreate";
     String bucketName = UUID.randomUUID().toString();
     UFGcsBucket createdBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resources",
             "create",
@@ -53,7 +53,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources list --type=GCS_BUCKET --stewardship=CONTROLLED --format=json`
     List<UFGcsBucket> listedResources =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {},
             "resources",
             "list",
@@ -73,7 +73,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match
@@ -106,7 +106,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "delete", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match
@@ -115,7 +115,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
     List<UFGcsBucket> listedResources =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {},
             "resources",
             "list",
@@ -152,13 +152,13 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources resolve --name=$name --format=json`
     String resolved =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resources", "resolve", "--name=" + name, "--format=json");
     assertEquals("gs://" + bucketName, resolved, "default resolve includes gs:// prefix");
 
     // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             String.class,
             "resources",
             "resolve",
@@ -192,11 +192,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         "--format=json");
 
     // `terra resources check-access --name=$name`
-    TestCommand.Result cmd =
+    String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resources", "check-access", "--name=" + name);
     assertThat(
         "error message includes wrong stewardship type",
-        cmd.stdErr,
+        stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
 
     // `terra resources delete --name=$name`
@@ -222,7 +222,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String location = "US";
     GcsStorageClass storage = GcsStorageClass.NEARLINE;
     UFGcsBucket createdBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resources",
             "create",
@@ -268,7 +268,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match

@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
  *
  * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
  * will start with a call to this method to login a test user.
+ *
+ * <p>This class has several utility methods that randomly choose a test user. The test users are
+ * static, so this can help catch errors that are due to some leftover state on a particular test
+ * user (e.g. they have some permission that should've been deleted).
  */
 public enum TestUsers {
   PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),

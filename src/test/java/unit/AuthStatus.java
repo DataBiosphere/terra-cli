@@ -28,7 +28,8 @@ public class AuthStatus extends ClearContextUnit {
 
     // `terra auth status --format=json`
     UFAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged in and includes the user & proxy emails
     assertThat(
@@ -47,7 +48,8 @@ public class AuthStatus extends ClearContextUnit {
   void authStatusWhenLoggedOut() throws IOException {
     // `terra auth status --format=json`
     UFAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged out and doesn't include user or proxy emails
     assertThat(
@@ -68,7 +70,8 @@ public class AuthStatus extends ClearContextUnit {
 
     // `terra auth status --format=json`
     UFAuthStatus authStatus =
-        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged in
     assertTrue(authStatus.loggedIn, "auth status indicates user is logged in");
@@ -78,7 +81,8 @@ public class AuthStatus extends ClearContextUnit {
 
     // `terra auth status --format=json`
     authStatus =
-        TestCommand.runCommandExpectSuccess(UFAuthStatus.class, "auth", "status", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFAuthStatus.class, "auth", "status", "--format=json");
 
     // check that it says logged out
     assertFalse(authStatus.loggedIn, "auth status indicates user is logged out");

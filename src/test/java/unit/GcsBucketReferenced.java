@@ -50,7 +50,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // `terra resources add-ref gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "listDescribeReflectAdd";
     UFGcsBucket addedBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resources",
             "add-ref",
@@ -66,7 +66,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
     List<UFGcsBucket> listedResources =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {},
             "resources",
             "list",
@@ -88,7 +88,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match
@@ -122,7 +122,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "delete", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match
@@ -132,7 +132,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources list --type=GCS_BUCKET --stewardship=REFERENCED --format=json`
     List<UFGcsBucket> listedResources =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {},
             "resources",
             "list",
@@ -168,14 +168,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources resolve --name=$name --format=json`
     String resolved =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resources", "resolve", "--name=" + name, "--format=json");
     assertEquals(
         "gs://" + externalBucket.getName(), resolved, "default resolve includes gs:// prefix");
 
     // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             String.class,
             "resources",
             "resolve",
@@ -230,7 +230,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
     String description = "add with all options except lifecycle";
     UFGcsBucket addedBucket =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resources",
             "add-ref",
@@ -250,7 +250,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
-        TestCommand.runCommandExpectSuccess(
+        TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resources", "describe", "--name=" + name, "--format=json");
 
     // check that the name and bucket name match
