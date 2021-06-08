@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /** Utility methods for creating external GCS buckets for testing workspace references. */
 public class ExternalGCSBuckets {
@@ -90,11 +89,6 @@ public class ExternalGCSBuckets {
                 .addIdentity(StorageRoles.legacyBucketReader(), Identity.user(email))
                 .build());
     getStorageClient().setIamPolicy(bucket.getName(), updatedPolicy);
-    try {
-      TimeUnit.SECONDS.sleep(20);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 
   /** Helper method to build the GCS client object with SA credentials for an external project. */
