@@ -16,7 +16,8 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
 fi
 
 installMode=$1
-if [ "$installMode" == "SOURCE_CODE" ]; then
+echo "installMode: $installMode"
+if [ "$installMode" = "SOURCE_CODE" ]; then
   echo "Assuming the Java code is already built and installed by Gradle"
   terra=$(pwd)/build/install/terra-cli/bin/terra
 
@@ -26,7 +27,7 @@ if [ "$installMode" == "SOURCE_CODE" ]; then
   echo "Pulling the default Docker image"
   docker pull $($terra config get-value image)
 
-elif [ "$installMode" == "GITHUB_RELEASE" ]; then
+elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   echo "Creating a new build/test-install directory"
   mkdir -p $(pwd)/build/test-install/
   cd build/test-install/

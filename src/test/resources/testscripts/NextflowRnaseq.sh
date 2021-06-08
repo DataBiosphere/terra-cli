@@ -29,9 +29,13 @@ terra workspace create
 terra status
 
 # Nextflow requires a bucket to store temporary files. We can create a controlled resource for this, which means a cloud resource (a bucket in this case) within the backing GCP project.
+# Bucket names must be globally unique, so use a random UUID with the dashes removed for the bucket name.
+# Terra resource names must only be unique within the workspace, so use a fixed string for the resource name.
 
-resourceName=terraclitesting$RANDOM
-terra resources create gcs-bucket --name=$resourceName --bucket-name=$resourceName
+resourceName="terraclitesting"
+bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
+echo "resourceName: $resourceName, bucketName: $bucketName"
+terra resources create gcs-bucket --name=$resourceName --bucket-name=$bucketName
 terra resources list
 
 # I will use an example Nextflow workflow from a GitHub repository [show webpage], and checkout a tag that I have tested beforehand. This is the same example workflow that is used on the GCP + Nextflow tutorial [show webpage].
@@ -63,6 +67,6 @@ terra nextflow config rnaseq-nf/main.nf -profile gls
 
 # And kick off the actual Nextflow workflow.
 
-#terra nextflow run rnaseq-nf/main.nf -profile gls
+terra nextflow run rnaseq-nf/main.nf -profile gls
 
 # This will take about 10 minutes to complete. [Switch tabs] I started this workflow in a different workspace earlier and here is the resulting HTML report [show local webpage].
