@@ -14,6 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
  */
 public class ClearContextUnit {
   @BeforeEach
+  /**
+   * Clear the context before each test method. For sub-classes, it's best to call this at the end
+   * of the setupEachTime method so that each test method starts off with a clean context.
+   */
   protected void setupEachTime() throws IOException {
     TestContext.clearGlobalContextDir();
     resetContext();
