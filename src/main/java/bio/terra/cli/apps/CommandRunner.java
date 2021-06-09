@@ -1,6 +1,7 @@
 package bio.terra.cli.apps;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ public abstract class CommandRunner {
    * @param envVars a mapping of environment variable names to values
    * @throws SystemException if a Terra environment variable overlaps or conflicts with one passed
    *     into this method
+   * @throws PassthroughException if the command returns a non-zero exit code
    */
   public void runToolCommand(List<String> command, Map<String, String> envVars) {
     for (String commandToken : command) {
@@ -86,8 +88,10 @@ public abstract class CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
+   * @throws PassthroughException if the command returns a non-zero exit code
    */
-  protected abstract void runToolCommandImpl(String command, Map<String, String> envVars);
+  protected abstract void runToolCommandImpl(String command, Map<String, String> envVars)
+      throws PassthroughException;
 
   /**
    * Build a map of Terra references to use in setting environment variables when running commands.

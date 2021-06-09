@@ -5,6 +5,7 @@ import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
 import bio.terra.cli.command.app.passthrough.Gsutil;
 import bio.terra.cli.command.app.passthrough.Nextflow;
+import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.Printer;
@@ -159,6 +160,11 @@ public class Main implements Runnable {
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
         exitCode = SYSTEM_EXIT_CODE;
         printPointerToLogFile = true;
+      } else if (ex instanceof PassthroughException) {
+        errorMessage = ex.getMessage() == null ? "" : ex.getMessage();
+        formattedErrorMessage = cmd.getColorScheme().text(errorMessage);
+        exitCode = ((PassthroughException) ex).getExitCode();
+        printPointerToLogFile = false;
       } else {
         errorMessage =
             "An unexpected error occurred in "

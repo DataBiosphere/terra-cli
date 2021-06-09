@@ -6,6 +6,7 @@ import bio.terra.cli.utils.Printer;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Bind;
@@ -148,6 +149,12 @@ public class DockerClientWrapper {
     }
   }
 
+  /** Inspect the container state and return the exit code. */
+  public Long getProcessExitCode() {
+    InspectContainerResponse container = dockerClient.inspectContainerCmd(containerId).exec();
+    return container.getState().getExitCodeLong();
+  }
+
   /** Read the Docker container logs and write them to standard out. */
   public void streamLogsForContainer() {
     try {
@@ -188,9 +195,9 @@ public class DockerClientWrapper {
     @Override
     public void onNext(Frame frame) {
       String logStr = new String(frame.getPayload(), StandardCharsets.UTF_8);
-      PrintStream err = Printer.getErr();
-      err.print(logStr);
-      err.flush();
+      PrintStream out = Printer.getOut();
+      out.print(logStr);
+      out.flush();
 
       if (buildSingleStringOutput) {
         log.append(logStr);
