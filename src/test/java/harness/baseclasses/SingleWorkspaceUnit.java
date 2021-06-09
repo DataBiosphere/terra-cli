@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 
 /**
  * Base class for unit tests that only need a single workspace for all test methods. This makes the
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
  * we're not starting with a completely clean state each time, but that's easy to do just for
  * debugging a particular failure.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SingleWorkspaceUnit extends ClearContextUnit {
   protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();;
   private static UUID workspaceId;
@@ -24,7 +26,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   }
 
   @BeforeAll
-  static void setupOnce() throws IOException {
+  protected void setupOnce() throws IOException {
     TestContext.clearGlobalContextDir();
     resetContext();
 
@@ -32,13 +34,12 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     // `terra workspace create --format=json`
     UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     workspaceId = createWorkspace.id;
   }
 
   @AfterAll
-  static void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws IOException {
     TestContext.clearGlobalContextDir();
     resetContext();
 

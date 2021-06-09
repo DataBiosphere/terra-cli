@@ -3,7 +3,6 @@ package bio.terra.cli.serialization.userfacing.resources;
 import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.Printer;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -15,7 +14,6 @@ import java.io.PrintStream;
  *
  * <p>See the {@link BqDataset} class for a dataset's internal representation.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UFBqDataset.Builder.class)
 public class UFBqDataset extends UFResource {
   public final String projectId;

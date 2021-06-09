@@ -34,8 +34,7 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace create --format=json`
     UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
 
     // check the created workspace has an id and a google project
     assertNotNull(createWorkspace.id, "create workspace returned a workspace id");
@@ -46,8 +45,7 @@ public class Workspace extends ClearContextUnit {
         equalToIgnoringCase(testUser.email));
 
     // `terra status --format=json`
-    UFStatus status =
-        TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status", "--format=json");
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the new workspace
     assertThat(
@@ -83,13 +81,11 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace create --format=json`
     UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
 
     // `terra workspace delete --format=json`
     UFWorkspace deleteWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "delete", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "delete");
 
     // check the deleted workspace matches the created workspace
     assertEquals(createWorkspace.id, deleteWorkspace.id, "deleted workspace id matches created");
@@ -99,8 +95,7 @@ public class Workspace extends ClearContextUnit {
         "deleted workspace gcp project matches created");
 
     // `terra status --format=json`
-    UFStatus status =
-        TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status", "--format=json");
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the deleted workspace
     assertNull(status.workspace, "status has no workspace after delete");
@@ -125,7 +120,6 @@ public class Workspace extends ClearContextUnit {
             UFWorkspace.class,
             "workspace",
             "create",
-            "--format=json",
             "--name=" + name,
             "--description=" + description);
 
@@ -144,8 +138,7 @@ public class Workspace extends ClearContextUnit {
         "--description=" + newDescription);
 
     // `terra status --format=json`
-    UFStatus status =
-        TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status", "--format=json");
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the update
     assertEquals(newName, status.workspace.name, "status matches updated workspace name");
@@ -178,23 +171,20 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace create --format=json` (workspace 1)
     UFWorkspace createWorkspace1 =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
 
     // `terra workspace create --format=json` (workspace 2)
     UFWorkspace createWorkspace2 =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace1.id, "--format=json");
+            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace1.id);
     assertEquals(createWorkspace1.id, setWorkspace1.id, "set returned the expected workspace (1)");
 
     // `terra status --format=json`
-    UFStatus status =
-        TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status", "--format=json");
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the workspace set
     assertEquals(createWorkspace1.id, status.workspace.id, "status matches set workspace id (1)");
@@ -202,11 +192,11 @@ public class Workspace extends ClearContextUnit {
     // set current workspace = workspace 2
     UFWorkspace setWorkspace2 =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace2.id, "--format=json");
+            UFWorkspace.class, "workspace", "set", "--id=" + createWorkspace2.id);
     assertEquals(createWorkspace2.id, setWorkspace2.id, "set returned the expected workspace (2)");
 
     // `terra status --format=json`
-    status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status", "--format=json");
+    status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the workspace set
     assertEquals(createWorkspace2.id, status.workspace.id, "status matches set workspace id (2)");
@@ -229,11 +219,10 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create`
-    TestCommand.Result cmd = TestCommand.runCommand("workspace", "create");
-    assertEquals(2, cmd.exitCode, "exit code = system exception");
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "create");
     assertThat(
         "error message includes spend profile unauthorized",
-        cmd.stdErr,
+        stdErr,
         CoreMatchers.containsString("User is unauthorized to link spend profile"));
   }
 
@@ -245,8 +234,7 @@ public class Workspace extends ClearContextUnit {
       throws JsonProcessingException {
     // `terra workspace list --format=json`
     List<UFWorkspace> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list", "--format=json");
+        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "workspace", "list");
 
     return listWorkspaces.stream()
         .filter(workspace -> workspace.id.equals(workspaceId))
