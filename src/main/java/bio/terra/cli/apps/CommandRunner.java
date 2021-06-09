@@ -72,7 +72,12 @@ public abstract class CommandRunner {
     envVars.putAll(terraEnvVars);
 
     // call the sub-class implementation of running a tool command
-    runToolCommandImpl(wrapCommandInSetupCleanup(command), envVars);
+    int exitCode = runToolCommandImpl(wrapCommandInSetupCleanup(command), envVars);
+
+    // if the command is not successful, then pass the exit code out to the CLI caller
+    if (exitCode != 0) {
+      throw new PassthroughException(exitCode);
+    }
   }
 
   /**
@@ -88,10 +93,9 @@ public abstract class CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
-   * @throws PassthroughException if the command returns a non-zero exit code
+   * @return process exit code
    */
-  protected abstract void runToolCommandImpl(String command, Map<String, String> envVars)
-      throws PassthroughException;
+  protected abstract int runToolCommandImpl(String command, Map<String, String> envVars);
 
   /**
    * Build a map of Terra references to use in setting environment variables when running commands.

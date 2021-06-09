@@ -1,5 +1,8 @@
 package unit;
 
+import static harness.utils.ExternalBQDatasets.randomDatasetId;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
@@ -7,17 +10,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
-import static harness.utils.ExternalBQDatasets.randomDatasetId;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the `terra app` commands and the pass-through apps: `terra gcloud`, `terra gsutil`,

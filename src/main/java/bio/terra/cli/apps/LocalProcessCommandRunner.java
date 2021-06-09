@@ -48,9 +48,9 @@ public class LocalProcessCommandRunner extends CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
-   * @throws PassthroughException if the command returns a non-zero exit code
+   * @return process exit code
    */
-  protected void runToolCommandImpl(String command, Map<String, String> envVars)
+  protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
@@ -71,9 +71,6 @@ public class LocalProcessCommandRunner extends CommandRunner {
     int exitCode = localProcessLauncher.waitForTerminate();
     logger.debug("local process exit code: {}", exitCode);
 
-    // if the command is not successful, then pass the exit code out to the CLI caller
-    if (exitCode != 0) {
-      throw new PassthroughException(exitCode);
-    }
+    return exitCode;
   }
 }

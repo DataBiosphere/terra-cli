@@ -53,9 +53,9 @@ public class DockerCommandRunner extends CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
-   * @throws PassthroughException if the command returns a non-zero exit code
+   * @return process exit code
    */
-  protected void runToolCommandImpl(String command, Map<String, String> envVars)
+  protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
     // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
@@ -89,10 +89,7 @@ public class DockerCommandRunner extends CommandRunner {
     // delete the container
     dockerClientWrapper.deleteContainer();
 
-    // if the command is not successful, then pass the exit code out to the CLI caller
-    if (exitCode != 0) {
-      throw new PassthroughException(exitCode.intValue());
-    }
+    return exitCode.intValue();
   }
 
   /**
