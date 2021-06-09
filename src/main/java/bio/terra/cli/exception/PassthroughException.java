@@ -5,7 +5,7 @@ package bio.terra.cli.exception;
  *
  * <p>Throwing a PassthroughException will
  *
- * <p>-print information about the cause and point users to the log file for more information
+ * <p>-print any message
  *
  * <p>-use a normal font when printing to the terminal (e.g. same as other app output).
  */

@@ -176,7 +176,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra nextflow run hello`
+    // `terra nextflow -version`
     TestCommand.Result cmd = TestCommand.runCommand("nextflow", "-version");
     assertTrue(cmd.stdOut.contains("http://nextflow.io"), "nextflow version ran successfully");
   }
