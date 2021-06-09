@@ -1,11 +1,9 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -27,15 +25,13 @@ public class Create extends BaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    new WorkspaceManager(globalContext, workspaceContext).createWorkspace(displayName, description);
-    new AuthenticationManager(globalContext, workspaceContext)
-        .fetchPetSaCredentials(globalContext.requireCurrentTerraUser());
-    formatOption.printReturnValue(workspaceContext.terraWorkspaceModel, this::printText);
+    Workspace workspace = Workspace.create(displayName, description);
+    formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(WorkspaceDescription returnValue) {
+  private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully created.");
-    PrintingUtils.printText(workspaceContext);
+    returnValue.print();
   }
 }

@@ -44,6 +44,6 @@ sudo -u "${JUPYTER_USER}" sh -c "./terra config set browser manual"
 # the VM metadata, if set.
 readonly TERRA_SERVER=$(get_metadata_value "instance/attributes/terra-cli-server")
 if [[ -n "${TERRA_SERVER}" ]]; then
-  sudo -u "${JUPYTER_USER}" sh -c "./terra server set ${TERRA_SERVER}"
+  sudo -u "${JUPYTER_USER}" sh -c "./terra server set --name=${TERRA_SERVER}"
 fi
 sudo cp terra /usr/bin/terra

@@ -10,7 +10,7 @@ terra config set logging --file --level=DEBUG
 
 # set the server to the one specified by the test
 # (see the Gradle unitTest task for how this system property gets set from a Gradle property)
-terra server set $TERRA_SERVER
+terra server set --name=$TERRA_SERVER
 
 # set the docker image id to the default
 terra config set image --default

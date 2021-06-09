@@ -1,7 +1,7 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,7 +14,7 @@ public class Version extends BaseCommand {
   /** Return value is just the version string. */
   @Override
   protected void execute() {
-    String version = bio.terra.cli.context.utils.Version.getVersion();
+    String version = bio.terra.cli.utils.Version.getVersion();
     formatOption.printReturnValue(version);
   }
 

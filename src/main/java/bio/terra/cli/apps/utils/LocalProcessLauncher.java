@@ -1,7 +1,7 @@
 package bio.terra.cli.apps.utils;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.utils.Printer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

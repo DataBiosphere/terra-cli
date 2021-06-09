@@ -1,7 +1,8 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.service.utils.SamService;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.service.SamService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -23,7 +24,7 @@ public class RemoveUser extends BaseCommand {
   /** Delete an existing Terra group. */
   @Override
   protected void execute() {
-    new SamService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SamService(Context.getServer(), Context.requireUser())
         .removeUserFromGroup(group, policy, user);
     OUT.println("User " + user + " successfully removed from group " + group + ".");
   }

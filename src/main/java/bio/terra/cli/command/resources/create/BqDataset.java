@@ -1,17 +1,12 @@
 package bio.terra.cli.command.resources.create;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
-import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ControlledResourceMetadata;
-import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
-import bio.terra.workspace.model.ResourceAttributesUnion;
-import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateControlledResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
+import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources create bq-dataset" command. */
@@ -38,38 +33,24 @@ public class BqDataset extends BaseCommand {
     createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createControlledResourceOptions.privateIamRoles != null
-        && !createControlledResourceOptions.privateIamRoles.isEmpty()) {
-      privateResourceIamRoles.addAll(createControlledResourceOptions.privateIamRoles);
-    }
-    ResourceDescription resourceToCreate =
-        new ResourceDescription()
-            .metadata(
-                new ResourceMetadata()
-                    .name(createControlledResourceOptions.name)
-                    .description(createControlledResourceOptions.description)
-                    .cloningInstructions(createControlledResourceOptions.cloning)
-                    .controlledResourceMetadata(
-                        new ControlledResourceMetadata()
-                            .accessScope(createControlledResourceOptions.access)
-                            .privateResourceUser(
-                                new PrivateResourceUser()
-                                    .userName(createControlledResourceOptions.privateUserEmail)
-                                    .privateResourceIamRoles(privateResourceIamRoles))))
-            .resourceAttributes(
-                new ResourceAttributesUnion()
-                    .gcpBqDataset(new GcpBigQueryDatasetAttributes().datasetId(bigQueryDatasetId)));
+    CreateUpdateResource.Builder createResourceParams =
+        createControlledResourceOptions
+            .populateMetadataFields()
+            .stewardshipType(StewardshipType.CONTROLLED);
+    CreateUpdateBqDataset.Builder createParams =
+        new CreateUpdateBqDataset.Builder()
+            .resourceFields(createResourceParams.build())
+            .datasetId(bigQueryDatasetId)
+            .location(location);
 
-    ResourceDescription resourceCreated =
-        new WorkspaceManager(globalContext, workspaceContext)
-            .createControlledBigQueryDataset(resourceToCreate, location);
-    formatOption.printReturnValue(resourceCreated, BqDataset::printText);
+    bio.terra.cli.businessobject.resources.BqDataset createdResource =
+        bio.terra.cli.businessobject.resources.BqDataset.createControlled(createParams.build());
+    formatOption.printReturnValue(new UFBqDataset(createdResource), BqDataset::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(ResourceDescription returnValue) {
+  private static void printText(UFBqDataset returnValue) {
     OUT.println("Successfully added controlled Big Query dataset.");
-    PrintingUtils.printText(returnValue);
+    returnValue.print();
   }
 }

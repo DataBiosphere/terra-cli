@@ -1,7 +1,8 @@
 package bio.terra.cli.command.spend;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.service.utils.SpendProfileManagerService;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.service.SpendProfileManagerService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -23,7 +24,7 @@ public class Enable extends BaseCommand {
   /** Enable access to the WSM default spend profile for the given email. */
   @Override
   protected void execute() {
-    new SpendProfileManagerService(globalContext.server, globalContext.requireCurrentTerraUser())
+    new SpendProfileManagerService(Context.getServer(), Context.requireUser())
         .enableUserForDefaultSpendProfile(policy, email);
 
     OUT.println(

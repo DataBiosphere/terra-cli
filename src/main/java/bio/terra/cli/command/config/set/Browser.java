@@ -1,7 +1,8 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.auth.AuthenticationManager.BrowserLaunchOption;
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,21 +15,20 @@ public class Browser extends BaseCommand {
   @CommandLine.Parameters(
       index = "0",
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
-  private BrowserLaunchOption mode;
+  private Config.BrowserLaunchOption mode;
 
   /** Updates the browser launch option property of the global context. */
   @Override
   protected void execute() {
-    BrowserLaunchOption prevBrowserLaunchOption = globalContext.browserLaunchOption;
-    globalContext.updateBrowserLaunchFlag(mode);
+    Config config = Context.getConfig();
+    Config.BrowserLaunchOption prevBrowserLaunchOption = config.getBrowserLaunchOption();
+    config.setBrowserLaunchOption(mode);
 
     OUT.println(
         "Browser launch mode for login is "
-            + globalContext.browserLaunchOption
+            + config.getBrowserLaunchOption()
             + " ("
-            + (globalContext.browserLaunchOption == prevBrowserLaunchOption
-                ? "UNCHANGED"
-                : "CHANGED")
+            + (config.getBrowserLaunchOption() == prevBrowserLaunchOption ? "UNCHANGED" : "CHANGED")
             + ").");
   }
 

@@ -15,7 +15,7 @@ public class Nextflow extends ClearContextIntegration {
 
   @Test
   @DisplayName("nextflow config and run with GLS tutorial")
-  void nextflowFromGLSTutorial() throws IOException, InterruptedException {
+  void nextflowFromGLSTutorial() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();

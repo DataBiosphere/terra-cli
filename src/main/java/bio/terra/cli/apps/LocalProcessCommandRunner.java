@@ -1,8 +1,7 @@
 package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.businessobject.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +11,6 @@ import org.slf4j.LoggerFactory;
 /** This class runs client-side tools in a local process. */
 public class LocalProcessCommandRunner extends CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(LocalProcessCommandRunner.class);
-
-  private LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-
-  public LocalProcessCommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    super(globalContext, workspaceContext);
-  }
 
   /**
    * This method builds a command string that:
@@ -37,7 +30,8 @@ public class LocalProcessCommandRunner extends CommandRunner {
     List<String> bashCommands = new ArrayList<>();
     bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
     bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
-    bashCommands.add("gcloud config set project " + workspaceContext.getGoogleProject());
+    bashCommands.add(
+        "gcloud config set project " + Context.requireWorkspace().getGoogleProjectId());
     bashCommands.add(buildFullCommand(command));
     bashCommands.add(
         "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
@@ -61,12 +55,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add(command);
 
     // set the path to the pet SA key file
-    envVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        GlobalContext.getPetSaKeyFile(globalContext.requireCurrentTerraUser(), workspaceContext)
-            .toString());
+    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", Context.getPetSaKeyFile().toString());
 
     // launch the child process
+    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
     localProcessLauncher.launchProcess(processCommand, envVars);
 
     // stream the output to stdout/err

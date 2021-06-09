@@ -1,8 +1,9 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.exception.UserActionableException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -23,32 +24,31 @@ public class ResourceLimit extends BaseCommand {
 
     @CommandLine.Option(
         names = "--default",
-        description =
-            "use the default number of resources: " + GlobalContext.DEFAULT_RESOURCES_CACHE_SIZE)
+        description = "use the default number of resources: " + Config.DEFAULT_RESOURCES_CACHE_SIZE)
     private boolean useDefault;
   }
 
   /** Updates the resources cache size property of the global context. */
   @Override
   protected void execute() {
-    int prevMaxResources = globalContext.resourcesCacheSize;
-    int newMaxResources =
-        argGroup.useDefault ? GlobalContext.DEFAULT_RESOURCES_CACHE_SIZE : argGroup.max;
+    Config config = Context.getConfig();
+    int prevMaxResources = config.getResourcesCacheSize();
+    int newMaxResources = argGroup.useDefault ? Config.DEFAULT_RESOURCES_CACHE_SIZE : argGroup.max;
     if (newMaxResources <= 0) {
       throw new UserActionableException(
           "Maximum number of resources allowed per workspace must be positive.");
     }
-    globalContext.updateResourcesCacheSize(newMaxResources);
+    config.setResourcesCacheSize(newMaxResources);
 
-    if (globalContext.resourcesCacheSize == prevMaxResources) {
+    if (config.getResourcesCacheSize() == prevMaxResources) {
       OUT.println(
           "Max number of resources per workspace: "
-              + globalContext.resourcesCacheSize
+              + config.getResourcesCacheSize()
               + " (UNCHANGED)");
     } else {
       OUT.println(
           "Max number of resources per workspace: "
-              + globalContext.resourcesCacheSize
+              + config.getResourcesCacheSize()
               + " (CHANGED FROM "
               + prevMaxResources
               + ")");

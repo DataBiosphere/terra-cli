@@ -1,21 +1,16 @@
 package bio.terra.cli.command.resources.create;
 
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.PrintingUtils;
-import bio.terra.cli.command.helperclasses.options.CreateControlledResource;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.resources.GcsBucketLifecycle;
-import bio.terra.cli.context.utils.JacksonMapper;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ControlledResourceMetadata;
-import bio.terra.workspace.model.GcpGcsBucketAttributes;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CreateControlledResource;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
+import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
+import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
-import bio.terra.workspace.model.ResourceAttributesUnion;
-import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -72,60 +67,46 @@ public class GcsBucket extends BaseCommand {
   protected void execute() {
     createControlledResourceOptions.validateAccessOptions();
 
+    // build the resource object to create
+    CreateUpdateResource.Builder createResourceParams =
+        createControlledResourceOptions
+            .populateMetadataFields()
+            .stewardshipType(StewardshipType.CONTROLLED);
+    CreateUpdateGcsBucket.Builder createParams =
+        new CreateUpdateGcsBucket.Builder()
+            .resourceFields(createResourceParams.build())
+            .bucketName(bucketName)
+            .defaultStorageClass(storageClass)
+            .location(location);
+
     // build the lifecycle object
-    GcsBucketLifecycle lifecycle;
     if (lifecycleArgGroup == null) {
       // empty lifecycle rule object
-      lifecycle = new GcsBucketLifecycle();
+      createParams.lifecycle(new GcsBucketLifecycle());
     } else if (lifecycleArgGroup.autoDelete != null) {
       // build an auto-delete lifecycle rule and set the number of days
-      lifecycle = GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete);
+      createParams.lifecycle(GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete));
     } else {
       // read in the lifecycle rules from a file
       try {
-        lifecycle =
+        createParams.lifecycle(
             JacksonMapper.readFileIntoJavaObject(
                 lifecycleArgGroup.pathToLifecycleFile.toFile(),
                 GcsBucketLifecycle.class,
-                Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+                Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)));
       } catch (IOException ioEx) {
         throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
       }
     }
 
-    // build the resource object to create
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createControlledResourceOptions.privateIamRoles != null
-        && !createControlledResourceOptions.privateIamRoles.isEmpty()) {
-      privateResourceIamRoles.addAll(createControlledResourceOptions.privateIamRoles);
-    }
-    ResourceDescription resourceToCreate =
-        new ResourceDescription()
-            .metadata(
-                new ResourceMetadata()
-                    .name(createControlledResourceOptions.name)
-                    .description(createControlledResourceOptions.description)
-                    .cloningInstructions(createControlledResourceOptions.cloning)
-                    .controlledResourceMetadata(
-                        new ControlledResourceMetadata()
-                            .accessScope(createControlledResourceOptions.access)
-                            .privateResourceUser(
-                                new PrivateResourceUser()
-                                    .userName(createControlledResourceOptions.privateUserEmail)
-                                    .privateResourceIamRoles(privateResourceIamRoles))))
-            .resourceAttributes(
-                new ResourceAttributesUnion()
-                    .gcpGcsBucket(new GcpGcsBucketAttributes().bucketName(bucketName)));
-
-    ResourceDescription resourceCreated =
-        new WorkspaceManager(globalContext, workspaceContext)
-            .createControlledGcsBucket(resourceToCreate, storageClass, lifecycle, location);
-    formatOption.printReturnValue(resourceCreated, GcsBucket::printText);
+    bio.terra.cli.businessobject.resources.GcsBucket createdResource =
+        bio.terra.cli.businessobject.resources.GcsBucket.createControlled(createParams.build());
+    formatOption.printReturnValue(new UFGcsBucket(createdResource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(ResourceDescription returnValue) {
+  private static void printText(UFGcsBucket returnValue) {
     OUT.println("Successfully added controlled GCS bucket.");
-    PrintingUtils.printText(returnValue);
+    returnValue.print();
   }
 }

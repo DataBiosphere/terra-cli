@@ -1,11 +1,8 @@
 package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.DockerClientWrapper;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.businessobject.Context;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,44 +22,7 @@ public class DockerCommandRunner extends CommandRunner {
   // context)
   private static final String CONTAINER_HOME_DIR = "/root";
   // mount point for the workspace directory
-  private static final String CONTAINER_WORKSPACE_DIR = "/usr/local/etc";
-
-  public DockerCommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    super(globalContext, workspaceContext);
-  }
-
-  /** Returns the default image id. */
-  public static String defaultImageId() {
-    // read from the JAR Manifest file
-    String fromJarManifest = DockerCommandRunner.class.getPackage().getImplementationVersion();
-    if (fromJarManifest != null) {
-      return fromJarManifest;
-    } else {
-      // during testing, the JAR may not be built or called, so we use a system property to pass the
-      // implementation version instead. this is only expected for testing, not during normal
-      // operation.
-      logger.warn(
-          "Implementation version not defined in the JAR manifest. This is expected when testing, not during normal operation.");
-      return System.getProperty("TERRA_JAR_IMPLEMENTATION_VERSION");
-    }
-  }
-
-  /**
-   * Update the Docker image property of the global context.
-   *
-   * <p>Logs a warning if the Docker image is not found locally (i.e. hasn't yet been downloaded
-   * with `docker pull`)
-   *
-   * @param imageId id or tag of the image
-   */
-  public void updateImageId(String imageId) {
-    boolean imageExists = dockerClientWrapper.checkImageExists(imageId);
-    if (!imageExists) {
-      logger.warn("Image not found: {}", imageId);
-    }
-
-    globalContext.updateDockerImageId(imageId);
-  }
+  private static final String CONTAINER_WORKING_DIR = "/usr/local/etc";
 
   /**
    * This method builds a command string that:
@@ -95,23 +55,20 @@ public class DockerCommandRunner extends CommandRunner {
    */
   protected void runToolCommandImpl(String command, Map<String, String> envVars) {
     // set the path to the pet SA key file, which may be different on the container vs the host
-    envVars.put(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        getPetSaKeyFileOnContainer(globalContext.requireCurrentTerraUser(), workspaceContext)
-            .toString());
+    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
 
-    // mount the global context directory and the workspace directory to the container
+    // mount the global context directory and the current working directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
-    //       workspace context dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
+    //       current working dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
     Map<Path, Path> bindMounts = new HashMap<>();
-    bindMounts.put(getGlobalContextDirOnContainer(), GlobalContext.getGlobalContextDir());
-    bindMounts.put(Path.of(CONTAINER_WORKSPACE_DIR), WorkspaceContext.getWorkspaceDir());
+    bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
+    bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
     // create and start the docker container
     dockerClientWrapper.startContainer(
-        globalContext.dockerImageId,
+        Context.getConfig().getDockerImageId(),
         command,
-        getWorkingDirOnContainer().toString(),
+        CONTAINER_WORKING_DIR,
         envVars,
         bindMounts);
 
@@ -127,28 +84,6 @@ public class DockerCommandRunner extends CommandRunner {
   }
 
   /**
-   * Get the working directory on the container so that it matches the current working directory on
-   * the host.
-   *
-   * <p>e.g. working dir on host = /Users/mm/workspace123/nextflow/rnaseq-nf
-   *
-   * <p>working dir on container = CONTAINER_WORKSPACE_DIR/nextflow/rnaseq-nf
-   *
-   * @return absolute path to the working directory on the container
-   */
-  private static Path getWorkingDirOnContainer() {
-    // get the current working directory and the workspace directory on the host
-    Path currentDir = Paths.get("").toAbsolutePath();
-    Path workspaceDirOnHost = WorkspaceContext.getWorkspaceDir();
-
-    // remove the workspace directory part of the current working directory
-    Path relativePathToCurrentDir = workspaceDirOnHost.relativize(currentDir);
-
-    // working directory on container = workspace dir on container + relative path to current dir
-    return Path.of(CONTAINER_WORKSPACE_DIR).resolve(relativePathToCurrentDir);
-  }
-
-  /**
    * Get the global context directory on the container.
    *
    * <p>e.g. (host) $HOME/.terra/ -> (container) CONTAINER_HOME_DIR/.terra/
@@ -156,7 +91,7 @@ public class DockerCommandRunner extends CommandRunner {
    * @return absolute path to the global context directory on the container
    */
   private static Path getGlobalContextDirOnContainer() {
-    Path globalContextDirName = GlobalContext.getGlobalContextDir().getFileName();
+    Path globalContextDirName = Context.getContextDir().getFileName();
     return Path.of(CONTAINER_HOME_DIR).resolve(globalContextDirName);
   }
 
@@ -168,11 +103,10 @@ public class DockerCommandRunner extends CommandRunner {
    *
    * @return absolute path to the pet SA key file for the given user and workspace on the container
    */
-  private static Path getPetSaKeyFileOnContainer(
-      TerraUser terraUser, WorkspaceContext workspaceContext) {
+  private static Path getPetSaKeyFileOnContainer() {
     // get the full path of the key file and global context directory on the host
-    Path keyFileOnHost = GlobalContext.getPetSaKeyFile(terraUser, workspaceContext);
-    Path globalContextDirOnHost = GlobalContext.getGlobalContextDir();
+    Path keyFileOnHost = Context.getPetSaKeyFile();
+    Path globalContextDirOnHost = Context.getContextDir();
 
     // remove the global context directory part of the key file path
     // e.g. keyFileOnHost = $HOME/.terra/pet-keys/[user id]/[workspace id]

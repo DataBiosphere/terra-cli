@@ -1,11 +1,10 @@
 package bio.terra.cli.command.resources;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.ResourceMetadata;
-import bio.terra.workspace.model.ResourceType;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -21,42 +20,38 @@ public class List extends BaseCommand {
   @CommandLine.Option(
       names = "--type",
       description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}")
-  private ResourceType type;
+  private Resource.Type type;
 
   @CommandLine.Mixin Format formatOption;
 
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
-    java.util.List<ResourceDescription> resources =
-        new WorkspaceManager(globalContext, workspaceContext)
-            .listResources().stream()
-                .filter(
-                    (resource) -> {
-                      boolean stewardshipMatches =
-                          stewardship == null
-                              || resource.getMetadata().getStewardshipType().equals(stewardship);
-                      boolean typeMatches =
-                          type == null || resource.getMetadata().getResourceType().equals(type);
-                      return stewardshipMatches && typeMatches;
-                    })
-                .collect(Collectors.toList());
-
+    java.util.List<UFResource> resources =
+        Context.requireWorkspace().listResourcesAndSync().stream()
+            .filter(
+                (resource) -> {
+                  boolean stewardshipMatches =
+                      stewardship == null || resource.getStewardshipType().equals(stewardship);
+                  boolean typeMatches = type == null || resource.getResourceType().equals(type);
+                  return stewardshipMatches && typeMatches;
+                })
+            .map(Resource::serializeToCommand)
+            .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(java.util.List<ResourceDescription> returnValue) {
-    for (ResourceDescription resource : returnValue) {
-      ResourceMetadata metadata = resource.getMetadata();
+  private static void printText(java.util.List<UFResource> returnValue) {
+    for (UFResource resource : returnValue) {
       OUT.println(
-          metadata.getName()
+          resource.name
               + " ("
-              + metadata.getResourceType()
+              + resource.resourceType
               + ", "
-              + metadata.getStewardshipType()
+              + resource.stewardshipType
               + "): "
-              + metadata.getDescription());
+              + resource.description);
     }
   }
 }

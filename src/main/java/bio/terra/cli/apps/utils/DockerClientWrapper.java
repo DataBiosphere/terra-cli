@@ -1,8 +1,8 @@
 package bio.terra.cli.apps.utils;
 
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.Printer;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;

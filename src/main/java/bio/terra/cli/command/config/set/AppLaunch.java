@@ -1,7 +1,8 @@
 package bio.terra.cli.command.config.set;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.context.GlobalContext;
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -10,19 +11,20 @@ import picocli.CommandLine.Command;
 public class AppLaunch extends BaseCommand {
 
   @CommandLine.Parameters(index = "0", description = "App launch mode: ${COMPLETION-CANDIDATES}")
-  private GlobalContext.CommandRunners mode;
+  private Config.CommandRunnerOption mode;
 
   /** Updates the command runner option property of the global context. */
   @Override
   protected void execute() {
-    GlobalContext.CommandRunners prevAppLaunchOption = globalContext.commandRunnerOption;
-    globalContext.updateCommandRunnerOption(mode);
+    Config config = Context.getConfig();
+    Config.CommandRunnerOption prevAppLaunchOption = config.getCommandRunnerOption();
+    config.setCommandRunnerOption(mode);
 
     OUT.println(
         "App launch mode is "
-            + globalContext.commandRunnerOption
+            + config.getCommandRunnerOption()
             + " ("
-            + (globalContext.commandRunnerOption == prevAppLaunchOption ? "UNCHANGED" : "CHANGED")
+            + (config.getCommandRunnerOption() == prevAppLaunchOption ? "UNCHANGED" : "CHANGED")
             + ").");
   }
 

@@ -1,9 +1,8 @@
 package harness;
 
-import bio.terra.cli.auth.AuthenticationManager;
-import bio.terra.cli.auth.GoogleCredentialUtils;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
+import bio.terra.cli.service.GoogleOauth;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -26,6 +25,10 @@ import java.util.stream.Collectors;
  *
  * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
  * will start with a call to this method to login a test user.
+ *
+ * <p>This class has several utility methods that randomly choose a test user. The test users are
+ * static, so this can help catch errors that are due to some leftover state on a particular test
+ * user (e.g. they have some permission that should've been deleted).
  */
 public enum TestUsers {
   PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),
@@ -58,23 +61,10 @@ public enum TestUsers {
    *
    * @return global context object, populated with the user's credentials
    */
-  public GlobalContext login() throws IOException {
-    // get a credential for the test-user SA
-    Path jsonKey = Path.of("rendered", "test-user-account.json");
-    if (!jsonKey.toFile().exists()) {
-      throw new FileNotFoundException(
-          "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
-              + jsonKey.toAbsolutePath()
-              + ")");
-    }
-    GoogleCredentials serviceAccountCredential =
-        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(AuthenticationManager.SCOPES);
-
-    // use the test-user SA to get a domain-wide delegated credential for the test user
+  public void login() throws IOException {
+    // get domain-wide delegated credentials for this user
     System.out.println("Logging in test user: " + email);
-    GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
-    delegatedUserCredential.refreshIfExpired();
+    GoogleCredentials delegatedUserCredential = getCredentials();
 
     // use the domain-wide delegated credential to build a stored credential for the test user
     StoredCredential dwdStoredCredential = new StoredCredential();
@@ -85,23 +75,56 @@ public enum TestUsers {
     // update the credential store on disk
     // set the single entry to the stored credential for the test user
     DataStore<StoredCredential> dataStore = getCredentialStore();
-    dataStore.set(GoogleCredentialUtils.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+    dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     // unset the current user in the global context if already specified
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    globalContext.unsetCurrentTerraUser();
+    Context.setUser(null);
 
     // do the login flow to populate the global context with the current user
-    new AuthenticationManager(globalContext, WorkspaceContext.readFromFile()).loginTerraUser();
+    User.login();
+  }
 
-    return globalContext;
+  /** Get domain-wide delegated Google credentials for this user. */
+  public GoogleCredentials getCredentials() throws IOException {
+    // get a credential for the test-user SA
+    Path jsonKey = Path.of("rendered", "test-user-account.json");
+    if (!jsonKey.toFile().exists()) {
+      throw new FileNotFoundException(
+          "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
+              + jsonKey.toAbsolutePath()
+              + ")");
+    }
+    GoogleCredentials serviceAccountCredential =
+        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
+            .createScoped(User.SCOPES);
+
+    // use the test-user SA to get a domain-wide delegated credential for the test user
+    System.out.println("Logging in test user: " + email);
+    GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
+    delegatedUserCredential.refreshIfExpired();
+    return delegatedUserCredential;
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */
   public static DataStore<StoredCredential> getCredentialStore() throws IOException {
-    Path globalContextDir = GlobalContext.getGlobalContextDir();
+    Path globalContextDir = Context.getContextDir();
     FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
+  }
+
+  /**
+   * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
+   * choosing a user that is not the workspace creator.
+   */
+  public static TestUsers chooseTestUserWhoIsNot(TestUsers testUser) {
+    final int maxNumTries = 50;
+    for (int ctr = 0; ctr < maxNumTries; ctr++) {
+      TestUsers chosen = chooseTestUser(Set.of(SpendEnabled.values()));
+      if (!chosen.equals(testUser)) {
+        return chosen;
+      }
+    }
+    throw new RuntimeException("Error choosing a test user who is anyone except for: " + testUser);
   }
 
   /** Randomly chooses a test user. */
@@ -113,6 +136,11 @@ public enum TestUsers {
   public static TestUsers chooseTestUserWithSpendAccess() {
     return chooseTestUser(
         Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+  }
+
+  /** Randomly chooses a test user without spend profile access. */
+  public static TestUsers chooseTestUserWithoutSpendAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.NO));
   }
 
   /** Randomly chooses a test user that matches one of the specified spend enabled values. */

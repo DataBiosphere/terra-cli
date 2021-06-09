@@ -1,13 +1,13 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
 import bio.terra.cli.command.app.passthrough.Gsutil;
 import bio.terra.cli.command.app.passthrough.Nextflow;
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.command.exception.UserActionableException;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.Printer;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
@@ -177,7 +177,7 @@ public class Main implements Runnable {
         cmd.getErr()
             .println(
                 cmd.getColorScheme()
-                    .stackTraceText("See " + GlobalContext.getLogFile() + " for more information"));
+                    .stackTraceText("See " + Context.getLogFile() + " for more information"));
       }
 
       // log the exact message that was printed to the console, for easier debugging

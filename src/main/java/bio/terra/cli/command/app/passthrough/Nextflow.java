@@ -1,6 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,6 @@ public class Nextflow extends BaseCommand {
     command.add(0, "nextflow");
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
-    globalContext.getRunner(workspaceContext).runToolCommand(command, envVars);
+    Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command, envVars);
   }
 }

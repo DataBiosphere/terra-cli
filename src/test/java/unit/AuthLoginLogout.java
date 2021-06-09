@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.auth.GoogleCredentialUtils;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.TerraUser;
-import bio.terra.cli.service.utils.SamService;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
+import bio.terra.cli.service.GoogleOauth;
+import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import harness.TestCommand;
@@ -42,20 +42,18 @@ public class AuthLoginLogout extends ClearContextUnit {
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
     assertEquals(1, dataStore.keySet().size(), "credential store only contains one entry");
     assertTrue(
-        dataStore.containsKey(GoogleCredentialUtils.CREDENTIAL_STORE_KEY),
+        dataStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
         "credential store contains hard-coded single user key");
-    StoredCredential storedCredential = dataStore.get(GoogleCredentialUtils.CREDENTIAL_STORE_KEY);
+    StoredCredential storedCredential = dataStore.get(GoogleOauth.CREDENTIAL_STORE_KEY);
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user
-    // read the global context in from disk again to make sure it got persisted
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
-    assertTrue(currentTerraUser.isPresent(), "current user set in global context");
+    Optional<User> currentUser = Context.getUser();
+    assertTrue(currentUser.isPresent(), "current user set in global context");
     assertThat(
         "test user email matches the current user set in global context",
         testUser.email,
-        equalToIgnoringCase(currentTerraUser.get().terraUserEmail));
+        equalToIgnoringCase(currentUser.get().getEmail()));
   }
 
   @Test
@@ -66,8 +64,7 @@ public class AuthLoginLogout extends ClearContextUnit {
     testUser.login();
 
     // `terra auth revoke`
-    TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
-    assertEquals(0, cmd.exitCode);
+    TestCommand.runCommandExpectSuccess("auth", "revoke");
 
     // check that the credential store on disk is empty
     DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
@@ -75,9 +72,8 @@ public class AuthLoginLogout extends ClearContextUnit {
 
     // read the global context in from disk again to check what got persisted
     // check that the current user in the global context is unset
-    GlobalContext globalContext = GlobalContext.readFromFile();
-    Optional<TerraUser> currentTerraUser = globalContext.getCurrentTerraUser();
-    assertFalse(currentTerraUser.isPresent(), "current user unset in global context");
+    Optional<User> currentUser = Context.getUser();
+    assertFalse(currentUser.isPresent(), "current user unset in global context");
   }
 
   @Test
@@ -86,19 +82,17 @@ public class AuthLoginLogout extends ClearContextUnit {
     // check that each test user is enabled in SAM
     for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
       // login the user, so we have their credentials
-      GlobalContext globalContext = testUser.login();
+      testUser.login();
 
       // build a SAM client with the test user's credentials
-      SamService samService =
-          new SamService(globalContext.server, globalContext.requireCurrentTerraUser());
+      SamService samService = new SamService(Context.getServer(), Context.requireUser());
 
       // check that the user is enabled
       UserStatusInfo userStatusInfo = samService.getUserInfo();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
       // `terra auth revoke`
-      TestCommand.Result cmd = TestCommand.runCommand("auth", "revoke");
-      assertEquals(0, cmd.exitCode);
+      TestCommand.runCommandExpectSuccess("auth", "revoke");
     }
   }
 }

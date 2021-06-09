@@ -1,9 +1,12 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.service.WorkspaceManager;
-import bio.terra.workspace.model.WorkspaceDescription;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -34,27 +37,30 @@ public class List extends BaseCommand {
   /** List all workspaces a user has access to. */
   @Override
   protected void execute() {
-    java.util.List<WorkspaceDescription> workspaces =
-        new WorkspaceManager(globalContext, workspaceContext).listWorkspaces(offset, limit);
-    formatOption.printReturnValue(workspaces, this::printText);
+    java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
+    formatOption.printReturnValue(
+        workspaces.stream()
+            .map(workspace -> new UFWorkspace(workspace))
+            .collect(Collectors.toList()),
+        this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<WorkspaceDescription> returnValue) {
-    for (WorkspaceDescription workspace : returnValue) {
+  private void printText(java.util.List<UFWorkspace> returnValue) {
+    Optional<Workspace> currentWorkspace = Context.getWorkspace();
+    for (UFWorkspace workspace : returnValue) {
       String prefix =
-          (!workspaceContext.isEmpty()
-                  && workspaceContext.getWorkspaceId().equals(workspace.getId()))
+          (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
               ? " * "
               : "   ";
-      OUT.println(prefix + workspace.getId());
+      OUT.println(prefix + workspace.id);
 
       String propertyDescription = "%16s: %s";
-      String displayName = workspace.getDisplayName();
+      String displayName = workspace.name;
       if (!(displayName == null || displayName.isBlank())) {
         OUT.println(String.format(propertyDescription, "Name", displayName));
       }
-      String description = workspace.getDescription();
+      String description = workspace.description;
       if (!(description == null || description.isBlank())) {
         OUT.println(String.format(propertyDescription, "Description", description));
       }

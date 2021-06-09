@@ -1,12 +1,18 @@
 package harness;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import bio.terra.cli.command.Main;
-import bio.terra.cli.context.utils.Printer;
+import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility methods for executing commands and reading their outputs during testing. This class is
@@ -34,17 +40,65 @@ public class TestCommand {
         new PrintStream(stdErr, true, StandardCharsets.UTF_8));
 
     // execute the command from the top-level Main class
+    System.out.println("COMMAND: " + String.join(" ", args));
     int exitCode = Main.runCommand(args);
 
+    // log the stdout and stderr to the console
+    String stdOutStr = stdOut.toString(StandardCharsets.UTF_8);
+    String stdErrStr = stdErr.toString(StandardCharsets.UTF_8);
+    System.out.println(stdOutStr);
+    if (!stdErrStr.isEmpty()) {
+      System.out.println("STDERR --------------");
+      System.out.println(stdErrStr);
+    }
+
     // return a result object with all the command outputs
-    return new Result(
-        exitCode, stdOut.toString(StandardCharsets.UTF_8), stdErr.toString(StandardCharsets.UTF_8));
+    return new Result(exitCode, stdOutStr, stdErrStr);
   }
 
-  /** Helper method to convert what's written to standard out into a Java object. */
-  public static <T> T readObjectFromStdOut(Result cmd, Class<T> objectType)
+  /**
+   * Helper method to run a command and check its exit code matches that specified. Returns the
+   * standard error string for validating an error message.
+   */
+  public static String runCommandExpectExitCode(int exitCode, String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(exitCode, cmd.exitCode, "exit code = " + exitCode);
+    return cmd.stdErr;
+  }
+
+  /** Helper method to run a command and check its exit code is 0=success. */
+  public static void runCommandExpectSuccess(String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode, "exit code = success");
+  }
+
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and read what's written to
+   * standard out into a Java object. Adds `--format=json` to the argument list.
+   */
+  public static <T> T runAndParseCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
-    return objectMapper.readValue(cmd.stdOut, objectType);
+    Result cmd = runCommand(addFormatJsonArg(args));
+    assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd.readObjectFromStdOut(objectType);
+  }
+
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and read what's written to
+   * standard out into a Java object. Adds `--format=json` to the argument list.
+   */
+  public static <T> T runAndParseCommandExpectSuccess(TypeReference<T> objectType, String... args)
+      throws JsonProcessingException {
+    Result cmd = runCommand(addFormatJsonArg(args));
+    assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd.readObjectFromStdOut(objectType);
+  }
+
+  /** Add the `--format=json` argument to the end of the arguments list. */
+  private static String[] addFormatJsonArg(String... args) {
+    List<String> argsWithFormatJson = new ArrayList<>(Arrays.asList(args));
+    argsWithFormatJson.add("--format=json");
+    return argsWithFormatJson.toArray(new String[0]);
   }
 
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */
@@ -57,6 +111,16 @@ public class TestCommand {
       this.exitCode = exitCode;
       this.stdOut = stdOut;
       this.stdErr = stdErr;
+    }
+
+    /** Convert what's written to standard out into a Java object. */
+    private <T> T readObjectFromStdOut(Class<T> objectType) throws JsonProcessingException {
+      return objectMapper.readValue(stdOut, objectType);
+    }
+
+    /** Convert what's written to standard out into a Java object. */
+    private <T> T readObjectFromStdOut(TypeReference<T> objectType) throws JsonProcessingException {
+      return objectMapper.readValue(stdOut, objectType);
     }
   }
 }

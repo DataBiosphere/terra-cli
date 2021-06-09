@@ -1,8 +1,9 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
-import bio.terra.cli.context.ServerSpecification;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.UFServer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,11 +16,11 @@ public class Server extends BaseCommand {
   /** Return the server property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.server, Server::printText);
+    formatOption.printReturnValue(new UFServer(Context.getServer()), Server::printText);
   }
 
   /** Print this command's output in text format. */
-  public static void printText(ServerSpecification returnValue) {
+  public static void printText(UFServer returnValue) {
     OUT.println(returnValue.name);
   }
 

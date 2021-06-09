@@ -1,7 +1,8 @@
 package bio.terra.cli.command.config.getvalue;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.command.helperclasses.options.Format;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -14,7 +15,7 @@ public class Image extends BaseCommand {
   /** Return the docker image id property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue(globalContext.dockerImageId);
+    formatOption.printReturnValue(Context.getConfig().getDockerImageId());
   }
 
   /** This command never requires login. */

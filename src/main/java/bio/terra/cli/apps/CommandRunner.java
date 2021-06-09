@@ -1,13 +1,7 @@
 package bio.terra.cli.apps;
 
-import static bio.terra.cli.service.WorkspaceManager.getAiNotebookInstanceName;
-import static bio.terra.cli.service.WorkspaceManager.getBigQueryDatasetPath;
-import static bio.terra.cli.service.WorkspaceManager.getGcsBucketUrl;
-
-import bio.terra.cli.command.exception.SystemException;
-import bio.terra.cli.context.GlobalContext;
-import bio.terra.cli.context.WorkspaceContext;
-import bio.terra.workspace.model.ResourceDescription;
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.exception.SystemException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +16,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
-
-  protected final GlobalContext globalContext;
-  protected final WorkspaceContext workspaceContext;
-
-  public CommandRunner(GlobalContext globalContext, WorkspaceContext workspaceContext) {
-    this.globalContext = globalContext;
-    this.workspaceContext = workspaceContext;
-  }
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -70,13 +56,10 @@ public abstract class CommandRunner {
       logger.debug("tokenized command string: {}", commandToken);
     }
 
-    // check that the current workspace is defined
-    workspaceContext.requireCurrentWorkspace();
-
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
     terraEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", "");
-    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", workspaceContext.getGoogleProject());
+    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
         throw new SystemException(
@@ -119,35 +102,11 @@ public abstract class CommandRunner {
   private Map<String, String> buildMapOfTerraReferences() {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
-    workspaceContext
-        .listResources()
+    Context.requireWorkspace()
+        .getResources()
         .forEach(
-            resource ->
-                terraReferences.put(
-                    "TERRA_" + resource.getMetadata().getName(),
-                    resolveResourceForCommandEnvVar(resource)));
+            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve()));
 
     return terraReferences;
-  }
-
-  /**
-   * Helper method for resolving a workspace resource into a cloud id, in order to pass it as an
-   * environment variable to a tool command.
-   *
-   * @param resource workspace resource object
-   * @return cloud id to set the environment variable to
-   */
-  private String resolveResourceForCommandEnvVar(ResourceDescription resource) {
-    switch (resource.getMetadata().getResourceType()) {
-      case GCS_BUCKET:
-        return getGcsBucketUrl(resource);
-      case BIG_QUERY_DATASET:
-        return getBigQueryDatasetPath(resource);
-      case AI_NOTEBOOK:
-        return getAiNotebookInstanceName(resource);
-      default:
-        throw new UnsupportedOperationException(
-            "Resource type not supported: " + resource.getMetadata().getResourceType());
-    }
   }
 }

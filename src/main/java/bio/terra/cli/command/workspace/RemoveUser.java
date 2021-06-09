@@ -1,7 +1,7 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.command.helperclasses.BaseCommand;
-import bio.terra.cli.service.WorkspaceManager;
+import bio.terra.cli.businessobject.WorkspaceUser;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -10,16 +10,19 @@ import picocli.CommandLine.Command;
 @Command(name = "remove-user", description = "Remove a user or group from the workspace.")
 public class RemoveUser extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "user or group email")
-  private String userEmail;
+  @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
+  private String email;
 
-  @CommandLine.Parameters(index = "1", description = "Role to remove: ${COMPLETION-CANDIDATES}")
+  @CommandLine.Option(
+      names = "--role",
+      required = true,
+      description = "Role to grant: ${COMPLETION-CANDIDATES}")
   private IamRole role;
 
   /** Remove a user from a workspace. */
   @Override
   protected void execute() {
-    new WorkspaceManager(globalContext, workspaceContext).removeUserFromWorkspace(userEmail, role);
-    OUT.println("Email removed from workspace: " + userEmail + ", " + role);
+    WorkspaceUser.remove(email, role);
+    OUT.println("User (" + email + ") removed from workspace role (" + role + ").");
   }
 }
