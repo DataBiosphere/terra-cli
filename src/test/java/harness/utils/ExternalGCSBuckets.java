@@ -1,8 +1,5 @@
 package harness.utils;
 
-import static harness.TestExternalResources.getProjectId;
-import static harness.TestExternalResources.getSACredentials;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
@@ -12,6 +9,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
+import harness.TestExternalResources;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -42,7 +40,7 @@ public class ExternalGCSBuckets {
             + " with storage class "
             + bucket.getStorageClass()
             + " in project "
-            + getProjectId());
+            + TestExternalResources.getProjectId());
     return bucket;
   }
 
@@ -67,13 +65,13 @@ public class ExternalGCSBuckets {
 
   /** Helper method to build the GCS client object with SA credentials for the external project. */
   public static Storage getStorageClient() throws IOException {
-    return getStorageClient(getSACredentials());
+    return getStorageClient(TestExternalResources.getSACredentials());
   }
 
   /** Helper method to build the GCS client object with the given credentials. */
   public static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
     return StorageOptions.newBuilder()
-        .setProjectId(getProjectId())
+        .setProjectId(TestExternalResources.getProjectId())
         .setCredentials(credentials)
         .build()
         .getService();
