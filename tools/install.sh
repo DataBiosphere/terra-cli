@@ -42,7 +42,7 @@ docker pull $defaultDockerImage
 
 echo "-- Setting the server to its current value, to pull any changes"
 currentServer=$(./terra config get-value server)
-./terra config set server $currentServer
+./terra config set server --name=$currentServer
 
 echo "--  Install complete"
 echo "You can add the ./terra executable to your \$PATH"
