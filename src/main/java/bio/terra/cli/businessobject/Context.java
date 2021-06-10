@@ -24,6 +24,12 @@ public class Context {
   private static User currentUser;
   private static Workspace currentWorkspace;
 
+  // functions as the current workspace for this command execution only
+  // unlike the other parts of the current context, this property is not persisted to disk
+  private static Workspace overrideWorkspace;
+  // true if the current command is using an override workspace
+  private static boolean useOverrideWorkspace;
+
   // env var name to optionally override where the context is persisted on disk
   private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
 
@@ -61,6 +67,8 @@ public class Context {
       currentUser = null;
       currentWorkspace = null;
     }
+    overrideWorkspace = null;
+    useOverrideWorkspace = false;
   }
 
   /**
@@ -193,7 +201,11 @@ public class Context {
   }
 
   public static Optional<Workspace> getWorkspace() {
-    return Optional.ofNullable(currentWorkspace);
+    if (useOverrideWorkspace) {
+      return Optional.of(overrideWorkspace);
+    } else {
+      return Optional.ofNullable(currentWorkspace);
+    }
   }
 
   public static Workspace requireWorkspace() {
@@ -205,7 +217,15 @@ public class Context {
   }
 
   public static void setWorkspace(Workspace workspace) {
-    currentWorkspace = workspace;
-    synchronizeToDisk();
+    if (useOverrideWorkspace) {
+      overrideWorkspace = workspace;
+    } else {
+      currentWorkspace = workspace;
+      synchronizeToDisk();
+    }
+  }
+
+  public static void useOverrideWorkspace() {
+    useOverrideWorkspace = true;
   }
 }

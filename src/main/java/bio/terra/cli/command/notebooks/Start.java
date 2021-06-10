@@ -3,6 +3,7 @@ package bio.terra.cli.command.notebooks;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
@@ -15,9 +16,11 @@ import picocli.CommandLine;
 public class Start extends BaseCommand {
 
   @CommandLine.Mixin NotebookInstance instanceOption;
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     InstanceName instanceName = instanceOption.toInstanceName();
     GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
     notebooks.start(instanceName);

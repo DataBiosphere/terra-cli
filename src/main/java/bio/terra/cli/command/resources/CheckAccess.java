@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resources check-access" command. */
@@ -15,6 +16,7 @@ import picocli.CommandLine;
 public class CheckAccess extends BaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /**
@@ -22,6 +24,7 @@ public class CheckAccess extends BaseCommand {
    */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
     boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);

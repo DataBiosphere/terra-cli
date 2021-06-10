@@ -3,6 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
@@ -21,11 +22,13 @@ public class AddUser extends BaseCommand {
       description = "Role to grant: ${COMPLETION-CANDIDATES}")
   private IamRole role;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add an email to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     WorkspaceUser workspaceUser = WorkspaceUser.add(email, role);
     formatOption.printReturnValue(new UFWorkspaceUser(workspaceUser), AddUser::printText);
   }

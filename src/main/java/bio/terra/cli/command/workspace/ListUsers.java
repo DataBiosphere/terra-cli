@@ -3,6 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -12,11 +13,13 @@ import picocli.CommandLine.Command;
 @Command(name = "list-users", description = "List the users of the workspace.")
 public class ListUsers extends BaseCommand {
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** List all users of the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     java.util.List<WorkspaceUser> workspaceUsers = WorkspaceUser.list();
     formatOption.printReturnValue(
         workspaceUsers.stream()

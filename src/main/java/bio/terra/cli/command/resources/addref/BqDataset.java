@@ -3,6 +3,7 @@ package bio.terra.cli.command.resources.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
@@ -23,11 +24,13 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Option(names = "--dataset-id", required = true, description = "Big Query dataset id")
   private String bigQueryDatasetId;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add a referenced Big Query dataset to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateUpdateResource.Builder createResourceParams =
         createResourceOptions.populateMetadataFields().stewardshipType(StewardshipType.REFERENCED);
