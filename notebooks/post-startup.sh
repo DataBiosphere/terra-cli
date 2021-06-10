@@ -8,9 +8,14 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-# Send stdout and stderr from this script to a tmp file for debugging.
+# The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
+# user space.
+readonly JUPYTER_USER="jupyter"
+
 cd /tmp || exit
-exec >> /tmp/post-startup-output.txt
+# Send stdout and stderr from this script to a file for debugging.
+mkdir /home/"${JUPYTER_USER}"/.terra-debug
+exec >> /home/"${JUPYTER_USER}"/.terra-debug/post-startup-output.txt
 exec 2>&1
 
 #######################################
