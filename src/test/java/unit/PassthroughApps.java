@@ -1,6 +1,7 @@
 package unit;
 
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -54,17 +56,19 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_APPLICATION_CREDENTIALS");
 
     // check that GOOGLE_APPLICATION_CREDENTIALS = path to pet SA key file
-    assertTrue(
-        cmd.stdOut.contains(Context.getPetSaKeyFile().getFileName().toString()),
-        "GOOGLE_APPLICATION_CREDENTIALS set to pet SA key file");
+    assertThat(
+        "GOOGLE_APPLICATION_CREDENTIALS set to pet SA key file",
+        cmd.stdOut,
+        CoreMatchers.containsString(Context.getPetSaKeyFile().getFileName().toString()));
 
     // `terra app execute echo \$GOOGLE_APPLICATION_CREDENTIALS`
     cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
 
     // check that GOOGLE_CLOUD_PROJECT = workspace project
-    assertTrue(
-        cmd.stdOut.contains(workspace.googleProjectId),
-        "GOOGLE_CLOUD_PROJECT set to workspace project");
+    assertThat(
+        "GOOGLE_CLOUD_PROJECT set to workspace project",
+        cmd.stdOut,
+        CoreMatchers.containsString(workspace.googleProjectId));
   }
 
   @Test
@@ -85,9 +89,10 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + name);
 
     // check that TERRA_$name = resolved bucket name
-    assertTrue(
-        cmd.stdOut.contains("gs://" + bucketName),
-        "TERRA_$resourceName set to resolved bucket path");
+    assertThat(
+        "TERRA_$resourceName set to resolved bucket path",
+        cmd.stdOut,
+        CoreMatchers.containsString("gs://" + bucketName));
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
@@ -105,14 +110,17 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra gcloud config get-value project`
     TestCommand.Result cmd = TestCommand.runCommand("gcloud", "config", "get-value", "project");
-    assertTrue(
-        cmd.stdOut.contains(workspace.googleProjectId), "gcloud project = workspace project");
+    assertThat(
+        "gcloud project = workspace project",
+        cmd.stdOut,
+        CoreMatchers.containsString(workspace.googleProjectId));
 
     // `terra gcloud config get-value account`
     cmd = TestCommand.runCommand("gcloud", "config", "get-value", "account");
-    assertTrue(
-        cmd.stdOut.contains(Context.requireUser().getPetSACredentials().getClientEmail()),
-        "gcloud account = pet SA email");
+    assertThat(
+        "gcloud account = pet SA email",
+        cmd.stdOut,
+        CoreMatchers.containsString(Context.requireUser().getPetSACredentials().getClientEmail()));
   }
 
   @Test
@@ -132,7 +140,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra gsutil du -s \$TERRA_$name`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "du", "-s", "$TERRA_" + name);
     assertTrue(
-        cmd.stdOut.contains("0            gs://" + bucketName), "gsutil says bucket size = 0");
+        cmd.stdOut.matches("(?s).*0\\s+gs://" + bucketName + ".*"), "gsutil says bucket size = 0");
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
@@ -160,9 +168,11 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra bq show --format=prettyjson [project id]:[dataset id]`
     TestCommand.Result cmd = TestCommand.runCommand("bq", "show", "--format=prettyjson", datasetId);
-    assertTrue(
-        cmd.stdOut.contains("\"id\": \"" + dataset.projectId + ":" + dataset.datasetId + "\""),
-        "bq show includes the dataset id");
+    assertThat(
+        "bq show includes the dataset id",
+        cmd.stdOut,
+        CoreMatchers.containsString(
+            "\"id\": \"" + dataset.projectId + ":" + dataset.datasetId + "\""));
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
@@ -178,7 +188,10 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra nextflow -version`
     TestCommand.Result cmd = TestCommand.runCommand("nextflow", "-version");
-    assertTrue(cmd.stdOut.contains("http://nextflow.io"), "nextflow version ran successfully");
+    assertThat(
+        "nextflow version ran successfully",
+        cmd.stdOut,
+        CoreMatchers.containsString("http://nextflow.io"));
   }
 
   @Test
@@ -196,7 +209,10 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra gcloud --version`
     // this is the correct version of the command
     TestCommand.Result cmd = TestCommand.runCommand("gcloud", "--version");
-    assertTrue(cmd.stdOut.contains("Google Cloud SDK"), "gcloud version ran successfully");
+    assertThat(
+        "gcloud version ran successfully",
+        cmd.stdOut,
+        CoreMatchers.containsString("Google Cloud SDK"));
 
     // `terra app execute exit 123`
     // this just returns an arbitrary exit code (similar to doing (exit 123); echo "$?" in a

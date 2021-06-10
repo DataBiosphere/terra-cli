@@ -11,6 +11,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.Printer;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -161,8 +162,8 @@ public class Main implements Runnable {
         exitCode = SYSTEM_EXIT_CODE;
         printPointerToLogFile = true;
       } else if (ex instanceof PassthroughException) {
-        errorMessage = ex.getMessage() == null ? "" : ex.getMessage();
-        formattedErrorMessage = cmd.getColorScheme().text(errorMessage);
+        errorMessage = Optional.ofNullable(ex.getMessage()).orElse("");
+        formattedErrorMessage = cmd.getColorScheme().errorText(errorMessage);
         exitCode = ((PassthroughException) ex).getExitCode();
         printPointerToLogFile = false;
       } else {
