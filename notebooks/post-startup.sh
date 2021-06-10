@@ -32,10 +32,6 @@ function get_metadata_value() {
     "http://metadata/computeMetadata/v1/$1"
 }
 
-# The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
-# user space.
-readonly JUPYTER_USER="jupyter"
-
 # Install common packages in conda environment
 /opt/conda/bin/conda install -y pre-commit nbdime nbstripout pylint pytest
 # Install nbstripout for the jupyter user in all git repositories.
