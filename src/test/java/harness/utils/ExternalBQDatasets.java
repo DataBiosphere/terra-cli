@@ -1,14 +1,12 @@
 package harness.utils;
 
-import static harness.TestExternalResources.getProjectId;
-import static harness.TestExternalResources.getSACredentials;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.Acl;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetInfo;
+import harness.TestExternalResources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -55,13 +53,13 @@ public class ExternalBQDatasets {
 
   /** Helper method to build the BQ client object with SA credentials for the external project. */
   public static BigQuery getBQClient() throws IOException {
-    return getBQClient(getSACredentials());
+    return getBQClient(TestExternalResources.getSACredentials());
   }
 
   /** Helper method to build the BQ client object with the given credentials. */
   public static BigQuery getBQClient(GoogleCredentials credentials) throws IOException {
     return BigQueryOptions.newBuilder()
-        .setProjectId(getProjectId())
+        .setProjectId(TestExternalResources.getProjectId())
         .setCredentials(credentials)
         .build()
         .getService();
