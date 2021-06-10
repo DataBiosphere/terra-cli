@@ -2,6 +2,7 @@ package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.exception.PassthroughException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +53,10 @@ public class DockerCommandRunner extends CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
+   * @return process exit code
    */
-  protected void runToolCommandImpl(String command, Map<String, String> envVars) {
+  protected int runToolCommandImpl(String command, Map<String, String> envVars)
+      throws PassthroughException {
     // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
 
@@ -79,8 +82,14 @@ public class DockerCommandRunner extends CommandRunner {
     Integer statusCode = dockerClientWrapper.waitForContainerToExit();
     logger.debug("docker run status code: {}", statusCode);
 
+    // get the process exit code
+    Long exitCode = dockerClientWrapper.getProcessExitCode();
+    logger.debug("docker inspect exit code: {}", exitCode);
+
     // delete the container
     dockerClientWrapper.deleteContainer();
+
+    return exitCode.intValue();
   }
 
   /**

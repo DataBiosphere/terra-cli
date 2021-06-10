@@ -602,3 +602,6 @@ The CLI sets the process exit code as follows.
 - 1 = User-actionable error (e.g. missing parameter, workspace not defined in the current context)
 - 2 = System or internal error (e.g. error making a request to a Terra service)
 - 3 = Unexpected error (e.g. null pointer exception)
+
+App exit codes will be passed through to the caller. e.g. If `gcloud --malformedOption` returns exit code `2`, then
+`terra gcloud --malformedOption` will also return exit code `2`.

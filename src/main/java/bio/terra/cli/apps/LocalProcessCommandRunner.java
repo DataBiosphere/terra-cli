@@ -2,6 +2,7 @@ package bio.terra.cli.apps;
 
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.exception.PassthroughException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +48,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
+   * @return process exit code
    */
-  protected void runToolCommandImpl(String command, Map<String, String> envVars) {
+  protected int runToolCommandImpl(String command, Map<String, String> envVars)
+      throws PassthroughException {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
     processCommand.add("-c");
@@ -67,5 +70,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
     // block until the child process exits
     int exitCode = localProcessLauncher.waitForTerminate();
     logger.debug("local process exit code: {}", exitCode);
+
+    return exitCode;
   }
 }
