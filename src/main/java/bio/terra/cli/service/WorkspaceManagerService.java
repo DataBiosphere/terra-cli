@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +157,9 @@ public class WorkspaceManagerService {
   public SystemVersion getVersion() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
-      return unauthenticatedApi.serviceVersion();
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> unauthenticatedApi.serviceVersion(), WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting Workspace Manager version", ex);
     }
   }
@@ -170,8 +172,9 @@ public class WorkspaceManagerService {
   public SystemStatus getStatus() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
-      return unauthenticatedApi.serviceStatus();
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> unauthenticatedApi.serviceStatus(), WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting Workspace Manager status", ex);
     }
   }
@@ -187,8 +190,9 @@ public class WorkspaceManagerService {
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
-      return workspaceApi.listWorkspaces(offset, limit);
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> workspaceApi.listWorkspaces(offset, limit), WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error fetching list of workspaces", ex);
     }
   }
@@ -217,7 +221,11 @@ public class WorkspaceManagerService {
       workspaceRequestBody.setSpendProfile("wm-default-spend-profile");
       workspaceRequestBody.setDisplayName(displayName);
       workspaceRequestBody.setDescription(description);
-      workspaceApi.createWorkspace(workspaceRequestBody);
+
+      // make the create workspace request
+      HttpUtils.callWithRetries(
+          () -> workspaceApi.createWorkspace(workspaceRequestBody),
+          WorkspaceManagerService::isRetryable);
 
       // create the Google project that backs the Terra workspace object
       UUID jobId = UUID.randomUUID();
@@ -226,7 +234,9 @@ public class WorkspaceManagerService {
       cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
 
       // make the initial create context request
-      workspaceApi.createCloudContext(cloudContextRequest, workspaceId);
+      HttpUtils.callWithRetries(
+          () -> workspaceApi.createCloudContext(cloudContextRequest, workspaceId),
+          WorkspaceManagerService::isRetryable);
 
       // poll the result endpoint until the job is no longer RUNNING
       CreateCloudContextResult createContextResult =
@@ -237,12 +247,12 @@ public class WorkspaceManagerService {
               CREATE_WORKSPACE_MAXIMUM_RETRIES,
               CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
       logger.debug("create workspace context result: {}", createContextResult);
-
       throwIfJobNotCompleted(
           createContextResult.getJobReport(), createContextResult.getErrorReport());
 
       // call the get workspace endpoint to get the full description object
-      return workspaceApi.getWorkspace(workspaceId);
+      return HttpUtils.callWithRetries(
+          () -> workspaceApi.getWorkspace(workspaceId), WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error creating a new workspace", ex);
     }
@@ -259,7 +269,10 @@ public class WorkspaceManagerService {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       // fetch the Terra workspace object
-      WorkspaceDescription workspaceWithContext = workspaceApi.getWorkspace(workspaceId);
+      WorkspaceDescription workspaceWithContext =
+          HttpUtils.callWithRetries(
+              () -> workspaceApi.getWorkspace(workspaceId), WorkspaceManagerService::isRetryable);
+
       String googleProjectId =
           (workspaceWithContext.getGcpContext() == null)
               ? null
@@ -267,7 +280,7 @@ public class WorkspaceManagerService {
       logger.info(
           "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
       return workspaceWithContext;
-    } catch (ApiException ex) {
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error fetching workspace", ex);
     }
   }
@@ -281,9 +294,13 @@ public class WorkspaceManagerService {
   public void deleteWorkspace(UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
-      // delete the Terra workspace object
-      workspaceApi.deleteWorkspace(workspaceId);
-    } catch (ApiException ex) {
+      HttpUtils.callWithRetries(
+          () -> {
+            workspaceApi.deleteWorkspace(workspaceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting workspace", ex);
     }
   }
@@ -302,8 +319,10 @@ public class WorkspaceManagerService {
       // update the Terra workspace object
       UpdateWorkspaceRequestBody updateRequest =
           new UpdateWorkspaceRequestBody().displayName(displayName).description(description);
-      return workspaceApi.updateWorkspace(updateRequest, workspaceId);
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> workspaceApi.updateWorkspace(updateRequest, workspaceId),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error updating workspace", ex);
     }
   }
@@ -332,7 +351,8 @@ public class WorkspaceManagerService {
           () -> {
             new SamService(server, user).inviteUser(userEmail);
             return null;
-          });
+          },
+          (ex) -> isRetryable(ex) || SamService.isRetryable(ex));
     } catch (Exception secondEx) {
       throw new SystemException("Error granting IAM role on workspace.", secondEx);
     }
@@ -363,8 +383,13 @@ public class WorkspaceManagerService {
   public void removeIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
-      workspaceApi.removeRole(workspaceId, iamRole, userEmail);
-    } catch (ApiException ex) {
+      HttpUtils.callWithRetries(
+          () -> {
+            workspaceApi.removeRole(workspaceId, iamRole, userEmail);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error removing IAM role on workspace", ex);
     }
   }
@@ -379,8 +404,9 @@ public class WorkspaceManagerService {
   public RoleBindingList getRoles(UUID workspaceId) {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
-      return workspaceApi.getRoles(workspaceId);
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> workspaceApi.getRoles(workspaceId), WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error fetching users and their IAM roles for workspace", ex);
     }
   }
@@ -405,8 +431,11 @@ public class WorkspaceManagerService {
       do {
         int offset = allResources.size();
         ResourceList result =
-            resourceApi.enumerateResources(
-                workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null);
+            HttpUtils.callWithRetries(
+                () ->
+                    resourceApi.enumerateResources(
+                        workspaceId, offset, MAX_RESOURCES_PER_ENUMERATE_REQUEST, null, null),
+                WorkspaceManagerService::isRetryable);
 
         // add all fetched resources to the running list
         numResultsReturned = result.getResources().size();
@@ -429,7 +458,7 @@ public class WorkspaceManagerService {
 
       logger.debug("Fetched total number of resources: {}", allResources.size());
       return allResources;
-    } catch (ApiException ex) {
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error enumerating resources in the workspace.", ex);
     }
   }
@@ -457,8 +486,10 @@ public class WorkspaceManagerService {
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
-      return referencedGcpResourceApi.createBucketReference(createRequest, workspaceId);
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> referencedGcpResourceApi.createBucketReference(createRequest, workspaceId),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error creating referenced GCS bucket in the workspace.", ex);
     }
   }
@@ -489,8 +520,10 @@ public class WorkspaceManagerService {
 
     try {
       ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
-      return referencedGcpResourceApi.createBigQueryDatasetReference(createRequest, workspaceId);
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> referencedGcpResourceApi.createBigQueryDatasetReference(createRequest, workspaceId),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
           "Error creating referenced Big Query dataset in the workspace.", ex);
     }
@@ -518,7 +551,10 @@ public class WorkspaceManagerService {
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
       // Start the AI notebook creation job.
-      controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId);
+      HttpUtils.callWithRetries(
+          () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
+          WorkspaceManagerService::isRetryable);
+
       // Poll the result endpoint until the job is no longer RUNNING.
       CreatedControlledGcpAiNotebookInstanceResult createResult =
           HttpUtils.pollWithRetries(
@@ -608,8 +644,10 @@ public class WorkspaceManagerService {
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      return controlledGcpResourceApi.createBucket(createRequest, workspaceId).getGcpBucket();
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () -> controlledGcpResourceApi.createBucket(createRequest, workspaceId).getGcpBucket(),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error creating controlled GCS bucket in the workspace.", ex);
     }
   }
@@ -686,10 +724,13 @@ public class WorkspaceManagerService {
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      return controlledGcpResourceApi
-          .createBigQueryDataset(createRequest, workspaceId)
-          .getBigQueryDataset();
-    } catch (ApiException ex) {
+      return HttpUtils.callWithRetries(
+          () ->
+              controlledGcpResourceApi
+                  .createBigQueryDataset(createRequest, workspaceId)
+                  .getBigQueryDataset(),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
           "Error creating controlled Big Query dataset in the workspace.", ex);
     }
@@ -728,8 +769,13 @@ public class WorkspaceManagerService {
   public void deleteReferencedGcsBucket(UUID workspaceId, UUID resourceId) {
     ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
     try {
-      referencedGcpResourceApi.deleteBucketReference(workspaceId, resourceId);
-    } catch (ApiException ex) {
+      HttpUtils.callWithRetries(
+          () -> {
+            referencedGcpResourceApi.deleteBucketReference(workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting referenced GCS bucket in the workspace.", ex);
     }
   }
@@ -745,8 +791,13 @@ public class WorkspaceManagerService {
   public void deleteReferencedBigQueryDataset(UUID workspaceId, UUID resourceId) {
     ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
     try {
-      referencedGcpResourceApi.deleteBigQueryDatasetReference(workspaceId, resourceId);
-    } catch (ApiException ex) {
+      HttpUtils.callWithRetries(
+          () -> {
+            referencedGcpResourceApi.deleteBigQueryDatasetReference(workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
           "Error deleting referenced Big Query dataset in the workspace.", ex);
     }
@@ -770,7 +821,13 @@ public class WorkspaceManagerService {
             .jobControl(new JobControl().id(asyncJobId));
     try {
       // make the initial delete request
-      controlledGcpResourceApi.deleteAiNotebookInstance(deleteRequest, workspaceId, resourceId);
+      HttpUtils.callWithRetries(
+          () -> {
+            controlledGcpResourceApi.deleteAiNotebookInstance(
+                deleteRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
 
       // poll the result endpoint until the job is no longer RUNNING
       DeleteControlledGcpAiNotebookInstanceResult deleteResult =
@@ -806,7 +863,12 @@ public class WorkspaceManagerService {
         new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
     try {
       // make the initial delete request
-      controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
+      HttpUtils.callWithRetries(
+          () -> {
+            controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
 
       // poll the result endpoint until the job is no longer RUNNING
       DeleteControlledGcpGcsBucketResult deleteResult =
@@ -833,13 +895,19 @@ public class WorkspaceManagerService {
   public void deleteControlledBigQueryDataset(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     try {
-      controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId);
-    } catch (ApiException ex) {
+      HttpUtils.callWithRetries(
+          () -> {
+            controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
           "Error deleting controlled Big Query dataset in the workspace.", ex);
     }
   }
 
+  /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
   private static boolean isDone(JobReport jobReport) {
     return !jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING);
   }
@@ -877,7 +945,10 @@ public class WorkspaceManagerService {
     if (!(ex instanceof ApiException)) {
       return false;
     }
-    // TODO (PF-513): add retries for WSM calls after confirm what codes should be retryable
-    return false;
+    int statusCode = ((ApiException) ex).getCode();
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
   }
 }

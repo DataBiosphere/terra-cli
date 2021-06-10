@@ -273,6 +273,7 @@ public class HttpUtils {
    * @param makeRequest function to perform the request
    * @param isOneTimeError function to test whether the exception is the expected one-time error
    * @param handleOneTimeError function to handle the one-time error before retrying the request
+   * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
@@ -281,11 +282,12 @@ public class HttpUtils {
   public static <T, E1 extends Exception, E2 extends Exception> T callAndHandleOneTimeError(
       SupplierWithCheckedException<T, E1> makeRequest,
       Predicate<Exception> isOneTimeError,
-      SupplierWithCheckedException<Void, E2> handleOneTimeError)
+      SupplierWithCheckedException<Void, E2> handleOneTimeError,
+      Predicate<Exception> isRetryable)
       throws E1, E2, InterruptedException {
     try {
       // make the initial request
-      return makeRequest.makeRequest();
+      return callWithRetries(makeRequest, isRetryable);
     } catch (Exception ex) {
       // if the exception is not the expected one-time error, then quit here
       if (!isOneTimeError.test(ex)) {
@@ -294,12 +296,13 @@ public class HttpUtils {
       logger.info("Caught possible one-time error: {}", ex);
 
       // handle the one-time error
-      handleOneTimeError.makeRequest();
+      callWithRetries(handleOneTimeError, isRetryable);
 
       // retry the request. include some retries for the one-time error, to allow time for
       // information to propagate (this delay seems to happen on inviting a new user -- sometimes it
       // takes several seconds for WSM to recognize a newly invited user in SAM. not sure why)
-      return callWithRetries(makeRequest, isOneTimeError);
+      return callWithRetries(
+          makeRequest, (ex2) -> isOneTimeError.test(ex2) || isRetryable.test(ex2));
     }
   }
 

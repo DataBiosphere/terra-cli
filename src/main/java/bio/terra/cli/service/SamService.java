@@ -8,6 +8,7 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
 import java.util.List;
+import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
@@ -144,27 +145,23 @@ public class SamService {
    * @return SAM object with details about the user
    */
   public UserStatusInfo getUserInfoOrRegisterUser() {
+    UsersApi samUsersApi = new UsersApi(apiClient);
     try {
       // - try to lookup the user
       // - if the user lookup failed with a Not Found error, it means the email is not found
       // - so try to register the user first, then retry looking them up
       return HttpUtils.callAndHandleOneTimeError(
-          () -> {
-            UsersApi samUsersApi = new UsersApi(apiClient);
-            return HttpUtils.callWithRetries(
-                () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-          },
+          () -> samUsersApi.getUserStatusInfo(),
           SamService::isNotFound,
           () -> {
-            UserStatus userStatus =
-                HttpUtils.callWithRetries(
-                    () -> new UsersApi(apiClient).createUserV2(), SamService::isRetryable);
+            UserStatus userStatus = samUsersApi.createUserV2();
             logger.info(
                 "User registered in SAM: {}, {}",
                 userStatus.getUserInfo().getUserSubjectId(),
                 userStatus.getUserInfo().getUserEmail());
             return null;
-          });
+          },
+          SamService::isRetryable);
     } catch (Exception secondEx) {
       throw new SystemException("Error reading user information from SAM.", secondEx);
     } finally {
@@ -398,7 +395,8 @@ public class SamService {
           () -> {
             inviteUser(userEmail);
             return null;
-          });
+          },
+          SamService::isRetryable);
     } catch (Exception secondEx) {
       throw new SystemException("Error adding user to SAM resource.", secondEx);
     } finally {
@@ -557,12 +555,14 @@ public class SamService {
    * @param ex exception to test
    * @return true if the exception is retryable
    */
-  private static boolean isRetryable(Exception ex) {
+  static boolean isRetryable(Exception ex) {
     if (!(ex instanceof ApiException)) {
       return false;
     }
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatusCodes.STATUS_CODE_SERVER_ERROR
-        || statusCode == HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
   }
 }
