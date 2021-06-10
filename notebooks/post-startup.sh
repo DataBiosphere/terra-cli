@@ -46,4 +46,11 @@ readonly TERRA_SERVER=$(get_metadata_value "instance/attributes/terra-cli-server
 if [[ -n "${TERRA_SERVER}" ]]; then
   sudo -u "${JUPYTER_USER}" sh -c "./terra server set --name=${TERRA_SERVER}"
 fi
+# Set the CLI terra workspace based to the workspace containing this AI notebook retrieved from
+# the VM metadata, if set.
+readonly TERRA_WORKSPACE_ID=$(get_metadata_value "instance/attributes/terra-workspace-id")
+if [[ -n "${TERRA_WORKSPACE_ID}" ]]; then
+  sudo -u "${JUPYTER_USER}" sh -c "./terra workspace set --id=${TERRA_WORKSPACE_ID}"
+fi
+
 sudo cp terra /usr/bin/terra
