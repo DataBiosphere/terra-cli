@@ -39,7 +39,7 @@ sudo -u "${JUPYTER_USER}" sh -c "/opt/conda/bin/nbstripout --install --global"
 # Install & configure the Terra CLI
 sudo -u "${JUPYTER_USER}" sh -c "curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash"
 # Set browser manual login since that's the only login supported from an AI Notebook VM.
-sudo -u "${JUPYTER_USER}" sh -c "./terra config set browser manual"
+sudo -u "${JUPYTER_USER}" sh -c "./terra config set browser MANUAL"
 # Set the CLI terra server based on the terra server that created the AI notebook retrieved from
 # the VM metadata, if set.
 readonly TERRA_SERVER=$(get_metadata_value "instance/attributes/terra-cli-server")
