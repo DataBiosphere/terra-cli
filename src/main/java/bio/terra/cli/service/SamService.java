@@ -7,6 +7,7 @@ import bio.terra.cli.service.utils.HttpUtils;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
@@ -96,11 +97,12 @@ public class SamService {
 
   /**
    * Call the SAM "/api/users/v1/invite/{inviteeEmail}" endpoint to invite a user and track them.
-   * This is not the same thing as registering a user.
+   * This is not the same thing as registering a user. Unlike other methods in this class, this
+   * method does not include retries.
    *
    * @param userEmail email to invite
    */
-  public void inviteUser(String userEmail) throws ApiException {
+  public void inviteUserNoRetries(String userEmail) throws ApiException {
     logger.info("Inviting new user: {}", userEmail);
     UserStatusDetails userStatusDetails = new UsersApi(apiClient).inviteUser(userEmail);
     logger.info("Invited new user: {}", userStatusDetails);
@@ -290,7 +292,7 @@ public class SamService {
           SamService::isRetryable,
           SamService::isBadRequest,
           () -> {
-            inviteUser(userEmail);
+            inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);
@@ -370,7 +372,7 @@ public class SamService {
           SamService::isRetryable,
           SamService::isBadRequest,
           () -> {
-            inviteUser(userEmail);
+            inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);
@@ -533,7 +535,9 @@ public class SamService {
    * @return true if the exception is retryable
    */
   static boolean isRetryable(Exception ex) {
-    if (!(ex instanceof ApiException)) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    } else if (!(ex instanceof ApiException)) {
       return false;
     }
     int statusCode = ((ApiException) ex).getCode();

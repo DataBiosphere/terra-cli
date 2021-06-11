@@ -68,6 +68,7 @@ import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
+import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -350,11 +351,13 @@ public class WorkspaceManagerService {
           WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(server, user).inviteUser(userEmail);
+            new SamService(server, user).inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);
-    } catch (Exception secondEx) {
+    } catch (ApiException
+        | InterruptedException
+        | org.broadinstitute.dsde.workbench.client.sam.ApiException secondEx) {
       throw new SystemException("Error granting IAM role on workspace.", secondEx);
     }
   }
@@ -943,7 +946,9 @@ public class WorkspaceManagerService {
    * @return true if the exception is retryable
    */
   private static boolean isRetryable(Exception ex) {
-    if (!(ex instanceof ApiException)) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    } else if (!(ex instanceof ApiException)) {
       return false;
     }
     int statusCode = ((ApiException) ex).getCode();
