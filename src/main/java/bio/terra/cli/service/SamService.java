@@ -7,7 +7,10 @@ import bio.terra.cli.service.utils.HttpUtils;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.function.Predicate;
+import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
 import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
@@ -85,7 +88,7 @@ public class SamService {
   public SystemStatus getStatus() {
     StatusApi statusApi = new StatusApi(apiClient);
     try {
-      return HttpUtils.callWithRetries(() -> statusApi.getSystemStatus(), SamService::isRetryable);
+      return HttpUtils.callWithRetries(statusApi::getSystemStatus, SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting SAM status.", ex);
     } finally {
@@ -95,25 +98,15 @@ public class SamService {
 
   /**
    * Call the SAM "/api/users/v1/invite/{inviteeEmail}" endpoint to invite a user and track them.
-   * This is not the same thing as registering a user.
+   * This is not the same thing as registering a user. Unlike other methods in this class, this
+   * method does not include retries.
    *
    * @param userEmail email to invite
-   * @return SAM object with details about the user
    */
-  public UserStatusDetails inviteUser(String userEmail) {
-    UsersApi samUsersApi = new UsersApi(apiClient);
-    try {
-      logger.info("Inviting new user: {}", userEmail);
-      UserStatusDetails userStatusDetails =
-          HttpUtils.callWithRetries(
-              () -> samUsersApi.inviteUser(userEmail), SamService::isRetryable);
-      logger.info("Invited new user: {}", userStatusDetails);
-      return userStatusDetails;
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error inviting user in SAM.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+  public void inviteUserNoRetries(String userEmail) throws ApiException {
+    logger.info("Inviting new user: {}", userEmail);
+    UserStatusDetails userStatusDetails = new UsersApi(apiClient).inviteUser(userEmail);
+    logger.info("Invited new user: {}", userStatusDetails);
   }
 
   /**
@@ -125,8 +118,7 @@ public class SamService {
   public UserStatusInfo getUserInfo() {
     UsersApi samUsersApi = new UsersApi(apiClient);
     try {
-      return HttpUtils.callWithRetries(
-          () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
+      return HttpUtils.callWithRetries(samUsersApi::getUserStatusInfo, SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error reading user information from SAM.", ex);
     } finally {
@@ -144,21 +136,16 @@ public class SamService {
    * @return SAM object with details about the user
    */
   public UserStatusInfo getUserInfoOrRegisterUser() {
+    UsersApi samUsersApi = new UsersApi(apiClient);
     try {
       // - try to lookup the user
       // - if the user lookup failed with a Not Found error, it means the email is not found
       // - so try to register the user first, then retry looking them up
-      return HttpUtils.callAndHandleOneTimeError(
-          () -> {
-            UsersApi samUsersApi = new UsersApi(apiClient);
-            return HttpUtils.callWithRetries(
-                () -> samUsersApi.getUserStatusInfo(), SamService::isRetryable);
-          },
+      return callAndHandleOneTimeErrorWithRetries(
+          samUsersApi::getUserStatusInfo,
           SamService::isNotFound,
           () -> {
-            UserStatus userStatus =
-                HttpUtils.callWithRetries(
-                    () -> new UsersApi(apiClient).createUserV2(), SamService::isRetryable);
+            UserStatus userStatus = samUsersApi.createUserV2();
             logger.info(
                 "User registered in SAM: {}, {}",
                 userStatus.getUserInfo().getUserSubjectId(),
@@ -293,12 +280,19 @@ public class SamService {
   public void addUserToGroup(String groupName, GroupPolicy policy, String userEmail) {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
-      HttpUtils.callWithRetries(
+      // - try to add the email to the group
+      // - if this fails with a Bad Request error, it means the email is not found
+      // - so try to invite the user first, then retry adding them to the group
+      callAndHandleOneTimeErrorWithRetries(
           () -> {
             groupApi.addEmailToGroup(groupName, policy.name(), userEmail);
             return null;
           },
-          SamService::isRetryable);
+          SamService::isBadRequest,
+          () -> {
+            inviteUserNoRetries(userEmail);
+            return null;
+          });
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error adding user to SAM group.", ex);
     } finally {
@@ -338,35 +332,12 @@ public class SamService {
   public List<ManagedGroupMembershipEntry> listGroups() {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
-      return HttpUtils.callWithRetries(
-          () -> groupApi.listGroupMemberships(), SamService::isRetryable);
+      return HttpUtils.callWithRetries(groupApi::listGroupMemberships, SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error listing users in SAM group.", ex);
     } finally {
       closeConnectionPool();
     }
-  }
-
-  /**
-   * Call the SAM
-   * "/api/resources/v1/{resourceTypeName}/{resourceId}/policies/{policyName}/memberEmails/{email}"
-   * PUT endpoint to add an email address to a resource + policy.
-   *
-   * @param resourceType type of resource
-   * @param resourceId id of resource
-   * @param resourcePolicyName name of resource policy
-   * @param userEmail email of the user or group to add
-   */
-  private void addUserToResource(
-      String resourceType, String resourceId, String resourcePolicyName, String userEmail)
-      throws InterruptedException, ApiException {
-    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-    HttpUtils.callWithRetries(
-        () -> {
-          resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
-          return null;
-        },
-        SamService::isRetryable);
   }
 
   /**
@@ -389,14 +360,15 @@ public class SamService {
       // - if the add user to policy failed with a Bad Request error, it means the email is not
       // found
       // - so try to invite the user first, then retry adding them to the policy
-      HttpUtils.callAndHandleOneTimeError(
+      callAndHandleOneTimeErrorWithRetries(
           () -> {
-            addUserToResource(resourceType, resourceId, resourcePolicyName, userEmail);
+            ResourcesApi resourcesApi = new ResourcesApi(apiClient);
+            resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
             return null;
           },
           SamService::isBadRequest,
           () -> {
-            inviteUser(userEmail);
+            inviteUserNoRetries(userEmail);
             return null;
           });
     } catch (Exception secondEx) {
@@ -557,12 +529,36 @@ public class SamService {
    * @param ex exception to test
    * @return true if the exception is retryable
    */
-  private static boolean isRetryable(Exception ex) {
-    if (!(ex instanceof ApiException)) {
+  static boolean isRetryable(Exception ex) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    } else if (!(ex instanceof ApiException)) {
       return false;
     }
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatusCodes.STATUS_CODE_SERVER_ERROR
-        || statusCode == HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
+  }
+
+  /**
+   * Helper method to call {@link
+   * HttpUtils#callAndHandleOneTimeErrorWithRetries(HttpUtils.SupplierWithCheckedException,
+   * Predicate, Predicate, HttpUtils.SupplierWithCheckedException, Predicate)} with the {@link
+   * #isRetryable(Exception)} method as both isRetryable arguments.
+   */
+  private static <T, E1 extends Exception, E2 extends Exception>
+      T callAndHandleOneTimeErrorWithRetries(
+          HttpUtils.SupplierWithCheckedException<T, E1> makeRequest,
+          Predicate<Exception> isOneTimeError,
+          HttpUtils.SupplierWithCheckedException<Void, E2> handleOneTimeError)
+          throws E1, E2, InterruptedException {
+    return HttpUtils.callAndHandleOneTimeErrorWithRetries(
+        makeRequest,
+        SamService::isRetryable,
+        isOneTimeError,
+        handleOneTimeError,
+        SamService::isRetryable);
   }
 }
