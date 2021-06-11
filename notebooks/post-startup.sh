@@ -17,7 +17,8 @@ readonly JUPYTER_USER="jupyter"
 cd /tmp || exit
 
 # Send stdout and stderr from this script to a file for debugging.
-mkdir -p /home/"${JUPYTER_USER}"/.terra
+# Make the .terra directory as the user so that they own it and have correct linux permissions.
+sudo -u "${JUPYTER_USER}" sh -c mkdir -p /home/"${JUPYTER_USER}"/.terra
 exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output.txt
 exec 2>&1
 
