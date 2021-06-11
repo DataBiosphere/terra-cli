@@ -271,23 +271,28 @@ public class HttpUtils {
    * <p>- Retry the request to add a user to a workspace.
    *
    * @param makeRequest function to perform the request
+   * @param makeRequestIsRetryable function to test whether an exception thrown by makeRequest is
+   *     retryable or not
    * @param isOneTimeError function to test whether the exception is the expected one-time error
    * @param handleOneTimeError function to handle the one-time error before retrying the request
-   * @param isRetryable function to test whether the exception is retryable or not
+   * @param handleOneTimeErrorIsRetryable function to test whether an exception thrown by
+   *     handleOneTimeError is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
    * @throws E2 if handleOneTimeError throws an exception
    */
-  public static <T, E1 extends Exception, E2 extends Exception> T callAndHandleOneTimeError(
-      SupplierWithCheckedException<T, E1> makeRequest,
-      Predicate<Exception> isOneTimeError,
-      SupplierWithCheckedException<Void, E2> handleOneTimeError,
-      Predicate<Exception> isRetryable)
-      throws E1, E2, InterruptedException {
+  public static <T, E1 extends Exception, E2 extends Exception>
+      T callAndHandleOneTimeErrorWithRetries(
+          SupplierWithCheckedException<T, E1> makeRequest,
+          Predicate<Exception> makeRequestIsRetryable,
+          Predicate<Exception> isOneTimeError,
+          SupplierWithCheckedException<Void, E2> handleOneTimeError,
+          Predicate<Exception> handleOneTimeErrorIsRetryable)
+          throws E1, E2, InterruptedException {
     try {
       // make the initial request
-      return callWithRetries(makeRequest, isRetryable);
+      return callWithRetries(makeRequest, makeRequestIsRetryable);
     } catch (Exception ex) {
       // if the exception is not the expected one-time error, then quit here
       if (!isOneTimeError.test(ex)) {
@@ -296,13 +301,14 @@ public class HttpUtils {
       logger.info("Caught possible one-time error: {}", ex);
 
       // handle the one-time error
-      callWithRetries(handleOneTimeError, isRetryable);
+      callWithRetries(handleOneTimeError, handleOneTimeErrorIsRetryable);
 
       // retry the request. include some retries for the one-time error, to allow time for
       // information to propagate (this delay seems to happen on inviting a new user -- sometimes it
       // takes several seconds for WSM to recognize a newly invited user in SAM. not sure why)
       return callWithRetries(
-          makeRequest, (ex2) -> isOneTimeError.test(ex2) || isRetryable.test(ex2));
+          makeRequest,
+          (ex2) -> isOneTimeError.test(ex2) || handleOneTimeErrorIsRetryable.test(ex2));
     }
   }
 

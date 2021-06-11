@@ -342,17 +342,18 @@ public class WorkspaceManagerService {
       // - try to grant the user an iam role
       // - if this fails with a Bad Request error, it means the email is not found
       // - so try to invite the user first, then retry granting them an iam role
-      HttpUtils.callAndHandleOneTimeError(
+      HttpUtils.callAndHandleOneTimeErrorWithRetries(
           () -> {
             workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
             return null;
           },
+          WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
           () -> {
             new SamService(server, user).inviteUser(userEmail);
             return null;
           },
-          (ex) -> isRetryable(ex) || SamService.isRetryable(ex));
+          SamService::isRetryable);
     } catch (Exception secondEx) {
       throw new SystemException("Error granting IAM role on workspace.", secondEx);
     }
