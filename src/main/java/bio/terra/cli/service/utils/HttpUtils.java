@@ -307,8 +307,7 @@ public class HttpUtils {
       // information to propagate (this delay seems to happen on inviting a new user -- sometimes it
       // takes several seconds for WSM to recognize a newly invited user in SAM. not sure why)
       return callWithRetries(
-          makeRequest,
-          (ex2) -> isOneTimeError.test(ex2) || handleOneTimeErrorIsRetryable.test(ex2));
+          makeRequest, (ex2) -> isOneTimeError.test(ex2) || makeRequestIsRetryable.test(ex2));
     }
   }
 
