@@ -8,9 +8,18 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-# Send stdout and stderr from this script to a tmp file for debugging.
+# The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
+# user space, such as setting Terra CLI settings which are persisted in the user's $HOME.
+# This post startup script is not run by the same user.
+readonly JUPYTER_USER="jupyter"
+
+# Move to the /tmp directory to let any artifacts left behind by this script can be removed.
 cd /tmp || exit
-exec >> /tmp/post-startup-output.txt
+
+# Send stdout and stderr from this script to a file for debugging.
+# Make the .terra directory as the user so that they own it and have correct linux permissions.
+sudo -u "${JUPYTER_USER}" sh -c "mkdir -p /home/${JUPYTER_USER}/.terra"
+exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output.txt
 exec 2>&1
 
 #######################################
@@ -26,10 +35,6 @@ function get_metadata_value() {
     -H "Metadata-Flavor: Google" \
     "http://metadata/computeMetadata/v1/$1"
 }
-
-# The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
-# user space.
-readonly JUPYTER_USER="jupyter"
 
 # Install common packages in conda environment
 /opt/conda/bin/conda install -y pre-commit nbdime nbstripout pylint pytest
