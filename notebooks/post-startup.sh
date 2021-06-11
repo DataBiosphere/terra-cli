@@ -9,13 +9,16 @@ set -o pipefail
 set -o xtrace
 
 # The linux user that JupyterLab will be running as. It's important to do some parts of setup in the
-# user space.
+# user space, such as setting Terra CLI settings which are persisted in the user's $HOME.
+# This post startup script is not run by the same user.
 readonly JUPYTER_USER="jupyter"
 
+# Move to the /tmp directory to let any artifacts left behind by this script can be removed.
 cd /tmp || exit
+
 # Send stdout and stderr from this script to a file for debugging.
-mkdir /home/"${JUPYTER_USER}"/.terra-debug
-exec >> /home/"${JUPYTER_USER}"/.terra-debug/post-startup-output.txt
+mkdir -p /home/"${JUPYTER_USER}"/.terra
+exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output.txt
 exec 2>&1
 
 #######################################
