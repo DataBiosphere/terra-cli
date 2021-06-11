@@ -9,6 +9,7 @@ import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.function.Predicate;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
@@ -140,9 +141,8 @@ public class SamService {
       // - try to lookup the user
       // - if the user lookup failed with a Not Found error, it means the email is not found
       // - so try to register the user first, then retry looking them up
-      return HttpUtils.callAndHandleOneTimeErrorWithRetries(
+      return callAndHandleOneTimeErrorWithRetries(
           samUsersApi::getUserStatusInfo,
-          SamService::isRetryable,
           SamService::isNotFound,
           () -> {
             UserStatus userStatus = samUsersApi.createUserV2();
@@ -151,8 +151,7 @@ public class SamService {
                 userStatus.getUserInfo().getUserSubjectId(),
                 userStatus.getUserInfo().getUserEmail());
             return null;
-          },
-          SamService::isRetryable);
+          });
     } catch (Exception secondEx) {
       throw new SystemException("Error reading user information from SAM.", secondEx);
     } finally {
@@ -284,18 +283,16 @@ public class SamService {
       // - try to add the email to the group
       // - if this fails with a Bad Request error, it means the email is not found
       // - so try to invite the user first, then retry adding them to the group
-      HttpUtils.callAndHandleOneTimeErrorWithRetries(
+      callAndHandleOneTimeErrorWithRetries(
           () -> {
             groupApi.addEmailToGroup(groupName, policy.name(), userEmail);
             return null;
           },
-          SamService::isRetryable,
           SamService::isBadRequest,
           () -> {
             inviteUserNoRetries(userEmail);
             return null;
-          },
-          SamService::isRetryable);
+          });
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error adding user to SAM group.", ex);
     } finally {
@@ -363,19 +360,17 @@ public class SamService {
       // - if the add user to policy failed with a Bad Request error, it means the email is not
       // found
       // - so try to invite the user first, then retry adding them to the policy
-      HttpUtils.callAndHandleOneTimeErrorWithRetries(
+      callAndHandleOneTimeErrorWithRetries(
           () -> {
             ResourcesApi resourcesApi = new ResourcesApi(apiClient);
             resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
             return null;
           },
-          SamService::isRetryable,
           SamService::isBadRequest,
           () -> {
             inviteUserNoRetries(userEmail);
             return null;
-          },
-          SamService::isRetryable);
+          });
     } catch (Exception secondEx) {
       throw new SystemException("Error adding user to SAM resource.", secondEx);
     } finally {
@@ -545,5 +540,25 @@ public class SamService {
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
+  }
+
+  /**
+   * Helper method to call {@link
+   * HttpUtils#callAndHandleOneTimeErrorWithRetries(HttpUtils.SupplierWithCheckedException,
+   * Predicate, Predicate, HttpUtils.SupplierWithCheckedException, Predicate)} with the {@link
+   * #isRetryable(Exception)} method as both isRetryable arguments.
+   */
+  private static <T, E1 extends Exception, E2 extends Exception>
+      T callAndHandleOneTimeErrorWithRetries(
+          HttpUtils.SupplierWithCheckedException<T, E1> makeRequest,
+          Predicate<Exception> isOneTimeError,
+          HttpUtils.SupplierWithCheckedException<Void, E2> handleOneTimeError)
+          throws E1, E2, InterruptedException {
+    return HttpUtils.callAndHandleOneTimeErrorWithRetries(
+        makeRequest,
+        SamService::isRetryable,
+        isOneTimeError,
+        handleOneTimeError,
+        SamService::isRetryable);
   }
 }
