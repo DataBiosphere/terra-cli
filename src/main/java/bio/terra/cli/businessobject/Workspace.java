@@ -181,7 +181,7 @@ public class Workspace {
   }
 
   /** Populate the list of resources for this workspace. Does not sync to disk. */
-  public void populateResources() {
+  private void populateResources() {
     List<ResourceDescription> wsmObjects =
         new WorkspaceManagerService()
             .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
