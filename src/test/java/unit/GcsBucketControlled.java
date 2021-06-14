@@ -249,10 +249,22 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
   }
 
-  /** Helper method to call `terra resources list` and expect one resource with this name. */
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
   static UFGcsBucket listOneBucketResourceWithName(String resourceName)
       throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourceWithName(resourceName);
+    return listOneBucketResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  static UFGcsBucket listOneBucketResourceWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources = listBucketResourceWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -260,14 +272,30 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name.
+   * name. Uses the current workspace.
    */
   static List<UFGcsBucket> listBucketResourceWithName(String resourceName)
       throws JsonProcessingException {
+    return listBucketResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFGcsBucket> listBucketResourceWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
     // `terra resources list --type=GCS_BUCKET --format=json`
     List<UFGcsBucket> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET");
+        workspaceId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resources",
+                "list",
+                "--type=GCS_BUCKET",
+                "--workspace=" + workspaceId);
 
     // find the matching bucket in the list
     return listedResources.stream()

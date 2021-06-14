@@ -1,5 +1,11 @@
 package unit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,21 +13,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUsers;
 import harness.baseclasses.ClearContextUnit;
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
@@ -272,8 +271,7 @@ public class Workspace extends ClearContextUnit {
    * Helper method to call `terra workspace list` and filter the results on the specified workspace
    * id.
    */
-  private static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId)
-      throws JsonProcessingException {
+  static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId) throws JsonProcessingException {
     // `terra workspace list --format=json`
     List<UFWorkspace> listWorkspaces =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "workspace", "list");

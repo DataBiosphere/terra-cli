@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestInstance;
 
 /**
  * Base class for unit tests that only need a single workspace for all test methods. This makes the
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.TestInstance;
  * we're not starting with a completely clean state each time, but that's easy to do just for
  * debugging a particular failure.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SingleWorkspaceUnit extends ClearContextUnit {
   protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();;
   private static UUID workspaceId;

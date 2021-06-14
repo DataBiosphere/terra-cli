@@ -7,11 +7,13 @@ import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 
 /**
  * Base class for unit tests that includes standard setup/cleanup. Because they are for unit tests,
  * these methods call the setup/cleanup commands directly in Java.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
   @BeforeEach
   /**

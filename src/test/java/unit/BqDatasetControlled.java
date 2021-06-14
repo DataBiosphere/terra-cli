@@ -19,6 +19,7 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
@@ -262,10 +263,21 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
   }
 
-  /** Helper method to call `terra resources list` and expect one resource with this name. */
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
   static UFBqDataset listOneDatasetResourceWithName(String resourceName)
       throws JsonProcessingException {
-    List<UFBqDataset> matchedResources = listDatasetResourceWithName(resourceName);
+    return listOneDatasetResourceWithName(resourceName, null);
+  }
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  static UFBqDataset listOneDatasetResourceWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
+    List<UFBqDataset> matchedResources = listDatasetResourceWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -273,14 +285,29 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name.
+   * name. Uses the current workspace.
    */
   static List<UFBqDataset> listDatasetResourceWithName(String resourceName)
       throws JsonProcessingException {
+    return listDatasetResourceWithName(resourceName, null);
+  }
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFBqDataset> listDatasetResourceWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
     // `terra resources list --type=BQ_DATASET --format=json`
     List<UFBqDataset> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resources", "list", "--type=BQ_DATASET");
+        workspaceId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resources", "list", "--type=BQ_DATASET")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resources",
+                "list",
+                "--type=BQ_DATASET",
+                "--workspace=" + workspaceId);
 
     // find the matching dataset in the list
     return listedResources.stream()
