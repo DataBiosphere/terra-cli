@@ -124,7 +124,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         TestCommand.runCommand(
             "gcloud", "--workspace=" + workspace2.id, "config", "get-value", "project");
 
-    // check that the workspace id and google cloud project id match workspace 2
+    // check that the google cloud project id matches workspace 2
     assertThat(
         "gcloud project = workspace2's project",
         cmd.stdOut,
@@ -162,22 +162,26 @@ public class WorkspaceOverride extends ClearContextUnit {
         "--dataset-id=" + externalDataset.getDatasetId().getDataset(),
         "--workspace=" + workspace2.id);
 
-    // `terra resources list --type=BQ_DATASET`
     // check that workspace 2 contains both referenced resources above and workspace 1 does not
+
+    // `terra resources list --type=GCS_BUCKET --workspace=$id2`
     UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
-    List<UFGcsBucket> matchedBuckets =
-        listBucketResourceWithName(resourceNameBucket, workspace1.id);
+
+    // `terra resources list --type=GCS_BUCKET`
+    List<UFGcsBucket> matchedBuckets = listBucketResourceWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
+    // `terra resources list --type=BQ_DATASET --workspace=$id2`
     UFBqDataset matchedDataset = listOneDatasetResourceWithName(resourceNameDataset, workspace2.id);
     assertEquals(
         resourceNameDataset,
         matchedDataset.name,
         "list output for workspace 2 matches dataset name");
-    List<UFBqDataset> matchedDatasets =
-        listDatasetResourceWithName(resourceNameDataset, workspace1.id);
+
+    // `terra resources list --type=BQ_DATASET`
+    List<UFBqDataset> matchedDatasets = listDatasetResourceWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
     // check that check-access, describe, and resolve succeed in workspace 2 but not in workspace 1
@@ -245,22 +249,26 @@ public class WorkspaceOverride extends ClearContextUnit {
         "--dataset-id=" + datasetId,
         "--workspace=" + workspace2.id);
 
-    // `terra resources list --type=BQ_DATASET`
     // check that workspace 2 contains both controlled resources above and workspace 1 does not
+
+    // `terra resources list --type=GCS_BUCKET --workspace=$id2`
     UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
-    List<UFGcsBucket> matchedBuckets =
-        listBucketResourceWithName(resourceNameBucket, workspace1.id);
+
+    // `terra resources list --type=GCS_BUCKET`
+    List<UFGcsBucket> matchedBuckets = listBucketResourceWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
+    // `terra resources list --type=BQ_DATASET --workspace=$id2`
     UFBqDataset matchedDataset = listOneDatasetResourceWithName(resourceNameDataset, workspace2.id);
     assertEquals(
         resourceNameDataset,
         matchedDataset.name,
         "list output for workspace 2 matches dataset name");
-    List<UFBqDataset> matchedDatasets =
-        listDatasetResourceWithName(resourceNameDataset, workspace1.id);
+
+    // `terra resources list --type=BQ_DATASET`
+    List<UFBqDataset> matchedDatasets = listDatasetResourceWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
     // check that describe and resolve succeed in workspace 2 but not in workspace 1
@@ -305,11 +313,13 @@ public class WorkspaceOverride extends ClearContextUnit {
         "--role=READER",
         "--workspace=" + workspace2.id);
 
-    // `terra workspace list-users --email=$email --role=READER --workspace=$id2`
     // check that the user exists in the list output for workspace 2, but not workspace 1
+
+    // `terra workspace list-users --email=$email --role=READER --workspace=$id2`
     expectListedUserWithRoles(testUser.email, workspace2.id, IamRole.READER);
-    Optional<UFWorkspaceUser> workspaceUser =
-        listWorkspaceUserWithEmail(testUser.email, workspace1.id);
+
+    // `terra workspace list-users --email=$email --role=READER`
+    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(testUser.email);
     assertTrue(workspaceUser.isEmpty(), "test user is not in users list for workspace 1");
 
     // `terra workspace remove-user --email=$email --role=READER --workspace=$id2`
@@ -340,7 +350,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra workspace update --name=$newName --description=$newDescription --workspace=$id3`
     String newName = "workspace3_name_NEW";
-    String newDescription = "workspace3_description_NEW";
+    String newDescription = "workspace3 description NEW";
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
@@ -348,27 +358,35 @@ public class WorkspaceOverride extends ClearContextUnit {
         "--description=" + newDescription,
         "--workspace=" + workspace3.id);
 
-    // `terra workspace describe --workspace=$id3`
     // check that the workspace 3 description has been updated, and the workspace 1 has not
+
+    // `terra workspace describe --workspace=$id3`
     UFWorkspace workspaceDescribe =
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "workspace", "describe", "--workspace=" + workspace3.id);
     assertEquals(newName, workspaceDescribe.name, "workspace 3 name matches update");
     assertEquals(
         newDescription, workspaceDescribe.description, "workspace 3 description matches update");
+
+    // `terra workspace describe`
     workspaceDescribe =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(workspace1.name, workspaceDescribe.name, "workspace 1 name matches update");
+    assertEquals(workspace1.name, workspaceDescribe.name, "workspace 1 name matches create");
     assertEquals(
         workspace1.description,
         workspaceDescribe.description,
-        "workspace 1 description matches update");
+        "workspace 1 description matches create");
+
+    // check the workspace 3 has been deleted, and workspace 1 has not
 
     // `terra workspace delete --workspace=$id3`
-    // check the workspace 3 has been deleted, and workspace 1 has not
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--workspace=" + workspace3.id);
+
+    // `terra workspace list`
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(workspace3.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace 3 is not included in list");
+
+    // `terra workspace list`
     matchingWorkspaces = listWorkspacesWithId(workspace1.id);
     assertEquals(1, matchingWorkspaces.size(), "workspace 1 is still included in list");
   }

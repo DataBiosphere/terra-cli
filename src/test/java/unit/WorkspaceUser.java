@@ -167,7 +167,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Helper method to call `terra workspace list` and filter the results on the specified user
    * email. Uses the current workspace.
    */
-  private static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail)
+  static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail)
       throws JsonProcessingException {
     return listWorkspaceUserWithEmail(userEmail, null);
   }
