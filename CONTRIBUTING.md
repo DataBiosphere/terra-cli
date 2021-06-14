@@ -280,17 +280,17 @@ It's best to do this as part of a release, but if it's necessary to update the d
 ### Code structure
 Below is an outline of the package structure. More details are included in the sub-sections below.
 ```
-bio.terra.cli      # internal state classes and business logic
+bio.terra.cli      
     apps           # external supported tools
+    businessobject # internal state classes and business logic
     command        # command definitions
     exception      # exception classes that map to an exit code
-    resources      # sub-classes of the generic `Resource` class
     serialization  # serialization format classes for command input/output and writing to disk
     service        # helper/wrapper classes for talking to Terra and cloud services
     utils          # uncategorized
 ```
 
-* [Top-level package](#top-level-package)
+* [Business logic](#business-logic)
 * [Supported tools](#supported-tools)
     * [Adding a new supported tool](#add-a-new-supported-tool)
 * [Commands](#commands)
@@ -298,10 +298,10 @@ bio.terra.cli      # internal state classes and business logic
 * [Terra and cloud services](#terra-and-cloud-services)
 * [Servers](#servers)
 
-#### Top-level package
-Objects that represent the internal state are in the top-level package: `Config`, `Server`, `User`, `Workspace`.
-Since the CLI Java code exits after each command, the `Context` class persists the state on disk in the context
-directory `$HOME/.terra`.
+#### Business logic
+The `businessobjects` package contains objects that represent the internal state (e.g. `Config`, `Server`, `User`, 
+`Workspace`). Since the CLI Java code exits after each command, the `Context` class persists the state on disk in the
+context directory `$HOME/.terra`.
 
 #### Supported tools
 The `apps` package contains (external) tools that the CLI supports.
@@ -324,8 +324,7 @@ To add a new supported tool:
    executes the command, without requiring any new Java code. This `terra app execute` command
    is intended for debugging only; this won't be how users call the tool.
    4. Add a new command class in the `src/main/java/bio/terra/cli/command/app/passthrough` package.
-   Copy/paste an existing class in that same package as a starting point. Gsutil, Bq, and Gcloud 
-   are the simplest.
+   Copy/paste an existing class in that same package as a starting point.
    5. Add it to the list of tools shown by `terra app list` by adding the new command class to
    the list of sub-commands in the `@Command` annotation of the `Main.class`. This means you can
    invoke the command by prefixing it with terra (e.g. `terra dsub -version`).
@@ -340,14 +339,14 @@ To add a new supported tool:
        - `GOOGLE_CLOUD_PROJECT` = the workspace project id
        - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
    8.  You can mount directories on the host machine to the Docker container by populating a second
-   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current workspace
+   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current working
    directory is always mounted to the Docker container.
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
    (see instructions in section above).
 
 #### Commands
 The `command` package contains the hierarchy of the commands as they appear to the user.
-The directory structure matches the command hierarchy. The only exception to this are the pass-through app
+The directory structure matches the command hierarchy. The only exceptions to this are the pass-through app
 commands (e.g. `terra gsutil`), which are at the top level of the hierarchy, but in the `app/passthrough` sub-directory.
 
 `Main` is the top-level command and child commands are defined in class annotations.
@@ -357,27 +356,25 @@ doesn't do anything.
 #### Serialization
 There are 4 types of objects.
 - Internal state and business logic
-  - Top-level package
+  - `businessobject` package
   - May be a part of the state (e.g. `Workspace`, `User`) or just contain business logic (e.g. `WorkspaceUser`)
 - Serialization format for writing to disk
-  - `serialization.disk` package
-  - Prefixed with "Disk" (e.g. `DiskWorkspace`, `DiskUser`)
+  - `serialization.persisted` package
+  - Prefixed with "PD" (e.g. `PDWorkspace`, `PDUser`)
 - Serialization format for command input/ouput
-  - `serialization.command` package
-  - Prefixed with "Command" (e.g. `CommandWorkspace`, `CommandUser`)
+  - `serialization.userfacing` package
+  - Prefixed with "UF" (e.g. `UFWorkspace`, `UFUser`)
 - Create/update parameters
-  - `serialization.command.createupdate package`
-  - Most of these parameter classes are not actually being used for command input/output. I put them in a sub-package 
-  under `serialization.command` because I think we might want to expose them to users in the future. e.g. By passing 
+  - `serialization.userfacing.inputs` package
+  - Most of these parameter classes are not actually being used for user-facing input. I put them in a sub-package 
+  under `serialization.userfacing` because I think we might want to expose them to users in the future. e.g. By passing 
   in a json file instead of specifying lots of options, as we do now for bucket lifecycle rules.
 
 #### Terra and cloud services
-The `src/main/java/bio/terra/cli/service/` directory contains classes that communicate with Terra and cloud services.
-The classes under the `utils/` sub-package wrap communications with these external services.
-The classes under the main package handle updating the context after communicating with external services.
-For example:
-- `WorkspaceManagerService` wraps calls to the Terra Workspace Manager service.
-- `WorkspaceManager` makes calls to `WorkspaceManagerService` and updates the `WorkspaceContext` accordingly.
+The `service` package contains classes that communicate with Terra and cloud services.
+They contain retries and other error-handling that is specific to each service.
+This functionality is not CLI-specific and could be moved into the service's client library or a helper client library,
+in the future.
 
 #### Servers
 The `src/main/java/resources/servers/` directory contains the server specification files.

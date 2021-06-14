@@ -65,7 +65,7 @@ covers to pull the default Docker image from GCR. This is the reason for the `gc
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
 3. If the machine where you're running the CLI does not have a browser available to it, then use the
-manual login flow by setting the browser flag `terra config set browser manual`. See the [Authentication](#authentication)
+manual login flow by setting the browser flag `terra config set browser MANUAL`. See the [Authentication](#authentication)
 section below for more details.
 
 #### Spend profile access
@@ -78,11 +78,11 @@ owner access to that spend profile.
 - [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
 to add new members to the group, use `policy=admin` instead.
 
-`terra groups add-user --group=enterprise-pilot-testers --policy=member mmdevverily4@gmail.com`
+`terra groups add-user --group=enterprise-pilot-testers --policy=member testuser@gmail.com`
 
 - Add a user directly to the spend profile. To also grant permission to add new users to the spend profile,
 user `policy=owner` instead.
-`terra spend enable --policy=user mmdevverily@gmail.com`
+`terra spend enable --policy=user testuser@gmail.com`
 
 #### External data 
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data
@@ -132,11 +132,9 @@ Ping the Terra server.
 terra server status
 ```
 
-Create an empty directory and change into it.
 Create a new Terra workspace (and backing Google project).
 Check the current workspace status to confirm it was created successfully.
 ```
-mkdir new-workspace; cd new-workspace
 terra workspace create
 terra status
 ```
@@ -146,9 +144,9 @@ List all workspaces the user has read access to.
 terra workspace list
 ```
 
-If you want to use an existing Terra workspace, use the mount command instead of create.
+If you want to use an existing Terra workspace, use the `set` command instead of `create`.
 ```
-terra workspace mount eb0753f9-5c45-46b3-b3b4-80b4c7bea248
+terra workspace set --id=eb0753f9-5c45-46b3-b3b4-80b4c7bea248
 ```
 
 Run a Nextflow hello world example.
@@ -156,8 +154,9 @@ Run a Nextflow hello world example.
 terra nextflow run hello
 ```
 
-Run an [example Nextflow workflow](https://github.com/nextflow-io/rnaseq-nf).
-This is the same example workflow used in the [GCLS tutorial](https://cloud.google.com/life-sciences/docs/tutorials/nextflow).
+Run an [example Nextflow workflow](https://github.com/nextflow-io/rnaseq-nf) in the context of the Terra workspace (i.e.
+in the workspace's backing Google project). This is the same example workflow used in the 
+[GCLS tutorial](https://cloud.google.com/life-sciences/docs/tutorials/nextflow).
 - Fetch the workflow code
     ```
     git clone https://github.com/nextflow-io/rnaseq-nf.git
@@ -177,7 +176,7 @@ This is the same example workflow used in the [GCLS tutorial](https://cloud.goog
           params.multiqc = 'gs://rnaseq-nf/multiqc'
           process.executor = 'google-lifesciences'
           process.container = 'nextflow/rnaseq-nf:latest'
-          workDir = "$TERRA_MYBUCKET/scratch"
+          workDir = "$TERRA_mybucket/scratch"
           google.location = 'europe-west2'
           google.region  = 'europe-west1'
           google.project = "$GOOGLE_CLOUD_PROJECT"
@@ -212,7 +211,7 @@ terra config get-value image
 Usage: terra [COMMAND]
 Terra CLI
 Commands:
-  status     Print details about the current workspace.
+  status     Print details about the current workspace and server.
   version    Get the installed version.
   auth       Retrieve and manage user credentials.
   server     Connect to a Terra server.
@@ -223,6 +222,7 @@ Commands:
   groups     Manage groups of users.
   spend      Manage spend profiles.
   config     Configure the CLI.
+  resolve    Resolve a resource to its cloud id or path.
   gcloud     Call gcloud in the Terra workspace.
   gsutil     Call gsutil in the Terra workspace.
   bq         Call bq in the Terra workspace.
@@ -251,10 +251,9 @@ The other commands are groupings of sub-commands, described in the sections belo
 Usage: terra auth [COMMAND]
 Retrieve and manage user credentials.
 Commands:
-  status       Print details about the currently authorized account.
-  login        Authorize the CLI to access Terra APIs and data with user
-                 credentials.
-  revoke       Revoke credentials from an account.
+  status  Print details about the currently authorized account.
+  login   Authorize the CLI to access Terra APIs and data with user credentials.
+  revoke  Revoke credentials from an account.
 ```
 
 Only one user can be logged in at a time. To change the active user, revoke the existing credentials and login again.
@@ -266,18 +265,18 @@ Credentials are part of the global context, so you don't need to login again aft
 
 By default, the CLI opens a browser window for the user to click through the OAuth flow. For some use cases (e.g. CloudShell,
 notebook VM), this is not practical because there is no default (or any) browser on the machine. The CLI has a browser
-option that controls this behavior. `terra config set browser manual` means the user can copy the url into a browser on a different
+option that controls this behavior. `terra config set browser MANUAL` means the user can copy the url into a browser on a different
 machine (e.g. their laptop), confirm the scopes and get the token response, then copy/paste that back into a shell on the
 machine where they want to use the Terra CLI. Example usage:
 ```
-> terra config set browser manual
-Browser will be launched manually (CHANGED)
+> terra config set browser MANUAL
+Browser launch mode for login is MANUAL (CHANGED).
 
 > terra auth login
 Please open the following address in a browser on any machine:
   https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force&client_id=[...]
 Please enter code: *****
-Login successful: mmdevverily@gmail.com
+Login successful: testuser@gmail.com
 ```
 
 #### Server
@@ -301,8 +300,9 @@ Setup a Terra workspace.
 Commands:
   list         List all workspaces the current user can access.
   create       Create a new workspace.
-  mount        Mount an existing workspace to the current directory.
+  set          Set the workspace to an existing one.
   delete       Delete an existing workspace.
+  update       Update an existing workspace.
   list-users   List the users of the workspace.
   add-user     Add a user or group to the workspace.
   remove-user  Remove a user or group from the workspace.
@@ -310,9 +310,6 @@ Commands:
 
 A Terra workspace is backed by a Google project. Creating a new workspace also creates a new backing Google 
 project. The same applies to deleting.
-
-The workspace context is tied to the directory on your local machine, similar to how `git` works.
-So if you change directories, you lose the workspace context.
 
 #### Resources
 ```
@@ -328,14 +325,14 @@ Commands:
   resolve                    Resolve a resource to its cloud id or path.
 ```
 
-A controlled resource is a cloud resource that is managed by Terra. It typically exists within the workspace context.
+A controlled resource is a cloud resource that is managed by Terra. It exists within the current workspace context.
 For example, a bucket within the workspace Google project.
 
-A referenced resource is a cloud resource that is NOT managed by Terra. It typically exists outside the workspace
-context, though that is not a requirement. For example, a Big Query dataset hosted outside of Terra.
+A referenced resource is a cloud resource that is NOT managed by Terra. It exists outside the current workspace
+context. For example, a Big Query dataset hosted outside of Terra or in another workspace.
 
-It is sometimes useful to check whether you have access to a particular resource, particularly when the resource
-was created or added by a different user, and the workspace was subsequently shared with you.
+The `check-access` command lets you see whether you have access to a particular resource. This is useful when a
+different user created or added the resource and subsequently shared the workspace with you.
 
 The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
 of resources locally, so that external tools (see section below) are not slowed down by round-trips to Workspace 
@@ -411,34 +408,28 @@ terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-
 Usage: terra app [COMMAND]
 Run applications in the workspace.
 Commands:
-  list       List the supported applications.
-  execute    [FOR DEBUG] Execute a command in the application container for the
-               Terra workspace, with no setup.
+  list     List the supported applications.
+  execute  [FOR DEBUG] Execute a command in the application container for the
+             Terra workspace, with no setup.
 ```
 
 The Terra CLI allows running supported external tools within the context of a workspace.
 The `app-launch` configuration property controls how tools are run: in a Docker container,
 or a local child process.
 
-Nextflow and the Gcloud CLIs are the first examples of supported tools.
-Exactly what it means to be a "supported" tool is still under discussion.
+Nextflow and the Gcloud SDK are the first examples of supported tools.
 
 #### Notebooks
 ```
 Usage: terra notebooks [COMMAND]
 Use AI Notebooks in the workspace.
 Commands:
-  create    Create a new AI Notebook instance within your workspace.
-  delete    Delete an AI Notebook instance within your workspace.
-  describe  Describe an AI Notebook instance within your workspace.
-  list      List the AI Notebook instance within your workspace for the
-              specified location.
-  start     Start a stopped AI Notebook instance within your workspace.
-  stop      Stop a running AI Notebook instance within your workspace.
+  start  Start a stopped AI Notebook instance within your workspace.
+  stop   Stop a running AI Notebook instance within your workspace.
 ```
 
-The Terra CLI provides convenience for running
-[AI Platform Notebooks](https://cloud.google.com/ai-platform-notebooks) within a workspace.
+You can create an [AI Platform Notebook](https://cloud.google.com/ai-platform-notebooks) controlled resource with 
+`terra resources create ai-notebook`. These `stop`, `start` commands are provided for convenience.
 
 #### Groups
 ```
@@ -449,12 +440,14 @@ Commands:
   create       Create a new Terra group.
   delete       Delete an existing Terra group.
   describe     Print the group email address.
-  list-users   List the users in a group.
-  add-user     Add a user to a group.
-  remove-user  Remove a user from a group.
+  list-users   List the users in a group with a given policy.
+  add-user     Add a user to a group with a given policy.
+  remove-user  Remove a user from a group with a given policy.
 ```
 
 Terra groups are managed by SAM. These commands are utility wrappers around the group endpoints.
+
+The `enterprise-pilot-testers` group is used for managing access to the default spend profile.
 
 #### Spend
 ```
@@ -469,7 +462,7 @@ Commands:
                 profile.
 ```
 
-These commands allow managing the users authorized to spend money with Workspace Manager (e.g. by
+These commands allow managing users who are authorized to spend money with Workspace Manager (e.g. by
 creating a project and resources within it). A Spend Profile Manager service has not yet been built.
 In the meantime, WSM uses a single billing account and manages access to it with a single SAM resource.
 These commands are utility wrappers around adding users to this single resource.
@@ -488,8 +481,8 @@ These commands are property getters and setters for configuring the Terra CLI. C
 configuration properties are:
 ```
 [app-launch] app launch mode = DOCKER_CONTAINER
-[browser] browser launch for login = auto
-[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.40.0:stable
+[browser] browser launch for login = AUTO
+[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.50.0:stable
 [resource-limit] max number of resources to allow per workspace = 1000
 
 [logging, console] logging level for printing directly to the terminal = OFF
@@ -500,12 +493,12 @@ configuration properties are:
 
 ### Workspace context for applications
 The Terra CLI defines a workspace context for applications to run in. This context includes:
-- User's pet SA activated as current Google credentials and path to the key file passed in
-via `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-- Backing google project id passed in via `GOOGLE_CLOUD_PROJECT` environment variable.
-- Workspace references to controlled cloud resources resolved in an environment variable that is the name 
-of the workspace reference, prefixed with `TERRA_`. (e.g. `mybucket` -> `TERRA_mybucket`).
-- In the future, it will also include references to external cloud resources (e.g. a bucket outside the workspace).
+- User's pet SA activated as current Google credentials and the `GOOGLE_APPLICATION_CREDENTIALS` environment variable
+set to the path to the key file.
+- `GOOGLE_CLOUD_PROJECT` environment variable set to the backing google project id.
+- Environment variables that are the name of the workspace resources, prefixed with `TERRA_` are set to the resolved
+cloud identifier for those resources (e.g. `mybucket` -> `TERRA_mybucket` set to `gs://mybucket`). Applies to 
+referenced and controlled resources.
 
 #### Reference in a CLI command
 To use a workspace reference in a Terra CLI command, escape the environment variable to bypass the
@@ -517,7 +510,7 @@ Example commands for creating a new controlled bucket resource and then using `g
 bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
 Workspace resource successfully added: mybucket
 
-> terra gsutil iam get \$TERRA_MYBUCKET
+> terra gsutil iam get \$TERRA_mybucket
   Setting up Terra app environment...
   Activated service account credentials for: [pet-110017243614237806241@terra-wsm-dev-e3d8e1f5.iam.gserviceaccount.com]
   Updated property [core/project].
@@ -546,7 +539,7 @@ Workspace resource successfully added: mybucket
 #### Reference in file
 To use a workspace reference in a file or config that will be read by an application, do not escape the
 environment variable. Since this will be running inside the Docker container or local process, there is
-no need to escape it.
+no need to bypass shell substitution.
 
 Example `nextflow.config` file that includes a reference to the backing Google project.
 ```
@@ -557,7 +550,7 @@ profiles {
       params.multiqc = 'gs://rnaseq-nf/multiqc'
       process.executor = 'google-lifesciences'
       process.container = 'nextflow/rnaseq-nf:latest'
-      workDir = "$TERRA_MYBUCKET/scratch"
+      workDir = "$TERRA_mybucket/scratch"
       google.location = 'europe-west2'
       google.region  = 'europe-west1'
       google.project = "$GOOGLE_CLOUD_PROJECT"
@@ -568,20 +561,20 @@ profiles {
 
 #### See all environment variables
 Run `terra app execute env` to see all environment variables defined in the Docker container or local process
-where applications are run.
+when applications are launched.
 
-The `terra app execute ...` command is intended for debugging and lets you execute any command in the Docker
-container or local process, not just the ones we've officially "supported" (i.e. gsutil, bq, gcloud, nextflow).
+The `terra app execute ...` command is intended for debugging. It lets you execute any command in the Docker
+container or local process, not just the ones we've officially supported (i.e. `gsutil`, `bq`, `gcloud`, `nextflow`).
 
 #### Run unsupported tools
-To run tools that are not yet "supported" by the Terra CLI, or to use local versions of tools, set the `app-launch`
+To run tools that are not yet supported by the Terra CLI, or to use local versions of tools, set the `app-launch`
 configuration property to launch a child process on the local machine instead of inside a Docker container.
 ```
 terra config set app-launch LOCAL_PROCESS
 ```
 
 Then call the tool with `terra app execute`. Before running the tool command, the CLI defines environment variables
-for each workspace reference and configures `gcloud` with the workspace project. After running the tool command, the
+for each workspace resource and configures `gcloud` with the workspace project. After running the tool command, the
 CLI restores the original `gcloud` project configuration.
 ```
 terra app execute dsub \
