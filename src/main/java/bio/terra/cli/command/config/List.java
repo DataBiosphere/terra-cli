@@ -18,28 +18,13 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        new UFConfig(Context.getConfig(), Context.getServer()), List::printText);
+        new UFConfig(Context.getConfig(), Context.getServer(), Context.getWorkspace()),
+        List::printText);
   }
 
   /** Print this command's output in text format. */
   private static void printText(UFConfig returnValue) {
-    OUT.println("[app-launch] app launch mode = " + returnValue.commandRunnerOption);
-    OUT.println("[browser] browser launch for login = " + returnValue.browserLaunchOption);
-    OUT.println("[image] docker image id = " + returnValue.dockerImageId);
-    OUT.println(
-        "[resource-limit] max number of resources to allow per workspace = "
-            + returnValue.resourcesCacheSize);
-    OUT.println();
-    OUT.println(
-        "[logging, console] logging level for printing directly to the terminal = "
-            + returnValue.consoleLoggingLevel);
-    OUT.println(
-        "[logging, file] logging level for writing to files in "
-            + Context.getLogFile().getParent()
-            + " = "
-            + returnValue.fileLoggingLevel);
-    OUT.println();
-    OUT.println("[server] server = " + returnValue.serverName);
+    returnValue.print();
   }
 
   /** This command never requires login. */

@@ -6,6 +6,7 @@ import bio.terra.cli.command.config.getvalue.Image;
 import bio.terra.cli.command.config.getvalue.Logging;
 import bio.terra.cli.command.config.getvalue.ResourceLimit;
 import bio.terra.cli.command.config.getvalue.Server;
+import bio.terra.cli.command.config.getvalue.Workspace;
 import picocli.CommandLine.Command;
 
 /**
@@ -21,6 +22,7 @@ import picocli.CommandLine.Command;
       Image.class,
       Logging.class,
       ResourceLimit.class,
-      Server.class
+      Server.class,
+      Workspace.class
     })
 public class GetValue {}

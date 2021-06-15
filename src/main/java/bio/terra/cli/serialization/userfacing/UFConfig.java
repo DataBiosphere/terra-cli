@@ -3,11 +3,14 @@ package bio.terra.cli.serialization.userfacing;
 import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * External representation of a configuration for command input/output.
@@ -25,9 +28,11 @@ public class UFConfig {
   public final Logger.LogLevel fileLoggingLevel;
   public final Logger.LogLevel consoleLoggingLevel;
   public final String serverName;
+  public final UUID workspaceId;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFConfig(Config internalConfig, Server internalServer) {
+  public UFConfig(
+      Config internalConfig, Server internalServer, Optional<Workspace> internalWorkspace) {
     this.browserLaunchOption = internalConfig.getBrowserLaunchOption();
     this.commandRunnerOption = internalConfig.getCommandRunnerOption();
     this.dockerImageId = internalConfig.getDockerImageId();
@@ -35,6 +40,7 @@ public class UFConfig {
     this.fileLoggingLevel = internalConfig.getFileLoggingLevel();
     this.consoleLoggingLevel = internalConfig.getConsoleLoggingLevel();
     this.serverName = internalServer.getName();
+    this.workspaceId = internalWorkspace.isPresent() ? internalWorkspace.get().getId() : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -46,6 +52,7 @@ public class UFConfig {
     this.fileLoggingLevel = builder.fileLoggingLevel;
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
     this.serverName = builder.serverName;
+    this.workspaceId = builder.workspaceId;
   }
 
   /** Print out this object in text format. */
@@ -67,6 +74,7 @@ public class UFConfig {
             + fileLoggingLevel);
     OUT.println();
     OUT.println("[server] server = " + serverName);
+    OUT.println("[workspace] workspace = " + (workspaceId == null ? "" : workspaceId));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -78,6 +86,7 @@ public class UFConfig {
     private Logger.LogLevel fileLoggingLevel;
     private Logger.LogLevel consoleLoggingLevel;
     private String serverName;
+    private UUID workspaceId;
 
     public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
@@ -111,6 +120,11 @@ public class UFConfig {
 
     public Builder serverName(String serverName) {
       this.serverName = serverName;
+      return this;
+    }
+
+    public Builder workspaceId(UUID workspaceId) {
+      this.workspaceId = workspaceId;
       return this;
     }
 
