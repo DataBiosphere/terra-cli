@@ -59,11 +59,12 @@ public class Server extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName(
-      "server set takes a file path (intended to help debugging without recompiling, not for normal operation)")
+  @DisplayName("server set takes a file path")
   void serverSetTakesFile() throws JsonProcessingException {
+    // NOTE: this feature is intended to help debugging without requiring a recompile, not for
+    // normal operation
     // `terra server set --name=$filepath`
-    Path serverFilePath = TestCommand.getPathFromFileName("BadServer.json");
+    Path serverFilePath = TestCommand.getPathForTestInput("BadServer.json");
     TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverFilePath.toString());
 
     // `terra status`

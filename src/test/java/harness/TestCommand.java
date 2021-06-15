@@ -127,10 +127,12 @@ public class TestCommand {
 
   /**
    * Helper method to get the absolute path to a file in the test/resources/testinputs directory.
+   *
+   * @param filename name of a file in the test/resources/testinputs directory
    */
-  public static Path getPathFromFileName(String name) {
+  public static Path getPathForTestInput(String filename) {
     Path filePath =
-        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + name).getPath())
+        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + filename).getPath())
             .toAbsolutePath();
     return filePath;
   }
