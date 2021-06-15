@@ -67,7 +67,7 @@ dependencies {
         // terra libraries
         crlGoogleNotebooks="0.5.0"
         samClient = "0.1-9435410-SNAP"
-        workspaceManagerClient = "0.254.40-SNAPSHOT"
+        workspaceManagerClient = "0.254.41-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
@@ -103,8 +103,7 @@ dependencies {
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
     implementation "bio.terra.cloud-resource-lib:google-notebooks:${crlGoogleNotebooks}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
-    // TODO (PF-853): put back to bio.terra:workspace-manager-client once WSM change goes in
-    implementation "bio.terra:client:${workspaceManagerClient}"
+    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
 
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
     compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
