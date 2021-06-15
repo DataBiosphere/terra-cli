@@ -31,7 +31,7 @@ public class Config extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // set the docker image id to an involid string
+    // set the docker image id to an invalid string
     TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=badimageid");
 
     // `terra config set app-launch LOCAL_PROCESS`
@@ -140,7 +140,7 @@ public class Config extends SingleWorkspaceUnit {
     UFConfig config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
     assertEquals(workspace2.id, config.workspaceId, "workspace create affects config list");
 
-    // `terra workspace set --id=$id`
+    // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra config get-value workspace`
@@ -154,7 +154,7 @@ public class Config extends SingleWorkspaceUnit {
     assertEquals(getWorkspaceId(), config.workspaceId, "workspace set affects config list");
 
     // `terra config set workspace --id=$id2`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace2.id);
+    TestCommand.runCommandExpectSuccess("config", "set", "workspace", "--id=" + workspace2.id);
 
     // `terra config get-value workspace`
     getValue =
@@ -166,7 +166,7 @@ public class Config extends SingleWorkspaceUnit {
     config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
     assertEquals(workspace2.id, config.workspaceId, "confg set workspace affects config list");
 
-    // `terra workspace delete --workspace `
+    // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete");
 
     // `terra config get-value workspace`
@@ -214,7 +214,7 @@ public class Config extends SingleWorkspaceUnit {
         config.commandRunnerOption,
         "list reflects set for app-launch");
 
-    // `terra config set image badimageid123`
+    // `terra config set image --image=badimageid123`
     String imageId = "badimageid123";
     TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=" + imageId);
     // `terra config get-value image`
@@ -225,7 +225,7 @@ public class Config extends SingleWorkspaceUnit {
     config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
     assertEquals(imageId, config.dockerImageId, "list reflects set for image");
 
-    // `terra config set resource-limit 3`
+    // `terra config set resource-limit --max=3`
     TestCommand.runCommandExpectSuccess("config", "set", "resource-limit", "--max=3");
     // `terra config get-value resource-limit`
     int resourceLimit =

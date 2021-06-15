@@ -84,7 +84,7 @@ public class Config extends ClearContextIntegration {
         Files.readString(
             TestBashScript.getOutputFilePath(versionOutputFilename), StandardCharsets.UTF_8);
     assertThat(
-        "server status output includes a DEBUG statement",
+        "default image includes the version string",
         imageDefaultOutput,
         CoreMatchers.containsString(versionOutput.trim()));
   }
