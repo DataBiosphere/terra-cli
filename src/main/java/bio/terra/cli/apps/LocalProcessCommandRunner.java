@@ -3,12 +3,11 @@ package bio.terra.cli.apps;
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This class runs client-side tools in a local process. */
 public class LocalProcessCommandRunner extends CommandRunner {
