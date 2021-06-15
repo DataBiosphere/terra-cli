@@ -1,9 +1,5 @@
 package unit;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import bio.terra.cli.businessobject.Config.BrowserLaunchOption;
 import bio.terra.cli.businessobject.Config.CommandRunnerOption;
 import bio.terra.cli.serialization.userfacing.UFConfig;
@@ -13,12 +9,17 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.Logger;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
-import java.io.IOException;
-import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /** Tests for the `terra config` commands. */
 @Tag("unit")
@@ -177,7 +178,7 @@ public class Config extends SingleWorkspaceUnit {
 
     // `terra config list`
     config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals(null, config.workspaceId, "workspace delete affects config list");
+    assertNull(config.workspaceId, "workspace delete affects config list");
   }
 
   @Test
