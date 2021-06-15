@@ -1,7 +1,7 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static unit.BqDatasetControlled.listDatasetResourceWithName;
+import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
@@ -141,7 +141,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "delete output matches dataset id");
 
     // check that the dataset is not in the list
-    List<UFBqDataset> matchedResources = listDatasetResourceWithName(name);
+    List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 

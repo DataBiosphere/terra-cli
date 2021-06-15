@@ -108,7 +108,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     assertEquals(datasetId, deletedDataset.datasetId, "delete output matches dataset id");
 
     // check that the dataset is not in the list
-    List<UFBqDataset> matchedResources = listDatasetResourceWithName(name);
+    List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 
@@ -277,7 +277,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
    */
   static UFBqDataset listOneDatasetResourceWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
-    List<UFBqDataset> matchedResources = listDatasetResourceWithName(resourceName, workspaceId);
+    List<UFBqDataset> matchedResources = listDatasetResourcesWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -287,15 +287,15 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Uses the current workspace.
    */
-  static List<UFBqDataset> listDatasetResourceWithName(String resourceName)
+  static List<UFBqDataset> listDatasetResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    return listDatasetResourceWithName(resourceName, null);
+    return listDatasetResourcesWithName(resourceName, null);
   }
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  static List<UFBqDataset> listDatasetResourceWithName(String resourceName, UUID workspaceId)
+  static List<UFBqDataset> listDatasetResourcesWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
     // `terra resources list --type=BQ_DATASET --format=json`
     List<UFBqDataset> listedResources =

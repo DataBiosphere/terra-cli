@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,7 +203,7 @@ public class Context {
 
   public static Optional<Workspace> getWorkspace() {
     if (useOverrideWorkspace) {
-      return Optional.of(overrideWorkspace);
+      return Optional.ofNullable(overrideWorkspace);
     } else {
       return Optional.ofNullable(currentWorkspace);
     }
@@ -225,7 +226,8 @@ public class Context {
     }
   }
 
-  public static void useOverrideWorkspace() {
+  public static void useOverrideWorkspace(UUID id) {
     useOverrideWorkspace = true;
+    Workspace.load(id);
   }
 }

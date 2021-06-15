@@ -135,7 +135,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
         "workspace", "remove-user", "--email=" + testUser.email, "--role=OWNER");
 
     // check that the user is not in the list
-    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(testUser.email);
+    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(testUser.email);
     assertTrue(workspaceUser.isEmpty(), "test user is not in users list");
   }
 
@@ -154,7 +154,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    */
   static void expectListedUserWithRoles(String userEmail, UUID workspaceId, IamRole... roles)
       throws JsonProcessingException {
-    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(userEmail, workspaceId);
+    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(userEmail, workspaceId);
     assertTrue(workspaceUser.isPresent(), "test user is in users list");
     assertEquals(
         roles.length, workspaceUser.get().roles.size(), "test user has the right number of roles");
@@ -167,16 +167,16 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Helper method to call `terra workspace list` and filter the results on the specified user
    * email. Uses the current workspace.
    */
-  static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail)
+  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(String userEmail)
       throws JsonProcessingException {
-    return listWorkspaceUserWithEmail(userEmail, null);
+    return workspaceListUsersWithEmail(userEmail, null);
   }
 
   /**
    * Helper method to call `terra workspace list` and filter the results on the specified user email
    * and workspace id (uses the current workspace id if null).
    */
-  static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail, UUID workspaceId)
+  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(String userEmail, UUID workspaceId)
       throws JsonProcessingException {
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =

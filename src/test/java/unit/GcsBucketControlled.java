@@ -99,7 +99,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(bucketName, deletedBucket.bucketName, "delete output matches bucket name");
 
     // check that the bucket is not in the list
-    List<UFGcsBucket> matchedResources = listBucketResourceWithName(name);
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 
@@ -264,7 +264,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
    */
   static UFGcsBucket listOneBucketResourceWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourceWithName(resourceName, workspaceId);
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -274,16 +274,16 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Uses the current workspace.
    */
-  static List<UFGcsBucket> listBucketResourceWithName(String resourceName)
+  static List<UFGcsBucket> listBucketResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    return listBucketResourceWithName(resourceName, null);
+    return listBucketResourcesWithName(resourceName, null);
   }
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  static List<UFGcsBucket> listBucketResourceWithName(String resourceName, UUID workspaceId)
+  static List<UFGcsBucket> listBucketResourcesWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
     // `terra resources list --type=GCS_BUCKET --format=json`
     List<UFGcsBucket> listedResources =

@@ -4,13 +4,13 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static unit.BqDatasetControlled.listDatasetResourceWithName;
+import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
-import static unit.GcsBucketControlled.listBucketResourceWithName;
+import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 import static unit.Workspace.listWorkspacesWithId;
 import static unit.WorkspaceUser.expectListedUserWithRoles;
-import static unit.WorkspaceUser.listWorkspaceUserWithEmail;
+import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
@@ -170,7 +170,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
     // `terra resources list --type=GCS_BUCKET`
-    List<UFGcsBucket> matchedBuckets = listBucketResourceWithName(resourceNameBucket);
+    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
     // `terra resources list --type=BQ_DATASET --workspace=$id2`
@@ -181,7 +181,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         "list output for workspace 2 matches dataset name");
 
     // `terra resources list --type=BQ_DATASET`
-    List<UFBqDataset> matchedDatasets = listDatasetResourceWithName(resourceNameDataset);
+    List<UFBqDataset> matchedDatasets = listDatasetResourcesWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
     // check that check-access, describe, and resolve succeed in workspace 2 but not in workspace 1
@@ -257,7 +257,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
     // `terra resources list --type=GCS_BUCKET`
-    List<UFGcsBucket> matchedBuckets = listBucketResourceWithName(resourceNameBucket);
+    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
     // `terra resources list --type=BQ_DATASET --workspace=$id2`
@@ -268,7 +268,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         "list output for workspace 2 matches dataset name");
 
     // `terra resources list --type=BQ_DATASET`
-    List<UFBqDataset> matchedDatasets = listDatasetResourceWithName(resourceNameDataset);
+    List<UFBqDataset> matchedDatasets = listDatasetResourcesWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
     // check that describe and resolve succeed in workspace 2 but not in workspace 1
@@ -319,7 +319,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     expectListedUserWithRoles(testUser.email, workspace2.id, IamRole.READER);
 
     // `terra workspace list-users --email=$email --role=READER`
-    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(testUser.email);
+    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(testUser.email);
     assertTrue(workspaceUser.isEmpty(), "test user is not in users list for workspace 1");
 
     // `terra workspace remove-user --email=$email --role=READER --workspace=$id2`
@@ -332,7 +332,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra workspace list-users --email=$email --role=READER --workspace=$id2`
     // check that the user no longer exists in the list output for workspace 2
-    workspaceUser = listWorkspaceUserWithEmail(testUser.email, workspace2.id);
+    workspaceUser = workspaceListUsersWithEmail(testUser.email, workspace2.id);
     assertTrue(workspaceUser.isEmpty(), "test user is no longer in users list for workspace 2");
   }
 

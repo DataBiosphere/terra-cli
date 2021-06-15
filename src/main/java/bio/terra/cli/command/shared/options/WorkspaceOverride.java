@@ -1,7 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import java.util.UUID;
 import picocli.CommandLine;
 
@@ -24,8 +23,7 @@ public class WorkspaceOverride {
   /** Helper method to override the current workspace if the `--workspace` flag specifies an id. */
   public void overrideIfSpecified() {
     if (id != null) {
-      Context.useOverrideWorkspace();
-      Workspace.load(id);
+      Context.useOverrideWorkspace(id);
     }
   }
 }
