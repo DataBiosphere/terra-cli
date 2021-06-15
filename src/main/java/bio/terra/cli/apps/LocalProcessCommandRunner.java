@@ -3,11 +3,12 @@ package bio.terra.cli.apps;
 import bio.terra.cli.apps.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** This class runs client-side tools in a local process. */
 public class LocalProcessCommandRunner extends CommandRunner {
@@ -36,7 +37,8 @@ public class LocalProcessCommandRunner extends CommandRunner {
     bashCommands.add(buildFullCommand(command));
     bashCommands.add(
         "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
-    bashCommands.add("gcloud config set project $TERRA_PREV_GCLOUD_PROJECT");
+    bashCommands.add(
+        "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; else gcloud config unset project; fi");
     return String.join("; ", bashCommands);
   }
 
