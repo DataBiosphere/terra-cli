@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -29,11 +30,13 @@ public class Update extends BaseCommand {
     private String description;
   }
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Update the mutable properties of an existing workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);

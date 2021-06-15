@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -134,16 +135,26 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
         "workspace", "remove-user", "--email=" + testUser.email, "--role=OWNER");
 
     // check that the user is not in the list
-    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(testUser.email);
+    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(testUser.email);
     assertTrue(workspaceUser.isEmpty(), "test user is not in users list");
   }
 
   /**
    * Helper method to check that a workspace user is included in the list with the specified roles.
+   * Uses the current workspace.
    */
   private static void expectListedUserWithRoles(String userEmail, IamRole... roles)
       throws JsonProcessingException {
-    Optional<UFWorkspaceUser> workspaceUser = listWorkspaceUserWithEmail(userEmail);
+    expectListedUserWithRoles(userEmail, null, roles);
+  }
+
+  /**
+   * Helper method to check that a workspace user is included in the list with the specified roles.
+   * Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  static void expectListedUserWithRoles(String userEmail, UUID workspaceId, IamRole... roles)
+      throws JsonProcessingException {
+    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(userEmail, workspaceId);
     assertTrue(workspaceUser.isPresent(), "test user is in users list");
     assertEquals(
         roles.length, workspaceUser.get().roles.size(), "test user has the right number of roles");
@@ -154,14 +165,26 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
 
   /**
    * Helper method to call `terra workspace list` and filter the results on the specified user
-   * email.
+   * email. Uses the current workspace.
    */
-  private static Optional<UFWorkspaceUser> listWorkspaceUserWithEmail(String userEmail)
+  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(String userEmail)
+      throws JsonProcessingException {
+    return workspaceListUsersWithEmail(userEmail, null);
+  }
+
+  /**
+   * Helper method to call `terra workspace list` and filter the results on the specified user email
+   * and workspace id (uses the current workspace id if null).
+   */
+  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(String userEmail, UUID workspaceId)
       throws JsonProcessingException {
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list-users");
+        workspaceId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "workspace", "list-users")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "workspace", "list-users", "--workspace=" + workspaceId);
 
     // find the user in the list
     return listWorkspaceUsers.stream()

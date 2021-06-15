@@ -103,11 +103,11 @@ public class Workspace {
     // convert the WSM object to a CLI object
     Workspace workspace = new Workspace(loadedWorkspace);
 
+    // fetch the list of resources in this workspace
+    workspace.populateResources();
+
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
-
-    // fetch the list of resources in this workspace
-    workspace.listResourcesAndSync();
 
     // fetch the pet SA credentials for the user + this workspace
     // do this here so we have them stored locally before the user tries to run an app in the
@@ -180,8 +180,8 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
-  /** Fetch the list of resources for the current workspace. Sync the cached list of resources. */
-  public List<Resource> listResourcesAndSync() {
+  /** Populate the list of resources for this workspace. Does not sync to disk. */
+  private void populateResources() {
     List<ResourceDescription> wsmObjects =
         new WorkspaceManagerService()
             .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
@@ -189,6 +189,14 @@ public class Workspace {
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
 
     this.resources = resources;
+  }
+
+  /**
+   * Fetch the list of resources for the current workspace. Sync the cached list of resources to
+   * disk.
+   */
+  public List<Resource> listResourcesAndSync() {
+    populateResources();
     Context.synchronizeToDisk();
     return resources;
   }

@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
   @Test
-  @DisplayName("status, workspace list reflect workspace create")
-  void statusListReflectCreate() throws IOException {
+  @DisplayName("status, describe, workspace list reflect workspace create")
+  void statusDescribeListReflectCreate() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -58,6 +58,17 @@ public class Workspace extends ClearContextUnit {
         status.workspace.googleProjectId,
         "workspace gcp project matches current status");
 
+    // `terra workspace describe --format=json`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // check the new workspace is returned by describe
+    assertEquals(createWorkspace.id, describeWorkspace.id, "workspace id matches that in describe");
+    assertEquals(
+        createWorkspace.googleProjectId,
+        describeWorkspace.googleProjectId,
+        "workspace gcp project matches that in describe");
+
     // check the new workspace is included in the list
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
@@ -73,8 +84,8 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("status, workspace list reflect workspace delete")
-  void statusListReflectDelete() throws IOException {
+  @DisplayName("status, describe, workspace list reflect workspace delete")
+  void statusDescribeListReflectDelete() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -100,20 +111,23 @@ public class Workspace extends ClearContextUnit {
     // check the current status reflects the deleted workspace
     assertNull(status.workspace, "status has no workspace after delete");
 
+    // `terra workspace describe --format=json`
+    TestCommand.runCommandExpectExitCode(1, "workspace", "describe");
+
     // check the deleted workspace is not included in the list
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace is not included in list");
   }
 
   @Test
-  @DisplayName("status, workspace list reflect workspace update")
-  void statusListReflectUpdate() throws IOException {
+  @DisplayName("status, describe, workspace list reflect workspace update")
+  void statusDescribeListReflectUpdate() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create --format=json --name=$name --description=$description`
-    String name = "statusListReflectUpdate";
+    String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
     UFWorkspace createWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -128,8 +142,8 @@ public class Workspace extends ClearContextUnit {
     assertNotNull(createWorkspace.description, "create workspace description is defined");
 
     // `terra workspace create --format=json --name=$newName --description=$newDescription`
-    String newName = "NEW_statusListReflectUpdate";
-    String newDescription = "NEW status list reflect update";
+    String newName = "NEW_statusDescribeListReflectUpdate";
+    String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
@@ -147,6 +161,17 @@ public class Workspace extends ClearContextUnit {
         status.workspace.description,
         "status matches updated workspace description");
 
+    // `terra workspace describe --format=json`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // check the workspace describe reflects the update
+    assertEquals(newName, describeWorkspace.name, "describe matches updated workspace name");
+    assertEquals(
+        newDescription,
+        describeWorkspace.description,
+        "describe matches updated workspace description");
+
     // check the workspace list reflects the update
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(
@@ -163,8 +188,8 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("status reflects workspace set")
-  void statusReflectsSet() throws IOException {
+  @DisplayName("status, describe reflect workspace set")
+  void statusDescribeReflectsSet() throws IOException {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -189,6 +214,14 @@ public class Workspace extends ClearContextUnit {
     // check the current status reflects the workspace set
     assertEquals(createWorkspace1.id, status.workspace.id, "status matches set workspace id (1)");
 
+    // `terra workspace describe --format=json`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // check the workspace describe reflects the workspace set
+    assertEquals(
+        createWorkspace1.id, describeWorkspace.id, "describe matches set workspace id (1)");
+
     // set current workspace = workspace 2
     UFWorkspace setWorkspace2 =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -200,6 +233,14 @@ public class Workspace extends ClearContextUnit {
 
     // check the current status reflects the workspace set
     assertEquals(createWorkspace2.id, status.workspace.id, "status matches set workspace id (2)");
+
+    // `terra workspace describe --format=json`
+    describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // check the workspace describe reflects the workspace set
+    assertEquals(
+        createWorkspace2.id, describeWorkspace.id, "describe matches set workspace id (2)");
 
     // `terra workspace delete` (workspace 2)
     TestCommand.runCommandExpectSuccess("workspace", "delete");
@@ -230,8 +271,7 @@ public class Workspace extends ClearContextUnit {
    * Helper method to call `terra workspace list` and filter the results on the specified workspace
    * id.
    */
-  private static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId)
-      throws JsonProcessingException {
+  static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId) throws JsonProcessingException {
     // `terra workspace list --format=json`
     List<UFWorkspace> listWorkspaces =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "workspace", "list");

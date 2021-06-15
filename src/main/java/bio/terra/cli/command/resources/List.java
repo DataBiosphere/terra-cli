@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.stream.Collectors;
@@ -22,11 +23,13 @@ public class List extends BaseCommand {
       description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}")
   private Resource.Type type;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     java.util.List<UFResource> resources =
         Context.requireWorkspace().listResourcesAndSync().stream()
             .filter(

@@ -3,6 +3,7 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateControlledResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
@@ -60,11 +61,13 @@ public class GcsBucket extends BaseCommand {
     private Integer autoDelete;
   }
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add a controlled GCS bucket to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create

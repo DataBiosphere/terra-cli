@@ -2,6 +2,7 @@ package bio.terra.cli.command.app;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -13,6 +14,8 @@ import picocli.CommandLine.Command;
         "[FOR DEBUG] Execute a command in the application container for the Terra workspace, with no setup.")
 public class Execute extends BaseCommand {
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+
   @CommandLine.Parameters(
       index = "0",
       paramLabel = "command",
@@ -23,6 +26,7 @@ public class Execute extends BaseCommand {
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 }

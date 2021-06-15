@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
 import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
@@ -223,11 +224,13 @@ public class AiNotebook extends BaseCommand {
     String type;
   }
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add a controlled AI Notebook instance to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     // build the resource object to create. force the resource to be private
     CreateUpdateResource.Builder createResourceParams =
         createResourceOptions

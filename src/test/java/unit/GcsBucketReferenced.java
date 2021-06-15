@@ -1,7 +1,7 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static unit.GcsBucketControlled.listBucketResourceWithName;
+import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
@@ -116,7 +116,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         externalBucket.getName(), deletedBucket.bucketName, "delete output matches bucket name");
 
     // check that the bucket is not in the list
-    List<UFGcsBucket> matchedResources = listBucketResourceWithName(name);
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 

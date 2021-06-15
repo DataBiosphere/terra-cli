@@ -7,6 +7,7 @@ import bio.terra.cli.businessobject.resources.GcsBucket;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -27,11 +28,13 @@ public class Resolve extends BaseCommand {
           "[For BIG_QUERY_DATASET] Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id]")
   private BqDataset.ResolveOptions bqPathFormat = BqDataset.ResolveOptions.FULL_PATH;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Resolve a resource in the workspace to its cloud identifier. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
 
     String cloudId;

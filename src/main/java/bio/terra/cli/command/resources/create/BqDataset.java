@@ -3,6 +3,7 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateControlledResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
@@ -25,11 +26,13 @@ public class BqDataset extends BaseCommand {
       description = "Dataset location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add a controlled Big Query dataset to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     createControlledResourceOptions.validateAccessOptions();
 
     // build the resource object to create

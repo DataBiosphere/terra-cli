@@ -2,6 +2,7 @@ package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -19,9 +20,12 @@ public class RemoveUser extends BaseCommand {
       description = "Role to grant: ${COMPLETION-CANDIDATES}")
   private IamRole role;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+
   /** Remove a user from a workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     WorkspaceUser.remove(email, role);
     OUT.println("User (" + email + ") removed from workspace role (" + role + ").");
   }

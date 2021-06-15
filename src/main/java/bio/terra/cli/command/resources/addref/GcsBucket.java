@@ -3,6 +3,7 @@ package bio.terra.cli.command.resources.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
@@ -24,11 +25,13 @@ public class GcsBucket extends BaseCommand {
           "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket')")
   private String bucketName;
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Add a referenced GCS bucket to the workspace. */
   @Override
   protected void execute() {
+    workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateUpdateResource.Builder createResourceParams =
         createResourceOptions.populateMetadataFields().stewardshipType(StewardshipType.REFERENCED);
