@@ -98,12 +98,13 @@ public class Server {
       logger.error("Error getting SAM status.", ex);
     }
 
-    bio.terra.workspace.model.SystemStatus wsmStatus = null;
+    boolean wsmStatusIsOk = true;
     try {
-      wsmStatus = new WorkspaceManagerService(null).getStatus();
-      logger.info("WSM status: {}", wsmStatus);
+      new WorkspaceManagerService(null).getStatus();
+      logger.info("WSM status: {}", wsmStatusIsOk);
     } catch (Exception ex) {
       logger.error("Error getting WSM status.", ex);
+      wsmStatusIsOk = false;
     }
 
     RepositoryStatusModel tdrStatus = null;
@@ -115,7 +116,7 @@ public class Server {
     }
 
     return (samStatus != null && samStatus.getOk())
-        && (wsmStatus != null && wsmStatus.isOk())
+        && (wsmStatusIsOk)
         && (tdrStatus != null && tdrStatus.isOk());
   }
 

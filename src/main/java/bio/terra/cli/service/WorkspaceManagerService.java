@@ -61,7 +61,6 @@ import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
-import bio.terra.workspace.model.SystemStatus;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -170,11 +169,15 @@ public class WorkspaceManagerService {
    *
    * @return the Workspace Manager status object
    */
-  public SystemStatus getStatus() {
+  public void getStatus() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
-      return HttpUtils.callWithRetries(
-          () -> unauthenticatedApi.serviceStatus(), WorkspaceManagerService::isRetryable);
+      HttpUtils.callWithRetries(
+          () -> {
+            unauthenticatedApi.serviceStatus();
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting Workspace Manager status", ex);
     }
