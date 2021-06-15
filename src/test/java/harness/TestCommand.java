@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -122,5 +123,15 @@ public class TestCommand {
     private <T> T readObjectFromStdOut(TypeReference<T> objectType) throws JsonProcessingException {
       return objectMapper.readValue(stdOut, objectType);
     }
+  }
+
+  /**
+   * Helper method to get the absolute path to a file in the test/resources/testinputs directory.
+   */
+  public static Path getPathFromFileName(String name) {
+    Path filePath =
+        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + name).getPath())
+            .toAbsolutePath();
+    return filePath;
   }
 }

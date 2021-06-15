@@ -1,0 +1,8 @@
+{
+  "name": "bad-server",
+  "description": "Server definition with invalid URLs.",
+
+  "dataRepoUri": "https://jade.datarepo-BADURL.broadinstitute.org",
+  "samUri": "https://sam.dsde-BADURL.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.BADURL.integ.envs.broadinstitute.org"
+}
