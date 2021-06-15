@@ -30,7 +30,7 @@ public class Config extends ClearContextIntegration {
     // expect an error reading stdin: No line found
     assertEquals(3, exitCode, "script failed with an unexpected error");
 
-    // check that the auth login output includes the url and prompt to enter a code manually
+    // check that the auth login output includes a prompt to enter a code manually
     String authLoginOutput =
         Files.readString(
             TestBashScript.getOutputFilePath(authLoginOutputFilename), StandardCharsets.UTF_8);
