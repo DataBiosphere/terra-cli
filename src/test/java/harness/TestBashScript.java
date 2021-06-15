@@ -74,7 +74,7 @@ public class TestBashScript {
    * @param workingDirectory the working directory to launch the process from
    * @return process exit code
    */
-  public static int launchChildProcess(
+  private static int launchChildProcess(
       List<String> command, Map<String, String> envVars, Path workingDirectory) {
     // build and run process from the specified working directory
     ProcessBuilder procBuilder = new ProcessBuilder(command);
@@ -106,10 +106,18 @@ public class TestBashScript {
   /**
    * Helper method to get the absolute path to a script in the test/resources/testscripts directory.
    */
-  public static Path getPathFromScriptName(String name) {
+  private static Path getPathFromScriptName(String name) {
     Path scriptPath =
         Path.of(TestBashScript.class.getClassLoader().getResource("testscripts/" + name).getPath())
             .toAbsolutePath();
     return scriptPath;
+  }
+
+  /**
+   * Helper method to get the absolute path to an output file in the working directory used for
+   * running bash scripts.
+   */
+  public static Path getOutputFilePath(String fileName) {
+    return Path.of(System.getProperty("TERRA_WORKING_DIR")).resolve(fileName).toAbsolutePath();
   }
 }

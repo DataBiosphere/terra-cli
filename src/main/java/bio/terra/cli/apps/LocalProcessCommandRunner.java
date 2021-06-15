@@ -54,7 +54,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
       throws PassthroughException {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
-    processCommand.add("-c");
+    processCommand.add("-ce");
     processCommand.add(command);
 
     // set the path to the pet SA key file

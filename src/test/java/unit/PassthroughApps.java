@@ -195,15 +195,15 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("exit code is passed through to CLI caller")
-  void exitCodePassedThrough() throws IOException {
+  @DisplayName("exit code is passed through to CLI caller in docker container")
+  void exitCodePassedThroughDockerContainer() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra gcloud -version`
-    // this is another malformed command, should be --version
+    // this is a malformed command, should be --version
     TestCommand.runCommandExpectExitCode(2, "gcloud", "-version");
 
     // `terra gcloud --version`
@@ -218,5 +218,31 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // this just returns an arbitrary exit code (similar to doing (exit 123); echo "$?" in a
     // terminal)
     TestCommand.runCommandExpectExitCode(123, "app", "execute", "exit", "123");
+  }
+
+  @Test
+  @DisplayName("exit code is passed through to CLI caller in local process")
+  void exitCodePassedThroughLocalProcess() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
+    // `terra app execute exit 123`
+    // this just returns an arbitrary exit code (similar to doing (exit 123); echo "$?" in a
+    // terminal)
+    TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "exit", "123");
+
+    // check that the exit code is either 123 from the `exit 123` command, or 127 because gcloud is
+    // not installed on this machine.
+    // this is running in a local process, not a docker container so we don't have control over
+    // what's installed.
+    // both 123 and 127 indicate that the CLI is not swallowing error codes.
+    assertTrue(
+        cmd.exitCode == 123 || cmd.exitCode == 127,
+        "app execute via local process returned an error code");
   }
 }
