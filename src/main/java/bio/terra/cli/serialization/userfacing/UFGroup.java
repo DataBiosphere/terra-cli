@@ -60,7 +60,7 @@ public class UFGroup {
       return this;
     }
 
-    public Builder policies(List<GroupPolicy> currentUserPolicies) {
+    public Builder currentUserPolicies(List<GroupPolicy> currentUserPolicies) {
       this.currentUserPolicies = currentUserPolicies;
       return this;
     }

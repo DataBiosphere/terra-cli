@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing;
 
-import bio.terra.cli.businessobject.GroupMember;
+import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.service.SamService.GroupPolicy;
 import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link bio.terra.cli.businessobject.GroupMember} class for a group member's internal
+ * <p>See the {@link bio.terra.cli.businessobject.Group.Member} class for a group member's internal
  * representation.
  */
 @JsonDeserialize(builder = UFGroupMember.Builder.class)
@@ -23,7 +23,7 @@ public class UFGroupMember {
   public final String email;
   public final List<GroupPolicy> policies;
 
-  public UFGroupMember(GroupMember internalObj) {
+  public UFGroupMember(Group.Member internalObj) {
     this.email = internalObj.getEmail();
     this.policies = internalObj.getPolicies();
   }

@@ -1,6 +1,6 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.businessobject.GroupMember;
+import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GroupName;
@@ -21,10 +21,10 @@ public class ListUsers extends BaseCommand {
   /** List the users in the given group. */
   @Override
   protected void execute() {
-    List<GroupMember> groupMembers = GroupMember.list(groupNameOption.name);
+    List<Group.Member> groupMembers = Group.get(groupNameOption.name).listMembers();
     formatOption.printReturnValue(
         groupMembers.stream()
-            .sorted(Comparator.comparing(GroupMember::getEmail))
+            .sorted(Comparator.comparing(Group.Member::getEmail))
             .map(groupMember -> new UFGroupMember(groupMember))
             .collect(Collectors.toList()),
         ListUsers::printText);

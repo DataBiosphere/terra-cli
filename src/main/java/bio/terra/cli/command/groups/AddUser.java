@@ -1,6 +1,6 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.businessobject.GroupMember;
+import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFGroupMember;
@@ -16,8 +16,9 @@ public class AddUser extends BaseCommand {
   /** Add a user to a Terra group. */
   @Override
   protected void execute() {
-    GroupMember groupMember =
-        GroupMember.add(groupMemberOption.name, groupMemberOption.email, groupMemberOption.policy);
+    Group.Member groupMember =
+        Group.get(groupMemberOption.name)
+            .addMember(groupMemberOption.email, groupMemberOption.policy);
     formatOption.printReturnValue(new UFGroupMember(groupMember), AddUser::printText);
   }
 

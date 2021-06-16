@@ -1,6 +1,6 @@
 package bio.terra.cli.command.groups;
 
-import bio.terra.cli.businessobject.GroupMember;
+import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -13,7 +13,8 @@ public class RemoveUser extends BaseCommand {
   /** Remove a user from a Terra group. */
   @Override
   protected void execute() {
-    GroupMember.remove(groupMemberOption.name, groupMemberOption.email, groupMemberOption.policy);
+    Group.get(groupMemberOption.name)
+        .removeMember(groupMemberOption.email, groupMemberOption.policy);
     OUT.println(
         "User ("
             + groupMemberOption.email

@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.SamService.GroupPolicy;
 import java.util.ArrayList;
@@ -50,7 +51,11 @@ public class Group {
 
   /** Get the group object. */
   public static Group get(String name) {
-    return listGroupsInMap().get(name);
+    Group foundGroup = listGroupsInMap().get(name);
+    if (foundGroup == null) {
+      throw new UserActionableException("No group found with this name: " + name);
+    }
+    return foundGroup;
   }
 
   /**
@@ -85,6 +90,99 @@ public class Group {
       group.currentUserPolicies.add(currentUserPolicy);
     }
     return groups;
+  }
+
+  /**
+   * Internal representation of a group member (i.e. someone who is a member of a SAM group). This
+   * is different from a regular {@link User} because they are never logged in. This is just a
+   * reference to another Terra user who has some group membership. This class is not part of the
+   * current context or state.
+   */
+  public static class Member {
+    private String email;
+    private List<GroupPolicy> policies;
+
+    private Member(String email, List<GroupPolicy> policies) {
+      this.email = email;
+      this.policies = policies;
+    }
+
+    public String getEmail() {
+      return email;
+    }
+
+    public List<GroupPolicy> getPolicies() {
+      return policies;
+    }
+  }
+
+  /**
+   * Add a member to a SAM group.
+   *
+   * @param email email of the user to add
+   * @param policy policy to assign the user
+   */
+  public Member addMember(String email, GroupPolicy policy) {
+    // call SAM to add a policy + email to the group
+    new SamService().addUserToGroup(name, policy, email);
+    logger.info("Added user to group: group={}, email={}, policy={}", name, email, policy);
+
+    // return a GroupMember = email + all policies (not just the one that was added here)
+    return getMember(email);
+  }
+
+  /**
+   * Remove a member from a SAM group.
+   *
+   * @param email email of the user to remove
+   * @param policy policy to remove from the user
+   */
+  public Member removeMember(String email, GroupPolicy policy) {
+    // call SAM to remove a policy + email from the group
+    new SamService().removeUserFromGroup(name, policy, email);
+    logger.info("Removed user from group: group={}, email={}, policy={}", name, email, policy);
+
+    // return a GroupMember = email + all policies (not just the one that was removed here)
+    return getMember(email);
+  }
+
+  /** Get the group member object. */
+  private Member getMember(String email) {
+    // lowercase the email so there is a consistent way of looking up the email address
+    // the email address casing in SAM may not match the case of what is provided by the user
+    return listMembersInMap().get(email.toLowerCase());
+  }
+
+  /** List the members of the group. */
+  public List<Member> listMembers() {
+    return listMembersInMap().values().stream().collect(Collectors.toList());
+  }
+
+  /**
+   * Get the members of a group in a map, to make it easy to lookup a particular user.
+   *
+   * @return a map of email -> group member object
+   */
+  private Map<String, Member> listMembersInMap() {
+    // call SAM to get the emails + policies for the group
+    // convert the SAM objects (policy -> list of emails) to CLI objects (email -> list of policies)
+    Map<String, Member> groupMembers = new HashMap<>();
+    for (GroupPolicy policy : GroupPolicy.values()) {
+      List<String> emailsWithPolicy = new SamService().listUsersInGroup(name, policy);
+      for (String email : emailsWithPolicy) {
+        // lowercase the email so there is a consistent way of looking up the email address
+        // the email address casing in SAM may not match the case of what is provided by the
+        // user
+        String emailLowercase = email.toLowerCase();
+        Member groupMember = groupMembers.get(emailLowercase);
+        if (groupMember == null) {
+          groupMember = new Member(emailLowercase, new ArrayList<>());
+          groupMembers.put(emailLowercase, groupMember);
+        }
+        groupMember.policies.add(policy);
+      }
+    }
+    return groupMembers;
   }
 
   // ====================================================
