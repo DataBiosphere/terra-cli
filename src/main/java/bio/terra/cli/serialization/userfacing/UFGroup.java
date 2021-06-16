@@ -41,7 +41,9 @@ public class UFGroup {
     PrintStream OUT = Printer.getOut();
     List<String> policiesStr =
         currentUserPolicies.stream().map(GroupPolicy::toString).collect(Collectors.toList());
-    OUT.println(name + ": " + String.join(",", policiesStr));
+    OUT.println(name);
+    OUT.println("  Email: " + email);
+    OUT.println("  Current user's policies: " + String.join(",", policiesStr));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
