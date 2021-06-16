@@ -3,6 +3,7 @@ package bio.terra.cli.command.app;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,6 +19,7 @@ public class List extends BaseCommand {
   protected void execute() {
     java.util.List<String> returnValue =
         Arrays.asList(PassThrough.values()).stream()
+            .sorted(Comparator.comparing(PassThrough::name))
             .map(passthrough -> passthrough.toString())
             .collect(Collectors.toList());
     formatOption.printReturnValue(returnValue, List::printText);

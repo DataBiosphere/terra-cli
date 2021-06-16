@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
@@ -39,6 +40,15 @@ public class SamService {
 
   // the client object used for talking to SAM
   private final ApiClient apiClient;
+
+  /**
+   * Constructor for class that talks to the SAM service. The user must be authenticated. Methods in
+   * this class will use its credentials to call authenticated endpoints. This constructor uses the
+   * current context's server and user.
+   */
+  public SamService() {
+    this(Context.getServer(), Context.requireUser());
+  }
 
   /**
    * Constructor for class that talks to the SAM service. The user must be authenticated. Methods in
@@ -152,8 +162,8 @@ public class SamService {
                 userStatus.getUserInfo().getUserEmail());
             return null;
           });
-    } catch (Exception secondEx) {
-      throw new SystemException("Error reading user information from SAM.", secondEx);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error reading user information from SAM.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -245,8 +255,18 @@ public class SamService {
    * that applies to the version that SAM is using.
    */
   public enum GroupPolicy {
-    member,
-    admin
+    MEMBER,
+    ADMIN;
+
+    /** Get the SAM string that corresponds to this group policy. */
+    public String getSamPolicy() {
+      return name().toLowerCase();
+    }
+
+    /** Get the group policy that corresponds to the SAM string. */
+    public static GroupPolicy fromSamPolicy(String samPolicyName) {
+      return GroupPolicy.valueOf(samPolicyName.toUpperCase());
+    }
   }
 
   /**
@@ -261,7 +281,8 @@ public class SamService {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
       return HttpUtils.callWithRetries(
-          () -> groupApi.getGroupAdminEmails(groupName, policy.name()), SamService::isRetryable);
+          () -> groupApi.getGroupAdminEmails(groupName, policy.getSamPolicy()),
+          SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error listing users in SAM group.", ex);
     } finally {
@@ -285,7 +306,7 @@ public class SamService {
       // - so try to invite the user first, then retry adding them to the group
       callAndHandleOneTimeErrorWithRetries(
           () -> {
-            groupApi.addEmailToGroup(groupName, policy.name(), userEmail);
+            groupApi.addEmailToGroup(groupName, policy.getSamPolicy(), userEmail);
             return null;
           },
           SamService::isBadRequest,
@@ -313,7 +334,7 @@ public class SamService {
     try {
       HttpUtils.callWithRetries(
           () -> {
-            groupApi.removeEmailFromGroup(groupName, policy.name(), userEmail);
+            groupApi.removeEmailFromGroup(groupName, policy.getSamPolicy(), userEmail);
             return null;
           },
           SamService::isRetryable);
@@ -334,7 +355,7 @@ public class SamService {
     try {
       return HttpUtils.callWithRetries(groupApi::listGroupMemberships, SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error listing users in SAM group.", ex);
+      throw new SystemException("Error listing SAM groups.", ex);
     } finally {
       closeConnectionPool();
     }

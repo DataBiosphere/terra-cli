@@ -51,8 +51,8 @@ public class WorkspaceUser {
    * Remove a user + role from the current workspace. Possible roles are defined by the WSM client
    * library.
    *
-   * @param email email of the user to add
-   * @param role role to assign the user
+   * @param email email of the user to remove
+   * @param role role to remove from the user
    * @throws UserActionableException if there is no current workspace
    */
   public static WorkspaceUser remove(String email, IamRole role) {
@@ -62,7 +62,7 @@ public class WorkspaceUser {
     new WorkspaceManagerService().removeIamRole(currentWorkspace.getId(), email, role);
     logger.info("Removed user from workspace: user={}, role={}", email, role);
 
-    // return a WorkspaceUser = email + all roles (not just the one that was added here)
+    // return a WorkspaceUser = email + all roles (not just the one that was removed here)
     return getUser(email);
   }
 

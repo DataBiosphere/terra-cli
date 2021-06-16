@@ -87,12 +87,6 @@ import org.slf4j.LoggerFactory;
 public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
 
-  // the Terra environment where the WSM service lives
-  private final Server server;
-
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final User user;
-
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
@@ -108,9 +102,7 @@ public class WorkspaceManagerService {
    * use the user's credentials to call authenticated endpoints. If the user is null, then only
    * unauthenticated endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable User user, Server server) {
-    this.server = server;
-    this.user = user;
+  private WorkspaceManagerService(@Nullable User user, Server server) {
     this.apiClient = new ApiClient();
     buildClientForTerraUser(server, user);
   }
@@ -351,7 +343,7 @@ public class WorkspaceManagerService {
           WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(server, user).inviteUserNoRetries(userEmail);
+            new SamService().inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);

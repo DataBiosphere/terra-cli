@@ -1,11 +1,12 @@
 package bio.terra.cli.command.spend;
 
-import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.service.SpendProfileManagerService;
+import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
+import java.util.Comparator;
 import java.util.List;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -20,19 +21,19 @@ public class ListUsers extends BaseCommand {
   /** List all users that have access to the WSM default spend profile. */
   @Override
   protected void execute() {
-    List<AccessPolicyResponseEntry> policies =
-        new SpendProfileManagerService(Context.getServer(), Context.requireUser())
-            .listUsersOfDefaultSpendProfile();
-    formatOption.printReturnValue(policies, ListUsers::printText);
+    List<SpendProfileUser> spendProfileUsers = SpendProfileUser.list();
+    formatOption.printReturnValue(
+        spendProfileUsers.stream()
+            .sorted(Comparator.comparing(SpendProfileUser::getEmail))
+            .map(spendProfileUser -> new UFSpendProfileUser(spendProfileUser))
+            .collect(Collectors.toList()),
+        ListUsers::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(List<AccessPolicyResponseEntry> returnValue) {
-    for (AccessPolicyResponseEntry policy : returnValue) {
-      OUT.println(policy.getPolicyName().toUpperCase());
-      for (String member : policy.getPolicy().getMemberEmails()) {
-        OUT.println("  " + member);
-      }
+  private static void printText(List<UFSpendProfileUser> returnValue) {
+    for (UFSpendProfileUser spendProfileUser : returnValue) {
+      spendProfileUser.print();
     }
   }
 }

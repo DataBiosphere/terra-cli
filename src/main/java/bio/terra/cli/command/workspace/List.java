@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -40,6 +41,7 @@ public class List extends BaseCommand {
     java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
     formatOption.printReturnValue(
         workspaces.stream()
+            .sorted(Comparator.comparing(Workspace::getName))
             .map(workspace -> new UFWorkspace(workspace))
             .collect(Collectors.toList()),
         this::printText);
