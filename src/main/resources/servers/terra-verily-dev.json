@@ -3,6 +3,7 @@
   "description": "Terra development environment deployed at Verily.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
-  "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "http://35.223.106.37:8080"
+  # TODO: Switch to 'terra-dev-...' when dev environment is ready.
+  "samUri": "https://terra-autopush-sam.api.verily.com"
+  "workspaceManagerUri": "http://terra-autopush-wsm.api.verily.com"
 }
