@@ -116,7 +116,7 @@ public class Server {
     }
 
     return (samStatus != null && samStatus.getOk())
-        && (wsmStatusIsOk)
+        && wsmStatusIsOk
         && (tdrStatus != null && tdrStatus.isOk());
   }
 

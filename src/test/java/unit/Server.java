@@ -36,10 +36,16 @@ public class Server extends ClearContextUnit {
     assertEquals(serverName1, status.server.name, "status reflects server set");
 
     // `terra server list`
+    // NOTE: there is a JSON output for the terra server list command, but it doesn't flag the
+    // current server. the text output puts a "*" next to the current server. that's the reason I'm
+    // checking the text output here.
     TestCommand.Result cmd = TestCommand.runCommand("server", "list");
     assertEquals(0, cmd.exitCode, "server list returned successfully");
+    // the regex below matches the starred server, which indicates it's the current one (e.g. " *
+    // terra-dev")
+    String asteriskAtStartOfLine = "(?s).*\\*\\s+";
     assertTrue(
-        cmd.stdOut.matches("(?s).*\\*\\s+" + serverName1 + ".*"),
+        cmd.stdOut.matches(asteriskAtStartOfLine + serverName1 + ".*"),
         "server list flags correct current server (1)");
 
     // `terra server set --name=$serverName2`
@@ -54,7 +60,7 @@ public class Server extends ClearContextUnit {
     cmd = TestCommand.runCommand("server", "list");
     assertEquals(0, cmd.exitCode, "server list returned successfully");
     assertTrue(
-        cmd.stdOut.matches("(?s).*\\*\\s+" + serverName2 + ".*"),
+        cmd.stdOut.matches(asteriskAtStartOfLine + serverName2 + ".*"),
         "server list flags correct current server (2)");
   }
 

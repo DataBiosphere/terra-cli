@@ -164,11 +164,7 @@ public class WorkspaceManagerService {
     }
   }
 
-  /**
-   * Call the Workspace Manager "/status" endpoint to get the status of the server.
-   *
-   * @return the Workspace Manager status object
-   */
+  /** Call the Workspace Manager "/status" endpoint to get the status of the server. */
   public void getStatus() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
