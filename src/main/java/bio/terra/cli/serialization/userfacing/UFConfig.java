@@ -74,7 +74,7 @@ public class UFConfig {
             + fileLoggingLevel);
     OUT.println();
     OUT.println("[server] server = " + serverName);
-    OUT.println("[workspace] workspace = " + (workspaceId == null ? "" : workspaceId));
+    OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
