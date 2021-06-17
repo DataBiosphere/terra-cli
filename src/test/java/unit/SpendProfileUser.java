@@ -120,6 +120,8 @@ public class SpendProfileUser extends ClearContextUnit {
   @Test
   @DisplayName("spend profile includes cli-testers group and the appropriate test users")
   void testUsersSpendProfileMembership() throws IOException {
+    // NOTE: this test is checking that test users and spend access are setup as expected for CLI
+    // testing. it's not really testing CLI functionality specifically.
     // only an owner on the spend profile can list enabled users
     TestUsers spendProfileOwner = TestUsers.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();

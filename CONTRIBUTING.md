@@ -177,27 +177,9 @@ The CLI only uses the test users defined in the `TestUsers` enum class. The list
 - Have permission to use the default WSM spend profile directly on the SAM resource.
 - Do not have permission to use the default WSM spend profile.
 
-Below is the script used to setup the initial set of test users on the SAM dev instance.
-```
-# create the cli-test-users SAM group and add it as a user on the spend profile
-terra groups create cli-test-users
-terra spend enable --policy=user $(terra groups describe cli-test-users)
-
-# penelope is an owner on both the cli-test-users group and the spend profile resource
-terra groups add-user --group=cli-test-users --policy=admin Penelope.TwilightsHammer@test.firecloud.org
-terra spend enable --policy=owner Penelope.TwilightsHammer@test.firecloud.org
-
-# john and lily are members of the cli-test-users group
-terra groups add-user --group=cli-test-users --policy=member John.Whiteclaw@test.firecloud.org
-terra groups add-user --group=cli-test-users --policy=member Lily.Shadowmoon@test.firecloud.org
-
-# brooklyn and noah are users of the spend profile resource
-terra spend enable --policy=user Brooklyn.Thunderlord@test.firecloud.org
-terra spend enable --policy=user Noah.Frostwolf@test.firecloud.org
-
-# ethan has no spend profile access
-# do nothing: Ethan.Bonechewer@test.firecloud.org
-```
+The script to setup the initial set of test users on the SAM dev instance is in `tools/setup-test-users.sh`.
+Note that the current testing setup uses pre-defined users in the `test.firecloud.org` domain. There would be
+some refactoring involved in varying this domain also.
 
 You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
 `test.firecloud.org` GSuite account.

@@ -260,6 +260,8 @@ public class Group extends ClearContextUnit {
   @Test
   @DisplayName("cli-testers group includes the appropriate test users")
   void cliTestersGroupMembership() throws IOException {
+    // NOTE: this test is checking that test users and spend access are setup as expected for CLI
+    // testing. it's not really testing CLI functionality specifically.
     TestUsers groupAdmin = TestUsers.chooseTestUserWithOwnerAccess();
     groupAdmin.login();
 

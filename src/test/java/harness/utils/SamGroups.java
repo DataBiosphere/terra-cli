@@ -25,6 +25,7 @@ public class SamGroups {
       TestCommand.Result cmd =
           TestCommand.runCommand("groups", "delete", "--name=" + groupCreated.getKey());
       if (cmd.exitCode == 0) {
+        // log if a test didn't clean up a group
         System.out.println("group was not cleaned up by test: " + groupCreated.getKey());
       }
     }
