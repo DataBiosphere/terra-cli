@@ -73,7 +73,7 @@ public class GcsBucket extends Resource {
 
     // call WSM to add the reference
     GcpGcsBucketResource addedResource =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .createReferencedGcsBucket(Context.requireWorkspace().getId(), createParams);
     logger.info("Created GCS bucket: {}", addedResource);
 
@@ -95,7 +95,7 @@ public class GcsBucket extends Resource {
 
     // call WSM to create the resource
     GcpGcsBucketResource createdResource =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .createControlledGcsBucket(Context.requireWorkspace().getId(), createParams);
     logger.info("Created GCS bucket: {}", createdResource);
 
@@ -107,13 +107,15 @@ public class GcsBucket extends Resource {
   /** Delete a GCS bucket referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    new WorkspaceManagerService().deleteReferencedGcsBucket(Context.requireWorkspace().getId(), id);
+    WorkspaceManagerService.fromContext()
+        .deleteReferencedGcsBucket(Context.requireWorkspace().getId(), id);
   }
 
   /** Delete a GCS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    new WorkspaceManagerService().deleteControlledGcsBucket(Context.requireWorkspace().getId(), id);
+    WorkspaceManagerService.fromContext()
+        .deleteControlledGcsBucket(Context.requireWorkspace().getId(), id);
   }
 
   /** Resolve a GCS bucket resource to its cloud identifier. */

@@ -4,9 +4,9 @@ import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
+import bio.terra.cli.utils.Printer;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -21,12 +21,11 @@ public class ListUsers extends BaseCommand {
   /** List all users that have access to the WSM default spend profile. */
   @Override
   protected void execute() {
-    List<SpendProfileUser> spendProfileUsers = SpendProfileUser.list();
     formatOption.printReturnValue(
-        spendProfileUsers.stream()
-            .sorted(Comparator.comparing(SpendProfileUser::getEmail))
-            .map(spendProfileUser -> new UFSpendProfileUser(spendProfileUser))
-            .collect(Collectors.toList()),
+        Printer.sortAndMap(
+            SpendProfileUser.list(),
+            Comparator.comparing(SpendProfileUser::getEmail),
+            UFSpendProfileUser::new),
         ListUsers::printText);
   }
 

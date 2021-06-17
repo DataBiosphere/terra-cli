@@ -83,7 +83,7 @@ public class BqDataset extends Resource {
 
     // call WSM to add the reference
     GcpBigQueryDatasetResource addedResource =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .createReferencedBigQueryDataset(Context.requireWorkspace().getId(), createParams);
     logger.info("Created BQ dataset: {}", addedResource);
 
@@ -105,7 +105,7 @@ public class BqDataset extends Resource {
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .createControlledBigQueryDataset(Context.requireWorkspace().getId(), createParams);
     logger.info("Created BQ dataset: {}", createdResource);
 
@@ -117,14 +117,14 @@ public class BqDataset extends Resource {
   /** Delete a Big Query dataset referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    new WorkspaceManagerService()
+    WorkspaceManagerService.fromContext()
         .deleteReferencedBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
   /** Delete a Big Query dataset controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    new WorkspaceManagerService()
+    WorkspaceManagerService.fromContext()
         .deleteControlledBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 

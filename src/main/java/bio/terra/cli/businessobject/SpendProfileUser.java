@@ -36,7 +36,7 @@ public class SpendProfileUser {
    */
   public static SpendProfileUser enable(String email, SpendProfilePolicy policy) {
     // call SAM to add a policy + email to the WSM default spend profile resource
-    new SpendProfileManagerService().enableUserForDefaultSpendProfile(policy, email);
+    SpendProfileManagerService.fromContext().enableUserForDefaultSpendProfile(policy, email);
     logger.info("Enabled user on spend profile: email={}, policy={}", email, policy);
 
     // return a SpendProfileUser = email + all policies (not just the one that was added here)
@@ -51,7 +51,7 @@ public class SpendProfileUser {
    */
   public static SpendProfileUser disable(String email, SpendProfilePolicy policy) {
     // call SAM to remove a policy + email from the WSM default spend profile resource
-    new SpendProfileManagerService().disableUserForDefaultSpendProfile(policy, email);
+    SpendProfileManagerService.fromContext().disableUserForDefaultSpendProfile(policy, email);
     logger.info("Disabled user on spend profile: email={}, policy={}", email, policy);
 
     // return a SpendProfileUser = email + all policies (not just the one that was removed here)
@@ -83,7 +83,7 @@ public class SpendProfileUser {
   private static Map<String, SpendProfileUser> listUsersInMap() {
     // call SAM to get the users + policies for the WSM default spend profile resource
     List<AccessPolicyResponseEntry> accessPolicies =
-        new SpendProfileManagerService().listUsersOfDefaultSpendProfile();
+        SpendProfileManagerService.fromContext().listUsersOfDefaultSpendProfile();
 
     // convert the SAM objects (policy -> list of emails) to CLI objects (email -> list of policies)
     Map<String, SpendProfileUser> spendProfileUsers = new HashMap<>();

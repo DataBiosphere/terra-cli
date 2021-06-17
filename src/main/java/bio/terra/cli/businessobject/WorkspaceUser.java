@@ -40,7 +40,7 @@ public class WorkspaceUser {
     Workspace currentWorkspace = Context.requireWorkspace();
 
     // call WSM to add a user + role to the current workspace
-    new WorkspaceManagerService().grantIamRole(currentWorkspace.getId(), email, role);
+    WorkspaceManagerService.fromContext().grantIamRole(currentWorkspace.getId(), email, role);
     logger.info("Added user to workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was added here)
@@ -59,7 +59,7 @@ public class WorkspaceUser {
     Workspace currentWorkspace = Context.requireWorkspace();
 
     // call WSM to remove a user + role from the current workspace
-    new WorkspaceManagerService().removeIamRole(currentWorkspace.getId(), email, role);
+    WorkspaceManagerService.fromContext().removeIamRole(currentWorkspace.getId(), email, role);
     logger.info("Removed user from workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was removed here)
@@ -92,7 +92,8 @@ public class WorkspaceUser {
     Workspace currentWorkspace = Context.requireWorkspace();
 
     // call WSM to get the users + roles for the existing workspace
-    RoleBindingList roleBindings = new WorkspaceManagerService().getRoles(currentWorkspace.getId());
+    RoleBindingList roleBindings =
+        WorkspaceManagerService.fromContext().getRoles(currentWorkspace.getId());
 
     // convert the WSM objects (role -> list of emails) to CLI objects (email -> list of roles)
     Map<String, WorkspaceUser> workspaceUsers = new HashMap<>();

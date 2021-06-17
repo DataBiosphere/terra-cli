@@ -117,11 +117,12 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the current server and the current user's credentials to call authenticated endpoints.
+   * Factory method for class that talks to the Workspace Manager service. Methods in this class
+   * will use the current server and the current user's credentials to call authenticated endpoints.
+   * This factory method uses the current context's server and user.
    */
-  public WorkspaceManagerService() {
-    this(Context.requireUser(), Context.getServer());
+  public static WorkspaceManagerService fromContext() {
+    return new WorkspaceManagerService(Context.requireUser(), Context.getServer());
   }
 
   /**
@@ -343,7 +344,7 @@ public class WorkspaceManagerService {
           WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService().inviteUserNoRetries(userEmail);
+            SamService.fromContext().inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);

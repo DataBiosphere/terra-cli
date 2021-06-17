@@ -6,8 +6,8 @@ import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * External representation of a spend profile user (i.e. someone who has permission to spend money
@@ -38,8 +38,9 @@ public class UFSpendProfileUser {
   public void print() {
     PrintStream OUT = Printer.getOut();
     List<String> policiesStr =
-        policies.stream().map(SpendProfilePolicy::toString).collect(Collectors.toList());
-    OUT.println(email + ": " + String.join(",", policiesStr));
+        Printer.sortAndMap(
+            policies, Comparator.comparing(SpendProfilePolicy::name), SpendProfilePolicy::toString);
+    OUT.println(email + ": " + String.join(", ", policiesStr));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
