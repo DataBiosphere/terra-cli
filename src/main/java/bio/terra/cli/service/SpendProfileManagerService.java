@@ -1,7 +1,5 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.businessobject.Server;
-import bio.terra.cli.businessobject.User;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
@@ -10,12 +8,6 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for talking to the future Spend Profile Manager service. */
 public class SpendProfileManagerService {
   private static final Logger logger = LoggerFactory.getLogger(SamService.class);
-
-  // the Terra environment where the SPM service lives
-  private final Server server;
-
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final User user;
 
   // there currently is no SPM service, so this class just wraps calls to SAM
   // keep a reference to the SAM service instance here
@@ -28,16 +20,16 @@ public class SpendProfileManagerService {
   private static final String WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID = "wm-default-spend-profile";
 
   /**
-   * Constructor for class that talks to the SPM service. The user must be authenticated. Methods in
-   * this class will use its credentials to call authenticated endpoints.
-   *
-   * @param server the Terra environment where the SAM service lives
-   * @param user the Terra user whose credentials will be used to call authenticated endpoints
+   * Factory method for class that talks to the SPM service. The user must be authenticated. Methods
+   * in this class will use its credentials to call authenticated endpoints. This factory method
+   * uses the current context's server and user.
    */
-  public SpendProfileManagerService(Server server, User user) {
-    this.server = server;
-    this.user = user;
-    this.samService = new SamService(server, user);
+  public static SpendProfileManagerService fromContext() {
+    return new SpendProfileManagerService();
+  }
+
+  private SpendProfileManagerService() {
+    this.samService = SamService.fromContext();
   }
 
   /**
@@ -47,8 +39,13 @@ public class SpendProfileManagerService {
    * the eventual SPM service, this may be an enum in their API?)
    */
   public enum SpendProfilePolicy {
-    owner,
-    user
+    OWNER,
+    USER;
+
+    /** Helper method to get the SAM string that corresponds to this spend profile policy. */
+    public String getSamPolicy() {
+      return name().toLowerCase();
+    }
   }
 
   /**
@@ -58,7 +55,10 @@ public class SpendProfileManagerService {
    */
   public void enableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
     samService.addUserToResourceOrInviteUser(
-        SPEND_PROFILE_RESOURCE_TYPE, WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID, policy.name(), email);
+        SPEND_PROFILE_RESOURCE_TYPE,
+        WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID,
+        policy.getSamPolicy(),
+        email);
   }
 
   /**
@@ -68,7 +68,10 @@ public class SpendProfileManagerService {
    */
   public void disableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
     samService.removeUserFromResource(
-        SPEND_PROFILE_RESOURCE_TYPE, WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID, policy.name(), email);
+        SPEND_PROFILE_RESOURCE_TYPE,
+        WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID,
+        policy.getSamPolicy(),
+        email);
   }
 
   /**

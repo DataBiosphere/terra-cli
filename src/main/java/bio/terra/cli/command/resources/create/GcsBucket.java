@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resources.create;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.CreateControlledResource;
+import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
@@ -24,7 +24,7 @@ import picocli.CommandLine;
     description = "Add a controlled GCS bucket.",
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
-  @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
+  @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--bucket-name",
@@ -68,11 +68,11 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    createControlledResourceOptions.validateAccessOptions();
+    controlledResourceCreationOptions.validateAccessOptions();
 
     // build the resource object to create
     CreateUpdateResource.Builder createResourceParams =
-        createControlledResourceOptions
+        controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED);
     CreateUpdateGcsBucket.Builder createParams =

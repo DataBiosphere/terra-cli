@@ -3,8 +3,8 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
@@ -40,7 +40,7 @@ public class AiNotebook extends BaseCommand {
 
   // Use CreateResource instead of createControlledResource because only private notebooks are
   // supported and we don't want to provide options that are not useful.
-  @CommandLine.Mixin CreateResource createResourceOptions;
+  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.Option(
       names = "--instance-id",
@@ -233,7 +233,7 @@ public class AiNotebook extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to create. force the resource to be private
     CreateUpdateResource.Builder createResourceParams =
-        createResourceOptions
+        resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS)

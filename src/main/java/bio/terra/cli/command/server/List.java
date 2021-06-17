@@ -5,7 +5,8 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFServer;
-import java.util.stream.Collectors;
+import bio.terra.cli.utils.Printer;
+import java.util.Comparator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,11 +19,8 @@ public class List extends BaseCommand {
   /** List all Terra environments. */
   @Override
   protected void execute() {
-    java.util.List<Server> allPossibleServers = Server.list();
     formatOption.printReturnValue(
-        allPossibleServers.stream()
-            .map(server -> new UFServer(server))
-            .collect(Collectors.toList()),
+        Printer.sortAndMap(Server.list(), Comparator.comparing(Server::getName), UFServer::new),
         this::printText);
   }
 

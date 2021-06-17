@@ -7,6 +7,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.StewardshipType;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -39,6 +40,7 @@ public class List extends BaseCommand {
                   boolean typeMatches = type == null || resource.getResourceType().equals(type);
                   return stewardshipMatches && typeMatches;
                 })
+            .sorted(Comparator.comparing(Resource::getName))
             .map(Resource::serializeToCommand)
             .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);

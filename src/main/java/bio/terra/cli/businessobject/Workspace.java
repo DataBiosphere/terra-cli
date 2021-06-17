@@ -72,7 +72,7 @@ public class Workspace {
   public static Workspace create(String name, String description) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        new WorkspaceManagerService().createWorkspace(name, description);
+        WorkspaceManagerService.fromContext().createWorkspace(name, description);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -97,7 +97,7 @@ public class Workspace {
    */
   public static Workspace load(UUID id) {
     // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription loadedWorkspace = new WorkspaceManagerService().getWorkspace(id);
+    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
     logger.info("Loaded workspace: {}", loadedWorkspace);
 
     // convert the WSM object to a CLI object
@@ -128,7 +128,7 @@ public class Workspace {
   public Workspace update(@Nullable String name, @Nullable String description) {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspace =
-        new WorkspaceManagerService().updateWorkspace(id, name, description);
+        WorkspaceManagerService.fromContext().updateWorkspace(id, name, description);
     logger.info("Updated workspace: {}", updatedWorkspace);
 
     // convert the WSM object to a CLI object
@@ -142,7 +142,7 @@ public class Workspace {
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object
-    new WorkspaceManagerService().deleteWorkspace(id);
+    WorkspaceManagerService.fromContext().deleteWorkspace(id);
     logger.info("Deleted workspace: {}", this);
 
     // delete the pet SA credentials for the user
@@ -162,7 +162,7 @@ public class Workspace {
   public static List<Workspace> list(int offset, int limit) {
     // fetch the list of workspaces from WSM
     List<WorkspaceDescription> listedWorkspaces =
-        new WorkspaceManagerService().listWorkspaces(offset, limit).getWorkspaces();
+        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
 
     // convert the WSM objects to CLI objects
     return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
@@ -183,7 +183,7 @@ public class Workspace {
   /** Populate the list of resources for this workspace. Does not sync to disk. */
   private void populateResources() {
     List<ResourceDescription> wsmObjects =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
     List<Resource> resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());

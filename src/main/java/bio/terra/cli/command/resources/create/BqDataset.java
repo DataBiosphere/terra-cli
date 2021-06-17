@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resources.create;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.CreateControlledResource;
+import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
@@ -16,7 +16,7 @@ import picocli.CommandLine;
     description = "Add a controlled Big Query dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin CreateControlledResource createControlledResourceOptions;
+  @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
   @CommandLine.Option(names = "--dataset-id", required = true, description = "Big Query dataset id")
   private String bigQueryDatasetId;
@@ -33,11 +33,11 @@ public class BqDataset extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    createControlledResourceOptions.validateAccessOptions();
+    controlledResourceCreationOptions.validateAccessOptions();
 
     // build the resource object to create
     CreateUpdateResource.Builder createResourceParams =
-        createControlledResourceOptions
+        controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED);
     CreateUpdateBqDataset.Builder createParams =

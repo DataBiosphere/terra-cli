@@ -86,12 +86,6 @@ import org.slf4j.LoggerFactory;
 public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
 
-  // the Terra environment where the WSM service lives
-  private final Server server;
-
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final User user;
-
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
@@ -107,9 +101,7 @@ public class WorkspaceManagerService {
    * use the user's credentials to call authenticated endpoints. If the user is null, then only
    * unauthenticated endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable User user, Server server) {
-    this.server = server;
-    this.user = user;
+  private WorkspaceManagerService(@Nullable User user, Server server) {
     this.apiClient = new ApiClient();
     buildClientForTerraUser(server, user);
   }
@@ -124,11 +116,12 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the current server and the current user's credentials to call authenticated endpoints.
+   * Factory method for class that talks to the Workspace Manager service. Methods in this class
+   * will use the current server and the current user's credentials to call authenticated endpoints.
+   * This factory method uses the current context's server and user.
    */
-  public WorkspaceManagerService() {
-    this(Context.requireUser(), Context.getServer());
+  public static WorkspaceManagerService fromContext() {
+    return new WorkspaceManagerService(Context.requireUser(), Context.getServer());
   }
 
   /**
@@ -350,7 +343,7 @@ public class WorkspaceManagerService {
           WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
           () -> {
-            new SamService(server, user).inviteUserNoRetries(userEmail);
+            SamService.fromContext().inviteUserNoRetries(userEmail);
             return null;
           },
           SamService::isRetryable);

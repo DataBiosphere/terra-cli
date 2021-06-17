@@ -84,11 +84,8 @@ public class AuthLoginLogout extends ClearContextUnit {
       // login the user, so we have their credentials
       testUser.login();
 
-      // build a SAM client with the test user's credentials
-      SamService samService = new SamService(Context.getServer(), Context.requireUser());
-
       // check that the user is enabled
-      UserStatusInfo userStatusInfo = samService.getUserInfo();
+      UserStatusInfo userStatusInfo = SamService.fromContext().getUserInfo();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
       // `terra auth revoke`

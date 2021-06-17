@@ -5,8 +5,9 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.Printer;
+import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -37,11 +38,11 @@ public class List extends BaseCommand {
   /** List all workspaces a user has access to. */
   @Override
   protected void execute() {
-    java.util.List<Workspace> workspaces = Workspace.list(offset, limit);
     formatOption.printReturnValue(
-        workspaces.stream()
-            .map(workspace -> new UFWorkspace(workspace))
-            .collect(Collectors.toList()),
+        Printer.sortAndMap(
+            Workspace.list(offset, limit),
+            Comparator.comparing(Workspace::getName),
+            UFWorkspace::new),
         this::printText);
   }
 

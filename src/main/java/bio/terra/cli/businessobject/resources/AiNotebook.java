@@ -85,7 +85,7 @@ public class AiNotebook extends Resource {
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
-        new WorkspaceManagerService()
+        WorkspaceManagerService.fromContext()
             .createControlledAiNotebookInstance(Context.requireWorkspace().getId(), createParams);
     logger.info("Created AI notebook: {}", createdResource);
 
@@ -103,7 +103,7 @@ public class AiNotebook extends Resource {
   /** Delete an AI Platform notebook controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    new WorkspaceManagerService()
+    WorkspaceManagerService.fromContext()
         .deleteControlledAiNotebookInstance(Context.requireWorkspace().getId(), id);
   }
 

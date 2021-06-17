@@ -5,7 +5,8 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import java.util.stream.Collectors;
+import bio.terra.cli.utils.Printer;
+import java.util.Comparator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -20,11 +21,11 @@ public class ListUsers extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    java.util.List<WorkspaceUser> workspaceUsers = WorkspaceUser.list();
     formatOption.printReturnValue(
-        workspaceUsers.stream()
-            .map(workspaceUser -> new UFWorkspaceUser(workspaceUser))
-            .collect(Collectors.toList()),
+        Printer.sortAndMap(
+            WorkspaceUser.list(),
+            Comparator.comparing(WorkspaceUser::getEmail),
+            UFWorkspaceUser::new),
         ListUsers::printText);
   }
 
