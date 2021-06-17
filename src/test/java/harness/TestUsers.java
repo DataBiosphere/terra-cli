@@ -41,6 +41,9 @@ public enum TestUsers {
   public final String email;
   public final SpendEnabled spendEnabled;
 
+  // name of the group that includes CLI test users and has spend profile access
+  public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
+
   TestUsers(String email, SpendEnabled spendEnabled) {
     this.email = email;
     this.spendEnabled = spendEnabled;
@@ -132,10 +135,18 @@ public enum TestUsers {
     return chooseTestUser(Set.of(SpendEnabled.values()));
   }
 
-  /** Randomly chooses a test user with spend profile access. */
+  /** Randomly chooses a test user with spend profile access, but without owner privileges. */
   public static TestUsers chooseTestUserWithSpendAccess() {
     return chooseTestUser(
         Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+  }
+
+  /**
+   * Randomly chooses a test user who is a spend profile admin and an admin of the SAM cli-testers
+   * group.
+   */
+  public static TestUsers chooseTestUserWithOwnerAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.OWNER));
   }
 
   /** Randomly chooses a test user without spend profile access. */
