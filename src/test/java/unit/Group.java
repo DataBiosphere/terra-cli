@@ -185,7 +185,7 @@ public class Group extends ClearContextUnit {
         "--email=" + groupMember.email,
         "--policy=ADMIN");
 
-    // `terra groups remove-user --email=$email --policy=OWNER` as member
+    // `terra groups remove-user --email=$email --policy=MEMBER` as member
     TestCommand.runCommandExpectExitCode(
         2,
         "groups",
