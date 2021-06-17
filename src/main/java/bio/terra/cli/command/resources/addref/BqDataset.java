@@ -1,8 +1,8 @@
 package bio.terra.cli.command.resources.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.CreateResource;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
@@ -16,7 +16,7 @@ import picocli.CommandLine;
     description = "Add a referenced Big Query dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin CreateResource createResourceOptions;
+  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.Option(names = "--project-id", required = true, description = "GCP project id")
   private String gcpProjectId;
@@ -33,7 +33,9 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateUpdateResource.Builder createResourceParams =
-        createResourceOptions.populateMetadataFields().stewardshipType(StewardshipType.REFERENCED);
+        resourceCreationOptions
+            .populateMetadataFields()
+            .stewardshipType(StewardshipType.REFERENCED);
     CreateUpdateBqDataset.Builder createParams =
         new CreateUpdateBqDataset.Builder()
             .resourceFields(createResourceParams.build())

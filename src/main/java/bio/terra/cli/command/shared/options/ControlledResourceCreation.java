@@ -9,11 +9,13 @@ import picocli.CommandLine;
 
 /**
  * Command helper class that defines the relevant options for create a new controlled Terra
- * resource: {@link CreateResource} and --access, --email, --iam-roles.
+ * resource: {@link ResourceCreation} and --access, --email, --iam-roles.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class CreateControlledResource extends CreateResource {
+public class ControlledResourceCreation {
+  @CommandLine.Mixin ResourceCreation resourceCreationOption;
+
   @CommandLine.Option(
       names = "--access",
       description = "Access scope for the resource: ${COMPLETION-CANDIDATES}")
@@ -50,7 +52,8 @@ public class CreateControlledResource extends CreateResource {
    * metadata fields populated.
    */
   public CreateUpdateResource.Builder populateMetadataFields() {
-    return super.populateMetadataFields()
+    return resourceCreationOption
+        .populateMetadataFields()
         .accessScope(access)
         .privateUserName(privateUserEmail)
         .privateUserRoles(privateIamRoles);

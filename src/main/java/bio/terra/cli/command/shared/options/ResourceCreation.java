@@ -10,7 +10,9 @@ import picocli.CommandLine;
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class CreateResource extends ResourceName {
+public class ResourceCreation {
+  @CommandLine.Mixin ResourceName resourceNameOption;
+
   @CommandLine.Option(names = "--description", description = "Description of the resource")
   public String description;
 
@@ -26,7 +28,7 @@ public class CreateResource extends ResourceName {
    */
   public CreateUpdateResource.Builder populateMetadataFields() {
     return new CreateUpdateResource.Builder()
-        .name(name)
+        .name(resourceNameOption.name)
         .description(description)
         .cloningInstructions(cloning);
   }

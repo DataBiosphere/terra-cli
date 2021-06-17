@@ -9,7 +9,9 @@ import picocli.CommandLine;
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class GroupMemberProperties extends GroupName {
+public class GroupMember {
+  @CommandLine.Mixin public GroupName groupNameOption;
+
   @CommandLine.Option(
       names = "--email",
       required = true,
