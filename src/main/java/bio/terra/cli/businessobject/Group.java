@@ -30,26 +30,22 @@ public class Group {
 
   /** Create a new SAM group. */
   public static Group create(String name) {
-    // call SAM to create a new group
-    new SamService().createGroup(name);
+    SamService.fromContext().createGroup(name);
     logger.info("Created group: name={}", name);
-
-    // return a Group = name + email
     return get(name);
   }
 
   /** Delete a SAM group. */
-  public static Group delete(String name) {
-    // call SAM to delete a group
-    Group groupToDelete = get(name);
-    new SamService().deleteGroup(name);
+  public void delete() {
+    SamService.fromContext().deleteGroup(name);
     logger.info("Deleted group: name={}", name);
-
-    // return a Group = name + email
-    return groupToDelete;
   }
 
-  /** Get the group object. */
+  /**
+   * Get the group object.
+   *
+   * @throws UserActionableException if the group is not found
+   */
   public static Group get(String name) {
     Group foundGroup = listGroupsInMap().get(name);
     if (foundGroup == null) {
@@ -74,22 +70,22 @@ public class Group {
    */
   private static Map<String, Group> listGroupsInMap() {
     // call SAM to get the list of groups the user is a member of
-    List<ManagedGroupMembershipEntry> groupsToPolicies = new SamService().listGroups();
+    List<ManagedGroupMembershipEntry> groupsToPolicies = SamService.fromContext().listGroups();
 
     // convert the SAM objects (group -> policy) to CLI objects (group -> list of policies)
-    Map<String, Group> groups = new HashMap<>();
+    Map<String, Group> nameToGroup = new HashMap<>();
     for (ManagedGroupMembershipEntry groupToPolicy : groupsToPolicies) {
       String name = groupToPolicy.getGroupName();
       String email = groupToPolicy.getGroupEmail();
-      Group group = groups.get(name);
+      Group group = nameToGroup.get(name);
       if (group == null) {
         group = new Group(name, email, new ArrayList<>());
-        groups.put(name, group);
+        nameToGroup.put(name, group);
       }
       GroupPolicy currentUserPolicy = GroupPolicy.fromSamPolicy(groupToPolicy.getRole());
-      group.currentUserPolicies.add(currentUserPolicy);
+      group.addCurrentUserPolicy(currentUserPolicy);
     }
-    return groups;
+    return nameToGroup;
   }
 
   /**
@@ -114,6 +110,10 @@ public class Group {
     public List<GroupPolicy> getPolicies() {
       return policies;
     }
+
+    public void addPolicy(GroupPolicy policy) {
+      policies.add(policy);
+    }
   }
 
   /**
@@ -122,9 +122,9 @@ public class Group {
    * @param email email of the user to add
    * @param policy policy to assign the user
    */
-  public Member addMember(String email, GroupPolicy policy) {
+  public Member addPolicyToMember(String email, GroupPolicy policy) {
     // call SAM to add a policy + email to the group
-    new SamService().addUserToGroup(name, policy, email);
+    SamService.fromContext().addUserToGroup(name, policy, email);
     logger.info("Added user to group: group={}, email={}, policy={}", name, email, policy);
 
     // return a GroupMember = email + all policies (not just the one that was added here)
@@ -132,30 +132,38 @@ public class Group {
   }
 
   /**
-   * Remove a member from a SAM group.
+   * Remove a member from a SAM group policy.
    *
    * @param email email of the user to remove
    * @param policy policy to remove from the user
    */
-  public Member removeMember(String email, GroupPolicy policy) {
-    // call SAM to remove a policy + email from the group
-    new SamService().removeUserFromGroup(name, policy, email);
-    logger.info("Removed user from group: group={}, email={}, policy={}", name, email, policy);
+  public void removePolicyFromMember(String email, GroupPolicy policy) {
+    // check that the email is a group member
+    getMember(email);
 
-    // return a GroupMember = email + all policies (not just the one that was removed here)
-    return getMember(email);
+    // call SAM to remove a policy + email from the group
+    SamService.fromContext().removeUserFromGroup(name, policy, email);
+    logger.info("Removed user from group: group={}, email={}, policy={}", name, email, policy);
   }
 
-  /** Get the group member object. */
-  private Member getMember(String email) {
+  /**
+   * Get the group member object.
+   *
+   * @throws UserActionableException if the member is not found
+   */
+  public Member getMember(String email) {
     // lowercase the email so there is a consistent way of looking up the email address
     // the email address casing in SAM may not match the case of what is provided by the user
-    return listMembersInMap().get(email.toLowerCase());
+    Member foundMember = listMembersByEmail().get(email.toLowerCase());
+    if (foundMember == null) {
+      throw new UserActionableException("No group member found with this email: " + email);
+    }
+    return foundMember;
   }
 
   /** List the members of the group. */
-  public List<Member> listMembers() {
-    return listMembersInMap().values().stream().collect(Collectors.toList());
+  public List<Member> getMembers() {
+    return listMembersByEmail().values().stream().collect(Collectors.toList());
   }
 
   /**
@@ -163,12 +171,12 @@ public class Group {
    *
    * @return a map of email -> group member object
    */
-  private Map<String, Member> listMembersInMap() {
+  private Map<String, Member> listMembersByEmail() {
     // call SAM to get the emails + policies for the group
     // convert the SAM objects (policy -> list of emails) to CLI objects (email -> list of policies)
     Map<String, Member> groupMembers = new HashMap<>();
     for (GroupPolicy policy : GroupPolicy.values()) {
-      List<String> emailsWithPolicy = new SamService().listUsersInGroup(name, policy);
+      List<String> emailsWithPolicy = SamService.fromContext().listUsersInGroup(name, policy);
       for (String email : emailsWithPolicy) {
         // lowercase the email so there is a consistent way of looking up the email address
         // the email address casing in SAM may not match the case of what is provided by the
@@ -179,7 +187,7 @@ public class Group {
           groupMember = new Member(emailLowercase, new ArrayList<>());
           groupMembers.put(emailLowercase, groupMember);
         }
-        groupMember.policies.add(policy);
+        groupMember.addPolicy(policy);
       }
     }
     return groupMembers;
@@ -198,5 +206,9 @@ public class Group {
 
   public List<GroupPolicy> getCurrentUserPolicies() {
     return currentUserPolicies;
+  }
+
+  public void addCurrentUserPolicy(GroupPolicy policy) {
+    currentUserPolicies.add(policy);
   }
 }

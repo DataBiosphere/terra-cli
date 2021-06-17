@@ -6,8 +6,8 @@ import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * External representation of a group member (i.e. someone who is a member of a SAM group) for
@@ -38,8 +38,9 @@ public class UFGroupMember {
   public void print() {
     PrintStream OUT = Printer.getOut();
     List<String> policiesStr =
-        policies.stream().map(GroupPolicy::toString).collect(Collectors.toList());
-    OUT.println(email + ": " + String.join(",", policiesStr));
+        Printer.sortAndMap(
+            policies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
+    OUT.println(email + ": " + String.join(", ", policiesStr));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

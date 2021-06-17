@@ -20,12 +20,16 @@ public class SpendProfileManagerService {
   private static final String WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID = "wm-default-spend-profile";
 
   /**
-   * Constructor for class that talks to the SPM service. The user must be authenticated. Methods in
-   * this class will use its credentials to call authenticated endpoints. This constructor uses the
-   * current context's server and user.
+   * Factory method for class that talks to the SPM service. The user must be authenticated. Methods
+   * in this class will use its credentials to call authenticated endpoints. This factory method
+   * uses the current context's server and user.
    */
-  public SpendProfileManagerService() {
-    this.samService = new SamService();
+  public static SpendProfileManagerService fromContext() {
+    return new SpendProfileManagerService();
+  }
+
+  private SpendProfileManagerService() {
+    this.samService = SamService.fromContext();
   }
 
   /**

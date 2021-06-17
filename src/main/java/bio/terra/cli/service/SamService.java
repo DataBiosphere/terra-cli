@@ -42,12 +42,12 @@ public class SamService {
   private final ApiClient apiClient;
 
   /**
-   * Constructor for class that talks to the SAM service. The user must be authenticated. Methods in
-   * this class will use its credentials to call authenticated endpoints. This constructor uses the
-   * current context's server and user.
+   * Factory method for class that talks to the SAM service. The user must be authenticated. Methods
+   * in this class will use its credentials to call authenticated endpoints. This factory method
+   * uses the current context's server and user.
    */
-  public SamService() {
-    this(Context.getServer(), Context.requireUser());
+  public static SamService fromContext() {
+    return new SamService(Context.getServer(), Context.requireUser());
   }
 
   /**

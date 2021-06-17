@@ -3,6 +3,10 @@ package bio.terra.cli.utils;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -96,5 +100,11 @@ public class Printer {
   /** Utility method to get a UTF-8 encoded character output stream from a raw byte stream. */
   private static PrintWriter getPrintWriter(PrintStream printStream) {
     return new PrintWriter(printStream, true, Charset.forName("UTF-8"));
+  }
+
+  /** Utility method to sort and map a list's contents. */
+  public static <F, T> List<T> sortAndMap(
+      List<F> fromList, Comparator<F> sorter, Function<F, T> mapper) {
+    return fromList.stream().sorted(sorter).map(mapper).collect(Collectors.toList());
   }
 }
