@@ -6,6 +6,7 @@ import bio.terra.cli.command.config.set.Image;
 import bio.terra.cli.command.config.set.Logging;
 import bio.terra.cli.command.config.set.ResourceLimit;
 import bio.terra.cli.command.config.set.Server;
+import bio.terra.cli.command.config.set.Workspace;
 import picocli.CommandLine.Command;
 
 /**
@@ -21,6 +22,7 @@ import picocli.CommandLine.Command;
       Image.class,
       Logging.class,
       ResourceLimit.class,
-      Server.class
+      Server.class,
+      Workspace.class
     })
 public class Set {}
