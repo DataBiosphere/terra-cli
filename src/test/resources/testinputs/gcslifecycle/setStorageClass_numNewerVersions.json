@@ -1,0 +1,13 @@
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "STANDARD"
+      },
+      "condition": {
+        "numNewerVersions": 54
+      }
+    }
+  ]
+}

@@ -349,50 +349,49 @@ example file contents for specifying a lifecycle rule.
 (1) Changes the storage class from `STANDARD` to `ARCHIVE` after 10 days.
 ```json
 {
-    "rule": [
-      {
-        "action": {
-          "type": "SetStorageClass",
-          "storageClass": "ARCHIVE"
-        },
-        "condition": {
-          "age": 10,
-          "matchesStorageClass": [
-            "STANDARD"
-          ]
-        }
-      }
-    ]
-  }
-```
-
-(2) Deletes any objects with storage class `STANDARD` that were created before December 3, 2007.
-```json
-{
-    "rule": [
-      {
-        "action": {"type": "Delete"},
-        "condition": {
-          "createdBefore": "2007-12-03",
-          "matchesStorageClass": [
-            "STANDARD"
-          ]
-        }
-      }
-    ]
-  }
-```
-
-(3) Deletes any objects with storage class `STANDARD` that are more than 365 days old.
-```json
-{
-  "rule":
-  [
+  "rule": [
     {
-      "action": {"type": "Delete"},
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "ARCHIVE"
+      },
       "condition": {
-      	"age": 365,
-      	"matchesStorageClass": ["STANDARD"]
+      	"age": 10
+      }
+    }
+  ]
+}
+```
+
+(2) Delete any objects with storage class `STANDARD` that were created before December 3, 2007.
+```json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "Delete"
+      },
+      "condition": {
+      	"createdBefore": "2007-12-03",
+        "matchesStorageClass": [
+          "STANDARD"
+        ]
+      }
+    }
+  ]
+}
+```
+
+(3) Delete any objects that are more than 365 days old.
+```json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "Delete"
+      },
+      "condition": {
+      	"age": 365
       }
     }
   ]

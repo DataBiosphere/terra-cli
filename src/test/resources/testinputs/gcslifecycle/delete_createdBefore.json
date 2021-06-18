@@ -1,0 +1,10 @@
+{
+  "rule": [
+    {
+      "action": {"type": "Delete"},
+      "condition": {
+        "createdBefore": "2011-01-14"
+      }
+    }
+  ]
+}
