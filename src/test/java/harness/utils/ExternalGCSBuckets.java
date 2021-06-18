@@ -3,6 +3,7 @@ package harness.utils;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
+import com.google.cloud.Role;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
@@ -49,18 +50,35 @@ public class ExternalGCSBuckets {
    * external project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
+    // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
+    grantAccess(
+        bucket,
+        Identity.user(email),
+        StorageRoles.objectViewer(),
+        StorageRoles.legacyBucketReader());
+  }
+
+  /**
+   * Grant a given user object admin access to a bucket. This method uses SA credentials for an
+   * external project.
+   */
+  public static void grantWriteAccess(Bucket bucket, Identity user) throws IOException {
+    grantAccess(bucket, user, StorageRoles.admin());
+  }
+
+  /**
+   * Helper method to grant a given user roles on a bucket. This method uses SA credentials for an
+   * external project.
+   */
+  private static void grantAccess(Bucket bucket, Identity user, Role... roles) throws IOException {
     Storage storage = getStorageClient();
     Policy currentPolicy = storage.getIamPolicy(bucket.getName());
-    Policy updatedPolicy =
-        storage.setIamPolicy(
-            bucket.getName(),
-            currentPolicy
-                .toBuilder()
-                // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
-                .addIdentity(StorageRoles.objectViewer(), Identity.user(email))
-                .addIdentity(StorageRoles.legacyBucketReader(), Identity.user(email))
-                .build());
-    getStorageClient().setIamPolicy(bucket.getName(), updatedPolicy);
+    Policy.Builder updatedPolicyBuilder = currentPolicy.toBuilder();
+    for (Role role : roles) {
+      updatedPolicyBuilder.addIdentity(role, user);
+    }
+    Policy updatedPolicy = storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
+    storage.setIamPolicy(bucket.getName(), updatedPolicy);
   }
 
   /** Helper method to build the GCS client object with SA credentials for the external project. */

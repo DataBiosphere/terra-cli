@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import com.google.api.client.util.DateTime;
+import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
@@ -18,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +34,33 @@ import org.junit.jupiter.api.Test;
  */
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
+  // external bucket to use for testing the JSON format against GCS directly
+  private Bucket externalBucket;
+
+  @Override
+  @BeforeAll
+  protected void setupOnce() throws IOException {
+    super.setupOnce();
+    externalBucket = ExternalGCSBuckets.createBucket();
+
+    // `terra auth status --format=json`
+    UFAuthStatus authStatus =
+        TestCommand.runAndParseCommandExpectSuccess(UFAuthStatus.class, "auth", "status");
+
+    // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
+    // lifecycle` with the same JSON format used for creating controlled bucket resources with
+    // lifecycle rules
+    ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(authStatus.proxyGroupEmail));
+  }
+
+  @Override
+  @AfterAll
+  protected void cleanupOnce() throws IOException {
+    super.cleanupOnce();
+    ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
+    externalBucket = null;
+  }
+
   @Override
   @BeforeEach
   protected void setupEachTime() throws IOException {
@@ -228,7 +259,38 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     String name = "multipleRules";
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createBucketWithLifecycleRules(name, name + ".json");
+    validateMultipleRules(lifecycleRules);
+  }
 
+  @Test
+  @DisplayName("CLI uses the same format as GCS for setting lifecycle rules")
+  void sameFormatForExternalBucket() throws IOException {
+    // the CLI mounts the current working directory to the Docker container when running apps
+    // so we need to give it the path to lifecycle JSON file relative to the current working
+    // directory
+    Path lifecyclePathOnHost = TestCommand.getPathForTestInput("gcslifecycle/multipleRules.json");
+    Path currentDirOnHost = Path.of(System.getProperty("user.dir"));
+    Path lifecycelPathOnContainer = currentDirOnHost.relativize(lifecyclePathOnHost);
+
+    // `terra gsutil lifecycle set $lifecycle gs://$bucketname`
+    TestCommand.runCommandExpectSuccess(
+        "gsutil",
+        "lifecycle",
+        "set",
+        lifecycelPathOnContainer.toString(),
+        "gs://" + externalBucket.getName());
+
+    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
+        getLifecycleRulesFromCloud(externalBucket.getName());
+    validateMultipleRules(lifecycleRules);
+  }
+
+  /**
+   * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
+   * the multipleRules.json file.
+   */
+  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules)
+      throws IOException {
     assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
 
     Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
