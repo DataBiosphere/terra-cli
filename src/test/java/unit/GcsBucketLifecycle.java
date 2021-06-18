@@ -28,10 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for the `terra resources` commands that handle controlled GCS buckets and specify lifecycle
- * rules.
- */
+/** Tests for specifying lifecycle rules for controlled GCS buckets. */
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   // external bucket to use for testing the JSON format against GCS directly
@@ -184,7 +181,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
 
-    expectActionDelete(lifecycleRuleFromGCS);
+    expectActionSetStorageClass(lifecycleRuleFromGCS, StorageClass.NEARLINE);
     assertEquals(
         new DateTime("2014-08-28"),
         lifecycleRuleFromGCS.getCondition().getNoncurrentTimeBefore(),
@@ -213,7 +210,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     int autoDelete = 24;
 
     // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
-    // --auto-delete=$autodelete --format=json`
+    // --auto-delete=$autodelete`
     TestCommand.runCommandExpectSuccess(
         "resources",
         "create",
@@ -263,7 +260,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("CLI uses the same format as GCS for setting lifecycle rules")
+  @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
     // the CLI mounts the current working directory to the Docker container when running apps
     // so we need to give it the path to lifecycle JSON file relative to the current working
@@ -380,12 +377,13 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
       throws IOException {
     Bucket createdBucketOnCloud =
         ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
+
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createdBucketOnCloud.getLifecycleRules();
-
+    assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
+    assertTrue(lifecycleRules.size() > 1, "bucket has lifecycle rules defined");
     lifecycleRules.stream().forEach(System.out::println); // log to console
-    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
-    assertNotNull(lifecycleRules, "bucket has lifecycle rules defined");
 
     return lifecycleRules;
   }

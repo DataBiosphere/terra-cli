@@ -50,17 +50,17 @@ public class ExternalGCSBuckets {
    * external project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
-    // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
     grantAccess(
         bucket,
         Identity.user(email),
+        // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
         StorageRoles.objectViewer(),
         StorageRoles.legacyBucketReader());
   }
 
   /**
-   * Grant a given user object admin access to a bucket. This method uses SA credentials for an
-   * external project.
+   * Grant a given user admin access to a bucket. This method uses SA credentials for an external
+   * project.
    */
   public static void grantWriteAccess(Bucket bucket, Identity user) throws IOException {
     grantAccess(bucket, user, StorageRoles.admin());

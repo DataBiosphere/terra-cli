@@ -346,7 +346,7 @@ GCS bucket lifecycle rules are specified by passing a JSON-formatted file path t
 resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle). Below are some
 example file contents for specifying a lifecycle rule.
 
-(1) Changes the storage class from `STANDARD` to `ARCHIVE` after 10 days.
+(1) Change the storage class to `ARCHIVE` after 10 days.
 ```json
 {
   "rule": [
