@@ -36,7 +36,8 @@ public class LocalProcessCommandRunner extends CommandRunner {
     bashCommands.add(buildFullCommand(command));
     bashCommands.add(
         "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
-    bashCommands.add("gcloud config set project $TERRA_PREV_GCLOUD_PROJECT");
+    bashCommands.add(
+        "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config unset project; else gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; fi");
     return String.join("; ", bashCommands);
   }
 
