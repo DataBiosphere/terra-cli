@@ -2,7 +2,6 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
@@ -67,6 +66,7 @@ import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.google.api.client.http.HttpStatusCodes;
+import com.google.auth.oauth2.AccessToken;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -97,47 +97,33 @@ public class WorkspaceManagerService {
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the user's credentials to call authenticated endpoints. If the user is null, then only
+   * Factory method for class that talks to WSM. No user credentials are used, so only
    * unauthenticated endpoints can be called.
    */
-  private WorkspaceManagerService(@Nullable User user, Server server) {
-    this.apiClient = new ApiClient();
-    buildClientForTerraUser(server, user);
+  public static WorkspaceManagerService unauthenticated(Server server) {
+    return new WorkspaceManagerService(null, server);
   }
 
   /**
-   * Constructor for class that talks to the Workspace Manager service. Methods in this class will
-   * use the current server and the given user's credentials to call authenticated endpoints. If the
-   * user is null, then only unauthenticated endpoints can be called.
-   */
-  public WorkspaceManagerService(@Nullable User user) {
-    this(user, Context.getServer());
-  }
-
-  /**
-   * Factory method for class that talks to the Workspace Manager service. Methods in this class
-   * will use the current server and the current user's credentials to call authenticated endpoints.
-   * This factory method uses the current context's server and user.
+   * Factory method for class that talks to WSM. Pulls the current server and user from the context.
    */
   public static WorkspaceManagerService fromContext() {
-    return new WorkspaceManagerService(Context.requireUser(), Context.getServer());
+    return new WorkspaceManagerService(
+        Context.requireUser().getUserAccessToken(), Context.getServer());
   }
 
   /**
-   * Build the Workspace Manager API client object for the given user and server. If user is null,
-   * this method returns the client object without an access token set.
-   *
-   * @param server the Terra environment where the Workspace Manager service lives
-   * @param user the user whose credentials will be used to call authenticated endpoints
+   * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
+   * endpoints can be called.
    */
-  private void buildClientForTerraUser(Server server, User user) {
-    this.apiClient.setBasePath(server.getWorkspaceManagerUri());
+  public WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+    this.apiClient = new ApiClient();
 
-    if (user != null) {
+    this.apiClient.setBasePath(server.getWorkspaceManagerUri());
+    if (accessToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(user.getUserAccessToken().getTokenValue());
+      this.apiClient.setAccessToken(accessToken.getTokenValue());
     }
   }
 
@@ -456,6 +442,26 @@ public class WorkspaceManagerService {
       return allResources;
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error enumerating resources in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/{resourceId}/access" endpoint to check
+   * if the current user has access to the referenced resource.
+   *
+   * @param workspaceId the workspace that contains the resource
+   * @param resourceId the resource id
+   * @return true if access is allowed
+   */
+  public boolean checkAccess(UUID workspaceId, UUID resourceId) {
+    ResourceApi resourceApi = new ResourceApi(apiClient);
+    try {
+      return HttpUtils.callWithRetries(
+          () -> resourceApi.checkReferenceAccess(workspaceId, resourceId),
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error checking access to resource.", ex);
     }
   }
 

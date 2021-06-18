@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
@@ -42,46 +43,31 @@ public class SamService {
   private final ApiClient apiClient;
 
   /**
-   * Factory method for class that talks to the SAM service. The user must be authenticated. Methods
-   * in this class will use its credentials to call authenticated endpoints. This factory method
-   * uses the current context's server and user.
+   * Factory method for class that talks to SAM. No user credentials are used, so only
+   * unauthenticated endpoints can be called.
+   */
+  public static SamService unauthenticated(Server server) {
+    return new SamService(null, server);
+  }
+
+  /**
+   * Factory method for class that talks to SAM. Pulls the current server and user from the context.
    */
   public static SamService fromContext() {
-    return new SamService(Context.getServer(), Context.requireUser());
+    return new SamService(Context.requireUser(), Context.getServer());
   }
 
   /**
-   * Constructor for class that talks to the SAM service. The user must be authenticated. Methods in
-   * this class will use its credentials to call authenticated endpoints.
-   *
-   * @param server the Terra environment where the SAM service lives
-   * @param user the Terra user whose credentials will be used to call authenticated endpoints
+   * Constructor for class that talks to SAM. If the user is null, only unauthenticated endpoints
+   * can be called.
    */
-  public SamService(Server server, User user) {
-    this.server = server;
+  public SamService(@Nullable User user, Server server) {
     this.user = user;
+    this.server = server;
     this.apiClient = new ApiClient();
-    buildClientForTerraUser();
-  }
 
-  /**
-   * Constructor for class that talks to the SAM service. No user is specified, so only
-   * unauthenticated endpoints can be called.
-   *
-   * @param server the Terra environment where the SAM service lives
-   */
-  public SamService(Server server) {
-    this(server, null);
-  }
-
-  /**
-   * Build the SAM API client object for the given Terra user and global context. If terraUser is
-   * null, this method builds the client object without an access token set.
-   */
-  private void buildClientForTerraUser() {
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
-
     if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired

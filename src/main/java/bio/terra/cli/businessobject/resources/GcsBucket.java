@@ -2,17 +2,13 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
-import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.StewardshipType;
-import com.google.auth.oauth2.GoogleCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,31 +124,6 @@ public class GcsBucket extends Resource {
    */
   public String resolve(boolean includePrefix) {
     return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
-  }
-
-  /**
-   * Check whether a user can access the GCS bucket resource.
-   *
-   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
-   *     checking access
-   * @return true if the user can access the referenced GCS bucket with the given credentials
-   * @throws UserActionableException if the resource is CONTROLLED
-   */
-  public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
-    if (!stewardshipType.equals(StewardshipType.REFERENCED)) {
-      throw new UserActionableException(
-          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
-    }
-
-    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
-    User currentUser = Context.requireUser();
-    GoogleCredentials credentials =
-        credentialsToUse.equals(Resource.CheckAccessCredentials.USER)
-            ? currentUser.getUserCredentials()
-            : currentUser.getPetSACredentials();
-
-    return new GoogleCloudStorage(credentials, Context.requireWorkspace().getGoogleProjectId())
-        .checkObjectsListAccess(resolve());
   }
 
   // ====================================================

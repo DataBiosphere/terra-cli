@@ -2,18 +2,13 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
-import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.ResourceDescription;
-import bio.terra.workspace.model.StewardshipType;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.DatasetId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,31 +153,6 @@ public class BqDataset extends Resource {
       default:
         throw new IllegalArgumentException("Unknown Big Query dataset resolve option.");
     }
-  }
-
-  /**
-   * Check whether a user can access the Big Query dataset resource.
-   *
-   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
-   *     checking access
-   * @return true if the user can access the referenced Big Query dataset with the given credentials
-   * @throws UserActionableException if the resource is CONTROLLED
-   */
-  public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
-    if (!stewardshipType.equals(StewardshipType.REFERENCED)) {
-      throw new UserActionableException(
-          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
-    }
-
-    // TODO (PF-717): replace this with a call to WSM once an endpoint is available
-    User currentUser = Context.requireUser();
-    GoogleCredentials credentials =
-        credentialsToUse.equals(CheckAccessCredentials.USER)
-            ? currentUser.getUserCredentials()
-            : currentUser.getPetSACredentials();
-
-    return new GoogleBigQuery(credentials, Context.requireWorkspace().getGoogleProjectId())
-        .checkListTablesAccess(DatasetId.of(projectId, datasetId));
   }
 
   // ====================================================
