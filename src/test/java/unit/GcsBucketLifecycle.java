@@ -382,7 +382,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createdBucketOnCloud.getLifecycleRules();
     assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    assertTrue(lifecycleRules.size() > 1, "bucket has lifecycle rules defined");
+    assertTrue(lifecycleRules.size() > 0, "bucket has lifecycle rules defined");
     lifecycleRules.stream().forEach(System.out::println); // log to console
 
     return lifecycleRules;
