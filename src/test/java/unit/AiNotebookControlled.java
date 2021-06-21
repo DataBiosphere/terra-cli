@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -108,8 +109,12 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     assertEquals(createdNotebook.instanceName, resolved, "resolve returns the instance name");
 
     // `terra resources check-access --name=$name`
-    TestCommand.runCommandExpectExitCode(1, "resources", "check-access", "--name=" + name);
-    // TODO (PF-717): check err msg = "Checking access is intended for REFERENCED resources only"
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(1, "resources", "check-access", "--name=" + name);
+    assertThat(
+        "check-access error is because ai notebooks are controlled resources",
+        stdErr,
+        CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
   }
 
   @Test
