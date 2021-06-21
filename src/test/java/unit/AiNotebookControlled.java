@@ -200,45 +200,78 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
 
     // `terra notebooks start --name=$name`
     // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    //    TestCommand.runCommandExpectSuccess("notebooks", "start", "--name=" + name);
     TestCommand.runCommand("notebooks", "start", "--name=" + name);
     pollDescribeForNotebookState(name, "ACTIVE");
 
     // `terra notebooks stop --name=$name`
     // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    //    TestCommand.runCommandExpectSuccess("notebooks", "stop", "--name=" + name);
     TestCommand.runCommand("notebooks", "stop", "--name=" + name);
     pollDescribeForNotebookState(name, "STOPPED");
   }
 
   /**
    * Helper method to poll `terra resources describe` until the notebook state equals that
-   * specified.
+   * specified. Uses the current workspace.
    */
-  private void pollDescribeForNotebookState(String resourceName, String notebookState)
+  public static void pollDescribeForNotebookState(String resourceName, String notebookState)
+      throws InterruptedException, JsonProcessingException {
+    pollDescribeForNotebookState(resourceName, notebookState, null);
+  }
+  /**
+   * Helper method to poll `terra resources describe` until the notebook state equals that
+   * specified. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  public static void pollDescribeForNotebookState(
+      String resourceName, String notebookState, UUID workspaceId)
       throws InterruptedException, JsonProcessingException {
     HttpUtils.pollWithRetries(
         () ->
-            TestCommand.runAndParseCommandExpectSuccess(
-                UFAiNotebook.class, "resources", "describe", "--name=" + resourceName),
+            workspaceId == null
+                ? TestCommand.runAndParseCommandExpectSuccess(
+                    UFAiNotebook.class, "resources", "describe", "--name=" + resourceName)
+                : TestCommand.runAndParseCommandExpectSuccess(
+                    UFAiNotebook.class,
+                    "resources",
+                    "describe",
+                    "--name=" + resourceName,
+                    "--workspace=" + workspaceId),
         (result) -> notebookState.equals(result.state),
         (ex) -> false, // no retries
         2 * 20, // up to 20 minutes
         Duration.ofSeconds(30)); // every 30 seconds
 
     UFAiNotebook describeNotebook =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class, "resources", "describe", "--name=" + resourceName);
+        workspaceId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                UFAiNotebook.class, "resources", "describe", "--name=" + resourceName)
+            : TestCommand.runAndParseCommandExpectSuccess(
+                UFAiNotebook.class,
+                "resources",
+                "describe",
+                "--name=" + resourceName,
+                "--workspace=" + workspaceId);
     assertEquals(notebookState, describeNotebook.state, "notebook state matches");
     if (!notebookState.equals("PROVISIONING")) {
       assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
     }
   }
 
-  /** Helper method to call `terra resources list` and expect one resource with this name. */
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
   static UFAiNotebook listOneNotebookResourceWithName(String resourceName)
       throws JsonProcessingException {
-    List<UFAiNotebook> matchedResources = listNotebookResourcesWithName(resourceName);
+    return listOneNotebookResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  static UFAiNotebook listOneNotebookResourceWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
+    List<UFAiNotebook> matchedResources = listNotebookResourcesWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -246,14 +279,29 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name.
+   * name. Uses the current workspace.
    */
   static List<UFAiNotebook> listNotebookResourcesWithName(String resourceName)
       throws JsonProcessingException {
+    return listNotebookResourcesWithName(resourceName, null);
+  }
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  static List<UFAiNotebook> listNotebookResourcesWithName(String resourceName, UUID workspaceId)
+      throws JsonProcessingException {
     // `terra resources list --type=AI_NOTEBOOK --format=json`
     List<UFAiNotebook> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resources", "list", "--type=AI_NOTEBOOK");
+        workspaceId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resources", "list", "--type=AI_NOTEBOOK")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resources",
+                "list",
+                "--type=AI_NOTEBOOK",
+                "--workspace=" + workspaceId);
 
     // find the matching notebook in the list
     return listedResources.stream()
