@@ -187,7 +187,6 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
   @Test // NOTE: This test takes ~10 minutes to run.
   @DisplayName("start, stop a notebook and poll until they complete")
   void startStop() throws IOException, InterruptedException {
-    // `terra resources create ai-notebook --name=$name`
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -217,6 +216,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
       throws InterruptedException, JsonProcessingException {
     pollDescribeForNotebookState(resourceName, notebookState, null);
   }
+
   /**
    * Helper method to poll `terra resources describe` until the notebook state equals that
    * specified. Filters on the specified workspace id; Uses the current workspace if null.
@@ -285,6 +285,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
       throws JsonProcessingException {
     return listNotebookResourcesWithName(resourceName, null);
   }
+
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Filters on the specified workspace id; Uses the current workspace if null.

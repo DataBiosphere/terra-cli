@@ -399,7 +399,6 @@ public class WorkspaceOverride extends ClearContextUnit {
   @Disabled // TODO (PF-869): enable this test once polling notebook operations is fixed
   @DisplayName("notebook commands respect workspace override")
   void notebooks() throws IOException, InterruptedException {
-    // `terra resources create ai-notebook --name=$name`
     workspaceCreator.login();
 
     // `terra workspace set --id=$id1`
