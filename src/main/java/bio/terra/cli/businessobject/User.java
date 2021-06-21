@@ -104,7 +104,7 @@ public class User {
 
     // fetch the user information from SAM, if it's not already populated
     if (!currentUser.isPresent()) {
-      SamService samService = new SamService(Context.getServer(), user);
+      SamService samService = new SamService(user, Context.getServer());
       UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
       user.id = userInfo.getUserSubjectId();
       user.email = userInfo.getUserEmail();
@@ -170,6 +170,11 @@ public class User {
     return GoogleOauth.getAccessToken(userCredentials);
   }
 
+  /** Get the access token for the pet SA credentials. */
+  public AccessToken getPetSaAccessToken() {
+    return GoogleOauth.getAccessToken(petSACredentials);
+  }
+
   /** Fetch the pet SA credentials for this user + current workspace. */
   public void fetchPetSaCredentials() {
     // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
@@ -187,7 +192,7 @@ public class User {
     } else {
       // ask SAM for the project-specific pet SA key
       HttpUtils.HttpResponse petSaKeySamResponse =
-          new SamService(Context.getServer(), this)
+          new SamService(this, Context.getServer())
               .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
       if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
         logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);

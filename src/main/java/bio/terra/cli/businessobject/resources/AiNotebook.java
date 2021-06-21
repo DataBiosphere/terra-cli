@@ -119,11 +119,6 @@ public class AiNotebook extends Resource {
     return String.format("projects/%s/locations/%s/instances/%s", projectId, location, instanceId);
   }
 
-  /** Check whether a user can access the AI Platform notebook resource. Currently unsupported. */
-  public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
-    throw new UserActionableException("Check access not supported for AI Platform notebooks.");
-  }
-
   /** Query the cloud for information about the notebook VM. */
   public Optional<Instance> getInstance() {
     InstanceName instanceName =
