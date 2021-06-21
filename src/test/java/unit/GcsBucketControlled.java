@@ -35,7 +35,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listDescribeReflectCreate";
     String bucketName = UUID.randomUUID().toString();
     UFGcsBucket createdBucket =
@@ -78,16 +78,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listReflectsDelete";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
-        "create",
-        "gcs-bucket",
-        "--name=" + name,
-        "--bucket-name=" + bucketName,
-        "--format=json");
+        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra resources delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
@@ -111,16 +106,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "resolve";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
-        "create",
-        "gcs-bucket",
-        "--name=" + name,
-        "--bucket-name=" + bucketName,
-        "--format=json");
+        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra resources resolve --name=$name --format=json`
     String resolved =
@@ -147,16 +137,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "checkAccess";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
-        "create",
-        "gcs-bucket",
-        "--name=" + name,
-        "--bucket-name=" + bucketName,
-        "--format=json");
+        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra resources check-access --name=$name`
     String stdErr =

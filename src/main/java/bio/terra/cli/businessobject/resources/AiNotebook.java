@@ -2,6 +2,7 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDAiNotebook;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
@@ -12,6 +13,7 @@ import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.api.services.notebooks.v1.model.Instance;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +125,7 @@ public class AiNotebook extends Resource {
   }
 
   /** Query the cloud for information about the notebook VM. */
-  public Instance getInstance() {
+  public Optional<Instance> getInstance() {
     InstanceName instanceName =
         InstanceName.builder()
             .projectId(projectId)
@@ -131,7 +133,12 @@ public class AiNotebook extends Resource {
             .instanceId(instanceId)
             .build();
     GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
-    return notebooks.get(instanceName);
+    try {
+      return Optional.of(notebooks.get(instanceName));
+    } catch (SystemException ex) {
+      logger.error("Caught exception looking up notebook instance", ex);
+      return Optional.empty();
+    }
   }
 
   // ====================================================

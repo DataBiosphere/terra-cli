@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.api.services.notebooks.v1.model.Instance;
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * External representation of a workspace AI notebook resource for command input/output.
@@ -32,11 +33,11 @@ public class UFAiNotebook extends UFResource {
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
 
-    Instance instance = internalObj.getInstance();
-    this.instanceName = instance.getName();
-    this.state = instance.getState();
-    this.proxyUri = instance.getProxyUri();
-    this.createTime = instance.getCreateTime();
+    Optional<Instance> instance = internalObj.getInstance();
+    this.instanceName = instance.isPresent() ? instance.get().getName() : "";
+    this.state = instance.isPresent() ? instance.get().getState() : "";
+    this.proxyUri = instance.isPresent() ? instance.get().getProxyUri() : "";
+    this.createTime = instance.isPresent() ? instance.get().getCreateTime() : "";
   }
 
   /** Constructor for Jackson deserialization during testing. */
