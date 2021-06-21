@@ -8,6 +8,7 @@ import bio.terra.datarepo.client.ApiClient;
 import bio.terra.datarepo.client.ApiException;
 import bio.terra.datarepo.model.RepositoryConfigurationModel;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,37 +20,21 @@ public class DataRepoService {
   private final ApiClient apiClient;
 
   /**
-   * Constructor for class that talks to the Data Repo service. The user must be authenticated.
-   * Methods in this class will use its credentials to call authenticated endpoints.
-   *
-   * @param server the Terra environment where the Data Repo service lives
-   * @param user the Terra user whose credentials will be used to call authenticated endpoints
-   */
-  public DataRepoService(Server server, User user) {
-    this.apiClient = new ApiClient();
-    buildClientForTerraUser(server, user);
-  }
-
-  /**
-   * Constructor for class that talks to the Data Repo service. No user is specified, so only
+   * Factory method for class that talks to TDR. No user credentials are used, so only
    * unauthenticated endpoints can be called.
-   *
-   * @param server the Terra environment where the Data Repo service lives
    */
-  public DataRepoService(Server server) {
-    this(server, null);
+  public static DataRepoService unauthenticated(Server server) {
+    return new DataRepoService(null, server);
   }
 
   /**
-   * Build the Data Repo API client object for the given Terra user and global context. If terraUser
-   * is null, this method builds the client object without an access token set.
-   *
-   * @param server the Terra environment where the Data Repo service lives
-   * @param user the Terra user whose credentials will be used to call authenticated endpoints
+   * Constructor for class that talks to TDR. If the user is null, only unauthenticated endpoints
+   * can be called.
    */
-  private void buildClientForTerraUser(Server server, User user) {
-    this.apiClient.setBasePath(server.getDataRepoUri());
+  private DataRepoService(@Nullable User user, Server server) {
+    this.apiClient = new ApiClient();
 
+    this.apiClient.setBasePath(server.getDataRepoUri());
     if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired

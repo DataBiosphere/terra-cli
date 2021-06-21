@@ -56,9 +56,7 @@ public class ExternalGCSBuckets {
             bucket.getName(),
             currentPolicy
                 .toBuilder()
-                // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
                 .addIdentity(StorageRoles.objectViewer(), Identity.user(email))
-                .addIdentity(StorageRoles.legacyBucketReader(), Identity.user(email))
                 .build());
     getStorageClient().setIamPolicy(bucket.getName(), updatedPolicy);
   }

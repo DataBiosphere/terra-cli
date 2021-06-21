@@ -92,7 +92,7 @@ public class Server {
   public boolean ping() {
     SystemStatus samStatus = null;
     try {
-      samStatus = new SamService(this).getStatus();
+      samStatus = SamService.unauthenticated(this).getStatus();
       logger.info("SAM status: {}", samStatus);
     } catch (Exception ex) {
       logger.error("Error getting SAM status.", ex);
@@ -100,7 +100,7 @@ public class Server {
 
     boolean wsmStatusIsOk = true;
     try {
-      new WorkspaceManagerService(null).getStatus();
+      WorkspaceManagerService.unauthenticated(this).getStatus();
       logger.info("WSM status: {}", wsmStatusIsOk);
     } catch (Exception ex) {
       logger.error("Error getting WSM status.", ex);
@@ -109,7 +109,7 @@ public class Server {
 
     RepositoryStatusModel tdrStatus = null;
     try {
-      tdrStatus = new DataRepoService(this).getStatus();
+      tdrStatus = DataRepoService.unauthenticated(this).getStatus();
       logger.info("TDR status: {}", tdrStatus);
     } catch (Exception ex) {
       logger.error("Error getting TDR status.", ex);

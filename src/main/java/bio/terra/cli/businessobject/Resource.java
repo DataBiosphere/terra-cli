@@ -3,8 +3,10 @@ package bio.terra.cli.businessobject;
 import bio.terra.cli.businessobject.resources.AiNotebook;
 import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.businessobject.resources.GcsBucket;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -14,6 +16,7 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
+import com.google.auth.oauth2.AccessToken;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -164,8 +167,29 @@ public abstract class Resource {
     PET_SA;
   };
 
-  /** Call WSM to check whether the current user has access to a resource. */
-  public abstract boolean checkAccess(CheckAccessCredentials credentialsToUse);
+  /**
+   * Check whether a user can access a resource.
+   *
+   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
+   *     checking access
+   * @return true if the user can access the referenced resource with the given credentials
+   * @throws UserActionableException if the resource is CONTROLLED
+   */
+  public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
+    if (!stewardshipType.equals(StewardshipType.REFERENCED)) {
+      throw new UserActionableException(
+          "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
+    }
+    // call WSM to check access to the resource
+    User currentUser = Context.requireUser();
+    AccessToken accessToken =
+        credentialsToUse.equals(CheckAccessCredentials.USER)
+            ? currentUser.getUserAccessToken()
+            : currentUser.getPetSaAccessToken();
+
+    return new WorkspaceManagerService(accessToken, Context.getServer())
+        .checkAccess(Context.requireWorkspace().getId(), id);
+  }
 
   // ====================================================
   // Property getters.
