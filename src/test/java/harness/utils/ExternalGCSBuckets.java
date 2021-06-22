@@ -18,7 +18,8 @@ import java.util.UUID;
 public class ExternalGCSBuckets {
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for an external project.
+   * resources. This method uses SA credentials to set IAM policy on a bucket in an external (to
+   * WSM) project.
    */
   public static Bucket createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
@@ -46,8 +47,8 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Grant a given user object viewer access to a bucket. This method uses SA credentials for an
-   * external project.
+   * Grant a given user object viewer access to a bucket. This method uses SA credentials to set IAM
+   * policy on a bucket in an external (to WSM) project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
     grantAccess(
@@ -59,16 +60,16 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Grant a given user admin access to a bucket. This method uses SA credentials for an external
-   * project.
+   * Grant a given user admin access to a bucket. This method uses SA credentials to set IAM policy
+   * on a bucket in an external (to WSM) project.
    */
   public static void grantWriteAccess(Bucket bucket, Identity user) throws IOException {
     grantAccess(bucket, user, StorageRoles.admin());
   }
 
   /**
-   * Helper method to grant a given user roles on a bucket. This method uses SA credentials for an
-   * external project.
+   * Helper method to grant a given user roles on a bucket. This method uses SA credentials to set
+   * IAM policy on a bucket in an external (to WSM) project.
    */
   private static void grantAccess(Bucket bucket, Identity user, Role... roles) throws IOException {
     Storage storage = getStorageClient();
@@ -77,11 +78,10 @@ public class ExternalGCSBuckets {
     for (Role role : roles) {
       updatedPolicyBuilder.addIdentity(role, user);
     }
-    Policy updatedPolicy = storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
-    storage.setIamPolicy(bucket.getName(), updatedPolicy);
+    storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
   }
 
-  /** Helper method to build the GCS client object with SA credentials for the external project. */
+  /** Helper method to build the GCS client object with SA credentials. */
   public static Storage getStorageClient() throws IOException {
     return getStorageClient(TestExternalResources.getSACredentials());
   }
@@ -93,5 +93,10 @@ public class ExternalGCSBuckets {
         .setCredentials(credentials)
         .build()
         .getService();
+  }
+
+  /** Utility method to get the gs:// path of a bucket. */
+  public static String getGsPath(String bucketName) {
+    return "gs://" + bucketName;
   }
 }

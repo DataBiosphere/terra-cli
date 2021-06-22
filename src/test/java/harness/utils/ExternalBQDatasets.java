@@ -21,7 +21,8 @@ public class ExternalBQDatasets {
 
   /**
    * Create a dataset in the external project. This is helpful for testing referenced BQ dataset
-   * resources. This method uses SA credentials for the external project.
+   * resources. This method uses SA credentials to set IAM policy on a bucket in an external (to
+   * WSM) project.
    */
   public static Dataset createDataset() throws IOException {
     String datasetId = randomDatasetId();
@@ -41,8 +42,8 @@ public class ExternalBQDatasets {
   }
 
   /**
-   * Grant a given user reader access to a dataset. This method uses SA credentials for the external
-   * project.
+   * Grant a given user reader access to a dataset. This method uses SA credentials to set IAM
+   * policy on a bucket in an external (to WSM) project.
    */
   public static void grantReadAccess(Dataset dataset, String email) throws IOException {
     BigQuery bigQuery = getBQClient();
@@ -51,7 +52,7 @@ public class ExternalBQDatasets {
     bigQuery.update(dataset.toBuilder().setAcl(acls).build());
   }
 
-  /** Helper method to build the BQ client object with SA credentials for the external project. */
+  /** Helper method to build the BQ client object with SA credentials. */
   public static BigQuery getBQClient() throws IOException {
     return getBQClient(TestExternalResources.getSACredentials());
   }

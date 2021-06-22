@@ -126,7 +126,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resources", "resolve", "--name=" + name);
-    assertEquals("gs://" + bucketName, resolved, "default resolve includes gs:// prefix");
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(bucketName),
+        resolved,
+        "default resolve includes gs:// prefix");
 
     // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =

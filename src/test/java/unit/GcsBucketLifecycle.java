@@ -207,7 +207,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   void autoDeleteOption() throws IOException {
     String resourceName = "autodelete";
     String bucketName = UUID.randomUUID().toString();
-    int autoDelete = 24;
+    int autoDeleteAgeDays = 24;
 
     // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
     // --auto-delete=$autodelete`
@@ -217,7 +217,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--auto-delete=" + autoDelete,
+        "--auto-delete=" + autoDeleteAgeDays,
         "--format=json");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
@@ -226,7 +226,8 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     BucketInfo.LifecycleRule lifecycleRuleFromGCS = lifecycleRulesFromGCS.get(0);
 
     expectActionDelete(lifecycleRuleFromGCS);
-    assertEquals(autoDelete, lifecycleRuleFromGCS.getCondition().getAge(), "condition age matches");
+    assertEquals(
+        autoDeleteAgeDays, lifecycleRuleFromGCS.getCondition().getAge(), "condition age matches");
   }
 
   @Test
@@ -264,18 +265,22 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   void sameFormatForExternalBucket() throws IOException {
     // the CLI mounts the current working directory to the Docker container when running apps
     // so we need to give it the path to lifecycle JSON file relative to the current working
-    // directory
+    // directory. e.g.
+    // lifecyclePathOnHost =
+    // /Users/gh/terra-cli/src/test/resources/testinputs/gcslifecycle/multipleRules.json
+    // currentDirOnHost = /Users/gh/terra-cli/
+    // lifecyclePathOnContainer = ./src/test/resources/testinputs/gcslifecycle/multipleRules.json
     Path lifecyclePathOnHost = TestCommand.getPathForTestInput("gcslifecycle/multipleRules.json");
     Path currentDirOnHost = Path.of(System.getProperty("user.dir"));
-    Path lifecycelPathOnContainer = currentDirOnHost.relativize(lifecyclePathOnHost);
+    Path lifecyclePathOnContainer = currentDirOnHost.relativize(lifecyclePathOnHost);
 
     // `terra gsutil lifecycle set $lifecycle gs://$bucketname`
     TestCommand.runCommandExpectSuccess(
         "gsutil",
         "lifecycle",
         "set",
-        lifecycelPathOnContainer.toString(),
-        "gs://" + externalBucket.getName());
+        lifecyclePathOnContainer.toString(),
+        ExternalGCSBuckets.getGsPath(externalBucket.getName()));
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         getLifecycleRulesFromCloud(externalBucket.getName());
@@ -312,14 +317,19 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
 
   /** Check that the action is Delete. */
   private void expectActionDelete(BucketInfo.LifecycleRule rule) {
-    assertEquals("Delete", rule.getAction().getActionType(), "Delete action type matches");
+    assertEquals(
+        BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
+        rule.getAction().getActionType(),
+        "Delete action type matches");
   }
 
   /** Check that the action is SetStorageClass and the storage class is the given one. */
   private void expectActionSetStorageClass(
       BucketInfo.LifecycleRule rule, StorageClass storageClass) {
     assertEquals(
-        "SetStorageClass", rule.getAction().getActionType(), "SetStorageClass action type matches");
+        BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
+        rule.getAction().getActionType(),
+        "SetStorageClass action type matches");
     assertEquals(
         storageClass,
         ((BucketInfo.LifecycleRule.SetStorageClassLifecycleAction) rule.getAction())
