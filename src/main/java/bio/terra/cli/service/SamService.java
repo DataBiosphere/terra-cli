@@ -137,8 +137,9 @@ public class SamService {
       // - try to lookup the user
       // - if the user lookup failed with a Not Found error, it means the email is not found
       // - so try to register the user first, then retry looking them up
-      return callAndHandleOneTimeErrorWithRetries(
+      return HttpUtils.callAndHandleOneTimeErrorWithRetries(
           samUsersApi::getUserStatusInfo,
+          SamService::isRetryable,
           SamService::isNotFound,
           () -> {
             UserStatus userStatus = samUsersApi.createUserV2();
@@ -146,8 +147,8 @@ public class SamService {
                 "User registered in SAM: {}, {}",
                 userStatus.getUserInfo().getUserSubjectId(),
                 userStatus.getUserInfo().getUserEmail());
-            return null;
-          });
+          },
+          SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error reading user information from SAM.", ex);
     } finally {
@@ -181,12 +182,7 @@ public class SamService {
   public void createGroup(String groupName) {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
-      HttpUtils.callWithRetries(
-          () -> {
-            groupApi.postGroup(groupName);
-            return null;
-          },
-          SamService::isRetryable);
+      HttpUtils.callWithRetries(() -> groupApi.postGroup(groupName), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error creating SAM group.", ex);
     } finally {
@@ -202,12 +198,7 @@ public class SamService {
   public void deleteGroup(String groupName) {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
-      HttpUtils.callWithRetries(
-          () -> {
-            groupApi.deleteGroup(groupName);
-            return null;
-          },
-          SamService::isRetryable);
+      HttpUtils.callWithRetries(() -> groupApi.deleteGroup(groupName), SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting SAM group.", ex);
     } finally {
@@ -291,15 +282,9 @@ public class SamService {
       // - if this fails with a Bad Request error, it means the email is not found
       // - so try to invite the user first, then retry adding them to the group
       callAndHandleOneTimeErrorWithRetries(
-          () -> {
-            groupApi.addEmailToGroup(groupName, policy.getSamPolicy(), userEmail);
-            return null;
-          },
+          () -> groupApi.addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
           SamService::isBadRequest,
-          () -> {
-            inviteUserNoRetries(userEmail);
-            return null;
-          });
+          () -> inviteUserNoRetries(userEmail));
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error adding user to SAM group.", ex);
     } finally {
@@ -319,10 +304,7 @@ public class SamService {
     GroupApi groupApi = new GroupApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            groupApi.removeEmailFromGroup(groupName, policy.getSamPolicy(), userEmail);
-            return null;
-          },
+          () -> groupApi.removeEmailFromGroup(groupName, policy.getSamPolicy(), userEmail),
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error removing user from SAM group.", ex);
@@ -367,19 +349,14 @@ public class SamService {
       // - if the add user to policy failed with a Bad Request error, it means the email is not
       // found
       // - so try to invite the user first, then retry adding them to the policy
+      ResourcesApi resourcesApi = new ResourcesApi(apiClient);
       callAndHandleOneTimeErrorWithRetries(
-          () -> {
-            ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-            resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail);
-            return null;
-          },
+          () ->
+              resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
           SamService::isBadRequest,
-          () -> {
-            inviteUserNoRetries(userEmail);
-            return null;
-          });
-    } catch (Exception secondEx) {
-      throw new SystemException("Error adding user to SAM resource.", secondEx);
+          () -> inviteUserNoRetries(userEmail));
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error adding user to SAM resource.", ex);
     } finally {
       closeConnectionPool();
     }
@@ -428,11 +405,9 @@ public class SamService {
     ResourcesApi resourcesApi = new ResourcesApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            resourcesApi.removeUserFromPolicy(
-                resourceType, resourceId, resourcePolicyName, userEmail);
-            return null;
-          },
+          () ->
+              resourcesApi.removeUserFromPolicy(
+                  resourceType, resourceId, resourcePolicyName, userEmail),
           SamService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error removing user from SAM resource.", ex);
@@ -552,16 +527,16 @@ public class SamService {
   /**
    * Helper method to call {@link
    * HttpUtils#callAndHandleOneTimeErrorWithRetries(HttpUtils.SupplierWithCheckedException,
-   * Predicate, Predicate, HttpUtils.SupplierWithCheckedException, Predicate)} with the {@link
+   * Predicate, Predicate, HttpUtils.RunnableWithCheckedException, Predicate)} with the {@link
    * #isRetryable(Exception)} method as both isRetryable arguments.
    */
-  private static <T, E1 extends Exception, E2 extends Exception>
-      T callAndHandleOneTimeErrorWithRetries(
-          HttpUtils.SupplierWithCheckedException<T, E1> makeRequest,
+  private static <E1 extends Exception, E2 extends Exception>
+      void callAndHandleOneTimeErrorWithRetries(
+          HttpUtils.RunnableWithCheckedException<E1> makeRequest,
           Predicate<Exception> isOneTimeError,
-          HttpUtils.SupplierWithCheckedException<Void, E2> handleOneTimeError)
+          HttpUtils.RunnableWithCheckedException<E2> handleOneTimeError)
           throws E1, E2, InterruptedException {
-    return HttpUtils.callAndHandleOneTimeErrorWithRetries(
+    HttpUtils.callAndHandleOneTimeErrorWithRetries(
         makeRequest,
         SamService::isRetryable,
         isOneTimeError,

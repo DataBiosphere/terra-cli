@@ -128,6 +128,30 @@ public class HttpUtils {
    *
    * @param makeRequest function to perform the request
    * @param isRetryable function to test whether the exception is retryable or not
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
+   */
+  public static <E extends Exception> void callWithRetries(
+      RunnableWithCheckedException<E> makeRequest, Predicate<Exception> isRetryable)
+      throws E, InterruptedException {
+    callWithRetries(
+        () -> {
+          makeRequest.run();
+          return null;
+        },
+        isRetryable,
+        DEFAULT_MAXIMUM_RETRIES,
+        DEFAULT_DURATION_SLEEP_FOR_RETRY);
+  }
+
+  /**
+   * Helper method to call a function with retries. Uses {@link #DEFAULT_MAXIMUM_RETRIES} for
+   * maximum number of retries and {@link #DEFAULT_DURATION_SLEEP_FOR_RETRY} for the time to sleep
+   * between retries.
+   *
+   * @param makeRequest function to perform the request
+   * @param isRetryable function to test whether the exception is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
    * @throws E if makeRequest throws an exception that is not retryable
@@ -277,6 +301,45 @@ public class HttpUtils {
    * @param handleOneTimeError function to handle the one-time error before retrying the request
    * @param handleOneTimeErrorIsRetryable function to test whether an exception thrown by
    *     handleOneTimeError is retryable or not
+   * @return the response object
+   * @throws E1 if makeRequest throws an exception that is not the expected one-time error
+   * @throws E2 if handleOneTimeError throws an exception
+   */
+  public static <E1 extends Exception, E2 extends Exception>
+      void callAndHandleOneTimeErrorWithRetries(
+          RunnableWithCheckedException<E1> makeRequest,
+          Predicate<Exception> makeRequestIsRetryable,
+          Predicate<Exception> isOneTimeError,
+          RunnableWithCheckedException<E2> handleOneTimeError,
+          Predicate<Exception> handleOneTimeErrorIsRetryable)
+          throws E1, E2, InterruptedException {
+    callAndHandleOneTimeErrorWithRetries(
+        () -> {
+          makeRequest.run();
+          return null;
+        },
+        makeRequestIsRetryable,
+        isOneTimeError,
+        handleOneTimeError,
+        handleOneTimeErrorIsRetryable);
+  }
+
+  /**
+   * Helper method to make a request, handle a possible one-time error, and then retry the request.
+   *
+   * <p>Example: - Make a request to add a user to a workspace.
+   *
+   * <p>- Catch a user not found error. Handle it by making a request to invite the user.
+   *
+   * <p>- Retry the request to add a user to a workspace.
+   *
+   * @param makeRequest function to perform the request
+   * @param makeRequestIsRetryable function to test whether an exception thrown by makeRequest is
+   *     retryable or not
+   * @param isOneTimeError function to test whether the exception is the expected one-time error
+   * @param handleOneTimeError function to handle the one-time error before retrying the request
+   * @param handleOneTimeErrorIsRetryable function to test whether an exception thrown by
+   *     handleOneTimeError is retryable or not
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
@@ -287,7 +350,7 @@ public class HttpUtils {
           SupplierWithCheckedException<T, E1> makeRequest,
           Predicate<Exception> makeRequestIsRetryable,
           Predicate<Exception> isOneTimeError,
-          SupplierWithCheckedException<Void, E2> handleOneTimeError,
+          RunnableWithCheckedException<E2> handleOneTimeError,
           Predicate<Exception> handleOneTimeErrorIsRetryable)
           throws E1, E2, InterruptedException {
     try {
@@ -320,5 +383,14 @@ public class HttpUtils {
   @FunctionalInterface
   public interface SupplierWithCheckedException<T, E extends Exception> {
     T makeRequest() throws E;
+  }
+
+  /**
+   * Function interface for making a retryable Http request. This interface is explicitly defined so
+   * that it can throw an exception (i.e. Runnable does not have this method annotation).
+   */
+  @FunctionalInterface
+  public interface RunnableWithCheckedException<E extends Exception> {
+    void run() throws E;
   }
 }

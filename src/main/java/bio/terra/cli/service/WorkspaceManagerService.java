@@ -148,11 +148,7 @@ public class WorkspaceManagerService {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            unauthenticatedApi.serviceStatus();
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
+          () -> unauthenticatedApi.serviceStatus(), WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error getting Workspace Manager status", ex);
     }
@@ -274,11 +270,7 @@ public class WorkspaceManagerService {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            workspaceApi.deleteWorkspace(workspaceId);
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
+          () -> workspaceApi.deleteWorkspace(workspaceId), WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting workspace", ex);
     }
@@ -322,16 +314,10 @@ public class WorkspaceManagerService {
       // - if this fails with a Bad Request error, it means the email is not found
       // - so try to invite the user first, then retry granting them an iam role
       HttpUtils.callAndHandleOneTimeErrorWithRetries(
-          () -> {
-            workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole);
-            return null;
-          },
+          () -> workspaceApi.grantRole(grantRoleRequestBody, workspaceId, iamRole),
           WorkspaceManagerService::isRetryable,
           WorkspaceManagerService::isBadRequest,
-          () -> {
-            SamService.fromContext().inviteUserNoRetries(userEmail);
-            return null;
-          },
+          () -> SamService.fromContext().inviteUserNoRetries(userEmail),
           SamService::isRetryable);
     } catch (ApiException
         | InterruptedException
@@ -366,10 +352,7 @@ public class WorkspaceManagerService {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            workspaceApi.removeRole(workspaceId, iamRole, userEmail);
-            return null;
-          },
+          () -> workspaceApi.removeRole(workspaceId, iamRole, userEmail),
           WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error removing IAM role on workspace", ex);
@@ -772,10 +755,7 @@ public class WorkspaceManagerService {
     ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            referencedGcpResourceApi.deleteBucketReference(workspaceId, resourceId);
-            return null;
-          },
+          () -> referencedGcpResourceApi.deleteBucketReference(workspaceId, resourceId),
           WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException("Error deleting referenced GCS bucket in the workspace.", ex);
@@ -794,10 +774,7 @@ public class WorkspaceManagerService {
     ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            referencedGcpResourceApi.deleteBigQueryDatasetReference(workspaceId, resourceId);
-            return null;
-          },
+          () -> referencedGcpResourceApi.deleteBigQueryDatasetReference(workspaceId, resourceId),
           WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
@@ -824,11 +801,9 @@ public class WorkspaceManagerService {
     try {
       // make the initial delete request
       HttpUtils.callWithRetries(
-          () -> {
-            controlledGcpResourceApi.deleteAiNotebookInstance(
-                deleteRequest, workspaceId, resourceId);
-            return null;
-          },
+          () ->
+              controlledGcpResourceApi.deleteAiNotebookInstance(
+                  deleteRequest, workspaceId, resourceId),
           WorkspaceManagerService::isRetryable);
 
       // poll the result endpoint until the job is no longer RUNNING
@@ -866,10 +841,7 @@ public class WorkspaceManagerService {
     try {
       // make the initial delete request
       HttpUtils.callWithRetries(
-          () -> {
-            controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId);
-            return null;
-          },
+          () -> controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
           WorkspaceManagerService::isRetryable);
 
       // poll the result endpoint until the job is no longer RUNNING
@@ -898,10 +870,7 @@ public class WorkspaceManagerService {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     try {
       HttpUtils.callWithRetries(
-          () -> {
-            controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId);
-            return null;
-          },
+          () -> controlledGcpResourceApi.deleteBigQueryDataset(workspaceId, resourceId),
           WorkspaceManagerService::isRetryable);
     } catch (ApiException | InterruptedException ex) {
       throw new SystemException(
