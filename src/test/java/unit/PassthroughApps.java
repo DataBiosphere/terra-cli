@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +93,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertThat(
         "TERRA_$resourceName set to resolved bucket path",
         cmd.stdOut,
-        CoreMatchers.containsString("gs://" + bucketName));
+        CoreMatchers.containsString(ExternalGCSBuckets.getGsPath(bucketName)));
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
@@ -140,7 +141,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra gsutil du -s \$TERRA_$name`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "du", "-s", "$TERRA_" + name);
     assertTrue(
-        cmd.stdOut.matches("(?s).*0\\s+gs://" + bucketName + ".*"), "gsutil says bucket size = 0");
+        cmd.stdOut.matches("(?s).*0\\s+" + ExternalGCSBuckets.getGsPath(bucketName) + ".*"),
+        "gsutil says bucket size = 0");
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);

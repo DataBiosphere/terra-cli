@@ -1,0 +1,19 @@
+{
+  "rule": [
+    {
+      "action": {"type": "Delete"},
+      "condition": {
+        "age": 84
+      }
+    },
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "COLDLINE"
+      },
+      "condition": {
+        "isLive": false
+      }
+    }
+  ]
+}

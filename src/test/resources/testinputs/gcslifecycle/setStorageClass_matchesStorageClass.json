@@ -1,0 +1,15 @@
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "COLDLINE"
+      },
+      "condition": {
+        "matchesStorageClass": [
+          "STANDARD", "ARCHIVE"
+        ]
+      }
+    }
+  ]
+}

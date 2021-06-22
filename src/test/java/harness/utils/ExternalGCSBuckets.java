@@ -3,6 +3,7 @@ package harness.utils;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
+import com.google.cloud.Role;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
@@ -17,7 +18,8 @@ import java.util.UUID;
 public class ExternalGCSBuckets {
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials for an external project.
+   * resources. This method uses SA credentials to set IAM policy on a bucket in an external (to
+   * WSM) project.
    */
   public static Bucket createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
@@ -45,23 +47,41 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Grant a given user object viewer access to a bucket. This method uses SA credentials for an
-   * external project.
+   * Grant a given user object viewer access to a bucket. This method uses SA credentials to set IAM
+   * policy on a bucket in an external (to WSM) project.
    */
   public static void grantReadAccess(Bucket bucket, String email) throws IOException {
-    Storage storage = getStorageClient();
-    Policy currentPolicy = storage.getIamPolicy(bucket.getName());
-    Policy updatedPolicy =
-        storage.setIamPolicy(
-            bucket.getName(),
-            currentPolicy
-                .toBuilder()
-                .addIdentity(StorageRoles.objectViewer(), Identity.user(email))
-                .build());
-    getStorageClient().setIamPolicy(bucket.getName(), updatedPolicy);
+    grantAccess(
+        bucket,
+        Identity.user(email),
+        // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
+        StorageRoles.objectViewer(),
+        StorageRoles.legacyBucketReader());
   }
 
-  /** Helper method to build the GCS client object with SA credentials for the external project. */
+  /**
+   * Grant a given user admin access to a bucket. This method uses SA credentials to set IAM policy
+   * on a bucket in an external (to WSM) project.
+   */
+  public static void grantWriteAccess(Bucket bucket, Identity user) throws IOException {
+    grantAccess(bucket, user, StorageRoles.admin());
+  }
+
+  /**
+   * Helper method to grant a given user roles on a bucket. This method uses SA credentials to set
+   * IAM policy on a bucket in an external (to WSM) project.
+   */
+  private static void grantAccess(Bucket bucket, Identity user, Role... roles) throws IOException {
+    Storage storage = getStorageClient();
+    Policy currentPolicy = storage.getIamPolicy(bucket.getName());
+    Policy.Builder updatedPolicyBuilder = currentPolicy.toBuilder();
+    for (Role role : roles) {
+      updatedPolicyBuilder.addIdentity(role, user);
+    }
+    storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
+  }
+
+  /** Helper method to build the GCS client object with SA credentials. */
   public static Storage getStorageClient() throws IOException {
     return getStorageClient(TestExternalResources.getSACredentials());
   }
@@ -73,5 +93,10 @@ public class ExternalGCSBuckets {
         .setCredentials(credentials)
         .build()
         .getService();
+  }
+
+  /** Utility method to get the gs:// path of a bucket. */
+  public static String getGsPath(String bucketName) {
+    return "gs://" + bucketName;
   }
 }

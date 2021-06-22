@@ -1,0 +1,17 @@
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "COLDLINE"
+      },
+      "condition": {
+        "age": 68,
+        "matchesStorageClass": [
+          "NEARLINE"
+        ],
+        "numNewerVersions": 70
+      }
+    }
+  ]
+}
