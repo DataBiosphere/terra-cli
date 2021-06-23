@@ -235,7 +235,7 @@ public class SamService {
                 SamService::isRetryable,
                 (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
                 () -> inviteUser(userEmail),
-                (ex) -> false),
+                (ex) -> false), // don't retry because inviteUser already includes retries
         "Error adding user to SAM group.");
   }
 
@@ -293,7 +293,7 @@ public class SamService {
                 SamService::isRetryable,
                 (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
                 () -> inviteUser(userEmail),
-                (ex) -> false),
+                (ex) -> false), // don't retry because inviteUser already includes retries
         "Error adding user to SAM resource.");
   }
 

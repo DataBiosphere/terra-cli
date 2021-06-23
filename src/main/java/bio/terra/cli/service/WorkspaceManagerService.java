@@ -291,7 +291,7 @@ public class WorkspaceManagerService {
               WorkspaceManagerService::isRetryable,
               (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
               () -> SamService.fromContext().inviteUser(userEmail),
-              (ex) -> false);
+              (ex) -> false); // don't retry because inviteUser already includes retries
         },
         "Error granting IAM role on workspace.");
   }
