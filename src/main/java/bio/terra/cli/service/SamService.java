@@ -5,6 +5,8 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.JacksonMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.ErrorReport;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatus;
@@ -474,7 +477,37 @@ public class SamService {
     try {
       return makeRequest.makeRequest();
     } catch (ApiException | InterruptedException ex) {
-      // TODO (PF-868): include status code and http response in exception
+      // if this is a SAM client exception, check for a message in the response body
+      if (ex instanceof ApiException) {
+        ApiException apiEx = (ApiException) ex;
+        logger.error(
+            "SAM exception status code: {}, response body: {}, message: {}",
+            apiEx.getCode(),
+            apiEx.getResponseBody(),
+            apiEx.getMessage());
+
+        // try to deserialize the response body into an ErrorReport
+        String apiExMsg;
+        try {
+          ErrorReport errorReport =
+              JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+          apiExMsg = errorReport.getMessage();
+        } catch (JsonProcessingException jsonEx) {
+          logger.debug(
+              "Error deserializing SAM exception ErrorReport: {}", apiEx.getResponseBody());
+          apiExMsg = apiEx.getResponseBody();
+        }
+
+        // if we found a SAM error message, then append it to the one passed in
+        // otherwise append the http code
+        errorMsg +=
+            ": "
+                + ((apiExMsg != null && !apiExMsg.isEmpty())
+                    ? apiExMsg
+                    : apiEx.getCode() + " " + apiEx.getMessage());
+      }
+
+      // wrap the SAM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     } finally {
       // try to close the connection pool after we're finished with this request

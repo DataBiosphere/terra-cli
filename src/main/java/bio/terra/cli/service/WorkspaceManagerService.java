@@ -11,6 +11,7 @@ import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
 import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.inputs.GcsStorageClass;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -65,6 +66,7 @@ import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import java.net.SocketTimeoutException;
@@ -916,7 +918,37 @@ public class WorkspaceManagerService {
     try {
       return makeRequest.makeRequest();
     } catch (ApiException | InterruptedException ex) {
-      // TODO (PF-868): include status code and http response in exception
+      // if this is a WSM client exception, check for a message in the response body
+      if (ex instanceof ApiException) {
+        ApiException apiEx = (ApiException) ex;
+        logger.error(
+            "WSM exception status code: {}, response body: {}, message: {}",
+            apiEx.getCode(),
+            apiEx.getResponseBody(),
+            apiEx.getMessage());
+
+        // try to deserialize the response body into an ErrorReport
+        String apiExMsg;
+        try {
+          ErrorReport errorReport =
+              JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+          apiExMsg = errorReport.getMessage();
+        } catch (JsonProcessingException jsonEx) {
+          logger.debug(
+              "Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
+          apiExMsg = apiEx.getResponseBody();
+        }
+
+        // if we found a WSM error message, then append it to the one passed in
+        // otherwise append the http code
+        errorMsg +=
+            ": "
+                + ((apiExMsg != null && !apiExMsg.isEmpty())
+                    ? apiExMsg
+                    : apiEx.getCode() + " " + apiEx.getMessage());
+      }
+
+      // wrap the WSM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
   }
