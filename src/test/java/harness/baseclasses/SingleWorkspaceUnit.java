@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();;
+  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
   private static UUID workspaceId;
 
   protected static UUID getWorkspaceId() {

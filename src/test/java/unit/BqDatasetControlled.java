@@ -216,7 +216,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "--access=" + access,
             "--cloning=" + cloning,
             "--description=" + description,
-            "--email=" + workspaceCreator.email.toLowerCase(),
+            "--email=" + workspaceCreator.email,
             "--iam-roles=" + iamRole,
             "--location=" + location);
 
