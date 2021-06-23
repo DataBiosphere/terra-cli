@@ -3,6 +3,7 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -75,17 +77,19 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
 
     // `terra notebooks delete --name=$name`
     TestCommand.Result cmd = TestCommand.runCommand("resources", "delete", "--name=" + name);
-    assertThat(
-        "delete either succeeds or times out",
+    assertTrue(
         cmd.exitCode == 0
             || (cmd.exitCode == 1
                 && cmd.stdErr.contains(
-                    "CLI timed out waiting for the job to complete. It's still running on the server.")));
+                    "CLI timed out waiting for the job to complete. It's still running on the server.")),
+        "delete either succeeds or times out");
 
     // confirm it no longer appears in the resources list
     List<UFAiNotebook> listedNotebooks = listNotebookResourcesWithName(name);
-    assertEquals(
-        0, listedNotebooks.size(), "deleted notebook no longer appears in the resources list");
+    assertThat(
+        "deleted notebook no longer appears in the resources list",
+        listedNotebooks,
+        Matchers.empty());
   }
 
   @Test
@@ -212,7 +216,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to poll `terra resources describe` until the notebook state equals that
    * specified. Uses the current workspace.
    */
-  public static void pollDescribeForNotebookState(String resourceName, String notebookState)
+  static void pollDescribeForNotebookState(String resourceName, String notebookState)
       throws InterruptedException, JsonProcessingException {
     pollDescribeForNotebookState(resourceName, notebookState, null);
   }
@@ -221,7 +225,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to poll `terra resources describe` until the notebook state equals that
    * specified. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  public static void pollDescribeForNotebookState(
+  static void pollDescribeForNotebookState(
       String resourceName, String notebookState, UUID workspaceId)
       throws InterruptedException, JsonProcessingException {
     HttpUtils.pollWithRetries(

@@ -34,10 +34,10 @@ public class UFAiNotebook extends UFResource {
     this.location = internalObj.getLocation();
 
     Optional<Instance> instance = internalObj.getInstance();
-    this.instanceName = instance.isPresent() ? instance.get().getName() : "";
-    this.state = instance.isPresent() ? instance.get().getState() : "";
-    this.proxyUri = instance.isPresent() ? instance.get().getProxyUri() : "";
-    this.createTime = instance.isPresent() ? instance.get().getCreateTime() : "";
+    this.instanceName = instance.isPresent() ? instance.get().getName() : null;
+    this.state = instance.isPresent() ? instance.get().getState() : null;
+    this.proxyUri = instance.isPresent() ? instance.get().getProxyUri() : null;
+    this.createTime = instance.isPresent() ? instance.get().getCreateTime() : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -59,10 +59,10 @@ public class UFAiNotebook extends UFResource {
     OUT.println("GCP project id:                " + projectId);
     OUT.println("AI Notebook instance location: " + location);
     OUT.println("AI Notebook instance id:       " + instanceId);
-    OUT.println("Instance name: " + instanceName);
-    OUT.println("State:         " + state);
-    OUT.println("Proxy URL:     " + proxyUri);
-    OUT.println("Create time:   " + createTime);
+    OUT.println("Instance name: " + instanceName == null ? "(undefined)" : instanceName);
+    OUT.println("State:         " + state == null ? "(undefined)" : state);
+    OUT.println("Proxy URL:     " + proxyUri == null ? "(undefined)" : proxyUri);
+    OUT.println("Create time:   " + createTime == null ? "(undefined)" : createTime);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

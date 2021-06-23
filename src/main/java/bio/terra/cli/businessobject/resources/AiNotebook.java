@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDAiNotebook;
 import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
@@ -130,7 +129,7 @@ public class AiNotebook extends Resource {
     GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
     try {
       return Optional.of(notebooks.get(instanceName));
-    } catch (SystemException ex) {
+    } catch (Exception ex) {
       logger.error("Caught exception looking up notebook instance", ex);
       return Optional.empty();
     }
