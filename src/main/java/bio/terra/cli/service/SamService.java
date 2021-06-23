@@ -10,7 +10,6 @@ import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
@@ -82,27 +81,23 @@ public class SamService {
    * @return the SAM status object, null if there was an error checking the status
    */
   public SystemStatus getStatus() {
-    StatusApi statusApi = new StatusApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(statusApi::getSystemStatus, SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error getting SAM status.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return callWithRetries(new StatusApi(apiClient)::getSystemStatus, "Error getting SAM status.");
   }
 
   /**
    * Call the SAM "/api/users/v1/invite/{inviteeEmail}" endpoint to invite a user and track them.
-   * This is not the same thing as registering a user. Unlike other methods in this class, this
-   * method does not include retries.
+   * This is not the same thing as registering a user.
    *
    * @param userEmail email to invite
    */
-  public void inviteUserNoRetries(String userEmail) throws ApiException {
-    logger.info("Inviting new user: {}", userEmail);
-    UserStatusDetails userStatusDetails = new UsersApi(apiClient).inviteUser(userEmail);
-    logger.info("Invited new user: {}", userStatusDetails);
+  public void inviteUser(String userEmail) {
+    callWithRetries(
+        () -> {
+          logger.info("Inviting new user: {}", userEmail);
+          UserStatusDetails userStatusDetails = new UsersApi(apiClient).inviteUser(userEmail);
+          logger.info("Invited new user: {}", userStatusDetails);
+        },
+        "Error inviting new user in SAM.");
   }
 
   /**
@@ -112,14 +107,8 @@ public class SamService {
    * @return SAM object with details about the user
    */
   public UserStatusInfo getUserInfo() {
-    UsersApi samUsersApi = new UsersApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(samUsersApi::getUserStatusInfo, SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error reading user information from SAM.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return callWithRetries(
+        new UsersApi(apiClient)::getUserStatusInfo, "Error reading user information from SAM.");
   }
 
   /**
@@ -132,28 +121,25 @@ public class SamService {
    * @return SAM object with details about the user
    */
   public UserStatusInfo getUserInfoOrRegisterUser() {
+    // - try to lookup the user
+    // - if the user lookup failed with a Not Found error, it means the email is not found
+    // - so try to register the user first, then retry looking them up
     UsersApi samUsersApi = new UsersApi(apiClient);
-    try {
-      // - try to lookup the user
-      // - if the user lookup failed with a Not Found error, it means the email is not found
-      // - so try to register the user first, then retry looking them up
-      return HttpUtils.callAndHandleOneTimeErrorWithRetries(
-          samUsersApi::getUserStatusInfo,
-          SamService::isRetryable,
-          SamService::isNotFound,
-          () -> {
-            UserStatus userStatus = samUsersApi.createUserV2();
-            logger.info(
-                "User registered in SAM: {}, {}",
-                userStatus.getUserInfo().getUserSubjectId(),
-                userStatus.getUserInfo().getUserEmail());
-          },
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error reading user information from SAM.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                samUsersApi::getUserStatusInfo,
+                SamService::isRetryable,
+                ex -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_NOT_FOUND),
+                () -> {
+                  UserStatus userStatus = samUsersApi.createUserV2();
+                  logger.info(
+                      "User registered in SAM: {}, {}",
+                      userStatus.getUserInfo().getUserSubjectId(),
+                      userStatus.getUserInfo().getUserEmail());
+                },
+                SamService::isRetryable),
+        "Error reading user information from SAM.");
   }
 
   /**
@@ -163,15 +149,9 @@ public class SamService {
    * @return email address of the user's proxy group
    */
   public String getProxyGroupEmail() {
-    GoogleApi googleApi = new GoogleApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(
-          () -> googleApi.getProxyGroup(user.getEmail()), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error getting proxy group email from SAM.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return callWithRetries(
+        () -> new GoogleApi(apiClient).getProxyGroup(user.getEmail()),
+        "Error getting proxy group email from SAM.");
   }
 
   /**
@@ -180,14 +160,8 @@ public class SamService {
    * @param groupName name of the new group
    */
   public void createGroup(String groupName) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      HttpUtils.callWithRetries(() -> groupApi.postGroup(groupName), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error creating SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    callWithRetries(
+        () -> new GroupApi(apiClient).postGroup(groupName), "Error creating SAM group.");
   }
 
   /**
@@ -196,31 +170,8 @@ public class SamService {
    * @param groupName name of the group to delete
    */
   public void deleteGroup(String groupName) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      HttpUtils.callWithRetries(() -> groupApi.deleteGroup(groupName), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error deleting SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
-  }
-
-  /**
-   * Call the SAM "/api/groups/v1/{groupName}" GET endpoint to get the email address of a group.
-   *
-   * @param groupName name of the group to delete
-   * @return email address of the group
-   */
-  public String getGroupEmail(String groupName) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(() -> groupApi.getGroup(groupName), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error getting email address of SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    callWithRetries(
+        () -> new GroupApi(apiClient).deleteGroup(groupName), "Error deleting SAM group.");
   }
 
   /**
@@ -255,16 +206,9 @@ public class SamService {
    * @return a list of users that belong to the group with the specified policy
    */
   public List<String> listUsersInGroup(String groupName, GroupPolicy policy) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(
-          () -> groupApi.getGroupAdminEmails(groupName, policy.getSamPolicy()),
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error listing users in SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return callWithRetries(
+        () -> new GroupApi(apiClient).getGroupAdminEmails(groupName, policy.getSamPolicy()),
+        "Error listing users in SAM group.");
   }
 
   /**
@@ -276,20 +220,20 @@ public class SamService {
    * @param userEmail email of the user to add
    */
   public void addUserToGroup(String groupName, GroupPolicy policy, String userEmail) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      // - try to add the email to the group
-      // - if this fails with a Bad Request error, it means the email is not found
-      // - so try to invite the user first, then retry adding them to the group
-      callAndHandleOneTimeErrorWithRetries(
-          () -> groupApi.addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
-          SamService::isBadRequest,
-          () -> inviteUserNoRetries(userEmail));
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error adding user to SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    // - try to add the email to the group
+    // - if this fails with a Bad Request error, it means the email is not found
+    // - so try to invite the user first, then retry adding them to the group
+    handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                () ->
+                    new GroupApi(apiClient)
+                        .addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+                SamService::isRetryable,
+                (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+                () -> inviteUser(userEmail),
+                (ex) -> false),
+        "Error adding user to SAM group.");
   }
 
   /**
@@ -301,16 +245,11 @@ public class SamService {
    * @param userEmail email of the user to remove
    */
   public void removeUserFromGroup(String groupName, GroupPolicy policy, String userEmail) {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      HttpUtils.callWithRetries(
-          () -> groupApi.removeEmailFromGroup(groupName, policy.getSamPolicy(), userEmail),
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error removing user from SAM group.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    callWithRetries(
+        () ->
+            new GroupApi(apiClient)
+                .removeEmailFromGroup(groupName, policy.getSamPolicy(), userEmail),
+        "Error removing user from SAM group.");
   }
 
   /**
@@ -319,14 +258,8 @@ public class SamService {
    * @return a list of groups
    */
   public List<ManagedGroupMembershipEntry> listGroups() {
-    GroupApi groupApi = new GroupApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(groupApi::listGroupMemberships, SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error listing SAM groups.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    return callWithRetries(
+        new GroupApi(apiClient)::listGroupMemberships, "Error listing SAM groups.");
   }
 
   /**
@@ -344,50 +277,21 @@ public class SamService {
    */
   public void addUserToResourceOrInviteUser(
       String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
-    try {
-      // - try to add user to the policy
-      // - if the add user to policy failed with a Bad Request error, it means the email is not
-      // found
-      // - so try to invite the user first, then retry adding them to the policy
-      ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-      callAndHandleOneTimeErrorWithRetries(
-          () ->
-              resourcesApi.addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
-          SamService::isBadRequest,
-          () -> inviteUserNoRetries(userEmail));
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error adding user to SAM resource.", ex);
-    } finally {
-      closeConnectionPool();
-    }
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the SAM client is a bad request.
-   *
-   * @param ex exception to test
-   * @return true if the exception is a bad request
-   */
-  private static boolean isBadRequest(Exception ex) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatusCodes.STATUS_CODE_BAD_REQUEST;
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the SAM client is a not found.
-   *
-   * @param ex exception to test
-   * @return true if the exception is a not found
-   */
-  private static boolean isNotFound(Exception ex) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatusCodes.STATUS_CODE_NOT_FOUND;
+    // - try to add user to the policy
+    // - if the add user to policy failed with a Bad Request error, it means the email is not
+    // found
+    // - so try to invite the user first, then retry adding them to the policy
+    handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                () ->
+                    new ResourcesApi(apiClient)
+                        .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+                SamService::isRetryable,
+                (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+                () -> inviteUser(userEmail),
+                (ex) -> false),
+        "Error adding user to SAM resource.");
   }
 
   /**
@@ -402,18 +306,11 @@ public class SamService {
    */
   public void removeUserFromResource(
       String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
-    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-    try {
-      HttpUtils.callWithRetries(
-          () ->
-              resourcesApi.removeUserFromPolicy(
-                  resourceType, resourceId, resourcePolicyName, userEmail),
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error removing user from SAM resource.", ex);
-    } finally {
-      closeConnectionPool();
-    }
+    callWithRetries(
+        () ->
+            new ResourcesApi(apiClient)
+                .removeUserFromPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+        "Error removing user from SAM resource.");
   }
 
   /**
@@ -426,29 +323,9 @@ public class SamService {
    */
   public List<AccessPolicyResponseEntry> listPoliciesForResource(
       String resourceType, String resourceId) {
-    ResourcesApi resourcesApi = new ResourcesApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(
-          () -> resourcesApi.listResourcePolicies(resourceType, resourceId),
-          SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error getting policies for SAM resource.", ex);
-    } finally {
-      closeConnectionPool();
-    }
-  }
-
-  /** Try to close the connection pool after we're finished with this SAM request. */
-  private void closeConnectionPool() {
-    // try to close the connection pool after we're finished with this request
-    // TODO: why is this needed? possibly a bad interaction with picoCLI?
-    try {
-      apiClient.getHttpClient().connectionPool().evictAll();
-    } catch (Exception anyEx) {
-      logger.error(
-          "Error forcing connection pool to shutdown after making a SAM client library call.",
-          anyEx);
-    }
+    return callWithRetries(
+        () -> new ResourcesApi(apiClient).listResourcePolicies(resourceType, resourceId),
+        "Error getting policies for SAM resource.");
   }
 
   /**
@@ -460,12 +337,9 @@ public class SamService {
    * @return the HTTP response to the SAM request
    */
   public HttpUtils.HttpResponse getPetSaKeyForProject(String googleProjectId) {
-    try {
-      return HttpUtils.callWithRetries(
-          () -> getPetSaKeyForProjectApiClientWrapper(googleProjectId), SamService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error fetching the pet SA key file from SAM.", ex);
-    }
+    return callWithRetries(
+        () -> getPetSaKeyForProjectApiClientWrapper(googleProjectId),
+        "Error fetching the pet SA key file from SAM.");
   }
 
   /**
@@ -506,6 +380,21 @@ public class SamService {
   }
 
   /**
+   * Utility method that checks if an exception thrown by the SAM client matches the given HTTP
+   * status code.
+   *
+   * @param ex exception to test
+   * @return true if the exception status code matches
+   */
+  private static boolean isStatusCode(Exception ex, int statusCode) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int exceptionStatusCode = ((ApiException) ex).getCode();
+    return statusCode == exceptionStatusCode;
+  }
+
+  /**
    * Utility method that checks if an exception thrown by the SAM client is retryable.
    *
    * @param ex exception to test
@@ -525,22 +414,78 @@ public class SamService {
   }
 
   /**
-   * Helper method to call {@link
-   * HttpUtils#callAndHandleOneTimeErrorWithRetries(HttpUtils.SupplierWithCheckedException,
-   * Predicate, Predicate, HttpUtils.RunnableWithCheckedException, Predicate)} with the {@link
-   * #isRetryable(Exception)} method as both isRetryable arguments.
+   * Execute a function that includes hitting SAM endpoints. Retry if the function throws an {@link
+   * #isRetryable} exception. If an exception is thrown by the SAM client or the retries, make sure
+   * the HTTP status code and error message are logged.
+   *
+   * @param makeRequest function with no return value
+   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
+   *     thrown by the SAM client or the retries
    */
-  private static <E1 extends Exception, E2 extends Exception>
-      void callAndHandleOneTimeErrorWithRetries(
-          HttpUtils.RunnableWithCheckedException<E1> makeRequest,
-          Predicate<Exception> isOneTimeError,
-          HttpUtils.RunnableWithCheckedException<E2> handleOneTimeError)
-          throws E1, E2, InterruptedException {
-    HttpUtils.callAndHandleOneTimeErrorWithRetries(
-        makeRequest,
-        SamService::isRetryable,
-        isOneTimeError,
-        handleOneTimeError,
-        SamService::isRetryable);
+  private void callWithRetries(
+      HttpUtils.RunnableWithCheckedException<ApiException> makeRequest, String errorMsg) {
+    handleClientExceptions(
+        () -> HttpUtils.callWithRetries(makeRequest, SamService::isRetryable), errorMsg);
+  }
+
+  /**
+   * Execute a function that includes hitting SAM endpoints. Retry if the function throws an {@link
+   * #isRetryable} exception. If an exception is thrown by the SAM client or the retries, make sure
+   * the HTTP status code and error message are logged.
+   *
+   * @param makeRequest function with a return value
+   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
+   *     thrown by the SAM client or the retries
+   */
+  private <T> T callWithRetries(
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+    return handleClientExceptions(
+        () -> HttpUtils.callWithRetries(makeRequest, SamService::isRetryable), errorMsg);
+  }
+
+  /**
+   * Execute a function that includes hitting SAM endpoints. If an exception is thrown by the SAM
+   * client or the retries, make sure the HTTP status code and error message are logged.
+   *
+   * @param makeRequest function with no return value
+   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
+   *     thrown by the SAM client or the retries
+   */
+  private void handleClientExceptions(
+      HttpUtils.RunnableWithCheckedException<ApiException> makeRequest, String errorMsg) {
+    handleClientExceptions(
+        () -> {
+          makeRequest.run();
+          return null;
+        },
+        errorMsg);
+  }
+
+  /**
+   * Execute a function that includes hitting SAM endpoints. If an exception is thrown by the SAM
+   * client or the retries, make sure the HTTP status code and error message are logged.
+   *
+   * @param makeRequest function with a return value
+   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
+   *     thrown by the SAM client or the retries
+   */
+  private <T> T handleClientExceptions(
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+    try {
+      return makeRequest.makeRequest();
+    } catch (ApiException | InterruptedException ex) {
+      // TODO (PF-868): include status code and http response in exception
+      throw new SystemException(errorMsg, ex);
+    } finally {
+      // try to close the connection pool after we're finished with this request
+      // TODO: why is this needed? possibly a bad interaction with picoCLI?
+      try {
+        apiClient.getHttpClient().connectionPool().evictAll();
+      } catch (Exception anyEx) {
+        logger.error(
+            "Error forcing connection pool to shutdown after making a SAM client library call.",
+            anyEx);
+      }
+    }
   }
 }

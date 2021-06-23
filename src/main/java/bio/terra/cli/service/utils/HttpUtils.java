@@ -382,7 +382,7 @@ public class HttpUtils {
    */
   @FunctionalInterface
   public interface SupplierWithCheckedException<T, E extends Exception> {
-    T makeRequest() throws E;
+    T makeRequest() throws E, InterruptedException;
   }
 
   /**
@@ -391,6 +391,6 @@ public class HttpUtils {
    */
   @FunctionalInterface
   public interface RunnableWithCheckedException<E extends Exception> {
-    void run() throws E;
+    void run() throws E, InterruptedException;
   }
 }
