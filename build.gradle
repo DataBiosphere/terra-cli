@@ -42,7 +42,7 @@ repositories {
 dependencies {
     ext {
         // command parsing
-        picocli = '4.5.2'
+        picocli = '4.6.1'
         picocliAnnotations = '4.2.0'
 
         // logging

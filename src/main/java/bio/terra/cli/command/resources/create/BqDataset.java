@@ -23,7 +23,7 @@ public class BqDataset extends BaseCommand {
 
   @CommandLine.Option(
       names = "--location",
-      description = "Dataset location (https://cloud.google.com/storage/docs/locations)")
+      description = "Dataset location (https://cloud.google.com/bigquery/docs/locations)")
   private String location;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

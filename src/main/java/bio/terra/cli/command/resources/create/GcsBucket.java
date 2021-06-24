@@ -3,19 +3,12 @@ package bio.terra.cli.command.resources.create;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
-import bio.terra.cli.utils.JacksonMapper;
-import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import bio.terra.workspace.model.StewardshipType;
-import com.fasterxml.jackson.databind.MapperFeature;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collections;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources create gcs-bucket" command. */
@@ -33,33 +26,14 @@ public class GcsBucket extends BaseCommand {
           "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket')")
   private String bucketName;
 
-  @CommandLine.Option(
-      names = "--storage",
-      description =
-          "Storage class (https://cloud.google.com/storage/docs/storage-classes): ${COMPLETION-CANDIDATES}")
-  private GcpGcsBucketDefaultStorageClass storageClass;
+  @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
 
   @CommandLine.Option(
       names = "--location",
       description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
   private String location;
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  GcsBucket.LifecycleArgGroup lifecycleArgGroup;
-
-  static class LifecycleArgGroup {
-    @CommandLine.Option(
-        names = "--lifecycle",
-        description =
-            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.")
-    private Path pathToLifecycleFile;
-
-    @CommandLine.Option(
-        names = "--auto-delete",
-        description =
-            "Number of days after which to auto-delete the objects in the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
-    private Integer autoDelete;
-  }
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -79,28 +53,9 @@ public class GcsBucket extends BaseCommand {
         new CreateGcsBucketParams.Builder()
             .resourceFields(createResourceParams.build())
             .bucketName(bucketName)
-            .defaultStorageClass(storageClass)
-            .location(location);
-
-    // build the lifecycle object
-    if (lifecycleArgGroup == null) {
-      // empty lifecycle rule object
-      createParams.lifecycle(new GcsBucketLifecycle());
-    } else if (lifecycleArgGroup.autoDelete != null) {
-      // build an auto-delete lifecycle rule and set the number of days
-      createParams.lifecycle(GcsBucketLifecycle.buildAutoDeleteRule(lifecycleArgGroup.autoDelete));
-    } else {
-      // read in the lifecycle rules from a file
-      try {
-        createParams.lifecycle(
-            JacksonMapper.readFileIntoJavaObject(
-                lifecycleArgGroup.pathToLifecycleFile.toFile(),
-                GcsBucketLifecycle.class,
-                Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)));
-      } catch (IOException ioEx) {
-        throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
-      }
-    }
+            .defaultStorageClass(storageClassOption.storageClass)
+            .location(location)
+            .lifecycle(lifecycleOptions.buildLifecycleObject());
 
     bio.terra.cli.businessobject.resources.GcsBucket createdResource =
         bio.terra.cli.businessobject.resources.GcsBucket.createControlled(createParams.build());

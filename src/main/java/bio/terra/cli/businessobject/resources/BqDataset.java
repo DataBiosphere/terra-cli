@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -107,6 +108,40 @@ public class BqDataset extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new BqDataset(createdResource);
+  }
+
+  /** Update a Big Query dataset referenced resource in the workspace. */
+  public void updateReferenced(UpdateResourceParams updateParams) {
+    if (updateParams.name != null && !Resource.isValidEnvironmentVariableName(updateParams.name)) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
+    // call WSM to update the reference
+    WorkspaceManagerService.fromContext()
+        .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+    logger.info("Updated referenced BQ dataset: {}", updateParams);
+
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
+    Context.requireWorkspace().listResourcesAndSync();
+  }
+
+  /** Update a Big Query dataset controlled resource in the workspace. */
+  public void updateControlled(UpdateResourceParams updateParams) {
+    if (updateParams.name != null && !Resource.isValidEnvironmentVariableName(updateParams.name)) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
+    // call WSM to update the resource
+    WorkspaceManagerService.fromContext()
+        .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+    logger.info("Updated controlled BQ dataset: {}", updateParams);
+
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
+    Context.requireWorkspace().listResourcesAndSync();
   }
 
   /** Delete a Big Query dataset referenced resource in the workspace. */

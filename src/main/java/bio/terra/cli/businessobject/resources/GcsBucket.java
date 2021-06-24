@@ -5,6 +5,8 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -98,6 +100,44 @@ public class GcsBucket extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GcsBucket(createdResource);
+  }
+
+  /** Update a GCS bucket referenced resource in the workspace. */
+  public void updateReferenced(UpdateResourceParams updateParams) {
+    if (updateParams.name != null && !Resource.isValidEnvironmentVariableName(updateParams.name)) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
+    // call WSM to update the reference
+    WorkspaceManagerService.fromContext()
+        .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    logger.info("Updated referenced GCS bucket: {}", updateParams);
+
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
+    Context.requireWorkspace().listResourcesAndSync();
+  }
+
+  /** Update a GCS bucket controlled resource in the workspace. */
+  public void updateControlled(UpdateGcsBucketParams updateParams) {
+    if (updateParams.resourceFields.name != null
+        && !Resource.isValidEnvironmentVariableName(updateParams.resourceFields.name)) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+
+    // call WSM to update the resource
+    WorkspaceManagerService.fromContext()
+        .updateControlledGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    logger.info("Updated controlled GCS bucket: {}", updateParams);
+
+    this.name = updateParams.resourceFields.name == null ? name : updateParams.resourceFields.name;
+    this.description =
+        updateParams.resourceFields.description == null
+            ? description
+            : updateParams.resourceFields.description;
+    Context.requireWorkspace().listResourcesAndSync();
   }
 
   /** Delete a GCS bucket referenced resource in the workspace. */

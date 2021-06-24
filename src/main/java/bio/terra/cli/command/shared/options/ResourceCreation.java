@@ -6,15 +6,14 @@ import picocli.CommandLine;
 
 /**
  * Command helper class that defines the relevant options for create a new controlled or referenced
- * Terra resource: {@link ResourceName} and --description, --cloning.
+ * Terra resource: {@link ResourceName} and {@link ResourceDescription}, --cloning.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class ResourceCreation {
   @CommandLine.Mixin ResourceName resourceNameOption;
 
-  @CommandLine.Option(names = "--description", description = "Description of the resource")
-  public String description;
+  @CommandLine.Mixin ResourceDescription resourceDescriptionOption;
 
   @CommandLine.Option(
       names = "--cloning",
@@ -29,7 +28,7 @@ public class ResourceCreation {
   public CreateResourceParams.Builder populateMetadataFields() {
     return new CreateResourceParams.Builder()
         .name(resourceNameOption.name)
-        .description(description)
+        .description(resourceDescriptionOption.description)
         .cloningInstructions(cloning);
   }
 }

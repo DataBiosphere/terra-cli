@@ -10,6 +10,8 @@ import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.inputs.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
@@ -49,6 +51,7 @@ import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
 import bio.terra.workspace.model.GcpGcsBucketResource;
+import bio.terra.workspace.model.GcpGcsBucketUpdateParameters;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
@@ -61,6 +64,9 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
+import bio.terra.workspace.model.UpdateControlledResourceRequestBody;
+import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
@@ -759,6 +765,132 @@ public class WorkspaceManagerService {
                 .userName(createParams.privateUserName)
                 .privateResourceIamRoles(privateResourceIamRoles))
         .managedBy(ManagedBy.USER);
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * update a GCS bucket referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedGcsBucket(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateDataReferenceRequestBody updateRequest =
+        new UpdateDataReferenceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      HttpUtils.callWithRetries(
+          () -> {
+            referencedGcpResourceApi.updateBucketReference(updateRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error updating referenced GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
+   * update a GCS bucket controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledGcsBucket(
+      UUID workspaceId, UUID resourceId, UpdateGcsBucketParams updateParams) {
+    // convert the CLI lifecycle rule object into the WSM request objects
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(updateParams.lifecycle);
+
+    // convert the CLI object to a WSM request object
+    UpdateControlledGcpGcsBucketRequestBody updateRequest =
+        new UpdateControlledGcpGcsBucketRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description)
+            .updateParameters(
+                new GcpGcsBucketUpdateParameters()
+                    .defaultStorageClass(updateParams.defaultStorageClass)
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules)));
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      HttpUtils.callWithRetries(
+          () -> {
+            controlledGcpResourceApi.updateGcsBucket(updateRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException("Error updating controlled GCS bucket in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
+   * endpoint to update a Big Query dataset referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedBigQueryDataset(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateDataReferenceRequestBody updateRequest =
+        new UpdateDataReferenceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    try {
+      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
+      HttpUtils.callWithRetries(
+          () -> {
+            referencedGcpResourceApi.updateBigQueryDatasetReference(
+                updateRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error updating referenced Big Query dataset in the workspace.", ex);
+    }
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
+   * update a Big Query dataset controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledBigQueryDataset(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateControlledResourceRequestBody updateRequest =
+        new UpdateControlledResourceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    try {
+      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+      HttpUtils.callWithRetries(
+          () -> {
+            controlledGcpResourceApi.updateBigQueryDataset(updateRequest, workspaceId, resourceId);
+            return null;
+          },
+          WorkspaceManagerService::isRetryable);
+    } catch (ApiException | InterruptedException ex) {
+      throw new SystemException(
+          "Error updating controlled Big Query dataset in the workspace.", ex);
+    }
   }
 
   /**
