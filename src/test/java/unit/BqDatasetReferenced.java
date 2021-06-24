@@ -1,5 +1,6 @@
 package unit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
@@ -12,6 +13,7 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -282,5 +284,122 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+  }
+
+  @Test
+  @DisplayName("update a referenced dataset, one property at a time")
+  void updateIndividualProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId  --description=$description`
+    String name = "updateIndividualProperties";
+    String description = "updateDescription";
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "add-ref",
+        "bq-dataset",
+        "--name=" + name,
+        "--description=" + description,
+        "--project-id=" + externalDataset.getDatasetId().getProject(),
+        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+
+    // update just the name
+    // `terra resources update bq-dataset --name=$name --new-name=$newName`
+    String newName = "updateIndividualProperties_NEW";
+    UFBqDataset updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + name,
+            "--new-name=" + newName);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(description, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    UFBqDataset describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(description, describeDataset.description);
+
+    // update just the description
+    // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    String newDescription = "updateDescription_NEW";
+    updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + newName,
+            "--description=" + newDescription);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(newDescription, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataset.description);
+  }
+
+  @Test
+  @DisplayName("update a referenced dataset, specifying multiple or none of the properties")
+  void updateMultipleOrNoProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId  --description=$description`
+    String name = "updateMultipleOrNoProperties";
+    String description = "updateDescription";
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "add-ref",
+        "bq-dataset",
+        "--name=" + name,
+        "--description=" + description,
+        "--project-id=" + externalDataset.getDatasetId().getProject(),
+        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+
+    // call update without specifying any properties to modify
+    // `terra resources update bq-dataset --name=$name`
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(
+            1, "resources", "update", "bq-dataset", "--name=" + name);
+    assertThat(
+        "error message says that at least one property must be specified",
+        stdErr,
+        CoreMatchers.containsString("Specify at least one property to update"));
+
+    // update both the name and description
+    // `terra resources update bq-dataset --name=$newName --new-name=$newName
+    // --description=$newDescription`
+    String newName = "updateMultipleOrNoProperties_NEW";
+    String newDescription = "updateDescription_NEW";
+    UFBqDataset updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--description=" + newDescription);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(newDescription, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    UFBqDataset describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataset.description);
   }
 }

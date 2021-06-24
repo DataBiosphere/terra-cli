@@ -55,6 +55,6 @@ public class GcsBucketLifecycle {
   }
 
   public boolean isDefined() {
-    return lifecycleArgGroup == null;
+    return lifecycleArgGroup != null;
   }
 }

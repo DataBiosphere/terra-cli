@@ -323,6 +323,7 @@ Commands:
   describe                   Describe a resource.
   list                       List all resources.
   resolve                    Resolve a resource to its cloud id or path.
+  update                     Update the properties of a resource.
 ```
 
 A controlled resource is a cloud resource that is managed by Terra. It exists within the current workspace context.

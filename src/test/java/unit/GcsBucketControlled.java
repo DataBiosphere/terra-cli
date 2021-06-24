@@ -237,6 +237,139 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
   }
 
+  @Test
+  @DisplayName("update a controlled bucket, one property at a time, except for lifecycle")
+  void updateIndividualProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources create gcs-bucket --name=$name --description=$description
+    // --bucket-name=$bucketName`
+    String name = "updateIndividualProperties";
+    String description = "updateDescription";
+    String bucketName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "gcs-bucket",
+        "--name=" + name,
+        "--description=" + description,
+        "--bucket-name=" + bucketName);
+
+    // update just the name
+    // `terra resources update gcs-bucket --name=$name --new-name=$newName`
+    String newName = "updateIndividualProperties_NEW";
+    UFGcsBucket updateBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resources",
+            "update",
+            "gcs-bucket",
+            "--name=" + name,
+            "--new-name=" + newName);
+    assertEquals(newName, updateBucket.name);
+    assertEquals(description, updateBucket.description);
+
+    // `terra resources describe --name=$newName`
+    UFGcsBucket describeBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+    assertEquals(description, describeBucket.description);
+
+    // update just the description
+    // `terra resources update gcs-bucket --name=$newName --description=$newDescription`
+    String newDescription = "updateDescription_NEW";
+    updateBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resources",
+            "update",
+            "gcs-bucket",
+            "--name=" + newName,
+            "--description=" + newDescription);
+    assertEquals(newName, updateBucket.name);
+    assertEquals(newDescription, updateBucket.description);
+
+    // `terra resources describe --name=$newName`
+    describeBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeBucket.description);
+
+    // update just the storage class
+    // `terra resources update gcs-bucket --name=$newName --storageClass
+    GcsStorageClass newStorage = GcsStorageClass.ARCHIVE;
+    TestCommand.runCommandExpectSuccess(
+        "resources", "update", "gcs-bucket", "--name=" + newName, "--storage=" + newStorage);
+
+    // check the updated storage class from GCS directly
+    Bucket bucketOnCloud =
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+    assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
+    assertEquals(
+        newStorage.toString(),
+        bucketOnCloud.getStorageClass().toString(),
+        "bucket storage class matches update input");
+  }
+
+  @Test
+  @DisplayName("update a controlled bucket, specifying multiple properties, except for lifecycle")
+  void updateMultipleProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources create gcs-bucket --name=$name --description=$description
+    // --bucket-name=$bucketName`
+    String name = "updateMultipleProperties";
+    String description = "updateDescription";
+    String bucketName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "gcs-bucket",
+        "--name=" + name,
+        "--description=" + description,
+        "--bucket-name=" + bucketName);
+
+    // update the name, description, and storage class
+    // `terra resources update gcs-bucket --name=$newName --new-name=$newName
+    // --description=$newDescription --storage=$storage`
+    String newName = "updateMultipleProperties_NEW";
+    String newDescription = "updateDescription_NEW";
+    GcsStorageClass newStorage = GcsStorageClass.NEARLINE;
+    UFGcsBucket updateBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resources",
+            "update",
+            "gcs-bucket",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--description=" + newDescription,
+            "--storage=" + newStorage);
+    assertEquals(newName, updateBucket.name);
+    assertEquals(newDescription, updateBucket.description);
+
+    // `terra resources describe --name=$newName`
+    UFGcsBucket describeBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeBucket.description);
+
+    // check the storage class from GCS directly
+    Bucket bucketOnCloud =
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+    assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
+    assertEquals(
+        newStorage.toString(),
+        bucketOnCloud.getStorageClass().toString(),
+        "bucket storage class matches update input");
+  }
+
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
