@@ -4,6 +4,9 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static unit.AiNotebookControlled.listNotebookResourcesWithName;
+import static unit.AiNotebookControlled.listOneNotebookResourceWithName;
+import static unit.AiNotebookControlled.pollDescribeForNotebookState;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
@@ -14,6 +17,7 @@ import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
+import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.IamRole;
@@ -32,6 +36,7 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,7 +44,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `--workspace` option to override the current workspace just for this command. */
 @Tag("unit")
 public class WorkspaceOverride extends ClearContextUnit {
-  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();;
+  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
   private static UFWorkspace workspace1;
   private static UFWorkspace workspace2;
 
@@ -389,5 +394,40 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace list`
     matchingWorkspaces = listWorkspacesWithId(workspace1.id);
     assertEquals(1, matchingWorkspaces.size(), "workspace 1 is still included in list");
+  }
+
+  @Disabled // TODO (PF-869): enable this test once polling notebook operations is fixed
+  @DisplayName("notebook commands respect workspace override")
+  void notebooks() throws IOException, InterruptedException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id1`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
+
+    // `terra resources create ai-notebook --name=$name`
+    String name = "notebooks";
+    TestCommand.runCommandExpectSuccess(
+        "resources", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
+    pollDescribeForNotebookState(name, "PROVISIONING", workspace2.id);
+
+    // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
+    UFAiNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
+    assertEquals(name, matchedNotebook.name, "list output for workspace 2 matches notebook name");
+
+    // `terra resources list --type=AI_NOTEBOOK`
+    List<UFAiNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
+    assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
+
+    // `terra notebooks start --name=$name`
+    // TODO (PF-869): change this to expect success and remove polling (state change is covered by
+    // ctrl notebooks tests)
+    TestCommand.runCommand("notebooks", "start", "--name=" + name, "--workspace=" + workspace2.id);
+    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
+
+    // `terra notebooks stop --name=$name`
+    // TODO (PF-869): change this to expect success and remove polling (state change is covered by
+    // ctrl notebooks tests)
+    TestCommand.runCommand("notebooks", "stop", "--name=" + name, "--workspace=" + workspace2.id);
+    pollDescribeForNotebookState(name, "STOPPED", workspace2.id);
   }
 }

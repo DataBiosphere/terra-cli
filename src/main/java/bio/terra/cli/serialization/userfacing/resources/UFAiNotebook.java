@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.api.services.notebooks.v1.model.Instance;
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * External representation of a workspace AI notebook resource for command input/output.
@@ -32,11 +33,11 @@ public class UFAiNotebook extends UFResource {
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
 
-    Instance instance = internalObj.getInstance();
-    this.instanceName = instance.getName();
-    this.state = instance.getState();
-    this.proxyUri = instance.getProxyUri();
-    this.createTime = instance.getCreateTime();
+    Optional<Instance> instance = internalObj.getInstance();
+    this.instanceName = instance.isPresent() ? instance.get().getName() : null;
+    this.state = instance.isPresent() ? instance.get().getState() : null;
+    this.proxyUri = instance.isPresent() ? instance.get().getProxyUri() : null;
+    this.createTime = instance.isPresent() ? instance.get().getCreateTime() : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -58,10 +59,10 @@ public class UFAiNotebook extends UFResource {
     OUT.println("GCP project id:                " + projectId);
     OUT.println("AI Notebook instance location: " + location);
     OUT.println("AI Notebook instance id:       " + instanceId);
-    OUT.println("Instance name: " + instanceName);
-    OUT.println("State:         " + state);
-    OUT.println("Proxy URL:     " + proxyUri);
-    OUT.println("Create time:   " + createTime);
+    OUT.println("Instance name: " + instanceName == null ? "(undefined)" : instanceName);
+    OUT.println("State:         " + state == null ? "(undefined)" : state);
+    OUT.println("Proxy URL:     " + proxyUri == null ? "(undefined)" : proxyUri);
+    OUT.println("Create time:   " + createTime == null ? "(undefined)" : createTime);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

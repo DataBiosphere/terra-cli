@@ -549,6 +549,7 @@ public class WorkspaceManagerService {
             .common(createCommonFields(createParams.resourceFields))
             .aiNotebookInstance(fromCLIObject(createParams))
             .jobControl(new JobControl().id(jobId));
+    logger.debug("Create controlled AI notebook request {}", createRequest);
 
     try {
       ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
