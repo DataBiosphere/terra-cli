@@ -6,19 +6,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating/updating a GCS bucket workspace resource. This class is not currently
- * user-facing, but could be exposed as a command input format in the future.
+ * Parameters for creating a GCS bucket workspace resource. This class is not currently user-facing,
+ * but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateUpdateGcsBucket.Builder.class)
-public class CreateUpdateGcsBucket {
-  public final CreateUpdateResource resourceFields;
+@JsonDeserialize(builder = CreateGcsBucketParams.Builder.class)
+public class CreateGcsBucketParams {
+  public final CreateResourceParams resourceFields;
   public final String bucketName;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
   public final String location;
 
-  protected CreateUpdateGcsBucket(CreateUpdateGcsBucket.Builder builder) {
+  protected CreateGcsBucketParams(CreateGcsBucketParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.lifecycle = builder.lifecycle;
@@ -28,13 +28,13 @@ public class CreateUpdateGcsBucket {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private CreateUpdateResource resourceFields;
+    private CreateResourceParams resourceFields;
     private String bucketName;
     private GcsBucketLifecycle lifecycle;
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
     private String location;
 
-    public Builder resourceFields(CreateUpdateResource resourceFields) {
+    public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
@@ -60,8 +60,8 @@ public class CreateUpdateGcsBucket {
     }
 
     /** Call the private constructor. */
-    public CreateUpdateGcsBucket build() {
-      return new CreateUpdateGcsBucket(this);
+    public CreateGcsBucketParams build() {
+      return new CreateGcsBucketParams(this);
     }
 
     /** Default constructor for Jackson. */

@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -61,7 +61,7 @@ public class GcsBucket extends Resource {
    *
    * @return the resource that was added
    */
-  public static GcsBucket addReferenced(CreateUpdateGcsBucket createParams) {
+  public static GcsBucket addReferenced(CreateGcsBucketParams createParams) {
     if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
@@ -83,7 +83,7 @@ public class GcsBucket extends Resource {
    *
    * @return the resource that was created
    */
-  public static GcsBucket createControlled(CreateUpdateGcsBucket createParams) {
+  public static GcsBucket createControlled(CreateGcsBucketParams createParams) {
     if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");

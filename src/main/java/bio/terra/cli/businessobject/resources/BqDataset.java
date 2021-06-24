@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -70,7 +70,7 @@ public class BqDataset extends Resource {
    *
    * @return the resource that was added
    */
-  public static BqDataset addReferenced(CreateUpdateBqDataset createParams) {
+  public static BqDataset addReferenced(CreateBqDatasetParams createParams) {
     if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
@@ -92,7 +92,7 @@ public class BqDataset extends Resource {
    *
    * @return the resource that was created
    */
-  public static BqDataset createControlled(CreateUpdateBqDataset createParams) {
+  public static BqDataset createControlled(CreateBqDatasetParams createParams) {
     if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");

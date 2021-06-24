@@ -1,6 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 
@@ -23,11 +23,11 @@ public class ResourceCreation {
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.NOTHING;
 
   /**
-   * Helper method to return a {@link CreateUpdateResource.Builder} with the resource metadata
+   * Helper method to return a {@link CreateResourceParams.Builder} with the resource metadata
    * fields populated.
    */
-  public CreateUpdateResource.Builder populateMetadataFields() {
-    return new CreateUpdateResource.Builder()
+  public CreateResourceParams.Builder populateMetadataFields() {
+    return new CreateResourceParams.Builder()
         .name(resourceNameOption.name)
         .description(description)
         .cloningInstructions(cloning);

@@ -4,10 +4,10 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateAiNotebookParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.inputs.GcsStorageClass;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -475,7 +475,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createReferencedGcsBucket(
-      UUID workspaceId, CreateUpdateGcsBucket createParams) {
+      UUID workspaceId, CreateGcsBucketParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
@@ -506,7 +506,7 @@ public class WorkspaceManagerService {
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
-      UUID workspaceId, CreateUpdateBqDataset createParams) {
+      UUID workspaceId, CreateBqDatasetParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
@@ -541,7 +541,7 @@ public class WorkspaceManagerService {
    * @return the AI Platform Notebook instance resource object
    */
   public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId, CreateUpdateAiNotebook createParams) {
+      UUID workspaceId, CreateAiNotebookParams createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
@@ -583,7 +583,7 @@ public class WorkspaceManagerService {
    * @return AI Platform notebook attributes in the format expected by the WSM client library
    */
   private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
-      CreateUpdateAiNotebook createParams) {
+      CreateAiNotebookParams createParams) {
     GcpAiNotebookInstanceCreationParameters aiNotebookParams =
         new GcpAiNotebookInstanceCreationParameters()
             .instanceId(createParams.instanceId)
@@ -630,7 +630,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createControlledGcsBucket(
-      UUID workspaceId, CreateUpdateGcsBucket createParams) {
+      UUID workspaceId, CreateGcsBucketParams createParams) {
     // convert the CLI lifecycle rule object into the WSM request objects
     List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
 
@@ -715,7 +715,7 @@ public class WorkspaceManagerService {
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
-      UUID workspaceId, CreateUpdateBqDataset createParams) {
+      UUID workspaceId, CreateBqDatasetParams createParams) {
     // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
@@ -744,7 +744,7 @@ public class WorkspaceManagerService {
    * resource.
    */
   private static ControlledResourceCommonFields createCommonFields(
-      CreateUpdateResource createParams) {
+      CreateResourceParams createParams) {
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
     if (createParams.privateUserRoles != null) {
       privateResourceIamRoles.addAll(createParams.privateUserRoles);

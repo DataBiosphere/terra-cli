@@ -4,8 +4,8 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -36,12 +36,12 @@ public class BqDataset extends BaseCommand {
     controlledResourceCreationOptions.validateAccessOptions();
 
     // build the resource object to create
-    CreateUpdateResource.Builder createResourceParams =
+    CreateResourceParams.Builder createResourceParams =
         controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED);
-    CreateUpdateBqDataset.Builder createParams =
-        new CreateUpdateBqDataset.Builder()
+    CreateBqDatasetParams.Builder createParams =
+        new CreateBqDatasetParams.Builder()
             .resourceFields(createResourceParams.build())
             .datasetId(bigQueryDatasetId)
             .location(location);
