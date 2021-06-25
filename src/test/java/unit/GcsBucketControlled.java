@@ -337,7 +337,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // update the name, description, and storage class
     // `terra resources update gcs-bucket --name=$newName --new-name=$newName
-    // --description=$newDescription --storage=$storage`
+    // --description=$newDescription --storage=$newStorage`
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     GcsStorageClass newStorage = GcsStorageClass.NEARLINE;

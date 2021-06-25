@@ -9,8 +9,8 @@ import java.util.Collections;
 import picocli.CommandLine;
 
 /**
- * Command helper class that defines the --storage option for `terra resources` commands that handle
- * GCS bucket controlled resources.
+ * Command helper class that defines the --lifecycle option for `terra resources` commands that
+ * handle GCS bucket controlled resources.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */

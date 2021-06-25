@@ -7,7 +7,6 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import picocli.CommandLine;
 
@@ -39,9 +38,7 @@ public class BqDataset extends BaseCommand {
                 resourceUpdateOptions.resourceNameOption.name, Resource.Type.BQ_DATASET);
 
     // make the update request
-    UpdateResourceParams.Builder updateResourceParams =
-        resourceUpdateOptions.populateMetadataFields();
-    resource.update(updateResourceParams.build());
+    resource.update(resourceUpdateOptions.populateMetadataFields().build());
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 

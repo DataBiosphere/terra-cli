@@ -10,6 +10,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
+import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resources update gcs-bucket" command. */
@@ -43,13 +44,20 @@ public class GcsBucket extends BaseCommand {
             .getResourceOfType(
                 resourceUpdateOptions.resourceNameOption.name, Resource.Type.GCS_BUCKET);
 
+    // some options only apply to controlled resources
+    if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)
+        && (storageClassOption.isDefined() || lifecycleOptions.isDefined())) {
+      throw new UserActionableException(
+          "Storage and lifecycle options can only be updated for controlled resources.");
+    }
+
     // make the update request
-    UpdateGcsBucketParams.Builder updateGcsBucketParams =
+    resource.update(
         new UpdateGcsBucketParams.Builder()
             .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
             .defaultStorageClass(storageClassOption.storageClass)
-            .lifecycle(lifecycleOptions.buildLifecycleObject());
-    resource.update(updateGcsBucketParams.build());
+            .lifecycle(lifecycleOptions.buildLifecycleObject())
+            .build());
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
   }
 

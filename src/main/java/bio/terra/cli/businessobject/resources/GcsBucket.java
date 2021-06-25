@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
@@ -102,10 +101,6 @@ public class GcsBucket extends Resource {
     }
     switch (stewardshipType) {
       case REFERENCED:
-        if (updateParams.defaultStorageClass != null || updateParams.lifecycle.rule.size() > 0) {
-          throw new UserActionableException(
-              "Storage and lifecycle options can only be updated for controlled resources.");
-        }
         WorkspaceManagerService.fromContext()
             .updateReferencedGcsBucket(
                 Context.requireWorkspace().getId(), id, updateParams.resourceFields);
