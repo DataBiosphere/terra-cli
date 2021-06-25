@@ -9,7 +9,6 @@ import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import picocli.CommandLine;
 
@@ -38,39 +37,20 @@ public class GcsBucket extends BaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    // get the resource
-    Resource resource =
-        Context.requireWorkspace().getResource(resourceUpdateOptions.resourceNameOption.name);
-    if (!resource.getResourceType().equals(Resource.Type.GCS_BUCKET)) {
-      throw new UserActionableException("Invalid resource type: " + resource.getResourceType());
-    }
-    bio.terra.cli.businessobject.resources.GcsBucket gcsResource =
-        (bio.terra.cli.businessobject.resources.GcsBucket) resource;
+    // get the resource and make sure it's the right type
+    bio.terra.cli.businessobject.resources.GcsBucket resource =
+        Context.requireWorkspace()
+            .getResourceOfType(
+                resourceUpdateOptions.resourceNameOption.name, Resource.Type.GCS_BUCKET);
 
     // make the update request
-    UpdateResourceParams.Builder updateResourceParams =
-        resourceUpdateOptions.populateMetadataFields();
-    switch (gcsResource.getStewardshipType()) {
-      case REFERENCED:
-        if (storageClassOption.isDefined() || lifecycleOptions.isDefined()) {
-          throw new UserActionableException(
-              "Storage and lifecycle options can only be updated for controlled resources.");
-        }
-        gcsResource.updateReferenced(updateResourceParams.build());
-        break;
-      case CONTROLLED:
-        UpdateGcsBucketParams.Builder updateGcsBucketParams =
-            new UpdateGcsBucketParams.Builder()
-                .resourceFields(updateResourceParams.build())
-                .defaultStorageClass(storageClassOption.storageClass)
-                .lifecycle(lifecycleOptions.buildLifecycleObject());
-        gcsResource.updateControlled(updateGcsBucketParams.build());
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Unknown stewardship type: " + gcsResource.getStewardshipType());
-    }
-    formatOption.printReturnValue(new UFGcsBucket(gcsResource), GcsBucket::printText);
+    UpdateGcsBucketParams.Builder updateGcsBucketParams =
+        new UpdateGcsBucketParams.Builder()
+            .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
+            .defaultStorageClass(storageClassOption.storageClass)
+            .lifecycle(lifecycleOptions.buildLifecycleObject());
+    resource.update(updateGcsBucketParams.build());
+    formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
   }
 
   /** Print this command's output in text format. */

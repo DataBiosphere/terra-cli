@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
@@ -72,10 +71,7 @@ public class BqDataset extends Resource {
    * @return the resource that was added
    */
   public static BqDataset addReferenced(CreateBqDatasetParams createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference
     GcpBigQueryDatasetResource addedResource =
@@ -94,10 +90,7 @@ public class BqDataset extends Resource {
    * @return the resource that was created
    */
   public static BqDataset createControlled(CreateBqDatasetParams createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
@@ -110,38 +103,24 @@ public class BqDataset extends Resource {
     return new BqDataset(createdResource);
   }
 
-  /** Update a Big Query dataset referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null && !Resource.isValidEnvironmentVariableName(updateParams.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
+  /** Update a Big Query dataset resource in the workspace. */
+  public void update(UpdateResourceParams updateParams) {
+    if (updateParams.name != null) {
+      validateEnvironmentVariableName(updateParams.name);
     }
-
-    // call WSM to update the reference
-    WorkspaceManagerService.fromContext()
-        .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-    logger.info("Updated referenced BQ dataset: {}", updateParams);
-
-    this.name = updateParams.name == null ? name : updateParams.name;
-    this.description = updateParams.description == null ? description : updateParams.description;
-    Context.requireWorkspace().listResourcesAndSync();
-  }
-
-  /** Update a Big Query dataset controlled resource in the workspace. */
-  public void updateControlled(UpdateResourceParams updateParams) {
-    if (updateParams.name != null && !Resource.isValidEnvironmentVariableName(updateParams.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
+    switch (stewardshipType) {
+      case REFERENCED:
+        WorkspaceManagerService.fromContext()
+            .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        break;
+      case CONTROLLED:
+        WorkspaceManagerService.fromContext()
+            .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-
-    // call WSM to update the resource
-    WorkspaceManagerService.fromContext()
-        .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-    logger.info("Updated controlled BQ dataset: {}", updateParams);
-
-    this.name = updateParams.name == null ? name : updateParams.name;
-    this.description = updateParams.description == null ? description : updateParams.description;
-    Context.requireWorkspace().listResourcesAndSync();
+    super.update(updateParams);
   }
 
   /** Delete a Big Query dataset referenced resource in the workspace. */

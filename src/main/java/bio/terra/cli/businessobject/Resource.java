@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.resources.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -130,8 +131,17 @@ public abstract class Resource {
    * @param name string to check
    * @return true if the string is a valid environment variable name
    */
-  protected static boolean isValidEnvironmentVariableName(String name) {
-    return !Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find();
+  protected static void validateEnvironmentVariableName(String name) {
+    if (!Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find()) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+  }
+
+  protected void update(UpdateResourceParams updateParams) {
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
+    Context.requireWorkspace().listResourcesAndSync();
   }
 
   /** Delete an existing resource in the workspace. */

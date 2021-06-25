@@ -32,30 +32,17 @@ public class BqDataset extends BaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    // get the resource
-    Resource resource =
-        Context.requireWorkspace().getResource(resourceUpdateOptions.resourceNameOption.name);
-    if (!resource.getResourceType().equals(Resource.Type.BQ_DATASET)) {
-      throw new UserActionableException("Invalid resource type: " + resource.getResourceType());
-    }
-    bio.terra.cli.businessobject.resources.BqDataset bqResource =
-        (bio.terra.cli.businessobject.resources.BqDataset) resource;
+    // get the resource and make sure it's the right type
+    bio.terra.cli.businessobject.resources.BqDataset resource =
+        Context.requireWorkspace()
+            .getResourceOfType(
+                resourceUpdateOptions.resourceNameOption.name, Resource.Type.BQ_DATASET);
 
     // make the update request
     UpdateResourceParams.Builder updateResourceParams =
         resourceUpdateOptions.populateMetadataFields();
-    switch (bqResource.getStewardshipType()) {
-      case REFERENCED:
-        bqResource.updateReferenced(updateResourceParams.build());
-        break;
-      case CONTROLLED:
-        bqResource.updateControlled(updateResourceParams.build());
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Unknown stewardship type: " + bqResource.getStewardshipType());
-    }
-    formatOption.printReturnValue(new UFBqDataset(bqResource), BqDataset::printText);
+    resource.update(updateResourceParams.build());
+    formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 
   /** Print this command's output in text format. */

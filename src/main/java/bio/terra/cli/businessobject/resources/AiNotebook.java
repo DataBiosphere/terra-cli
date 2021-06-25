@@ -79,10 +79,7 @@ public class AiNotebook extends Resource {
    * @return the resource that was created
    */
   public static AiNotebook createControlled(CreateAiNotebookParams createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
