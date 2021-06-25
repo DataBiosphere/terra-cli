@@ -131,7 +131,7 @@ public abstract class Resource {
    * @throws UserActionableException if the string is not a valid environment variable name
    */
   protected static void validateEnvironmentVariableName(String name) {
-    if (!Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find()) {
+    if (Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find()) {
       throw new UserActionableException(
           "Resource name can contain only alphanumeric and underscore characters.");
     }
