@@ -155,8 +155,7 @@ public class Main implements Runnable {
         exitCode = USER_ACTIONABLE_EXIT_CODE;
         printPointerToLogFile = false;
       } else if (ex instanceof SystemException) {
-        errorMessage =
-            ex.getMessage() + (ex.getCause() != null ? ": " + ex.getCause().getMessage() : "");
+        errorMessage = ex.getMessage();
         formattedErrorMessage =
             systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
         exitCode = SYSTEM_EXIT_CODE;
