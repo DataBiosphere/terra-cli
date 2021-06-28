@@ -78,6 +78,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
@@ -279,20 +280,14 @@ public class WorkspaceManagerService {
    * @param iamRole the role to assign
    */
   public void grantIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
+    // - try to grant the user an iam role
+    // - if this fails with a Bad Request error, it means the email is not found
+    // - so try to invite the user first, then retry granting them an iam role
     GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
-    handleClientExceptions(
-        () -> {
-          // - try to grant the user an iam role
-          // - if this fails with a Bad Request error, it means the email is not found
-          // - so try to invite the user first, then retry granting them an iam role
-          HttpUtils.callAndHandleOneTimeErrorWithRetries(
-              () ->
-                  new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
-              WorkspaceManagerService::isRetryable,
-              (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-              () -> SamService.fromContext().inviteUser(userEmail),
-              (ex) -> false); // don't retry because inviteUser already includes retries
-        },
+    callAndHandleOneTimeError(
+        () -> new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
+        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+        () -> SamService.fromContext().inviteUser(userEmail),
         "Error granting IAM role on workspace.");
   }
 
@@ -828,7 +823,7 @@ public class WorkspaceManagerService {
    * @param ex exception to test
    * @return true if the exception status code matches
    */
-  private static boolean isStatusCode(Exception ex, int statusCode) {
+  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
     if (!(ex instanceof ApiException)) {
       return false;
     }
@@ -884,6 +879,35 @@ public class WorkspaceManagerService {
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () -> HttpUtils.callWithRetries(makeRequest, WorkspaceManagerService::isRetryable),
+        errorMsg);
+  }
+
+  /**
+   * Execute a function, and possibly a second function to handle a one-time error, that includes
+   * hitting WSM endpoints. Retry if the function throws an {@link #isRetryable} exception. If an
+   * exception is thrown by the WSM client or the retries, make sure the HTTP status code and error
+   * message are logged.
+   *
+   * @param makeRequest function with no return value
+   * @param isOneTimeError function to test whether the exception is the expected one-time error
+   * @param handleOneTimeError function to handle the one-time error before retrying the request
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
+   */
+  private void callAndHandleOneTimeError(
+      HttpUtils.RunnableWithCheckedException<ApiException> makeRequest,
+      Predicate<Exception> isOneTimeError,
+      HttpUtils.RunnableWithCheckedException<ApiException> handleOneTimeError,
+      String errorMsg) {
+    handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                makeRequest,
+                WorkspaceManagerService::isRetryable,
+                isOneTimeError,
+                handleOneTimeError,
+                (ex) ->
+                    false), // don't retry because the handleOneTimeError already includes retries
         errorMsg);
   }
 

@@ -12,6 +12,7 @@ import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
@@ -88,6 +89,22 @@ public class SamService {
   }
 
   /**
+   * Call the SAM "/register/user/v1" endpoint to register the user who is currently logged in. This
+   * is not the same as inviting a user.
+   */
+  public void registerUser() {
+    callWithRetries(
+        () -> {
+          UserStatus userStatus = new UsersApi(apiClient).createUserV2();
+          logger.info(
+              "User registered in SAM: {}, {}",
+              userStatus.getUserInfo().getUserSubjectId(),
+              userStatus.getUserInfo().getUserEmail());
+        },
+        "Error registering new user in SAM.");
+  }
+
+  /**
    * Call the SAM "/api/users/v1/invite/{inviteeEmail}" endpoint to invite a user and track them.
    * This is not the same thing as registering a user.
    *
@@ -127,21 +144,10 @@ public class SamService {
     // - try to lookup the user
     // - if the user lookup failed with a Not Found error, it means the email is not found
     // - so try to register the user first, then retry looking them up
-    UsersApi samUsersApi = new UsersApi(apiClient);
-    return handleClientExceptions(
-        () ->
-            HttpUtils.callAndHandleOneTimeErrorWithRetries(
-                samUsersApi::getUserStatusInfo,
-                SamService::isRetryable,
-                ex -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_NOT_FOUND),
-                () -> {
-                  UserStatus userStatus = samUsersApi.createUserV2();
-                  logger.info(
-                      "User registered in SAM: {}, {}",
-                      userStatus.getUserInfo().getUserSubjectId(),
-                      userStatus.getUserInfo().getUserEmail());
-                },
-                SamService::isRetryable),
+    return callAndHandleOneTimeError(
+        new UsersApi(apiClient)::getUserStatusInfo,
+        ex -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_NOT_FOUND),
+        this::registerUser,
         "Error reading user information from SAM.");
   }
 
@@ -226,16 +232,10 @@ public class SamService {
     // - try to add the email to the group
     // - if this fails with a Bad Request error, it means the email is not found
     // - so try to invite the user first, then retry adding them to the group
-    handleClientExceptions(
-        () ->
-            HttpUtils.callAndHandleOneTimeErrorWithRetries(
-                () ->
-                    new GroupApi(apiClient)
-                        .addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
-                SamService::isRetryable,
-                (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-                () -> inviteUser(userEmail),
-                (ex) -> false), // don't retry because inviteUser already includes retries
+    callAndHandleOneTimeError(
+        () -> new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+        () -> inviteUser(userEmail),
         "Error adding user to SAM group.");
   }
 
@@ -284,16 +284,12 @@ public class SamService {
     // - if the add user to policy failed with a Bad Request error, it means the email is not
     // found
     // - so try to invite the user first, then retry adding them to the policy
-    handleClientExceptions(
+    callAndHandleOneTimeError(
         () ->
-            HttpUtils.callAndHandleOneTimeErrorWithRetries(
-                () ->
-                    new ResourcesApi(apiClient)
-                        .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
-                SamService::isRetryable,
-                (ex) -> isStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-                () -> inviteUser(userEmail),
-                (ex) -> false), // don't retry because inviteUser already includes retries
+            new ResourcesApi(apiClient)
+                .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+        () -> inviteUser(userEmail),
         "Error adding user to SAM resource.");
   }
 
@@ -389,7 +385,7 @@ public class SamService {
    * @param ex exception to test
    * @return true if the exception status code matches
    */
-  private static boolean isStatusCode(Exception ex, int statusCode) {
+  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
     if (!(ex instanceof ApiException)) {
       return false;
     }
@@ -422,8 +418,8 @@ public class SamService {
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with no return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the SAM client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
    */
   private void callWithRetries(
       HttpUtils.RunnableWithCheckedException<ApiException> makeRequest, String errorMsg) {
@@ -437,8 +433,10 @@ public class SamService {
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the SAM client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the result of makeRequest
    */
   private <T> T callWithRetries(
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
@@ -447,12 +445,72 @@ public class SamService {
   }
 
   /**
+   * Execute a function, and possibly a second function to handle a one-time error, that includes
+   * hitting SAM endpoints. Retry if the function throws an {@link #isRetryable} exception. If an
+   * exception is thrown by the SAM client or the retries, make sure the HTTP status code and error
+   * message are logged.
+   *
+   * @param makeRequest function with no return value
+   * @param isOneTimeError function to test whether the exception is the expected one-time error
+   * @param handleOneTimeError function to handle the one-time error before retrying the request
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
+   */
+  private void callAndHandleOneTimeError(
+      HttpUtils.RunnableWithCheckedException<ApiException> makeRequest,
+      Predicate<Exception> isOneTimeError,
+      HttpUtils.RunnableWithCheckedException<ApiException> handleOneTimeError,
+      String errorMsg) {
+    handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                makeRequest,
+                SamService::isRetryable,
+                isOneTimeError,
+                handleOneTimeError,
+                (ex) ->
+                    false), // don't retry because the handleOneTimeError already includes retries
+        errorMsg);
+  }
+
+  /**
+   * Execute a function, and possibly a second function to handle a one-time error, that includes
+   * hitting SAM endpoints. Retry if the function throws an {@link #isRetryable} exception. If an
+   * exception is thrown by the SAM client or the retries, make sure the HTTP status code and error
+   * message are logged.
+   *
+   * @param makeRequest function with a return value
+   * @param isOneTimeError function to test whether the exception is the expected one-time error
+   * @param handleOneTimeError function to handle the one-time error before retrying the request
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the result of makeRequest
+   */
+  private <T> T callAndHandleOneTimeError(
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest,
+      Predicate<Exception> isOneTimeError,
+      HttpUtils.RunnableWithCheckedException<ApiException> handleOneTimeError,
+      String errorMsg) {
+    return handleClientExceptions(
+        () ->
+            HttpUtils.callAndHandleOneTimeErrorWithRetries(
+                makeRequest,
+                SamService::isRetryable,
+                isOneTimeError,
+                handleOneTimeError,
+                (ex) ->
+                    false), // don't retry because the handleOneTimeError already includes retries
+        errorMsg);
+  }
+
+  /**
    * Execute a function that includes hitting SAM endpoints. If an exception is thrown by the SAM
    * client or the retries, make sure the HTTP status code and error message are logged.
    *
    * @param makeRequest function with no return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the SAM client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the SAM client or the retries
    */
   private void handleClientExceptions(
       HttpUtils.RunnableWithCheckedException<ApiException> makeRequest, String errorMsg) {
@@ -471,6 +529,8 @@ public class SamService {
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
    *     thrown by the SAM client or the retries
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @return the result of makeRequest
    */
   private <T> T handleClientExceptions(
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
