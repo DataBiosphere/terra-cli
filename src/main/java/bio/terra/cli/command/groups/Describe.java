@@ -9,7 +9,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra groups describe" command. */
-@Command(name = "describe", description = "Print the group email address.")
+@Command(name = "describe", description = "Describe the group.")
 public class Describe extends BaseCommand {
   @CommandLine.Mixin GroupName groupNameOption;
   @CommandLine.Mixin Format formatOption;

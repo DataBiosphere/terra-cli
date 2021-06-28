@@ -149,6 +149,11 @@ CLI installation on the same machine.
 - Run a single test by specifying the `--tests` option:
 `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
 
+#### Override default server
+The tests run against the `terra-dev` server by default. You can run them against a different server
+by specifying the Gradle `server` property. e.g.:
+`./gradlew runTestsWithTag -PtestTag=unit -Pserver=verily-cli`
+
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
 You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
