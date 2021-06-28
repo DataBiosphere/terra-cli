@@ -41,23 +41,24 @@ public class GcsBucket extends BaseCommand {
     // get the resource and make sure it's the right type
     bio.terra.cli.businessobject.resources.GcsBucket resource =
         Context.requireWorkspace()
-            .getResourceOfType(
-                resourceUpdateOptions.resourceNameOption.name, Resource.Type.GCS_BUCKET);
+            .getResource(resourceUpdateOptions.resourceNameOption.name)
+            .castToType(Resource.Type.GCS_BUCKET);
 
-    // some options only apply to controlled resources
-    if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)
-        && (storageClassOption.isDefined() || lifecycleOptions.isDefined())) {
-      throw new UserActionableException(
-          "Storage and lifecycle options can only be updated for controlled resources.");
+    if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)) {
+      // some options only apply to controlled resources
+      if (storageClassOption.isDefined() || lifecycleOptions.isDefined()) {
+        throw new UserActionableException(
+            "Storage and lifecycle options can only be updated for controlled resources.");
+      }
+      resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+    } else {
+      resource.updateControlled(
+          new UpdateGcsBucketParams.Builder()
+              .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
+              .defaultStorageClass(storageClassOption.storageClass)
+              .lifecycle(lifecycleOptions.buildLifecycleObject())
+              .build());
     }
-
-    // make the update request
-    resource.update(
-        new UpdateGcsBucketParams.Builder()
-            .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
-            .defaultStorageClass(storageClassOption.storageClass)
-            .lifecycle(lifecycleOptions.buildLifecycleObject())
-            .build());
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
   }
 

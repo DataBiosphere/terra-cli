@@ -7,7 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 /**
  * Parameters for updating a workspace resource. This class is not currently user-facing, but could
  * be exposed as a command input format in the future. This class handles properties that are common
- * to all resource types. Sub-classes include additional resource-type specific properties.
+ * to all resource types. Resource-type specific classes include an instance of this class and any
+ * additional properties.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)

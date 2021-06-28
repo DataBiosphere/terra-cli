@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -94,25 +95,24 @@ public class GcsBucket extends Resource {
     return new GcsBucket(createdResource);
   }
 
-  /** Update a GCS bucket resource in the workspace. */
-  public void update(UpdateGcsBucketParams updateParams) {
+  /** Update a GCS bucket referenced resource in the workspace. */
+  public void updateReferenced(UpdateResourceParams updateParams) {
+    if (updateParams.name != null) {
+      validateEnvironmentVariableName(updateParams.name);
+    }
+    WorkspaceManagerService.fromContext()
+        .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams);
+  }
+
+  /** Update a GCS bucket controlled resource in the workspace. */
+  public void updateControlled(UpdateGcsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
-    switch (stewardshipType) {
-      case REFERENCED:
-        WorkspaceManagerService.fromContext()
-            .updateReferencedGcsBucket(
-                Context.requireWorkspace().getId(), id, updateParams.resourceFields);
-        break;
-      case CONTROLLED:
-        WorkspaceManagerService.fromContext()
-            .updateControlledGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
-    }
-    super.update(updateParams.resourceFields);
+    WorkspaceManagerService.fromContext()
+        .updateControlledGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /** Delete a GCS bucket referenced resource in the workspace. */

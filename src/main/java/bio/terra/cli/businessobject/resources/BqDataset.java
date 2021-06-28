@@ -120,7 +120,7 @@ public class BqDataset extends Resource {
       default:
         throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-    super.update(updateParams);
+    super.updatePropertiesAndSync(updateParams);
   }
 
   /** Delete a Big Query dataset referenced resource in the workspace. */

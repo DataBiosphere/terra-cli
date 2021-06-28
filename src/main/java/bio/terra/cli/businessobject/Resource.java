@@ -138,7 +138,7 @@ public abstract class Resource {
   }
 
   /** Update the properties of this resource object that are common to all resource types. */
-  protected void update(UpdateResourceParams updateParams) {
+  protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
     this.name = updateParams.name == null ? name : updateParams.name;
     this.description = updateParams.description == null ? description : updateParams.description;
     Context.requireWorkspace().listResourcesAndSync();
@@ -199,6 +199,18 @@ public abstract class Resource {
 
     return new WorkspaceManagerService(accessToken, Context.getServer())
         .checkAccess(Context.requireWorkspace().getId(), id);
+  }
+
+  /**
+   * Cast this resource to a specific type (i.e. a sub-class of this class).
+   *
+   * @throws UserActionableException if the resource is the wrong type
+   */
+  public <T extends Resource> T castToType(Resource.Type type) {
+    if (!resourceType.equals(type)) {
+      throw new UserActionableException("Invalid resource type: " + resourceType);
+    }
+    return (T) this;
   }
 
   // ====================================================

@@ -34,8 +34,8 @@ public class BqDataset extends BaseCommand {
     // get the resource and make sure it's the right type
     bio.terra.cli.businessobject.resources.BqDataset resource =
         Context.requireWorkspace()
-            .getResourceOfType(
-                resourceUpdateOptions.resourceNameOption.name, Resource.Type.BQ_DATASET);
+            .getResource(resourceUpdateOptions.resourceNameOption.name)
+            .castToType(Resource.Type.BQ_DATASET);
 
     // make the update request
     resource.update(resourceUpdateOptions.populateMetadataFields().build());
