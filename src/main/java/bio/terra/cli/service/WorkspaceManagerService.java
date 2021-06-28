@@ -690,17 +690,11 @@ public class WorkspaceManagerService {
         new UpdateDataReferenceRequestBody()
             .name(updateParams.name)
             .description(updateParams.description);
-    try {
-      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
-      HttpUtils.callWithRetries(
-          () -> {
-            referencedGcpResourceApi.updateBucketReference(updateRequest, workspaceId, resourceId);
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error updating referenced GCS bucket in the workspace.", ex);
-    }
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBucketReference(updateRequest, workspaceId, resourceId),
+        "Error updating referenced GCS bucket in the workspace.");
   }
 
   /**
@@ -726,17 +720,11 @@ public class WorkspaceManagerService {
                 new GcpGcsBucketUpdateParameters()
                     .defaultStorageClass(updateParams.defaultStorageClass)
                     .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules)));
-    try {
-      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      HttpUtils.callWithRetries(
-          () -> {
-            controlledGcpResourceApi.updateGcsBucket(updateRequest, workspaceId, resourceId);
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException("Error updating controlled GCS bucket in the workspace.", ex);
-    }
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateGcsBucket(updateRequest, workspaceId, resourceId),
+        "Error updating controlled GCS bucket in the workspace.");
   }
 
   /**
@@ -755,19 +743,11 @@ public class WorkspaceManagerService {
         new UpdateDataReferenceRequestBody()
             .name(updateParams.name)
             .description(updateParams.description);
-    try {
-      ReferencedGcpResourceApi referencedGcpResourceApi = new ReferencedGcpResourceApi(apiClient);
-      HttpUtils.callWithRetries(
-          () -> {
-            referencedGcpResourceApi.updateBigQueryDatasetReference(
-                updateRequest, workspaceId, resourceId);
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException(
-          "Error updating referenced Big Query dataset in the workspace.", ex);
-    }
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBigQueryDatasetReference(updateRequest, workspaceId, resourceId),
+        "Error updating referenced Big Query dataset in the workspace.");
   }
 
   /**
@@ -786,18 +766,11 @@ public class WorkspaceManagerService {
         new UpdateControlledResourceRequestBody()
             .name(updateParams.name)
             .description(updateParams.description);
-    try {
-      ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-      HttpUtils.callWithRetries(
-          () -> {
-            controlledGcpResourceApi.updateBigQueryDataset(updateRequest, workspaceId, resourceId);
-            return null;
-          },
-          WorkspaceManagerService::isRetryable);
-    } catch (ApiException | InterruptedException ex) {
-      throw new SystemException(
-          "Error updating controlled Big Query dataset in the workspace.", ex);
-    }
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateBigQueryDataset(updateRequest, workspaceId, resourceId),
+        "Error updating controlled Big Query dataset in the workspace.");
   }
 
   /**
