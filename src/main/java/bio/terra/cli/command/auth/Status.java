@@ -32,6 +32,7 @@ public class Status extends BaseCommand {
           UFAuthStatus.createWhenCurrentUserIsDefined(
               currentUser.getEmail(),
               currentUser.getProxyGroupEmail(),
+              currentUser.getPetSaEmail(),
               !currentUser.requiresReauthentication());
     }
 
@@ -45,8 +46,10 @@ public class Status extends BaseCommand {
     if (returnValue.userEmail == null) {
       OUT.println("No current Terra user defined.");
     } else {
-      OUT.println("Current Terra user: " + returnValue.userEmail);
-      OUT.println("Current Terra user's proxy group: " + returnValue.proxyGroupEmail);
+      OUT.println("Current user: " + returnValue.userEmail);
+      OUT.println("Proxy group for current user: " + returnValue.proxyGroupEmail);
+      OUT.println(
+          "Service account for current user and workspace: " + returnValue.serviceAccountEmail);
 
       // check if the current user needs to re-authenticate (i.e. is logged out)
       OUT.println("LOGGED " + (returnValue.loggedIn ? "IN" : "OUT"));

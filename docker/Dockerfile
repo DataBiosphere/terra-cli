@@ -23,7 +23,7 @@ RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     gcloud config set component_manager/disable_update_check true
 
 # install Nextflow
-ENV NXF_VER 20.10.0
+ENV NXF_VER 21.05.0-edge
 ENV NXF_MODE google
 RUN curl -s https://get.nextflow.io | bash \
     && mv nextflow /usr/local/bin

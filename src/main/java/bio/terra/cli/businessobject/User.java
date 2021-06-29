@@ -258,6 +258,13 @@ public class User {
     return proxyGroupEmail;
   }
 
+  public String getPetSaEmail() {
+    if (petSACredentials == null) {
+      fetchPetSaCredentials();
+    }
+    return petSACredentials.getClientEmail();
+  }
+
   public UserCredentials getUserCredentials() {
     return userCredentials;
   }

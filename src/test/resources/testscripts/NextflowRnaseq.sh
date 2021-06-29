@@ -53,12 +53,18 @@ terra nextflow -version
 #      google.location = 'europe-west2'
 #      google.project = "$GOOGLE_CLOUD_PROJECT"
 #      google.region  = 'europe-west1'
+#      google.lifeSciences.serviceAccountEmail = "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
+#      google.lifeSciences.network = 'network'
+#      google.lifeSciences.subnetwork = 'subnetwork'
 mv rnaseq-nf/nextflow.config rnaseq-nf/nextflow.config_original
 sed "s\
 ;      workDir = 'gs://rnaseq-nf/scratch' // <- replace with your own bucket\!\
 ;      workDir = \"\$TERRA_$resourceName/scratch\"\
 \n      google.location = 'europe-west2'\
 \n      google.project = \"\$GOOGLE_CLOUD_PROJECT\"\
+\n      google.lifeSciences.serviceAccountEmail = \"$GOOGLE_SERVICE_ACCOUNT_EMAIL\"
+\n      google.lifeSciences.network = 'network'
+\n      google.lifeSciences.subnetwork = 'subnetwork'
 ;" rnaseq-nf/nextflow.config_original > rnaseq-nf/nextflow.config
 
 # Now we can do a dry-run of the Nextflow workflow to confirm that the config file was correctly modified.
