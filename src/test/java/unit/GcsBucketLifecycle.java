@@ -23,7 +23,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -105,7 +104,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "condition created before matches");
   }
 
-  @Disabled // TODO (PF-506): enable this test once WSM supports this field
+  @Test
   @DisplayName("lifecycle condition custom time before (action delete)")
   void customTimeBeforeCondition() throws IOException {
     String name = "delete_customTimeBefore";
@@ -119,7 +118,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "condition custom time before matches");
   }
 
-  @Disabled // TODO (PF-506): enable this test once WSM supports this field
+  @Test
   @DisplayName("lifecycle condition days since custom time (action delete)")
   void daysSinceCustomTimeCondition() throws IOException {
     String name = "delete_daysSinceCustomTime";
@@ -133,7 +132,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "condition days since custom time matches");
   }
 
-  @Disabled // TODO (PF-506): enable this test once WSM supports this field
+  @Test
   @DisplayName("lifecycle condition days since noncurrent time (action delete)")
   void daysSinceNoncurrentTimeCondition() throws IOException {
     String name = "delete_daysSinceNoncurrentTime";
@@ -174,7 +173,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "condition matches storage class has correct elements");
   }
 
-  @Disabled // TODO (PF-506): enable this test once WSM supports this field
+  @Test
   @DisplayName("lifecycle condition noncurrent time before (action set storage class)")
   void noncurrentTimeBeforeCondition() throws IOException {
     String name = "setStorageClass_noncurrentTimeBefore";
