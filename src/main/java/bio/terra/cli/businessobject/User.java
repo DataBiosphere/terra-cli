@@ -175,6 +175,31 @@ public class User {
     return GoogleOauth.getAccessToken(petSACredentials);
   }
 
+  /**
+   * Get the client email from the pet SA key file. Returns null if there is no current workspace
+   * defined.
+   */
+  public String getPetSaEmail() {
+    // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
+    // to fetch
+    if (Context.getWorkspace().isEmpty()) {
+      logger.debug("No current workspace defined, so there are no pet SA credentials.");
+      return null;
+    }
+    Path jsonKeyPath = Context.getPetSaKeyFile();
+    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
+    if (!jsonKeyPath.toFile().exists()) {
+      throw new SystemException("Pet SA key file not found for current user + workspace");
+    }
+    // create a credentials object from the key
+    try {
+      petSACredentials = GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading pet SA key file.", ioEx);
+    }
+    return petSACredentials.getClientEmail();
+  }
+
   /** Fetch the pet SA credentials for this user + current workspace. */
   public void fetchPetSaCredentials() {
     // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
@@ -256,13 +281,6 @@ public class User {
 
   public String getProxyGroupEmail() {
     return proxyGroupEmail;
-  }
-
-  public String getPetSaEmail() {
-    if (petSACredentials == null) {
-      fetchPetSaCredentials();
-    }
-    return petSACredentials.getClientEmail();
   }
 
   public UserCredentials getUserCredentials() {

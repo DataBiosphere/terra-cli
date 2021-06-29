@@ -39,6 +39,40 @@ public class AuthStatus extends ClearContextUnit {
         "auth status includes proxy group email",
         authStatus.proxyGroupEmail,
         CoreMatchers.not(emptyOrNullString()));
+    assertThat(
+        "auth status without workspace defined does not include pet SA email",
+        authStatus.serviceAccountEmail,
+        CoreMatchers.is(emptyOrNullString()));
+    assertTrue(authStatus.loggedIn, "auth status indicates user is logged in");
+  }
+
+  @Test
+  @DisplayName("auth status includes pet SA email when workspace is defined")
+  void authStatusWithCurrentWorkspace() throws IOException {
+    // select a test user and login
+    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    // `terra workspace create`
+    TestCommand.runCommandExpectSuccess("workspace", "create");
+
+    // `terra auth status --format=json`
+    UFAuthStatus authStatus =
+        TestCommand.runAndParseCommandExpectSuccess(UFAuthStatus.class, "auth", "status");
+
+    // check that it says logged in and includes the user, proxy group, and pet SA emails
+    assertThat(
+        "auth status email matches test user",
+        authStatus.userEmail,
+        equalToIgnoringCase(testUser.email));
+    assertThat(
+        "auth status includes proxy group email",
+        authStatus.proxyGroupEmail,
+        CoreMatchers.not(emptyOrNullString()));
+    assertThat(
+        "auth status with workspace defined includes pet SA email",
+        authStatus.serviceAccountEmail,
+        CoreMatchers.not(emptyOrNullString()));
     assertTrue(authStatus.loggedIn, "auth status indicates user is logged in");
   }
 
@@ -49,12 +83,16 @@ public class AuthStatus extends ClearContextUnit {
     UFAuthStatus authStatus =
         TestCommand.runAndParseCommandExpectSuccess(UFAuthStatus.class, "auth", "status");
 
-    // check that it says logged out and doesn't include user or proxy emails
+    // check that it says logged out and doesn't include user, proxy group, or pet SA emails
     assertThat(
         "auth status email is empty", authStatus.userEmail, CoreMatchers.is(emptyOrNullString()));
     assertThat(
         "auth status proxy group email is empty",
         authStatus.proxyGroupEmail,
+        CoreMatchers.is(emptyOrNullString()));
+    assertThat(
+        "auth status pet SA email is empty",
+        authStatus.serviceAccountEmail,
         CoreMatchers.is(emptyOrNullString()));
     assertFalse(authStatus.loggedIn, "auth status indicates user is logged out");
   }
