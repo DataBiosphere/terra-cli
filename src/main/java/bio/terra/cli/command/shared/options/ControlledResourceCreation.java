@@ -1,7 +1,7 @@
 package bio.terra.cli.command.shared.options;
 
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import java.util.List;
@@ -48,10 +48,10 @@ public class ControlledResourceCreation {
   }
 
   /**
-   * Helper method to return a {@link CreateUpdateResource.Builder} with the controlled resource
+   * Helper method to return a {@link CreateResourceParams.Builder} with the controlled resource
    * metadata fields populated.
    */
-  public CreateUpdateResource.Builder populateMetadataFields() {
+  public CreateResourceParams.Builder populateMetadataFields() {
     return resourceCreationOption
         .populateMetadataFields()
         .accessScope(access)

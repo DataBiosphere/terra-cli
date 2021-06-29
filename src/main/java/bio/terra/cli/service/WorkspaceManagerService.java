@@ -4,12 +4,14 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateAiNotebookParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.inputs.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -50,6 +52,7 @@ import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
 import bio.terra.workspace.model.GcpGcsBucketResource;
+import bio.terra.workspace.model.GcpGcsBucketUpdateParameters;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
@@ -62,6 +65,9 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
+import bio.terra.workspace.model.UpdateControlledResourceRequestBody;
+import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
@@ -399,7 +405,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createReferencedGcsBucket(
-      UUID workspaceId, CreateUpdateGcsBucket createParams) {
+      UUID workspaceId, CreateGcsBucketParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
@@ -426,7 +432,7 @@ public class WorkspaceManagerService {
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
-      UUID workspaceId, CreateUpdateBqDataset createParams) {
+      UUID workspaceId, CreateBqDatasetParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
@@ -456,7 +462,7 @@ public class WorkspaceManagerService {
    * @return the AI Platform Notebook instance resource object
    */
   public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId, CreateUpdateAiNotebook createParams) {
+      UUID workspaceId, CreateAiNotebookParams createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
@@ -500,7 +506,7 @@ public class WorkspaceManagerService {
    * @return AI Platform notebook attributes in the format expected by the WSM client library
    */
   private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
-      CreateUpdateAiNotebook createParams) {
+      CreateAiNotebookParams createParams) {
     GcpAiNotebookInstanceCreationParameters aiNotebookParams =
         new GcpAiNotebookInstanceCreationParameters()
             .instanceId(createParams.instanceId)
@@ -547,7 +553,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket resource object
    */
   public GcpGcsBucketResource createControlledGcsBucket(
-      UUID workspaceId, CreateUpdateGcsBucket createParams) {
+      UUID workspaceId, CreateGcsBucketParams createParams) {
     // convert the CLI lifecycle rule object into the WSM request objects
     List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
 
@@ -629,7 +635,7 @@ public class WorkspaceManagerService {
    * @return the Big Query dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
-      UUID workspaceId, CreateUpdateBqDataset createParams) {
+      UUID workspaceId, CreateBqDatasetParams createParams) {
     // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
@@ -651,7 +657,7 @@ public class WorkspaceManagerService {
    * resource.
    */
   private static ControlledResourceCommonFields createCommonFields(
-      CreateUpdateResource createParams) {
+      CreateResourceParams createParams) {
     PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
     if (createParams.privateUserRoles != null) {
       privateResourceIamRoles.addAll(createParams.privateUserRoles);
@@ -666,6 +672,105 @@ public class WorkspaceManagerService {
                 .userName(createParams.privateUserName)
                 .privateResourceIamRoles(privateResourceIamRoles))
         .managedBy(ManagedBy.USER);
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
+   * update a GCS bucket referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedGcsBucket(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateDataReferenceRequestBody updateRequest =
+        new UpdateDataReferenceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBucketReference(updateRequest, workspaceId, resourceId),
+        "Error updating referenced GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
+   * update a GCS bucket controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledGcsBucket(
+      UUID workspaceId, UUID resourceId, UpdateGcsBucketParams updateParams) {
+    // convert the CLI lifecycle rule object into the WSM request objects
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(updateParams.lifecycle);
+
+    // convert the CLI object to a WSM request object
+    UpdateControlledGcpGcsBucketRequestBody updateRequest =
+        new UpdateControlledGcpGcsBucketRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description)
+            .updateParameters(
+                new GcpGcsBucketUpdateParameters()
+                    .defaultStorageClass(updateParams.defaultStorageClass)
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules)));
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateGcsBucket(updateRequest, workspaceId, resourceId),
+        "Error updating controlled GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
+   * endpoint to update a Big Query dataset referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedBigQueryDataset(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateDataReferenceRequestBody updateRequest =
+        new UpdateDataReferenceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBigQueryDatasetReference(updateRequest, workspaceId, resourceId),
+        "Error updating referenced Big Query dataset in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
+   * update a Big Query dataset controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledBigQueryDataset(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateControlledResourceRequestBody updateRequest =
+        new UpdateControlledResourceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateBigQueryDataset(updateRequest, workspaceId, resourceId),
+        "Error updating controlled Big Query dataset in the workspace.");
   }
 
   /**

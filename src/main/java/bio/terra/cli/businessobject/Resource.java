@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.resources.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -120,18 +121,27 @@ public abstract class Resource {
   public abstract PDResource serializeToDisk();
 
   /**
-   * Check if the name only contains alphanumeric and underscore characters. Sync the cached list of
-   * resources.
+   * Check if the name only contains alphanumeric and underscore characters.
    *
    * <p>When launching an app, either in a Docker container or a local process, we pass a map of all
    * the resources in the workspace to their resolved cloud identifiers (e.g. TERRA_MYBUCKET ->
    * gs://mybucket). This is the reason for this restriction at resource creation time.
    *
    * @param name string to check
-   * @return true if the string is a valid environment variable name
+   * @throws UserActionableException if the string is not a valid environment variable name
    */
-  protected static boolean isValidEnvironmentVariableName(String name) {
-    return !Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find();
+  protected static void validateEnvironmentVariableName(String name) {
+    if (Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find()) {
+      throw new UserActionableException(
+          "Resource name can contain only alphanumeric and underscore characters.");
+    }
+  }
+
+  /** Update the properties of this resource object that are common to all resource types. */
+  protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
+    Context.requireWorkspace().listResourcesAndSync();
   }
 
   /** Delete an existing resource in the workspace. */
@@ -189,6 +199,18 @@ public abstract class Resource {
 
     return new WorkspaceManagerService(accessToken, Context.getServer())
         .checkAccess(Context.requireWorkspace().getId(), id);
+  }
+
+  /**
+   * Cast this resource to a specific type (i.e. a sub-class of this class).
+   *
+   * @throws UserActionableException if the resource is the wrong type
+   */
+  public <T extends Resource> T castToType(Resource.Type type) {
+    if (!resourceType.equals(type)) {
+      throw new UserActionableException("Invalid resource type: " + resourceType);
+    }
+    return (T) this;
   }
 
   // ====================================================

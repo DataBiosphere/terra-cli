@@ -169,6 +169,19 @@ public class Workspace {
   }
 
   /**
+   * Get a resource by name and expect a specific type.
+   *
+   * @throws UserActionableException if the resource is not found or is the wrong type
+   */
+  public <T extends Resource> T getResourceOfType(String name, Resource.Type type) {
+    Resource resource = getResource(name);
+    if (!resource.getResourceType().equals(type)) {
+      throw new UserActionableException("Invalid resource type: " + resource.getResourceType());
+    }
+    return (T) resource;
+  }
+
+  /**
    * Get a resource by name.
    *
    * @throws UserActionableException if there is no resource with that name
