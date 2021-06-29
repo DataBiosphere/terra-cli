@@ -62,9 +62,9 @@ sed "s\
 ;      workDir = \"\$TERRA_$resourceName/scratch\"\
 \n      google.location = 'europe-west2'\
 \n      google.project = \"\$GOOGLE_CLOUD_PROJECT\"\
-\n      google.lifeSciences.serviceAccountEmail = \"$GOOGLE_SERVICE_ACCOUNT_EMAIL\"
-\n      google.lifeSciences.network = 'network'
-\n      google.lifeSciences.subnetwork = 'subnetwork'
+\n      google.lifeSciences.serviceAccountEmail = \"\$GOOGLE_SERVICE_ACCOUNT_EMAIL\"\
+\n      google.lifeSciences.network = 'network'\
+\n      google.lifeSciences.subnetwork = 'subnetwork'\
 ;" rnaseq-nf/nextflow.config_original > rnaseq-nf/nextflow.config
 
 # Now we can do a dry-run of the Nextflow workflow to confirm that the config file was correctly modified.
