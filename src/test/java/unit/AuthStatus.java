@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import harness.TestCommand;
 import harness.TestUsers;
-import harness.baseclasses.ClearContextUnit;
+import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra auth status` command. */
 @Tag("unit")
-public class AuthStatus extends ClearContextUnit {
+public class AuthStatus extends SingleWorkspaceUnit {
   @Test
   @DisplayName("auth status includes user email and says logged in")
   void authStatusWhenLoggedIn() throws IOException {
@@ -49,12 +49,10 @@ public class AuthStatus extends ClearContextUnit {
   @Test
   @DisplayName("auth status includes pet SA email when workspace is defined")
   void authStatusWithCurrentWorkspace() throws IOException {
-    // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
-    testUser.login();
+    workspaceCreator.login();
 
-    // `terra workspace create`
-    TestCommand.runCommandExpectSuccess("workspace", "create");
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra auth status --format=json`
     UFAuthStatus authStatus =
@@ -64,7 +62,7 @@ public class AuthStatus extends ClearContextUnit {
     assertThat(
         "auth status email matches test user",
         authStatus.userEmail,
-        equalToIgnoringCase(testUser.email));
+        equalToIgnoringCase(workspaceCreator.email));
     assertThat(
         "auth status includes proxy group email",
         authStatus.proxyGroupEmail,
