@@ -2,9 +2,9 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDBqDataset;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateBqDataset;
+import bio.terra.cli.serialization.userfacing.inputs.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -70,11 +70,8 @@ public class BqDataset extends Resource {
    *
    * @return the resource that was added
    */
-  public static BqDataset addReferenced(CreateUpdateBqDataset createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+  public static BqDataset addReferenced(CreateBqDatasetParams createParams) {
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference
     GcpBigQueryDatasetResource addedResource =
@@ -92,11 +89,8 @@ public class BqDataset extends Resource {
    *
    * @return the resource that was created
    */
-  public static BqDataset createControlled(CreateUpdateBqDataset createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+  public static BqDataset createControlled(CreateBqDatasetParams createParams) {
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
@@ -107,6 +101,26 @@ public class BqDataset extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new BqDataset(createdResource);
+  }
+
+  /** Update a Big Query dataset resource in the workspace. */
+  public void update(UpdateResourceParams updateParams) {
+    if (updateParams.name != null) {
+      validateEnvironmentVariableName(updateParams.name);
+    }
+    switch (stewardshipType) {
+      case REFERENCED:
+        WorkspaceManagerService.fromContext()
+            .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        break;
+      case CONTROLLED:
+        WorkspaceManagerService.fromContext()
+            .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
+    }
+    super.updatePropertiesAndSync(updateParams);
   }
 
   /** Delete a Big Query dataset referenced resource in the workspace. */

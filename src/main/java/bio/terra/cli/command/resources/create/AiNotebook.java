@@ -6,8 +6,8 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateResource;
+import bio.terra.cli.serialization.userfacing.inputs.CreateAiNotebookParams;
+import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -232,7 +232,7 @@ public class AiNotebook extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     // build the resource object to create. force the resource to be private
-    CreateUpdateResource.Builder createResourceParams =
+    CreateResourceParams.Builder createResourceParams =
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
@@ -243,8 +243,8 @@ public class AiNotebook extends BaseCommand {
                     ControlledResourceIamRole.EDITOR,
                     ControlledResourceIamRole.WRITER,
                     ControlledResourceIamRole.READER));
-    CreateUpdateAiNotebook.Builder createParams =
-        new CreateUpdateAiNotebook.Builder()
+    CreateAiNotebookParams.Builder createParams =
+        new CreateAiNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
             .instanceId(getInstanceId(Context.requireUser()))
             .location(location)

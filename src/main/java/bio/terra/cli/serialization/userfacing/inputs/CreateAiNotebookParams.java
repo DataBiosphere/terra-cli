@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.Map;
 
 /**
- * Parameters for creating/updating an AI notebook workspace resource. This class is not currently
+ * Parameters for creating an AI notebook workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateUpdateAiNotebook.Builder.class)
-public class CreateUpdateAiNotebook {
-  public final CreateUpdateResource resourceFields;
+@JsonDeserialize(builder = CreateAiNotebookParams.Builder.class)
+public class CreateAiNotebookParams {
+  public final CreateResourceParams resourceFields;
   public final String instanceId;
   public final String location;
   public final String machineType;
@@ -32,7 +32,7 @@ public class CreateUpdateAiNotebook {
   public final Long dataDiskSizeGb;
   public final String dataDiskType;
 
-  protected CreateUpdateAiNotebook(Builder builder) {
+  protected CreateAiNotebookParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.instanceId = builder.instanceId;
     this.location = builder.location;
@@ -56,7 +56,7 @@ public class CreateUpdateAiNotebook {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private CreateUpdateResource resourceFields;
+    private CreateResourceParams resourceFields;
     private String instanceId;
     private String location;
     private String machineType;
@@ -76,7 +76,7 @@ public class CreateUpdateAiNotebook {
     private Long dataDiskSizeGb;
     private String dataDiskType;
 
-    public Builder resourceFields(CreateUpdateResource resourceFields) {
+    public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
@@ -172,8 +172,8 @@ public class CreateUpdateAiNotebook {
     }
 
     /** Call the private constructor. */
-    public CreateUpdateAiNotebook build() {
-      return new CreateUpdateAiNotebook(this);
+    public CreateAiNotebookParams build() {
+      return new CreateAiNotebookParams(this);
     }
 
     /** Default constructor for Jackson. */

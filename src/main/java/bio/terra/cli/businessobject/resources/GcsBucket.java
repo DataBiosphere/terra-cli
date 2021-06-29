@@ -2,9 +2,10 @@ package bio.terra.cli.businessobject.resources;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDGcsBucket;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateGcsBucket;
+import bio.terra.cli.serialization.userfacing.inputs.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
@@ -61,11 +62,8 @@ public class GcsBucket extends Resource {
    *
    * @return the resource that was added
    */
-  public static GcsBucket addReferenced(CreateUpdateGcsBucket createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+  public static GcsBucket addReferenced(CreateGcsBucketParams createParams) {
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference
     GcpGcsBucketResource addedResource =
@@ -83,11 +81,8 @@ public class GcsBucket extends Resource {
    *
    * @return the resource that was created
    */
-  public static GcsBucket createControlled(CreateUpdateGcsBucket createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+  public static GcsBucket createControlled(CreateGcsBucketParams createParams) {
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpGcsBucketResource createdResource =
@@ -98,6 +93,26 @@ public class GcsBucket extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GcsBucket(createdResource);
+  }
+
+  /** Update a GCS bucket referenced resource in the workspace. */
+  public void updateReferenced(UpdateResourceParams updateParams) {
+    if (updateParams.name != null) {
+      validateEnvironmentVariableName(updateParams.name);
+    }
+    WorkspaceManagerService.fromContext()
+        .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams);
+  }
+
+  /** Update a GCS bucket controlled resource in the workspace. */
+  public void updateControlled(UpdateGcsBucketParams updateParams) {
+    if (updateParams.resourceFields.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceFields.name);
+    }
+    WorkspaceManagerService.fromContext()
+        .updateControlledGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /** Delete a GCS bucket referenced resource in the workspace. */

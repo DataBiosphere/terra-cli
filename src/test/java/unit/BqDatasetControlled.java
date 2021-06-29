@@ -263,6 +263,113 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
   }
 
+  @Test
+  @DisplayName("update a controlled dataset, one property at a time")
+  void updateIndividualProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId
+    // --description=$description`
+    String name = "updateIndividualProperties";
+    String description = "updateDescription";
+    String datasetId = randomDatasetId();
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "bq-dataset",
+        "--name=" + name,
+        "--description=" + description,
+        "--dataset-id=" + datasetId);
+
+    // update just the name
+    // `terra resources update bq-dataset --name=$name --new-name=$newName`
+    String newName = "updateIndividualProperties_NEW";
+    UFBqDataset updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + name,
+            "--new-name=" + newName);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(description, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    UFBqDataset describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(description, describeDataset.description);
+
+    // update just the description
+    // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    String newDescription = "updateDescription_NEW";
+    updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + newName,
+            "--description=" + newDescription);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(newDescription, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataset.description);
+  }
+
+  @Test
+  @DisplayName("update a controlled dataset, specifying multiple properties")
+  void updateMultipleProperties() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId
+    // --description=$description`
+    String name = "updateMultipleProperties";
+    String description = "updateDescription";
+    String datasetId = randomDatasetId();
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "bq-dataset",
+        "--name=" + name,
+        "--description=" + description,
+        "--dataset-id=" + datasetId);
+
+    // update both the name and description
+    // `terra resources update bq-dataset --name=$newName --new-name=$newName
+    // --description=$newDescription`
+    String newName = "updateMultipleProperties_NEW";
+    String newDescription = "updateDescription_NEW";
+    UFBqDataset updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resources",
+            "update",
+            "bq-dataset",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--description=" + newDescription);
+    assertEquals(newName, updateDataset.name);
+    assertEquals(newDescription, updateDataset.description);
+
+    // `terra resources describe --name=$newName`
+    UFBqDataset describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataset.description);
+  }
+
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.

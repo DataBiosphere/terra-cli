@@ -287,12 +287,78 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     validateMultipleRules(lifecycleRules);
   }
 
+  @Test
+  @DisplayName("update the bucket lifecycle rule")
+  void update() throws IOException {
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // --lifecycle=$lifecycle1`
+    String resourceName = "update";
+    String bucketName = UUID.randomUUID().toString();
+    String lifecycleFilename1 = "delete_age.json";
+    Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName,
+        "--lifecycle=" + lifecycle1.toString());
+
+    // `terra resources update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
+    String lifecycleFilename2 = "setStorageClass_age.json";
+    Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "update",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--lifecycle=" + lifecycle2.toString());
+
+    List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
+        getLifecycleRulesFromCloud(bucketName);
+    assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
+    expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
+    assertEquals(
+        124, lifecycleRulesFromGCS.get(0).getCondition().getAge(), "condition age matches");
+  }
+
+  @Test
+  @DisplayName("remove the bucket lifecycle rule")
+  void remove() throws IOException {
+    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // --lifecycle=$lifecycle1`
+    String resourceName = "remove";
+    String bucketName = UUID.randomUUID().toString();
+    String lifecycleFilename1 = "delete_age.json";
+    Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "create",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName,
+        "--lifecycle=" + lifecycle1.toString());
+
+    // `terra resources update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
+    String lifecycleFilename2 = "empty.json";
+    Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
+    TestCommand.runCommandExpectSuccess(
+        "resources",
+        "update",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--lifecycle=" + lifecycle2.toString());
+
+    List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
+        getLifecycleRulesFromCloud(bucketName);
+    assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
+  }
+
   /**
    * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
    * the multipleRules.json file.
    */
-  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules)
-      throws IOException {
+  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
     assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
 
     Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
@@ -376,8 +442,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--lifecycle=" + lifecycle.toString(),
-        "--format=json");
+        "--lifecycle=" + lifecycle.toString());
 
     return getLifecycleRulesFromCloud(bucketName);
   }
@@ -392,7 +457,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createdBucketOnCloud.getLifecycleRules();
     assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    assertTrue(lifecycleRules.size() > 0, "bucket has lifecycle rules defined");
     lifecycleRules.stream().forEach(System.out::println); // log to console
 
     return lifecycleRules;

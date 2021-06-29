@@ -5,18 +5,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating/updating a BQ dataset workspace resource. This class is not currently
- * user-facing, but could be exposed as a command input format in the future.
+ * Parameters for creating a BQ dataset workspace resource. This class is not currently user-facing,
+ * but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateUpdateBqDataset.Builder.class)
-public class CreateUpdateBqDataset {
-  public final CreateUpdateResource resourceFields;
+@JsonDeserialize(builder = CreateBqDatasetParams.Builder.class)
+public class CreateBqDatasetParams {
+  public final CreateResourceParams resourceFields;
   public final String projectId;
   public final String datasetId;
   public final String location;
 
-  protected CreateUpdateBqDataset(CreateUpdateBqDataset.Builder builder) {
+  protected CreateBqDatasetParams(CreateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
@@ -25,12 +25,12 @@ public class CreateUpdateBqDataset {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private CreateUpdateResource resourceFields;
+    private CreateResourceParams resourceFields;
     private String projectId;
     private String datasetId;
     private String location;
 
-    public Builder resourceFields(CreateUpdateResource resourceFields) {
+    public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
@@ -51,8 +51,8 @@ public class CreateUpdateBqDataset {
     }
 
     /** Call the private constructor. */
-    public CreateUpdateBqDataset build() {
-      return new CreateUpdateBqDataset(this);
+    public CreateBqDatasetParams build() {
+      return new CreateBqDatasetParams(this);
     }
 
     /** Default constructor for Jackson. */

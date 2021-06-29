@@ -7,6 +7,7 @@ import bio.terra.cli.command.resources.Delete;
 import bio.terra.cli.command.resources.Describe;
 import bio.terra.cli.command.resources.List;
 import bio.terra.cli.command.resources.Resolve;
+import bio.terra.cli.command.resources.Update;
 import picocli.CommandLine;
 
 /**
@@ -23,6 +24,7 @@ import picocli.CommandLine;
       Delete.class,
       Describe.class,
       List.class,
-      Resolve.class
+      Resolve.class,
+      Update.class
     })
 public class Resources {}

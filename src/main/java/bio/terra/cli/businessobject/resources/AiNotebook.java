@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resources.PDAiNotebook;
-import bio.terra.cli.serialization.userfacing.inputs.CreateUpdateAiNotebook;
+import bio.terra.cli.serialization.userfacing.inputs.CreateAiNotebookParams;
 import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.cli.service.GoogleAiNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -68,7 +68,7 @@ public class AiNotebook extends Resource {
   /**
    * Add an AI Platform notebook as a referenced resource in the workspace. Currently unsupported.
    */
-  public static AiNotebook addReferenced(CreateUpdateAiNotebook createParams) {
+  public static AiNotebook addReferenced(CreateAiNotebookParams createParams) {
     throw new UserActionableException(
         "Referenced resources not supported for AI Platform notebooks.");
   }
@@ -78,11 +78,8 @@ public class AiNotebook extends Resource {
    *
    * @return the resource that was created
    */
-  public static AiNotebook createControlled(CreateUpdateAiNotebook createParams) {
-    if (!Resource.isValidEnvironmentVariableName(createParams.resourceFields.name)) {
-      throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+  public static AiNotebook createControlled(CreateAiNotebookParams createParams) {
+    validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
