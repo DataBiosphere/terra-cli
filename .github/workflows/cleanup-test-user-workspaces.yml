@@ -2,11 +2,11 @@ name: Run tests nightly
 on:
   workflow_dispatch:
     inputs:
-      DRY_RUN:
+      dryRun:
         description: 'true to do a dry run (i.e. don't actually try to delete anything), false otherwise.'
         required: false
         default: 'true'
-      TERRA_SERVER:
+      terraServer:
         description: 'the server to cleanup (e.g. terra-dev)'
         required: false
         default: 'terra-dev'
