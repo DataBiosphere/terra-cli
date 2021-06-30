@@ -1,4 +1,4 @@
-name: Cleanup test user workspaces (placeholder)
+name: Cleanup test user workspaces (copypaste)
 on:
   workflow_dispatch:
     inputs:
@@ -55,11 +55,10 @@ jobs:
         run: |
           echo "dryrun: $DRY_RUN"
           echo "terraserver: $TERRA_SERVER"
-          ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
           if [ "$DRY_RUN" == "true" ]; then
-            echo "do a dry run"
+            ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
           else
-            echo "do an actual run"
+            ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
           fi
         env:
           DRY_RUN: ${{ github.event.inputs.dryrun }}
