@@ -6,6 +6,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
+import harness.TestContext;
 import harness.TestUsers;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +33,8 @@ public class CleanupTestUserWorkspaces {
    * owns.
    */
   private static void deleteWorkspaces(TestUsers testUser, boolean isDryRun) throws IOException {
+    System.out.println("Deleting workspaces for testuser " + testUser.email);
+    TestContext.clearGlobalContextDir();
     testUser.login();
 
     // `terra workspace list`
@@ -75,6 +78,9 @@ public class CleanupTestUserWorkspaces {
         continue;
       }
     }
+
+    // `terra auth revoke`
+    TestCommand.runCommandExpectSuccess("auth", "revoke");
   }
 
   /**

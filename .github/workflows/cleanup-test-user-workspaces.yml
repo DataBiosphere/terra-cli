@@ -1,0 +1,72 @@
+name: Run tests nightly
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - '**'
+
+inputs:
+  DRY_RUN:
+    description: 'true to do a dry run (i.e. don't actually try to delete anything), false otherwise.'
+    required: false
+    default: 'true'
+  TERRA_SERVER:
+    description: 'the server to cleanup (e.g. terra-dev)'
+    required: false
+    default: 'terra-dev'
+
+jobs:
+  cleanup-test-user-workspaces:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current code
+        id: checkout_code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+      - name: Set up AdoptOpenJDK 11
+        id: setup_jdk
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: 11
+      - name: Cache Gradle packages
+        id: cache_gradle
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+      - name: Grant execute permission for gradlew
+        id: allow_execute_gradle
+        run: chmod +x gradlew
+      - name: Render config
+        id: render_config
+        run: |
+          # this step does the equivalent of the tools/render-config.sh script.
+          # on local machines, the script fetches a SA from Vault.
+          # in GH actions, the SA key is stored in a GH repo secret.
+          # regardless of how it was fetched, tests expect these
+          # keys to be stored in rendered/
+          mkdir -p rendered
+          echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
+          echo "$DEV_CI_SA_KEY" > rendered/ci-account.json
+        env:
+          TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
+          DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
+      - name: Run cleanup script
+        id: run_cleanup_script
+        run: |
+          echo "DRY_RUN: ${{ github.event.inputs.DRY_RUN }}"
+          echo "TERRA_SERVER: ${{ github.event.inputs.TERRA_SERVER }}"
+#          ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
+      - name: Archive logs and context file
+        id: archive_logs_and_context
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs-and-context-[${{ matrix.testOptions }}]
+          path: |
+            build/test-context/.terra/logs/
+            build/test-context/.terra/global-context.json
