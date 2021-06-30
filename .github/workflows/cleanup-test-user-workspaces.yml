@@ -1,19 +1,18 @@
 name: Run tests nightly
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      DRY_RUN:
+        description: 'true to do a dry run (i.e. don't actually try to delete anything), false otherwise.'
+        required: false
+        default: 'true'
+      TERRA_SERVER:
+        description: 'the server to cleanup (e.g. terra-dev)'
+        required: false
+        default: 'terra-dev'
   push:
     branches:
       - '**'
-
-inputs:
-  DRY_RUN:
-    description: 'true to do a dry run (i.e. don't actually try to delete anything), false otherwise.'
-    required: false
-    default: 'true'
-  TERRA_SERVER:
-    description: 'the server to cleanup (e.g. terra-dev)'
-    required: false
-    default: 'terra-dev'
 
 jobs:
   cleanup-test-user-workspaces:
@@ -60,7 +59,7 @@ jobs:
         run: |
           echo "DRY_RUN: ${{ github.event.inputs.DRY_RUN }}"
           echo "TERRA_SERVER: ${{ github.event.inputs.TERRA_SERVER }}"
-#          ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
+          ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
