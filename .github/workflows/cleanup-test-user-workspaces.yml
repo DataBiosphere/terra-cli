@@ -1,4 +1,4 @@
-name: Run tests nightly
+name: Cleanup test user workspaces
 on:
   workflow_dispatch:
     inputs:
@@ -57,9 +57,17 @@ jobs:
       - name: Run cleanup script
         id: run_cleanup_script
         run: |
-          echo "DRY_RUN: ${{ github.event.inputs.DRY_RUN }}"
-          echo "TERRA_SERVER: ${{ github.event.inputs.TERRA_SERVER }}"
+          echo "dryrun: $DRY_RUN"
+          echo "terraserver: $TERRA_SERVER"
           ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
+          if [ "$DRY_RUN" == "true" ]; then
+            echo "do a dry run"
+          else
+            echo "do an actual run"
+          fi
+        env:
+          DRY_RUN: ${{ github.event.inputs.dryrun }}
+          TERRA_SERVER: ${{ github.event.inputs.terraserver }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
