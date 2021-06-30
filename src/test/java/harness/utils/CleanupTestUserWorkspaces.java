@@ -9,9 +9,11 @@ import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUsers;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * This class implements a script to cleanup workspaces owned by test users. Tests are not supposed
@@ -28,6 +30,9 @@ import java.util.Optional;
  * defined, so it's easier to loop through them here.
  */
 public class CleanupTestUserWorkspaces {
+  private static List<UUID> deletedWorkspaces = new ArrayList<>();
+  private static List<UUID> failedWorkspaces = new ArrayList<>();
+
   /**
    * List all workspaces the test user has access to and try to delete each one that the test user
    * owns.
@@ -71,10 +76,13 @@ public class CleanupTestUserWorkspaces {
           TestCommand.runCommandExpectSuccess("workspace", "delete", "--workspace=" + workspace.id);
           System.out.println(
               "Cleaned up workspace: id=" + workspace.id + ", testuser=" + testUser.email);
+          deletedWorkspaces.add(workspace.id);
         }
       } catch (Throwable ex) {
         System.out.println(
             "Error deleting workspace: id=" + workspace.id + ", testuser=" + testUser.email);
+        ex.printStackTrace();
+        failedWorkspaces.add(workspace.id);
         continue;
       }
     }
@@ -111,5 +119,16 @@ public class CleanupTestUserWorkspaces {
                 System.out.println("Error cleaning up workspaces for testuser: " + testUser.email);
               }
             });
+
+    System.out.println("Deleted workspaces:");
+    deletedWorkspaces.forEach(
+        workspaceId -> {
+          System.out.println("  " + workspaceId);
+        });
+    System.out.println("Failed workspaces:");
+    failedWorkspaces.forEach(
+        workspaceId -> {
+          System.out.println("  " + workspaceId);
+        });
   }
 }

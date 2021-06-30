@@ -2,11 +2,11 @@ name: Cleanup test user workspaces
 on:
   workflow_dispatch:
     inputs:
-      dryrun:
+      dry_run:
         description: "true to do a dry run (i.e. don't actually try to delete anything), false otherwise."
         required: false
         default: 'true'
-      terraserver:
+      terra_server:
         description: 'the server to cleanup (e.g. terra-dev)'
         required: true
 
@@ -56,13 +56,13 @@ jobs:
           echo "dryrun: $DRY_RUN"
           echo "terraserver: $TERRA_SERVER"
           if [ "$DRY_RUN" == "true" ]; then
-            ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
+            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER -PdryRun
           else
-            ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
+            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER
           fi
         env:
-          DRY_RUN: ${{ github.event.inputs.dryrun }}
-          TERRA_SERVER: ${{ github.event.inputs.terraserver }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          TERRA_SERVER: ${{ github.event.inputs.terra_server }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
