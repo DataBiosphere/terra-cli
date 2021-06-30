@@ -115,6 +115,13 @@ public enum TestUsers {
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
   }
 
+  /** Returns true if the test user has access to the default WSM spend profile. */
+  public boolean hasSpendAccess() {
+    return spendEnabled.equals(SpendEnabled.CLI_TEST_USERS_GROUP)
+        || spendEnabled.equals(SpendEnabled.DIRECTLY)
+        || spendEnabled.equals(SpendEnabled.OWNER);
+  }
+
   /**
    * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
    * choosing a user that is not the workspace creator.
