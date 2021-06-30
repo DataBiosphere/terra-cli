@@ -16,6 +16,9 @@ public class UFAuthStatus {
   // Terra proxy group email associated with the current user
   public final String proxyGroupEmail;
 
+  // Terra pet SA email associated with the current user + workspace
+  public final String serviceAccountEmail;
+
   // true if the current user does not need to re-authenticate
   public final boolean loggedIn;
 
@@ -23,15 +26,17 @@ public class UFAuthStatus {
   private UFAuthStatus(Builder builder) {
     this.userEmail = builder.userEmail;
     this.proxyGroupEmail = builder.proxyGroupEmail;
+    this.serviceAccountEmail = builder.serviceAccountEmail;
     this.loggedIn = builder.loggedIn;
   }
 
   /** Constructor for when there is a current user defined. */
   public static UFAuthStatus createWhenCurrentUserIsDefined(
-      String userEmail, String proxyGroupEmail, boolean loggedIn) {
+      String userEmail, String proxyGroupEmail, String serviceAccountEmail, boolean loggedIn) {
     return new Builder()
         .userEmail(userEmail)
         .proxyGroupEmail(proxyGroupEmail)
+        .serviceAccountEmail(serviceAccountEmail)
         .loggedIn(loggedIn)
         .build();
   }
@@ -45,6 +50,7 @@ public class UFAuthStatus {
   public static class Builder {
     private String userEmail;
     private String proxyGroupEmail;
+    private String serviceAccountEmail;
     private boolean loggedIn;
 
     public Builder userEmail(String userEmail) {
@@ -54,6 +60,11 @@ public class UFAuthStatus {
 
     public Builder proxyGroupEmail(String proxyGroupEmail) {
       this.proxyGroupEmail = proxyGroupEmail;
+      return this;
+    }
+
+    public Builder serviceAccountEmail(String serviceAccountEmail) {
+      this.serviceAccountEmail = serviceAccountEmail;
       return this;
     }
 

@@ -1058,16 +1058,16 @@ public class WorkspaceManagerService {
             apiEx.getMessage());
 
         // try to deserialize the response body into an ErrorReport
-        String apiExMsg;
-        try {
-          ErrorReport errorReport =
-              JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
-          apiExMsg = errorReport.getMessage();
-        } catch (JsonProcessingException jsonEx) {
-          logger.debug(
-              "Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
-          apiExMsg = apiEx.getResponseBody();
-        }
+        String apiExMsg = apiEx.getResponseBody();
+        if (apiExMsg != null)
+          try {
+            ErrorReport errorReport =
+                JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+            apiExMsg = errorReport.getMessage();
+          } catch (JsonProcessingException jsonEx) {
+            logger.debug(
+                "Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
+          }
 
         // if we found a WSM error message, then append it to the one passed in
         // otherwise append the http code
