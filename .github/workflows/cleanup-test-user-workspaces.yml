@@ -1,4 +1,4 @@
-name: Cleanup test user workspaces (copypaste)
+name: Cleanup test user workspaces
 on:
   workflow_dispatch:
     inputs:
