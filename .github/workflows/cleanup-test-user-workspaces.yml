@@ -1,4 +1,4 @@
-name: Cleanup test user workspaces
+name: Cleanup test user workspaces (placeholder)
 on:
   workflow_dispatch:
     inputs:

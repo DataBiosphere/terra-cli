@@ -215,7 +215,7 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     // [optional] specify that this is a dry run (e.g. -PdryRun)
     systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
 
-    dependsOn installDist
+    dependsOn compileJava
 }
 
 // automatic code formatting

@@ -1,15 +1,21 @@
-name: Run tests nightly
+name: Cleanup test user workspaces (copypaste)
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: '0 5 * * *' # 5AM UTC = 12AM EST
+  workflow_dispatch:
+    inputs:
+      dryrun:
+        description: "true to do a dry run (i.e. don't actually try to delete anything), false otherwise."
+        required: false
+        default: 'true'
+      terraserver:
+        description: 'the server to cleanup (e.g. terra-dev)'
+        required: false
+        default: 'terra-dev'
+  push:
+    branches:
+      - '**'
 
 jobs:
-  tests-against-source-code-and-latest-install:
-    strategy:
-      matrix:
-        testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
-      fail-fast: false
+  cleanup-test-user-workspaces:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current code
@@ -48,12 +54,20 @@ jobs:
         env:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
-      - name: Run tests
-        id: run_tests
+      - name: Run cleanup script
+        id: run_cleanup_script
         run: |
-          # runs against the default server: terra-dev
-          echo "Running tests with options: ${{ matrix.testOptions }}"
-          ./gradlew runTestsWithTag ${{ matrix.testOptions }}
+          echo "dryrun: $DRY_RUN"
+          echo "terraserver: $TERRA_SERVER"
+          ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
+          if [ "$DRY_RUN" == "true" ]; then
+            echo "do a dry run"
+          else
+            echo "do an actual run"
+          fi
+        env:
+          DRY_RUN: ${{ github.event.inputs.dryrun }}
+          TERRA_SERVER: ${{ github.event.inputs.terraserver }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
