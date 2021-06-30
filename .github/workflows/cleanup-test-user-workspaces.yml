@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       dryrun:
-        description: 'true to do a dry run (i.e. don't actually try to delete anything), false otherwise.'
+        description: "true to do a dry run (i.e. don't actually try to delete anything), false otherwise."
         required: false
         default: 'true'
       terraserver:
