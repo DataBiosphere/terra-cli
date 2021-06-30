@@ -48,6 +48,7 @@ cd ..
 # Nextflow users modify the nextflow.config file to specify where to run the batch jobs. I will modify the gls section because I will run against the Google Life Sciences Pipelines API.
 terra nextflow -version
 
+# Note the hard-coded 'network' and 'subnetwork' strings are the names of the VPC network and subnetwork, respectively, that replace the default ones in Terra projects. You can find these in the Cloud Console, under the VPC network section.
 #[open rnaseq-nf/nextflow.config in a text editor, update the gls section]
 #      workDir = "$TERRA_MYBUCKET/scratch"
 #      google.location = 'europe-west2'

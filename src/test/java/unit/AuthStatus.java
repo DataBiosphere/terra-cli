@@ -11,6 +11,7 @@ import harness.TestCommand;
 import harness.TestUsers;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -19,6 +20,9 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra auth status` command. */
 @Tag("unit")
 public class AuthStatus extends SingleWorkspaceUnit {
+  public static final Pattern VALID_EMAIL_ADDRESS =
+      Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+
   @Test
   @DisplayName("auth status includes user email and says logged in")
   void authStatusWhenLoggedIn() throws IOException {
@@ -39,6 +43,9 @@ public class AuthStatus extends SingleWorkspaceUnit {
         "auth status includes proxy group email",
         authStatus.proxyGroupEmail,
         CoreMatchers.not(emptyOrNullString()));
+    assertTrue(
+        VALID_EMAIL_ADDRESS.matcher(authStatus.proxyGroupEmail).find(),
+        "proxy group email is a valid email");
     assertThat(
         "auth status without workspace defined does not include pet SA email",
         authStatus.serviceAccountEmail,
@@ -67,10 +74,16 @@ public class AuthStatus extends SingleWorkspaceUnit {
         "auth status includes proxy group email",
         authStatus.proxyGroupEmail,
         CoreMatchers.not(emptyOrNullString()));
+    assertTrue(
+        VALID_EMAIL_ADDRESS.matcher(authStatus.proxyGroupEmail).find(),
+        "proxy group email is a valid email");
     assertThat(
         "auth status with workspace defined includes pet SA email",
         authStatus.serviceAccountEmail,
         CoreMatchers.not(emptyOrNullString()));
+    assertTrue(
+        VALID_EMAIL_ADDRESS.matcher(authStatus.serviceAccountEmail).find(),
+        "pet SA email is a valid email");
     assertTrue(authStatus.loggedIn, "auth status indicates user is logged in");
   }
 

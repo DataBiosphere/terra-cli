@@ -176,31 +176,10 @@ public class User {
   }
 
   /**
-   * Get the client email from the pet SA key file. Returns null if there is no current workspace
-   * defined.
+   * Fetch the pet SA credentials for this user + current workspace. If the key file for the current
+   * user + workspace already exists on disk, then load the credentials from that. If the key file
+   * does not exist on disk, then fetch it from SAM and persist it in the global context directory.
    */
-  public String getPetSaEmail() {
-    // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
-    // to fetch
-    if (Context.getWorkspace().isEmpty()) {
-      logger.debug("No current workspace defined, so there are no pet SA credentials.");
-      return null;
-    }
-    Path jsonKeyPath = Context.getPetSaKeyFile();
-    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
-    if (!jsonKeyPath.toFile().exists()) {
-      throw new SystemException("Pet SA key file not found for current user + workspace");
-    }
-    // create a credentials object from the key
-    try {
-      petSACredentials = GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading pet SA key file.", ioEx);
-    }
-    return petSACredentials.getClientEmail();
-  }
-
-  /** Fetch the pet SA credentials for this user + current workspace. */
   public void fetchPetSaCredentials() {
     // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
     // to fetch
@@ -209,41 +188,77 @@ public class User {
       return;
     }
 
+    // populate credentials from the file on disk, if one exists
+    populatePetSaCredentialsFromFile();
+
     // if the key file for this user + workspace already exists, then no need to re-fetch
-    Path jsonKeyPath = Context.getPetSaKeyFile();
-    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
-    if (jsonKeyPath.toFile().exists()) {
-      logger.debug("Pet SA key file for this user and workspace already exists.");
-    } else {
-      // ask SAM for the project-specific pet SA key
-      HttpUtils.HttpResponse petSaKeySamResponse =
-          new SamService(this, Context.getServer())
-              .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
-      if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
-        logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
-        throw new SystemException(
-            "Error fetching pet SA key from SAM (status code = "
-                + petSaKeySamResponse.statusCode
-                + ").");
-      }
-      try {
-        // persist the key file in the global context directory
-        jsonKeyPath =
-            FileUtils.writeStringToFile(
-                Context.getPetSaKeyFile().toFile(), petSaKeySamResponse.responseBody);
-        logger.debug("Stored pet SA key file for this user and workspace.");
-      } catch (IOException ioEx) {
-        throw new SystemException(
-            "Error writing pet SA key to the global context directory.", ioEx);
-      }
+    if (petSACredentials != null) {
+      return;
     }
 
-    try {
-      // create a credentials object from the key
-      petSACredentials = GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
-    } catch (IOException ioEx) {
+    // ask SAM for the project-specific pet SA key
+    HttpUtils.HttpResponse petSaKeySamResponse =
+        new SamService(this, Context.getServer())
+            .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
+    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
+      logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse.responseBody);
       throw new SystemException(
-          "Error reading pet SA credentials from the global context directory.", ioEx);
+          "Error fetching pet SA key from SAM (status code = "
+              + petSaKeySamResponse.statusCode
+              + ").");
+    }
+    Path jsonKeyPath;
+    try {
+      // persist the key file in the global context directory
+      jsonKeyPath =
+          FileUtils.writeStringToFile(
+              Context.getPetSaKeyFile().toFile(), petSaKeySamResponse.responseBody);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
+    }
+    logger.debug("Stored pet SA key file for this user and workspace.");
+    petSACredentials = createSaCredentials(jsonKeyPath);
+  }
+
+  /**
+   * Get the client email from the pet SA key file. Returns null if there is no current workspace
+   * defined or the key file is not found.
+   */
+  public String getPetSaEmail() {
+    populatePetSaCredentialsFromFile();
+    if (petSACredentials == null) {
+      return null;
+    } else {
+      return petSACredentials.getClientEmail();
+    }
+  }
+
+  /**
+   * Populate the pet SA credentials property from the file on disk. If there is no current
+   * workspace defined, or the pet SA key file for the current user + workspace does not exist, then
+   * this method is a no-op.
+   */
+  private void populatePetSaCredentialsFromFile() {
+    // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
+    if (Context.getWorkspace().isEmpty()) {
+      logger.debug("No current workspace defined, so there are no pet SA credentials.");
+      return;
+    }
+    Path jsonKeyPath = Context.getPetSaKeyFile();
+    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
+    if (!jsonKeyPath.toFile().exists()) {
+      logger.debug("Pet SA key file not found for current user + workspace");
+      return;
+    }
+    petSACredentials = createSaCredentials(jsonKeyPath);
+  }
+
+  /** Create a credentials object for a service account from a key file. */
+  private ServiceAccountCredentials createSaCredentials(Path jsonKeyPath) {
+    try {
+      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading SA key file.", ioEx);
     }
   }
 
