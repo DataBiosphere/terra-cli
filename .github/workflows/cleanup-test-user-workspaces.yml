@@ -8,11 +8,7 @@ on:
         default: 'true'
       terraserver:
         description: 'the server to cleanup (e.g. terra-dev)'
-        required: false
-        default: 'terra-dev'
-  push:
-    branches:
-      - '**'
+        required: true
 
 jobs:
   cleanup-test-user-workspaces:
