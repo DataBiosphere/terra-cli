@@ -56,9 +56,7 @@ public class User {
 
   @VisibleForTesting
   public static final List<String> SCOPES =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
+      Collections.unmodifiableList(Arrays.asList("openid", "email", "profile"));
 
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
