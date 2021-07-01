@@ -195,6 +195,29 @@ task runTestsWithTag(type: Test) {
     outputs.upToDateWhen { false } // force tests to always be re-run
 }
 
+// cleanup workspaces owned by test users.
+// 1) do a dry run (i.e. don't actually try to delete anything)
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
+// 2) try to delete each workspace owned by a test user
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
+task cleanupTestUserWorkspaces(type: JavaExec) {
+    classpath sourceSets.test.runtimeClasspath
+    main = "harness.utils.CleanupTestUserWorkspaces"
+
+    // override the default global context directory with a sub-directory of the gradle build directory
+    // this is so that the tests don't overwrite any context that exists on this same machine.
+    environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
+    mkdir "${project.buildDir}/test-context/"
+
+    // [required] specify the server to cleanup (e.g. -Pserver=terra-dev). no default value, force caller to specify this
+    systemProperty "TERRA_SERVER", project.findProperty("server")
+
+    // [optional] specify that this is a dry run (e.g. -PdryRun)
+    systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
+
+    dependsOn compileJava
+}
+
 // automatic code formatting
 spotless {
     java {
