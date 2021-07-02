@@ -10,7 +10,6 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
-import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +53,8 @@ public class User {
   private UserCredentials userCredentials;
   private ServiceAccountCredentials petSACredentials;
 
-  @VisibleForTesting
-  public static final List<String> SCOPES =
+  // these are the same scopes requested by Terra service swagger pages
+  private static final List<String> SCOPES =
       Collections.unmodifiableList(Arrays.asList("openid", "email", "profile"));
 
   // google OAuth client secret file

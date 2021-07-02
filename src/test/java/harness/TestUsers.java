@@ -44,6 +44,14 @@ public enum TestUsers {
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
 
+  // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
+  // scope. test users need the cloud platform scope to talk to GCP directly (e.g. to check the
+  // lifecycle property of a GCS bucket, which is not stored as WSM metadata)
+  public static final List<String> SCOPES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
+
   TestUsers(String email, SpendEnabled spendEnabled) {
     this.email = email;
     this.spendEnabled = spendEnabled;
@@ -99,7 +107,7 @@ public enum TestUsers {
     }
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(User.SCOPES);
+            .createScoped(SCOPES);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
     System.out.println("Logging in test user: " + email);
