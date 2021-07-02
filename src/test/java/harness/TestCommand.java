@@ -7,6 +7,7 @@ import bio.terra.cli.utils.Printer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -36,9 +37,11 @@ public class TestCommand {
     // stderr from the console
     ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
     ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+    ByteArrayInputStream stdIn = new ByteArrayInputStream(new byte[1000]);
     Printer.initialize(
         new PrintStream(stdOut, true, StandardCharsets.UTF_8),
-        new PrintStream(stdErr, true, StandardCharsets.UTF_8));
+        new PrintStream(stdErr, true, StandardCharsets.UTF_8),
+        stdIn);
 
     // execute the command from the top-level Main class
     System.out.println("COMMAND: " + String.join(" ", args));

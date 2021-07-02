@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class LocalProcessLauncher {
    */
   private static void streamOutput(InputStream fromStream, PrintStream toStream) {
     try (BufferedReader bufferedReader =
-        new BufferedReader(new InputStreamReader(fromStream, Charset.forName("UTF-8")))) {
+        new BufferedReader(new InputStreamReader(fromStream, StandardCharsets.UTF_8))) {
 
       String line;
       while ((line = bufferedReader.readLine()) != null) {

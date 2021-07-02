@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -66,7 +66,7 @@ public final class GoogleOauth {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
         GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, Charset.forName("UTF-8")));
+            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // setup the Google OAuth2 flow
     GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
@@ -145,7 +145,7 @@ public final class GoogleOauth {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
         GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, Charset.forName("UTF-8")));
+            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // get a pointer to the credential datastore
     GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
@@ -175,7 +175,7 @@ public final class GoogleOauth {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
         GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, Charset.forName("UTF-8")));
+            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // get a pointer to the credential datastore
     GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);

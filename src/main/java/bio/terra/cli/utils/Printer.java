@@ -1,8 +1,9 @@
 package bio.terra.cli.utils;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -20,16 +21,19 @@ public class Printer {
 
   private static final PrintStream DEFAULT_OUT_STREAM = System.out;
   private static final PrintStream DEFAULT_ERR_STREAM = System.err;
+  private static final InputStream DEFAULT_IN_STREAM = System.in;
 
   private final PrintStream out;
   private final PrintStream err;
+  private final InputStream in;
 
   private static Printer printer;
 
   /** Constructor that initializes the printer with the specified output streams. */
-  private Printer(PrintStream out, PrintStream err) {
+  private Printer(PrintStream out, PrintStream err, InputStream in) {
     this.out = out;
     this.err = err;
+    this.in = in;
   }
 
   /**
@@ -47,7 +51,7 @@ public class Printer {
    */
   public static void setupPrinting(CommandLine cmd) {
     if (printer == null) {
-      initialize(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM);
+      initialize(DEFAULT_OUT_STREAM, DEFAULT_ERR_STREAM, DEFAULT_IN_STREAM);
     } else {
       logger.warn(
           "Printing setup called multiple times. This is expected when testing, not during normal operation.");
@@ -67,8 +71,9 @@ public class Printer {
    * @param standardOut stream to write standard out to
    * @param standardErr stream to write standard err to
    */
-  public static void initialize(PrintStream standardOut, PrintStream standardErr) {
-    printer = new Printer(standardOut, standardErr);
+  public static void initialize(
+      PrintStream standardOut, PrintStream standardErr, InputStream standardIn) {
+    printer = new Printer(standardOut, standardErr, standardIn);
   }
 
   /**
@@ -97,9 +102,22 @@ public class Printer {
     return printer.err;
   }
 
+  /**
+   * Utility method to get the input stream from the singleton.
+   *
+   * @return stream to read input from (e.g. stdin)
+   */
+  public static InputStream getIn() {
+    if (printer == null) {
+      logger.warn("Attempt to access printer input stream before setup.");
+      return DEFAULT_IN_STREAM;
+    }
+    return printer.in;
+  }
+
   /** Utility method to get a UTF-8 encoded character output stream from a raw byte stream. */
   private static PrintWriter getPrintWriter(PrintStream printStream) {
-    return new PrintWriter(printStream, true, Charset.forName("UTF-8"));
+    return new PrintWriter(printStream, true, StandardCharsets.UTF_8);
   }
 
   /** Utility method to sort and map a list's contents. */

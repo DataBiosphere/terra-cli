@@ -9,7 +9,7 @@ import picocli.CommandLine;
  * for this command.
  *
  * <p>Commands that use this option should call {@link #overrideIfSpecified()} before all other
- * logic.
+ * business logic.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
