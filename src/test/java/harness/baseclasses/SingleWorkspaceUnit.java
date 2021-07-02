@@ -48,6 +48,6 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspaceId);
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

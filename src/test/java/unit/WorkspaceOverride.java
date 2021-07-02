@@ -91,13 +91,13 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace2.id);
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
     ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
     externalBucket = null;
@@ -212,14 +212,24 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "resources", "resolve", "--name=" + resourceNameBucket);
 
     // `terra delete --name=$resourceNameBucket --workspace=$id2`
-    TestCommand.runCommandExpectExitCode(1, "resources", "delete", "--name=" + resourceNameBucket);
+    TestCommand.runCommandExpectExitCode(
+        1, "resources", "delete", "--name=" + resourceNameBucket, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources", "delete", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
+        "resources",
+        "delete",
+        "--name=" + resourceNameBucket,
+        "--workspace=" + workspace2.id,
+        "--quiet");
 
     // `terra delete --name=$resourceNameDataset --workspace=$id2`
-    TestCommand.runCommandExpectExitCode(1, "resources", "delete", "--name=" + resourceNameDataset);
+    TestCommand.runCommandExpectExitCode(
+        1, "resources", "delete", "--name=" + resourceNameDataset, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources", "delete", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
+        "resources",
+        "delete",
+        "--name=" + resourceNameDataset,
+        "--workspace=" + workspace2.id,
+        "--quiet");
   }
 
   @Test
@@ -290,14 +300,24 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "resources", "resolve", "--name=" + resourceNameBucket);
 
     // `terra delete --name=$resourceNameBucket --workspace=$id2`
-    TestCommand.runCommandExpectExitCode(1, "resources", "delete", "--name=" + resourceNameBucket);
+    TestCommand.runCommandExpectExitCode(
+        1, "resources", "delete", "--name=" + resourceNameBucket, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources", "delete", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
+        "resources",
+        "delete",
+        "--name=" + resourceNameBucket,
+        "--workspace=" + workspace2.id,
+        "--quiet");
 
     // `terra delete --name=$resourceNameDataset --workspace=$id2`
-    TestCommand.runCommandExpectExitCode(1, "resources", "delete", "--name=" + resourceNameDataset);
+    TestCommand.runCommandExpectExitCode(
+        1, "resources", "delete", "--name=" + resourceNameDataset, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources", "delete", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
+        "resources",
+        "delete",
+        "--name=" + resourceNameDataset,
+        "--workspace=" + workspace2.id,
+        "--quiet");
   }
 
   @Test
@@ -385,7 +405,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     // check the workspace 3 has been deleted, and workspace 1 has not
 
     // `terra workspace delete --workspace=$id3`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--workspace=" + workspace3.id);
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "delete", "--workspace=" + workspace3.id, "--quiet");
 
     // `terra workspace list`
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(workspace3.id);

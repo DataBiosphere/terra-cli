@@ -96,7 +96,7 @@ public class Group extends ClearContextUnit {
     // `terra groups delete --name=$name`
     UFGroup groupDeleted =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "delete", "--name=" + name);
+            UFGroup.class, "groups", "delete", "--name=" + name, "--quiet");
 
     // check that the name and email match, and that the creator was an admin
     assertEquals(name, groupDeleted.name, "group name matches after delete");
@@ -126,7 +126,7 @@ public class Group extends ClearContextUnit {
     expectGroupNotFound(cmd);
 
     // `terra groups delete --name=$name`
-    cmd = TestCommand.runCommand("groups", "delete", "--name=" + badName);
+    cmd = TestCommand.runCommand("groups", "delete", "--name=" + badName, "--quiet");
     expectGroupNotFound(cmd);
 
     // `terra groups list-users --name=$name`
@@ -174,7 +174,7 @@ public class Group extends ClearContextUnit {
 
     // `terra groups delete --name=$name` as member
     groupMember.login();
-    TestCommand.runCommandExpectExitCode(2, "groups", "delete", "--name=" + name);
+    TestCommand.runCommandExpectExitCode(2, "groups", "delete", "--name=" + name, "--quiet");
 
     // `terra groups add-user --email=$email --policy=ADMIN` as member
     TestCommand.runCommandExpectExitCode(
@@ -196,7 +196,7 @@ public class Group extends ClearContextUnit {
 
     // `terra groups delete --name=$name` as admin
     groupCreator.login();
-    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -254,7 +254,7 @@ public class Group extends ClearContextUnit {
     expectListedMemberWithPolicies(name, groupCreator.email, GroupPolicy.ADMIN);
 
     // `terra groups delete --name=$name`
-    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name, "--quiet");
   }
 
   @Test

@@ -77,7 +77,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         datasetId, describeResource.datasetId, "describe resource output matches dataset id");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -99,7 +99,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // `terra resources delete --name=$name --format=json`
     UFBqDataset deletedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "delete", "--name=" + name);
+            UFBqDataset.class, "resources", "delete", "--name=" + name, "--quiet");
 
     // check that the name, project id, and dataset id match
     assertEquals(name, deletedDataset.name, "delete output matches name");
@@ -156,7 +156,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -182,7 +182,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -260,7 +260,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
