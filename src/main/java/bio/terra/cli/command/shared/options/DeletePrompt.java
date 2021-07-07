@@ -23,7 +23,7 @@ public class DeletePrompt {
 
   /**
    * Helper method to generate an interactive confirmation prompt if the `--quiet` option is not
-   * specified.
+   * specified. Throws a {@link UserActionableException} if the prompt response is negative.
    */
   public void throwIfConfirmationPromptNegative() {
     boolean promptReturnedYes = true; // default to Y=yes if user input is suppressed
