@@ -294,12 +294,6 @@ public class AiNotebook extends BaseCommand {
   /** Create the metadata to put on the AI Notebook instance. */
   private Map<String, String> defaultMetadata(UUID workspaceID) {
     return ImmutableMap.<String, String>builder()
-        // The metadata installed-extensions causes the AI Notebooks setup to install some
-        // Google JupyterLab extensions. Found by manual inspection of what is created with the
-        // cloud console GUI.
-        .put(
-            "installed-extensions",
-            "jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz")
         // Set additional Terra context as metadata on the VM instance.
         .put("terra-workspace-id", workspaceID.toString())
         .put("terra-cli-server", Context.getServer().getName())
