@@ -20,9 +20,7 @@ public class Delete extends BaseCommand {
   /** Delete an existing workspace. */
   @Override
   protected void execute() {
-    if (deletePromptOption.confirmationPromptReturnedNo()) {
-      return;
-    }
+    deletePromptOption.throwIfConfirmationPromptNegative();
     workspaceOption.overrideIfSpecified();
     Workspace workspaceToDelete = Context.requireWorkspace();
     workspaceToDelete.delete();

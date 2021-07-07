@@ -21,9 +21,7 @@ public class Delete extends BaseCommand {
   /** Delete a resource from the workspace. */
   @Override
   protected void execute() {
-    if (deletePromptOption.confirmationPromptReturnedNo()) {
-      return;
-    }
+    deletePromptOption.throwIfConfirmationPromptNegative();
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     resource.delete();
