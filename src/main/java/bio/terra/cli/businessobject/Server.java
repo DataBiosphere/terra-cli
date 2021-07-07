@@ -37,6 +37,7 @@ public class Server {
   // (e.g. URLs, WSM single spend profile)
   private String samUri;
   private String workspaceManagerUri;
+  private String wsmDefaultSpendProfile;
   private String dataRepoUri;
 
   private static final String DEFAULT_SERVER_FILENAME = "verily-cli.json";
@@ -49,6 +50,7 @@ public class Server {
     this.description = configFromDisk.description;
     this.samUri = configFromDisk.samUri;
     this.workspaceManagerUri = configFromDisk.workspaceManagerUri;
+    this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
   }
 
@@ -167,6 +169,10 @@ public class Server {
 
   public String getWorkspaceManagerUri() {
     return workspaceManagerUri;
+  }
+
+  public String getWsmDefaultSpendProfile() {
+    return wsmDefaultSpendProfile;
   }
 
   public String getDataRepoUri() {

@@ -1,8 +1,9 @@
 {
   "name": "wchamber-dev",
-  "description": "(wchamber) Terra environment for development purposes.",
+  "description": "(wchamber) Personal development environment",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.wchamber.integ.envs.broadinstitute.org"
+  "workspaceManagerUri": "https://workspace.wchamber.integ.envs.broadinstitute.org",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

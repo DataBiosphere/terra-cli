@@ -1,8 +1,9 @@
 {
   "name": "terra-verily-dev",
-  "description": "Terra development environment deployed at Verily.",
+  "description": "Verily dev environment",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
-  "samUri": "https://terra-autopush-sam.api.verily.com",
-  "workspaceManagerUri": "http://terra-autopush-wsm.api.verily.com"
+  "samUri": "https://sam-dev.api.verily.com",
+  "workspaceManagerUri": "https://wsm-dev.api.verily.com",
+  "wsmDefaultSpendProfile": "zloery-spend-profile"
 }

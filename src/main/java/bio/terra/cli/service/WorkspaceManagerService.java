@@ -189,7 +189,7 @@ public class WorkspaceManagerService {
           CreateWorkspaceRequestBody workspaceRequestBody = new CreateWorkspaceRequestBody();
           workspaceRequestBody.setId(workspaceId);
           workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
-          workspaceRequestBody.setSpendProfile("wm-default-spend-profile");
+          workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(displayName);
           workspaceRequestBody.setDescription(description);
 
