@@ -19,7 +19,7 @@ public class Delete extends BaseCommand {
   /** Delete an existing Terra group. */
   @Override
   protected void execute() {
-    if (!deletePromptOption.promptReturnedYes()) {
+    if (deletePromptOption.confirmationPromptReturnedNo()) {
       return;
     }
     Group group = Group.get(groupNameOption.name);
