@@ -446,7 +446,8 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   private List<? extends BucketInfo.LifecycleRule> getLifecycleRulesFromCloud(String bucketName)
       throws IOException {
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =

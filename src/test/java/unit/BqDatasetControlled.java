@@ -235,7 +235,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     Dataset createdDatasetOnCloud =
-        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentials())
+        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
             .getDataset(DatasetId.of(workspace.googleProjectId, datasetId));
     assertNotNull(createdDatasetOnCloud, "looking up dataset via BQ API succeeded");
     assertEquals(

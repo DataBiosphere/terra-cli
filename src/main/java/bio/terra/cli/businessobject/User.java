@@ -10,14 +10,14 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -54,16 +54,15 @@ public class User {
   private ServiceAccountCredentials petSACredentials;
 
   // these are the same scopes requested by Terra service swagger pages
-  private static final List<String> USER_SCOPES =
-      Collections.unmodifiableList(Arrays.asList("openid", "email", "profile"));
+  @VisibleForTesting
+  public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
   // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status
   // of an AI notebook)
-  public static final List<String> PET_SA_SCOPES =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
+  private static final List<String> PET_SA_SCOPES =
+      ImmutableList.of(
+          "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
 
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
