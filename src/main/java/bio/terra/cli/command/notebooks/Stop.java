@@ -22,7 +22,8 @@ public class Stop extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     InstanceName instanceName = instanceOption.toInstanceName();
-    GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
+    GoogleAiNotebooks notebooks =
+        new GoogleAiNotebooks(Context.requireUser().getPetSACredentials());
     notebooks.stop(instanceName);
     OUT.println("Notebook instance stopped");
   }

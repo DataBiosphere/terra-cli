@@ -22,7 +22,8 @@ public class Start extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     InstanceName instanceName = instanceOption.toInstanceName();
-    GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
+    GoogleAiNotebooks notebooks =
+        new GoogleAiNotebooks(Context.requireUser().getPetSACredentials());
     notebooks.start(instanceName);
     OUT.println("Notebook instance starting. It may take a few minutes before it is available");
   }

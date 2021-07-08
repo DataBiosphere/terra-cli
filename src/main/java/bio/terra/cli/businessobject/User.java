@@ -54,8 +54,16 @@ public class User {
   private ServiceAccountCredentials petSACredentials;
 
   // these are the same scopes requested by Terra service swagger pages
-  private static final List<String> SCOPES =
+  private static final List<String> USER_SCOPES =
       Collections.unmodifiableList(Arrays.asList("openid", "email", "profile"));
+
+  // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
+  // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status
+  // of an AI notebook)
+  public static final List<String> PET_SA_SCOPES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform"));
 
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
@@ -90,7 +98,10 @@ public class User {
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
       userCredentials =
           GoogleOauth.doLoginAndConsent(
-              SCOPES, inputStream, Context.getContextDir().toFile(), launchBrowserAutomatically);
+              USER_SCOPES,
+              inputStream,
+              Context.getContextDir().toFile(),
+              launchBrowserAutomatically);
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -124,7 +135,8 @@ public class User {
         User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       // delete the user credentials
-      GoogleOauth.deleteExistingCredential(SCOPES, inputStream, Context.getContextDir().toFile());
+      GoogleOauth.deleteExistingCredential(
+          USER_SCOPES, inputStream, Context.getContextDir().toFile());
 
       // delete the pet SA credentials
       deletePetSaCredentials();
@@ -144,7 +156,7 @@ public class User {
           User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
         userCredentials =
             GoogleOauth.getExistingUserCredential(
-                SCOPES, inputStream, Context.getContextDir().toFile());
+                USER_SCOPES, inputStream, Context.getContextDir().toFile());
         if (userCredentials == null) {
           return true;
         }
@@ -253,7 +265,7 @@ public class User {
   /** Create a credentials object for a service account from a key file. */
   private ServiceAccountCredentials createSaCredentials(Path jsonKeyPath) {
     try {
-      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), SCOPES);
+      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), PET_SA_SCOPES);
     } catch (IOException ioEx) {
       throw new SystemException("Error reading SA key file.", ioEx);
     }

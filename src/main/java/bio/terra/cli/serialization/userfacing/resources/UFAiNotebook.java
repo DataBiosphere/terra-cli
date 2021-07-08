@@ -59,10 +59,10 @@ public class UFAiNotebook extends UFResource {
     OUT.println("GCP project id:                " + projectId);
     OUT.println("AI Notebook instance location: " + location);
     OUT.println("AI Notebook instance id:       " + instanceId);
-    OUT.println("Instance name: " + instanceName == null ? "(undefined)" : instanceName);
-    OUT.println("State:         " + state == null ? "(undefined)" : state);
-    OUT.println("Proxy URL:     " + proxyUri == null ? "(undefined)" : proxyUri);
-    OUT.println("Create time:   " + createTime == null ? "(undefined)" : createTime);
+    OUT.println("Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
+    OUT.println("State:         " + (state == null ? "(undefined)" : state));
+    OUT.println("Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
+    OUT.println("Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
