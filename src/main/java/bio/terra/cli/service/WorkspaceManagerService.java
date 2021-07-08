@@ -122,10 +122,19 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Factory method for class that talks to WSM. Pulls the current server and user from the context.
+   * Uses the pet SA's credentials.
+   */
+  public static WorkspaceManagerService fromContextForPetSa() {
+    return new WorkspaceManagerService(
+        Context.requireUser().getPetSaAccessToken(), Context.getServer());
+  }
+
+  /**
    * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
    * endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+  private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());

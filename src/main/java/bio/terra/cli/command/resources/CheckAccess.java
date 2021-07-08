@@ -26,42 +26,18 @@ public class CheckAccess extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    boolean userHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.USER);
-    boolean proxyGroupHasAccess = resource.checkAccess(Resource.CheckAccessCredentials.PET_SA);
-
-    CheckAccess.CheckAccessReturnValue checkAccessReturnValue =
-        new CheckAccess.CheckAccessReturnValue(userHasAccess, proxyGroupHasAccess);
-    formatOption.printReturnValue(checkAccessReturnValue, this::printText);
-  }
-
-  /** POJO class for printing out this command's output. */
-  private static class CheckAccessReturnValue {
-    // true if the user's email has acccess
-    public final boolean userHasAccess;
-
-    // true if the user's proxy group has access
-    public final boolean proxyGroupHasAccess;
-
-    public CheckAccessReturnValue(boolean userHasAccess, boolean proxyGroupHasAccess) {
-      this.userHasAccess = userHasAccess;
-      this.proxyGroupHasAccess = proxyGroupHasAccess;
-    }
+    boolean proxyGroupHasAccess = resource.checkAccess();
+    formatOption.printReturnValue(proxyGroupHasAccess, this::printText);
   }
 
   /** Print this command's output in text format. */
-  public void printText(CheckAccess.CheckAccessReturnValue returnValue) {
+  public void printText(boolean returnValue) {
     User currentUser = Context.requireUser();
-    OUT.println(
-        "User ("
-            + currentUser.getEmail()
-            + ") DOES "
-            + (returnValue.userHasAccess ? "" : "NOT ")
-            + "have access to this resource.");
     OUT.println(
         "User's pet SA in their proxy group ("
             + currentUser.getProxyGroupEmail()
             + ") DOES "
-            + (returnValue.proxyGroupHasAccess ? "" : "NOT ")
+            + (returnValue ? "" : "NOT ")
             + "have access to this resource.");
   }
 }
