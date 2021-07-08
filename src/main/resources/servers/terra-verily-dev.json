@@ -4,6 +4,6 @@
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam-dev.api.verily.com",
-  "workspaceManagerUri": "https://wsm-dev.api.verily.com",
+  "workspaceManagerUri": "https://terra-dev-workspace.api.verily.com",
   "wsmDefaultSpendProfile": "zloery-spend-profile"
 }
