@@ -7,9 +7,11 @@ import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
+import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +34,11 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   protected void setupOnce() throws IOException {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucket();
-    ExternalGCSBuckets.grantReadAccess(externalBucket, workspaceCreator.email);
+    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
+
+    // grant the user's proxy group access to the bucket so that it will pass WSM's access check
+    // when adding it as a referenced resource
+    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
   }
 
   @AfterAll

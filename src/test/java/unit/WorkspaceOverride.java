@@ -21,12 +21,15 @@ import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
 import bio.terra.workspace.model.IamRole;
+import com.google.cloud.Identity;
+import com.google.cloud.bigquery.Acl;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUsers;
 import harness.baseclasses.ClearContextUnit;
+import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -62,12 +65,16 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestContext.clearGlobalContextDir();
     resetContext();
 
-    externalBucket = ExternalGCSBuckets.createBucket();
-    ExternalGCSBuckets.grantReadAccess(externalBucket, workspaceCreator.email);
-    externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(externalDataset, workspaceCreator.email);
-
     workspaceCreator.login();
+
+    // grant the user's proxy group access to the bucket and dataset so that they will pass WSM's
+    // access check when adding them as referenced resources
+    externalBucket = ExternalGCSBuckets.createBucket();
+    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
+    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
+    externalDataset = ExternalBQDatasets.createDataset();
+    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.User(workspaceCreator.email));
+    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.Group(Auth.getProxyGroupEmail()));
 
     // `terra workspace create --format=json`
     workspace1 =

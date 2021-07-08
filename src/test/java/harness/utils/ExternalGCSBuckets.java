@@ -50,13 +50,8 @@ public class ExternalGCSBuckets {
    * Grant a given user object viewer access to a bucket. This method uses SA credentials to set IAM
    * policy on a bucket in an external (to WSM) project.
    */
-  public static void grantReadAccess(Bucket bucket, String email) throws IOException {
-    grantAccess(
-        bucket,
-        Identity.user(email),
-        // TODO (PF-717): revisit this once we're calling WSM endpoints for check-access
-        StorageRoles.objectViewer(),
-        StorageRoles.legacyBucketReader());
+  public static void grantReadAccess(Bucket bucket, Identity user) throws IOException {
+    grantAccess(bucket, user, StorageRoles.objectViewer());
   }
 
   /**
