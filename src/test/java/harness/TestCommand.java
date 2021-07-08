@@ -3,17 +3,20 @@ package harness;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.command.Main;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Utility methods for executing commands and reading their outputs during testing. This class is
@@ -26,28 +29,40 @@ public class TestCommand {
   private TestCommand() {}
 
   /**
-   * Call the top-level Main class to execute a command. Return the exit code, standard out and
-   * standard error.
+   * Call the top-level Main class to execute a command with the provided standard input stream.
+   * Return the exit code, standard out and standard error. Specifying the standard input stream is
+   * useful for testing commands that use interactive prompts.
    *
+   * @param stdIn input stream with the contents of standard in, null if unspecified
    * @param args sub-commands and arguments (e.g. "auth", "status" for `terra auth status`).
    */
-  public static Result runCommand(String... args) {
+  public static Result runCommand(@Nullable InputStream stdIn, String... args) {
     // initialize the singleton Printer object with byte streams, to redirect the command stdout and
     // stderr from the console
     ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
     ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-    Printer.initialize(
+    UserIO.initialize(
         new PrintStream(stdOut, true, StandardCharsets.UTF_8),
-        new PrintStream(stdErr, true, StandardCharsets.UTF_8));
+        new PrintStream(stdErr, true, StandardCharsets.UTF_8),
+        stdIn);
 
     // execute the command from the top-level Main class
     System.out.println("COMMAND: " + String.join(" ", args));
     int exitCode = Main.runCommand(args);
 
-    // log the stdout and stderr to the console
+    // log the stdout, stdin and stderr to the console
     String stdOutStr = stdOut.toString(StandardCharsets.UTF_8);
     String stdErrStr = stdErr.toString(StandardCharsets.UTF_8);
+    System.out.println("STDOUT --------------");
     System.out.println(stdOutStr);
+    if (stdIn != null)
+      try {
+        System.out.println("STDIN --------------");
+        stdIn.reset();
+        System.out.println(new String(stdIn.readAllBytes(), StandardCharsets.UTF_8));
+      } catch (IOException ioEx) {
+        throw new RuntimeException("Error logging stdin to console", ioEx);
+      }
     if (!stdErrStr.isEmpty()) {
       System.out.println("STDERR --------------");
       System.out.println(stdErrStr);
@@ -55,6 +70,16 @@ public class TestCommand {
 
     // return a result object with all the command outputs
     return new Result(exitCode, stdOutStr, stdErrStr);
+  }
+
+  /**
+   * Call the top-level Main class to execute a command. Return the exit code, standard out and
+   * standard error.
+   *
+   * @param args sub-commands and arguments (e.g. "auth", "status" for `terra auth status`).
+   */
+  public static Result runCommand(String... args) {
+    return runCommand(null, args);
   }
 
   /**

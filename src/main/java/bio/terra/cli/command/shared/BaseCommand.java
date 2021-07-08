@@ -3,7 +3,7 @@ package bio.terra.cli.command.shared;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
@@ -39,8 +39,8 @@ public abstract class BaseCommand implements Callable<Integer> {
   public Integer call() {
     // pull the output streams from the singleton object setup by the top-level Main class
     // in the future, these streams could also be controlled by a global context property
-    OUT = Printer.getOut();
-    ERR = Printer.getErr();
+    OUT = UserIO.getOut();
+    ERR = UserIO.getErr();
 
     // read in the global context and setup logging
     Context.initializeFromDisk();

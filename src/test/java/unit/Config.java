@@ -167,7 +167,7 @@ public class Config extends SingleWorkspaceUnit {
     assertEquals(workspace2.id, config.workspaceId, "confg set workspace affects config list");
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
     // `terra config get-value workspace`
     getValue =

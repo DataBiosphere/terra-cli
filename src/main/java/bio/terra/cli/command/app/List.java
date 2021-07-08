@@ -2,7 +2,7 @@ package bio.terra.cli.command.app;
 
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import java.util.Arrays;
 import java.util.Comparator;
 import picocli.CommandLine;
@@ -18,7 +18,7 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     java.util.List<String> returnValue =
-        Printer.sortAndMap(
+        UserIO.sortAndMap(
             Arrays.asList(PassThrough.values()),
             Comparator.comparing(PassThrough::name),
             Enum::toString);

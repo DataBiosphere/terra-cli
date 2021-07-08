@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
@@ -63,7 +63,7 @@ public abstract class UFResource {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     OUT.println("Name:         " + name);
     OUT.println("Description:  " + description);
     OUT.println("Stewardship:  " + stewardshipType);

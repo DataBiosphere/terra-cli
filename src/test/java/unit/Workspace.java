@@ -80,7 +80,7 @@ public class Workspace extends ClearContextUnit {
         "workspace gcp project matches that in list");
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -96,7 +96,8 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace delete --format=json`
     UFWorkspace deleteWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "delete");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "delete", "--quiet");
 
     // check the deleted workspace matches the created workspace
     assertEquals(createWorkspace.id, deleteWorkspace.id, "deleted workspace id matches created");
@@ -184,7 +185,7 @@ public class Workspace extends ClearContextUnit {
         "updated workspace description matches that in list");
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -243,13 +244,13 @@ public class Workspace extends ClearContextUnit {
         createWorkspace2.id, describeWorkspace.id, "describe matches set workspace id (2)");
 
     // `terra workspace delete` (workspace 2)
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
     // `terra workspace set` (workspace 1)
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace1.id);
 
     // `terra workspace delete` (workspace 1)
-    TestCommand.runCommandExpectSuccess("workspace", "delete");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test

@@ -96,7 +96,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         CoreMatchers.containsString(ExternalGCSBuckets.getGsPath(bucketName)));
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -145,7 +145,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "gsutil says bucket size = 0");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -177,7 +177,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
             "\"id\": \"" + dataset.projectId + ":" + dataset.datasetId + "\""));
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test

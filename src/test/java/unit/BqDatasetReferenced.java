@@ -104,7 +104,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "describe resource output matches dataset id");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -129,7 +129,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resources delete --name=$name --format=json`
     UFBqDataset deletedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "delete", "--name=" + name);
+            UFBqDataset.class, "resources", "delete", "--name=" + name, "--quiet");
 
     // check that the name, project id, and dataset id match
     assertEquals(name, deletedDataset.name, "delete output matches name");
@@ -196,7 +196,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -222,7 +222,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resources", "check-access", "--name=" + name);
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -283,7 +283,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     assertEquals(description, describeResource.description, "describe output matches description");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
   }
 
   @Test

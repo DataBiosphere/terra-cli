@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.Optional;
 import picocli.CommandLine;
@@ -39,7 +39,7 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        Printer.sortAndMap(
+        UserIO.sortAndMap(
             Workspace.list(offset, limit),
             Comparator.comparing(Workspace::getName),
             UFWorkspace::new),

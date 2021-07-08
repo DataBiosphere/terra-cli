@@ -10,7 +10,7 @@ if [[ "true" = "$isLoggedIn" ]]
 then
   currentUser=$(terra auth status --format=json | jq .userEmail)
   echo "User $currentUser is logged in. Deleting the current workspace."
-  terra workspace delete
+  terra workspace delete --quiet
 else
   echo "No user is logged in. Skipping deleting the current workspace."
 fi

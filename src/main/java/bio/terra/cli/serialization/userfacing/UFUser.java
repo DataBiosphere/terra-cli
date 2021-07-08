@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -38,7 +38,7 @@ public class UFUser {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     OUT.println("User email: " + email);
     OUT.println("Proxy group email: " + proxyGroupEmail);
     OUT.println("LOGGED " + (loggedIn ? "IN" : "OUT"));

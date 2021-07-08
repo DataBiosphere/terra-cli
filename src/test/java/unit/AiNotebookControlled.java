@@ -76,7 +76,8 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra notebooks delete --name=$name`
-    TestCommand.Result cmd = TestCommand.runCommand("resources", "delete", "--name=" + name);
+    TestCommand.Result cmd =
+        TestCommand.runCommand("resources", "delete", "--name=" + name, "--quiet");
     assertTrue(
         cmd.exitCode == 0
             || (cmd.exitCode == 1

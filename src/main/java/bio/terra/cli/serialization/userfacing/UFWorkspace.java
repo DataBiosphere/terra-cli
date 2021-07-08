@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -45,7 +45,7 @@ public class UFWorkspace {
 
   /** Print out a workspace object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     OUT.println("Terra workspace id: " + id);
     OUT.println("Display name: " + name);
     OUT.println("Description: " + description);

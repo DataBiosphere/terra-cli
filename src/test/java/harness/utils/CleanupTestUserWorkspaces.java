@@ -73,7 +73,8 @@ public class CleanupTestUserWorkspaces {
             "Deleting workspace: id=" + workspace.id + ", testuser=" + testUser.email);
         if (!isDryRun) {
           // `terra workspace delete --workspace=$id`
-          TestCommand.runCommandExpectSuccess("workspace", "delete", "--workspace=" + workspace.id);
+          TestCommand.runCommandExpectSuccess(
+              "workspace", "delete", "--workspace=" + workspace.id, "--quiet");
           System.out.println(
               "Cleaned up workspace: id=" + workspace.id + ", testuser=" + testUser.email);
           deletedWorkspaces.add(workspace.id);

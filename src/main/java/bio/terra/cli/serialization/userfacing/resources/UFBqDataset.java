@@ -2,7 +2,7 @@ package bio.terra.cli.serialization.userfacing.resources;
 
 import bio.terra.cli.businessobject.resources.BqDataset;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -36,7 +36,7 @@ public class UFBqDataset extends UFResource {
   /** Print out this object in text format. */
   public void print() {
     super.print();
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     OUT.println("GCP project id: " + projectId);
     OUT.println("Big Query dataset id: " + datasetId);
   }

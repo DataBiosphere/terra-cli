@@ -2,7 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService.SpendProfilePolicy;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -36,9 +36,9 @@ public class UFSpendProfileUser {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     List<String> policiesStr =
-        Printer.sortAndMap(
+        UserIO.sortAndMap(
             policies, Comparator.comparing(SpendProfilePolicy::name), SpendProfilePolicy::toString);
     OUT.println(email + ": " + String.join(", ", policiesStr));
   }
