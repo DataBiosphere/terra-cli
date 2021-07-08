@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.Context;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ public class SpendProfileManagerService {
   // only one SAM resource used. in the future, if this varies per environment, move this resource
   // id into the server specification
   private static final String SPEND_PROFILE_RESOURCE_TYPE = "spend-profile";
-  private static final String WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID = "wm-default-spend-profile";
 
   /**
    * Factory method for class that talks to the SPM service. The user must be authenticated. Methods
@@ -56,7 +56,7 @@ public class SpendProfileManagerService {
   public void enableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
     samService.addUserToResourceOrInviteUser(
         SPEND_PROFILE_RESOURCE_TYPE,
-        WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID,
+        Context.getServer().getWsmDefaultSpendProfile(),
         policy.getSamPolicy(),
         email);
   }
@@ -69,7 +69,7 @@ public class SpendProfileManagerService {
   public void disableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
     samService.removeUserFromResource(
         SPEND_PROFILE_RESOURCE_TYPE,
-        WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID,
+        Context.getServer().getWsmDefaultSpendProfile(),
         policy.getSamPolicy(),
         email);
   }
@@ -81,6 +81,6 @@ public class SpendProfileManagerService {
    */
   public List<AccessPolicyResponseEntry> listUsersOfDefaultSpendProfile() {
     return samService.listPoliciesForResource(
-        SPEND_PROFILE_RESOURCE_TYPE, WSM_DEFAULT_SPEND_PROFILE_RESOURCE_ID);
+        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
   }
 }

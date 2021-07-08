@@ -1,8 +1,9 @@
 {
   "name": "terra-dev",
-  "description": "Terra environment for development purposes.",
+  "description": "Broad dev environment",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org"
+  "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

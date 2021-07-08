@@ -19,6 +19,7 @@ public class UFServer {
   public final String description;
   public final String samUri;
   public final String workspaceManagerUri;
+  public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
 
   /** Serialize an instance of the internal class to the command format. */
@@ -27,6 +28,7 @@ public class UFServer {
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
+    this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
   }
 
@@ -36,6 +38,7 @@ public class UFServer {
     this.description = builder.description;
     this.samUri = builder.samUri;
     this.workspaceManagerUri = builder.workspaceManagerUri;
+    this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
   }
 
@@ -51,6 +54,7 @@ public class UFServer {
     private String description;
     private String samUri;
     private String workspaceManagerUri;
+    private String wsmDefaultSpendProfile;
     private String dataRepoUri;
 
     public Builder name(String name) {
@@ -70,6 +74,11 @@ public class UFServer {
 
     public Builder workspaceManagerUri(String workspaceManagerUri) {
       this.workspaceManagerUri = workspaceManagerUri;
+      return this;
+    }
+
+    public Builder wsmDefaultSpendProfile(String wsmDefaultSpendProfile) {
+      this.wsmDefaultSpendProfile = wsmDefaultSpendProfile;
       return this;
     }
 
