@@ -2,7 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.service.SamService.GroupPolicy;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -36,10 +36,9 @@ public class UFGroupMember {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     List<String> policiesStr =
-        Printer.sortAndMap(
-            policies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
+        UserIO.sortAndMap(policies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
     OUT.println(email + ": " + String.join(", ", policiesStr));
   }
 

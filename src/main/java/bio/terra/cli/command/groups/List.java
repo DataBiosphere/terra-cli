@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFGroup;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,7 +18,7 @@ public class List extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        Printer.sortAndMap(Group.list(), Comparator.comparing(Group::getName), UFGroup::new),
+        UserIO.sortAndMap(Group.list(), Comparator.comparing(Group::getName), UFGroup::new),
         List::printText);
   }
 

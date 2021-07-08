@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -35,7 +35,7 @@ public class UFWorkspaceUser {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     List<String> rolesStr = roles.stream().map(IamRole::toString).collect(Collectors.toList());
     OUT.println(email + ": " + String.join(",", rolesStr));
   }

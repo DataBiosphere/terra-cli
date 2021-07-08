@@ -1,6 +1,6 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
@@ -126,7 +126,7 @@ public final class GoogleOauth {
   private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
     @Override
     public void browse(String url) {
-      PrintStream out = Printer.getOut();
+      PrintStream out = UserIO.getOut();
       out.println("Please open the following address in a browser on any machine:");
       out.println("  " + url);
     }

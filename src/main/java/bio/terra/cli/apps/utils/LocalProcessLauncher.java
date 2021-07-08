@@ -1,7 +1,7 @@
 package bio.terra.cli.apps.utils;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,11 +63,11 @@ public class LocalProcessLauncher {
 
   /** Stream standard out/err from the child process to the CLI console. */
   public void streamOutputForProcess() {
-    Runnable streamStdOut = () -> streamOutput(process.getInputStream(), Printer.getOut());
+    Runnable streamStdOut = () -> streamOutput(process.getInputStream(), UserIO.getOut());
     stdOutThread = new Thread(streamStdOut);
     stdOutThread.start();
 
-    Runnable streamStdErr = () -> streamOutput(process.getErrorStream(), Printer.getErr());
+    Runnable streamStdErr = () -> streamOutput(process.getErrorStream(), UserIO.getErr());
     stdErrThread = new Thread(streamStdErr);
     stdErrThread.start();
   }

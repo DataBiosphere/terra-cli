@@ -5,7 +5,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GroupName;
 import bio.terra.cli.serialization.userfacing.UFGroupMember;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.List;
 import picocli.CommandLine;
@@ -22,7 +22,7 @@ public class ListUsers extends BaseCommand {
   @Override
   protected void execute() {
     formatOption.printReturnValue(
-        Printer.sortAndMap(
+        UserIO.sortAndMap(
             Group.get(groupNameOption.name).getMembers(),
             Comparator.comparing(Group.Member::getEmail),
             UFGroupMember::new),

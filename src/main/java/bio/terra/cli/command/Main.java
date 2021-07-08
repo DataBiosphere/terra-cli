@@ -8,7 +8,7 @@ import bio.terra.cli.command.app.passthrough.Nextflow;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +73,7 @@ public class Main implements Runnable {
     // set the output and error streams to the defaults: stdout, stderr
     // save pointers to these streams in a singleton class, so we can access them throughout the
     // codebase without passing them around
-    Printer.setupPrinting(cmd);
+    UserIO.setupPrinting(cmd);
 
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the

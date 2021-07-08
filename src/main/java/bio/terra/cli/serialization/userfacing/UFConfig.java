@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.Logger;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -57,7 +57,7 @@ public class UFConfig {
 
   /** Print out this object in text format. */
   public void print() {
-    PrintStream OUT = Printer.getOut();
+    PrintStream OUT = UserIO.getOut();
     OUT.println("[app-launch] app launch mode = " + browserLaunchOption);
     OUT.println("[browser] browser launch for login = " + commandRunnerOption);
     OUT.println("[image] docker image id = " + dockerImageId);

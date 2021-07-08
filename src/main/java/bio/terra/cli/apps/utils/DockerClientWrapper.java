@@ -2,7 +2,7 @@ package bio.terra.cli.apps.utils;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -195,7 +195,7 @@ public class DockerClientWrapper {
     @Override
     public void onNext(Frame frame) {
       String logStr = new String(frame.getPayload(), StandardCharsets.UTF_8);
-      PrintStream out = Printer.getOut();
+      PrintStream out = UserIO.getOut();
       out.print(logStr);
       out.flush();
 

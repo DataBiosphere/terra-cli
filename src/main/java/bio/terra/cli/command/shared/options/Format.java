@@ -2,7 +2,7 @@ package bio.terra.cli.command.shared.options;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.JacksonMapper;
-import bio.terra.cli.utils.Printer;
+import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.function.Consumer;
@@ -80,7 +80,7 @@ public class Format {
     // use Jackson to map the object to a JSON-formatted text block
     ObjectWriter objectWriter = JacksonMapper.getMapper().writerWithDefaultPrettyPrinter();
     try {
-      Printer.getOut().println(objectWriter.writeValueAsString(returnValue));
+      UserIO.getOut().println(objectWriter.writeValueAsString(returnValue));
     } catch (JsonProcessingException jsonEx) {
       throw new SystemException("Error JSON-formatting the command return value.", jsonEx);
     }
@@ -94,7 +94,7 @@ public class Format {
    */
   public static <T> void printText(T returnValue) {
     if (returnValue != null) {
-      Printer.getOut().println(returnValue.toString());
+      UserIO.getOut().println(returnValue.toString());
     }
   }
 }
