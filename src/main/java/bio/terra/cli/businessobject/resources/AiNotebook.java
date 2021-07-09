@@ -123,7 +123,8 @@ public class AiNotebook extends Resource {
             .location(location)
             .instanceId(instanceId)
             .build();
-    GoogleAiNotebooks notebooks = new GoogleAiNotebooks(Context.requireUser().getUserCredentials());
+    GoogleAiNotebooks notebooks =
+        new GoogleAiNotebooks(Context.requireUser().getPetSACredentials());
     try {
       return Optional.of(notebooks.get(instanceName));
     } catch (Exception ex) {

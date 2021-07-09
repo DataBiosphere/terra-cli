@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
@@ -13,6 +12,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,14 +39,10 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucket();
 
-    // `terra auth status --format=json`
-    UFAuthStatus authStatus =
-        TestCommand.runAndParseCommandExpectSuccess(UFAuthStatus.class, "auth", "status");
-
     // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
     // lifecycle` with the same JSON format used for creating controlled bucket resources with
     // lifecycle rules
-    ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(authStatus.proxyGroupEmail));
+    ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
   }
 
   @Override
@@ -450,7 +446,8 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   private List<? extends BucketInfo.LifecycleRule> getLifecycleRulesFromCloud(String bucketName)
       throws IOException {
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =

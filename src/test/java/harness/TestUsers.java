@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,11 @@ public enum TestUsers {
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
 
+  // test users need the cloud platform scope when they talk to GCP directly (e.g. to check the
+  // lifecycle property of a GCS bucket, which is not stored as WSM metadata)
+  public static final String CLOUD_PLATFORM_SCOPE =
+      "https://www.googleapis.com/auth/cloud-platform";
+
   TestUsers(String email, SpendEnabled spendEnabled) {
     this.email = email;
     this.spendEnabled = spendEnabled;
@@ -65,9 +71,10 @@ public enum TestUsers {
    * @return global context object, populated with the user's credentials
    */
   public void login() throws IOException {
-    // get domain-wide delegated credentials for this user
+    // get domain-wide delegated credentials for this user. use the same scopes that are requested
+    // of CLI users when they login.
     System.out.println("Logging in test user: " + email);
-    GoogleCredentials delegatedUserCredential = getCredentials();
+    GoogleCredentials delegatedUserCredential = getCredentials(User.USER_SCOPES);
 
     // use the domain-wide delegated credential to build a stored credential for the test user
     StoredCredential dwdStoredCredential = new StoredCredential();
@@ -87,8 +94,19 @@ public enum TestUsers {
     User.login();
   }
 
+  /**
+   * Get domain-wide delegated Google credentials for this user that include the cloud-platform
+   * scope. This is useful for when the test user needs to talk directly to GCP, instead of to WSM
+   * or another Terra service.
+   */
+  public GoogleCredentials getCredentialsWithCloudPlatformScope() throws IOException {
+    List<String> scopesWithCloudPlatform = new ArrayList<>(User.USER_SCOPES);
+    scopesWithCloudPlatform.add(CLOUD_PLATFORM_SCOPE);
+    return getCredentials(scopesWithCloudPlatform);
+  }
+
   /** Get domain-wide delegated Google credentials for this user. */
-  public GoogleCredentials getCredentials() throws IOException {
+  private GoogleCredentials getCredentials(List<String> scopes) throws IOException {
     // get a credential for the test-user SA
     Path jsonKey = Path.of("rendered", "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
@@ -99,10 +117,9 @@ public enum TestUsers {
     }
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(User.SCOPES);
+            .createScoped(scopes);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
-    System.out.println("Logging in test user: " + email);
     GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);
     delegatedUserCredential.refreshIfExpired();
     return delegatedUserCredential;

@@ -7,9 +7,11 @@ import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
 import bio.terra.workspace.model.CloningInstructionsEnum;
+import com.google.cloud.bigquery.Acl;
 import com.google.cloud.bigquery.Dataset;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +34,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
   protected void setupOnce() throws IOException {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(externalDataset, workspaceCreator.email);
+    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.User(workspaceCreator.email));
+
+    // grant the user's proxy group access to the dataset so that it will pass WSM's access check
+    // when adding it as a referenced resource
+    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.Group(Auth.getProxyGroupEmail()));
   }
 
   @AfterAll

@@ -122,10 +122,23 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Factory method for class that talks to WSM. Pulls the current server and user from the context.
+   * Uses the pet SA credentials instead of the end user credentials. This is useful for when an
+   * endpoint needs to be called with a cloud platform scope. The CLI does not request any cloud
+   * platform scopes from the end user when they login to the CLI, but it does grant the full
+   * cloud-platform scope to the pet SA credentials. The WSM endpoints to create and check access to
+   * referenced resources currently use this.
+   */
+  public static WorkspaceManagerService fromContextForPetSa() {
+    return new WorkspaceManagerService(
+        Context.requireUser().getPetSaAccessToken(), Context.getServer());
+  }
+
+  /**
    * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
    * endpoints can be called.
    */
-  public WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+  private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());

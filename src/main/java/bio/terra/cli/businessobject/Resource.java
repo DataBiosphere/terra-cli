@@ -17,7 +17,6 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
-import com.google.auth.oauth2.AccessToken;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -169,35 +168,18 @@ public abstract class Resource {
   public abstract String resolve();
 
   /**
-   * Helper enum for the {@link #checkAccess(CheckAccessCredentials)} method. Specifies whether to
-   * use end-user or pet SA credentials for checking access to a resource in the workspace.
-   */
-  public enum CheckAccessCredentials {
-    USER,
-    PET_SA;
-  };
-
-  /**
-   * Check whether a user can access a resource.
+   * Check whether a user's pet SA can access a resource.
    *
-   * @param credentialsToUse enum value indicates whether to use end-user or pet SA credentials for
-   *     checking access
-   * @return true if the user can access the referenced resource with the given credentials
+   * @return true if the user's pet SA can access the referenced resource with the given credentials
    * @throws UserActionableException if the resource is CONTROLLED
    */
-  public boolean checkAccess(CheckAccessCredentials credentialsToUse) {
+  public boolean checkAccess() {
     if (!stewardshipType.equals(StewardshipType.REFERENCED)) {
       throw new UserActionableException(
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
     // call WSM to check access to the resource
-    User currentUser = Context.requireUser();
-    AccessToken accessToken =
-        credentialsToUse.equals(CheckAccessCredentials.USER)
-            ? currentUser.getUserAccessToken()
-            : currentUser.getPetSaAccessToken();
-
-    return new WorkspaceManagerService(accessToken, Context.getServer())
+    return WorkspaceManagerService.fromContextForPetSa()
         .checkAccess(Context.requireWorkspace().getId(), id);
   }
 

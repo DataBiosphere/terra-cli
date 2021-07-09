@@ -42,13 +42,13 @@ public class ExternalBQDatasets {
   }
 
   /**
-   * Grant a given user reader access to a dataset. This method uses SA credentials to set IAM
-   * policy on a bucket in an external (to WSM) project.
+   * Grant a given user or group reader access to a dataset. This method uses SA credentials to set
+   * IAM policy on a bucket in an external (to WSM) project.
    */
-  public static void grantReadAccess(Dataset dataset, String email) throws IOException {
+  public static void grantReadAccess(Dataset dataset, Acl.Entity userOrGroup) throws IOException {
     BigQuery bigQuery = getBQClient();
     ArrayList<Acl> acls = new ArrayList<>(dataset.getAcl());
-    acls.add(Acl.of(new Acl.User(email), Acl.Role.READER));
+    acls.add(Acl.of(userOrGroup, Acl.Role.READER));
     bigQuery.update(dataset.toBuilder().setAcl(acls).build());
   }
 

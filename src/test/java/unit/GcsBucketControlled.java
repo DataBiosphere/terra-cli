@@ -206,7 +206,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         location, createdBucketOnCloud.getLocation(), "bucket location matches create input");
@@ -306,7 +307,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // check the updated storage class from GCS directly
     Bucket bucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
     assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         newStorage.toString(),
@@ -362,7 +364,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // check the storage class from GCS directly
     Bucket bucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentials()).get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
     assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         newStorage.toString(),
