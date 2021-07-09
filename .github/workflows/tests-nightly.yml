@@ -72,6 +72,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
         with:
           status: ${{ job.status }}
 #          channel: "#platform-foundation-alerts"
@@ -79,4 +80,4 @@ jobs:
           username: "CLI tests"
           text: "Nightly test run"
           "icon_emoji": ":cli:"
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          fields: repo,commit,action,eventName,ref,workflow,job,took
