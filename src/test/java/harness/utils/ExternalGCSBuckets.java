@@ -47,31 +47,32 @@ public class ExternalGCSBuckets {
   }
 
   /**
-   * Grant a given user object viewer access to a bucket. This method uses SA credentials to set IAM
-   * policy on a bucket in an external (to WSM) project.
+   * Grant a given user or group object viewer access to a bucket. This method uses SA credentials
+   * to set IAM policy on a bucket in an external (to WSM) project.
    */
-  public static void grantReadAccess(Bucket bucket, Identity user) throws IOException {
-    grantAccess(bucket, user, StorageRoles.objectViewer());
+  public static void grantReadAccess(Bucket bucket, Identity userOrGroup) throws IOException {
+    grantAccess(bucket, userOrGroup, StorageRoles.objectViewer());
   }
 
   /**
-   * Grant a given user admin access to a bucket. This method uses SA credentials to set IAM policy
-   * on a bucket in an external (to WSM) project.
-   */
-  public static void grantWriteAccess(Bucket bucket, Identity user) throws IOException {
-    grantAccess(bucket, user, StorageRoles.admin());
-  }
-
-  /**
-   * Helper method to grant a given user roles on a bucket. This method uses SA credentials to set
+   * Grant a given user or group admin access to a bucket. This method uses SA credentials to set
    * IAM policy on a bucket in an external (to WSM) project.
    */
-  private static void grantAccess(Bucket bucket, Identity user, Role... roles) throws IOException {
+  public static void grantWriteAccess(Bucket bucket, Identity userOrGroup) throws IOException {
+    grantAccess(bucket, userOrGroup, StorageRoles.admin());
+  }
+
+  /**
+   * Helper method to grant a given user or group roles on a bucket. This method uses SA credentials
+   * to set IAM policy on a bucket in an external (to WSM) project.
+   */
+  private static void grantAccess(Bucket bucket, Identity userOrGroup, Role... roles)
+      throws IOException {
     Storage storage = getStorageClient();
     Policy currentPolicy = storage.getIamPolicy(bucket.getName());
     Policy.Builder updatedPolicyBuilder = currentPolicy.toBuilder();
     for (Role role : roles) {
-      updatedPolicyBuilder.addIdentity(role, user);
+      updatedPolicyBuilder.addIdentity(role, userOrGroup);
     }
     storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
   }
