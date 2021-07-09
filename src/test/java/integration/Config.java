@@ -16,7 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("integration")
+@Tag("integration123")
 public class Config extends ClearContextIntegration {
   @Test
   @DisplayName("browser manual config prompts for code")

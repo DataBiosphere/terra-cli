@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra auth status` command. */
-@Tag("unit")
+@Tag("unit123")
 public class AuthStatus extends SingleWorkspaceUnit {
   public static final Pattern VALID_EMAIL_ADDRESS =
       Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
