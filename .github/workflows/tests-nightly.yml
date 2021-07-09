@@ -73,7 +73,6 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         with:
           status: ${{ job.status }}
-          channel: "@mmedlock" #"#platform-foundation-alerts"
+          channel: "#platform-foundation-alerts"
           username: "CLI nightly test run"
-          #icon_emoji: ":cli:"
           fields: repo,commit,job,took
