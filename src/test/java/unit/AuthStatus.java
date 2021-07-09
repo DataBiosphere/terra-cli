@@ -1,25 +1,24 @@
 package unit;
 
-import bio.terra.cli.serialization.userfacing.UFAuthStatus;
-import harness.TestCommand;
-import harness.TestUsers;
-import harness.baseclasses.SingleWorkspaceUnit;
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.regex.Pattern;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
+import harness.TestCommand;
+import harness.TestUsers;
+import harness.baseclasses.SingleWorkspaceUnit;
+import java.io.IOException;
+import java.util.regex.Pattern;
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 /** Tests for the `terra auth status` command. */
-@Tag("unit123")
+@Tag("unit")
 public class AuthStatus extends SingleWorkspaceUnit {
   public static final Pattern VALID_EMAIL_ADDRESS =
       Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
