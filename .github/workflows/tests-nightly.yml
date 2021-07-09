@@ -65,7 +65,7 @@ jobs:
             build/test-context/.terra/global-context.json
       - name: Notify PF alerts slack channel
         # don't notify manually triggered runs
-        if: always() && github.event_name == 'workflow_dispatch'
+        if: always() && github.event_name != 'workflow_dispatch'
         uses: broadinstitute/action-slack@v3.8.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,7 +73,7 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         with:
           status: ${{ job.status }}
-          channel: "@mmedlock" #"#platform-foundation-alerts"
+          channel: "#platform-foundation-alerts"
           username: "CLI nightly test run"
           icon_emoji: ":cli:"
           fields: repo,commit,job,took
