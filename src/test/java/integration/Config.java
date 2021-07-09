@@ -1,22 +1,23 @@
 package integration;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import harness.TestBashScript;
 import harness.baseclasses.ClearContextIntegration;
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
-@Tag("integration")
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@Tag("integration123")
 public class Config extends ClearContextIntegration {
   @Test
   @DisplayName("browser manual config prompts for code")
