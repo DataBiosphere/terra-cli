@@ -170,13 +170,13 @@ task runTestsWithTag(type: Test) {
         String terraServer = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
         environment "TERRA_SERVER", terraServer
 
-        if (testTag == "unit123") {
+        if (testTag == "unit") {
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.
             systemProperty("TERRA_JAR_IMPLEMENTATION_VERSION",
                     "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
-        } else if (testTag == "integration123") {
+        } else if (testTag == "integration") {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
