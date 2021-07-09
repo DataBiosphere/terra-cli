@@ -63,11 +63,16 @@ jobs:
           path: |
             build/test-context/.terra/logs/
             build/test-context/.terra/global-context.json
-      - name: Notify Slack channel
-        # notify scheduled runs only
-#        if: github.event_name != 'workflow_dispatch' && always()
-#        if: github.event_name == 'schedule'
-        if: github.event_name == 'workflow_dispatch'
+      - name: Compose status message
+        if: always()
+        id: status_message
+        run: |
+          linkToTestRun="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
+          outcomeAndTestFlags="[${{ steps.run_tests.outcome }}] ${{ matrix.testOptions }}"
+          echo ::set-output name=status-text::$linkToTestRun
+          echo ::set-output name=status-bold::$outcomeAndTestFlags
+      - name: Notify PF alerts slack channel
+        if: github.event_name == 'workflow_dispatch' # 'schedule'
         uses: broadinstitute/action-slack@v3.8.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,9 +80,26 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         with:
           status: ${{ job.status }}
-#          channel: "#platform-foundation-alerts"
-          channel: "@mmedlock"
-          username: "CLI tests"
-          text: "Nightly test run"
-          "icon_emoji": ":cli:"
-          fields: repo,commit,action,eventName,ref,workflow,job,took
+          channel: "@mmedlock" # "#platform-foundation-alerts"
+          username: "CLI nightly test run"
+          icon_emoji: ":cli:"
+          text: ${{ steps.status-message.outputs.status-text }}
+          author_name: ${{ steps.status-message.outputs.status-bold }}
+#      - name: Notify Slack channel
+#        # notify scheduled runs only
+##        if: github.event_name != 'workflow_dispatch' && always()
+##        if: github.event_name == 'schedule'
+#        if: github.event_name == 'workflow_dispatch'
+#        uses: broadinstitute/action-slack@v3.8.0
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+#        with:
+#          status: ${{ job.status }}
+##          channel: "#platform-foundation-alerts"
+#          channel: "@mmedlock"
+#          username: "CLI tests"
+#          text: "Nightly test run"
+#          "icon_emoji": ":cli:"
+#          fields: repo,commit,action,eventName,ref,workflow,job,took
