@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
+        testServer: ["", "-Pserver=terra-verily-autopush"]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -51,9 +52,9 @@ jobs:
       - name: Run tests
         id: run_tests
         run: |
-          # runs against the default server: terra-dev
-          echo "Running tests with options: ${{ matrix.testOptions }}"
-          ./gradlew runTestsWithTag ${{ matrix.testOptions }}
+          # default server is terra-dev
+          echo "Running tests with options: ${{ matrix.testOptions }} ${{ matrix.testServer }}"
+          ./gradlew runTestsWithTag ${{ matrix.testOptions }} ${{ matrix.testServer }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
