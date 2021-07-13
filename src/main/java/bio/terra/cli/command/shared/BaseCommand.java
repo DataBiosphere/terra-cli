@@ -47,9 +47,11 @@ public abstract class BaseCommand implements Callable<Integer> {
     Logger.setupLogging(
         Context.getConfig().getConsoleLoggingLevel(), Context.getConfig().getFileLoggingLevel());
 
-    // do the login flow if required
     if (requiresLogin()) {
+      // load existing credentials, prompt for login if they don't exist or are expired
       User.login();
+    } else if (Context.getUser().isPresent()) {
+      Context.requireUser().loadExistingCredentials();
     }
 
     // execute the command
