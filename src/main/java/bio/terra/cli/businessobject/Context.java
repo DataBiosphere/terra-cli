@@ -159,8 +159,8 @@ public class Context {
    * of the global context directory.
    *
    * @param user
-   * @return absolute path to the pet SA key file for the given user and workspace
-   * @throws UserActionableException if the current user or workspace is not defined
+   * @return absolute path to the pet SA key file for the given user and current workspace
+   * @throws UserActionableException if the current workspace is not defined
    */
   public static Path getPetSaKeyFile(User user) {
     return Context.getPetSaKeyDir(user).resolve(requireWorkspace().getId().toString());
