@@ -115,61 +115,27 @@ public class User {
    */
   public static void login() {
     Optional<User> currentUser = Context.getUser();
-    if (currentUser.isPresent()) {
-      currentUser.get().loadExistingCredentials();
-    }
+    currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
     User user = currentUser.orElseGet(() -> new User());
 
     // do the login flow if the current user is undefined or has expired credentials
     if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
-      try (InputStream inputStream =
-          User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-
-        // log the user in and get their consent to the requested scopes
-        boolean launchBrowserAutomatically =
-            Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
-        user.userCredentials =
-            GoogleOauth.doLoginAndConsent(
-                USER_SCOPES,
-                inputStream,
-                Context.getContextDir().toFile(),
-                launchBrowserAutomatically);
-      } catch (IOException | GeneralSecurityException ex) {
-        throw new SystemException("Error fetching user credentials.", ex);
-      }
+      user.doOauthLoginFlow();
     }
 
     // if this is a new login...
     if (currentUser.isEmpty()) {
-      // fetch the user information from SAM
-      SamService samService = new SamService(user, Context.getServer());
-      UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
-      user.id = userInfo.getUserSubjectId();
-      user.email = userInfo.getUserEmail();
-      user.proxyGroupEmail = samService.getProxyGroupEmail();
+      user.fetchUserInfo();
 
       // update the global context on disk
       Context.setUser(user);
 
-      if (Context.getWorkspace().isPresent())
-        try {
-          if (!Context.requireWorkspace().getIsLoaded()) {
-            // if the workspace was set without credentials, load the workspace metadata and pet SA
-            Workspace.load(Context.requireWorkspace().getId());
-          } else {
-            // otherwise, just load the pet SA
-            user.fetchPetSaCredentials();
-          }
-        } catch (Exception ex) {
-          logger.error("Error loading workspace or pet SA credentials during login", ex);
-          UserIO.getErr()
-              .println(
-                  "Error loading workspace information for the logged in user (workspace id: "
-                      + Context.requireWorkspace().getId()
-                      + ").");
-        }
+      // load the workspace metadata (if not already loaded), and the pet SA credentials
+      if (Context.getWorkspace().isPresent()) {
+        user.fetchWorkspaceInfo();
+      }
     }
   }
 
@@ -190,30 +156,6 @@ public class User {
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
-  }
-
-  /** Return true if the user credentials are expired or do not exist on disk. */
-  public boolean requiresReauthentication() {
-    if (userCredentials == null) {
-      return true;
-    }
-
-    // this method call will attempt to refresh the token if it's already expired
-    AccessToken accessToken = getUserAccessToken();
-
-    // check if the token is expired
-    logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
-    return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
-  }
-
-  /** Get the access token for the user credentials. */
-  public AccessToken getUserAccessToken() {
-    return GoogleOauth.getAccessToken(userCredentials);
-  }
-
-  /** Get the access token for the pet SA credentials. */
-  public AccessToken getPetSaAccessToken() {
-    return GoogleOauth.getAccessToken(petSACredentials);
   }
 
   /**
@@ -245,15 +187,6 @@ public class User {
     petSACredentials = createSaCredentials(jsonKeyPath);
   }
 
-  /** Create a credentials object for a service account from a key file. */
-  private ServiceAccountCredentials createSaCredentials(Path jsonKeyPath) {
-    try {
-      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), PET_SA_SCOPES);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading SA key file.", ioEx);
-    }
-  }
-
   /** Delete all pet SA credentials for this user. */
   public void deletePetSaCredentials() {
     File jsonKeysDir = Context.getPetSaKeyDir(this).toFile();
@@ -273,6 +206,70 @@ public class User {
     if (!jsonKeysDir.delete() && jsonKeysDir.exists()) {
       throw new SystemException(
           "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Do the OAuth login flow. If there is an existing non-expired credential stored on disk, then we
+   * load that. If not, then we prompt the user for the requested user scopes.
+   */
+  private void doOauthLoginFlow() {
+    try (InputStream inputStream =
+        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+
+      // log the user in and get their consent to the requested scopes
+      boolean launchBrowserAutomatically =
+          Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
+      userCredentials =
+          GoogleOauth.doLoginAndConsent(
+              USER_SCOPES,
+              inputStream,
+              Context.getContextDir().toFile(),
+              launchBrowserAutomatically);
+    } catch (IOException | GeneralSecurityException ex) {
+      throw new SystemException("Error fetching user credentials.", ex);
+    }
+  }
+
+  /** Fetch the user information (id, email, proxy group email) for this user from SAM. */
+  private void fetchUserInfo() {
+    SamService samService = new SamService(this, Context.getServer());
+    UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
+    id = userInfo.getUserSubjectId();
+    email = userInfo.getUserEmail();
+    proxyGroupEmail = samService.getProxyGroupEmail();
+  }
+
+  /**
+   * Fetch the workspace metadata (if it's not already loaded) and the pet SA credentials. Don't
+   * throw an exception if it fails, because that shouldn't block a successful login, but do log the
+   * error to the console.
+   */
+  private void fetchWorkspaceInfo() {
+    try {
+      if (!Context.requireWorkspace().getIsLoaded()) {
+        // if the workspace was set without credentials, load the workspace metadata and pet SA
+        Workspace.load(Context.requireWorkspace().getId());
+      } else {
+        // otherwise, just load the pet SA
+        fetchPetSaCredentials();
+      }
+    } catch (Exception ex) {
+      logger.error("Error loading workspace or pet SA credentials during login", ex);
+      UserIO.getErr()
+          .println(
+              "Error loading workspace information for the logged in user (workspace id: "
+                  + Context.requireWorkspace().getId()
+                  + ").");
+    }
+  }
+
+  /** Create a credentials object for a service account from a key file. */
+  private static ServiceAccountCredentials createSaCredentials(Path jsonKeyPath) {
+    try {
+      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), PET_SA_SCOPES);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading SA key file.", ioEx);
     }
   }
 
@@ -304,5 +301,29 @@ public class User {
 
   public ServiceAccountCredentials getPetSACredentials() {
     return petSACredentials;
+  }
+
+  /** Return true if the user credentials are expired or do not exist on disk. */
+  public boolean requiresReauthentication() {
+    if (userCredentials == null) {
+      return true;
+    }
+
+    // this method call will attempt to refresh the token if it's already expired
+    AccessToken accessToken = getUserAccessToken();
+
+    // check if the token is expired
+    logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
+    return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
+  }
+
+  /** Get the access token for the user credentials. */
+  public AccessToken getUserAccessToken() {
+    return GoogleOauth.getAccessToken(userCredentials);
+  }
+
+  /** Get the access token for the pet SA credentials. */
+  public AccessToken getPetSaAccessToken() {
+    return GoogleOauth.getAccessToken(petSACredentials);
   }
 }

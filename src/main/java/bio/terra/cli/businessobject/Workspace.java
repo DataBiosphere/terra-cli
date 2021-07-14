@@ -113,6 +113,8 @@ public class Workspace {
    * @param id workspace id
    */
   public static Workspace load(UUID id) {
+    // a user can set the workspace without being logged in. in that case, we can't request the
+    // metadata from WSM without valid credentials. so just save the workspace id for loading later.
     if (Context.getUser().isEmpty()) {
       Workspace loadedWorkspace = new Workspace(id, Context.getServer().getName());
       Context.setWorkspace(loadedWorkspace);

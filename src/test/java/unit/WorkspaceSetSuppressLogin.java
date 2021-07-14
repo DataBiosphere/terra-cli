@@ -8,11 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.UserIO;
 import harness.TestCommand;
 import harness.TestUsers;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
@@ -22,7 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `--suppress-login` option to skip login when setting the current workspace. */
+/** Tests for the `--defer-login` option to skip login when setting the current workspace. */
 @Tag("unit")
 public class WorkspaceSetSuppressLogin extends SingleWorkspaceUnit {
   TestUsers workspaceSharee;
@@ -61,10 +64,10 @@ public class WorkspaceSetSuppressLogin extends SingleWorkspaceUnit {
     // `terra auth revoke`
     TestCommand.runCommandExpectSuccess("auth", "revoke");
 
-    // `terra workspace set --id=$id --suppress-login`
+    // `terra workspace set --id=$id --defer-login`
     UFWorkspace workspaceSet =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--suppress-login");
+            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--defer-login");
     assertEquals(
         getWorkspaceId(), workspaceSet.id, "workspace set before login includes workspace id");
     assertNull(
@@ -106,15 +109,26 @@ public class WorkspaceSetSuppressLogin extends SingleWorkspaceUnit {
     // `terra auth revoke`
     TestCommand.runCommandExpectSuccess("auth", "revoke");
 
-    // `terra workspace set --id=$id --suppress-login`
+    // `terra workspace set --id=$id --defer-login`
     TestCommand.runCommandExpectSuccess(
-        "workspace", "set", "--id=" + getWorkspaceId(), "--suppress-login");
+        "workspace", "set", "--id=" + getWorkspaceId(), "--defer-login");
 
-    // the login command should throw an exception that the user doesn't have access to the
-    // workspace, but it should also succeed in that the user is logged in afterwards (the pet SA
-    // just could not be loaded). here we check an exception instead of a command exit code, because
-    // test users bypass the login flow to avoid browser interaction.
+    // the login should succeed and also print an error message to stderr that the workspace failed
+    // to load
+    ByteArrayOutputStream stdOutStream = new ByteArrayOutputStream();
+    ByteArrayOutputStream stdErrStream = new ByteArrayOutputStream();
+    UserIO.initialize(
+        new PrintStream(stdOutStream, true, StandardCharsets.UTF_8),
+        new PrintStream(stdErrStream, true, StandardCharsets.UTF_8),
+        null);
     workspaceSharee.login();
+    assertThat(
+        "login prints an error message that workspace failed to load",
+        stdErrStream.toString(StandardCharsets.UTF_8),
+        CoreMatchers.containsStringIgnoringCase(
+            "Error loading workspace information for the logged in user (workspace id: "
+                + getWorkspaceId()
+                + ")."));
 
     // `terra status`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -176,10 +190,10 @@ public class WorkspaceSetSuppressLogin extends SingleWorkspaceUnit {
   void workspaceLoadsImmediatelyWhenAlreadyLoggedIn() throws IOException {
     workspaceCreator.login();
 
-    // `terra workspace set --id=$id --suppress-login`
+    // `terra workspace set --id=$id --defer-login`
     UFWorkspace workspaceSet =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--suppress-login");
+            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId(), "--defer-login");
     assertEquals(
         getWorkspaceId(), workspaceSet.id, "workspace set after login includes workspace id");
     assertNotNull(
