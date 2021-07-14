@@ -6,6 +6,7 @@ import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.FileUtils;
+import bio.terra.cli.utils.UserIO;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -152,15 +153,23 @@ public class User {
       // update the global context on disk
       Context.setUser(user);
 
-      if (Context.getWorkspace().isPresent()) {
-        if (!Context.requireWorkspace().getIsLoaded()) {
-          // if the workspace was set without credentials, load the workspace metadata and pet SA
-          Workspace.load(Context.requireWorkspace().getId());
-        } else {
-          // otherwise, just load the pet SA
-          user.fetchPetSaCredentials();
+      if (Context.getWorkspace().isPresent())
+        try {
+          if (!Context.requireWorkspace().getIsLoaded()) {
+            // if the workspace was set without credentials, load the workspace metadata and pet SA
+            Workspace.load(Context.requireWorkspace().getId());
+          } else {
+            // otherwise, just load the pet SA
+            user.fetchPetSaCredentials();
+          }
+        } catch (Exception ex) {
+          logger.error("Error loading workspace or pet SA credentials during login", ex);
+          UserIO.getErr()
+              .println(
+                  "Error loading workspace information for the logged in user (workspace id: "
+                      + Context.requireWorkspace().getId()
+                      + ").");
         }
-      }
     }
   }
 
