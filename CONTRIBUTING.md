@@ -30,7 +30,7 @@
     * [Always specify a description](#always-specify-a-description)
     * [Alphabetize command lists](#alphabetize-command-lists)
     * [User readable exception messages](#user-readable-exception-messages)
-    * [Singular command group  names](#singular-command-group-names)
+    * [Singular command group names](#singular-command-group-names)
 
 -----
 
