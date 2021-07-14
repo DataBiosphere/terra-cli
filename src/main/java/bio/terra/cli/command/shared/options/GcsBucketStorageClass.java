@@ -13,7 +13,7 @@ public class GcsBucketStorageClass {
   @CommandLine.Option(
       names = "--storage",
       description =
-          "Storage class (https://cloud.google.com/storage/docs/storage-classes): ${COMPLETION-CANDIDATES}")
+          "Storage class (https://cloud.google.com/storage/docs/storage-classes): ${COMPLETION-CANDIDATES}.")
   public GcpGcsBucketDefaultStorageClass storageClass;
 
   public boolean isDefined() {

@@ -19,12 +19,13 @@ public class ResourceLimit extends BaseCommand {
   static class ResourceLimitArgGroup {
     @CommandLine.Option(
         names = "--max",
-        description = "maximum number to allow before throwing an error")
+        description = "Maximum number to allow before throwing an error.")
     private int max;
 
     @CommandLine.Option(
         names = "--default",
-        description = "use the default number of resources: " + Config.DEFAULT_RESOURCES_CACHE_SIZE)
+        description =
+            "Use the default number of resources: " + Config.DEFAULT_RESOURCES_CACHE_SIZE + ".")
     private boolean useDefault;
   }
 

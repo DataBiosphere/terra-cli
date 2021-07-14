@@ -20,7 +20,7 @@ public class Format {
       names = "--format",
       defaultValue = "text",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
-      description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}")
+      description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}.")
   private FormatOptions format;
 
   /** This enum specifies the format options for printing the command output. */

@@ -18,6 +18,6 @@ public class SpendProfileUser {
   @CommandLine.Option(
       names = "--policy",
       required = true,
-      description = "Policy: ${COMPLETION-CANDIDATES}")
+      description = "Spend policy: ${COMPLETION-CANDIDATES}.")
   public SpendProfileManagerService.SpendProfilePolicy policy;
 }

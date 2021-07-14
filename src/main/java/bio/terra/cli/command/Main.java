@@ -24,22 +24,22 @@ import picocli.CommandLine.ParseResult;
 @Command(
     name = "terra",
     subcommands = {
+      App.class,
+      Auth.class,
+      Bq.class,
+      Config.class,
+      Gcloud.class,
+      Groups.class,
+      Gsutil.class,
+      Nextflow.class,
+      Notebooks.class,
+      Resolve.class,
+      Resources.class,
+      Server.class,
+      Spend.class,
       Status.class,
       Version.class,
-      Auth.class,
-      Server.class,
-      Workspace.class,
-      Resources.class,
-      App.class,
-      Notebooks.class,
-      Groups.class,
-      Spend.class,
-      Config.class,
-      Resolve.class,
-      Gcloud.class,
-      Gsutil.class,
-      Bq.class,
-      Nextflow.class
+      Workspace.class
     },
     description = "Terra CLI")
 public class Main implements Runnable {

@@ -17,7 +17,7 @@ public class WorkspaceOverride {
 
   @CommandLine.Option(
       names = "--workspace",
-      description = "Workspace id to use for this command only")
+      description = "Workspace id to use for this command only.")
   private UUID id;
 
   /** Helper method to override the current workspace if the `--workspace` flag specifies an id. */

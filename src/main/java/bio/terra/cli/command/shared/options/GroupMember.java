@@ -21,6 +21,6 @@ public class GroupMember {
   @CommandLine.Option(
       names = "--policy",
       required = true,
-      description = "Policy: ${COMPLETION-CANDIDATES}")
+      description = "Group policy: ${COMPLETION-CANDIDATES}.")
   public SamService.GroupPolicy policy;
 }

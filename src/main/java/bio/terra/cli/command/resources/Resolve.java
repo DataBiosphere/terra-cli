@@ -25,7 +25,7 @@ public class Resolve extends BaseCommand {
       names = "--bq-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
-          "[For BIG_QUERY_DATASET] Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id]")
+          "[For BIG_QUERY_DATASET] Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id].")
   private BqDataset.ResolveOptions bqPathFormat = BqDataset.ResolveOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

@@ -18,19 +18,19 @@ public class ControlledResourceCreation {
 
   @CommandLine.Option(
       names = "--access",
-      description = "Access scope for the resource: ${COMPLETION-CANDIDATES}")
+      description = "Access scope for the resource: ${COMPLETION-CANDIDATES}.")
   public AccessScope access = AccessScope.SHARED_ACCESS;
 
   @CommandLine.Option(
       names = "--email",
-      description = "[PRIVATE ACCESS ONLY] Email address for user of private resource")
+      description = "[PRIVATE ACCESS ONLY] Email address for user of private resource.")
   public String privateUserEmail;
 
   @CommandLine.Option(
       names = "--iam-roles",
       split = ",",
       description =
-          "[PRIVATE ACCESS ONLY] IAM roles to grant user of private resource: ${COMPLETION-CANDIDATES}")
+          "[PRIVATE ACCESS ONLY] IAM roles to grant user of private resource: ${COMPLETION-CANDIDATES}.")
   public List<ControlledResourceIamRole> privateIamRoles;
 
   /** Helper method to validate conditional required options. */

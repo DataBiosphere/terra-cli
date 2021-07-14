@@ -12,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "config",
     description = "Configure the CLI.",
-    subcommands = {List.class, GetValue.class, Set.class})
+    subcommands = {GetValue.class, List.class, Set.class})
 public class Config {}

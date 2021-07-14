@@ -14,10 +14,10 @@ public class Image extends BaseCommand {
   ImageIdArgGroup argGroup;
 
   static class ImageIdArgGroup {
-    @CommandLine.Option(names = "--image", description = "image id or tag")
+    @CommandLine.Option(names = "--image", description = "Docker image id or tag.")
     private String imageId;
 
-    @CommandLine.Option(names = "--default", description = "use the default image id or tag")
+    @CommandLine.Option(names = "--default", description = "Use the default image id or tag.")
     private boolean useDefault;
   }
 

@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 @Command(name = "app-launch", description = "Configure the ways apps are launched.")
 public class AppLaunch extends BaseCommand {
 
-  @CommandLine.Parameters(index = "0", description = "App launch mode: ${COMPLETION-CANDIDATES}")
+  @CommandLine.Parameters(index = "0", description = "App launch mode: ${COMPLETION-CANDIDATES}.")
   private Config.CommandRunnerOption mode;
 
   /** Updates the command runner option property of the global context. */

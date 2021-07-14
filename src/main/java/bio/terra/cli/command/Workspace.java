@@ -19,14 +19,14 @@ import picocli.CommandLine.Command;
     name = "workspace",
     description = "Setup a Terra workspace.",
     subcommands = {
-      List.class,
+      AddUser.class,
       Create.class,
-      Set.class,
       Delete.class,
       Describe.class,
-      Update.class,
+      List.class,
       ListUsers.class,
-      AddUser.class,
-      RemoveUser.class
+      RemoveUser.class,
+      Set.class,
+      Update.class,
     })
 public class Workspace {}

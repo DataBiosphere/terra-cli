@@ -18,10 +18,13 @@ import picocli.CommandLine;
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
-  @CommandLine.Option(names = "--project-id", required = true, description = "GCP project id")
+  @CommandLine.Option(names = "--project-id", required = true, description = "GCP project id.")
   private String gcpProjectId;
 
-  @CommandLine.Option(names = "--dataset-id", required = true, description = "Big Query dataset id")
+  @CommandLine.Option(
+      names = "--dataset-id",
+      required = true,
+      description = "Big Query dataset id.")
   private String bigQueryDatasetId;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
