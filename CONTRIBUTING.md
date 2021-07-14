@@ -30,6 +30,7 @@
     * [Always specify a description](#always-specify-a-description)
     * [Alphabetize command lists](#alphabetize-command-lists)
     * [User readable exception messages](#user-readable-exception-messages)
+    * [Singular command group  names](#singular-command-group-names)
 
 -----
 
@@ -393,10 +394,10 @@ instead of `terra workspace add-user user@gmail.com READER`.
 This makes it easier to maintain backwards compatibility when adding new arguments. It also makes it easier to read
 commands with multiple arguments, without having to remember the order.
 
-All option names should start with two dashes. e.g. `--email`
-
 The exception to this rule are the `config get-value` and `config set` commands. These will only ever take one argument
 and use a parameter instead of an option.
+
+All option names should start with two dashes. e.g. `--email`
 
 #### Always specify a description
 Specify a description for all commands and options. Write it like a sentence: end with a period and capitalize the first
