@@ -25,9 +25,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `--defer-login` option to skip login when setting the current workspace. */
+/**
+ * Tests for the `--defer-login` option to skip the login prompt when setting the current workspace.
+ */
 @Tag("unit")
-public class WorkspaceSetSuppressLogin extends SingleWorkspaceUnit {
+public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
   TestUsers workspaceSharee;
   UUID sharedWorkspaceId;
 

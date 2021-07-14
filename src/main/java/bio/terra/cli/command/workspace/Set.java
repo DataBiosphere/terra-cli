@@ -18,7 +18,7 @@ public class Set extends BaseCommand {
   @CommandLine.Option(
       names = "--defer-login",
       hidden = true,
-      description = "Suppress login and skip fetching the workspace metadata.")
+      description = "Defer login and skip fetching the workspace metadata.")
   private boolean deferLogin;
 
   @CommandLine.Mixin Format formatOption;
@@ -39,8 +39,8 @@ public class Set extends BaseCommand {
   /**
    * Typical usage (--defer-login not specified) requires login because we use the user's
    * credentials to fetch the workspace metadata from WSM. If the --defer-login flag is specified
-   * and the user is not already logged in, then we skip the login prompt and metadata fetch for
-   * now.
+   * and the user is not already logged in, then we skip the login prompt and fetch the metadata the
+   * next time the user logs in.
    */
   protected boolean requiresLogin() {
     return !deferLogin;

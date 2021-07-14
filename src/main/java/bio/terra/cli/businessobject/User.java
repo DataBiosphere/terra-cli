@@ -288,11 +288,7 @@ public class User {
   }
 
   public String getPetSaEmail() {
-    if (petSACredentials == null) {
-      return null;
-    } else {
-      return petSACredentials.getClientEmail();
-    }
+    return petSACredentials == null ? null : petSACredentials.getClientEmail();
   }
 
   public UserCredentials getUserCredentials() {
