@@ -15,6 +15,12 @@ public class Set extends BaseCommand {
   @CommandLine.Option(names = "--id", required = true, description = "workspace id")
   private UUID id;
 
+  @CommandLine.Option(
+      names = "--defer-login",
+      hidden = true,
+      description = "Defer login and skip fetching the workspace metadata.")
+  private boolean deferLogin;
+
   @CommandLine.Mixin Format formatOption;
 
   /** Load an existing workspace. */
@@ -28,5 +34,15 @@ public class Set extends BaseCommand {
   private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully loaded.");
     returnValue.print();
+  }
+
+  /**
+   * Typical usage (--defer-login not specified) requires login because we use the user's
+   * credentials to fetch the workspace metadata from WSM. If the --defer-login flag is specified
+   * and the user is not already logged in, then we skip the login prompt and fetch the metadata the
+   * next time the user logs in.
+   */
+  protected boolean requiresLogin() {
+    return !deferLogin;
   }
 }

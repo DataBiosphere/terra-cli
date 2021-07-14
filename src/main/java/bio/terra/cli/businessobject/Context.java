@@ -151,7 +151,19 @@ public class Context {
    * @throws UserActionableException if the current user or workspace is not defined
    */
   public static Path getPetSaKeyFile() {
-    return Context.getPetSaKeyDir(requireUser()).resolve(requireWorkspace().getId().toString());
+    return getPetSaKeyFile(requireUser());
+  }
+
+  /**
+   * Get the pet SA key file for a user and the current workspace. This is stored in a sub-directory
+   * of the global context directory.
+   *
+   * @param user
+   * @return absolute path to the pet SA key file for the given user and current workspace
+   * @throws UserActionableException if the current workspace is not defined
+   */
+  public static Path getPetSaKeyFile(User user) {
+    return Context.getPetSaKeyDir(user).resolve(requireWorkspace().getId().toString());
   }
 
   /**
@@ -202,11 +214,7 @@ public class Context {
   }
 
   public static Optional<Workspace> getWorkspace() {
-    if (useOverrideWorkspace) {
-      return Optional.ofNullable(overrideWorkspace);
-    } else {
-      return Optional.ofNullable(currentWorkspace);
-    }
+    return Optional.ofNullable(useOverrideWorkspace ? overrideWorkspace : currentWorkspace);
   }
 
   public static Workspace requireWorkspace() {

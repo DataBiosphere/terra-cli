@@ -24,6 +24,7 @@ public class PDWorkspace {
   public final String serverName;
   public final String userEmail;
   public final List<PDResource> resources;
+  public final boolean isLoaded;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
@@ -37,6 +38,7 @@ public class PDWorkspace {
         internalObj.getResources().stream()
             .map(Resource::serializeToDisk)
             .collect(Collectors.toList());
+    this.isLoaded = internalObj.getIsLoaded();
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
@@ -47,6 +49,7 @@ public class PDWorkspace {
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.resources = builder.resources;
+    this.isLoaded = builder.isLoaded;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -58,6 +61,7 @@ public class PDWorkspace {
     private String serverName;
     private String userEmail;
     private List<PDResource> resources;
+    private boolean isLoaded;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -91,6 +95,11 @@ public class PDWorkspace {
 
     public Builder resources(List<PDResource> resources) {
       this.resources = resources;
+      return this;
+    }
+
+    public Builder isLoaded(boolean isLoaded) {
+      this.isLoaded = isLoaded;
       return this;
     }
 

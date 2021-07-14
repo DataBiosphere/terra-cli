@@ -60,11 +60,10 @@ However, `docker pull` [may use](https://cloud.google.com/container-registry/doc
 covers to pull the default Docker image from GCR. This is the reason for the `gcloud` requirement for install.
 
 #### Login
-1. Use a Google account that is not a Google/Verily corporate account.
-2. `terra auth login` launches an OAuth flow that pops out a browser window with a warning login
+1. `terra auth login` launches an OAuth flow that pops out a browser window with a warning login
 page ("! Google hasn't verified this app"). This shows up because the CLI is not yet a Google-verified
 app. Click through the warnings ("Advanced" -> "Go to ... (unsafe)") to complete the login.
-3. If the machine where you're running the CLI does not have a browser available to it, then use the
+2. If the machine where you're running the CLI does not have a browser available to it, then use the
 manual login flow by setting the browser flag `terra config set browser MANUAL`. See the [Authentication](#authentication)
 section below for more details.
 
