@@ -58,8 +58,8 @@ public class UFConfig {
   /** Print out this object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("[app-launch] app launch mode = " + browserLaunchOption);
-    OUT.println("[browser] browser launch for login = " + commandRunnerOption);
+    OUT.println("[app-launch] app launch mode = " + commandRunnerOption);
+    OUT.println("[browser] browser launch for login = " + browserLaunchOption);
     OUT.println("[image] docker image id = " + dockerImageId);
     OUT.println(
         "[resource-limit] max number of resources to allow per workspace = " + resourcesCacheSize);
