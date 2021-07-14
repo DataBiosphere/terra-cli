@@ -20,7 +20,10 @@ public class Update extends BaseCommand {
   Update.UpdateArgGroup argGroup;
 
   static class UpdateArgGroup {
-    @CommandLine.Option(names = "--name", required = false, description = "Workspace display name.")
+    @CommandLine.Option(
+        names = "--name",
+        required = false,
+        description = "Workspace display name (not unique).")
     private String displayName;
 
     @CommandLine.Option(

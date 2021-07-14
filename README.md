@@ -330,7 +330,7 @@ A controlled resource is a cloud resource that is managed by Terra. It exists wi
 For example, a bucket within the workspace Google project.
 
 A referenced resource is a cloud resource that is NOT managed by Terra. It exists outside the current workspace
-context. For example, a Big Query dataset hosted outside of Terra or in another workspace.
+context. For example, a BigQuery dataset hosted outside of Terra or in another workspace.
 
 The `check-access` command lets you see whether you have access to a particular resource. This is useful when a
 different user created or added the resource and subsequently shared the workspace with you.

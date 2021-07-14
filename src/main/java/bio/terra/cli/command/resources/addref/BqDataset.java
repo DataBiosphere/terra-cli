@@ -13,24 +13,24 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resources add-ref bq-dataset" command. */
 @CommandLine.Command(
     name = "bq-dataset",
-    description = "Add a referenced Big Query dataset.",
+    description = "Add a referenced BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
-  @CommandLine.Option(names = "--project-id", required = true, description = "GCP project id.")
+  @CommandLine.Option(
+      names = "--project-id",
+      required = true,
+      description = "GCP project id of the dataset.")
   private String gcpProjectId;
 
-  @CommandLine.Option(
-      names = "--dataset-id",
-      required = true,
-      description = "Big Query dataset id.")
+  @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
   private String bigQueryDatasetId;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Add a referenced Big Query dataset to the workspace. */
+  /** Add a referenced BigQuery dataset to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -52,7 +52,7 @@ public class BqDataset extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(UFBqDataset returnValue) {
-    OUT.println("Successfully added referenced Big Query dataset.");
+    OUT.println("Successfully added referenced BigQuery dataset.");
     returnValue.print();
   }
 }

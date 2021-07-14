@@ -394,8 +394,7 @@ instead of `terra workspace add-user user@gmail.com READER`.
 This makes it easier to maintain backwards compatibility when adding new arguments. It also makes it easier to read
 commands with multiple arguments, without having to remember the order.
 
-The exception to this rule are the `config get-value` and `config set` commands. These will only ever take one argument
-and use a parameter instead of an option.
+The exception to this rule is the `config set` command, which takes one parameter instead of an option.
 
 All option names should start with two dashes. e.g. `--email`
 

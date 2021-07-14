@@ -76,8 +76,7 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
     assertThat(
         "stderr includes the CLI error message",
         stdErr,
-        CoreMatchers.containsString(
-            "Error creating controlled Big Query dataset in the workspace"));
+        CoreMatchers.containsString("Error creating controlled BigQuery dataset in the workspace"));
     assertThat(
         "stderr includes the WSM error message",
         stdErr,

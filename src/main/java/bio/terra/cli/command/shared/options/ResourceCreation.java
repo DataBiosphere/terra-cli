@@ -18,7 +18,7 @@ public class ResourceCreation {
   @CommandLine.Option(
       names = "--cloning",
       description =
-          "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
+          "Instructions for handling when cloning the workspace or resource: ${COMPLETION-CANDIDATES}.")
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.NOTHING;
 
   /**

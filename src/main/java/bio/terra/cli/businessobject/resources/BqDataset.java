@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a Big Query dataset workspace resource. Instances of this class are
+ * Internal representation of a BigQuery dataset workspace resource. Instances of this class are
  * part of the current context or state.
  */
 public class BqDataset extends Resource {
@@ -23,10 +23,10 @@ public class BqDataset extends Resource {
   private String datasetId;
 
   /**
-   * Delimiter between the project id and dataset id for a Big Query dataset.
+   * Delimiter between the project id and dataset id for a BigQuery dataset.
    *
    * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the path to be used directly in SQL calls with a Big Query extension.
+   * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
 
@@ -66,7 +66,7 @@ public class BqDataset extends Resource {
   }
 
   /**
-   * Add a Big Query dataset as a referenced resource in the workspace.
+   * Add a BigQuery dataset as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
@@ -88,7 +88,7 @@ public class BqDataset extends Resource {
   }
 
   /**
-   * Create a Big Query dataset as a controlled resource in the workspace.
+   * Create a BigQuery dataset as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
@@ -106,7 +106,7 @@ public class BqDataset extends Resource {
     return new BqDataset(createdResource);
   }
 
-  /** Update a Big Query dataset resource in the workspace. */
+  /** Update a BigQuery dataset resource in the workspace. */
   public void update(UpdateResourceParams updateParams) {
     if (updateParams.name != null) {
       validateEnvironmentVariableName(updateParams.name);
@@ -126,21 +126,21 @@ public class BqDataset extends Resource {
     super.updatePropertiesAndSync(updateParams);
   }
 
-  /** Delete a Big Query dataset referenced resource in the workspace. */
+  /** Delete a BigQuery dataset referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
         .deleteReferencedBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
-  /** Delete a Big Query dataset controlled resource in the workspace. */
+  /** Delete a BigQuery dataset controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
         .deleteControlledBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
-  /** This enum specifies the possible ways to resolve a Big Query dataset resource. */
+  /** This enum specifies the possible ways to resolve a BigQuery dataset resource. */
   public enum ResolveOptions {
     FULL_PATH, // [project id].[dataset id]
     DATASET_ID_ONLY, // [dataset id]
@@ -148,7 +148,7 @@ public class BqDataset extends Resource {
   }
 
   /**
-   * Resolve a Big Query dataset resource to its cloud identifier. Returns the SQL path to the
+   * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
   public String resolve() {
@@ -156,7 +156,7 @@ public class BqDataset extends Resource {
   }
 
   /**
-   * Resolve a Big Query dataset resource to its cloud identifier. Returns the SQL path to the
+   * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
   public String resolve(ResolveOptions resolveOption) {
@@ -168,7 +168,7 @@ public class BqDataset extends Resource {
       case PROJECT_ID_ONLY:
         return projectId;
       default:
-        throw new IllegalArgumentException("Unknown Big Query dataset resolve option.");
+        throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
     }
   }
 
