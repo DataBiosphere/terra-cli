@@ -31,7 +31,7 @@ docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
             vault read -format json ${TEST_USER_SA_VAULT_PATH} \
             | jq -r .data > rendered/test-user-account.json
 
-# used for creating external cloud resources for tests (i.e. external to a workspace)
+# used for creating external cloud resources in the terra-cli-test project for tests
 echo "Reading the external project service account key file from Vault"
 docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
             vault read -format json ${EXT_PROJECT_SA_VAULT_PATH} \
