@@ -11,5 +11,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "app",
     description = "Run applications in the workspace.",
-    subcommands = {List.class, Execute.class})
+    subcommands = {Execute.class, List.class})
 public class App {}

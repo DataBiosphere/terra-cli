@@ -23,14 +23,14 @@ public class GcsBucket extends BaseCommand {
       names = "--bucket-name",
       required = true,
       description =
-          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket')")
+          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
   private String bucketName;
 
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
 
   @CommandLine.Option(
       names = "--location",
-      description = "Bucket location (https://cloud.google.com/storage/docs/locations)")
+      description = "Bucket location (https://cloud.google.com/storage/docs/locations).")
   private String location;
 
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;

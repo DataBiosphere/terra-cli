@@ -11,13 +11,16 @@ import picocli.CommandLine.Command;
 @Command(name = "create", description = "Create a new workspace.")
 public class Create extends BaseCommand {
 
-  @CommandLine.Option(names = "--name", required = false, description = "workspace display name")
+  @CommandLine.Option(
+      names = "--name",
+      required = false,
+      description = "Workspace display name (not unique).")
   private String displayName;
 
   @CommandLine.Option(
       names = "--description",
       required = false,
-      description = "workspace description")
+      description = "Workspace description.")
   private String description;
 
   @CommandLine.Mixin Format formatOption;

@@ -14,7 +14,7 @@ public class Browser extends BaseCommand {
 
   @CommandLine.Parameters(
       index = "0",
-      description = "Browser launch mode: ${COMPLETION-CANDIDATES}")
+      description = "Browser launch mode: ${COMPLETION-CANDIDATES}.")
   private Config.BrowserLaunchOption mode;
 
   /** Updates the browser launch option property of the global context. */

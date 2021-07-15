@@ -8,6 +8,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class ResourceDescription {
-  @CommandLine.Option(names = "--description", description = "Description of the resource")
+  @CommandLine.Option(names = "--description", description = "Description of the resource.")
   public String description;
 }

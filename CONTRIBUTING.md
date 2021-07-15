@@ -25,6 +25,12 @@
     * [Serialization](#serialization)
     * [Terra and cloud services](#terra-and-cloud-services)
     * [Servers](#servers)
+6. [Command style guide](#command-style-guide)
+    * [Options instead of parameters](#options-instead-of-parameters)
+    * [Always specify a description](#always-specify-a-description)
+    * [Alphabetize command lists](#alphabetize-command-lists)
+    * [User readable exception messages](#user-readable-exception-messages)
+    * [Singular command group names](#singular-command-group-names)
 
 -----
 
@@ -374,3 +380,41 @@ class here.
 
 To add a new server specification, create a new file in this directory and add the file name to the `all-servers.json` 
 file.
+
+
+### Command style guide
+Below are guidelines for adding or modifying commands. The goal is to have a consistent presentation across commands.
+These are not hard rules, but should apply to most commands. Always choose better usability over following a rule here.
+
+#### Options instead of parameters
+Use options instead of parameters, wherever possible. 
+e.g. `terra workspace add-user --email=user@gmail.com --role=READER`
+instead of `terra workspace add-user user@gmail.com READER`.
+
+This makes it easier to maintain backwards compatibility when adding new arguments. It also makes it easier to read
+commands with multiple arguments, without having to remember the order.
+
+The exception to this rule is the `config set` command, which takes one parameter instead of an option.
+
+All option names should start with two dashes. e.g. `--email`
+
+#### Always specify a description
+Specify a description for all commands and options. Write it like a sentence: end with a period and capitalize the first
+letter of the first word. e.g. `Add a user or group to the workspace.`, `Group name.`
+
+Use a verb for the first word of a command or command group description. e.g. `Manage spend profiles.`
+
+#### Alphabetize command lists
+Alphabetize commands by their name (not their Java class name, though that is usually identical) when specifying
+a list of sub-commands. picocli does not do this automatically.
+
+#### User readable exception messages
+`UserActionableException`s are expected in the course of normal use. Their messages should be readable to the user.
+`SystemException`s and any other exceptions are not expected in the course of normal use. They indicate a bug or error 
+that should be reported, so there's no need to make these messages readable to the user.
+
+#### Singular command group names
+Use singular command group names instead of plural. e.g. `terra resource` instead of `terra resources`.
+
+TODO (PF-802): fix this for existing commands
+

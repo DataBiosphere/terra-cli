@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
 /**
- * External representation of a workspace Big Query dataset resource for command input/output.
+ * External representation of a workspace BigQuery dataset resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
@@ -38,7 +38,7 @@ public class UFBqDataset extends UFResource {
     super.print();
     PrintStream OUT = UserIO.getOut();
     OUT.println("GCP project id: " + projectId);
-    OUT.println("Big Query dataset id: " + datasetId);
+    OUT.println("BigQuery dataset id: " + datasetId);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

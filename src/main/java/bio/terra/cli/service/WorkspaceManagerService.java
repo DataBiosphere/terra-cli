@@ -438,11 +438,11 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets" endpoint to add a
-   * Big Query dataset as a referenced resource in the workspace.
+   * BigQuery dataset as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to add
-   * @return the Big Query dataset resource object
+   * @return the BigQuery dataset resource object
    */
   public GcpBigQueryDatasetResource createReferencedBigQueryDataset(
       UUID workspaceId, CreateBqDatasetParams createParams) {
@@ -462,7 +462,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .createBigQueryDatasetReference(createRequest, workspaceId),
-        "Error creating referenced Big Query dataset in the workspace.");
+        "Error creating referenced BigQuery dataset in the workspace.");
   }
 
   /**
@@ -645,7 +645,7 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to create
-   * @return the Big Query dataset resource object
+   * @return the BigQuery dataset resource object
    */
   public GcpBigQueryDatasetResource createControlledBigQueryDataset(
       UUID workspaceId, CreateBqDatasetParams createParams) {
@@ -662,7 +662,7 @@ public class WorkspaceManagerService {
             new ControlledGcpResourceApi(apiClient)
                 .createBigQueryDataset(createRequest, workspaceId)
                 .getBigQueryDataset(),
-        "Error creating controlled Big Query dataset in the workspace.");
+        "Error creating controlled BigQuery dataset in the workspace.");
   }
 
   /**
@@ -743,7 +743,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
-   * endpoint to update a Big Query dataset referenced resource in the workspace.
+   * endpoint to update a BigQuery dataset referenced resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -760,13 +760,13 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .updateBigQueryDatasetReference(updateRequest, workspaceId, resourceId),
-        "Error updating referenced Big Query dataset in the workspace.");
+        "Error updating referenced BigQuery dataset in the workspace.");
   }
 
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
-   * update a Big Query dataset controlled resource in the workspace.
+   * update a BigQuery dataset controlled resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -783,7 +783,7 @@ public class WorkspaceManagerService {
         () ->
             new ControlledGcpResourceApi(apiClient)
                 .updateBigQueryDataset(updateRequest, workspaceId, resourceId),
-        "Error updating controlled Big Query dataset in the workspace.");
+        "Error updating controlled BigQuery dataset in the workspace.");
   }
 
   /**
@@ -804,7 +804,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager DELETE
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
-   * endpoint to delete a Big Query dataset as a referenced resource in the workspace.
+   * endpoint to delete a BigQuery dataset as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
@@ -814,7 +814,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .deleteBigQueryDatasetReference(workspaceId, resourceId),
-        "Error deleting referenced Big Query dataset in the workspace.");
+        "Error deleting referenced BigQuery dataset in the workspace.");
   }
 
   /**
@@ -895,7 +895,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
-   * delete a Big Query dataset as a controlled resource in the workspace.
+   * delete a BigQuery dataset as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
@@ -904,7 +904,7 @@ public class WorkspaceManagerService {
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient).deleteBigQueryDataset(workspaceId, resourceId),
-        "Error deleting controlled Big Query dataset in the workspace.");
+        "Error deleting controlled BigQuery dataset in the workspace.");
   }
 
   /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */

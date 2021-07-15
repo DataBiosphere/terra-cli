@@ -13,7 +13,7 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resources update bq-dataset" command. */
 @CommandLine.Command(
     name = "bq-dataset",
-    description = "Update a Big Query dataset.",
+    description = "Update a BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
@@ -21,7 +21,7 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Update a Big Query dataset in the workspace. */
+  /** Update a BigQuery dataset in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -44,7 +44,7 @@ public class BqDataset extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(UFBqDataset returnValue) {
-    OUT.println("Successfully updated Big Query dataset.");
+    OUT.println("Successfully updated BigQuery dataset.");
     returnValue.print();
   }
 }

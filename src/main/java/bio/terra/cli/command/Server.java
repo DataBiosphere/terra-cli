@@ -12,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "server",
     description = "Connect to a Terra server.",
-    subcommands = {Status.class, List.class, Set.class})
+    subcommands = {List.class, Set.class, Status.class})
 public class Server {}

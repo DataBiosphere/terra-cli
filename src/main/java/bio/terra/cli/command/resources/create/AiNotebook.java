@@ -26,7 +26,7 @@ import picocli.CommandLine;
     name = "ai-notebook",
     description =
         "Add a controlled AI Platform Notebook instance resource.\n"
-            + "For a detailed explanation of some parameters, see https://cloud.google.com/ai-platform/notebooks/docs/reference/rest/v1/projects.locations.instances#Instance",
+            + "For a detailed explanation of some parameters, see https://cloud.google.com/ai-platform/notebooks/docs/reference/rest/v1/projects.locations.instances#Instance.",
     showDefaultValues = true,
     sortOptions = false)
 public class AiNotebook extends BaseCommand {
@@ -71,7 +71,7 @@ public class AiNotebook extends BaseCommand {
           "https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh",
       description =
           "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
-              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'")
+              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'.")
   private String postStartupScript;
 
   @CommandLine.Option(
@@ -97,7 +97,7 @@ public class AiNotebook extends BaseCommand {
                 + DEFAULT_VM_IMAGE_PROJECT
                 + " --vm-image-family="
                 + DEFAULT_VM_IMAGE_FAMILY
-                + "' %n")
+                + "'.%n")
     VmImage vm;
 
     @CommandLine.ArgGroup(
@@ -140,7 +140,7 @@ public class AiNotebook extends BaseCommand {
         required = true,
         description =
             "The path to the container image repository. For example: "
-                + "'gcr.io/{project_id}/{imageName}'")
+                + "'gcr.io/{project_id}/{imageName}'.")
     private String repository;
 
     @CommandLine.Option(
@@ -158,12 +158,12 @@ public class AiNotebook extends BaseCommand {
   AiNotebook.AcceleratorConfig acceleratorConfig;
 
   static class AcceleratorConfig {
-    @CommandLine.Option(names = "--accelerator-type", description = "type of this accelerator")
+    @CommandLine.Option(names = "--accelerator-type", description = "Type of this accelerator.")
     private String type;
 
     @CommandLine.Option(
         names = "--accelerator-core-count",
-        description = "Count of cores of this accelerator")
+        description = "Count of cores of this accelerator.")
     private Long coreCount;
   }
 
@@ -177,7 +177,7 @@ public class AiNotebook extends BaseCommand {
     @CommandLine.Option(
         names = "--install-gpu-driver",
         description =
-            "If true, the end user authorizes Google Cloud to install a GPU driver on this instance")
+            "If true, the end user authorizes Google Cloud to install a GPU driver on this instance.")
     private Boolean installGpuDriver;
 
     @CommandLine.Option(

@@ -17,12 +17,12 @@ import picocli.CommandLine;
     name = "groups",
     description = "Manage groups of users.",
     subcommands = {
-      List.class,
+      AddUser.class,
       Create.class,
       Delete.class,
       Describe.class,
+      List.class,
       ListUsers.class,
-      AddUser.class,
       RemoveUser.class
     })
 public class Groups {}

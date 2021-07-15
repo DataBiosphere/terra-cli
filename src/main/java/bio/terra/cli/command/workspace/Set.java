@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 @Command(name = "set", description = "Set the workspace to an existing one.")
 public class Set extends BaseCommand {
 
-  @CommandLine.Option(names = "--id", required = true, description = "workspace id")
+  @CommandLine.Option(names = "--id", required = true, description = "Workspace id.")
   private UUID id;
 
   @CommandLine.Option(

@@ -17,7 +17,7 @@ public class RemoveUser extends BaseCommand {
   @CommandLine.Option(
       names = "--role",
       required = true,
-      description = "Role to grant: ${COMPLETION-CANDIDATES}")
+      description = "Role to grant: ${COMPLETION-CANDIDATES}.")
   private IamRole role;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
