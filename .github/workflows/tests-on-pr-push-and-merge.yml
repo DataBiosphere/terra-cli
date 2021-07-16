@@ -78,7 +78,7 @@ jobs:
           else
             echo "Changes detected in docker/ directory. Building new Docker image."
             imageTag="onprTest"
-#            ./tools/build-docker.sh $imageTag # generates an image with this tag
+            #./tools/build-docker.sh $imageTag # generates an image with this tag
             echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
           fi
         env:
@@ -88,7 +88,7 @@ jobs:
         run: |
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
-#          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
+          # ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
           echo "TEST_DOCKER_IMAGE: $TEST_DOCKER_IMAGE"
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
