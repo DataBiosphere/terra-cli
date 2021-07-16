@@ -82,7 +82,7 @@ jobs:
             fi
           fi
           echo "Building new Docker image."
-          imageTag="onprTest"
+          imageTag="ghaTest"
           ./tools/build-docker.sh $imageTag # generates an image with this tag
           echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
         env:
