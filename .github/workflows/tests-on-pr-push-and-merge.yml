@@ -78,18 +78,15 @@ jobs:
           # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
           if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
             git fetch --no-tags --depth=1 origin main
-            #git checkout -b main
-            #git checkout ${{ github.event.pull_request.head }}
+            if [-z "$(git diff --name-status main | grep 'docker/')" ]; then
+              echo "No changes to docker/ directory. Using default Docker image."
+              exit 0
+            fi
           fi
-
-          if [ "$GHA_EVENT_NAME" = "pull_request" && -z "$(git diff --name-status main | grep 'docker/')" ]; then
-            echo "No changes to docker/ directory. Using default Docker image."
-          else
-            echo "On push to main GHA event, or changes detected in docker/ directory. Building new Docker image."
-            imageTag="onprTest"
-            #./tools/build-docker.sh $imageTag # generates an image with this tag
-            echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
-          fi
+          echo "On push to main GHA event, or changes detected in docker/ directory. Building new Docker image."
+          imageTag="onprTest"
+          #./tools/build-docker.sh $imageTag # generates an image with this tag
+          echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           GHA_EVENT_NAME: ${{ github.event_name }}
