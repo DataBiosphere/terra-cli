@@ -472,7 +472,7 @@ Usage: terra config [COMMAND]
 Configure the CLI.
 Commands:
   list       List all configuration properties and their values.
-  get  Get a configuration property value.
+  get        Get a configuration property value.
   set        Set a configuration property value.
 ```
 
