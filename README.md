@@ -193,7 +193,7 @@ in the workspace's backing Google project). This is the same example workflow us
 - Call the Gcloud CLI tools within the workspace context.
 This means the commands are executed against the workspace project and as the current user's pet service account.
 ```
-terra gcloud config get project
+terra gcloud config get-value project
 terra gsutil ls
 terra bq version
 ```

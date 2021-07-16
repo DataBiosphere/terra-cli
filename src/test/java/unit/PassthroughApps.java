@@ -109,15 +109,15 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra gcloud config get project`
-    TestCommand.Result cmd = TestCommand.runCommand("gcloud", "config", "get", "project");
+    // `terra gcloud config get-value project`
+    TestCommand.Result cmd = TestCommand.runCommand("gcloud", "config", "get-value", "project");
     assertThat(
         "gcloud project = workspace project",
         cmd.stdOut,
         CoreMatchers.containsString(workspace.googleProjectId));
 
-    // `terra gcloud config get account`
-    cmd = TestCommand.runCommand("gcloud", "config", "get", "account");
+    // `terra gcloud config get-value account`
+    cmd = TestCommand.runCommand("gcloud", "config", "get-value", "account");
     assertThat(
         "gcloud account = pet SA email",
         cmd.stdOut,
