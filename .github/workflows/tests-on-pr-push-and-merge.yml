@@ -86,7 +86,7 @@ jobs:
           echo "Building new Docker image."
           imageTag="onprTest"
           ./tools/build-docker.sh $imageTag # generates an image with this tag
-          echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
+          echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           GHA_EVENT_NAME: ${{ github.event_name }}
@@ -95,7 +95,7 @@ jobs:
         run: |
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
-          echo "Using docker image: $TEST_DOCKER_IMAGE (or default if blank)"
+          echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE --tests "unit.PassthroughApps" --info
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
