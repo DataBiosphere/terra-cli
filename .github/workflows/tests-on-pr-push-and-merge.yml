@@ -78,7 +78,7 @@ jobs:
           # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
           if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
             git fetch --no-tags --depth=1 origin main
-            if [-z "$(git diff --name-status origin/main | grep 'docker/')" ]; then
+            if [ -z "$(git diff --name-status origin/main | grep 'docker/')" ]; then
               echo "No changes to docker/ directory. Using default Docker image."
               exit 0
             fi
