@@ -34,17 +34,20 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout main branch
-        id: checkout_main_branch
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          ref: main
       - name: Checkout current code
         id: checkout_code
         uses: actions/checkout@v2
+        run: |
+          # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
+          if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin main
+            git checkout -b main
+            git checkout ${{ github.event.pull_request.head.sha }}
+          fi
         with:
           token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        env:
+          GHA_EVENT_NAME: ${{ github.event_name }}
       - name: Set up AdoptOpenJDK 11
         id: setup_jdk
         uses: joschi/setup-jdk@v2
@@ -79,16 +82,17 @@ jobs:
       - name: Build Docker image
         id: build_docker_image
         run: |
-          if [ -z "$(git diff --name-status main | grep 'docker/')" ]; then
+          if [ "$GHA_EVENT_NAME" = "pull_request" && -z "$(git diff --name-status main | grep 'docker/')" ]; then
             echo "No changes to docker/ directory. Using default Docker image."
           else
-            echo "Changes detected in docker/ directory. Building new Docker image."
+            echo "On push to main GHA event, or changes detected in docker/ directory. Building new Docker image."
             imageTag="onprTest"
             #./tools/build-docker.sh $imageTag # generates an image with this tag
             echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          GHA_EVENT_NAME: ${{ github.event_name }}
       - name: Run tests
         id: run_tests
         run: |
