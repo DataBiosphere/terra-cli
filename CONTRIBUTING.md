@@ -10,6 +10,8 @@
 3. [Testing](#testing)
     * [Two types of tests](#two-types-of-tests)
     * [Run tests](#run-tests)
+    * [Override default server](#override-default-server)
+    * [Override default Docker image](#override-default-docker-image)
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
 4. [Docker](#docker)
@@ -159,6 +161,15 @@ CLI installation on the same machine.
 The tests run against the `terra-dev` server by default. You can run them against a different server
 by specifying the Gradle `server` property. e.g.:
 `./gradlew runTestsWithTag -PtestTag=unit -Pserver=verily-cli`
+
+#### Override default Docker image
+The tests use the default Docker image by default. This is the image in GCR that corresponds the current version in
+build.gradle. This default image does not include any changes to the `docker/` directory that have not yet been
+released. You can run the tests with a different Docker image by specifying the Gradle `dockerImage` property. e.g.:
+`./gradlew runTestsWithTag -PtestTag=unit -PdockerImage=terra-cli/local:7094e3f`
+
+The on-PR-push GitHub action uses this flag to run against a locally built image if there are any changes to the
+`docker/` directory.
 
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
