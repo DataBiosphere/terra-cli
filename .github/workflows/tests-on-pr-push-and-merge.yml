@@ -83,9 +83,9 @@ jobs:
               exit 0
             fi
           fi
-          echo "On push to main GHA event, or changes detected in docker/ directory. Building new Docker image."
+          echo "Building new Docker image."
           imageTag="onprTest"
-          #./tools/build-docker.sh $imageTag # generates an image with this tag
+          ./tools/build-docker.sh $imageTag # generates an image with this tag
           echo "::set-output name=test_docker_image::'-PdockerImage=terra-cli/local:$imageTag'"
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
@@ -95,8 +95,8 @@ jobs:
         run: |
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
-          # ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
-          echo "TEST_DOCKER_IMAGE: $TEST_DOCKER_IMAGE"
+          echo "Using docker image: $TEST_DOCKER_IMAGE (or default if blank)"
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE --tests "unit.PassthroughApps" --info
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
       - name: Archive logs and context file
