@@ -164,7 +164,7 @@ by specifying the Gradle `server` property. e.g.:
 
 #### Override default Docker image
 The tests use the default Docker image by default. This is the image in GCR that corresponds the current version in
-build.gradle. This default image does not include any changes to the `docker/` directory that have not yet been
+`build.gradle`. This default image does not include any changes to the `docker/` directory that have not yet been
 released. You can run the tests with a different Docker image by specifying the Gradle `dockerImage` property. e.g.:
 `./gradlew runTestsWithTag -PtestTag=unit -PdockerImage=terra-cli/local:7094e3f`
 
