@@ -9,5 +9,3 @@ terra workspace create
 terra status
 
 terra nextflow run hello > nextflowHelloWorld_stdout.txt
-
-cat mariko.txt
