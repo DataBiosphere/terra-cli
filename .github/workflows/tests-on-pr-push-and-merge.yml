@@ -34,6 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
+      - name: Checkout main branch
+        id: checkout_main_branch
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          ref: main
       - name: Checkout current code
         id: checkout_code
         uses: actions/checkout@v2
