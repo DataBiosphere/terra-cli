@@ -39,8 +39,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-        env:
-          GHA_EVENT_NAME: ${{ github.event_name }}
       - name: Set up AdoptOpenJDK 11
         id: setup_jdk
         uses: joschi/setup-jdk@v2
@@ -96,7 +94,7 @@ jobs:
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE --tests "unit.PassthroughApps" --info
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
       - name: Archive logs and context file
