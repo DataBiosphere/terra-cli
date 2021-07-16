@@ -12,8 +12,8 @@ terra=/Users/marikomedlock/Workspaces/terra-cli/build/install/terra-cli/bin/terr
 echo
 echo "Creating the SAM group for CLI test users."
 groupName="cli-test-users"
-$terra groups create --name=$groupName
-groupEmail=$($terra groups describe --name=$groupName --format=json | jq -r .email)
+$terra group create --name=$groupName
+groupEmail=$($terra group describe --name=$groupName --format=json | jq -r .email)
 
 echo
 echo "Granting the SAM group USER access to the spend profile."
@@ -22,7 +22,7 @@ $terra spend enable --policy=USER --email=$groupEmail
 # penelope is an owner on both the cli-test-users group and the spend profile resource
 echo
 echo "Adding Penelope.TwilightsHammer as an ADMIN of the SAM group."
-$terra groups add-user --name=$groupName --policy=ADMIN --email=Penelope.TwilightsHammer@test.firecloud.org
+$terra group add-user --name=$groupName --policy=ADMIN --email=Penelope.TwilightsHammer@test.firecloud.org
 
 echo
 echo "Granting Penelope.TwilightsHammer OWNER access to the spend profile."
@@ -31,10 +31,10 @@ $terra spend enable --policy=OWNER --email=Penelope.TwilightsHammer@test.fireclo
 # john and lily are members of the cli-test-users group
 echo
 echo "Adding John.Whiteclaw as a MEMBER of the SAM group."
-$terra groups add-user --name=$groupName --policy=MEMBER --email=John.Whiteclaw@test.firecloud.org
+$terra group add-user --name=$groupName --policy=MEMBER --email=John.Whiteclaw@test.firecloud.org
 echo
 echo "Adding Lily.Shadowmoon as a MEMBER of the SAM group."
-$terra groups add-user --name=$groupName --policy=MEMBER --email=Lily.Shadowmoon@test.firecloud.org
+$terra group add-user --name=$groupName --policy=MEMBER --email=Lily.Shadowmoon@test.firecloud.org
 
 # brooklyn and noah are users of the spend profile resource
 echo

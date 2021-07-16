@@ -58,7 +58,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
     String resourceName = "noResponseAborts";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
@@ -90,16 +90,16 @@ public class DeletePrompt extends SingleWorkspaceUnit {
   @Test
   @DisplayName("prompt response is checked for groups delete")
   void promptResponseCheckedByGroups() throws JsonProcessingException {
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
-    TestCommand.runCommandExpectSuccess("groups", "create", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);
 
     // track the group so we can clean it up after this test method runs
     trackedGroups.trackGroup(name, workspaceCreator);
 
-    // `terra groups delete`
+    // `terra group delete`
     ByteArrayInputStream stdIn = new ByteArrayInputStream("NO".getBytes(StandardCharsets.UTF_8));
-    TestCommand.Result cmd = TestCommand.runCommand(stdIn, "groups", "delete", "--name=" + name);
+    TestCommand.Result cmd = TestCommand.runCommand(stdIn, "group", "delete", "--name=" + name);
 
     // check the abort case for `groups delete` to confirm the delete prompt option is supported and
     // its helper method is called to abort if the prompt response is negative
@@ -113,7 +113,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
   private void createAndDeleteBucketExpectSuccess(String resourceName, String promptResponse) {
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
@@ -122,7 +122,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
     ByteArrayInputStream stdIn =
         new ByteArrayInputStream(promptResponse.getBytes(StandardCharsets.UTF_8));
     TestCommand.Result cmd =
-        TestCommand.runCommand(stdIn, "resources", "delete", "--name=" + resourceName);
+        TestCommand.runCommand(stdIn, "resource", "delete", "--name=" + resourceName);
     assertEquals(0, cmd.exitCode, "delete command returned successfully");
   }
 
@@ -134,7 +134,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
     ByteArrayInputStream stdIn =
         new ByteArrayInputStream(promptResponse.getBytes(StandardCharsets.UTF_8));
     TestCommand.Result cmd =
-        TestCommand.runCommand(stdIn, "resources", "delete", "--name=" + resourceName);
+        TestCommand.runCommand(stdIn, "resource", "delete", "--name=" + resourceName);
     expectAbort(cmd);
   }
 

@@ -1,6 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import picocli.CommandLine;
 
 /**

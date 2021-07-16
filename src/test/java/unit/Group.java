@@ -41,11 +41,11 @@ public class Group extends ClearContextUnit {
     TestUsers testUser = TestUsers.chooseTestUser();
     testUser.login();
 
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
     UFGroup groupCreated =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "create", "--name=" + name);
+            UFGroup.class, "group", "create", "--name=" + name);
 
     // track the group so we can clean it up in case this test method fails
     trackedGroups.trackGroup(name, testUser);
@@ -57,13 +57,13 @@ public class Group extends ClearContextUnit {
     assertThat(
         "group creator is an admin", groupCreated.currentUserPolicies.contains(GroupPolicy.ADMIN));
 
-    // `terra groups list-users --name=$name`
+    // `terra group list-users --name=$name`
     // check that the group creator is included in the list and is an admin
     expectListedMemberWithPolicies(name, testUser.email, GroupPolicy.ADMIN);
 
-    // `terra groups list`
+    // `terra group list`
     List<UFGroup> groupList =
-        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "groups", "list");
+        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "group", "list");
 
     // check that the listed group matches the created one
     Optional<UFGroup> matchedGroup =
@@ -78,10 +78,10 @@ public class Group extends ClearContextUnit {
         matchedGroup.get().currentUserPolicies.contains(GroupPolicy.ADMIN),
         "group policies for current user matches list output after create");
 
-    // `terra groups describe --name=$name`
+    // `terra group describe --name=$name`
     UFGroup groupDescribed =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "describe", "--name=" + name);
+            UFGroup.class, "group", "describe", "--name=" + name);
 
     // check that the described group matches the created one
     assertEquals(name, groupDescribed.name, "group name matches describe output after create");
@@ -93,10 +93,10 @@ public class Group extends ClearContextUnit {
         groupDescribed.currentUserPolicies.contains(GroupPolicy.ADMIN),
         "group policies for current user matches describe output after create");
 
-    // `terra groups delete --name=$name`
+    // `terra group delete --name=$name`
     UFGroup groupDeleted =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "delete", "--name=" + name, "--quiet");
+            UFGroup.class, "group", "delete", "--name=" + name, "--quiet");
 
     // check that the name and email match, and that the creator was an admin
     assertEquals(name, groupDeleted.name, "group name matches after delete");
@@ -105,9 +105,9 @@ public class Group extends ClearContextUnit {
     assertThat(
         "group creator was an admin", groupDeleted.currentUserPolicies.contains(GroupPolicy.ADMIN));
 
-    // `terra groups list`
+    // `terra group list`
     groupList =
-        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "groups", "list");
+        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "group", "list");
 
     // check that the group is not included in the list output
     matchedGroup =
@@ -121,32 +121,32 @@ public class Group extends ClearContextUnit {
     TestUsers.chooseTestUser().login();
     String badName = "terraCLI_nonexistentGroup";
 
-    // `terra groups describe --name=$name`
-    TestCommand.Result cmd = TestCommand.runCommand("groups", "describe", "--name=" + badName);
+    // `terra group describe --name=$name`
+    TestCommand.Result cmd = TestCommand.runCommand("group", "describe", "--name=" + badName);
     expectGroupNotFound(cmd);
 
-    // `terra groups delete --name=$name`
-    cmd = TestCommand.runCommand("groups", "delete", "--name=" + badName, "--quiet");
+    // `terra group delete --name=$name`
+    cmd = TestCommand.runCommand("group", "delete", "--name=" + badName, "--quiet");
     expectGroupNotFound(cmd);
 
-    // `terra groups list-users --name=$name`
-    cmd = TestCommand.runCommand("groups", "list-users", "--name=" + badName);
+    // `terra group list-users --name=$name`
+    cmd = TestCommand.runCommand("group", "list-users", "--name=" + badName);
     expectGroupNotFound(cmd);
 
-    // `terra groups add-user --name=$name`
+    // `terra group add-user --name=$name`
     cmd =
         TestCommand.runCommand(
-            "groups",
+            "group",
             "add-user",
             "--name=" + badName,
             "--email=" + TestUsers.chooseTestUser().email,
             "--policy=MEMBER");
     expectGroupNotFound(cmd);
 
-    // `terra groups remove-user --name=$name`
+    // `terra group remove-user --name=$name`
     cmd =
         TestCommand.runCommand(
-            "groups",
+            "group",
             "remove-user",
             "--name=" + badName,
             "--email=" + TestUsers.chooseTestUser().email,
@@ -160,43 +160,38 @@ public class Group extends ClearContextUnit {
     TestUsers groupCreator = TestUsers.chooseTestUser();
     groupCreator.login();
 
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
-    TestCommand.runCommandExpectSuccess("groups", "create", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);
 
     // track the group so we can clean it up in case this test method fails
     trackedGroups.trackGroup(name, groupCreator);
 
-    // `terra groups add-user --name=$name`
+    // `terra group add-user --name=$name`
     TestUsers groupMember = TestUsers.chooseTestUserWhoIsNot(groupCreator);
     TestCommand.runCommandExpectSuccess(
-        "groups", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
+        "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
 
-    // `terra groups delete --name=$name` as member
+    // `terra group delete --name=$name` as member
     groupMember.login();
-    TestCommand.runCommandExpectExitCode(2, "groups", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectExitCode(2, "group", "delete", "--name=" + name, "--quiet");
 
-    // `terra groups add-user --email=$email --policy=ADMIN` as member
+    // `terra group add-user --email=$email --policy=ADMIN` as member
+    TestCommand.runCommandExpectExitCode(
+        2, "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
+
+    // `terra group remove-user --email=$email --policy=MEMBER` as member
     TestCommand.runCommandExpectExitCode(
         2,
-        "groups",
-        "add-user",
-        "--name=" + name,
-        "--email=" + groupMember.email,
-        "--policy=ADMIN");
-
-    // `terra groups remove-user --email=$email --policy=MEMBER` as member
-    TestCommand.runCommandExpectExitCode(
-        2,
-        "groups",
+        "group",
         "remove-user",
         "--name=" + name,
         "--email=" + groupMember.email,
         "--policy=MEMBER");
 
-    // `terra groups delete --name=$name` as admin
+    // `terra group delete --name=$name` as admin
     groupCreator.login();
-    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -205,31 +200,31 @@ public class Group extends ClearContextUnit {
     TestUsers groupCreator = TestUsers.chooseTestUser();
     groupCreator.login();
 
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
-    TestCommand.runCommandExpectSuccess("groups", "create", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);
 
     // track the group so we can clean it up in case this test method fails
     trackedGroups.trackGroup(name, groupCreator);
 
-    // `terra groups add-user --name=$name --email=$email --policy=MEMBER`
+    // `terra group add-user --name=$name --email=$email --policy=MEMBER`
     TestUsers groupMember = TestUsers.chooseTestUserWhoIsNot(groupCreator);
     TestCommand.runCommandExpectSuccess(
-        "groups", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
+        "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
 
     // check that group member is included in the list-users output with one policy
     expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.MEMBER);
 
-    // `terra groups add-user --name=$name --email=$email --policy=ADMIN`
+    // `terra group add-user --name=$name --email=$email --policy=ADMIN`
     TestCommand.runCommandExpectSuccess(
-        "groups", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
+        "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
 
     // check that group member is included in the list-users output with two policies
     expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
 
-    // `terra groups remove-user --name=$name --email=$email --policy=MEMBER`
+    // `terra group remove-user --name=$name --email=$email --policy=MEMBER`
     TestCommand.runCommandExpectSuccess(
-        "groups",
+        "group",
         "remove-user",
         "--name=" + name,
         "--email=" + groupMember.email,
@@ -238,13 +233,9 @@ public class Group extends ClearContextUnit {
     // check that group member is included in the list-users output with one policy
     expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.ADMIN);
 
-    // `terra groups remove-user --name=$name --email=$email --policy=ADMIN`
+    // `terra group remove-user --name=$name --email=$email --policy=ADMIN`
     TestCommand.runCommandExpectSuccess(
-        "groups",
-        "remove-user",
-        "--name=" + name,
-        "--email=" + groupMember.email,
-        "--policy=ADMIN");
+        "group", "remove-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
 
     // check that group member is no longer included in the list-users output
     Optional<UFGroupMember> listedGroupMember = listMembersWithEmail(name, groupMember.email);
@@ -253,8 +244,8 @@ public class Group extends ClearContextUnit {
     // check that the group creator is included in the list-users output
     expectListedMemberWithPolicies(name, groupCreator.email, GroupPolicy.ADMIN);
 
-    // `terra groups delete --name=$name`
-    TestCommand.runCommandExpectSuccess("groups", "delete", "--name=" + name, "--quiet");
+    // `terra group delete --name=$name`
+    TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -304,15 +295,15 @@ public class Group extends ClearContextUnit {
   }
 
   /**
-   * Helper method to call `terra groups list-users` and filter the results on the specified user
+   * Helper method to call `terra group list-users` and filter the results on the specified user
    * email.
    */
   static Optional<UFGroupMember> listMembersWithEmail(String group, String email)
       throws JsonProcessingException {
-    // `terra groups list-users --format=json`
+    // `terra group list-users --format=json`
     List<UFGroupMember> listGroupMembers =
         TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "groups", "list-users", "--name=" + group);
+            new TypeReference<>() {}, "group", "list-users", "--name=" + group);
 
     // find the user in the list
     return listGroupMembers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();

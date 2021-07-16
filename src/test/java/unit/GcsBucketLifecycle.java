@@ -204,10 +204,10 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     String bucketName = UUID.randomUUID().toString();
     int autoDeleteAgeDays = 24;
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --auto-delete=$autodelete`
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
@@ -285,25 +285,25 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @Test
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --lifecycle=$lifecycle1`
     String resourceName = "update";
     String bucketName = UUID.randomUUID().toString();
     String lifecycleFilename1 = "delete_age.json";
     Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle1.toString());
 
-    // `terra resources update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
+    // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "update",
         "gcs-bucket",
         "--name=" + resourceName,
@@ -320,25 +320,25 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @Test
   @DisplayName("remove the bucket lifecycle rule")
   void remove() throws IOException {
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --lifecycle=$lifecycle1`
     String resourceName = "remove";
     String bucketName = UUID.randomUUID().toString();
     String lifecycleFilename1 = "delete_age.json";
     Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle1.toString());
 
-    // `terra resources update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
+    // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "empty.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "update",
         "gcs-bucket",
         "--name=" + resourceName,
@@ -429,10 +429,10 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     String bucketName = UUID.randomUUID().toString();
     Path lifecycle = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename);
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --lifecycle=$lifecycle --format=json`
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,

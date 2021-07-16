@@ -35,8 +35,8 @@ terra status
 resourceName="terraclitesting"
 bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
 echo "resourceName: $resourceName, bucketName: $bucketName"
-terra resources create gcs-bucket --name=$resourceName --bucket-name=$bucketName
-terra resources list
+terra resource create gcs-bucket --name=$resourceName --bucket-name=$bucketName
+terra resource list
 
 # I will use an example Nextflow workflow from a GitHub repository [show webpage], and checkout a tag that I have tested beforehand. This is the same example workflow that is used on the GCP + Nextflow tutorial [show webpage].
 

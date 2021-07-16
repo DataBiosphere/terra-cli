@@ -3,14 +3,14 @@ package bio.terra.cli.command.shared.options;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resources.AiNotebook;
+import bio.terra.cli.businessobject.resource.AiNotebook;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 
 /**
  * Command helper class for identifying a notebook by either the workspace resource name or the GCP
- * instance name in `terra notebooks` commands.
+ * instance name in `terra notebook` commands.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */

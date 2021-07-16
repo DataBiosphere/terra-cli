@@ -17,9 +17,9 @@ import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.cli.serialization.userfacing.resources.UFAiNotebook;
-import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
-import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.IamRole;
 import com.google.cloud.Identity;
 import com.google.cloud.bigquery.Acl;
@@ -131,10 +131,10 @@ public class WorkspaceOverride extends ClearContextUnit {
         cmd.stdOut,
         CoreMatchers.containsString(workspace2.googleProjectId));
 
-    // `terra gcloud --workspace=$id2 config get-value project`
+    // `terra gcloud --workspace=$id2 config get project`
     cmd =
         TestCommand.runCommand(
-            "gcloud", "--workspace=" + workspace2.id, "config", "get-value", "project");
+            "gcloud", "--workspace=" + workspace2.id, "config", "get", "project");
 
     // check that the google cloud project id matches workspace 2
     assertThat(
@@ -151,22 +151,22 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
 
-    // `terra resources add-ref gcs-bucket --name=$resourceNameBucket --bucket-name=$bucketName
+    // `terra resource add-ref gcs-bucket --name=$resourceNameBucket --bucket-name=$bucketName
     // --workspace=$id2`
     String resourceNameBucket = "referencedResources_bucket";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "gcs-bucket",
         "--name=" + resourceNameBucket,
         "--bucket-name=" + externalBucket.getName(),
         "--workspace=" + workspace2.id);
 
-    // `terra resources add-ref bq-dataset --name=$resourceNameDataset --dataset-id=$datasetId
+    // `terra resource add-ref bq-dataset --name=$resourceNameDataset --dataset-id=$datasetId
     // --workspace=$id2`
     String resourceNameDataset = "referencedResources_dataset";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + resourceNameDataset,
@@ -176,23 +176,23 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // check that workspace 2 contains both referenced resources above and workspace 1 does not
 
-    // `terra resources list --type=GCS_BUCKET --workspace=$id2`
+    // `terra resource list --type=GCS_BUCKET --workspace=$id2`
     UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET`
+    // `terra resource list --type=GCS_BUCKET`
     List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
-    // `terra resources list --type=BQ_DATASET --workspace=$id2`
+    // `terra resource list --type=BQ_DATASET --workspace=$id2`
     UFBqDataset matchedDataset = listOneDatasetResourceWithName(resourceNameDataset, workspace2.id);
     assertEquals(
         resourceNameDataset,
         matchedDataset.name,
         "list output for workspace 2 matches dataset name");
 
-    // `terra resources list --type=BQ_DATASET`
+    // `terra resource list --type=BQ_DATASET`
     List<UFBqDataset> matchedDatasets = listDatasetResourcesWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
@@ -200,29 +200,26 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra check-access --name=$resourceNameBucket`
     TestCommand.runCommandExpectSuccess(
-        "resources",
-        "check-access",
-        "--name=" + resourceNameBucket,
-        "--workspace=" + workspace2.id);
+        "resource", "check-access", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "check-access", "--name=" + resourceNameBucket);
+        1, "resource", "check-access", "--name=" + resourceNameBucket);
 
     // `terra describe --name=$resourceNameDataset`
     TestCommand.runCommandExpectSuccess(
-        "resources", "describe", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
+        "resource", "describe", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "describe", "--name=" + resourceNameDataset);
+        1, "resource", "describe", "--name=" + resourceNameDataset);
 
     // `terra resolve --name=$resourceNameBucket`
     TestCommand.runCommandExpectSuccess(
-        "resources", "resolve", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
-    TestCommand.runCommandExpectExitCode(1, "resources", "resolve", "--name=" + resourceNameBucket);
+        "resource", "resolve", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
+    TestCommand.runCommandExpectExitCode(1, "resource", "resolve", "--name=" + resourceNameBucket);
 
     // `terra delete --name=$resourceNameBucket --workspace=$id2`
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "delete", "--name=" + resourceNameBucket, "--quiet");
+        1, "resource", "delete", "--name=" + resourceNameBucket, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "delete",
         "--name=" + resourceNameBucket,
         "--workspace=" + workspace2.id,
@@ -230,9 +227,9 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra delete --name=$resourceNameDataset --workspace=$id2`
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "delete", "--name=" + resourceNameDataset, "--quiet");
+        1, "resource", "delete", "--name=" + resourceNameDataset, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "delete",
         "--name=" + resourceNameDataset,
         "--workspace=" + workspace2.id,
@@ -247,24 +244,24 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
 
-    // `terra resources create gcs-bucket --name=$resourceNameBucket --bucket-name=$bucketName
+    // `terra resource create gcs-bucket --name=$resourceNameBucket --bucket-name=$bucketName
     // --workspace=$id2`
     String resourceNameBucket = "controlledResources_bucket";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceNameBucket,
         "--bucket-name=" + bucketName,
         "--workspace=" + workspace2.id);
 
-    // `terra resources create bq-dataset --name=$resourceNameDataset --dataset-id=$datasetId
+    // `terra resource create bq-dataset --name=$resourceNameDataset --dataset-id=$datasetId
     // --workspace=$id2`
     String resourceNameDataset = "controlledResources_dataset";
     String datasetId = randomDatasetId();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "bq-dataset",
         "--name=" + resourceNameDataset,
@@ -273,23 +270,23 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // check that workspace 2 contains both controlled resources above and workspace 1 does not
 
-    // `terra resources list --type=GCS_BUCKET --workspace=$id2`
+    // `terra resource list --type=GCS_BUCKET --workspace=$id2`
     UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
-    // `terra resources list --type=GCS_BUCKET`
+    // `terra resource list --type=GCS_BUCKET`
     List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
-    // `terra resources list --type=BQ_DATASET --workspace=$id2`
+    // `terra resource list --type=BQ_DATASET --workspace=$id2`
     UFBqDataset matchedDataset = listOneDatasetResourceWithName(resourceNameDataset, workspace2.id);
     assertEquals(
         resourceNameDataset,
         matchedDataset.name,
         "list output for workspace 2 matches dataset name");
 
-    // `terra resources list --type=BQ_DATASET`
+    // `terra resource list --type=BQ_DATASET`
     List<UFBqDataset> matchedDatasets = listDatasetResourcesWithName(resourceNameDataset);
     assertEquals(0, matchedDatasets.size(), "list output for dataset in workspace 1 is empty");
 
@@ -297,20 +294,20 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra describe --name=$resourceNameDataset`
     TestCommand.runCommandExpectSuccess(
-        "resources", "describe", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
+        "resource", "describe", "--name=" + resourceNameDataset, "--workspace=" + workspace2.id);
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "describe", "--name=" + resourceNameDataset);
+        1, "resource", "describe", "--name=" + resourceNameDataset);
 
     // `terra resolve --name=$resourceNameBucket`
     TestCommand.runCommandExpectSuccess(
-        "resources", "resolve", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
-    TestCommand.runCommandExpectExitCode(1, "resources", "resolve", "--name=" + resourceNameBucket);
+        "resource", "resolve", "--name=" + resourceNameBucket, "--workspace=" + workspace2.id);
+    TestCommand.runCommandExpectExitCode(1, "resource", "resolve", "--name=" + resourceNameBucket);
 
     // `terra delete --name=$resourceNameBucket --workspace=$id2`
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "delete", "--name=" + resourceNameBucket, "--quiet");
+        1, "resource", "delete", "--name=" + resourceNameBucket, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "delete",
         "--name=" + resourceNameBucket,
         "--workspace=" + workspace2.id,
@@ -318,9 +315,9 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // `terra delete --name=$resourceNameDataset --workspace=$id2`
     TestCommand.runCommandExpectExitCode(
-        1, "resources", "delete", "--name=" + resourceNameDataset, "--quiet");
+        1, "resource", "delete", "--name=" + resourceNameDataset, "--quiet");
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "delete",
         "--name=" + resourceNameDataset,
         "--workspace=" + workspace2.id,
@@ -435,7 +432,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra resources create ai-notebook --name=$name`
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
+        "resource", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
     pollDescribeForNotebookState(name, "PROVISIONING", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
@@ -446,16 +443,16 @@ public class WorkspaceOverride extends ClearContextUnit {
     List<UFAiNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
-    // `terra notebooks start --name=$name`
+    // `terra notebook start --name=$name`
     // TODO (PF-869): change this to expect success and remove polling (state change is covered by
     // ctrl notebooks tests)
-    TestCommand.runCommand("notebooks", "start", "--name=" + name, "--workspace=" + workspace2.id);
+    TestCommand.runCommand("notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
-    // `terra notebooks stop --name=$name`
+    // `terra notebook stop --name=$name`
     // TODO (PF-869): change this to expect success and remove polling (state change is covered by
     // ctrl notebooks tests)
-    TestCommand.runCommand("notebooks", "stop", "--name=" + name, "--workspace=" + workspace2.id);
+    TestCommand.runCommand("notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
     pollDescribeForNotebookState(name, "STOPPED", workspace2.id);
   }
 }

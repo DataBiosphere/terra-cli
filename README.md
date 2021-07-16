@@ -77,7 +77,7 @@ owner access to that spend profile.
 - [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
 to add new members to the group, use `policy=admin` instead.
 
-`terra groups add-user --group=enterprise-pilot-testers --policy=member testuser@gmail.com`
+`terra group add-user --group=enterprise-pilot-testers --policy=member testuser@gmail.com`
 
 - Add a user directly to the spend profile. To also grant permission to add new users to the spend profile,
 user `policy=owner` instead.
@@ -165,7 +165,7 @@ in the workspace's backing Google project). This is the same example workflow us
     ```
 - Create a bucket in the workspace for Nextflow to use.
     ```
-    terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket
+    terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket
     ```
 - Update the `gls` section of the `nextflow.config` file to point to the workspace project and the bucket we just created.
     ```
@@ -193,7 +193,7 @@ in the workspace's backing Google project). This is the same example workflow us
 - Call the Gcloud CLI tools within the workspace context.
 This means the commands are executed against the workspace project and as the current user's pet service account.
 ```
-terra gcloud config get-value project
+terra gcloud config get project
 terra gsutil ls
 terra bq version
 ```
@@ -202,7 +202,7 @@ terra bq version
 The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
 ```
 terra app list
-terra config get-value image
+terra config get image
 ```
 
 ### Commands description
@@ -217,7 +217,7 @@ Commands:
   workspace  Setup a Terra workspace.
   resources  Manage resources in the workspace.
   app        Run applications in the workspace.
-  notebooks  Use AI Notebooks in the workspace.
+  notebook  Use AI Notebooks in the workspace.
   groups     Manage groups of users.
   spend      Manage spend profiles.
   config     Configure the CLI.
@@ -312,7 +312,7 @@ project. The same applies to deleting.
 
 #### Resources
 ```
-Usage: terra resources [COMMAND]
+Usage: terra resource [COMMAND]
 Manage resources in the workspace.
 Commands:
   add-ref, add-referenced    Add a new referenced resource.
@@ -336,12 +336,12 @@ different user created or added the resource and subsequently shared the workspa
 
 The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
 of resources locally, so that external tools (see section below) are not slowed down by round-trips to Workspace 
-Manager. The CLI updates the cache on every call to a `terra resources` command. So, if you are working in a shared
-workspace, you can run `terra resources list` (for example) to pick up any changes that your collaborators have made.
+Manager. The CLI updates the cache on every call to a `terra resource` command. So, if you are working in a shared
+workspace, you can run `terra resource list` (for example) to pick up any changes that your collaborators have made.
 
 ##### GCS bucket lifecycle rules
 GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the
-`terra resources create gcs-bucket` command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
+`terra resource create gcs-bucket` command. The expected JSON structure matches the one used by the `gsutil lifecycle` 
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This structure is a subset of the GCS
 resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle). Below are some
 example file contents for specifying a lifecycle rule.
@@ -399,7 +399,7 @@ example file contents for specifying a lifecycle rule.
 ```
 There is also a command shortcut for specifying this type of lifecycle rule (3).
 ```
-terra resources create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
+terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
 ```
 
 #### Applications
@@ -420,7 +420,7 @@ Nextflow and the Gcloud SDK are the first examples of supported tools.
 
 #### Notebooks
 ```
-Usage: terra notebooks [COMMAND]
+Usage: terra notebook [COMMAND]
 Use AI Notebooks in the workspace.
 Commands:
   start  Start a stopped AI Notebook instance within your workspace.
@@ -432,7 +432,7 @@ You can create an [AI Platform Notebook](https://cloud.google.com/ai-platform-no
 
 #### Groups
 ```
-Usage: terra groups [COMMAND]
+Usage: terra group [COMMAND]
 Manage groups of users.
 Commands:
   list         List the groups to which the current user belongs.
@@ -472,7 +472,7 @@ Usage: terra config [COMMAND]
 Configure the CLI.
 Commands:
   list       List all configuration properties and their values.
-  get-value  Get a configuration property value.
+  get  Get a configuration property value.
   set        Set a configuration property value.
 ```
 

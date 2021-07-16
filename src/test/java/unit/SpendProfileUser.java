@@ -40,7 +40,7 @@ public class SpendProfileUser extends ClearContextUnit {
         trackedGroups.getTrackedGroups().entrySet()) {
       UFGroup groupInfo =
           TestCommand.runAndParseCommandExpectSuccess(
-              UFGroup.class, "groups", "describe", "--name=" + groupNameToCreator.getKey());
+              UFGroup.class, "group", "describe", "--name=" + groupNameToCreator.getKey());
       TestCommand.runCommand("spend", "disable", "--email=" + groupInfo.email, "--policy=USER");
       TestCommand.runCommand("spend", "disable", "--email=" + groupInfo.email, "--policy=OWNER");
     }
@@ -129,7 +129,7 @@ public class SpendProfileUser extends ClearContextUnit {
     // check that the cli-testers group is included in the list-users output
     UFGroup cliTestersGroup =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "describe", "--name=" + TestUsers.CLI_TEST_USERS_GROUP_NAME);
+            UFGroup.class, "group", "describe", "--name=" + TestUsers.CLI_TEST_USERS_GROUP_NAME);
     expectListedUserWithPolicies(cliTestersGroup.email, SpendProfilePolicy.USER);
 
     // check that each test user who is enabled on the spend profile directly, is included in the
@@ -186,10 +186,10 @@ public class SpendProfileUser extends ClearContextUnit {
     String name = SamGroups.randomGroupName();
     spendProfileOwner.login();
 
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     UFGroup groupCreated =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "groups", "create", "--name=" + name);
+            UFGroup.class, "group", "create", "--name=" + name);
 
     // track the group so we can clean it up in case this test method fails
     trackedGroups.trackGroup(name, spendProfileOwner);

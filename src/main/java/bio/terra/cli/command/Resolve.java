@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 /**
  * This class corresponds to the second-level "terra resolve" command. It is exactly the same
- * command as "terra resources resolve".
+ * command as "terra resource resolve".
  */
 @CommandLine.Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 @SuppressFBWarnings(
@@ -13,5 +13,5 @@ import picocli.CommandLine;
     justification =
         "Command class names match the command name (e.g. Resolve -> terra resolve). In this case, we have a "
             + "command with a shortcut/alias that has the same name, but is up one level in the command hierarchy "
-            + "(terra resolve = terra resources resolve).")
-public class Resolve extends bio.terra.cli.command.resources.Resolve {}
+            + "(terra resolve = terra resource resolve).")
+public class Resolve extends bio.terra.cli.command.resource.Resolve {}

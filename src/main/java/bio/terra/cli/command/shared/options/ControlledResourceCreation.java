@@ -1,7 +1,7 @@
 package bio.terra.cli.command.shared.options;
 
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import java.util.List;

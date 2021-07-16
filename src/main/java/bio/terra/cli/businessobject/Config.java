@@ -1,9 +1,9 @@
 package bio.terra.cli.businessobject;
 
-import bio.terra.cli.apps.CommandRunner;
-import bio.terra.cli.apps.DockerCommandRunner;
-import bio.terra.cli.apps.LocalProcessCommandRunner;
-import bio.terra.cli.apps.utils.DockerClientWrapper;
+import bio.terra.cli.app.CommandRunner;
+import bio.terra.cli.app.DockerCommandRunner;
+import bio.terra.cli.app.LocalProcessCommandRunner;
+import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
