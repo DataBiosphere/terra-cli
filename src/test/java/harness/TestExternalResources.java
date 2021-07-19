@@ -13,14 +13,11 @@ import java.util.List;
  * external resources.
  */
 public class TestExternalResources {
-  // TODO (PF-829): change this project id and SA key file to point to ones Terraformed specifically
-  // for testing
-
   // Google project to create resources in
-  private static final String gcpProjectId = "terra-cli-dev";
+  private static final String gcpProjectId = "terra-cli-test";
 
   // SA with permission to create/delete/query resources in the project
-  private static final String saKeyFile = "./rendered/ci-account.json";
+  private static final String saKeyFile = "./rendered/external-project-account.json";
 
   // default scope to request for the SA
   private static final List<String> cloudPlatformScope =
