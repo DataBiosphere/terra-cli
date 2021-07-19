@@ -47,7 +47,13 @@ public class ClearContextUnit {
     // (see the Gradle test task for how this env var gets set from a Gradle property)
     TestCommand.runCommandExpectSuccess("server", "set", "--name", System.getenv("TERRA_SERVER"));
 
-    // set the docker image id to the default
-    TestCommand.runCommandExpectSuccess("config", "set", "image", "--default");
+    // set the docker image id to the one specified by the test, or to the default if it's
+    // unspecified
+    String dockerImageEnvVar = System.getenv("TERRA_DOCKER_IMAGE");
+    if (dockerImageEnvVar != null && !dockerImageEnvVar.isEmpty()) {
+      TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=" + dockerImageEnvVar);
+    } else {
+      TestCommand.runCommandExpectSuccess("config", "set", "image", "--default");
+    }
   }
 }

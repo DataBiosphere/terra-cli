@@ -72,12 +72,33 @@ jobs:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
           EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
+      - name: Build Docker image
+        id: build_docker_image
+        run: |
+          # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
+          if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin main
+            if [ -z "$(git diff --name-only origin/main | grep '^docker/')" ]; then
+              echo "No changes to docker/ directory. Using default Docker image."
+              exit 0
+            fi
+          fi
+          echo "Building new Docker image."
+          imageTag="ghaTest"
+          ./tools/build-docker.sh $imageTag # generates an image with this tag
+          echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+          GHA_EVENT_NAME: ${{ github.event_name }}
       - name: Run tests
         id: run_tests
         run: |
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
-          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }}
+          echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE
+        env:
+          TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
