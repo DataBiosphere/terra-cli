@@ -23,7 +23,7 @@ public class SamGroups {
     for (Map.Entry<String, TestUsers> groupCreated : trackedGroups.entrySet()) {
       groupCreated.getValue().login();
       TestCommand.Result cmd =
-          TestCommand.runCommand("groups", "delete", "--name=" + groupCreated.getKey(), "--quiet");
+          TestCommand.runCommand("group", "delete", "--name=" + groupCreated.getKey(), "--quiet");
       if (cmd.exitCode == 0) {
         // log if a test didn't clean up a group
         System.out.println("group was not cleaned up by test: " + groupCreated.getKey());

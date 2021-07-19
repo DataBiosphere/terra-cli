@@ -151,8 +151,8 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
         authStatus.serviceAccountEmail,
         "auth status after login user without access does not include pet SA email");
 
-    // `terra resources list`
-    String stdErr = TestCommand.runCommandExpectExitCode(2, "resources", "list");
+    // `terra resource list`
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "resource", "list");
     assertThat(
         "error message includes unauthorized to read workspace resource",
         stdErr,
@@ -184,7 +184,7 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
         authStatus.serviceAccountEmail,
         "auth status after login user with access includes pet SA email");
 
-    TestCommand.runCommandExpectSuccess("resources", "list");
+    TestCommand.runCommandExpectSuccess("resource", "list");
   }
 
   @Test
@@ -213,8 +213,8 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
     assertNotNull(authStatus.userEmail, "auth status after login includes user email");
     assertNotNull(authStatus.serviceAccountEmail, "auth status after login includes pet SA email");
 
-    // `terra resources list`
-    TestCommand.runCommandExpectSuccess("resources", "list");
+    // `terra resource list`
+    TestCommand.runCommandExpectSuccess("resource", "list");
   }
 
   @Test

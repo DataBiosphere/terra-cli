@@ -9,7 +9,7 @@ import java.util.Collections;
 import picocli.CommandLine;
 
 /**
- * Command helper class that defines the --lifecycle option for `terra resources` commands that
+ * Command helper class that defines the --lifecycle option for `terra resource` commands that
  * handle GCS bucket controlled resources.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
@@ -33,20 +33,20 @@ public class GcsBucketLifecycle {
   }
 
   /** Helper method to build the lifecycle object . */
-  public bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle buildLifecycleObject() {
+  public bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle buildLifecycleObject() {
     if (lifecycleArgGroup == null) {
       // empty lifecycle rule object
-      return new bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle();
+      return new bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle();
     } else if (lifecycleArgGroup.autoDelete != null) {
       // build an auto-delete lifecycle rule and set the number of days
-      return bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle.buildAutoDeleteRule(
+      return bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle.buildAutoDeleteRule(
           lifecycleArgGroup.autoDelete);
     } else {
       // read in the lifecycle rules from a file
       try {
         return JacksonMapper.readFileIntoJavaObject(
             lifecycleArgGroup.pathToLifecycleFile.toFile(),
-            bio.terra.cli.serialization.userfacing.inputs.GcsBucketLifecycle.class,
+            bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle.class,
             Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
       } catch (IOException ioEx) {
         throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);

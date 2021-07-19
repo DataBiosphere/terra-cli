@@ -35,15 +35,15 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
     TestUsers testUser = TestUsers.chooseTestUser();
     testUser.login();
 
-    // `terra groups create --name=$name`
+    // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
-    TestCommand.runCommandExpectSuccess("groups", "create", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);
 
     // track the group so we can clean it up in case this test method fails
     trackedGroups.trackGroup(name, testUser);
 
     // try to create another group with the same name
-    String stdErr = TestCommand.runCommandExpectExitCode(2, "groups", "create", "--name=" + name);
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "group", "create", "--name=" + name);
     assertThat(
         "stderr includes the CLI error message",
         stdErr,
@@ -63,16 +63,16 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listDescribeReflectCreate";
     String datasetId = randomDatasetId();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
+        "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
 
     // try to create another resource with the same name
     String stdErr =
         TestCommand.runCommandExpectExitCode(
-            2, "resources", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
+            2, "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
     assertThat(
         "stderr includes the CLI error message",
         stdErr,

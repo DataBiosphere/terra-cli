@@ -4,8 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import bio.terra.cli.serialization.userfacing.inputs.GcsStorageClass;
-import bio.terra.cli.serialization.userfacing.resources.UFGcsBucket;
+import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.IamRole;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra resources` commands that handle controlled GCS buckets. */
+/** Tests for the `terra resource` commands that handle controlled GCS buckets. */
 @Tag("unit")
 public class GcsBucketControlled extends SingleWorkspaceUnit {
   @Test
@@ -35,13 +35,13 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listDescribeReflectCreate";
     String bucketName = UUID.randomUUID().toString();
     UFGcsBucket createdBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
-            "resources",
+            "resource",
             "create",
             "gcs-bucket",
             "--name=" + name,
@@ -56,18 +56,18 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(bucketName, matchedResource.bucketName, "list output matches bucket name");
 
-    // `terra resources describe --name=$name --format=json`
+    // `terra resource describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name);
+            UFGcsBucket.class, "resource", "describe", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
         bucketName, describeResource.bucketName, "describe resource output matches bucket name");
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -78,16 +78,16 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listReflectsDelete";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
-    // `terra resources delete --name=$name --format=json`
+    // `terra resource delete --name=$name --format=json`
     UFGcsBucket deletedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "delete", "--name=" + name, "--quiet");
+            UFGcsBucket.class, "resource", "delete", "--name=" + name, "--quiet");
 
     // check that the name and bucket name match
     assertEquals(name, deletedBucket.name, "delete output matches name");
@@ -106,30 +106,30 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "resolve";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
-    // `terra resources resolve --name=$name --format=json`
+    // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name);
+            String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(bucketName),
         resolved,
         "default resolve includes gs:// prefix");
 
-    // `terra resources resolve --name=$name --exclude-bucket-prefix --format=json`
+    // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
     String resolvedExcludePrefix =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name, "--exclude-bucket-prefix");
+            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         bucketName, resolvedExcludePrefix, "exclude prefix resolve only includes bucket name");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -144,18 +144,18 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String name = "checkAccess";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra resources check-access --name=$name`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(1, "resources", "check-access", "--name=" + name);
+        TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
     assertThat(
         "error message includes wrong stewardship type",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -180,7 +180,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     UFGcsBucket createdBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
-            "resources",
+            "resource",
             "create",
             "gcs-bucket",
             "--name=" + name,
@@ -219,7 +219,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources describe --name=$name --format=json`
     UFGcsBucket describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + name);
+            UFGcsBucket.class, "resource", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -235,7 +235,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -252,7 +252,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String description = "updateDescription";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + name,
@@ -265,7 +265,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     UFGcsBucket updateBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
-            "resources",
+            "resource",
             "update",
             "gcs-bucket",
             "--name=" + name,
@@ -276,7 +276,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     UFGcsBucket describeBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+            UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describeBucket.description);
 
     // update just the description
@@ -285,7 +285,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     updateBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
-            "resources",
+            "resource",
             "update",
             "gcs-bucket",
             "--name=" + newName,
@@ -296,14 +296,14 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     describeBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+            UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
 
     // update just the storage class
     // `terra resources update gcs-bucket --name=$newName --storageClass
     GcsStorageClass newStorage = GcsStorageClass.ARCHIVE;
     TestCommand.runCommandExpectSuccess(
-        "resources", "update", "gcs-bucket", "--name=" + newName, "--storage=" + newStorage);
+        "resource", "update", "gcs-bucket", "--name=" + newName, "--storage=" + newStorage);
 
     // check the updated storage class from GCS directly
     Bucket bucketOnCloud =
@@ -330,7 +330,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String description = "updateDescription";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "create",
         "gcs-bucket",
         "--name=" + name,
@@ -346,7 +346,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     UFGcsBucket updateBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
-            "resources",
+            "resource",
             "update",
             "gcs-bucket",
             "--name=" + name,
@@ -359,7 +359,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     UFGcsBucket describeBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resources", "describe", "--name=" + newName);
+            UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
 
     // check the storage class from GCS directly
@@ -413,10 +413,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     List<UFGcsBucket> listedResources =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resources", "list", "--type=GCS_BUCKET")
+                new TypeReference<>() {}, "resource", "list", "--type=GCS_BUCKET")
             : TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {},
-                "resources",
+                "resource",
                 "list",
                 "--type=GCS_BUCKET",
                 "--workspace=" + workspaceId);

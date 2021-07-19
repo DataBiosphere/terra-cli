@@ -4,7 +4,7 @@ import bio.terra.cli.service.SamService;
 import picocli.CommandLine;
 
 /**
- * Command helper class that defines the options for `terra groups` commands that manage group
+ * Command helper class that defines the options for `terra group` commands that manage group
  * members.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.

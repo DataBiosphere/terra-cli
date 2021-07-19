@@ -1,12 +1,12 @@
 package bio.terra.cli.businessobject;
 
-import bio.terra.cli.businessobject.resources.AiNotebook;
-import bio.terra.cli.businessobject.resources.BqDataset;
-import bio.terra.cli.businessobject.resources.GcsBucket;
+import bio.terra.cli.businessobject.resource.AiNotebook;
+import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.serialization.userfacing.inputs.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;

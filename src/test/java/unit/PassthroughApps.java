@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import harness.TestCommand;
@@ -80,11 +80,11 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceEnvVars";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra app execute echo \$TERRA_$name`
     TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + name);
@@ -95,8 +95,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         cmd.stdOut,
         CoreMatchers.containsString(ExternalGCSBuckets.getGsPath(bucketName)));
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -132,11 +132,11 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "gsutilBucketSize";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
-        "resources", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra gsutil du -s \$TERRA_$name`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "du", "-s", "$TERRA_" + name);
@@ -144,8 +144,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         cmd.stdOut.matches("(?s).*0\\s+" + ExternalGCSBuckets.getGsPath(bucketName) + ".*"),
         "gsutil says bucket size = 0");
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -156,13 +156,13 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "bqShow";
     String datasetId = randomDatasetId();
     UFBqDataset dataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "create",
             "bq-dataset",
             "--name=" + name,
@@ -177,7 +177,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
             "\"id\": \"" + dataset.projectId + ":" + dataset.datasetId + "\""));
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test

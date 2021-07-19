@@ -37,11 +37,11 @@ echo "--  Setting the Docker image id to the default"
 ./terra config set image --default
 
 echo "--  Pulling the default Docker image"
-defaultDockerImage=$(./terra config get-value image)
+defaultDockerImage=$(./terra config get image)
 docker pull $defaultDockerImage
 
 echo "-- Setting the server to its current value, to pull any changes"
-currentServer=$(./terra config get-value server)
+currentServer=$(./terra config get server)
 ./terra config set server --name=$currentServer
 
 echo "--  Install complete"

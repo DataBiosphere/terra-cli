@@ -71,7 +71,7 @@ public class Config extends ClearContextIntegration {
     String versionOutputFilename = "Config_version_stdout.txt";
     List<String> commands = new ArrayList<>();
     commands.add("terra config set image --default");
-    commands.add("terra config get-value image > " + imageOutputFilename);
+    commands.add("terra config get image > " + imageOutputFilename);
     commands.add("terra version > " + versionOutputFilename);
     int exitCode = TestBashScript.runCommands(commands, Collections.emptyMap());
     assertEquals(0, exitCode, "default image and version commands executed successfully");

@@ -3,7 +3,7 @@ package bio.terra.cli.command.shared.options;
 import picocli.CommandLine;
 
 /**
- * Command helper class that defines the --name option for `terra groups` commands.
+ * Command helper class that defines the --name option for `terra group` commands.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
-import bio.terra.cli.serialization.userfacing.resources.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.bigquery.Acl;
 import com.google.cloud.bigquery.Dataset;
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra resources` commands that handle referenced BQ datasets. */
+/** Tests for the `terra resource` commands that handle referenced BQ datasets. */
 @Tag("unit")
 public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
@@ -57,13 +57,13 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --format=json`
     String name = "listDescribeReflectAdd";
     UFBqDataset addedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "add-ref",
             "bq-dataset",
             "--name=" + name,
@@ -93,10 +93,10 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         matchedResource.datasetId,
         "list output matches dataset id");
 
-    // `terra resources describe --name=$name --format=json`
+    // `terra resource describe --name=$name --format=json`
     UFBqDataset describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "describe", "--name=" + name);
+            UFBqDataset.class, "resource", "describe", "--name=" + name);
 
     // check that the name, project id, and dataset id match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -109,8 +109,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         describeResource.datasetId,
         "describe resource output matches dataset id");
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -121,21 +121,21 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --format=json`
     String name = "listReflectsDelete";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + name,
         "--project-id=" + externalDataset.getDatasetId().getProject(),
         "--dataset-id=" + externalDataset.getDatasetId().getDataset());
 
-    // `terra resources delete --name=$name --format=json`
+    // `terra resource delete --name=$name --format=json`
     UFBqDataset deletedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "delete", "--name=" + name, "--quiet");
+            UFBqDataset.class, "resource", "delete", "--name=" + name, "--quiet");
 
     // check that the name, project id, and dataset id match
     assertEquals(name, deletedDataset.name, "delete output matches name");
@@ -161,21 +161,21 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --format=json`
     String name = "resolve";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + name,
         "--project-id=" + externalDataset.getDatasetId().getProject(),
         "--dataset-id=" + externalDataset.getDatasetId().getDataset());
 
-    // `terra resources resolve --name=$name --format=json`
+    // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name);
+            String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
         externalDataset.getDatasetId().getProject()
             + "."
@@ -183,26 +183,26 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         resolved,
         "default resolve includes [project id].[dataset id]");
 
-    // `terra resources resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
+    // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     String resolvedProjectIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId().getProject(),
         resolvedProjectIdOnly,
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
-    // `terra resources resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
+    // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
     String resolvedDatasetIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resources", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId().getDataset(),
         resolvedDatasetIdOnly,
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -213,22 +213,22 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --format=json`
     String name = "checkAccess";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + name,
         "--project-id=" + externalDataset.getDatasetId().getProject(),
         "--dataset-id=" + externalDataset.getDatasetId().getDataset());
 
-    // `terra resources check-access --name=$name
-    TestCommand.runCommandExpectSuccess("resources", "check-access", "--name=" + name);
+    // `terra resource check-access --name=$name
+    TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
 
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -239,7 +239,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --cloning=$cloning
     // --description=$description --format=json`
     String name = "addWithAllOptions";
@@ -248,7 +248,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     UFBqDataset addedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "add-ref",
             "bq-dataset",
             "--name=" + name,
@@ -270,10 +270,10 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     assertEquals(cloning, addedDataset.cloningInstructions, "add ref output matches cloning");
     assertEquals(description, addedDataset.description, "add ref output matches description");
 
-    // `terra resources describe --name=$name --format=json`
+    // `terra resource describe --name=$name --format=json`
     UFBqDataset describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "describe", "--name=" + name);
+            UFBqDataset.class, "resource", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -289,7 +289,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     assertEquals(description, describeResource.description, "describe output matches description");
 
     // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resources", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -305,7 +305,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     String name = "updateIndividualProperties";
     String description = "updateDescription";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + name,
@@ -319,7 +319,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     UFBqDataset updateDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "update",
             "bq-dataset",
             "--name=" + name,
@@ -330,7 +330,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     UFBqDataset describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+            UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describeDataset.description);
 
     // update just the description
@@ -339,7 +339,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     updateDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "update",
             "bq-dataset",
             "--name=" + newName,
@@ -350,7 +350,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+            UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
   }
 
@@ -367,7 +367,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     String name = "updateMultipleOrNoProperties";
     String description = "updateDescription";
     TestCommand.runCommandExpectSuccess(
-        "resources",
+        "resource",
         "add-ref",
         "bq-dataset",
         "--name=" + name,
@@ -379,7 +379,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resources update bq-dataset --name=$name`
     String stdErr =
         TestCommand.runCommandExpectExitCode(
-            1, "resources", "update", "bq-dataset", "--name=" + name);
+            1, "resource", "update", "bq-dataset", "--name=" + name);
     assertThat(
         "error message says that at least one property must be specified",
         stdErr,
@@ -393,7 +393,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     UFBqDataset updateDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
-            "resources",
+            "resource",
             "update",
             "bq-dataset",
             "--name=" + name,
@@ -405,7 +405,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resources describe --name=$newName`
     UFBqDataset describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resources", "describe", "--name=" + newName);
+            UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
   }
 }

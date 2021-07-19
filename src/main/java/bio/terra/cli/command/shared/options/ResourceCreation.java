@@ -1,6 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.serialization.userfacing.inputs.CreateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 

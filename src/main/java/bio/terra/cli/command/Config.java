@@ -1,6 +1,6 @@
 package bio.terra.cli.command;
 
-import bio.terra.cli.command.config.GetValue;
+import bio.terra.cli.command.config.Get;
 import bio.terra.cli.command.config.List;
 import bio.terra.cli.command.config.Set;
 import picocli.CommandLine.Command;
@@ -12,5 +12,5 @@ import picocli.CommandLine.Command;
 @Command(
     name = "config",
     description = "Configure the CLI.",
-    subcommands = {GetValue.class, List.class, Set.class})
+    subcommands = {Get.class, List.class, Set.class})
 public class Config {}
