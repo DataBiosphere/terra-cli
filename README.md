@@ -210,22 +210,22 @@ terra config get image
 Usage: terra [COMMAND]
 Terra CLI
 Commands:
+  app        Run applications in the workspace.
+  auth       Retrieve and manage user credentials.
+  bq         Call bq in the Terra workspace.
+  config     Configure the CLI.
+  gcloud     Call gcloud in the Terra workspace.
+  group      Manage groups of users.
+  gsutil     Call gsutil in the Terra workspace.
+  nextflow   Call nextflow in the Terra workspace.
+  notebook   Use AI Notebooks in the workspace.
+  resolve    Resolve a resource to its cloud id or path.
+  resource   Manage resources in the workspace.
+  server     Connect to a Terra server.
+  spend      Manage spend profiles.
   status     Print details about the current workspace and server.
   version    Get the installed version.
-  auth       Retrieve and manage user credentials.
-  server     Connect to a Terra server.
   workspace  Setup a Terra workspace.
-  resources  Manage resources in the workspace.
-  app        Run applications in the workspace.
-  notebook  Use AI Notebooks in the workspace.
-  groups     Manage groups of users.
-  spend      Manage spend profiles.
-  config     Configure the CLI.
-  resolve    Resolve a resource to its cloud id or path.
-  gcloud     Call gcloud in the Terra workspace.
-  gsutil     Call gsutil in the Terra workspace.
-  bq         Call bq in the Terra workspace.
-  nextflow   Call nextflow in the Terra workspace.
 ```
 
 The `status` command prints details about the current workspace and server.
@@ -238,10 +238,10 @@ The other commands are groupings of sub-commands, described in the sections belo
 * `auth` [Authentication](#authentication)
 * `server` [Server](#server)
 * `workspace` [Workspace](#workspace)
-* `resources` [Resources](#resources)
+* `resource` [Resources](#resources)
 * `app` [Applications](#applications)
-* `notebooks` [Notebooks](#notebooks)
-* `groups` [Groups](#groups)
+* `notebook` [Notebooks](#notebooks)
+* `group` [Groups](#groups)
 * `spend` [Spend](#spend)
 * `config` [Config](#config)
 
@@ -250,9 +250,9 @@ The other commands are groupings of sub-commands, described in the sections belo
 Usage: terra auth [COMMAND]
 Retrieve and manage user credentials.
 Commands:
-  status  Print details about the currently authorized account.
   login   Authorize the CLI to access Terra APIs and data with user credentials.
   revoke  Revoke credentials from an account.
+  status  Print details about the currently authorized account.
 ```
 
 Only one user can be logged in at a time. To change the active user, revoke the existing credentials and login again.
@@ -283,9 +283,9 @@ Login successful: testuser@gmail.com
 Usage: terra server [COMMAND]
 Connect to a Terra server.
 Commands:
-  status  Print status and details of the Terra server context.
   list    List all available Terra servers.
   set     Set the Terra server to connect to.
+  status  Print status and details of the Terra server context.
 ```
 
 A Terra server or environment is a set of connected Terra services (e.g. Workspace Manager, Data Repo, SAM).
@@ -297,14 +297,15 @@ The server is part of the global context, so this value applies across workspace
 Usage: terra workspace [COMMAND]
 Setup a Terra workspace.
 Commands:
-  list         List all workspaces the current user can access.
-  create       Create a new workspace.
-  set          Set the workspace to an existing one.
-  delete       Delete an existing workspace.
-  update       Update an existing workspace.
-  list-users   List the users of the workspace.
   add-user     Add a user or group to the workspace.
+  create       Create a new workspace.
+  delete       Delete an existing workspace.
+  describe     Describe the workspace.
+  list         List all workspaces the current user can access.
+  list-users   List the users of the workspace.
   remove-user  Remove a user or group from the workspace.
+  set          Set the workspace to an existing one.
+  update       Update an existing workspace.
 ```
 
 A Terra workspace is backed by a Google project. Creating a new workspace also creates a new backing Google 
@@ -407,9 +408,9 @@ terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-d
 Usage: terra app [COMMAND]
 Run applications in the workspace.
 Commands:
-  list     List the supported applications.
   execute  [FOR DEBUG] Execute a command in the application container for the
              Terra workspace, with no setup.
+  list     List the supported applications.
 ```
 
 The Terra CLI allows running supported external tools within the context of a workspace.
@@ -428,19 +429,19 @@ Commands:
 ```
 
 You can create an [AI Platform Notebook](https://cloud.google.com/ai-platform-notebooks) controlled resource with 
-`terra resources create ai-notebook`. These `stop`, `start` commands are provided for convenience.
+`terra resource create ai-notebook`. These `stop`, `start` commands are provided for convenience.
 
 #### Groups
 ```
 Usage: terra group [COMMAND]
 Manage groups of users.
 Commands:
-  list         List the groups to which the current user belongs.
+  add-user     Add a user to a group with a given policy.
   create       Create a new Terra group.
   delete       Delete an existing Terra group.
-  describe     Print the group email address.
-  list-users   List the users in a group with a given policy.
-  add-user     Add a user to a group with a given policy.
+  describe     Describe the group.
+  list         List the groups to which the current user belongs.
+  list-users   List the users in a group.
   remove-user  Remove a user from a group with a given policy.
 ```
 
@@ -471,9 +472,9 @@ These commands are utility wrappers around adding users to this single resource.
 Usage: terra config [COMMAND]
 Configure the CLI.
 Commands:
-  list       List all configuration properties and their values.
-  get        Get a configuration property value.
-  set        Set a configuration property value.
+  get   Get a configuration property value.
+  list  List all configuration properties and their values.
+  set   Set a configuration property value.
 ```
 
 These commands are property getters and setters for configuring the Terra CLI. Currently the available
@@ -488,6 +489,7 @@ configuration properties are:
 [logging, file] logging level for writing to files in /Users/marikomedlock/.terra/logs = INFO
 
 [server] server = verily-cli
+[workspace] workspace = ef8cf0a4-ec70-41be-9fae-9ab6f98cd7e7
 ```
 
 ### Workspace context for applications
@@ -505,7 +507,7 @@ shell substitution on the host machine.
 
 Example commands for creating a new controlled bucket resource and then using `gsutil` to get its IAM bindings.
 ```
-> terra resources create gcs-bucket --name=mybucket --type=bucket
+> terra resource create gcs-bucket --name=mybucket --type=bucket
 bucket successfully created: gs://terra-wsm-dev-e3d8e1f5-mybucket
 Workspace resource successfully added: mybucket
 
