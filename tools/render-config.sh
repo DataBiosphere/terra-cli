@@ -15,15 +15,34 @@ VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
 CI_SA_VAULT_PATH=secret/dsde/terra/kernel/dev/common/ci/ci-account.json
 TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
+EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
+
+# Helper function to read a secret from Vault and write it to a local file in the rendered/ directory.
+# Inputs: vault path, file name
+# Usage: readFromVault $CI_SA_VAULT_PATH ci-account.json
+readFromVault () {
+  vaultPath=$1
+  fileName=$2
+  if [ -z "$vaultPath" ] || [ -z "$fileName" ]; then
+    echo "Two arguments required for readFromVault function"
+    exit 1
+  fi
+  docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+            vault read -format json $vaultPath \
+            | jq -r .data > "rendered/$fileName"
+  return 0
+}
 
 mkdir -p rendered
 
+# used for publishing Docker images to GCR in the terra-cli-dev project
 echo "Reading the CI service account key file from Vault"
-docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
-            vault read -format json ${CI_SA_VAULT_PATH} \
-            | jq -r .data > rendered/ci-account.json
+readFromVault "$CI_SA_VAULT_PATH" "ci-account.json"
 
+# used for generating domain-wide delegated credentials for test users
 echo "Reading the domain-wide delegated test users service account key file from Vault"
-docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
-            vault read -format json ${TEST_USER_SA_VAULT_PATH} \
-            | jq -r .data > rendered/test-user-account.json
+readFromVault "$TEST_USER_SA_VAULT_PATH" "test-user-account.json"
+
+# used for creating external cloud resources in the terra-cli-test project for tests
+echo "Reading the external project service account key file from Vault"
+readFromVault "$EXT_PROJECT_SA_VAULT_PATH" "external-project-account.json"
