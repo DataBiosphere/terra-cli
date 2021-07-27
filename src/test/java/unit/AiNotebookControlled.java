@@ -203,13 +203,11 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     pollDescribeForNotebookState(name, "PROVISIONING");
 
     // `terra notebook start --name=$name`
-    // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    TestCommand.runCommand("notebook", "start", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
     pollDescribeForNotebookState(name, "ACTIVE");
 
     // `terra notebook stop --name=$name`
-    // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    TestCommand.runCommand("notebook", "stop", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("notebook", "stop", "--name=" + name);
     pollDescribeForNotebookState(name, "STOPPED");
   }
 

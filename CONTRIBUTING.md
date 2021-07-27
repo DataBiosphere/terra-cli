@@ -426,6 +426,3 @@ that should be reported, so there's no need to make these messages readable to t
 
 #### Singular command group names
 Use singular command group names instead of plural. e.g. `terra resource` instead of `terra resources`.
-
-TODO (PF-802): fix this for existing commands
-
