@@ -200,15 +200,16 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra resource create ai-notebook --name=$name`
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "ai-notebook", "--name=" + name);
-    pollDescribeForNotebookState(name, "PROVISIONING");
+    assertNotebookState(name, "PROVISIONING");
+    pollDescribeForNotebookState(name, "ACTIVE");
 
     // `terra notebook start --name=$name`
     TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
-    pollDescribeForNotebookState(name, "ACTIVE");
+    assertNotebookState(name, "ACTIVE");
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccess("notebook", "stop", "--name=" + name);
-    pollDescribeForNotebookState(name, "STOPPED");
+    assertNotebookState(name, "STOPPED");
   }
 
   /**
@@ -243,6 +244,24 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         2 * 20, // up to 20 minutes
         Duration.ofSeconds(30)); // every 30 seconds
 
+    assertNotebookState(resourceName, notebookState, workspaceId);
+  }
+
+  /**
+   * Helper method to call `terra resource describe` and assert that the notebook state matches that
+   * given. Uses the current workspace.
+   */
+  private static void assertNotebookState(String resourceName, String notebookState)
+      throws JsonProcessingException {
+    assertNotebookState(resourceName, notebookState, null);
+  }
+
+  /**
+   * Helper method to call `terra resource describe` and assert that the notebook state matches that
+   * given. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
+      throws JsonProcessingException {
     UFAiNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(

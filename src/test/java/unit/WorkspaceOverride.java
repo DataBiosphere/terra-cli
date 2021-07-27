@@ -4,6 +4,7 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static unit.AiNotebookControlled.assertNotebookState;
 import static unit.AiNotebookControlled.listNotebookResourcesWithName;
 import static unit.AiNotebookControlled.listOneNotebookResourceWithName;
 import static unit.AiNotebookControlled.pollDescribeForNotebookState;
@@ -432,7 +433,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
-    pollDescribeForNotebookState(name, "PROVISIONING", workspace2.id);
+    assertNotebookState(name, "PROVISIONING", workspace2.id);
+    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
     UFAiNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
