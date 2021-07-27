@@ -56,32 +56,33 @@ jobs:
         run: |
           echo "Running unit tests for server: ${{ matrix.testServer }}"
           mkdir -p ~/logs-unit
-          ./gradlew runTestsWithTag -PtestTag=unit -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-unit --tests "unit.Workspace.createFailsWithoutSpendAccess"
+          ./gradlew runTestsWithTag -PtestTag=unit -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit --tests "unit.Workspace.createFailsWithoutSpendAccess"
       - name: Run integration tests against source code
         id: run_integration_tests_against_source_code
         if: always()
         run: |
           echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
           mkdir -p ~/logs-integration-source
-          ./gradlew runTestsWithTag -PtestTag=integration -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-integration-source --tests "integration.Nextflow.helloWorld"
+          ./gradlew runTestsWithTag -PtestTag=integration -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source --tests "integration.Nextflow.helloWorld"
       - name: Run integration tests against release
         id: run_integration_tests_against_release
         if: always()
         run: |
           echo "Running integration tests against release for server: ${{ matrix.testServer }}"
           mkdir -p ~/logs-integration-release
-          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-integration-release --tests "integration.Nextflow.helloWorld"
-      - name: Compile all logs
-        id: compile_all_logs
+          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release --tests "integration.Nextflow.helloWorld"
+      - name: Compile logs and context files for all test runs
+        id: compile_logs_and_context_files
         if: always()
         run: |
-          echo "Compiling all logs"
-          echo "HOME"
-          ls -la $HOME
-          echo "~/logs-unit"
-          ls -la ~/logs-unit
-          echo "HOME/logs-unit"
-          ls -la $HOME/logs-unit
+          declare -a arr=("unit" "integration-source" "integration-release")
+          for i in "${arr[@]}"
+          do
+            echo "Compiling logs and context files for test run: $i"
+            mkdir -p ~/to-archive/$i
+            cp -R ~/logs-$i/.terra/logs/ ~/to-archive/$i/logs/
+            cp -R ~/logs-$i/.terra/context.json ~/to-archive/$i/context.json
+          done
       - name: Archive logs and context file for all test runs
         id: archive_logs_and_context
         if: always()
@@ -89,12 +90,7 @@ jobs:
         with:
           name: logs-and-context-${{ matrix.testServer }}
           path: |
-            ~/logs-unit/logs/
-            ~/logs-unit/context.json
-            ~/logs-integration-source/logs/
-            ~/logs-integration-source/context.json
-            ~/logs-integration-release/logs/
-            ~/logs-integration-release/context.json
+            ~/to-archive/
       - name: Compose status message
         id: compose_status_message
         if: always()

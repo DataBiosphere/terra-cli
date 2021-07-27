@@ -164,6 +164,8 @@ task runTestsWithTag(type: Test) {
         if (!contextDir) {
             environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
             mkdir "${project.buildDir}/test-context/"
+        } else {
+            environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
         }
 
         // specify the server to run tests against (e.g. -Pserver=verily-cli). defaults to "terra-dev"
