@@ -98,9 +98,9 @@ jobs:
           bold="$L2 | $L3 | $L4"
           titleText="CLI nightly test run: ${{ matrix.testServer }}"
           if [ "${{ job.status }}" == "success" ]; then
-            title=":white_check_mark:$titleText"
+            title=":white_check_mark: $titleText"
           else
-            title=":no_entry:$titleText"
+            title=":no_entry: $titleText"
           fi
           echo ::set-output name=status-title::$title
           echo ::set-output name=status-text::$text
