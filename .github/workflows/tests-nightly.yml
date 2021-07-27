@@ -58,7 +58,7 @@ jobs:
           ./gradlew runTestsWithTag -PtestTag=unit ${{ matrix.testServer }}
           mkdir -p ~/logs-unit
           cp -R build/test-context/.terra/logs/ ~/logs-unit/logs/
-          cp -R build/test-context/.terra/global-context.json ~/logs-unit/global-context.json
+          cp -R build/test-context/.terra/context.json ~/logs-unit/context.json
       - name: Run integration tests against source code
         id: run_integration_tests_against_source_code
         if: always()
@@ -67,7 +67,7 @@ jobs:
           ./gradlew runTestsWithTag -PtestTag=integration ${{ matrix.testServer }}
           mkdir -p ~/logs-integration-source
           cp -R build/test-context/.terra/logs/ ~/logs-integration-source/logs/
-          cp -R build/test-context/.terra/global-context.json ~/logs-integration-source/global-context.json
+          cp -R build/test-context/.terra/context.json ~/logs-integration-source/context.json
       - name: Run integration tests against release
         id: run_integration_tests_against_release
         if: always()
@@ -76,7 +76,7 @@ jobs:
           ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub ${{ matrix.testServer }}
           mkdir -p ~/logs-integration-release
           cp -R build/test-context/.terra/logs/ ~/logs-integration-release/logs/
-          cp -R build/test-context/.terra/global-context.json ~/logs-integration-release/global-context.json
+          cp -R build/test-context/.terra/context.json ~/logs-integration-release/context.json
       - name: Archive logs and context file for all test runs
         id: archive_logs_and_context
         if: always()
