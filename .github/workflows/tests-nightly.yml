@@ -55,28 +55,22 @@ jobs:
         if: always()
         run: |
           echo "Running unit tests for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=unit -Pserver=${{ matrix.testServer }}
           mkdir -p ~/logs-unit
-          cp -R build/test-context/.terra/logs/ ~/logs-unit/logs/
-          cp -R build/test-context/.terra/context.json ~/logs-unit/context.json
+          ./gradlew runTestsWithTag -PtestTag=unit -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-unit
       - name: Run integration tests against source code
         id: run_integration_tests_against_source_code
         if: always()
         run: |
           echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=integration -Pserver=${{ matrix.testServer }}
           mkdir -p ~/logs-integration-source
-          cp -R build/test-context/.terra/logs/ ~/logs-integration-source/logs/
-          cp -R build/test-context/.terra/context.json ~/logs-integration-source/context.json
+          ./gradlew runTestsWithTag -PtestTag=integration -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-integration-source
       - name: Run integration tests against release
         id: run_integration_tests_against_release
         if: always()
         run: |
           echo "Running integration tests against release for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }}
           mkdir -p ~/logs-integration-release
-          cp -R build/test-context/.terra/logs/ ~/logs-integration-release/logs/
-          cp -R build/test-context/.terra/context.json ~/logs-integration-release/context.json
+          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=~/logs-integration-release
       - name: Archive logs and context file for all test runs
         id: archive_logs_and_context
         if: always()

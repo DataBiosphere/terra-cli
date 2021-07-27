@@ -173,20 +173,24 @@ The on-PR-push GitHub action uses this flag to run against a locally built image
 
 #### Override context directory
 The `.terra` context directory is stored in the user's home directory (`$HOME`) by default.
-You can override this default by setting the `TERRA_CONTEXT_PARENT_DIR` environment variable to a valid directory.
-```
-export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
-terra config list
-```
-If the environment variable override does not point to a valid directory, then the CLI will throw a `SystemException`.
+You can override this default by setting the Gradle `contextDir` property to a valid directory. e.g.:
+`./gradlew runTestsWithTag -PtestTag=unit -PcontextDir=$HOME/context/for/tests`
+If the property does not point to a valid directory, then the CLI will throw a `SystemException`.
 
 This option is intended for tests, so that they don't overwrite the context for an installation on the same machine.
 
 Note that this override does not apply to installed JAR dependencies. So if you run integration tests against a CLI
 installation built from the latest GitHub release, the dependent libraries will overwrite an existing `$HOME/.terra/lib`
-directory, though logs, credentials, and context files will be preserved. (This doesn't apply to unit tests or
-integration tests run against a CLI installation built directly from source code, because their dependent libraries are
-all in the Gradle build directory.)
+directory, though logs, credentials, and context files will be written to the specified directory. (This doesn't apply 
+to unit tests or integration tests run against a CLI installation built directly from source code, because their 
+dependent libraries are all in the Gradle build directory.)
+
+You can also override the context directory in normal operation by specifying the `TERRA_CONTEXT_PARENT_DIR`
+environment variable. This can be helpful for debugging without clobbering an existing installation. e.g.:
+```
+export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
+terra config list
+```
 
 #### Setup test users
 Tests use domain-wide delegation (i.e. Harry Potter users). This avoids the Google OAuth flow, which requires
