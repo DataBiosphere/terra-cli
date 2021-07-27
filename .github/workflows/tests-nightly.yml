@@ -8,8 +8,7 @@ jobs:
   tests-against-source-code-and-latest-install:
     strategy:
       matrix:
-        testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
-        testServer: ["-Pserver=terra-dev", "-Pserver=terra-verily-autopush"]
+        testServer: [ "-Pserver=terra-dev", "-Pserver=terra-verily-autopush" ]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -51,23 +50,57 @@ jobs:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
           EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
-      - name: Run tests
-        id: run_tests
+      - name: Run unit tests
+        id: run_unit_tests
+        if: always()
         run: |
-          echo "Running tests with options: ${{ matrix.testOptions }} ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag ${{ matrix.testOptions }} ${{ matrix.testServer }}
-      - name: Archive logs and context file
+          echo "Running unit tests for server: ${{ matrix.testServer }}"
+          ./gradlew runTestsWithTag -PtestTag=unit ${{ matrix.testServer }}
+          mkdir -p ~/logs-unit
+          cp -R build/test-context/.terra/logs/ ~/logs-unit/logs/
+          cp -R build/test-context/.terra/global-context.json ~/logs-unit/global-context.json
+      - name: Run integration tests against source code
+        id: run_integration_tests_against_source_code
+        if: always()
+        run: |
+          echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
+          ./gradlew runTestsWithTag -PtestTag=integration ${{ matrix.testServer }}
+          mkdir -p ~/logs-integration-source
+          cp -R build/test-context/.terra/logs/ ~/logs-integration-source/logs/
+          cp -R build/test-context/.terra/global-context.json ~/logs-integration-source/global-context.json
+      - name: Run integration tests against release
+        id: run_integration_tests_against_release
+        if: always()
+        run: |
+          echo "Running integration tests against release for server: ${{ matrix.testServer }}"
+          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub ${{ matrix.testServer }}
+          mkdir -p ~/logs-integration-release
+          cp -R build/test-context/.terra/logs/ ~/logs-integration-release/logs/
+          cp -R build/test-context/.terra/global-context.json ~/logs-integration-release/global-context.json
+      - name: Archive logs and context file for all test runs
         id: archive_logs_and_context
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: logs-and-context-[${{ matrix.testOptions }}]
+          name: logs-and-context-[${{ matrix.testServer }}]
           path: |
-            build/test-context/.terra/logs/
-            build/test-context/.terra/global-context.json
+            ~/logs-unit
+            ~/logs-integration-source
+            ~/logs-integration-release
+      - name: Compose status message
+        id: compose_status_message
+        if: always()
+        run: |
+          L2="Unit: ${{ steps.run_unit_tests.outcome }} "
+          L3="Integ (Source): ${{ steps.run_integration_tests_against_source_code.outcome }} "
+          L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
+          text="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
+          bold="$L2 | $L3 | $L4"
+          echo ::set-output name=status-text::$text
+          echo ::set-output name=status-bold::$bold
       - name: Notify PF alerts slack channel
         # don't notify manually triggered runs
-        if: always() && github.event_name != 'workflow_dispatch'
+        if: always() && github.event_name == 'workflow_dispatch'
         uses: broadinstitute/action-slack@v3.8.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,6 +108,6 @@ jobs:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         with:
           status: ${{ job.status }}
-          channel: "#platform-foundation-alerts"
+          channel: "@mmedlock" #"#platform-foundation-alerts"
           username: "CLI nightly test run"
           fields: job,took
