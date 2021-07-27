@@ -110,4 +110,6 @@ jobs:
           status: ${{ job.status }}
           channel: "@mmedlock" #"#platform-foundation-alerts"
           username: "CLI nightly test run"
-          fields: job,took
+          author_name: ${{ steps.compose_status_message.outputs.status-bold }}
+          icon_emoji: ':cli:'
+          text: ${{ steps.compose_status_message.outputs.status-text }}
