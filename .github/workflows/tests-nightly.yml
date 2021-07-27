@@ -55,7 +55,7 @@ jobs:
         if: always()
         run: |
           echo "Running unit tests for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=unit ${{ matrix.testServer }}
+          ./gradlew runTestsWithTag -PtestTag=unit ${{ matrix.testServer }} --tests "unit.Workspace.createFailsWithoutSpendAccess"
           mkdir -p ~/logs-unit
           cp -R build/test-context/.terra/logs/ ~/logs-unit/logs/
           cp -R build/test-context/.terra/context.json ~/logs-unit/context.json
@@ -64,7 +64,7 @@ jobs:
         if: always()
         run: |
           echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=integration ${{ matrix.testServer }}
+          ./gradlew runTestsWithTag -PtestTag=integration ${{ matrix.testServer }} --tests "integration.Nextflow.helloWorld"
           mkdir -p ~/logs-integration-source
           cp -R build/test-context/.terra/logs/ ~/logs-integration-source/logs/
           cp -R build/test-context/.terra/context.json ~/logs-integration-source/context.json
@@ -73,7 +73,7 @@ jobs:
         if: always()
         run: |
           echo "Running integration tests against release for server: ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub ${{ matrix.testServer }}
+          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub ${{ matrix.testServer }} --tests "integration.Nextflow.helloWorld"
           mkdir -p ~/logs-integration-release
           cp -R build/test-context/.terra/logs/ ~/logs-integration-release/logs/
           cp -R build/test-context/.terra/context.json ~/logs-integration-release/context.json
@@ -96,6 +96,13 @@ jobs:
           L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
           text="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
           bold="$L2 | $L3 | $L4"
+          titleText="CLI nightly test run: ${{ matrix.testServer }}"
+          if [ "${{ job.status }}" == "success" ]; then
+            title=":white_check_mark:$titleText"
+          else
+            title=":no_entry:$titleText"
+          fi
+          echo ::set-output name=status-title::$title
           echo ::set-output name=status-text::$text
           echo ::set-output name=status-bold::$bold
       - name: Notify PF alerts slack channel
@@ -109,7 +116,7 @@ jobs:
         with:
           status: ${{ job.status }}
           channel: "@mmedlock" #"#platform-foundation-alerts"
-          username: "CLI nightly test run"
+          username: ${{ steps.compose_status_message.outputs.status-title }}
           author_name: ${{ steps.compose_status_message.outputs.status-bold }}
           icon_emoji: ':cli:'
           text: ${{ steps.compose_status_message.outputs.status-text }}
