@@ -4,6 +4,7 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static unit.AiNotebookControlled.assertNotebookState;
 import static unit.AiNotebookControlled.listNotebookResourcesWithName;
 import static unit.AiNotebookControlled.listOneNotebookResourceWithName;
 import static unit.AiNotebookControlled.pollDescribeForNotebookState;
@@ -39,7 +40,6 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -421,7 +421,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     assertEquals(1, matchingWorkspaces.size(), "workspace 1 is still included in list");
   }
 
-  @Disabled // TODO (PF-869): enable this test once polling notebook operations is fixed
+  @Test
   @DisplayName("notebook commands respect workspace override")
   void notebooks() throws IOException, InterruptedException {
     workspaceCreator.login();
@@ -433,7 +433,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
-    pollDescribeForNotebookState(name, "PROVISIONING", workspace2.id);
+    assertNotebookState(name, "PROVISIONING", workspace2.id);
+    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
     UFAiNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
@@ -444,15 +445,11 @@ public class WorkspaceOverride extends ClearContextUnit {
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
     // `terra notebook start --name=$name`
-    // TODO (PF-869): change this to expect success and remove polling (state change is covered by
-    // ctrl notebooks tests)
-    TestCommand.runCommand("notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
-    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
+    TestCommand.runCommandExpectSuccess(
+        "notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
 
     // `terra notebook stop --name=$name`
-    // TODO (PF-869): change this to expect success and remove polling (state change is covered by
-    // ctrl notebooks tests)
-    TestCommand.runCommand("notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
-    pollDescribeForNotebookState(name, "STOPPED", workspace2.id);
+    TestCommand.runCommandExpectSuccess(
+        "notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
   }
 }

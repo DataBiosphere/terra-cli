@@ -200,17 +200,20 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra resource create ai-notebook --name=$name`
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "ai-notebook", "--name=" + name);
-    pollDescribeForNotebookState(name, "PROVISIONING");
-
-    // `terra notebook start --name=$name`
-    // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    TestCommand.runCommand("notebook", "start", "--name=" + name);
+    assertNotebookState(name, "PROVISIONING");
     pollDescribeForNotebookState(name, "ACTIVE");
 
+    // `terra notebook start --name=$name`
+    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
+    assertNotebookState(name, "ACTIVE");
+
     // `terra notebook stop --name=$name`
-    // TODO (PF-869): change this to expect success once polling notebook operations is fixed
-    TestCommand.runCommand("notebook", "stop", "--name=" + name);
-    pollDescribeForNotebookState(name, "STOPPED");
+    TestCommand.runCommandExpectSuccess("notebook", "stop", "--name=" + name);
+    assertNotebookState(name, "STOPPED");
+
+    // `terra notebook start --name=$name`
+    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
+    assertNotebookState(name, "ACTIVE");
   }
 
   /**
@@ -245,6 +248,24 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         2 * 20, // up to 20 minutes
         Duration.ofSeconds(30)); // every 30 seconds
 
+    assertNotebookState(resourceName, notebookState, workspaceId);
+  }
+
+  /**
+   * Helper method to call `terra resource describe` and assert that the notebook state matches that
+   * given. Uses the current workspace.
+   */
+  private static void assertNotebookState(String resourceName, String notebookState)
+      throws JsonProcessingException {
+    assertNotebookState(resourceName, notebookState, null);
+  }
+
+  /**
+   * Helper method to call `terra resource describe` and assert that the notebook state matches that
+   * given. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
+      throws JsonProcessingException {
     UFAiNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
