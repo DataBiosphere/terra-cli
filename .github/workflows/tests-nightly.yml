@@ -95,7 +95,7 @@ jobs:
           L2="Unit: ${{ steps.run_unit_tests.outcome }} "
           L3="Integ (Source): ${{ steps.run_integration_tests_against_source_code.outcome }} "
           L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
-          text="Server: ${{ matrix.testServer }}\nLink to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
+          text="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
           if [ "${{ job.status }}" == "success" ]; then
             text=":white_check_mark: $text"
           else
