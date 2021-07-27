@@ -91,17 +91,17 @@ jobs:
         id: compose_status_message
         if: always()
         run: |
+          title="CLI nightly test run: ${{ matrix.testServer }}"
           L2="Unit: ${{ steps.run_unit_tests.outcome }} "
           L3="Integ (Source): ${{ steps.run_integration_tests_against_source_code.outcome }} "
           L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
           text="Server: ${{ matrix.testServer }}\nLink to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
-          bold="$L2 | $L3 | $L4"
-          titleText="CLI nightly test run"
           if [ "${{ job.status }}" == "success" ]; then
-            title=":white_check_mark: $titleText"
+            text=":white_check_mark: $text"
           else
-            title=":no_entry: $titleText"
+            text=":no_entry: $text"
           fi
+          bold="$L2 | $L3 | $L4"
           echo ::set-output name=status-title::$title
           echo ::set-output name=status-text::$text
           echo ::set-output name=status-bold::$bold
