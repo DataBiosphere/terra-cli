@@ -210,6 +210,10 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccess("notebook", "stop", "--name=" + name);
     assertNotebookState(name, "STOPPED");
+
+    // `terra notebook start --name=$name`
+    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
+    assertNotebookState(name, "ACTIVE");
   }
 
   /**
