@@ -145,7 +145,7 @@ task runTestsWithTag(type: Test) {
         // gradle project properties define which tests to run and how to do the install before running them
         String testTag = project.findProperty("testTag");
         boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
-        boolean writeContextToHomeDir = project.hasProperty("writeContextToHomeDir")
+        boolean contextDir = project.hasProperty("contextDir")
 
         // if the test tag is not defined, then throw an error. we don't know what tests to run
         if (testTag == null) {
@@ -159,11 +159,13 @@ task runTestsWithTag(type: Test) {
 
         // by default, tests override the global context directory with a sub-directory of the gradle build directory
         // this makes it easier to clean up after tests and makes sure the tests don't overwrite any context that
-        // exists on this same machine. you can override this default behavior by specifying -PwriteContextToHomeDir.
-        // this will cause context to be written to the user's $HOME directory, as it would during normal operation.
-        if (!writeContextToHomeDir) {
+        // exists on this same machine. you can override this default behavior by specifying -PcontextDir=/path/to/dir.
+        // this will cause context to be written to the specified directory.
+        if (!contextDir) {
             environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
             mkdir "${project.buildDir}/test-context/"
+        } else {
+            environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
         }
 
         // specify the server to run tests against (e.g. -Pserver=verily-cli). defaults to "terra-dev"

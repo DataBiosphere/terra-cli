@@ -8,8 +8,7 @@ jobs:
   tests-against-source-code-and-latest-install:
     strategy:
       matrix:
-        testOptions: [ "-PtestTag=unit", "-PtestTag=integration", "-PtestTag=integration -PtestInstallFromGitHub" ]
-        testServer: ["-Pserver=terra-dev", "-Pserver=terra-verily-autopush"]
+        testServer: [ "terra-dev", "terra-verily-autopush" ]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -51,20 +50,65 @@ jobs:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
           EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
-      - name: Run tests
-        id: run_tests
+      - name: Run unit tests
+        id: run_unit_tests
+        if: always()
         run: |
-          echo "Running tests with options: ${{ matrix.testOptions }} ${{ matrix.testServer }}"
-          ./gradlew runTestsWithTag ${{ matrix.testOptions }} ${{ matrix.testServer }}
-      - name: Archive logs and context file
+          echo "Running unit tests for server: ${{ matrix.testServer }}"
+          mkdir -p ~/logs-unit
+          ./gradlew runTestsWithTag -PtestTag=unit -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit
+      - name: Run integration tests against source code
+        id: run_integration_tests_against_source_code
+        if: always()
+        run: |
+          echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
+          mkdir -p ~/logs-integration-source
+          ./gradlew runTestsWithTag -PtestTag=integration -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source
+      - name: Run integration tests against release
+        id: run_integration_tests_against_release
+        if: always()
+        run: |
+          echo "Running integration tests against release for server: ${{ matrix.testServer }}"
+          mkdir -p ~/logs-integration-release
+          ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release
+      - name: Compile logs and context files for all test runs
+        id: compile_logs_and_context_files
+        if: always()
+        run: |
+          declare -a arr=("unit" "integration-source" "integration-release")
+          for i in "${arr[@]}"
+          do
+            echo "Compiling logs and context files for test run: $i"
+            mkdir -p ~/to-archive/$i
+            cp -R ~/logs-$i/.terra/logs/ ~/to-archive/$i/logs/
+            cp -R ~/logs-$i/.terra/context.json ~/to-archive/$i/context.json
+          done
+      - name: Archive logs and context file for all test runs
         id: archive_logs_and_context
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: logs-and-context-[${{ matrix.testOptions }}]
+          name: logs-and-context-${{ matrix.testServer }}
           path: |
-            build/test-context/.terra/logs/
-            build/test-context/.terra/global-context.json
+            ~/to-archive/
+      - name: Compose status message
+        id: compose_status_message
+        if: always()
+        run: |
+          title="CLI nightly test run: ${{ matrix.testServer }}"
+          L2="Unit: ${{ steps.run_unit_tests.outcome }} "
+          L3="Integ (Source): ${{ steps.run_integration_tests_against_source_code.outcome }} "
+          L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
+          bold="$L2 | $L3 | $L4"
+          text="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
+          if [ "${{ job.status }}" == "success" ]; then
+            text=":white_check_mark: $text"
+          else
+            text=":no_entry: $text"
+          fi
+          echo ::set-output name=status-title::$title
+          echo ::set-output name=status-bold::$bold
+          echo ::set-output name=status-text::$text
       - name: Notify PF alerts slack channel
         # don't notify manually triggered runs
         if: always() && github.event_name != 'workflow_dispatch'
@@ -76,5 +120,7 @@ jobs:
         with:
           status: ${{ job.status }}
           channel: "#platform-foundation-alerts"
-          username: "CLI nightly test run"
-          fields: job,took
+          username: ${{ steps.compose_status_message.outputs.status-title }}
+          author_name: ${{ steps.compose_status_message.outputs.status-bold }}
+          icon_emoji: ':cli:'
+          text: ${{ steps.compose_status_message.outputs.status-text }}
