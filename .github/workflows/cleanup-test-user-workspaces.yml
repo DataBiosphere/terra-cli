@@ -70,7 +70,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: logs-and-context-[${{ matrix.testOptions }}]
+          name: logs-and-context
           path: |
             build/test-context/.terra/logs/
             build/test-context/.terra/global-context.json
