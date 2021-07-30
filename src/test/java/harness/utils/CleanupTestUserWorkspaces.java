@@ -35,7 +35,7 @@ public class CleanupTestUserWorkspaces {
 
   /**
    * List all workspaces the test user has access to and try to delete each one that the test user
-   * owns.
+   * owns. Deletes up to 100 workspaces at a time.
    */
   private static void deleteWorkspaces(TestUsers testUser, boolean isDryRun) throws IOException {
     System.out.println("Deleting workspaces for testuser " + testUser.email);
@@ -44,7 +44,8 @@ public class CleanupTestUserWorkspaces {
 
     // `terra workspace list`
     List<UFWorkspace> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "workspace", "list");
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "workspace", "list", "--limit=100");
 
     List<UFWorkspaceUser> listWorkspaceUsers;
     for (UFWorkspace workspace : listWorkspaces) {
