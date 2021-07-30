@@ -167,7 +167,7 @@ public class User {
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
-    if (googleProjectId == null) {
+    if (googleProjectId == null || googleProjectId.isEmpty()) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
     }
