@@ -164,12 +164,11 @@ public class User {
    */
   public void fetchPetSaCredentials() {
     // if the cloud context is undefined, then something went wrong during workspace creation
-    // just log an error here so that login will succeed, and the user can go back and delete the
-    // corrupted workspace
+    // just log an error here instead of throwing an exception, so that the workspace load will
+    // will succeed and the user can delete the corrupted workspace
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     if (googleProjectId == null) {
-      logger.error(
-          "No Google context for the current workspace. Skip fetching pet SA from SAM. MARIKO");
+      logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
     }
 
