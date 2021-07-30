@@ -163,10 +163,19 @@ public class User {
    * global context directory.
    */
   public void fetchPetSaCredentials() {
+    // if the cloud context is undefined, then something went wrong during workspace creation
+    // just log an error here so that login will succeed, and the user can go back and delete the
+    // corrupted workspace
+    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    if (googleProjectId == null) {
+      logger.error(
+          "No Google context for the current workspace. Skip fetching pet SA from SAM. MARIKO");
+      return;
+    }
+
     // ask SAM for the project-specific pet SA key
     HttpUtils.HttpResponse petSaKeySamResponse =
-        new SamService(this, Context.getServer())
-            .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
+        new SamService(this, Context.getServer()).getPetSaKeyForProject(googleProjectId);
     logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       throw new SystemException(

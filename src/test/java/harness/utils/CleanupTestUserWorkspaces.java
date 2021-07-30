@@ -77,8 +77,8 @@ public class CleanupTestUserWorkspaces {
               "workspace", "delete", "--workspace=" + workspace.id, "--quiet");
           System.out.println(
               "Cleaned up workspace: id=" + workspace.id + ", testuser=" + testUser.email);
-          deletedWorkspaces.add(workspace.id);
         }
+        deletedWorkspaces.add(workspace.id);
       } catch (Throwable ex) {
         System.out.println(
             "Error deleting workspace: id=" + workspace.id + ", testuser=" + testUser.email);
