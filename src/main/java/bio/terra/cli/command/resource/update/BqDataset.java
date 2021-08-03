@@ -3,11 +3,14 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.BqDatasetExpirationOptions;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update bq-dataset" command. */
@@ -17,6 +20,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
+  @CommandLine.Mixin BqDatasetExpirationOptions bqDatasetExpirationOptions;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -27,7 +31,7 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined()) {
+    if (!resourceUpdateOptions.isDefined() && !bqDatasetExpirationOptions.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -37,8 +41,21 @@ public class BqDataset extends BaseCommand {
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Resource.Type.BQ_DATASET);
 
-    // make the update request
-    resource.update(resourceUpdateOptions.populateMetadataFields().build());
+    if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)) {
+      if (bqDatasetExpirationOptions.isDefined()) {
+        throw new UserActionableException(
+            "Expiration time can only be updated for controlled resources.");
+      }
+      resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+    } else {
+      resource.updateControlled(
+          new UpdateBqDatasetParams.Builder()
+              .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
+              .partitionExpirationTime(bqDatasetExpirationOptions.getPartitionExpiration())
+              .tableExpirationTime(bqDatasetExpirationOptions.getTableExpiration())
+              .build());
+    }
+
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 
