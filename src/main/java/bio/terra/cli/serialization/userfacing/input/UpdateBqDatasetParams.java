@@ -3,7 +3,6 @@ package bio.terra.cli.serialization.userfacing.input;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.Optional;
 
 /**
  * Parameters for updating a BigQuery dataset workspace resource. This class is not currently
@@ -13,8 +12,8 @@ import java.util.Optional;
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateBqDatasetParams {
   public final UpdateResourceParams resourceFields;
-  public final Optional<Integer> partitionExpirationTime;
-  public final Optional<Integer> tableExpirationTime;
+  public final Integer partitionExpirationTime;
+  public final Integer tableExpirationTime;
 
   protected UpdateBqDatasetParams(UpdateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -25,22 +24,20 @@ public class UpdateBqDatasetParams {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UpdateResourceParams resourceFields;
-    private Optional<Integer> partitionExpirationTime;
-    private Optional<Integer> tableExpirationTime;
+    private Integer partitionExpirationTime;
+    private Integer tableExpirationTime;
 
     public UpdateBqDatasetParams.Builder resourceFields(UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
 
-    public UpdateBqDatasetParams.Builder partitionExpirationTime(
-        Optional<Integer> partitionExpirationTime) {
+    public UpdateBqDatasetParams.Builder partitionExpirationTime(Integer partitionExpirationTime) {
       this.partitionExpirationTime = partitionExpirationTime;
       return this;
     }
 
-    public UpdateBqDatasetParams.Builder tableExpirationTime(
-        Optional<Integer> tableExpirationTime) {
+    public UpdateBqDatasetParams.Builder tableExpirationTime(Integer tableExpirationTime) {
       this.tableExpirationTime = tableExpirationTime;
       return this;
     }

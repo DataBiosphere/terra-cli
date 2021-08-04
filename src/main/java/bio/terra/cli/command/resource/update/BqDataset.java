@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.BqDatasetExpirationOptions;
+import bio.terra.cli.command.shared.options.BqDatasetExpiration;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -20,7 +20,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin BqDatasetExpirationOptions bqDatasetExpirationOptions;
+  @CommandLine.Mixin BqDatasetExpiration bqDatasetExpiration;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -31,7 +31,7 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && !bqDatasetExpirationOptions.isDefined()) {
+    if (!resourceUpdateOptions.isDefined() && !bqDatasetExpiration.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -42,7 +42,7 @@ public class BqDataset extends BaseCommand {
             .castToType(Resource.Type.BQ_DATASET);
 
     if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)) {
-      if (bqDatasetExpirationOptions.isDefined()) {
+      if (bqDatasetExpiration.isDefined()) {
         throw new UserActionableException(
             "Expiration time can only be updated for controlled resources.");
       }
@@ -51,8 +51,8 @@ public class BqDataset extends BaseCommand {
       resource.updateControlled(
           new UpdateBqDatasetParams.Builder()
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
-              .partitionExpirationTime(bqDatasetExpirationOptions.getPartitionExpiration())
-              .tableExpirationTime(bqDatasetExpirationOptions.getTableExpiration())
+              .partitionExpirationTime(bqDatasetExpiration.getPartitionExpiration())
+              .tableExpirationTime(bqDatasetExpiration.getTableExpiration())
               .build());
     }
 

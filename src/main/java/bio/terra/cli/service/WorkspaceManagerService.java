@@ -777,24 +777,16 @@ public class WorkspaceManagerService {
   public void updateControlledBigQueryDataset(
       UUID workspaceId, UUID resourceId, UpdateBqDatasetParams updateParams) {
 
-    GcpBigQueryDatasetUpdateParameters bigQueryDatasetUpdateParameters =
-        new GcpBigQueryDatasetUpdateParameters();
-
-    if (updateParams.partitionExpirationTime.isPresent())
-      bigQueryDatasetUpdateParameters.defaultPartitionLifetime(
-          updateParams.partitionExpirationTime.get());
-
-    if (updateParams.tableExpirationTime.isPresent())
-      bigQueryDatasetUpdateParameters.defaultTableLifetime(updateParams.tableExpirationTime.get());
-
-    logger.debug(bigQueryDatasetUpdateParameters.toString());
-
     // convert the CLI object to a WSM request object
     UpdateControlledGcpBigQueryDatasetRequestBody updateRequest =
         new UpdateControlledGcpBigQueryDatasetRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description)
-            .updateParameters(bigQueryDatasetUpdateParameters);
+            .updateParameters(
+                new GcpBigQueryDatasetUpdateParameters()
+                    .defaultPartitionLifetime(updateParams.partitionExpirationTime)
+                    .defaultTableLifetime(updateParams.tableExpirationTime));
+    logger.info(updateRequest.toString());
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
