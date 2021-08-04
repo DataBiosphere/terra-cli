@@ -786,7 +786,6 @@ public class WorkspaceManagerService {
                 new GcpBigQueryDatasetUpdateParameters()
                     .defaultPartitionLifetime(updateParams.partitionExpirationTime)
                     .defaultTableLifetime(updateParams.tableExpirationTime));
-    logger.info(updateRequest.toString());
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
