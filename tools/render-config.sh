@@ -16,20 +16,29 @@ DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
 CI_SA_VAULT_PATH=secret/dsde/terra/kernel/dev/common/ci/ci-account.json
 TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
 EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
+JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 
 # Helper function to read a secret from Vault and write it to a local file in the rendered/ directory.
-# Inputs: vault path, file name
+# Inputs: vault path, file name, [optional] decode from base 64
 # Usage: readFromVault $CI_SA_VAULT_PATH ci-account.json
+#        readFromValue $JANITOR_CLIENT_SA_VAULT_PATH janitor-client.json base64
 readFromVault () {
   vaultPath=$1
   fileName=$2
+  decodeBase64=$3
   if [ -z "$vaultPath" ] || [ -z "$fileName" ]; then
     echo "Two arguments required for readFromVault function"
     exit 1
   fi
-  docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
-            vault read -format json $vaultPath \
-            | jq -r .data > "rendered/$fileName"
+  if [ -z "$decodeBase64" ]; then
+    docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+              vault read -format json $vaultPath \
+              | jq -r .data > "rendered/$fileName"
+  else
+    docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+              vault read -format json $vaultPath \
+              | jq -r .data.key | base64 -d > "rendered/$fileName"
+  fi
   return 0
 }
 
@@ -46,3 +55,7 @@ readFromVault "$TEST_USER_SA_VAULT_PATH" "test-user-account.json"
 # used for creating external cloud resources in the terra-cli-test project for tests
 echo "Reading the external project service account key file from Vault"
 readFromVault "$EXT_PROJECT_SA_VAULT_PATH" "external-project-account.json"
+
+# used for cleaning up external (to WSM) test resources with Janitor
+echo "Reading the Janitor client service account key file from Vault"
+readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json" "base64"

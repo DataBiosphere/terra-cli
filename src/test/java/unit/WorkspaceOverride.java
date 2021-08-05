@@ -22,10 +22,9 @@ import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.IamRole;
+import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
-import com.google.cloud.bigquery.Acl;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUsers;
@@ -34,6 +33,7 @@ import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,16 +52,16 @@ public class WorkspaceOverride extends ClearContextUnit {
   private static UFWorkspace workspace2;
 
   // external bucket to use for creating GCS bucket references in the workspace
-  private Bucket externalBucket;
+  private BucketInfo externalBucket;
 
   // external dataset to use for creating BQ dataset references in the workspace
-  private Dataset externalDataset;
+  private DatasetReference externalDataset;
 
   /**
    * Create two workspaces for tests to use, so we can switch between them with the override option.
    */
   @BeforeAll
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     TestContext.clearGlobalContextDir();
     resetContext();
 
@@ -73,8 +73,10 @@ public class WorkspaceOverride extends ClearContextUnit {
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
     externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.User(workspaceCreator.email));
-    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.Group(Auth.getProxyGroupEmail()));
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
     // `terra workspace create --format=json`
     workspace1 =
@@ -87,7 +89,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   /** Delete the two workspaces. */
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws IOException, GeneralSecurityException {
     TestContext.clearGlobalContextDir();
     resetContext();
 
@@ -106,9 +108,9 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
-    ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
+    ExternalGCSBuckets.deleteBucket(externalBucket);
     externalBucket = null;
-    ExternalBQDatasets.getBQClient().delete(externalDataset.getDatasetId());
+    ExternalBQDatasets.deleteDataset(externalDataset);
     externalDataset = null;
   }
 
@@ -170,8 +172,8 @@ public class WorkspaceOverride extends ClearContextUnit {
         "add-ref",
         "bq-dataset",
         "--name=" + resourceNameDataset,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset(),
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId(),
         "--workspace=" + workspace2.id);
 
     // check that workspace 2 contains both referenced resources above and workspace 1 does not

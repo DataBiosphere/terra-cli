@@ -34,7 +34,7 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
   UUID sharedWorkspaceId;
 
   @BeforeAll
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     super.setupOnce();
 
     // `terra workspace create --format=json`
@@ -50,7 +50,7 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
   }
 
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
 
     // `terra workspace set --id=$id`
