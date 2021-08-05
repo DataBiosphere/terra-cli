@@ -658,7 +658,9 @@ public class WorkspaceManagerService {
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(createParams.datasetId)
-                    .location(createParams.location));
+                    .location(createParams.location)
+                    .defaultPartitionLifetime(createParams.defaultPartitionLifetime)
+                    .defaultTableLifetime(createParams.defaultTableLifetime));
     return callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
@@ -784,8 +786,8 @@ public class WorkspaceManagerService {
             .description(updateParams.resourceFields.description)
             .updateParameters(
                 new GcpBigQueryDatasetUpdateParameters()
-                    .defaultPartitionLifetime(updateParams.partitionExpirationTime)
-                    .defaultTableLifetime(updateParams.tableExpirationTime));
+                    .defaultPartitionLifetime(updateParams.defaultPartitionLifetime)
+                    .defaultTableLifetime(updateParams.defaultTableLifetime));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)

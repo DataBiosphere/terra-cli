@@ -15,12 +15,16 @@ public class CreateBqDatasetParams {
   public final String projectId;
   public final String datasetId;
   public final String location;
+  public final Integer defaultPartitionLifetime;
+  public final Integer defaultTableLifetime;
 
   protected CreateBqDatasetParams(CreateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.location = builder.location;
+    this.defaultPartitionLifetime = builder.defaultPartitionLifetime;
+    this.defaultTableLifetime = builder.defaultTableLifetime;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -29,6 +33,8 @@ public class CreateBqDatasetParams {
     private String projectId;
     private String datasetId;
     private String location;
+    private Integer defaultPartitionLifetime;
+    private Integer defaultTableLifetime;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -47,6 +53,16 @@ public class CreateBqDatasetParams {
 
     public Builder location(String location) {
       this.location = location;
+      return this;
+    }
+
+    public Builder defaultPartitionLifetime(Integer defaultPartitionLifetime) {
+      this.defaultPartitionLifetime = defaultPartitionLifetime;
+      return this;
+    }
+
+    public Builder defaultTableLifetime(Integer defaultTableLifetime) {
+      this.defaultTableLifetime = defaultTableLifetime;
       return this;
     }
 

@@ -12,33 +12,33 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateBqDatasetParams {
   public final UpdateResourceParams resourceFields;
-  public final Integer partitionExpirationTime;
-  public final Integer tableExpirationTime;
+  public final Integer defaultPartitionLifetime;
+  public final Integer defaultTableLifetime;
 
   protected UpdateBqDatasetParams(UpdateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
-    this.partitionExpirationTime = builder.partitionExpirationTime;
-    this.tableExpirationTime = builder.tableExpirationTime;
+    this.defaultPartitionLifetime = builder.defaultPartitionLifetime;
+    this.defaultTableLifetime = builder.defaultTableLifetime;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UpdateResourceParams resourceFields;
-    private Integer partitionExpirationTime;
-    private Integer tableExpirationTime;
+    private Integer defaultPartitionLifetime;
+    private Integer defaultTableLifetime;
 
     public UpdateBqDatasetParams.Builder resourceFields(UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
 
-    public UpdateBqDatasetParams.Builder partitionExpirationTime(Integer partitionExpirationTime) {
-      this.partitionExpirationTime = partitionExpirationTime;
+    public Builder defaultPartitionLifetime(Integer defaultPartitionLifetime) {
+      this.defaultPartitionLifetime = defaultPartitionLifetime;
       return this;
     }
 
-    public UpdateBqDatasetParams.Builder tableExpirationTime(Integer tableExpirationTime) {
-      this.tableExpirationTime = tableExpirationTime;
+    public Builder defaultTableLifetime(Integer defaultTableLifetime) {
+      this.defaultTableLifetime = defaultTableLifetime;
       return this;
     }
 
