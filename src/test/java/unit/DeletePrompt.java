@@ -35,7 +35,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
 
   @Override
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     // try to delete each group that was created by a method in this class
     trackedGroups.deleteAllTrackedGroups();
     super.cleanupOnce();

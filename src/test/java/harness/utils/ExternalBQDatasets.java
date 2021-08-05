@@ -1,17 +1,25 @@
 package harness.utils;
 
+import bio.terra.cloudres.google.bigquery.BigQueryCow;
+import com.google.api.services.bigquery.model.Dataset;
+import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.Acl;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.DatasetInfo;
+import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.security.GeneralSecurityException;
+import java.util.List;
 import java.util.UUID;
 
-/** Utility methods for creating external BQ datasets for testing workspace references. */
+/**
+ * Utility methods for creating external BQ datasets for testing workspace references. Most methods
+ * in the class use the CRL wrapper around the BQ client library to manipulate external datasets.
+ * This class also includes a method to build the unwrapped BQ client object, which is what we would
+ * expect users to call. Setup/cleanup of external datasets should use the CRL wrapper. Fetching
+ * information from the cloud as a user may do should use the unwrapped client object.
+ */
 public class ExternalBQDatasets {
 
   /** Helper method to generate a random dataset id. */
@@ -21,44 +29,95 @@ public class ExternalBQDatasets {
 
   /**
    * Create a dataset in the external project. This is helpful for testing referenced BQ dataset
-   * resources. This method uses SA credentials to set IAM policy on a bucket in an external (to
-   * WSM) project.
+   * resources. This method uses SA credentials that have permissions on the external (to WSM)
+   * project.
    */
-  public static Dataset createDataset() throws IOException {
+  public static DatasetReference createDataset() throws IOException, GeneralSecurityException {
+    String projectId = TestExternalResources.getProjectId();
     String datasetId = randomDatasetId();
     String location = "us-east4";
 
-    Dataset dataset =
-        getBQClient().create(DatasetInfo.newBuilder(datasetId).setLocation(location).build());
+    DatasetReference datasetReference =
+        new DatasetReference().setDatasetId(datasetId).setProjectId(projectId);
+    Dataset datasetToCreate =
+        new Dataset().setDatasetReference(datasetReference).setLocation(location);
+    Dataset dataset = getBQClientWrapper().datasets().insert(projectId, datasetToCreate).execute();
 
     System.out.println(
         "Created dataset "
-            + dataset.getDatasetId().getDataset()
+            + dataset.getDatasetReference().getDatasetId()
             + " in "
             + dataset.getLocation()
             + " in project "
-            + dataset.getDatasetId().getProject());
-    return dataset;
+            + dataset.getDatasetReference().getProjectId());
+    return dataset.getDatasetReference();
   }
 
   /**
-   * Grant a given user or group reader access to a dataset. This method uses SA credentials to set
-   * IAM policy on a bucket in an external (to WSM) project.
+   * Delete a dataset in the external project. This method uses SA credentials that have permissions
+   * on the external (to WSM) project.
    */
-  public static void grantReadAccess(Dataset dataset, Acl.Entity userOrGroup) throws IOException {
-    BigQuery bigQuery = getBQClient();
-    ArrayList<Acl> acls = new ArrayList<>(dataset.getAcl());
-    acls.add(Acl.of(userOrGroup, Acl.Role.READER));
-    bigQuery.update(dataset.toBuilder().setAcl(acls).build());
+  public static void deleteDataset(DatasetReference datasetRef)
+      throws IOException, GeneralSecurityException {
+    getBQClientWrapper()
+        .datasets()
+        .delete(datasetRef.getProjectId(), datasetRef.getDatasetId())
+        .setDeleteContents(true)
+        .execute();
   }
 
-  /** Helper method to build the BQ client object with SA credentials. */
-  public static BigQuery getBQClient() throws IOException {
-    return getBQClient(TestExternalResources.getSACredentials());
+  /**
+   * Helper enum to distinguish between two different types of IAM members: users and groups. This
+   * information could be conveyed using a boolean flag, but it makes the method signature more
+   * readable to use an enum instead.
+   */
+  public enum IamMemberType {
+    USER,
+    GROUP;
   }
 
-  /** Helper method to build the BQ client object with the given credentials. */
-  public static BigQuery getBQClient(GoogleCredentials credentials) throws IOException {
+  /**
+   * Grant a given user or group reader access to a dataset. This method uses SA credentials that
+   * have permissions on the external (to WSM) project.
+   */
+  public static void grantReadAccess(
+      DatasetReference datasetRef, String memberEmail, IamMemberType memberType)
+      throws IOException, GeneralSecurityException {
+    BigQueryCow bigQuery = getBQClientWrapper();
+    Dataset datasetToUpdate =
+        bigQuery.datasets().get(datasetRef.getProjectId(), datasetRef.getDatasetId()).execute();
+    List<Dataset.Access> accessToUpdate = datasetToUpdate.getAccess();
+
+    Dataset.Access newAccess = new Dataset.Access().setRole("READER");
+    if (memberType.equals(IamMemberType.USER)) {
+      newAccess.setUserByEmail(memberEmail);
+    } else {
+      newAccess.setGroupByEmail(memberEmail);
+    }
+    accessToUpdate.add(newAccess);
+    datasetToUpdate.setAccess(accessToUpdate);
+
+    bigQuery
+        .datasets()
+        .update(datasetRef.getProjectId(), datasetRef.getDatasetId(), datasetToUpdate)
+        .execute();
+  }
+
+  /**
+   * Helper method to build the CRL wrapper around the BQ client object with SA credentials that
+   * have permissions on the external (to WSM) project.
+   */
+  private static BigQueryCow getBQClientWrapper() throws IOException, GeneralSecurityException {
+    return BigQueryCow.create(
+        CRLJanitor.DEFAULT_CLIENT_CONFIG, TestExternalResources.getSACredentials());
+  }
+
+  /**
+   * Helper method to build the BQ client object with the given credentials. Note this is not
+   * wrapped by CRL and uses the cloud client libraries instead of the api services version because
+   * this is what we expect most users to use.
+   */
+  public static BigQuery getBQClient(GoogleCredentials credentials) {
     return BigQueryOptions.newBuilder()
         .setProjectId(TestExternalResources.getProjectId())
         .setCredentials(credentials)

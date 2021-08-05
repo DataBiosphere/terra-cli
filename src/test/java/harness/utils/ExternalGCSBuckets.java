@@ -1,89 +1,119 @@
 package harness.utils;
 
+import bio.terra.cloudres.google.storage.BucketCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
+import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
 import java.util.UUID;
 
-/** Utility methods for creating external GCS buckets for testing workspace references. */
+/**
+ * Utility methods for creating external GCS buckets for testing workspace references. Most methods
+ * in the class use the CRL wrapper around the GCS client library to manipulate external buckets.
+ * This class also includes a method to build the unwrapped GCS client object, which is what we
+ * would expect users to call. Setup/cleanup of external buckets should use the CRL wrapper.
+ * Fetching information from the cloud as a user may do should use the unwrapped client object.
+ */
 public class ExternalGCSBuckets {
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
-   * resources. This method uses SA credentials to set IAM policy on a bucket in an external (to
-   * WSM) project.
+   * resources. This method uses SA credentials that have permissions in the external (to WSM)
+   * project.
    */
-  public static Bucket createBucket() throws IOException {
+  public static BucketInfo createBucket() throws IOException {
     String bucketName = UUID.randomUUID().toString();
     StorageClass storageClass = StorageClass.STANDARD;
     String location = "US";
 
-    Bucket bucket =
-        getStorageClient()
+    BucketCow bucket =
+        getStorageClientWrapper()
             .create(
                 BucketInfo.newBuilder(bucketName)
                     .setStorageClass(storageClass)
                     .setLocation(location)
                     .build());
 
+    BucketInfo bucketInfo = bucket.getBucketInfo();
     System.out.println(
         "Created bucket "
-            + bucket.getName()
+            + bucketInfo.getName()
             + " in "
-            + bucket.getLocation()
+            + bucketInfo.getLocation()
             + " with storage class "
-            + bucket.getStorageClass()
+            + bucketInfo.getStorageClass()
             + " in project "
             + TestExternalResources.getProjectId());
-    return bucket;
+    return bucketInfo;
+  }
+
+  /**
+   * Delete a bucket in an external project. This method uses SA credentials that have permissions
+   * in the external (to WSM) project.
+   */
+  public static void deleteBucket(BucketInfo bucketInfo) throws IOException {
+    getStorageClientWrapper().delete(bucketInfo.getName());
   }
 
   /**
    * Grant a given user or group object viewer access to a bucket. This method uses SA credentials
    * to set IAM policy on a bucket in an external (to WSM) project.
    */
-  public static void grantReadAccess(Bucket bucket, Identity userOrGroup) throws IOException {
-    grantAccess(bucket, userOrGroup, StorageRoles.objectViewer());
+  public static void grantReadAccess(BucketInfo bucketInfo, Identity userOrGroup)
+      throws IOException {
+    grantAccess(bucketInfo, userOrGroup, StorageRoles.objectViewer());
   }
 
   /**
    * Grant a given user or group admin access to a bucket. This method uses SA credentials to set
    * IAM policy on a bucket in an external (to WSM) project.
    */
-  public static void grantWriteAccess(Bucket bucket, Identity userOrGroup) throws IOException {
-    grantAccess(bucket, userOrGroup, StorageRoles.admin());
+  public static void grantWriteAccess(BucketInfo bucketInfo, Identity userOrGroup)
+      throws IOException {
+    grantAccess(bucketInfo, userOrGroup, StorageRoles.admin());
   }
 
   /**
    * Helper method to grant a given user or group roles on a bucket. This method uses SA credentials
    * to set IAM policy on a bucket in an external (to WSM) project.
    */
-  private static void grantAccess(Bucket bucket, Identity userOrGroup, Role... roles)
+  private static void grantAccess(BucketInfo bucketInfo, Identity userOrGroup, Role... roles)
       throws IOException {
-    Storage storage = getStorageClient();
-    Policy currentPolicy = storage.getIamPolicy(bucket.getName());
+    StorageCow storage = getStorageClientWrapper();
+    Policy currentPolicy = storage.getIamPolicy(bucketInfo.getName());
     Policy.Builder updatedPolicyBuilder = currentPolicy.toBuilder();
     for (Role role : roles) {
       updatedPolicyBuilder.addIdentity(role, userOrGroup);
     }
-    storage.setIamPolicy(bucket.getName(), updatedPolicyBuilder.build());
+    storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
-  /** Helper method to build the GCS client object with SA credentials. */
-  public static Storage getStorageClient() throws IOException {
-    return getStorageClient(TestExternalResources.getSACredentials());
+  /**
+   * Helper method to build the CRL wrapper around the GCS client object with SA credentials that
+   * have permissions on the external (to WSM) project.
+   */
+  private static StorageCow getStorageClientWrapper() throws IOException {
+    StorageOptions options =
+        StorageOptions.newBuilder()
+            .setCredentials(TestExternalResources.getSACredentials())
+            .setProjectId(TestExternalResources.getProjectId())
+            .build();
+    return new StorageCow(CRLJanitor.DEFAULT_CLIENT_CONFIG, options);
   }
 
-  /** Helper method to build the GCS client object with the given credentials. */
-  public static Storage getStorageClient(GoogleCredentials credentials) throws IOException {
+  /**
+   * Helper method to build the GCS client object with the given credentials. Note this is not
+   * wrapped by CRL because this is what we expect most users to use.
+   */
+  public static Storage getStorageClient(GoogleCredentials credentials) {
     return StorageOptions.newBuilder()
         .setProjectId(TestExternalResources.getProjectId())
         .setCredentials(credentials)

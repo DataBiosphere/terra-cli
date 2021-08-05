@@ -31,11 +31,11 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   // external bucket to use for testing the JSON format against GCS directly
-  private Bucket externalBucket;
+  private BucketInfo externalBucket;
 
   @Override
   @BeforeAll
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucket();
 
@@ -47,9 +47,9 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
 
   @Override
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
-    ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
+    ExternalGCSBuckets.deleteBucket(externalBucket);
     externalBucket = null;
   }
 

@@ -21,7 +21,7 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
 
   @Override
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
 
     // try to delete each group that was created by a method in this class

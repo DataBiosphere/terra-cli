@@ -4,7 +4,6 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUsers;
-import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +23,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   }
 
   @BeforeAll
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     TestContext.clearGlobalContextDir();
     resetContext();
 
@@ -37,7 +36,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   }
 
   @AfterAll
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     TestContext.clearGlobalContextDir();
     resetContext();
 

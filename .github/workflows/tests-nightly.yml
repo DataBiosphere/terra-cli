@@ -46,10 +46,12 @@ jobs:
           echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
           echo "$DEV_CI_SA_KEY" > rendered/ci-account.json
           echo "$EXT_PROJECT_SA_KEY" > rendered/external-project-account.json
+          echo "$JANITOR_CLIENT_SA_KEY" > rendered/janitor-client.json
         env:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
           EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
+          JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
       - name: Run unit tests
         id: run_unit_tests
         if: always()
