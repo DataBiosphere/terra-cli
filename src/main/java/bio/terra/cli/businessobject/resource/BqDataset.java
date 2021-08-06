@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -106,24 +107,24 @@ public class BqDataset extends Resource {
     return new BqDataset(createdResource);
   }
 
-  /** Update a BigQuery dataset resource in the workspace. */
-  public void update(UpdateResourceParams updateParams) {
+  /** Update a BigQuery dataset referenced resource in the workspace. */
+  public void updateReferenced(UpdateResourceParams updateParams) {
     if (updateParams.name != null) {
       validateEnvironmentVariableName(updateParams.name);
     }
-    switch (stewardshipType) {
-      case REFERENCED:
-        WorkspaceManagerService.fromContext()
-            .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-        break;
-      case CONTROLLED:
-        WorkspaceManagerService.fromContext()
-            .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
-    }
+    WorkspaceManagerService.fromContext()
+        .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
     super.updatePropertiesAndSync(updateParams);
+  }
+
+  /** Update a BigQuery dataset controlled resource in the workspace. */
+  public void updateControlled(UpdateBqDatasetParams updateParams) {
+    if (updateParams.resourceFields.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceFields.name);
+    }
+    WorkspaceManagerService.fromContext()
+        .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /** Delete a BigQuery dataset referenced resource in the workspace. */
