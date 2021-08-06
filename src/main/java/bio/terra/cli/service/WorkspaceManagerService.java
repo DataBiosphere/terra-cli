@@ -10,6 +10,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -45,6 +46,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
+import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
@@ -65,8 +67,8 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
-import bio.terra.workspace.model.UpdateControlledResourceRequestBody;
 import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -656,7 +658,9 @@ public class WorkspaceManagerService {
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(createParams.datasetId)
-                    .location(createParams.location));
+                    .location(createParams.location)
+                    .defaultPartitionLifetime(createParams.defaultPartitionLifetimeSeconds)
+                    .defaultTableLifetime(createParams.defaultTableLifetimeSeconds));
     return callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
@@ -773,12 +777,17 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateControlledBigQueryDataset(
-      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateBqDatasetParams updateParams) {
+
     // convert the CLI object to a WSM request object
-    UpdateControlledResourceRequestBody updateRequest =
-        new UpdateControlledResourceRequestBody()
-            .name(updateParams.name)
-            .description(updateParams.description);
+    UpdateControlledGcpBigQueryDatasetRequestBody updateRequest =
+        new UpdateControlledGcpBigQueryDatasetRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description)
+            .updateParameters(
+                new GcpBigQueryDatasetUpdateParameters()
+                    .defaultPartitionLifetime(updateParams.defaultPartitionLifetimeSeconds)
+                    .defaultTableLifetime(updateParams.defaultTableLifetimeSeconds));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
