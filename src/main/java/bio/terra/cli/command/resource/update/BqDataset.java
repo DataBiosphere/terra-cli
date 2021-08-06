@@ -20,7 +20,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetime;
+  @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -31,7 +31,7 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && !bqDatasetLifetime.isDefined()) {
+    if (!resourceUpdateOptions.isDefined() && !bqDatasetLifetimeOptions.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -42,7 +42,7 @@ public class BqDataset extends BaseCommand {
             .castToType(Resource.Type.BQ_DATASET);
 
     if (resource.getStewardshipType().equals(StewardshipType.REFERENCED)) {
-      if (bqDatasetLifetime.isDefined()) {
+      if (bqDatasetLifetimeOptions.isDefined()) {
         throw new UserActionableException(
             "Default lifetime can only be updated for controlled resources.");
       }
@@ -51,8 +51,10 @@ public class BqDataset extends BaseCommand {
       resource.updateControlled(
           new UpdateBqDatasetParams.Builder()
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
-              .defaultPartitionLifetime(bqDatasetLifetime.getDefaultPartitionLifetime())
-              .defaultTableLifetime(bqDatasetLifetime.getDefaultTableLifetime())
+              .defaultPartitionLifetimeSeconds(
+                  bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())
+              .defaultTableLifetimeSeconds(
+                  bqDatasetLifetimeOptions.getDefaultTableLifetimeSeconds())
               .build());
     }
 

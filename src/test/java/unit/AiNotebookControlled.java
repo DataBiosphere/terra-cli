@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled AI notebooks. */
 @Tag("unit")
 public class AiNotebookControlled extends SingleWorkspaceUnit {
-  @Test
+  @Disabled // TODO (PF-928): this test is failing when the delete times out
   @DisplayName("list and describe reflect creating and deleting a controlled notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();

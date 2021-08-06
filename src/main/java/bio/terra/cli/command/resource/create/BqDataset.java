@@ -18,7 +18,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
-  @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetime;
+  @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
 
   @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
   private String bigQueryDatasetId;
@@ -47,8 +47,9 @@ public class BqDataset extends BaseCommand {
             .resourceFields(createResourceParams.build())
             .datasetId(bigQueryDatasetId)
             .location(location)
-            .defaultPartitionLifetime(bqDatasetLifetime.getDefaultPartitionLifetime())
-            .defaultTableLifetime(bqDatasetLifetime.getDefaultTableLifetime());
+            .defaultPartitionLifetimeSeconds(
+                bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())
+            .defaultTableLifetimeSeconds(bqDatasetLifetimeOptions.getDefaultTableLifetimeSeconds());
 
     bio.terra.cli.businessobject.resource.BqDataset createdResource =
         bio.terra.cli.businessobject.resource.BqDataset.createControlled(createParams.build());

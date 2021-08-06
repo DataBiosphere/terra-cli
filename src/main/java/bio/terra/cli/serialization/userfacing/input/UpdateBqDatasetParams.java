@@ -12,33 +12,33 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateBqDatasetParams {
   public final UpdateResourceParams resourceFields;
-  public final Integer defaultPartitionLifetime;
-  public final Integer defaultTableLifetime;
+  public final Integer defaultPartitionLifetimeSeconds;
+  public final Integer defaultTableLifetimeSeconds;
 
   protected UpdateBqDatasetParams(UpdateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
-    this.defaultPartitionLifetime = builder.defaultPartitionLifetime;
-    this.defaultTableLifetime = builder.defaultTableLifetime;
+    this.defaultPartitionLifetimeSeconds = builder.defaultPartitionLifetimeSeconds;
+    this.defaultTableLifetimeSeconds = builder.defaultTableLifetimeSeconds;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UpdateResourceParams resourceFields;
-    private Integer defaultPartitionLifetime;
-    private Integer defaultTableLifetime;
+    private Integer defaultPartitionLifetimeSeconds;
+    private Integer defaultTableLifetimeSeconds;
 
     public UpdateBqDatasetParams.Builder resourceFields(UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
 
-    public Builder defaultPartitionLifetime(Integer defaultPartitionLifetime) {
-      this.defaultPartitionLifetime = defaultPartitionLifetime;
+    public Builder defaultPartitionLifetimeSeconds(Integer defaultPartitionLifetimeSeconds) {
+      this.defaultPartitionLifetimeSeconds = defaultPartitionLifetimeSeconds;
       return this;
     }
 
-    public Builder defaultTableLifetime(Integer defaultTableLifetime) {
-      this.defaultTableLifetime = defaultTableLifetime;
+    public Builder defaultTableLifetimeSeconds(Integer defaultTableLifetimeSeconds) {
+      this.defaultTableLifetimeSeconds = defaultTableLifetimeSeconds;
       return this;
     }
 

@@ -15,16 +15,16 @@ public class CreateBqDatasetParams {
   public final String projectId;
   public final String datasetId;
   public final String location;
-  public final Integer defaultPartitionLifetime;
-  public final Integer defaultTableLifetime;
+  public final Integer defaultPartitionLifetimeSeconds;
+  public final Integer defaultTableLifetimeSeconds;
 
   protected CreateBqDatasetParams(CreateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.location = builder.location;
-    this.defaultPartitionLifetime = builder.defaultPartitionLifetime;
-    this.defaultTableLifetime = builder.defaultTableLifetime;
+    this.defaultPartitionLifetimeSeconds = builder.defaultPartitionLifetimeSeconds;
+    this.defaultTableLifetimeSeconds = builder.defaultTableLifetimeSeconds;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -33,8 +33,8 @@ public class CreateBqDatasetParams {
     private String projectId;
     private String datasetId;
     private String location;
-    private Integer defaultPartitionLifetime;
-    private Integer defaultTableLifetime;
+    private Integer defaultPartitionLifetimeSeconds;
+    private Integer defaultTableLifetimeSeconds;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -56,13 +56,13 @@ public class CreateBqDatasetParams {
       return this;
     }
 
-    public Builder defaultPartitionLifetime(Integer defaultPartitionLifetime) {
-      this.defaultPartitionLifetime = defaultPartitionLifetime;
+    public Builder defaultPartitionLifetimeSeconds(Integer defaultPartitionLifetimeSeconds) {
+      this.defaultPartitionLifetimeSeconds = defaultPartitionLifetimeSeconds;
       return this;
     }
 
-    public Builder defaultTableLifetime(Integer defaultTableLifetime) {
-      this.defaultTableLifetime = defaultTableLifetime;
+    public Builder defaultTableLifetimeSeconds(Integer defaultTableLifetimeSeconds) {
+      this.defaultTableLifetimeSeconds = defaultTableLifetimeSeconds;
       return this;
     }
 

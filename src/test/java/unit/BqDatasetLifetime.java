@@ -12,11 +12,11 @@ import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import org.junit.jupiter.api.AfterEach;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -37,104 +37,82 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
   }
 
-  @AfterEach
-  protected void cleanupEachTime(TestInfo testInfo) {
-
-    // Assumption is that each test case will create a single dataset, named after the test method
-    // itself.  This will clean up after the test case.
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + getDatasetName(testInfo), "--quiet");
-  }
-
   @Test
   @DisplayName("create with default partition lifetime only")
   void createWithDefaultPartitionLifetime(TestInfo testInfo) throws IOException {
 
-    Integer lifetime = 9600;
+    final String name = testInfo.getTestMethod().orElseThrow().getName();
+    final Duration lifetime = Duration.ofSeconds(9600);
 
-    UFBqDataset bqDataset =
+    final UFBqDataset bqDataset =
         createDatasetWithLDefaultLifetimes(
-            getDatasetName(testInfo), "--default-partition-lifetime=" + lifetime.toString());
+            name, "--default-partition-lifetime=" + toSecondsString(lifetime));
 
-    Map<DefaultLifetimeEntity, Integer> defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(lifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    validateDefaultLifetimes(bqDataset, lifetime.toMillis(), null);
   }
 
   @Test
   @DisplayName("create with default table lifetime only")
   void createWithDefaultTableLifetime(TestInfo testInfo) throws IOException {
 
-    Integer lifetime = 4800;
+    final String name = testInfo.getTestMethod().orElseThrow().getName();
+    final Duration lifetime = Duration.ofHours(2);
 
-    UFBqDataset bqDataset =
+    final UFBqDataset bqDataset =
         createDatasetWithLDefaultLifetimes(
-            getDatasetName(testInfo), "--default-table-lifetime=" + lifetime.toString());
+            name, "--default-table-lifetime=" + toSecondsString(lifetime));
 
-    Map<DefaultLifetimeEntity, Integer> defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(lifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    validateDefaultLifetimes(bqDataset, null, lifetime.toMillis());
   }
 
   @Test
   @DisplayName("create with both default lifetimes")
   void createWithBothDefaultLifetimes(TestInfo testInfo) throws IOException {
+    final String name = testInfo.getTestMethod().orElseThrow().getName();
+    final Duration partitionLifetime = Duration.ofSeconds(9600);
+    final Duration tableLifetime = Duration.ofSeconds(4800);
 
-    Integer partitionLifetime = 9600;
-    Integer tableLifetime = 4800;
-
-    UFBqDataset bqDataset =
+    final UFBqDataset bqDataset =
         createDatasetWithLDefaultLifetimes(
-            getDatasetName(testInfo),
-            "--default-partition-lifetime=" + partitionLifetime.toString(),
-            "--default-table-lifetime=" + tableLifetime.toString());
+            name,
+            "--default-partition-lifetime=" + toSecondsString(partitionLifetime),
+            "--default-table-lifetime=" + toSecondsString(tableLifetime));
 
-    Map<DefaultLifetimeEntity, Integer> defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(partitionLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(tableLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    validateDefaultLifetimes(bqDataset, partitionLifetime.toMillis(), tableLifetime.toMillis());
   }
 
   @Test
   @DisplayName("create with no default lifetimes and test update calls")
   void updateDefaultLifetimes(TestInfo testInfo) throws IOException {
-    final String name = getDatasetName(testInfo);
-    final Integer partitionLifetime = 9600;
-    final Integer tableLifetime = 4800;
+    final String name = testInfo.getTestMethod().orElseThrow().getName();
+    final Duration partitionLifetime = Duration.ofSeconds(9600);
+    final Duration tableLifetime = Duration.ofSeconds(4800);
 
     // Create a dataset with no lifetimes configured
-    UFBqDataset bqDataset = createDatasetWithLDefaultLifetimes(name);
-
-    Map<DefaultLifetimeEntity, Integer> defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    final UFBqDataset bqDataset = createDatasetWithLDefaultLifetimes(name);
+    validateDefaultLifetimes(bqDataset, null, null);
 
     // Now update the dataset with a default partition lifetime only and make sure it is set and
     // table stays the same.
 
     updateDatasetWithDefaultLifetimes(
-        name, "--default-partition-lifetime=" + partitionLifetime.toString());
-    defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(partitionLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+        name, "--default-partition-lifetime=" + toSecondsString(partitionLifetime));
+
+    validateDefaultLifetimes(bqDataset, partitionLifetime.toMillis(), null);
 
     // Now update the dataset with a default table lifetime only and make sure it is set and
     // partition stays the same.
 
-    updateDatasetWithDefaultLifetimes(name, "--default-table-lifetime=" + tableLifetime.toString());
-    defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(partitionLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(tableLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    updateDatasetWithDefaultLifetimes(
+        name, "--default-table-lifetime=" + toSecondsString(tableLifetime));
+    validateDefaultLifetimes(bqDataset, partitionLifetime.toMillis(), tableLifetime.toMillis());
 
     // Now set both to zero in a single call and make sure both get cleared.
 
     updateDatasetWithDefaultLifetimes(
         name, "--default-partition-lifetime=0", "--default-table-lifetime=0");
 
-    defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+    validateDefaultLifetimes(bqDataset, null, null);
 
     // Test that flags can be passed along with generic controlled resource update flags by renaming
     // the dataset (then renaming it back) along with a default lifetime update.
@@ -144,24 +122,15 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
     updateDatasetWithDefaultLifetimes(
         name,
         "--new-name=" + renamed,
-        "--default-partition-lifetime=" + partitionLifetime.toString());
-    defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(partitionLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(0, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
+        "--default-partition-lifetime=" + toSecondsString(partitionLifetime));
+    validateDefaultLifetimes(bqDataset, partitionLifetime.toMillis(), null);
 
     updateDatasetWithDefaultLifetimes(
-        renamed, "--new-name=" + name, "--default-table-lifetime=" + tableLifetime.toString());
-    defaultLifetimeMap = getDefaultLifetimes(bqDataset);
-    assertEquals(partitionLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.PARTITION));
-    assertEquals(tableLifetime, defaultLifetimeMap.get(DefaultLifetimeEntity.TABLE));
-  }
+        renamed,
+        "--new-name=" + name,
+        "--default-table-lifetime=" + toSecondsString(tableLifetime));
 
-  /**
-   * Helper method to get the name of the dataset that should be created by the test method (derived
-   * from the passed TestInfo instance).
-   */
-  private String getDatasetName(TestInfo testInfo) {
-    return testInfo.getTestMethod().orElseThrow().getName();
+    validateDefaultLifetimes(bqDataset, partitionLifetime.toMillis(), tableLifetime.toMillis());
   }
 
   /** Creates a BQ Dataset with the given name and any passed lifetime arguments. */
@@ -182,7 +151,8 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
   }
 
   /** Updates a dataset with a given name using the passed arguments. */
-  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments) {
+  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments)
+      throws JsonProcessingException {
     List<String> arguments =
         new ArrayList<>(Arrays.asList("resource", "update", "bq-dataset", "--name=" + name));
 
@@ -190,18 +160,25 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(arguments.toArray(new String[0]));
   }
 
-  /** Enum to use as a key for a map of entity to lifetime values. */
-  private enum DefaultLifetimeEntity {
-    PARTITION,
-    TABLE
+  /** Helper to covert a Duration in seconds to a String */
+  private static String toSecondsString(Duration duration) {
+    return Long.valueOf(duration.toSeconds()).toString();
   }
 
   /**
-   * Use the Google BQ Client to get the configured default lifetime for the passed dataset
-   * descriptor and return it as a map of entity type (partition or table) to its configured default
-   * lifetime in seconds.
+   * Use the Google BQ Client to validate the expected partition and table lifetimes for a dataset.
+   *
+   * @param bqDataset user facing representation of dataset to check
+   * @param defaultPartitionLifetimeMilliseconds expected lifetime for partitions in milliseconds,
+   *     or null if lifetime expected to be unset
+   * @param defaultTableLifetimeMilliseconds expected lifetime for partitions in milliseconds, or
+   *     null if lifetime expected to be unset
+   * @throws IOException
    */
-  private Map<DefaultLifetimeEntity, Integer> getDefaultLifetimes(UFBqDataset bqDataset)
+  private void validateDefaultLifetimes(
+      UFBqDataset bqDataset,
+      @Nullable Long defaultPartitionLifetimeMilliseconds,
+      @Nullable Long defaultTableLifetimeMilliseconds)
       throws IOException {
 
     DatasetId datasetId = DatasetId.of(bqDataset.projectId, bqDataset.datasetId);
@@ -211,17 +188,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
             .getDataset(datasetId);
 
     assertNotNull(dataset, "looking up dataset via BQ API succeeded");
-
-    // These methods return null if lifetime is not set, if they are set they need to be converted
-    // to integers representing seconds to be returned in the map, with 0 representing no lifetime
-    // set.  Both of these methods return milliseconds.
-    Long defaultPartitionExpirationMs = dataset.getDefaultPartitionExpirationMs();
-    Long defaultTableLifetime = dataset.getDefaultTableLifetime();
-
-    return Map.of(
-        DefaultLifetimeEntity.PARTITION,
-        defaultPartitionExpirationMs == null ? 0 : defaultPartitionExpirationMs.intValue() / 1000,
-        DefaultLifetimeEntity.TABLE,
-        defaultTableLifetime == null ? 0 : defaultTableLifetime.intValue() / 1000);
+    assertEquals(dataset.getDefaultPartitionExpirationMs(), defaultPartitionLifetimeMilliseconds);
+    assertEquals(dataset.getDefaultTableLifetime(), defaultTableLifetimeMilliseconds);
   }
 }
