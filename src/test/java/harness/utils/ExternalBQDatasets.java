@@ -32,7 +32,7 @@ public class ExternalBQDatasets {
    * resources. This method uses SA credentials that have permissions on the external (to WSM)
    * project.
    */
-  public static DatasetReference createDataset() throws IOException, GeneralSecurityException {
+  public static DatasetReference createDataset() throws IOException {
     String projectId = TestExternalResources.getProjectId();
     String datasetId = randomDatasetId();
     String location = "us-east4";
@@ -41,7 +41,7 @@ public class ExternalBQDatasets {
         new DatasetReference().setDatasetId(datasetId).setProjectId(projectId);
     Dataset datasetToCreate =
         new Dataset().setDatasetReference(datasetReference).setLocation(location);
-    Dataset dataset = getBQClientWrapper().datasets().insert(projectId, datasetToCreate).execute();
+    Dataset dataset = getBQCow().datasets().insert(projectId, datasetToCreate).execute();
 
     System.out.println(
         "Created dataset "
@@ -57,9 +57,8 @@ public class ExternalBQDatasets {
    * Delete a dataset in the external project. This method uses SA credentials that have permissions
    * on the external (to WSM) project.
    */
-  public static void deleteDataset(DatasetReference datasetRef)
-      throws IOException, GeneralSecurityException {
-    getBQClientWrapper()
+  public static void deleteDataset(DatasetReference datasetRef) throws IOException {
+    getBQCow()
         .datasets()
         .delete(datasetRef.getProjectId(), datasetRef.getDatasetId())
         .setDeleteContents(true)
@@ -82,8 +81,8 @@ public class ExternalBQDatasets {
    */
   public static void grantReadAccess(
       DatasetReference datasetRef, String memberEmail, IamMemberType memberType)
-      throws IOException, GeneralSecurityException {
-    BigQueryCow bigQuery = getBQClientWrapper();
+      throws IOException {
+    BigQueryCow bigQuery = getBQCow();
     Dataset datasetToUpdate =
         bigQuery.datasets().get(datasetRef.getProjectId(), datasetRef.getDatasetId()).execute();
     List<Dataset.Access> accessToUpdate = datasetToUpdate.getAccess();
@@ -107,9 +106,13 @@ public class ExternalBQDatasets {
    * Helper method to build the CRL wrapper around the BQ client object with SA credentials that
    * have permissions on the external (to WSM) project.
    */
-  private static BigQueryCow getBQClientWrapper() throws IOException, GeneralSecurityException {
-    return BigQueryCow.create(
-        CRLJanitor.DEFAULT_CLIENT_CONFIG, TestExternalResources.getSACredentials());
+  private static BigQueryCow getBQCow() {
+    try {
+      return BigQueryCow.create(
+          CRLJanitor.DEFAULT_CLIENT_CONFIG, TestExternalResources.getSACredentials());
+    } catch (GeneralSecurityException | IOException ex) {
+      throw new RuntimeException("Error getting Janitor client SA credentials.", ex);
+    }
   }
 
   /**
