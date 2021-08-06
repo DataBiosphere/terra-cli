@@ -46,7 +46,6 @@ export NXF_VER=21.05.0-edge
 export NXF_MODE=google
 sudo -u "${JUPYTER_USER}" sh -c "curl -s https://get.nextflow.io | bash"
 sudo mv nextflow /usr/bin/nextflow
-sudo chmod a+x /usr/bin/nextflow
 
 # Install & configure the Terra CLI
 sudo -u "${JUPYTER_USER}" sh -c "curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash"
