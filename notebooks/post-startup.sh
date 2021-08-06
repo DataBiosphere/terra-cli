@@ -45,6 +45,7 @@ sudo -u "${JUPYTER_USER}" sh -c "/opt/conda/bin/nbstripout --install --global"
 export NXF_VER=21.05.0-edge
 export NXF_MODE=google
 curl -s https://get.nextflow.io | bash
+sudo chmod a+x nextflow
 sudo mv nextflow /usr/bin/nextflow
 
 # Install & configure the Terra CLI
