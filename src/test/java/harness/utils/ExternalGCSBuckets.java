@@ -35,7 +35,7 @@ public class ExternalGCSBuckets {
     String location = "US";
 
     BucketCow bucket =
-        getStorageClientWrapper()
+        getStorageCow()
             .create(
                 BucketInfo.newBuilder(bucketName)
                     .setStorageClass(storageClass)
@@ -60,7 +60,7 @@ public class ExternalGCSBuckets {
    * in the external (to WSM) project.
    */
   public static void deleteBucket(BucketInfo bucketInfo) throws IOException {
-    getStorageClientWrapper().delete(bucketInfo.getName());
+    getStorageCow().delete(bucketInfo.getName());
   }
 
   /**
@@ -87,7 +87,7 @@ public class ExternalGCSBuckets {
    */
   private static void grantAccess(BucketInfo bucketInfo, Identity userOrGroup, Role... roles)
       throws IOException {
-    StorageCow storage = getStorageClientWrapper();
+    StorageCow storage = getStorageCow();
     Policy currentPolicy = storage.getIamPolicy(bucketInfo.getName());
     Policy.Builder updatedPolicyBuilder = currentPolicy.toBuilder();
     for (Role role : roles) {
@@ -100,7 +100,7 @@ public class ExternalGCSBuckets {
    * Helper method to build the CRL wrapper around the GCS client object with SA credentials that
    * have permissions on the external (to WSM) project.
    */
-  private static StorageCow getStorageClientWrapper() throws IOException {
+  private static StorageCow getStorageCow() throws IOException {
     StorageOptions options =
         StorageOptions.newBuilder()
             .setCredentials(TestExternalResources.getSACredentials())

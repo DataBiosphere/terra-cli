@@ -65,6 +65,7 @@ dependencies {
         findbugsAnnotations = '3.0.1u2'
 
         // terra libraries
+        crlPlatform = "0.2.0"
         samClient = "0.1-9435410-SNAP"
         workspaceManagerClient = "0.254.67-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
@@ -99,11 +100,11 @@ dependencies {
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
     testCompileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
 
-    implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
+    implementation platform("bio.terra.cloud-resource-lib:platform:${crlPlatform}")
+    implementation "bio.terra.cloud-resource-lib:google-cloudresourcemanager"
+    implementation "bio.terra.cloud-resource-lib:google-bigquery"
+    implementation "bio.terra.cloud-resource-lib:google-notebooks"
+    implementation "bio.terra.cloud-resource-lib:google-storage"
 
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
