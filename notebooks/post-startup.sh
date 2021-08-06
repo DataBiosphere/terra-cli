@@ -44,9 +44,9 @@ sudo -u "${JUPYTER_USER}" sh -c "/opt/conda/bin/nbstripout --install --global"
 # Install Nextflow. Use an edge release that allows overriding the default compute engine SA and VPC network
 export NXF_VER=21.05.0-edge
 export NXF_MODE=google
-curl -s https://get.nextflow.io | bash
-sudo chmod a+x nextflow
+sudo -u "${JUPYTER_USER}" sh -c "curl -s https://get.nextflow.io | bash"
 sudo mv nextflow /usr/bin/nextflow
+sudo chmod a+x /usr/bin/nextflow
 
 # Install & configure the Terra CLI
 sudo -u "${JUPYTER_USER}" sh -c "curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash"
