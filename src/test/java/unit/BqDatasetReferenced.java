@@ -7,8 +7,7 @@ import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import com.google.cloud.bigquery.Acl;
-import com.google.cloud.bigquery.Dataset;
+import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
@@ -27,25 +26,27 @@ import org.junit.jupiter.api.Test;
 public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
   // external dataset to use for creating BQ dataset references in the workspace
-  private Dataset externalDataset;
+  private DatasetReference externalDataset;
 
   @BeforeAll
   @Override
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.User(workspaceCreator.email));
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
     // grant the user's proxy group access to the dataset so that it will pass WSM's access check
     // when adding it as a referenced resource
-    ExternalBQDatasets.grantReadAccess(externalDataset, new Acl.Group(Auth.getProxyGroupEmail()));
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
   }
 
   @AfterAll
   @Override
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
-    ExternalBQDatasets.getBQClient().delete(externalDataset.getDatasetId());
+    ExternalBQDatasets.deleteDataset(externalDataset);
     externalDataset = null;
   }
 
@@ -67,17 +68,17 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "bq-dataset",
             "--name=" + name,
-            "--project-id=" + externalDataset.getDatasetId().getProject(),
-            "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+            "--project-id=" + externalDataset.getProjectId(),
+            "--dataset-id=" + externalDataset.getDatasetId());
 
     // check that the name, project id, and dataset id match
     assertEquals(name, addedDataset.name, "add ref output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         addedDataset.projectId,
         "add ref output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         addedDataset.datasetId,
         "add ref output matches dataset id");
 
@@ -85,11 +86,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     UFBqDataset matchedResource = listOneDatasetResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         matchedResource.projectId,
         "list output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         matchedResource.datasetId,
         "list output matches dataset id");
 
@@ -101,11 +102,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // check that the name, project id, and dataset id match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         describeResource.projectId,
         "describe resource output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         describeResource.datasetId,
         "describe resource output matches dataset id");
 
@@ -129,8 +130,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "bq-dataset",
         "--name=" + name,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId());
 
     // `terra resource delete --name=$name --format=json`
     UFBqDataset deletedDataset =
@@ -140,11 +141,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // check that the name, project id, and dataset id match
     assertEquals(name, deletedDataset.name, "delete output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         deletedDataset.projectId,
         "delete output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         deletedDataset.datasetId,
         "delete output matches dataset id");
 
@@ -169,17 +170,15 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "bq-dataset",
         "--name=" + name,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId());
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
-        externalDataset.getDatasetId().getProject()
-            + "."
-            + externalDataset.getDatasetId().getDataset(),
+        externalDataset.getProjectId() + "." + externalDataset.getDatasetId(),
         resolved,
         "default resolve includes [project id].[dataset id]");
 
@@ -188,7 +187,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         resolvedProjectIdOnly,
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
@@ -197,7 +196,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         resolvedDatasetIdOnly,
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
@@ -221,8 +220,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "bq-dataset",
         "--name=" + name,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId());
 
     // `terra resource check-access --name=$name
     TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
@@ -252,19 +251,19 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "bq-dataset",
             "--name=" + name,
-            "--project-id=" + externalDataset.getDatasetId().getProject(),
-            "--dataset-id=" + externalDataset.getDatasetId().getDataset(),
+            "--project-id=" + externalDataset.getProjectId(),
+            "--dataset-id=" + externalDataset.getDatasetId(),
             "--cloning=" + cloning,
             "--description=" + description);
 
     // check that the properties match
     assertEquals(name, addedDataset.name, "add ref output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         addedDataset.projectId,
         "add ref output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         addedDataset.datasetId,
         "add ref output matches dataset id");
     assertEquals(cloning, addedDataset.cloningInstructions, "add ref output matches cloning");
@@ -278,11 +277,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
-        externalDataset.getDatasetId().getProject(),
+        externalDataset.getProjectId(),
         describeResource.projectId,
         "describe resource output matches project id");
     assertEquals(
-        externalDataset.getDatasetId().getDataset(),
+        externalDataset.getDatasetId(),
         describeResource.datasetId,
         "describe resource output matches dataset id");
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
@@ -310,8 +309,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "bq-dataset",
         "--name=" + name,
         "--description=" + description,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId());
 
     // update just the name
     // `terra resources update bq-dataset --name=$name --new-name=$newName`
@@ -372,8 +371,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "bq-dataset",
         "--name=" + name,
         "--description=" + description,
-        "--project-id=" + externalDataset.getDatasetId().getProject(),
-        "--dataset-id=" + externalDataset.getDatasetId().getDataset());
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId());
 
     // call update without specifying any properties to modify
     // `terra resources update bq-dataset --name=$name`

@@ -8,7 +8,7 @@ import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
-import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
@@ -27,11 +27,11 @@ import org.junit.jupiter.api.Test;
 public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
   // external bucket to use for creating GCS bucket references in the workspace
-  private Bucket externalBucket;
+  private BucketInfo externalBucket;
 
   @BeforeAll
   @Override
-  protected void setupOnce() throws IOException {
+  protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucket();
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
@@ -43,9 +43,9 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
   @AfterAll
   @Override
-  protected void cleanupOnce() throws IOException {
+  protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
-    ExternalGCSBuckets.getStorageClient().delete(externalBucket.getName());
+    ExternalGCSBuckets.deleteBucket(externalBucket);
     externalBucket = null;
   }
 
