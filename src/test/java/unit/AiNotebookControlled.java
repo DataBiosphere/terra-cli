@@ -52,7 +52,6 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         createdNotebook.privateUserName.toLowerCase(),
         "create output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     // check that the notebook is in the list
     UFAiNotebook matchedResource = listOneNotebookResourceWithName(name);
@@ -74,7 +73,6 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra notebook delete --name=$name`
     TestCommand.Result cmd =
@@ -165,7 +163,6 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         createdNotebook.privateUserName.toLowerCase(),
         "create output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra resource describe --name=$name --format=json`
     UFAiNotebook describeResource =
@@ -187,7 +184,6 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
   }
 
   @Test // NOTE: This test takes ~10 minutes to run.

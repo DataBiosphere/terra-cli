@@ -6,6 +6,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -55,8 +56,11 @@ public class List extends BaseCommand {
               + resource.resourceType
               + ", "
               + resource.stewardshipType
-              + "): "
-              + resource.description);
+              + (resource.accessScope.equals(AccessScope.PRIVATE_ACCESS)
+                  ? ", " + resource.accessScope + " " + resource.privateUserName
+                  : "")
+              + ")"
+              + (resource.description == null ? "" : ": " + resource.description));
     }
   }
 }

@@ -232,7 +232,6 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         createdDataset.privateUserName.toLowerCase(),
         "create output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     Dataset createdDatasetOnCloud =
         ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
@@ -257,7 +256,6 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");

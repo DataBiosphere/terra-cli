@@ -203,7 +203,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         createdBucket.privateUserName.toLowerCase(),
         "create output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     Bucket createdBucketOnCloud =
         ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
@@ -232,7 +231,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
-    // TODO (PF-616): check the private user roles once WSM returns them
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
