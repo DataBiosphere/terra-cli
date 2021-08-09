@@ -64,8 +64,8 @@ public abstract class UFResource {
   /** Print out this object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Name:         " + name);
-    OUT.println("Description:  " + description);
+    OUT.println("Name:         " + (name == null ? "" : name));
+    OUT.println("Description:  " + (description == null ? "" : description));
     OUT.println("Stewardship:  " + stewardshipType);
     OUT.println("Cloning:      " + cloningInstructions);
 
