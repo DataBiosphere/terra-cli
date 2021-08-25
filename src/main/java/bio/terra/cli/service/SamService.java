@@ -328,6 +328,35 @@ public class SamService {
   }
 
   /**
+   * Call the SAM "POST /api/google/v1/user/petServiceAccount/{project}" GET endpoint to get a
+   * project-specific pet SA email for the current user (i.e. the one whose credentials were
+   * supplied to the apiClient object).
+   *
+   * @param googleProjectId
+   * @return the pet SA email
+   */
+  public String getPetSaEmailForProject(String googleProjectId) {
+    return callWithRetries(
+        () -> new GoogleApi(apiClient).getPetServiceAccount(googleProjectId),
+        "Error getting pet SA email for project from SAM.");
+  }
+
+  /**
+   * Call the SAM "POST /api/google/v1/user/petServiceAccount/{project}/token" GET endpoint to get a
+   * project-specific pet SA access token for the current user (i.e. the one whose credentials were
+   * supplied to the apiClient object).
+   *
+   * @param googleProjectId
+   * @param scopes
+   * @return the access token string
+   */
+  public String getPetSaAccessTokenForProject(String googleProjectId, List<String> scopes) {
+    return callWithRetries(
+        () -> new GoogleApi(apiClient).getPetServiceAccountToken(googleProjectId, scopes),
+        "Error getting pet SA access token for project from SAM.");
+  }
+
+  /**
    * Call the SAM "/api/google/v1/user/petServiceAccount/{project}/key" endpoint to get a
    * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
    * to the apiClient object).
