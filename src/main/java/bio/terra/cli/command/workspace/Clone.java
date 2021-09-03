@@ -12,34 +12,25 @@ public class Clone extends BaseCommand {
   private String workspaceId;
 
   @CommandLine.Option(
-      names = "--spendProfile",
-      required = true,
-      description = "Spend Profile ID for the workspace created by cloning.")
-  private String spendProfile;
-
-  @CommandLine.Option(
       names = "--location",
       required = false,
       description = "Location for newly created resources.")
   private String location;
 
   @CommandLine.Option(
-      names="--name",
+      names = "--name",
       required = false,
-      description = "Display name for new workspace."
-  )
+      description = "Display name for new workspace.")
   private String name;
 
   @CommandLine.Option(
-      names="--description",
+      names = "--description",
       required = false,
-      description = "Workspace description."
-  )
+      description = "Workspace description.")
   private String description;
 
   @CommandLine.Mixin Format formatOption;
 
   @Override
-  protected void execute() {
-  }
+  protected void execute() {}
 }

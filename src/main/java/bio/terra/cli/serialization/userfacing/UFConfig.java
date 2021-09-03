@@ -40,7 +40,7 @@ public class UFConfig {
     this.fileLoggingLevel = internalConfig.getFileLoggingLevel();
     this.consoleLoggingLevel = internalConfig.getConsoleLoggingLevel();
     this.serverName = internalServer.getName();
-    this.workspaceId = internalWorkspace.isPresent() ? internalWorkspace.get().getId() : null;
+    this.workspaceId = internalWorkspace.map(Workspace::getId).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
