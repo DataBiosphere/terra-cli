@@ -4,6 +4,9 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.CloneWorkspaceRequest;
+import bio.terra.workspace.model.CloneWorkspaceResult;
+import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.ArrayList;
@@ -238,6 +241,14 @@ public class Workspace {
     Context.synchronizeToDisk();
     return resources;
   }
+
+    public ClonedWorkspace clone(
+        @Nullable String name,
+        @Nullable String description,
+        @Nullable String location) {
+      CloneWorkspaceResult result = WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description, location);
+      return result.getWorkspace();
+    }
 
   // ====================================================
   // Property get/setters.

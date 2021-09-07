@@ -16,6 +16,7 @@ import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
+import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.List;
 import java.util.UUID;
@@ -57,6 +58,19 @@ public abstract class Resource {
     AI_NOTEBOOK;
   }
 
+  public static Type fromClientResourceType(ResourceType resourceType) {
+    switch (resourceType) {
+      case AI_NOTEBOOK:
+        return Type.AI_NOTEBOOK;
+      case BIG_QUERY_DATASET:
+        return Type.BQ_DATASET;
+      case GCS_BUCKET:
+        return Type.GCS_BUCKET;
+      case DATA_REPO_SNAPSHOT:
+      default:
+        throw new IllegalArgumentException(String.format("resource type %s not supported.", resourceType));
+    }
+  }
   /** Deserialize an instance of the disk format to the internal object. */
   protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
