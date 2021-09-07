@@ -24,7 +24,6 @@ import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
-import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
@@ -295,13 +294,19 @@ public class WorkspaceManagerService {
         "Error updating workspace");
   }
 
-  public CloneWorkspaceResult cloneWorkspace(UUID workspaceId, @Nullable String displayName,
-      @Nullable String description, @Nullable String location) {
-    var request = new CloneWorkspaceRequest()
-        .displayName(displayName)
-        .description(description)
-        .location(location);
-    return callWithRetries(() -> new WorkspaceApi(apiClient).cloneWorkspace(request, workspaceId), "Error cloning workspace");
+  public CloneWorkspaceResult cloneWorkspace(
+      UUID workspaceId,
+      @Nullable String displayName,
+      @Nullable String description,
+      @Nullable String location) {
+    var request =
+        new CloneWorkspaceRequest()
+            .displayName(displayName)
+            .description(description)
+            .location(location);
+    return callWithRetries(
+        () -> new WorkspaceApi(apiClient).cloneWorkspace(request, workspaceId),
+        "Error cloning workspace");
   }
 
   /**

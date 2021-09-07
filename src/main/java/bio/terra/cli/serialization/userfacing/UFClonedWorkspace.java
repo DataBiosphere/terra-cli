@@ -16,9 +16,10 @@ public class UFClonedWorkspace {
   public UFClonedWorkspace(ClonedWorkspace clonedWorkspace) {
     this.sourceWorkspaceId = clonedWorkspace.getSourceWorkspaceId();
     this.destinationWorkspaceId = clonedWorkspace.getDestinationWorkspaceId();
-    this.resources = clonedWorkspace.getResources().stream()
-        .map(UFResourceCloneDetails::new)
-        .collect(Collectors.toList());
+    this.resources =
+        clonedWorkspace.getResources().stream()
+            .map(UFResourceCloneDetails::new)
+            .collect(Collectors.toList());
   }
 
   protected UFClonedWorkspace(Builder builder) {

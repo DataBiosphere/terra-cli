@@ -68,7 +68,8 @@ public abstract class Resource {
         return Type.GCS_BUCKET;
       case DATA_REPO_SNAPSHOT:
       default:
-        throw new IllegalArgumentException(String.format("resource type %s not supported.", resourceType));
+        throw new IllegalArgumentException(
+            String.format("resource type %s not supported.", resourceType));
     }
   }
   /** Deserialize an instance of the disk format to the internal object. */
