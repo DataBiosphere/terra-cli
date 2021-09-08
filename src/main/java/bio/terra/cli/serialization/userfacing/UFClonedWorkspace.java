@@ -4,16 +4,24 @@ import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.ClonedWorkspace;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class UFClonedWorkspace {
   public final UUID sourceWorkspaceId;
   public final UUID destinationWorkspaceId;
   public final List<UFResourceCloneDetails> resources;
 
-  public UFClonedWorkspace(ClonedWorkspace clonedWorkspace) {
+  public UFClonedWorkspace(@Nullable ClonedWorkspace clonedWorkspace) {
+    if (clonedWorkspace == null) {
+      this.sourceWorkspaceId = null;
+      this.destinationWorkspaceId = null;
+      this.resources = Collections.emptyList();
+      return;
+    }
     this.sourceWorkspaceId = clonedWorkspace.getSourceWorkspaceId();
     this.destinationWorkspaceId = clonedWorkspace.getDestinationWorkspaceId();
     this.resources =

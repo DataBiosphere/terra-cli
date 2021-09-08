@@ -6,11 +6,13 @@ import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
+import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -245,6 +247,14 @@ public class Workspace {
       @Nullable String name, @Nullable String description, @Nullable String location) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description, location);
+    if (result.getErrorReport() != null) {
+      throw new UserActionableException(
+          "Error report: "
+              + Objects.requireNonNull(
+                  result.getErrorReport().getMessage(), "Error report message missing."));
+    } else if (result.getJobReport().getStatus() == StatusEnum.FAILED) {
+      throw new UserActionableException("Clone job failed.");
+    }
     return result.getWorkspace();
   }
 

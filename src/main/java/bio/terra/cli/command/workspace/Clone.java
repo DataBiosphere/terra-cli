@@ -37,7 +37,9 @@ public class Clone extends BaseCommand {
     Workspace workspaceToClone = Context.requireWorkspace();
     ClonedWorkspace clonedWorkspace = workspaceToClone.clone(name, description, location);
     // print results
-    formatOption.printReturnValue(new UFClonedWorkspace(clonedWorkspace), this::printText);
+    if (clonedWorkspace != null) {
+      formatOption.printReturnValue(new UFClonedWorkspace(clonedWorkspace), this::printText);
+    }
   }
 
   private void printText(UFClonedWorkspace returnValue) {

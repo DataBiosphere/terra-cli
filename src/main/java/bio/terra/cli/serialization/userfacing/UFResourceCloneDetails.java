@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ResourceCloneDetails;
 import bio.terra.workspace.model.StewardshipType;
@@ -10,9 +11,11 @@ import java.io.PrintStream;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringEscapeUtils;
 
 @JsonDeserialize(builder = UFResourceCloneDetails.Builder.class)
 public class UFResourceCloneDetails {
+  public final CloneResourceResult result;
   public final CloningInstructionsEnum cloningInstructions;
   public final Resource.Type resourceType;
   public final StewardshipType stewardshipType;
@@ -24,6 +27,7 @@ public class UFResourceCloneDetails {
   @Nullable public final String description;
 
   public UFResourceCloneDetails(ResourceCloneDetails resourceCloneDetails) {
+    this.result = resourceCloneDetails.getResult();
     this.cloningInstructions = resourceCloneDetails.getCloningInstructions();
     this.resourceType = Resource.fromClientResourceType(resourceCloneDetails.getResourceType());
     this.stewardshipType = resourceCloneDetails.getStewardshipType();
@@ -35,6 +39,7 @@ public class UFResourceCloneDetails {
   }
 
   protected UFResourceCloneDetails(Builder builder) {
+    this.result = builder.result;
     this.cloningInstructions = builder.cloningInstructions;
     this.resourceType = builder.resourceType;
     this.stewardshipType = builder.stewardshipType;
@@ -56,12 +61,19 @@ public class UFResourceCloneDetails {
     OUT.println(
         "\tDestination Resource ID:  "
             + Optional.ofNullable(destinationResourceId).map(UUID::toString).orElse(""));
-    //    OUT.println("\tResult:                   " + result);
-    OUT.println("\tError Message:            " + Optional.ofNullable(errorMessage).orElse(""));
+    OUT.println("\tResult:                   " + result);
+    // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
+    OUT.println(
+        "\tError Message:            "
+            + Optional.ofNullable(errorMessage)
+                .map(StringEscapeUtils::unescapeHtml)
+                .map(StringEscapeUtils::unescapeHtml)
+                .orElse(""));
     OUT.println();
   }
 
   public abstract static class Builder {
+    private CloneResourceResult result;
     private CloningInstructionsEnum cloningInstructions;
     private Resource.Type resourceType;
     private StewardshipType stewardshipType;
@@ -71,6 +83,11 @@ public class UFResourceCloneDetails {
     private String errorMessage;
     private String name;
     private String description;
+
+    public Builder result(CloneResourceResult result) {
+      this.result = result;
+      return this;
+    }
 
     public Builder cloningInstructions(CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;

@@ -301,12 +301,26 @@ public class WorkspaceManagerService {
       @Nullable String location) {
     var request =
         new CloneWorkspaceRequest()
+            .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
             .displayName(displayName)
             .description(description)
             .location(location);
-    return callWithRetries(
-        () -> new WorkspaceApi(apiClient).cloneWorkspace(request, workspaceId),
-        "Error cloning workspace");
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    CloneWorkspaceResult initialResult =
+        callWithRetries(
+            () -> workspaceApi.cloneWorkspace(request, workspaceId), "Error cloning workspace");
+    // poll until the workspace clone completes.
+    return handleClientExceptions(
+        () ->
+            HttpUtils.pollWithRetries(
+                () ->
+                    workspaceApi.getCloneWorkspaceResult(
+                        workspaceId, initialResult.getJobReport().getId()),
+                (r) -> isDone(r.getJobReport()),
+                WorkspaceManagerService::isRetryable,
+                360,
+                Duration.ofSeconds(10)),
+        "Error in cloning workspace.");
   }
 
   /**
