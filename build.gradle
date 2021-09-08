@@ -57,6 +57,7 @@ dependencies {
         googleClient = '1.31.1'
         bigQuery = '1.116.6'
         cloudStorage = '1.113.2'
+        googleIam = "v1-rev20201112-1.30.10"
 
         // Docker
         docker = '3.2.7'
@@ -67,7 +68,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-9435410-SNAP"
-        workspaceManagerClient = "0.254.67-SNAPSHOT"
+        workspaceManagerClient = "0.254.80-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
@@ -116,6 +117,7 @@ dependencies {
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.hamcrest:hamcrest:${hamcrest}"
+    testImplementation "com.google.apis:google-api-services-iam:${googleIam}"
 }
 
 // install the CLI, either from source code directly or from a GH release, before starting tests
