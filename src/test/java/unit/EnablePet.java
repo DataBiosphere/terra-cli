@@ -1,6 +1,5 @@
 package unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
@@ -26,7 +25,10 @@ import org.junit.jupiter.api.Test;
 public class EnablePet extends SingleWorkspaceUnit {
   @Test
   @DisplayName("enable a user to impersonate their pet SA to run PAPI jobs")
-  void listDescribeReflectCreate() throws Exception {
+  void enablePet() throws Exception {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
     // Before calling this action, user cannot impersonate the pet SA.
     String projectId = Context.getWorkspace().orElseThrow().getGoogleProjectId();
     String petEmail = SamService.fromContext().getPetSaEmailForProject(projectId);
@@ -35,9 +37,7 @@ public class EnablePet extends SingleWorkspaceUnit {
     // TODO(PF-765): this will fail due to project-level SA permission.
     // assertFalse(canImpersonateSa(userIamClient, projectId, petEmail));
 
-    String returnedPetEmail =
-        TestCommand.runAndParseCommandExpectSuccess(String.class, "workspace", "enable-pet");
-    assertEquals(petEmail, returnedPetEmail);
+    TestCommand.runCommandExpectSuccess("workspace", "enable-pet");
     assertTrue(canImpersonateSa(userIamClient, projectId, petEmail));
   }
 

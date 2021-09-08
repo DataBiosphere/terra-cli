@@ -301,6 +301,7 @@ Commands:
   create       Create a new workspace.
   delete       Delete an existing workspace.
   describe     Describe the workspace.
+  enable-pet   Allow a user to impersonate their pet in  a workspace. Required for PAPI calls.
   list         List all workspaces the current user can access.
   list-users   List the users of the workspace.
   remove-user  Remove a user or group from the workspace.
