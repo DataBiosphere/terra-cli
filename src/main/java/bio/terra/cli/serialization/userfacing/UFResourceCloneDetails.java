@@ -56,6 +56,7 @@ public class UFResourceCloneDetails {
     OUT.println("\tName:                     " + Optional.ofNullable(name).orElse(""));
     OUT.println("\tDescription:              " + Optional.ofNullable(description).orElse(""));
     OUT.println("\tStewardship:              " + stewardshipType);
+    OUT.println("\tType:                     " + resourceType);
     OUT.println("\tCloning:                  " + cloningInstructions);
     OUT.println("\tSource Resource ID:       " + sourceResourceId.toString());
     OUT.println(
