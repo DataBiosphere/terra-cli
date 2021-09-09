@@ -47,7 +47,7 @@ public class UFClonedWorkspace {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public abstract static class Builder {
+  public static class Builder {
     private UUID sourceWorkspaceId;
     private UUID destinationWorkspaceId;
     private List<UFResourceCloneDetails> resources;

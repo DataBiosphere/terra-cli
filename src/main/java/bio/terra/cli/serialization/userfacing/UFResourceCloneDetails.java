@@ -75,7 +75,7 @@ public class UFResourceCloneDetails {
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
-  public abstract static class Builder {
+  public static class Builder {
     private CloneResourceResult result;
     private CloningInstructionsEnum cloningInstructions;
     private Resource.Type resourceType;
