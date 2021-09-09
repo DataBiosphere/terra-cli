@@ -250,7 +250,7 @@ public class Workspace {
     if (result.getErrorReport() != null) {
       throw new UserActionableException(
           "Error report: "
-              + Objects.requireNonNull(
+              + Objects.requireNonNullElse(
                   result.getErrorReport().getMessage(), "Error report message missing."));
     } else if (result.getJobReport().getStatus() == StatusEnum.FAILED) {
       throw new UserActionableException("Clone job failed.");
