@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.ClonedWorkspace;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
+@JsonDeserialize(builder = UFClonedWorkspace.Builder.class)
 public class UFClonedWorkspace {
   public final UUID sourceWorkspaceId;
   public final UUID destinationWorkspaceId;
@@ -65,7 +67,9 @@ public class UFClonedWorkspace {
       return this;
     }
 
-    public abstract UFClonedWorkspace build();
+    public UFClonedWorkspace build() {
+      return new UFClonedWorkspace(this);
+    }
 
     /** Default constructor for Jackson */
     public Builder() {}

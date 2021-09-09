@@ -7,6 +7,7 @@ import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ResourceCloneDetails;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,6 +74,7 @@ public class UFResourceCloneDetails {
     OUT.println();
   }
 
+  @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public abstract static class Builder {
     private CloneResourceResult result;
     private CloningInstructionsEnum cloningInstructions;
@@ -80,10 +82,11 @@ public class UFResourceCloneDetails {
     private StewardshipType stewardshipType;
     private UUID sourceResourceId;
     private UUID destinationResourceId;
-    //    private CloneResourceResult result;
     private String errorMessage;
     private String name;
     private String description;
+
+    public Builder() {}
 
     public Builder result(CloneResourceResult result) {
       this.result = result;
@@ -115,11 +118,6 @@ public class UFResourceCloneDetails {
       return this;
     }
 
-    //    public Builder result(CloneResourceResult result) {
-    //      this.result = result;
-    //      return this;
-    //    }
-
     public Builder errorMessage(String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
@@ -133,6 +131,10 @@ public class UFResourceCloneDetails {
     public Builder description(String description) {
       this.description = description;
       return this;
+    }
+
+    public UFResourceCloneDetails build() {
+      return new UFResourceCloneDetails(this);
     }
   }
 }
