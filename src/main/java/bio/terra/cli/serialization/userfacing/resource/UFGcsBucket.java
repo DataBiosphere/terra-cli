@@ -32,11 +32,6 @@ public class UFGcsBucket extends UFResource {
 
   /** Print out this object in text format. */
   @Override
-  public void print() {
-    print("");
-  }
-
-  @Override
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
