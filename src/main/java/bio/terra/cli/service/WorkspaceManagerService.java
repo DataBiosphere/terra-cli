@@ -293,8 +293,9 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager POST "/api/workspaces/v1/{id}/gcp/enablepet" endpoint to grant a
-   * user permission to impersonate their own pet service account in a workspace.
+   * Call the Workspace Manager POST "/api/workspaces/v1/{id}/gcp/enablepet" endpoint to grant the
+   * currently logged in user and their pet permission to impersonate their own pet service account
+   * in a workspace.
    *
    * @param workspaceId the id of the workspace to enable pet impersonation in
    * @return the email identifier of the pet SA which the user can now impersonate

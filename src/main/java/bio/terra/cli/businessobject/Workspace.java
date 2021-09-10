@@ -178,7 +178,7 @@ public class Workspace {
   }
 
   /**
-   * Enable the current user to impersonate their pet SA in the current workspace.
+   * Enable the current user and their pet to impersonate their pet SA in the current workspace.
    *
    * @return Email identifier of the pet SA the current user can now actAs.
    */
