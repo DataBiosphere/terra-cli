@@ -57,7 +57,6 @@ dependencies {
         googleClient = '1.31.1'
         bigQuery = '1.116.6'
         cloudStorage = '1.113.2'
-        googleIam = "v1-rev20201112-1.30.10"
 
         // Docker
         docker = '3.2.7'
@@ -117,7 +116,6 @@ dependencies {
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.hamcrest:hamcrest:${hamcrest}"
-    testImplementation "com.google.apis:google-api-services-iam:${googleIam}"
 }
 
 // install the CLI, either from source code directly or from a GH release, before starting tests

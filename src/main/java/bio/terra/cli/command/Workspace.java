@@ -4,7 +4,6 @@ import bio.terra.cli.command.workspace.AddUser;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
 import bio.terra.cli.command.workspace.Describe;
-import bio.terra.cli.command.workspace.EnablePet;
 import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
 import bio.terra.cli.command.workspace.RemoveUser;
@@ -24,7 +23,6 @@ import picocli.CommandLine.Command;
       Create.class,
       Delete.class,
       Describe.class,
-      EnablePet.class,
       List.class,
       ListUsers.class,
       RemoveUser.class,

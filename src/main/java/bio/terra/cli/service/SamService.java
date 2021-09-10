@@ -342,20 +342,6 @@ public class SamService {
   }
 
   /**
-   * Call the SAM "/api/google/v1/user/petServiceAccount/{project}" endpoint to get a
-   * project-specific pet SA email for the current user (i.e. the one whose credentials were
-   * supplied to the apiClient object).
-   *
-   * @param googleProjectId
-   * @return email identifier of the pet SA
-   */
-  public String getPetSaEmailForProject(String googleProjectId) {
-    return callWithRetries(
-        () -> new GoogleApi(apiClient).getPetServiceAccount(googleProjectId),
-        "Error fetching pet SA email from Sam.");
-  }
-
-  /**
    * Helper method for getting the pet SA key for the current user. This method wraps a raw HTTP
    * request and throws an ApiException on error, mimicing the behavior of the client library.
    *
