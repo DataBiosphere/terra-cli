@@ -1,11 +1,20 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
+import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
+import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
+import bio.terra.workspace.model.ResourceCloneDetails;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,28 +27,52 @@ public class Clone extends BaseCommand {
       description = "Location for newly created resources.")
   private String location;
 
-  @CommandLine.Option(
-      names = "--name",
-      required = false,
-      description = "Display name for new workspace.")
-  private String name;
+  @CommandLine.Mixin private WorkspaceNameAndDescription workspaceNameAndDescription;
 
-  @CommandLine.Option(
-      names = "--description",
-      required = false,
-      description = "Workspace description.")
-  private String description;
-
-  @CommandLine.Mixin Format formatOption;
+  @CommandLine.Mixin private Format formatOption;
 
   @Override
   protected void execute() {
     Workspace workspaceToClone = Context.requireWorkspace();
-    ClonedWorkspace clonedWorkspace = workspaceToClone.clone(name, description, location);
+    ClonedWorkspace clonedWorkspace =
+        workspaceToClone.clone(
+            workspaceNameAndDescription.displayName,
+            workspaceNameAndDescription.description,
+            location);
+    Workspace sourceWorkspaceHydrated = Workspace.get(workspaceToClone.getId());
+    Workspace destinationWorkspace = Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
+
+    // Get a list of UFClonedResource objects based on the resources returned in the ClonedWorkspace
+    java.util.List<UFClonedResource> ufClonedResources =
+        clonedWorkspace.getResources().stream()
+            .map(r -> buildUfClonedResource(sourceWorkspaceHydrated, destinationWorkspace, r))
+            .collect(Collectors.toList());
+
     // print results
-    if (clonedWorkspace != null) {
-      formatOption.printReturnValue(new UFClonedWorkspace(clonedWorkspace), this::printText);
+    formatOption.printReturnValue(
+        new UFClonedWorkspace(
+            new UFWorkspace(workspaceToClone),
+            new UFWorkspace(destinationWorkspace),
+            ufClonedResources),
+        this::printText);
+  }
+
+  private UFClonedResource buildUfClonedResource(
+      Workspace sourceWorkspaceHydrated,
+      Workspace destinationWorkspace,
+      ResourceCloneDetails resourceCloneDetails) {
+    Resource sourceResource = sourceWorkspaceHydrated.getResource(resourceCloneDetails.getName());
+    final Resource destinationResource;
+    if (CloneResourceResult.SUCCEEDED == resourceCloneDetails.getResult()) {
+      destinationResource = destinationWorkspace.getResource(resourceCloneDetails.getName());
+    } else {
+      destinationResource = null;
     }
+    final UFResource ufSourceResource = sourceResource.serializeToCommand();
+    final UFResource ufDestinationResource =
+        Optional.ofNullable(destinationResource).map(Resource::serializeToCommand).orElse(null);
+
+    return new UFClonedResource(resourceCloneDetails, ufSourceResource, ufDestinationResource);
   }
 
   private void printText(UFClonedWorkspace returnValue) {

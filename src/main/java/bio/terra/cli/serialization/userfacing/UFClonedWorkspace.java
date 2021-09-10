@@ -1,68 +1,70 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.ClonedWorkspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
+/**
+ * External representation of workspace clone result.
+ *
+ * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
+ */
 @JsonDeserialize(builder = UFClonedWorkspace.Builder.class)
 public class UFClonedWorkspace {
-  public final UUID sourceWorkspaceId;
-  public final UUID destinationWorkspaceId;
-  public final List<UFResourceCloneDetails> resources;
+  public final UFWorkspace sourceWorkspace;
+  public final UFWorkspace destinationWorkspace;
+  public final List<UFClonedResource> resources;
 
-  public UFClonedWorkspace(@Nullable ClonedWorkspace clonedWorkspace) {
-    if (clonedWorkspace == null) {
-      this.sourceWorkspaceId = null;
-      this.destinationWorkspaceId = null;
-      this.resources = Collections.emptyList();
-      return;
-    }
-    this.sourceWorkspaceId = clonedWorkspace.getSourceWorkspaceId();
-    this.destinationWorkspaceId = clonedWorkspace.getDestinationWorkspaceId();
-    this.resources =
-        clonedWorkspace.getResources().stream()
-            .map(UFResourceCloneDetails::new)
-            .collect(Collectors.toList());
+  public UFClonedWorkspace(
+      UFWorkspace sourceWorkspace,
+      UFWorkspace destinationWorkspace,
+      List<UFClonedResource> clonedResources) {
+    this.sourceWorkspace = sourceWorkspace;
+    this.destinationWorkspace = destinationWorkspace;
+    this.resources = clonedResources;
   }
 
   protected UFClonedWorkspace(Builder builder) {
-    this.sourceWorkspaceId = builder.sourceWorkspaceId;
-    this.destinationWorkspaceId = builder.destinationWorkspaceId;
+    this.sourceWorkspace = builder.sourceWorkspace;
+    this.destinationWorkspace = builder.destinationWorkspace;
     this.resources = builder.resources;
   }
 
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Source Workspace ID:       " + sourceWorkspaceId.toString());
-    OUT.println("Destination Workspace ID:  " + destinationWorkspaceId.toString());
-    OUT.println("Resources:                 ");
-    resources.forEach(UFResourceCloneDetails::print);
+    OUT.println("Source Workspace:");
+    sourceWorkspace.print();
+    OUT.println();
+    OUT.println("Destination Workspace:");
+    destinationWorkspace.print();
+    OUT.println();
+    OUT.println("Resources:");
+    resources.forEach(
+        resource -> {
+          OUT.println("--------------------------------");
+          resource.print();
+        });
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UUID sourceWorkspaceId;
-    private UUID destinationWorkspaceId;
-    private List<UFResourceCloneDetails> resources;
+    private UFWorkspace sourceWorkspace;
+    private UFWorkspace destinationWorkspace;
+    private List<UFClonedResource> resources;
 
-    public Builder sourceWorkspaceId(UUID sourceWorkspaceId) {
-      this.sourceWorkspaceId = sourceWorkspaceId;
+    public Builder sourceWorkspaceId(UFWorkspace sourceWorkspace) {
+      this.sourceWorkspace = sourceWorkspace;
       return this;
     }
 
-    public Builder destinationWorkspaceId(UUID destinationWorkspaceId) {
-      this.destinationWorkspaceId = destinationWorkspaceId;
+    public Builder destinationWorkspace(UFWorkspace destinationWorkspace) {
+      this.destinationWorkspace = destinationWorkspace;
       return this;
     }
 
-    public Builder resources(List<UFResourceCloneDetails> resources) {
+    public Builder resources(List<UFClonedResource> resources) {
       this.resources = resources;
       return this;
     }

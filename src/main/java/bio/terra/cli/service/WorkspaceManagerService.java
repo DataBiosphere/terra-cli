@@ -97,7 +97,10 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling Workspace Manager endpoints. */
 public class WorkspaceManagerService {
+
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
+  private static final int CLONE_WORKSPACE_MAXIMUM_RETRIES = 360;
+  private static final Duration CLONE_WORKSPACE_RETRY_INTERVAL = Duration.ofSeconds(10);
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
@@ -310,16 +313,18 @@ public class WorkspaceManagerService {
         callWithRetries(
             () -> workspaceApi.cloneWorkspace(request, workspaceId), "Error cloning workspace");
     // poll until the workspace clone completes.
+    // TODO PF-745: return immediately and give some interface for checking on the job status
+    //     and retrieving the result.
     return handleClientExceptions(
         () ->
             HttpUtils.pollWithRetries(
                 () ->
                     workspaceApi.getCloneWorkspaceResult(
                         workspaceId, initialResult.getJobReport().getId()),
-                (r) -> isDone(r.getJobReport()),
+                (result) -> isDone(result.getJobReport()),
                 WorkspaceManagerService::isRetryable,
-                360,
-                Duration.ofSeconds(10)),
+                CLONE_WORKSPACE_MAXIMUM_RETRIES,
+                CLONE_WORKSPACE_RETRY_INTERVAL),
         "Error in cloning workspace.");
   }
 

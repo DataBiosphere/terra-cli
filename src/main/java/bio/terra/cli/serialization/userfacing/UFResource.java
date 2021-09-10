@@ -62,21 +62,26 @@ public abstract class UFResource {
   }
 
   /** Print out this object in text format. */
-  public void print() {
+  public void print(String prefix) {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Name:         " + (name == null ? "" : name));
-    OUT.println("Description:  " + (description == null ? "" : description));
-    OUT.println("Stewardship:  " + stewardshipType);
-    OUT.println("Cloning:      " + cloningInstructions);
+    OUT.println(prefix + "Name:         " + (name == null ? "" : name));
+    OUT.println(prefix + "Description:  " + (description == null ? "" : description));
+    OUT.println(prefix + "Type:         " + resourceType);
+    OUT.println(prefix + "Stewardship:  " + stewardshipType);
+    OUT.println(prefix + "Cloning:      " + cloningInstructions);
 
     if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
-      OUT.println("Access scope: " + accessScope);
-      OUT.println("Managed by:   " + managedBy);
+      OUT.println(prefix + "Access scope: " + accessScope);
+      OUT.println(prefix + "Managed by:   " + managedBy);
 
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
-        OUT.println("Private user: " + privateUserName);
+        OUT.println(prefix + "Private user: " + privateUserName);
       }
     }
+  }
+
+  public void print() {
+    print("");
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

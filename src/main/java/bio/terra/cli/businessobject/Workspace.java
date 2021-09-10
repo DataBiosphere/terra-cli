@@ -146,6 +146,22 @@ public class Workspace {
 
     return workspace;
   }
+  /**
+   * Fetch an existing workspace, with resources populated
+   *
+   * @param id workspace id
+   */
+  public static Workspace get(UUID id) {
+    // call WSM to fetch the existing workspace object and backing Google context
+    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
+    logger.info("Loaded workspace: {}", loadedWorkspace);
+
+    // convert the WSM object to a CLI object
+
+    Workspace result = new Workspace(loadedWorkspace);
+    result.populateResources();
+    return result;
+  }
 
   /**
    * Update the mutable properties of the current workspace.
@@ -247,13 +263,12 @@ public class Workspace {
       @Nullable String name, @Nullable String description, @Nullable String location) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description, location);
-    if (result.getErrorReport() != null) {
+    if (StatusEnum.FAILED == result.getJobReport().getStatus()) {
+      logger.warn("Clone operation failed. Error report: {}", result.getErrorReport());
       throw new UserActionableException(
           "Error report: "
               + Objects.requireNonNullElse(
                   result.getErrorReport().getMessage(), "Error report message missing."));
-    } else if (result.getJobReport().getStatus() == StatusEnum.FAILED) {
-      throw new UserActionableException("Clone job failed.");
     }
     return result.getWorkspace();
   }
