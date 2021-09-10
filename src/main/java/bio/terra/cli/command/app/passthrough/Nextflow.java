@@ -1,7 +1,6 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import java.util.ArrayList;
