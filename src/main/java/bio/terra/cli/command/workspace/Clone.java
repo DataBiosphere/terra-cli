@@ -8,7 +8,6 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
-import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
@@ -58,21 +57,21 @@ public class Clone extends BaseCommand {
   }
 
   private UFClonedResource buildUfClonedResource(
-      Workspace sourceWorkspaceHydrated,
+      Workspace sourceWorkspace,
       Workspace destinationWorkspace,
       ResourceCloneDetails resourceCloneDetails) {
-    Resource sourceResource = sourceWorkspaceHydrated.getResource(resourceCloneDetails.getName());
+    Resource sourceResource = sourceWorkspace.getResource(resourceCloneDetails.getName());
     final Resource destinationResource;
     if (CloneResourceResult.SUCCEEDED == resourceCloneDetails.getResult()) {
       destinationResource = destinationWorkspace.getResource(resourceCloneDetails.getName());
     } else {
       destinationResource = null;
     }
-    final UFResource ufSourceResource = sourceResource.serializeToCommand();
-    final UFResource ufDestinationResource =
-        Optional.ofNullable(destinationResource).map(Resource::serializeToCommand).orElse(null);
 
-    return new UFClonedResource(resourceCloneDetails, ufSourceResource, ufDestinationResource);
+    return new UFClonedResource(
+        resourceCloneDetails,
+        sourceResource.serializeToCommand(),
+        Optional.ofNullable(destinationResource).map(Resource::serializeToCommand).orElse(null));
   }
 
   private void printText(UFClonedWorkspace returnValue) {

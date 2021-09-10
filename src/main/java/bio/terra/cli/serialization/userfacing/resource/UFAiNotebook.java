@@ -53,16 +53,22 @@ public class UFAiNotebook extends UFResource {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
-    super.print();
+    print("");
+  }
+
+  @Override
+  public void print(String prefix) {
+    super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println("GCP project id:                " + projectId);
-    OUT.println("AI Notebook instance location: " + location);
-    OUT.println("AI Notebook instance id:       " + instanceId);
-    OUT.println("Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
-    OUT.println("State:         " + (state == null ? "(undefined)" : state));
-    OUT.println("Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
-    OUT.println("Create time:   " + (createTime == null ? "(undefined)" : createTime));
+    OUT.println(prefix + "GCP project id:                " + projectId);
+    OUT.println(prefix + "AI Notebook instance location: " + location);
+    OUT.println(prefix + "AI Notebook instance id:       " + instanceId);
+    OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
+    OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
+    OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
+    OUT.println(prefix + "Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

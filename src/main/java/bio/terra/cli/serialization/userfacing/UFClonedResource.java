@@ -6,7 +6,6 @@ import bio.terra.workspace.model.ResourceCloneDetails;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -45,19 +44,21 @@ public class UFClonedResource {
     OUT.println("Source resource:");
     sourceResource.print(indent);
     OUT.println();
-    OUT.println("Destination resource:");
-    Optional.ofNullable(destinationResource).ifPresent(r -> r.print(indent));
+    if (null != destinationResource) {
+      OUT.println("Destination resource:");
+      // TODO: just print name, description, and cloud details for destination
+      //      OUT.println(indent + "Name: " + destinationResource.name);
+      //      OUT.println(indent + "Description: " + destinationResource.description);
+      destinationResource.print(indent);
+    }
     OUT.println();
-    OUT.println("Result:        " + result);
+    OUT.println("Result: " + result);
 
     if (null != errorMessage) {
       // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
       OUT.println(
           "Error Message: "
-              + Optional.ofNullable(errorMessage)
-                  .map(StringEscapeUtils::unescapeHtml)
-                  .map(StringEscapeUtils::unescapeHtml)
-                  .orElse(""));
+              + StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(errorMessage)));
     }
     OUT.println();
   }
