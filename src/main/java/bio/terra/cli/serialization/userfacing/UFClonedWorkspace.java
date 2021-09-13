@@ -54,7 +54,7 @@ public class UFClonedWorkspace {
     private UFWorkspace destinationWorkspace;
     private List<UFClonedResource> resources;
 
-    public Builder sourceWorkspaceId(UFWorkspace sourceWorkspace) {
+    public Builder sourceWorkspace(UFWorkspace sourceWorkspace) {
       this.sourceWorkspace = sourceWorkspace;
       return this;
     }
