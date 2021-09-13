@@ -1,12 +1,18 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.StewardshipType;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -20,6 +26,15 @@ import java.util.UUID;
  *
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "resourceType")
+@JsonSubTypes({
+  @Type(value = UFAiNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
+  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET")
+})
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {
   public final UUID id;
