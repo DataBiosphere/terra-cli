@@ -105,8 +105,8 @@ public class CloneWorkspace extends ClearContextUnit {
             "bq-dataset",
             "--name=dataset_1",
             "--dataset-id=dataset_1",
-            "--description=" + "\"The first dataset.\"",
-            "--cloning=COPY_NOTHING");
+            "--description=\"The first dataset.\"",
+            "--cloning=COPY_RESOURCE");
 
     // Add a referenced resource
     externalDataset = ExternalBQDatasets.createDataset();
@@ -126,7 +126,8 @@ public class CloneWorkspace extends ClearContextUnit {
             "bq-dataset",
             "--name=" + "dataset_ref",
             "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId());
+            "--dataset-id=" + externalDataset.getDatasetId(),
+            "--cloning=COPY_REFERENCE");
 
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
@@ -139,7 +140,7 @@ public class CloneWorkspace extends ClearContextUnit {
 
     assertEquals(sourceWorkspace.id, clonedWorkspace.sourceWorkspace.id);
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
-    assertThat(clonedWorkspace.resources, hasSize(3));
+    assertThat(clonedWorkspace.resources, hasSize(4));
 
     UFClonedResource bucketClonedResource =
         getOrFail(
@@ -172,7 +173,6 @@ public class CloneWorkspace extends ClearContextUnit {
                 .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(CloneResourceResult.SUCCEEDED, datasetClonedResource.result);
-    assertEquals("The first dataset.", datasetClonedResource.sourceResource.description);
 
     // Switch to the new workspace from the clone
     TestCommand.runCommandExpectSuccess(
@@ -181,8 +181,9 @@ public class CloneWorkspace extends ClearContextUnit {
     // Validate resources
     List<UFResource> resources =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
-    assertThat(resources, hasSize(2));
+    assertThat(resources, hasSize(3));
   }
+
   /**
    * Check Optional's value is present and return it, or else fail an assertion.
    *
