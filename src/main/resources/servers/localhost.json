@@ -1,0 +1,8 @@
+{
+  "name": "localhost",
+  "description": "Local build of Workspace Manager",
+  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
+  "samUri": "https://sam.dsde-dev.broadinstitute.org",
+  "workspaceManagerUri": "http://localhost:8080",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile"
+}

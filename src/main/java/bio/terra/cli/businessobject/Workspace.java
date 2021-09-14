@@ -262,7 +262,8 @@ public class Workspace {
   public ClonedWorkspace clone(
       @Nullable String name, @Nullable String description, @Nullable String location) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description, location);
+        WorkspaceManagerService.fromContextForPetSa()
+            .cloneWorkspace(id, name, description, location);
     if (StatusEnum.FAILED == result.getJobReport().getStatus()) {
       logger.warn("Clone operation failed. Error report: {}", result.getErrorReport());
       throw new UserActionableException(
