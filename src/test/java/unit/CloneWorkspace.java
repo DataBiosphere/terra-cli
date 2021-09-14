@@ -105,7 +105,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "bq-dataset",
             "--name=dataset_1",
             "--dataset-id=dataset_1",
-            "--description=\"The first dataset.\"",
+            "--description=The first dataset.",
             "--cloning=COPY_RESOURCE");
 
     // Add a referenced resource
@@ -136,7 +136,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "workspace",
             "clone",
             "--name=" + "cloned_workspace",
-            "--description=" + "\"A clone.\"");
+            "--description=A clone.");
 
     assertEquals(sourceWorkspace.id, clonedWorkspace.sourceWorkspace.id);
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
@@ -173,6 +173,7 @@ public class CloneWorkspace extends ClearContextUnit {
                 .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(CloneResourceResult.SUCCEEDED, datasetClonedResource.result);
+    assertEquals("The first dataset.", datasetClonedResource.destinationResource.description);
 
     // Switch to the new workspace from the clone
     TestCommand.runCommandExpectSuccess(
