@@ -77,11 +77,11 @@ owner access to that spend profile.
 - [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
 to add new members to the group, use `policy=admin` instead.
 
-`terra group add-user --group=enterprise-pilot-testers --policy=member testuser@gmail.com`
+`terra group add-user --name=enterprise-pilot-testers --policy=MEMBER --email=testuser@gmail.com`
 
 - Add a user directly to the spend profile. To also grant permission to add new users to the spend profile,
 user `policy=owner` instead.
-`terra spend enable --policy=user testuser@gmail.com`
+`terra spend enable --policy=USER --email=testuser@gmail.com`
 
 #### External data 
 To allow supported applications (i.e. the ones shown by `terra app list`) to read or write data

@@ -238,7 +238,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         lifecycleRuleFromGCS.getCondition().getMatchesStorageClass();
     assertEquals(1, matchesStorageClass.size(), "condition matches storage class has correct size");
     assertTrue(
-        matchesStorageClass.containsAll(Arrays.asList(StorageClass.NEARLINE)),
+        matchesStorageClass.contains(StorageClass.NEARLINE),
         "condition matches storage class has correct elements");
     assertEquals(
         70,
@@ -297,17 +297,13 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--lifecycle=" + lifecycle1.toString());
+        "--lifecycle=" + lifecycle1);
 
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
     TestCommand.runCommandExpectSuccess(
-        "resource",
-        "update",
-        "gcs-bucket",
-        "--name=" + resourceName,
-        "--lifecycle=" + lifecycle2.toString());
+        "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
@@ -332,17 +328,13 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--lifecycle=" + lifecycle1.toString());
+        "--lifecycle=" + lifecycle1);
 
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "empty.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
     TestCommand.runCommandExpectSuccess(
-        "resource",
-        "update",
-        "gcs-bucket",
-        "--name=" + resourceName,
-        "--lifecycle=" + lifecycle2.toString());
+        "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
@@ -437,7 +429,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--lifecycle=" + lifecycle.toString());
+        "--lifecycle=" + lifecycle);
 
     return getLifecycleRulesFromCloud(bucketName);
   }
@@ -453,7 +445,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createdBucketOnCloud.getLifecycleRules();
     assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    lifecycleRules.stream().forEach(System.out::println); // log to console
+    lifecycleRules.forEach(System.out::println); // log to console
 
     return lifecycleRules;
   }
