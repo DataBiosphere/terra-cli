@@ -73,7 +73,7 @@ public class GoogleAiNotebooks {
       String message = googleJsonEx.getDetails().getMessage();
       if (httpCode == 409 && message.contains("unable to queue the operation")) {
         throw new UserActionableException(
-            "Error starting notebook instance: The notebook is not in the right state to start/stop. Wait a few minutes and try again. (409: unable to queue the operation)",
+            "Error changing notebook state: The notebook is not in the right state to start/stop. Wait a few minutes and try again. (409: unable to queue the operation)",
             googleJsonEx);
       }
     }
