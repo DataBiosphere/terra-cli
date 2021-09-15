@@ -1,0 +1,9 @@
+{
+  "name": "terra-verily-staging",
+  "description": "Verily staging environment",
+
+  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
+  "samUri": "https://terra-staging-sam.api.verily.com",
+  "workspaceManagerUri": "https://terra-staging-wsm.api.verily.com",
+  "wsmDefaultSpendProfile": "zloery-spend-profile"
+}
