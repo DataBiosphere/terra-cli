@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
+import bio.terra.cli.businessobject.WorkspaceUser.Role;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @JsonDeserialize(builder = UFWorkspaceUser.Builder.class)
 public class UFWorkspaceUser {
   public final String email;
-  public final List<IamRole> roles;
+  public final List<Role> roles;
 
   public UFWorkspaceUser(WorkspaceUser internalObj) {
     this.email = internalObj.getEmail();
@@ -36,21 +36,21 @@ public class UFWorkspaceUser {
   /** Print out this object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    List<String> rolesStr = roles.stream().map(IamRole::toString).collect(Collectors.toList());
+    List<String> rolesStr = roles.stream().map(Role::toString).collect(Collectors.toList());
     OUT.println(email + ": " + String.join(",", rolesStr));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String email;
-    private List<IamRole> roles;
+    private List<Role> roles;
 
     public Builder email(String email) {
       this.email = email;
       return this;
     }
 
-    public Builder roles(List<IamRole> roles) {
+    public Builder roles(List<Role> roles) {
       this.roles = roles;
       return this;
     }

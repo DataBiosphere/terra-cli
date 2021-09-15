@@ -1,10 +1,12 @@
 package unit;
 
+import static bio.terra.cli.businessobject.WorkspaceUser.Role.OWNER;
+import static bio.terra.cli.businessobject.WorkspaceUser.Role.READER;
+import static bio.terra.cli.businessobject.WorkspaceUser.Role.WRITER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
@@ -40,7 +42,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
       if (user.email.equalsIgnoreCase(workspaceCreator.email)) {
         continue;
       }
-      for (IamRole role : user.roles) {
+      for (bio.terra.cli.businessobject.WorkspaceUser.Role role : user.roles) {
         // `terra workspace remove-user --email=$email --role=$role
         TestCommand.runCommandExpectSuccess(
             "workspace", "remove-user", "--email=" + user.email, "--role=" + role);
@@ -59,7 +61,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // check that the workspace creator is in the list as an owner
-    expectListedUserWithRoles(workspaceCreator.email, IamRole.OWNER);
+    expectListedUserWithRoles(workspaceCreator.email, OWNER);
   }
 
   @Test
@@ -82,10 +84,10 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
             "--role=READER");
 
     // check that the user has the READER role
-    assertTrue(addUserReader.roles.contains(IamRole.READER), "reader role returned by add-user");
+    assertTrue(addUserReader.roles.contains(READER), "reader role returned by add-user");
 
     // check that the user is in the list as a reader
-    expectListedUserWithRoles(testUser.email, IamRole.READER);
+    expectListedUserWithRoles(testUser.email, READER);
 
     // `terra workspace add-user --email=$email --role=WRITER --format=json
     UFWorkspaceUser addUserWriter =
@@ -98,11 +100,11 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
 
     // check that the user has both the READER and WRITER roles
     assertTrue(
-        addUserWriter.roles.containsAll(Arrays.asList(IamRole.READER, IamRole.WRITER)),
+        addUserWriter.roles.containsAll(Arrays.asList(READER, WRITER)),
         "reader and writer roles returned by add-user");
 
     // check that the user is in the list as a reader + writer
-    expectListedUserWithRoles(testUser.email, IamRole.READER, IamRole.WRITER);
+    expectListedUserWithRoles(testUser.email, READER, WRITER);
   }
 
   @Test
@@ -128,7 +130,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
         "workspace", "remove-user", "--email=" + testUser.email, "--role=READER");
 
     // check that the user is in the list as an OWNER only
-    expectListedUserWithRoles(testUser.email, IamRole.OWNER);
+    expectListedUserWithRoles(testUser.email, OWNER);
 
     // `terra workspace remove-user --email=$email --role=READER`
     TestCommand.runCommandExpectSuccess(
@@ -143,7 +145,8 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Helper method to check that a workspace user is included in the list with the specified roles.
    * Uses the current workspace.
    */
-  private static void expectListedUserWithRoles(String userEmail, IamRole... roles)
+  private static void expectListedUserWithRoles(
+      String userEmail, bio.terra.cli.businessobject.WorkspaceUser.Role... roles)
       throws JsonProcessingException {
     expectListedUserWithRoles(userEmail, null, roles);
   }
@@ -152,7 +155,8 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Helper method to check that a workspace user is included in the list with the specified roles.
    * Filters on the specified workspace id; Uses the current workspace if null.
    */
-  static void expectListedUserWithRoles(String userEmail, UUID workspaceId, IamRole... roles)
+  static void expectListedUserWithRoles(
+      String userEmail, UUID workspaceId, bio.terra.cli.businessobject.WorkspaceUser.Role... roles)
       throws JsonProcessingException {
     Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(userEmail, workspaceId);
     assertTrue(workspaceUser.isPresent(), "test user is in users list");
