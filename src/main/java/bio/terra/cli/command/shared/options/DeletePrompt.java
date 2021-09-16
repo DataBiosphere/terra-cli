@@ -20,15 +20,21 @@ public class DeletePrompt {
   @CommandLine.Option(names = "--quiet", description = "Suppress interactive prompt and delete.")
   private boolean quiet;
 
+  public void confirmOrThrow() {
+    confirmOrThrow("");
+  }
   /**
    * Helper method to generate an interactive confirmation prompt if the `--quiet` option is not
    * specified. Throws a {@link UserActionableException} if the prompt response is negative.
+   *
+   * @param description - A short piece of text describing the object to be deleted and any relevant
+   *     children, internal state, etc.
    */
-  public void confirmOrThrow() {
+  public void confirmOrThrow(String description) {
     boolean promptReturnedYes = true; // default to Y=yes if user input is suppressed
     PrintStream OUT = UserIO.getOut();
     if (!quiet) {
-      OUT.print("Are you sure you want to delete (y/N)? ");
+      OUT.print(description + "\nAre you sure you want to delete (y/N)? ");
       Scanner reader = new Scanner(UserIO.getIn(), StandardCharsets.UTF_8);
       String deletePrompt = reader.nextLine();
       promptReturnedYes =
