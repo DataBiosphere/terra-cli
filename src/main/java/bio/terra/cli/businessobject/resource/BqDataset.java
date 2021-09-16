@@ -183,4 +183,9 @@ public class BqDataset extends Resource {
   public String getDatasetId() {
     return datasetId;
   }
+
+  @Override
+  public String getDeletePromptDescription() {
+    return String.format("This dataset has %d tables.", 20);
+  }
 }

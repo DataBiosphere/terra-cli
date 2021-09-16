@@ -150,4 +150,13 @@ public class GcsBucket extends Resource {
   public String getBucketName() {
     return bucketName;
   }
+
+  public long getItemCount() {
+    return 999;
+  }
+
+  @Override
+  public String getDeletePromptDescription() {
+    return String.format("This bucket contains %d items.", getItemCount());
+  }
 }

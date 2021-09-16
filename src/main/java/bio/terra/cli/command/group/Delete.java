@@ -19,8 +19,10 @@ public class Delete extends BaseCommand {
   /** Delete an existing Terra group. */
   @Override
   protected void execute() {
-    deletePromptOption.confirmOrThrow();
     Group group = Group.get(groupNameOption.name);
+    String description =
+        String.format("This group contains %d members.", group.getMembers().size());
+    deletePromptOption.confirmOrThrow(description);
     group.delete();
     formatOption.printReturnValue(new UFGroup(group), Delete::printText);
   }
