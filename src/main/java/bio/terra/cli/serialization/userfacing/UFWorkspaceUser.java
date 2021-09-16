@@ -36,8 +36,8 @@ public class UFWorkspaceUser {
   /** Print out this object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    List<String> rolesStr = roles.stream().map(Role::toString).collect(Collectors.toList());
-    OUT.println(email + ": " + String.join(",", rolesStr));
+    String rolesStr = roles.stream().map(Role::toString).collect(Collectors.joining(","));
+    OUT.println(email + ": " + rolesStr);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
