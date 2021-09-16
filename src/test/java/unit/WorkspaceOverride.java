@@ -16,12 +16,12 @@ import static unit.Workspace.listWorkspacesWithId;
 import static unit.WorkspaceUser.expectListedUserWithRoles;
 import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
-import bio.terra.workspace.model.IamRole;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
@@ -347,7 +347,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     // check that the user exists in the list output for workspace 2, but not workspace 1
 
     // `terra workspace list-users --email=$email --role=READER --workspace=$id2`
-    expectListedUserWithRoles(testUser.email, workspace2.id, IamRole.READER);
+    expectListedUserWithRoles(testUser.email, workspace2.id, WorkspaceUser.Role.READER);
 
     // `terra workspace list-users --email=$email --role=READER`
     Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(testUser.email);
