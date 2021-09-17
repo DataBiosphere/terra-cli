@@ -27,33 +27,47 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Tag("unit")
 public class CloneWorkspace extends ClearContextUnit {
   protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
-  private DatasetReference externalDataset;
+  private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
+  private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
   private UFWorkspace destinationWorkspace;
 
-  @BeforeEach
-  @Override
-  public void setupEachTime() throws IOException {
-    super.setupEachTime();
+  @BeforeAll
+  public static void setupOnce() throws IOException {
+    // Add a referenced resource
+    externalDataset = ExternalBQDatasets.createDataset();
   }
 
   @AfterEach
   public void cleanupEachTime() throws IOException {
+    workspaceCreator.login();
     if (sourceWorkspace != null) {
-      TestCommand.runCommandExpectSuccess(
-          "workspace", "delete", "--quiet", "--workspace=" + sourceWorkspace.id);
+      TestCommand.Result result =
+          TestCommand.runCommand(
+              "workspace", "delete", "--quiet", "--workspace=" + sourceWorkspace.id);
+      sourceWorkspace = null;
+      if (0 != result.exitCode) {
+        logger.error("Failed to delete source workspace.");
+      }
     }
     if (destinationWorkspace != null) {
-      TestCommand.runCommandExpectSuccess(
-          "workspace", "delete", "--quiet", "--workspace=" + destinationWorkspace.id);
+      TestCommand.Result result =
+          TestCommand.runCommand(
+              "workspace", "delete", "--quiet", "--workspace=" + destinationWorkspace.id);
+      destinationWorkspace = null;
+      if (0 != result.exitCode) {
+        logger.error("Failed to delete destination workspace.");
+      }
     }
     if (externalDataset != null) {
       ExternalBQDatasets.deleteDataset(externalDataset);
@@ -69,10 +83,6 @@ public class CloneWorkspace extends ClearContextUnit {
     // `terra workspace create --format=json`
     sourceWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-
-    // Switch to the new workspace
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + sourceWorkspace.id);
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =
@@ -108,8 +118,6 @@ public class CloneWorkspace extends ClearContextUnit {
             "--description=The first dataset.",
             "--cloning=COPY_RESOURCE");
 
-    // Add a referenced resource
-    externalDataset = ExternalBQDatasets.createDataset();
     ExternalBQDatasets.grantReadAccess(
         externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
@@ -138,42 +146,61 @@ public class CloneWorkspace extends ClearContextUnit {
             "--name=" + "cloned_workspace",
             "--description=A clone.");
 
-    assertEquals(sourceWorkspace.id, clonedWorkspace.sourceWorkspace.id);
+    assertEquals(
+        sourceWorkspace.id,
+        clonedWorkspace.sourceWorkspace.id,
+        "Correct source workspace ID for clone.");
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
-    assertThat(clonedWorkspace.resources, hasSize(4));
+    assertThat("There are 4 cloned resources", clonedWorkspace.resources, hasSize(4));
 
     UFClonedResource bucketClonedResource =
         getOrFail(
             clonedWorkspace.resources.stream()
                 .filter(cr -> sourceBucket.id.equals(cr.sourceResource.id))
                 .findFirst());
-    assertEquals(CloneResourceResult.SUCCEEDED, bucketClonedResource.result);
-    assertNotNull(bucketClonedResource.destinationResource);
+    assertEquals(
+        CloneResourceResult.SUCCEEDED, bucketClonedResource.result, "bucket clone succeeded");
+    assertNotNull(
+        bucketClonedResource.destinationResource, "Destination bucket resource was created");
 
     UFClonedResource copyNothingBucketClonedResource =
         getOrFail(
             clonedWorkspace.resources.stream()
                 .filter(cr -> copyNothingBucket.id.equals(cr.sourceResource.id))
                 .findFirst());
-    assertEquals(CloneResourceResult.SKIPPED, copyNothingBucketClonedResource.result);
-    assertNull(copyNothingBucketClonedResource.destinationResource);
+    assertEquals(
+        CloneResourceResult.SKIPPED,
+        copyNothingBucketClonedResource.result,
+        "COPY_NOTHING resource was skipped.");
+    assertNull(
+        copyNothingBucketClonedResource.destinationResource,
+        "Skipped resource has no destination resource.");
 
     UFClonedResource datasetRefClonedResource =
         getOrFail(
             clonedWorkspace.resources.stream()
                 .filter(cr -> datasetReference.id.equals(cr.sourceResource.id))
                 .findFirst());
-    assertEquals(CloneResourceResult.SUCCEEDED, datasetRefClonedResource.result);
     assertEquals(
-        StewardshipType.REFERENCED, datasetRefClonedResource.destinationResource.stewardshipType);
+        CloneResourceResult.SUCCEEDED,
+        datasetRefClonedResource.result,
+        "Dataset reference clone succeeded.");
+    assertEquals(
+        StewardshipType.REFERENCED,
+        datasetRefClonedResource.destinationResource.stewardshipType,
+        "Dataset reference has correct stewardship type.");
 
     UFClonedResource datasetClonedResource =
         getOrFail(
             clonedWorkspace.resources.stream()
                 .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
                 .findFirst());
-    assertEquals(CloneResourceResult.SUCCEEDED, datasetClonedResource.result);
-    assertEquals("The first dataset.", datasetClonedResource.destinationResource.description);
+    assertEquals(
+        CloneResourceResult.SUCCEEDED, datasetClonedResource.result, "Dataset clone succeeded.");
+    assertEquals(
+        "The first dataset.",
+        datasetClonedResource.destinationResource.description,
+        "Dataset description matches.");
 
     // Switch to the new workspace from the clone
     TestCommand.runCommandExpectSuccess(
@@ -182,7 +209,7 @@ public class CloneWorkspace extends ClearContextUnit {
     // Validate resources
     List<UFResource> resources =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
-    assertThat(resources, hasSize(3));
+    assertThat("Destination workspace has three resources.", resources, hasSize(3));
   }
 
   /**

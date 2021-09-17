@@ -6,13 +6,11 @@ import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
-import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -125,15 +123,7 @@ public class Workspace {
       return loadedWorkspace;
     }
 
-    // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
-    logger.info("Loaded workspace: {}", loadedWorkspace);
-
-    // convert the WSM object to a CLI object
-    Workspace workspace = new Workspace(loadedWorkspace);
-
-    // fetch the list of resources in this workspace
-    workspace.populateResources();
+    Workspace workspace = Workspace.get(id);
 
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
@@ -157,10 +147,9 @@ public class Workspace {
     logger.info("Loaded workspace: {}", loadedWorkspace);
 
     // convert the WSM object to a CLI object
-
-    Workspace result = new Workspace(loadedWorkspace);
-    result.populateResources();
-    return result;
+    Workspace workspace = new Workspace(loadedWorkspace);
+    workspace.populateResources();
+    return workspace;
   }
 
   /**
@@ -259,18 +248,19 @@ public class Workspace {
     return resources;
   }
 
+  /**
+   * Clone the current workspace into a new one
+   *
+   * @param name - name of the new workspace
+   * @param description - description of the new workspace
+   * @param location - location for resources in the new workspace
+   * @return - ClonedWorkspace structure with details on each resource
+   */
   public ClonedWorkspace clone(
       @Nullable String name, @Nullable String description, @Nullable String location) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContextForPetSa()
             .cloneWorkspace(id, name, description, location);
-    if (StatusEnum.FAILED == result.getJobReport().getStatus()) {
-      logger.warn("Clone operation failed. Error report: {}", result.getErrorReport());
-      throw new UserActionableException(
-          "Error report: "
-              + Objects.requireNonNullElse(
-                  result.getErrorReport().getMessage(), "Error report message missing."));
-    }
     return result.getWorkspace();
   }
 

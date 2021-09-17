@@ -297,6 +297,16 @@ public class WorkspaceManagerService {
         "Error updating workspace");
   }
 
+  /**
+   * Call the Workspace Manager POST "/api/workspaces/v1/{workspaceId}/clone" endpoint to clone a
+   * worksppace.
+   *
+   * @param workspaceId - workspace ID to clone
+   * @param displayName - optional name of new cloned workspace
+   * @param description - optional description for new workspace
+   * @param location - optional location for workspace resources
+   * @return
+   */
   public CloneWorkspaceResult cloneWorkspace(
       UUID workspaceId,
       @Nullable String displayName,
@@ -315,17 +325,21 @@ public class WorkspaceManagerService {
     // poll until the workspace clone completes.
     // TODO PF-745: return immediately and give some interface for checking on the job status
     //     and retrieving the result.
-    return handleClientExceptions(
-        () ->
-            HttpUtils.pollWithRetries(
-                () ->
-                    workspaceApi.getCloneWorkspaceResult(
-                        workspaceId, initialResult.getJobReport().getId()),
-                (result) -> isDone(result.getJobReport()),
-                WorkspaceManagerService::isRetryable,
-                CLONE_WORKSPACE_MAXIMUM_RETRIES,
-                CLONE_WORKSPACE_RETRY_INTERVAL),
-        "Error in cloning workspace.");
+    CloneWorkspaceResult cloneWorkspaceResult =
+        handleClientExceptions(
+            () ->
+                HttpUtils.pollWithRetries(
+                    () ->
+                        workspaceApi.getCloneWorkspaceResult(
+                            workspaceId, initialResult.getJobReport().getId()),
+                    (result) -> isDone(result.getJobReport()),
+                    WorkspaceManagerService::isRetryable,
+                    CLONE_WORKSPACE_MAXIMUM_RETRIES,
+                    CLONE_WORKSPACE_RETRY_INTERVAL),
+            "Error in cloning workspace.");
+    throwIfJobNotCompleted(
+        cloneWorkspaceResult.getJobReport(), cloneWorkspaceResult.getErrorReport());
+    return cloneWorkspaceResult;
   }
 
   /**

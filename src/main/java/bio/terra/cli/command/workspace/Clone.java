@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
+import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+/** This corresponds to the third-level "terra workspace clone" command. */
 @Command(name = "clone", description = "Clone an existing workspace.")
 public class Clone extends BaseCommand {
 
@@ -30,28 +32,35 @@ public class Clone extends BaseCommand {
 
   @CommandLine.Mixin private Format formatOption;
 
+  @CommandLine.Mixin private WorkspaceOverride workspaceOption;
+
   @Override
   protected void execute() {
-    Workspace workspaceToClone = Context.requireWorkspace();
+    workspaceOption.overrideIfSpecified();
+    Workspace sourceWorkspace = Context.requireWorkspace();
+
     ClonedWorkspace clonedWorkspace =
-        workspaceToClone.clone(
+        sourceWorkspace.clone(
             workspaceNameAndDescription.displayName,
             workspaceNameAndDescription.description,
             location);
-    Workspace sourceWorkspaceHydrated = Workspace.get(workspaceToClone.getId());
-    Workspace destinationWorkspace = Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
+    Workspace sourceWorkspaceHydrated = Workspace.get(sourceWorkspace.getId());
+    Workspace destinationWorkspaceHydrated =
+        Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 
     // Get a list of UFClonedResource objects based on the resources returned in the ClonedWorkspace
     java.util.List<UFClonedResource> ufClonedResources =
         clonedWorkspace.getResources().stream()
-            .map(r -> buildUfClonedResource(sourceWorkspaceHydrated, destinationWorkspace, r))
+            .map(
+                r ->
+                    buildUfClonedResource(sourceWorkspaceHydrated, destinationWorkspaceHydrated, r))
             .collect(Collectors.toList());
 
     // print results
     formatOption.printReturnValue(
         new UFClonedWorkspace(
-            new UFWorkspace(workspaceToClone),
-            new UFWorkspace(destinationWorkspace),
+            new UFWorkspace(sourceWorkspace),
+            new UFWorkspace(destinationWorkspaceHydrated),
             ufClonedResources),
         this::printText);
   }

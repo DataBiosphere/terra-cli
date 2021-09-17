@@ -28,7 +28,9 @@ public class UFClonedResource {
     this.result = resourceCloneDetails.getResult();
     this.sourceResource = sourceResource;
     this.destinationResource = destinationResource;
-    this.errorMessage = resourceCloneDetails.getErrorMessage();
+    this.errorMessage =
+        StringEscapeUtils.unescapeHtml(
+            StringEscapeUtils.unescapeHtml(resourceCloneDetails.getErrorMessage()));
   }
 
   protected UFClonedResource(Builder builder) {
@@ -46,9 +48,6 @@ public class UFClonedResource {
     OUT.println();
     if (null != destinationResource) {
       OUT.println("Destination resource:");
-      // TODO: just print name, description, and cloud details for destination
-      //      OUT.println(indent + "Name: " + destinationResource.name);
-      //      OUT.println(indent + "Description: " + destinationResource.description);
       destinationResource.print(indent);
     }
     OUT.println();
@@ -56,9 +55,7 @@ public class UFClonedResource {
 
     if (null != errorMessage) {
       // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
-      OUT.println(
-          "Error Message: "
-              + StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(errorMessage)));
+      OUT.println("Error Message: " + errorMessage);
     }
     OUT.println();
   }
