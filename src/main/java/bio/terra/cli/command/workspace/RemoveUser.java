@@ -3,7 +3,6 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,7 +17,7 @@ public class RemoveUser extends BaseCommand {
       names = "--role",
       required = true,
       description = "Role to grant: ${COMPLETION-CANDIDATES}.")
-  private IamRole role;
+  private WorkspaceUser.Role role;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 

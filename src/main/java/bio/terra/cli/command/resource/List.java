@@ -56,7 +56,8 @@ public class List extends BaseCommand {
               + resource.resourceType
               + ", "
               + resource.stewardshipType
-              + (resource.accessScope.equals(AccessScope.PRIVATE_ACCESS)
+              + (resource.stewardshipType.equals(StewardshipType.CONTROLLED)
+                      && resource.accessScope.equals(AccessScope.PRIVATE_ACCESS)
                   ? ", " + resource.accessScope + " " + resource.privateUserName
                   : "")
               + ")"
