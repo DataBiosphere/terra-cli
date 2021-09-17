@@ -34,6 +34,7 @@ public class UFWorkspaceUser implements UserFacing {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     String rolesStr = roles.stream().map(Role::toString).collect(Collectors.joining(","));

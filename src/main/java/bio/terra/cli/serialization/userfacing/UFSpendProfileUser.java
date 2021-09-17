@@ -35,6 +35,7 @@ public class UFSpendProfileUser implements UserFacing {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     List<String> policiesStr =

@@ -65,11 +65,6 @@ public class UFWorkspace implements UserFacing {
             + googleProjectId);
   }
 
-  public String getDeletePromptDescription() {
-    return String.format(
-        "This workspace contains %d resource(s) and %d user(s).", resourceCount, userCount);
-  }
-
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UUID id;

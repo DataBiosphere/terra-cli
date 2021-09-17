@@ -37,6 +37,7 @@ public class UFUser implements UserFacing {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     OUT.println("User email: " + email);

@@ -43,6 +43,7 @@ public class UFServer implements UserFacing {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     OUT.println(name + ": " + description);
