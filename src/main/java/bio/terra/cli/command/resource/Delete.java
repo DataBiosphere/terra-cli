@@ -21,16 +21,12 @@ public class Delete extends BaseCommand {
   /** Delete a resource from the workspace. */
   @Override
   protected void execute() {
-    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    deletePromptOption.confirmOrThrow(resource.getDeletePromptDescription());
     workspaceOption.overrideIfSpecified();
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
+    UFResource ufResource = resource.serializeToCommand();
+    ufResource.print();
+    deletePromptOption.confirmOrThrow();
     resource.delete();
-    formatOption.printReturnValue(resource.serializeToCommand(), Delete::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFResource returnValue) {
     OUT.println("Successfully deleted resource.");
-    returnValue.print();
   }
 }

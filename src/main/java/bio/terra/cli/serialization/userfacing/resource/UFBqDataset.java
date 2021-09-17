@@ -45,11 +45,6 @@ public class UFBqDataset extends UFResource {
     OUT.println("Table count: " + tableCount);
   }
 
-  @Override
-  public String getDeletePromptDescription() {
-    return "This dataset contains " + tableCount + "table(s).";
-  }
-
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;

@@ -190,9 +190,4 @@ public class BqDataset extends Resource {
     GoogleBqDatasets datasets = new GoogleBqDatasets(Context.requireUser().getPetSACredentials());
     return datasets.getTableCount(DatasetId.of(getProjectId(), getDatasetId()));
   }
-
-  @Override
-  public String getDeletePromptDescription() {
-    return String.format("This dataset has %d tables.", getTableCount());
-  }
 }

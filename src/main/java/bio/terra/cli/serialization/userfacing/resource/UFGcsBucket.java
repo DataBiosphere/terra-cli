@@ -41,11 +41,6 @@ public class UFGcsBucket extends UFResource {
     OUT.println("Object count: " + objectCount);
   }
 
-  @Override
-  public String getDeletePromptDescription() {
-    return String.format("This bucket contains %d object(s).", objectCount);
-  }
-
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;

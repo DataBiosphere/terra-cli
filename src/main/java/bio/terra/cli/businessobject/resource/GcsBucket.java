@@ -161,9 +161,4 @@ public class GcsBucket extends Resource {
     GoogleGcsBuckets buckets = new GoogleGcsBuckets(Context.requireUser().getPetSACredentials());
     return buckets.getBucketObjectCount(getBucketName());
   }
-
-  @Override
-  public String getDeletePromptDescription() {
-    return String.format("This bucket contains %d items.", getObjectCount());
-  }
 }

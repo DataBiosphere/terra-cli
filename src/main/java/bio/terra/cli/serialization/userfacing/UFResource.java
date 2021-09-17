@@ -22,7 +22,7 @@ import java.util.UUID;
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
 @JsonDeserialize(builder = UFResource.Builder.class)
-public abstract class UFResource {
+public abstract class UFResource implements UserFacing {
   public final UUID id;
   public final String name;
   public final String description;
@@ -33,11 +33,6 @@ public abstract class UFResource {
   public final ManagedBy managedBy;
   public final String privateUserName;
   public final List<ControlledResourceIamRole> privateUserRoles;
-
-  @JsonIgnore
-  public String getDeletePromptDescription() {
-    return "";
-  }
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {
@@ -68,6 +63,7 @@ public abstract class UFResource {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     OUT.println("Name:         " + (name == null ? "" : name));

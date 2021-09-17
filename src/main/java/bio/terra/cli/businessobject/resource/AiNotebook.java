@@ -147,9 +147,4 @@ public class AiNotebook extends Resource {
   public String getLocation() {
     return location;
   }
-
-  @Override
-  public String getDeletePromptDescription() {
-    return String.format("This notebook VM is still running.");
-  }
 }

@@ -1,6 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -15,13 +16,15 @@ import java.util.UUID;
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
 @JsonDeserialize(builder = UFWorkspace.Builder.class)
-public class UFWorkspace {
+public class UFWorkspace implements UserFacing {
   public final UUID id;
   public final String name;
   public final String description;
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
+  public final long resourceCount;
+  public final long userCount;
 
   /** Serialize an instance of the internal class to the disk format. */
   public UFWorkspace(Workspace internalObj) {
@@ -31,6 +34,8 @@ public class UFWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
+    this.resourceCount = internalObj.getResources().size();
+    this.userCount = WorkspaceUser.list().size();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -41,18 +46,28 @@ public class UFWorkspace {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
+    this.resourceCount = builder.resourceCount;
+    this.userCount = builder.userCount;
   }
 
   /** Print out a workspace object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     OUT.println("Terra workspace id: " + id);
-    OUT.println("Display name: " + name);
-    OUT.println("Description: " + description);
-    OUT.println("Google project: " + googleProjectId);
+    OUT.println("Display name:       " + name);
+    OUT.println("Description:        " + description);
+    OUT.println("Resource count:     " + resourceCount);
+    OUT.println("User count:         " + userCount);
+    OUT.println("Google project:     " + googleProjectId);
     OUT.println(
-        "Cloud console: https://console.cloud.google.com/home/dashboard?project="
+        "Cloud console:      https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
+  }
+
+  public String getDeletePromptDescription() {
+    return String.format(
+        "This workspace contains %d resource(s) and %d user(s).", resourceCount, userCount);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -63,6 +78,8 @@ public class UFWorkspace {
     private String googleProjectId;
     private String serverName;
     private String userEmail;
+    private long resourceCount;
+    private long userCount;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -91,6 +108,16 @@ public class UFWorkspace {
 
     public Builder userEmail(String userEmail) {
       this.userEmail = userEmail;
+      return this;
+    }
+
+    public Builder resourceCount(int resourceCount) {
+      this.resourceCount = resourceCount;
+      return this;
+    }
+
+    public Builder userCount(int userCount) {
+      this.userCount = userCount;
       return this;
     }
 

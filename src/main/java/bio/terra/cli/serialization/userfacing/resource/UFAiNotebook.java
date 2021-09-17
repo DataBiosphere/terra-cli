@@ -65,11 +65,6 @@ public class UFAiNotebook extends UFResource {
     OUT.println("Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
 
-  @Override
-  public String getDeletePromptDescription() {
-    return "This Notebook's current state is: " + (state == null ? "(undefined)" : state);
-  }
-
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;
