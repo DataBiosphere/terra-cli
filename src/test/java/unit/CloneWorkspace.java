@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -69,6 +70,10 @@ public class CloneWorkspace extends ClearContextUnit {
         logger.error("Failed to delete destination workspace.");
       }
     }
+  }
+
+  @AfterAll
+  public static void cleanupOnce() throws IOException {
     if (externalDataset != null) {
       ExternalBQDatasets.deleteDataset(externalDataset);
       externalDataset = null;
