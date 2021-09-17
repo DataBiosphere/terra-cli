@@ -14,7 +14,7 @@ import java.io.PrintStream;
  * <p>See the {@link Server} class for a server's internal representation.
  */
 @JsonDeserialize(builder = UFServer.Builder.class)
-public class UFServer {
+public class UFServer implements UserFacing {
   public final String name;
   public final String description;
   public final String samUri;

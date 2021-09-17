@@ -20,7 +20,7 @@ import java.util.UUID;
  * <p>See the {@link Config} class for a configuration's internal representation.
  */
 @JsonDeserialize(builder = UFConfig.Builder.class)
-public class UFConfig {
+public class UFConfig implements UserFacing {
   public final Config.BrowserLaunchOption browserLaunchOption;
   public final Config.CommandRunnerOption commandRunnerOption;
   public final String dockerImageId;

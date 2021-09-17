@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFStatus.Builder.class)
-public class UFStatus {
+public class UFStatus implements UserFacing {
   // global server context = service uris, environment name
   public final UFServer server;
 

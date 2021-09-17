@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFLoggingConfig.Builder.class)
-public class UFLoggingConfig {
+public class UFLoggingConfig implements UserFacing {
   // global logging context = log levels for file and stdout
   public final Logger.LogLevel consoleLoggingLevel;
   public final Logger.LogLevel fileLoggingLevel;

@@ -18,7 +18,7 @@ import java.util.List;
  * representation.
  */
 @JsonDeserialize(builder = UFGroup.Builder.class)
-public class UFGroup {
+public class UFGroup implements UserFacing {
   public final String name;
   public final String email;
   public final List<GroupPolicy> currentUserPolicies;

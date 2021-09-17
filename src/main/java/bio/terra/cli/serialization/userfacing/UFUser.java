@@ -14,7 +14,7 @@ import java.io.PrintStream;
  * <p>See the {@link User} class for a user's internal representation.
  */
 @JsonDeserialize(builder = UFUser.Builder.class)
-public class UFUser {
+public class UFUser implements UserFacing {
   public final String id;
   public final String email;
   public final String proxyGroupEmail;

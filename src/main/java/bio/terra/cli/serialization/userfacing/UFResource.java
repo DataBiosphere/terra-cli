@@ -7,7 +7,6 @@ import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.StewardshipType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;

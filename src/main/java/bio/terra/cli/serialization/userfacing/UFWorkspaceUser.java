@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * <p>See the {@link WorkspaceUser} class for a workspace user's internal representation.
  */
 @JsonDeserialize(builder = UFWorkspaceUser.Builder.class)
-public class UFWorkspaceUser {
+public class UFWorkspaceUser implements UserFacing {
   public final String email;
   public final List<Role> roles;
 
