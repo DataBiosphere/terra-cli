@@ -184,8 +184,12 @@ public class BqDataset extends Resource {
     return datasetId;
   }
 
+  public long getTableCount() {
+    return 101;
+  }
+
   @Override
   public String getDeletePromptDescription() {
-    return String.format("This dataset has %d tables.", 20);
+    return String.format("This dataset has %d tables.", getTableCount());
   }
 }

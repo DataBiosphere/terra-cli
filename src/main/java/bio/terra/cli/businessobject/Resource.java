@@ -158,7 +158,9 @@ public abstract class Resource {
     Context.requireWorkspace().listResourcesAndSync();
   }
 
-  public abstract String getDeletePromptDescription();
+  public String getDeletePromptDescription() {
+    return "";
+  }
 
   /** Call WSM to delete a referenced resource. */
   protected abstract void deleteReferenced();
