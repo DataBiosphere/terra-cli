@@ -7,6 +7,7 @@ import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.StewardshipType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -32,6 +33,11 @@ public abstract class UFResource {
   public final ManagedBy managedBy;
   public final String privateUserName;
   public final List<ControlledResourceIamRole> privateUserRoles;
+
+  @JsonIgnore
+  public String getDeletePromptDescription() {
+    return "";
+  }
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {

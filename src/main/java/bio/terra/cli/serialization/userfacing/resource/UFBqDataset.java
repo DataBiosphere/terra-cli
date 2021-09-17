@@ -18,12 +18,14 @@ import java.io.PrintStream;
 public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
+  public final int tableCount;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataset(BqDataset internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
+    this.tableCount = internalObj.getTableCount();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -31,6 +33,7 @@ public class UFBqDataset extends UFResource {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
+    this.tableCount = builder.tableCount;
   }
 
   /** Print out this object in text format. */
@@ -39,12 +42,19 @@ public class UFBqDataset extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println("GCP project id: " + projectId);
     OUT.println("BigQuery dataset id: " + datasetId);
+    OUT.println("Table count: " + tableCount);
+  }
+
+  @Override
+  public String getDeletePromptDescription() {
+    return "This dataset contains " + tableCount + "table(s).";
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;
     private String datasetId;
+    private int tableCount;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -56,6 +66,10 @@ public class UFBqDataset extends UFResource {
       return this;
     }
 
+    public Builder tableCount(int tableCount) {
+      this.tableCount = tableCount;
+      return this;
+    }
     /** Call the private constructor. */
     public UFBqDataset build() {
       return new UFBqDataset(this);

@@ -7,9 +7,11 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.service.GoogleBqDatasets;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.ResourceDescription;
+import com.google.cloud.bigquery.DatasetId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,8 +186,9 @@ public class BqDataset extends Resource {
     return datasetId;
   }
 
-  public long getTableCount() {
-    return 101;
+  public int getTableCount() {
+    GoogleBqDatasets datasets = new GoogleBqDatasets(Context.requireUser().getPetSACredentials());
+    return datasets.getTableCount(DatasetId.of(getProjectId(), getDatasetId()));
   }
 
   @Override

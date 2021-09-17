@@ -34,10 +34,10 @@ public class UFAiNotebook extends UFResource {
     this.location = internalObj.getLocation();
 
     Optional<Instance> instance = internalObj.getInstance();
-    this.instanceName = instance.isPresent() ? instance.get().getName() : null;
-    this.state = instance.isPresent() ? instance.get().getState() : null;
-    this.proxyUri = instance.isPresent() ? instance.get().getProxyUri() : null;
-    this.createTime = instance.isPresent() ? instance.get().getCreateTime() : null;
+    this.instanceName = instance.map(Instance::getName).orElse(null);
+    this.state = instance.map(Instance::getState).orElse(null);
+    this.proxyUri = instance.map(Instance::getProxyUri).orElse(null);
+    this.createTime = instance.map(Instance::getCreateTime).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -63,6 +63,11 @@ public class UFAiNotebook extends UFResource {
     OUT.println("State:         " + (state == null ? "(undefined)" : state));
     OUT.println("Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println("Create time:   " + (createTime == null ? "(undefined)" : createTime));
+  }
+
+  @Override
+  public String getDeletePromptDescription() {
+    return "This Notebook's current state is: " + (state == null ? "(undefined)" : state);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

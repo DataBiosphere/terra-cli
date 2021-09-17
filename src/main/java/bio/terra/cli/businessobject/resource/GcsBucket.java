@@ -7,6 +7,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.GoogleGcsBuckets;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -151,12 +152,18 @@ public class GcsBucket extends Resource {
     return bucketName;
   }
 
-  public long getItemCount() {
-    return 999;
+  /**
+   * Estimated count of all objects in the bucket
+   *
+   * @return number of objects
+   */
+  public long getObjectCount() {
+    GoogleGcsBuckets buckets = new GoogleGcsBuckets(Context.requireUser().getPetSACredentials());
+    return buckets.getBucketObjectCount(getBucketName());
   }
 
   @Override
   public String getDeletePromptDescription() {
-    return String.format("This bucket contains %d items.", getItemCount());
+    return String.format("This bucket contains %d items.", getObjectCount());
   }
 }
