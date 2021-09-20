@@ -94,7 +94,7 @@ public class Format {
    */
   public static <T> void printText(T returnValue) {
     if (returnValue != null) {
-      UserIO.getOut().println(returnValue.toString());
+      UserIO.getOut().println(returnValue);
     }
   }
 }

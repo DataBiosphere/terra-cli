@@ -27,6 +27,6 @@ public class Delete extends BaseCommand {
     ufResource.print();
     deletePromptOption.confirmOrThrow();
     resource.delete();
-    OUT.println("Successfully deleted resource.");
+    formatOption.printReturnValue("Successfully deleted resource.");
   }
 }

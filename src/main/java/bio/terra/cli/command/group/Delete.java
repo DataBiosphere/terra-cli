@@ -3,6 +3,7 @@ package bio.terra.cli.command.group;
 import bio.terra.cli.businessobject.Group;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.DeletePrompt;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GroupName;
 import bio.terra.cli.serialization.userfacing.UFGroup;
 import picocli.CommandLine;
@@ -13,6 +14,7 @@ import picocli.CommandLine.Command;
 public class Delete extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
   @CommandLine.Mixin GroupName groupNameOption;
+  @CommandLine.Mixin Format formatOption;
 
   /** Delete an existing Terra group. */
   @Override
@@ -22,6 +24,6 @@ public class Delete extends BaseCommand {
     ufGroup.print();
     deletePromptOption.confirmOrThrow();
     group.delete();
-    OUT.println("Terra group deleted.");
+    formatOption.printReturnValue("Terra group deleted.");
   }
 }

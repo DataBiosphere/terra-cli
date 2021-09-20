@@ -26,6 +26,6 @@ public class Delete extends BaseCommand {
     ufWorkspace.print();
     deletePromptOption.confirmOrThrow();
     workspaceToDelete.delete();
-    OUT.println("Workspace successfully deleted.");
+    formatOption.printReturnValue("Workspace successfully deleted.");
   }
 }
