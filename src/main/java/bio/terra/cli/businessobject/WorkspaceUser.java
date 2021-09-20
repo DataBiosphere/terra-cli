@@ -22,9 +22,39 @@ public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
 
   private String email;
-  private List<IamRole> roles;
+  private List<Role> roles;
 
-  private WorkspaceUser(String email, List<IamRole> roles) {
+  /**
+   * Enum for the workspace user roles supported by the CLI. Each enum value maps to a single WSM
+   * client library ({@link bio.terra.workspace.model.IamRole}) enum value.
+   *
+   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the roles
+   * supported (e.g. no applications). It also gives the CLI control over what the enum names are,
+   * which are exposed to users as command options.
+   */
+  public enum Role {
+    READER(IamRole.READER),
+    WRITER(IamRole.WRITER),
+    OWNER(IamRole.OWNER);
+
+    private IamRole wsmRole;
+
+    Role(IamRole wsmRole) {
+      this.wsmRole = wsmRole;
+    }
+
+    /** Get the CLI enum value that maps to the given WSM enum value. */
+    public static Role fromWsmRole(IamRole wsmRole) {
+      return Role.valueOf(wsmRole.getValue());
+    }
+
+    /** Get the WSM client enum value that maps to this CLI enum value. */
+    public IamRole getWsmRole() {
+      return wsmRole;
+    }
+  }
+
+  private WorkspaceUser(String email, List<Role> roles) {
     this.email = email;
     this.roles = roles;
   }
@@ -36,11 +66,12 @@ public class WorkspaceUser {
    * @param role role to assign the user
    * @throws UserActionableException if there is no current workspace
    */
-  public static WorkspaceUser add(String email, IamRole role) {
+  public static WorkspaceUser add(String email, Role role) {
     Workspace currentWorkspace = Context.requireWorkspace();
 
     // call WSM to add a user + role to the current workspace
-    WorkspaceManagerService.fromContext().grantIamRole(currentWorkspace.getId(), email, role);
+    WorkspaceManagerService.fromContext()
+        .grantIamRole(currentWorkspace.getId(), email, role.getWsmRole());
     logger.info("Added user to workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was added here)
@@ -55,11 +86,12 @@ public class WorkspaceUser {
    * @param role role to remove from the user
    * @throws UserActionableException if there is no current workspace
    */
-  public static WorkspaceUser remove(String email, IamRole role) {
+  public static WorkspaceUser remove(String email, Role role) {
     Workspace currentWorkspace = Context.requireWorkspace();
 
     // call WSM to remove a user + role from the current workspace
-    WorkspaceManagerService.fromContext().removeIamRole(currentWorkspace.getId(), email, role);
+    WorkspaceManagerService.fromContext()
+        .removeIamRole(currentWorkspace.getId(), email, role.getWsmRole());
     logger.info("Removed user from workspace: user={}, role={}", email, role);
 
     // return a WorkspaceUser = email + all roles (not just the one that was removed here)
@@ -110,7 +142,7 @@ public class WorkspaceUser {
               workspaceUser = new WorkspaceUser(emailLowercase, new ArrayList<>());
               workspaceUsers.put(emailLowercase, workspaceUser);
             }
-            workspaceUser.roles.add(role);
+            workspaceUser.roles.add(Role.fromWsmRole(role));
           }
         });
     return workspaceUsers;
@@ -123,7 +155,7 @@ public class WorkspaceUser {
     return email;
   }
 
-  public List<IamRole> getRoles() {
+  public List<Role> getRoles() {
     return roles;
   }
 }

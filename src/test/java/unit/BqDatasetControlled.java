@@ -5,11 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.bigquery.Dataset;
@@ -203,7 +203,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     AccessScope access = AccessScope.PRIVATE_ACCESS;
     CloningInstructionsEnum cloning = CloningInstructionsEnum.DEFINITION;
     String description = "\"create with all options\"";
-    IamRole iamRole = IamRole.READER;
+    WorkspaceUser.Role role = WorkspaceUser.Role.READER;
     String location = "us-east1";
     UFBqDataset createdDataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -217,7 +217,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "--cloning=" + cloning,
             "--description=" + description,
             "--email=" + workspaceCreator.email,
-            "--iam-roles=" + iamRole,
+            "--iam-roles=" + role,
             "--location=" + location);
 
     // check that the properties match

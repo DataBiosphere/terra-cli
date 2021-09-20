@@ -4,11 +4,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
@@ -174,7 +174,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     AccessScope access = AccessScope.PRIVATE_ACCESS;
     CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
     String description = "\"create with all options except lifecycle\"";
-    IamRole iamRole = IamRole.WRITER;
+    WorkspaceUser.Role role = WorkspaceUser.Role.WRITER;
     String location = "US";
     GcsStorageClass storage = GcsStorageClass.NEARLINE;
     UFGcsBucket createdBucket =
@@ -189,7 +189,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "--cloning=" + cloning,
             "--description=" + description,
             "--email=" + workspaceCreator.email,
-            "--iam-roles=" + iamRole,
+            "--iam-roles=" + role,
             "--location=" + location,
             "--storage=" + storage);
 

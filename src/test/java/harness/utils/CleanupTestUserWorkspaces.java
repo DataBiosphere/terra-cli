@@ -1,9 +1,9 @@
 package harness.utils;
 
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.workspace.model.IamRole;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestContext;
@@ -61,7 +61,8 @@ public class CleanupTestUserWorkspaces {
                 .filter(user -> user.email.equalsIgnoreCase(testUser.email))
                 .findAny();
         // skip deleting if the test user is not an owner
-        if (workspaceUser.isEmpty() || !workspaceUser.get().roles.contains(IamRole.OWNER)) {
+        if (workspaceUser.isEmpty()
+            || !workspaceUser.get().roles.contains(WorkspaceUser.Role.OWNER)) {
           System.out.println(
               "Skip deleting workspace because test user is not an owner: id="
                   + workspace.id
