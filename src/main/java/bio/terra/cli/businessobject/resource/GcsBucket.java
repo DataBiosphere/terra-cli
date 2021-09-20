@@ -7,7 +7,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
-import bio.terra.cli.service.GoogleGcsBuckets;
+import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -145,20 +145,21 @@ public class GcsBucket extends Resource {
     return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
   }
 
+  /**
+   * Estimated count of all objects in the bucket
+   *
+   * @param limit - max count we're interested in
+   * @return number of objects
+   */
+  public long getObjectCount(long limit) {
+    GoogleCloudStorage googleCloudStorage = GoogleCloudStorage.fromContextForSa();
+    return googleCloudStorage.getBucketObjectCount(getBucketName(), limit);
+  }
+
   // ====================================================
   // Property getters.
 
   public String getBucketName() {
     return bucketName;
-  }
-
-  /**
-   * Estimated count of all objects in the bucket
-   *
-   * @return number of objects
-   */
-  public long getObjectCount() {
-    GoogleGcsBuckets buckets = new GoogleGcsBuckets(Context.requireUser().getPetSACredentials());
-    return buckets.getBucketObjectCount(getBucketName());
   }
 }

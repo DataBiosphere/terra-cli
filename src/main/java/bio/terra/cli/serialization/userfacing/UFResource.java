@@ -21,7 +21,7 @@ import java.util.UUID;
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
 @JsonDeserialize(builder = UFResource.Builder.class)
-public abstract class UFResource implements UserFacing {
+public abstract class UFResource implements UserFacingPrintable {
   public final UUID id;
   public final String name;
   public final String description;

@@ -18,15 +18,17 @@ import java.util.List;
  * representation.
  */
 @JsonDeserialize(builder = UFGroup.Builder.class)
-public class UFGroup implements UserFacing {
+public class UFGroup implements UserFacingPrintable {
   public final String name;
   public final String email;
   public final List<GroupPolicy> currentUserPolicies;
+  public final long memberCount;
 
   public UFGroup(Group internalObj) {
     this.name = internalObj.getName();
     this.email = internalObj.getEmail();
     this.currentUserPolicies = internalObj.getCurrentUserPolicies();
+    this.memberCount = internalObj.getMembers().size();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -34,9 +36,11 @@ public class UFGroup implements UserFacing {
     this.name = builder.name;
     this.email = builder.email;
     this.currentUserPolicies = builder.currentUserPolicies;
+    this.memberCount = builder.memberCount;
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     List<String> policiesStr =
@@ -45,6 +49,7 @@ public class UFGroup implements UserFacing {
     OUT.println(name);
     OUT.println("  Email: " + email);
     OUT.println("  Current user's policies: " + String.join(", ", policiesStr));
+    OUT.println("  Member count: " + memberCount);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -52,6 +57,7 @@ public class UFGroup implements UserFacing {
     private String name;
     private String email;
     private List<GroupPolicy> currentUserPolicies;
+    private long memberCount;
 
     public Builder name(String name) {
       this.name = name;
@@ -65,6 +71,11 @@ public class UFGroup implements UserFacing {
 
     public Builder currentUserPolicies(List<GroupPolicy> currentUserPolicies) {
       this.currentUserPolicies = currentUserPolicies;
+      return this;
+    }
+
+    public Builder memberCount(long memberCount) {
+      this.memberCount = memberCount;
       return this;
     }
 

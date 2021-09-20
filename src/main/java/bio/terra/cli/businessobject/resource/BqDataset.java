@@ -7,7 +7,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
-import bio.terra.cli.service.GoogleBqDatasets;
+import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -186,8 +186,13 @@ public class BqDataset extends Resource {
     return datasetId;
   }
 
+  /**
+   * Retrieve number of tables in this dataset from the cloud
+   *
+   * @return count of tables
+   */
   public int getTableCount() {
-    GoogleBqDatasets datasets = new GoogleBqDatasets(Context.requireUser().getPetSACredentials());
-    return datasets.getTableCount(DatasetId.of(getProjectId(), getDatasetId()));
+    GoogleBigQuery googleBigQuery = GoogleBigQuery.fromContextForPetSa();
+    return googleBigQuery.getTableCount(DatasetId.of(getProjectId(), getDatasetId()));
   }
 }

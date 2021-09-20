@@ -19,7 +19,7 @@ import java.util.List;
  * representation.
  */
 @JsonDeserialize(builder = UFGroupMember.Builder.class)
-public class UFGroupMember implements UserFacing {
+public class UFGroupMember implements UserFacingPrintable {
   public final String email;
   public final List<GroupPolicy> policies;
 

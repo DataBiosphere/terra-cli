@@ -16,6 +16,8 @@ import java.io.PrintStream;
  */
 @JsonDeserialize(builder = UFGcsBucket.Builder.class)
 public class UFGcsBucket extends UFResource {
+  private static final long OBJECT_COUNT_LIMIT = 100;
+
   public final String bucketName;
   public final long objectCount;
 
@@ -23,7 +25,7 @@ public class UFGcsBucket extends UFResource {
   public UFGcsBucket(GcsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
-    this.objectCount = internalObj.getObjectCount();
+    this.objectCount = internalObj.getObjectCount(OBJECT_COUNT_LIMIT);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -39,7 +41,7 @@ public class UFGcsBucket extends UFResource {
     super.print();
     PrintStream OUT = UserIO.getOut();
     OUT.println("GCS bucket name: " + bucketName);
-    OUT.println("Object count: " + objectCount);
+    OUT.println("Object count: " + objectCount + ((OBJECT_COUNT_LIMIT == objectCount) ? "+" : ""));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

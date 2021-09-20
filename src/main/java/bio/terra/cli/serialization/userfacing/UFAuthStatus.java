@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
 @JsonDeserialize(builder = UFAuthStatus.Builder.class)
-public class UFAuthStatus implements UserFacing {
+public class UFAuthStatus {
   // Terra user email associated with the current user
   public final String userEmail;
 

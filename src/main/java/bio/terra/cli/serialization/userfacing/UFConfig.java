@@ -20,7 +20,7 @@ import java.util.UUID;
  * <p>See the {@link Config} class for a configuration's internal representation.
  */
 @JsonDeserialize(builder = UFConfig.Builder.class)
-public class UFConfig implements UserFacing {
+public class UFConfig implements UserFacingPrintable {
   public final Config.BrowserLaunchOption browserLaunchOption;
   public final Config.CommandRunnerOption commandRunnerOption;
   public final String dockerImageId;
@@ -56,6 +56,7 @@ public class UFConfig implements UserFacing {
   }
 
   /** Print out this object in text format. */
+  @Override
   public void print() {
     PrintStream OUT = UserIO.getOut();
     OUT.println("[app-launch] app launch mode = " + commandRunnerOption);

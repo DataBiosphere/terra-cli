@@ -19,7 +19,7 @@ import java.util.List;
  * internal representation.
  */
 @JsonDeserialize(builder = UFSpendProfileUser.Builder.class)
-public class UFSpendProfileUser implements UserFacing {
+public class UFSpendProfileUser implements UserFacingPrintable {
   public final String email;
   public final List<SpendProfilePolicy> policies;
 

@@ -16,7 +16,7 @@ import java.util.UUID;
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
 @JsonDeserialize(builder = UFWorkspace.Builder.class)
-public class UFWorkspace implements UserFacing {
+public class UFWorkspace implements UserFacingPrintable {
   public final UUID id;
   public final String name;
   public final String description;
