@@ -1,7 +1,6 @@
 {
   "name": "jcarlton-dev",
-  "description": "(mmedlock) Personal development environment",
-
+  "description": "(jcarlton) Personal development environment",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
   "workspaceManagerUri": "https://workspace.jcarlton.integ.envs.broadinstitute.org",
