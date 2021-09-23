@@ -95,16 +95,7 @@ public class Workspace extends ClearContextUnit {
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
 
     // `terra workspace delete --format=json`
-    UFWorkspace deleteWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "delete", "--quiet");
-
-    // check the deleted workspace matches the created workspace
-    assertEquals(createWorkspace.id, deleteWorkspace.id, "deleted workspace id matches created");
-    assertEquals(
-        createWorkspace.googleProjectId,
-        deleteWorkspace.googleProjectId,
-        "deleted workspace gcp project matches created");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
 
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
