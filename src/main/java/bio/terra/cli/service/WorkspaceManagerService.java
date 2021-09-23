@@ -296,8 +296,60 @@ public class WorkspaceManagerService {
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
         "Error updating workspace");
   }
+  
+    /**
+   * Call the Workspace Manager POST "/api/workspaces/v1/{id}/gcp/enablepet" endpoint to grant the
+   * currently logged in user and their pet permission to impersonate their own pet service account
+   * in a workspace.
+   *
+   * @param workspaceId the id of the workspace to enable pet impersonation in
+   * @return the email identifier of the pet SA which the user can now impersonate
+   */
+  public String enablePet(UUID workspaceId) {
+    return callWithRetries(
+        () -> new WorkspaceApi(apiClient).enablePet(workspaceId), "Error enabling user's pet SA");
+  }
 
   /**
+   * currently logged in user and their pet permission to impersonate their own pet service account
+   *
+   * @param workspaceId - workspace ID to clone
+   * @param location - optional location for workspace resources
+   * @return
+   */
+  public CloneWorkspaceResult cloneWorkspace(
+      UUID workspaceId,
+      @Nullable String displayName,
+      @Nullable String location) {
+    var request =
+        new CloneWorkspaceRequest()
+            .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
+            .displayName(displayName)
+            .description(description)
+            .location(location);
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    CloneWorkspaceResult initialResult =
+    // poll until the workspace clone completes.
+    // TODO PF-745: return immediately and give some interface for checking on the job status
+    //     and retrieving the result.
+    CloneWorkspaceResult cloneWorkspaceResult =
+        handleClientExceptions(
+            () ->
+                HttpUtils.pollWithRetries(
+                    () ->
+                        workspaceApi.getCloneWorkspaceResult(
+                            workspaceId, initialResult.getJobReport().getId()),
+                    (result) -> isDone(result.getJobReport()),
+                    WorkspaceManagerService::isRetryable,
+                    CLONE_WORKSPACE_MAXIMUM_RETRIES,
+                    CLONE_WORKSPACE_RETRY_INTERVAL),
+            "Error in cloning workspace.");
+    throwIfJobNotCompleted(
+        cloneWorkspaceResult.getJobReport(), cloneWorkspaceResult.getErrorReport());
+    return cloneWorkspaceResult;
+  }
+
+ /**
    * Call the Workspace Manager POST "/api/workspaces/v1/{workspaceId}/clone" endpoint to clone a
    * worksppace.
    *

@@ -187,6 +187,15 @@ public class Workspace {
   }
 
   /**
+   * Enable the current user and their pet to impersonate their pet SA in the current workspace.
+   *
+   * @return Email identifier of the pet SA the current user can now actAs.
+   */
+  public static String enablePet() {
+    return WorkspaceManagerService.fromContext().enablePet(Context.requireWorkspace().getId());
+  }
+
+  /**
    * List all workspaces that the current user has read access to.
    *
    * @param offset the offset to use when listing workspaces (zero to start from the beginning)
