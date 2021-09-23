@@ -137,7 +137,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "resource",
             "add-ref",
             "bq-dataset",
-            "--name=" + "dataset_ref",
+            "--name=dataset_ref",
             "--project-id=" + externalDataset.getProjectId(),
             "--dataset-id=" + externalDataset.getDatasetId(),
             "--cloning=COPY_REFERENCE");
@@ -148,7 +148,7 @@ public class CloneWorkspace extends ClearContextUnit {
             UFClonedWorkspace.class,
             "workspace",
             "clone",
-            "--name=" + "cloned_workspace",
+            "--name=cloned_workspace",
             "--description=A clone.");
 
     assertEquals(
