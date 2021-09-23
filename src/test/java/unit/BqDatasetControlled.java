@@ -86,9 +86,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
-    UFWorkspace workspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listReflectsDelete";
