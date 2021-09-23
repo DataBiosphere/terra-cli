@@ -207,6 +207,11 @@ The script to setup the initial set of test users on the SAM dev instance is in 
 Note that the current testing setup uses pre-defined users in the `test.firecloud.org` domain. There would be
 some refactoring involved in varying this domain also.
 
+Note that the script takes an ADMIN email as a required argument. This should be the email address of a SAM
+group that contains several admin emails (e.g. developer-admins group on the dev SAM deployment at the Broad
+contains the corporate emails of all PF team developers as of Sept 23, 2021). This is to prevent the team
+from losing access if the person who originally ran this script is not available.
+
 You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
 `test.firecloud.org` GSuite account.
 

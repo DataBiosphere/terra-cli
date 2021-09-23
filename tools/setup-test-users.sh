@@ -3,8 +3,24 @@
 set -e
 ## This script sets up users for running CLI tests. It only needs to be run once per SAM instance.
 ## Keep this script in sync with the harness.TestUsers class in the src/test/java directory.
+##
+## The admin users group email argument for this script should be the email address of a SAM group that contains
+## several admin emails (e.g. developer-admins group on the dev SAM deployment at the Broad contains the corporate
+## emails of all PF team developers as of Sept 23, 2021). This is to prevent the team from losing access if the
+## person who originally ran this script is not available.
+##
 ## Dependencies: jq
-## Usage: ./setup-test-users.sh
+## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
+## Usage: ./setup-test-users.sh  developer-admins@dev.test.firecloud.org
+#     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
+
+usage="Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
+
+adminUsersGroupEmail=$1
+if [ -z "$adminUsersGroupEmail" ]; then
+    echo $usage
+    exit 1
+fi
 
 terra=/Users/marikomedlock/Workspaces/terra-cli/build/install/terra-cli/bin/terra
 
@@ -14,6 +30,10 @@ echo "Creating the SAM group for CLI test users."
 groupName="cli-test-users"
 $terra group create --name=$groupName
 groupEmail=$($terra group describe --name=$groupName --format=json | jq -r .email)
+
+echo
+echo "Granting the admin users group ADMIN access to the SAM group for CLI test users."
+$terra group add-user --name=$groupName --policy=ADMIN --email=$adminUsersGroupEmail
 
 echo
 echo "Granting the SAM group USER access to the spend profile."
