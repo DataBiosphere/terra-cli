@@ -28,7 +28,7 @@ public class Server extends ClearContextUnit {
   @DisplayName("status, server list reflect server set")
   void statusListReflectSet() throws JsonProcessingException {
     // `terra server set --name=$serverName1`
-    String serverName1 = "terra-verily-dev";
+    String serverName1 = "terra-verily-devel";
     TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName1);
 
     // `terra status`

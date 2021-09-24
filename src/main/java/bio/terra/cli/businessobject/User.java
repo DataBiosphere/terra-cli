@@ -201,6 +201,14 @@ public class User {
       throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
     }
     logger.debug("Stored pet SA key file for this user and workspace.");
+
+    // Allow the user and their pet to impersonate the pet service account so that Nextflow and
+    // other app calls can run.
+    // TODO(PF-991): This behavior will change in the future when WSM disallows SA
+    //  self-impersonation
+    Workspace.enablePet();
+    logger.debug("Enabled pet SA impersonation");
+
     petSACredentials = createSaCredentials(jsonKeyPath);
   }
 

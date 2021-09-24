@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled AI notebooks. */
 @Tag("unit")
 public class AiNotebookControlled extends SingleWorkspaceUnit {
-  @Disabled // TODO (PF-928): this test is failing when the delete times out
+  @Test
   @DisplayName("list and describe reflect creating and deleting a controlled notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();
@@ -77,19 +76,21 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra notebook delete --name=$name`
     TestCommand.Result cmd =
         TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
-    assertTrue(
-        cmd.exitCode == 0
-            || (cmd.exitCode == 1
-                && cmd.stdErr.contains(
-                    "CLI timed out waiting for the job to complete. It's still running on the server.")),
-        "delete either succeeds or times out");
+    // TODO (PF-745): use long-running job commands here
+    boolean cliTimedOut =
+        cmd.exitCode == 1
+            && cmd.stdErr.contains(
+                "CLI timed out waiting for the job to complete. It's still running on the server.");
+    assertTrue(cmd.exitCode == 0 || cliTimedOut, "delete either succeeds or times out");
 
-    // confirm it no longer appears in the resources list
-    List<UFAiNotebook> listedNotebooks = listNotebookResourcesWithName(name);
-    assertThat(
-        "deleted notebook no longer appears in the resources list",
-        listedNotebooks,
-        Matchers.empty());
+    if (!cliTimedOut) {
+      // confirm it no longer appears in the resources list
+      List<UFAiNotebook> listedNotebooks = listNotebookResourcesWithName(name);
+      assertThat(
+          "deleted notebook no longer appears in the resources list",
+          listedNotebooks,
+          Matchers.empty());
+    }
   }
 
   @Test
@@ -200,17 +201,26 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     assertNotebookState(name, "PROVISIONING");
     pollDescribeForNotebookState(name, "ACTIVE");
 
-    // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
-    assertNotebookState(name, "ACTIVE");
-
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccess("notebook", "stop", "--name=" + name);
-    assertNotebookState(name, "STOPPED");
+    TestCommand.Result cmd = TestCommand.runCommand("notebook", "stop", "--name=" + name);
+    boolean badState409 =
+        cmd.exitCode == 1 && cmd.stdErr.contains("409: unable to queue the operation");
+    assertTrue(
+        cmd.exitCode == 0 || badState409,
+        "stop either succeeds or fails with a 409 bad state error");
+    if (!badState409) {
+      assertNotebookState(name, "STOPPED");
+    }
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccess("notebook", "start", "--name=" + name);
-    assertNotebookState(name, "ACTIVE");
+    cmd = TestCommand.runCommand("notebook", "start", "--name=" + name);
+    badState409 = cmd.exitCode == 1 && cmd.stdErr.contains("409: unable to queue the operation");
+    assertTrue(
+        cmd.exitCode == 0 || badState409,
+        "start either succeeds or fails with a 409 bad state error");
+    if (!badState409) {
+      assertNotebookState(name, "ACTIVE");
+    }
   }
 
   /**

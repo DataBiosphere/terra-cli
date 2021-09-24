@@ -94,17 +94,17 @@ public class Config extends SingleWorkspaceUnit {
   @Test
   @DisplayName("config server set and server set are equivalent")
   void server() throws IOException {
-    // `terra server set --name=terra-verily-dev`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-verily-dev");
+    // `terra server set --name=terra-verily-devel`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-verily-devel");
 
     // `terra config get server`
     UFServer getValue =
         TestCommand.runAndParseCommandExpectSuccess(UFServer.class, "config", "get", "server");
-    assertEquals("terra-verily-dev", getValue.name, "server set affects config get");
+    assertEquals("terra-verily-devel", getValue.name, "server set affects config get");
 
     // `terra config list`
     UFConfig config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals("terra-verily-dev", config.serverName, "server set affects config list");
+    assertEquals("terra-verily-devel", config.serverName, "server set affects config list");
 
     // `terra config set server --name=terra-dev`
     TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-dev");

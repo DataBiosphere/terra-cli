@@ -5,7 +5,6 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.workspace.model.IamRole;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -20,7 +19,7 @@ public class AddUser extends BaseCommand {
       names = "--role",
       required = true,
       description = "Role to grant: ${COMPLETION-CANDIDATES}.")
-  private IamRole role;
+  private WorkspaceUser.Role role;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
