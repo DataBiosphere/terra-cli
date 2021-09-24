@@ -1,1 +1,12 @@
-[ "terra-dev.json", "terra-verily-staging.json", "terra-verily-devel.json", "terra-verily-autopush.json", "mm-dev.json", "verily-cli.json", "wchamber-dev.json", "zloery-dev.json"]
+[
+  "jcarlton-dev.json",
+  "localhost.json",
+  "mm-dev.json",
+  "terra-dev.json",
+  "terra-verily-autopush.json",
+  "terra-verily-devel.json",
+  "terra-verily-staging.json",
+  "verily-cli.json",
+  "wchamber-dev.json",
+  "zloery-dev.json"
+]

@@ -3,6 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -11,24 +12,16 @@ import picocli.CommandLine.Command;
 @Command(name = "create", description = "Create a new workspace.")
 public class Create extends BaseCommand {
 
-  @CommandLine.Option(
-      names = "--name",
-      required = false,
-      description = "Workspace display name (not unique).")
-  private String displayName;
-
-  @CommandLine.Option(
-      names = "--description",
-      required = false,
-      description = "Workspace description.")
-  private String description;
+  @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
 
   @CommandLine.Mixin Format formatOption;
 
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    Workspace workspace = Workspace.create(displayName, description);
+    Workspace workspace =
+        Workspace.create(
+            workspaceNameAndDescription.displayName, workspaceNameAndDescription.description);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 

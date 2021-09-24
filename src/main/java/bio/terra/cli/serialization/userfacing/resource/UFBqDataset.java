@@ -34,11 +34,12 @@ public class UFBqDataset extends UFResource {
   }
 
   /** Print out this object in text format. */
-  public void print() {
-    super.print();
+  @Override
+  public void print(String prefix) {
+    super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println("GCP project id: " + projectId);
-    OUT.println("BigQuery dataset id: " + datasetId);
+    OUT.println(prefix + "GCP project id: " + projectId);
+    OUT.println(prefix + "BigQuery dataset id: " + datasetId);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

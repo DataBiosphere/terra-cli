@@ -11,6 +11,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.UserIO;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -151,7 +152,11 @@ public class Main implements Runnable {
       boolean printPointerToLogFile;
       if (ex instanceof UserActionableException) {
         errorMessage = ex.getMessage();
-        formattedErrorMessage = cmd.getColorScheme().errorText(errorMessage);
+        formattedErrorMessage =
+            cmd.getColorScheme()
+                .errorText(
+                    Objects.requireNonNullElse(
+                        errorMessage, ex.getClass().getName() + ": Error message not found."));
         exitCode = USER_ACTIONABLE_EXIT_CODE;
         printPointerToLogFile = false;
       } else if (ex instanceof SystemException) {

@@ -22,6 +22,8 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
+import bio.terra.workspace.model.CloneWorkspaceRequest;
+import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
@@ -95,7 +97,10 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling Workspace Manager endpoints. */
 public class WorkspaceManagerService {
+
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
+  private static final int CLONE_WORKSPACE_MAXIMUM_RETRIES = 360;
+  private static final Duration CLONE_WORKSPACE_RETRY_INTERVAL = Duration.ofSeconds(10);
 
   // the client object used for talking to WSM
   private final ApiClient apiClient;
@@ -303,6 +308,54 @@ public class WorkspaceManagerService {
   public String enablePet(UUID workspaceId) {
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).enablePet(workspaceId), "Error enabling user's pet SA");
+  }
+
+  /**
+   * Call the Workspace Manager POST "/api/workspaces/v1/{workspaceId}/clone" endpoint to clone a
+   * workspace.
+   *
+   * @param workspaceId - workspace ID to clone
+   * @param displayName - optional name of new cloned workspace
+   * @param description - optional description for new workspace
+   * @param location - optional location for workspace resources
+   * @return object with information about the clone job success and destination workspace
+   */
+  public CloneWorkspaceResult cloneWorkspace(
+      UUID workspaceId,
+      @Nullable String displayName,
+      @Nullable String description,
+      @Nullable String location) {
+    var request =
+        new CloneWorkspaceRequest()
+            .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
+            .displayName(displayName)
+            .description(description)
+            .location(location);
+    WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
+    CloneWorkspaceResult initialResult =
+        callWithRetries(
+            () -> workspaceApi.cloneWorkspace(request, workspaceId), "Error cloning workspace");
+    logger.debug("clone workspace initial result: {}", initialResult);
+
+    // poll until the workspace clone completes.
+    // TODO PF-745: return immediately and give some interface for checking on the job status
+    //     and retrieving the result.
+    CloneWorkspaceResult cloneWorkspaceResult =
+        handleClientExceptions(
+            () ->
+                HttpUtils.pollWithRetries(
+                    () ->
+                        workspaceApi.getCloneWorkspaceResult(
+                            workspaceId, initialResult.getJobReport().getId()),
+                    (result) -> isDone(result.getJobReport()),
+                    WorkspaceManagerService::isRetryable,
+                    CLONE_WORKSPACE_MAXIMUM_RETRIES,
+                    CLONE_WORKSPACE_RETRY_INTERVAL),
+            "Error in cloning workspace.");
+    logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
+    throwIfJobNotCompleted(
+        cloneWorkspaceResult.getJobReport(), cloneWorkspaceResult.getErrorReport());
+    return cloneWorkspaceResult;
   }
 
   /**

@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.workspace.AddUser;
+import bio.terra.cli.command.workspace.Clone;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
 import bio.terra.cli.command.workspace.Describe;
@@ -20,6 +21,7 @@ import picocli.CommandLine.Command;
     description = "Setup a Terra workspace.",
     subcommands = {
       AddUser.class,
+      Clone.class,
       Create.class,
       Delete.class,
       Describe.class,

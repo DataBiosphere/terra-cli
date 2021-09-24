@@ -1,5 +1,7 @@
 package bio.terra.cli.exception;
 
+import java.util.Objects;
+
 /**
  * Custom exception class for user actionable exceptions. These represent errors that the user can
  * fix. (e.g. "Invalid bucket path" when creating a data reference).
@@ -11,13 +13,16 @@ package bio.terra.cli.exception;
  * <p>-use a less scary font when printing to the terminal (e.g. regular blue text).
  */
 public class UserActionableException extends RuntimeException {
+
+  private static final String DEFAULT_ERROR_MESSAGE = "No error message available.";
+
   /**
    * Constructs an exception with the given message. The cause is set to null.
    *
    * @param message string to display to the user
    */
   public UserActionableException(String message) {
-    super(message);
+    super(Objects.requireNonNullElse(message, DEFAULT_ERROR_MESSAGE));
   }
 
   /**
@@ -27,6 +32,6 @@ public class UserActionableException extends RuntimeException {
    * @param cause underlying exception that can be logged for debugging purposes
    */
   public UserActionableException(String message, Throwable cause) {
-    super(message, cause);
+    super(Objects.requireNonNullElse(message, DEFAULT_ERROR_MESSAGE), cause);
   }
 }

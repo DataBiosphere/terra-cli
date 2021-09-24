@@ -1,12 +1,18 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.StewardshipType;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -20,6 +26,15 @@ import java.util.UUID;
  *
  * <p>See the {@link Resource} class for a resource's internal representation.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "resourceType")
+@JsonSubTypes({
+  @Type(value = UFAiNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
+  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET")
+})
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {
   public final UUID id;
@@ -61,22 +76,32 @@ public abstract class UFResource {
     this.privateUserRoles = builder.privateUserRoles;
   }
 
-  /** Print out this object in text format. */
-  public void print() {
+  /**
+   * Print out this object in text format.
+   *
+   * @param prefix string to prepend to all printed lines
+   */
+  public void print(String prefix) {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Name:         " + (name == null ? "" : name));
-    OUT.println("Description:  " + (description == null ? "" : description));
-    OUT.println("Stewardship:  " + stewardshipType);
-    OUT.println("Cloning:      " + cloningInstructions);
+    OUT.println(prefix + "Name:         " + (name == null ? "" : name));
+    OUT.println(prefix + "Description:  " + (description == null ? "" : description));
+    OUT.println(prefix + "Type:         " + resourceType);
+    OUT.println(prefix + "Stewardship:  " + stewardshipType);
+    OUT.println(prefix + "Cloning:      " + cloningInstructions);
 
     if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
-      OUT.println("Access scope: " + accessScope);
-      OUT.println("Managed by:   " + managedBy);
+      OUT.println(prefix + "Access scope: " + accessScope);
+      OUT.println(prefix + "Managed by:   " + managedBy);
 
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
-        OUT.println("Private user: " + privateUserName);
+        OUT.println(prefix + "Private user: " + privateUserName);
       }
     }
+  }
+
+  /** Print out this object in text format. */
+  public void print() {
+    print("");
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

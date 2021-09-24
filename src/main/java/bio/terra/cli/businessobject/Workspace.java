@@ -4,6 +4,8 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.CloneWorkspaceResult;
+import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.ArrayList;
@@ -121,15 +123,7 @@ public class Workspace {
       return loadedWorkspace;
     }
 
-    // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
-    logger.info("Loaded workspace: {}", loadedWorkspace);
-
-    // convert the WSM object to a CLI object
-    Workspace workspace = new Workspace(loadedWorkspace);
-
-    // fetch the list of resources in this workspace
-    workspace.populateResources();
+    Workspace workspace = Workspace.get(id);
 
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
@@ -140,6 +134,21 @@ public class Workspace {
     // down an app call
     Context.requireUser().fetchPetSaCredentials();
 
+    return workspace;
+  }
+  /**
+   * Fetch an existing workspace, with resources populated
+   *
+   * @param id workspace id
+   */
+  public static Workspace get(UUID id) {
+    // call WSM to fetch the existing workspace object and backing Google context
+    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
+    logger.info("Loaded workspace: {}", loadedWorkspace);
+
+    // convert the WSM object to a CLI object
+    Workspace workspace = new Workspace(loadedWorkspace);
+    workspace.populateResources();
     return workspace;
   }
 
@@ -246,6 +255,22 @@ public class Workspace {
     populateResources();
     Context.synchronizeToDisk();
     return resources;
+  }
+
+  /**
+   * Clone the current workspace into a new one
+   *
+   * @param name - name of the new workspace
+   * @param description - description of the new workspace
+   * @param location - location for resources in the new workspace
+   * @return - ClonedWorkspace structure with details on each resource
+   */
+  public ClonedWorkspace clone(
+      @Nullable String name, @Nullable String description, @Nullable String location) {
+    CloneWorkspaceResult result =
+        WorkspaceManagerService.fromContextForPetSa()
+            .cloneWorkspace(id, name, description, location);
+    return result.getWorkspace();
   }
 
   // ====================================================

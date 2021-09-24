@@ -31,10 +31,11 @@ public class UFGcsBucket extends UFResource {
   }
 
   /** Print out this object in text format. */
-  public void print() {
-    super.print();
+  @Override
+  public void print(String prefix) {
+    super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println("GCS bucket name: " + bucketName);
+    OUT.println(prefix + "GCS bucket name: " + bucketName);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
