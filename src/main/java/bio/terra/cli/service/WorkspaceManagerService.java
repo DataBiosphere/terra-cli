@@ -312,13 +312,13 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST "/api/workspaces/v1/{workspaceId}/clone" endpoint to clone a
-   * worksppace.
+   * workspace.
    *
    * @param workspaceId - workspace ID to clone
    * @param displayName - optional name of new cloned workspace
    * @param description - optional description for new workspace
    * @param location - optional location for workspace resources
-   * @return
+   * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
       UUID workspaceId,
@@ -335,6 +335,8 @@ public class WorkspaceManagerService {
     CloneWorkspaceResult initialResult =
         callWithRetries(
             () -> workspaceApi.cloneWorkspace(request, workspaceId), "Error cloning workspace");
+    logger.debug("clone workspace initial result: {}", initialResult);
+
     // poll until the workspace clone completes.
     // TODO PF-745: return immediately and give some interface for checking on the job status
     //     and retrieving the result.
@@ -350,6 +352,7 @@ public class WorkspaceManagerService {
                     CLONE_WORKSPACE_MAXIMUM_RETRIES,
                     CLONE_WORKSPACE_RETRY_INTERVAL),
             "Error in cloning workspace.");
+    logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
     throwIfJobNotCompleted(
         cloneWorkspaceResult.getJobReport(), cloneWorkspaceResult.getErrorReport());
     return cloneWorkspaceResult;

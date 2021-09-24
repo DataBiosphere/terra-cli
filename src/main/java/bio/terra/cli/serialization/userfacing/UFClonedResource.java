@@ -28,6 +28,7 @@ public class UFClonedResource {
     this.result = resourceCloneDetails.getResult();
     this.sourceResource = sourceResource;
     this.destinationResource = destinationResource;
+    // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
     this.errorMessage =
         StringEscapeUtils.unescapeHtml(
             StringEscapeUtils.unescapeHtml(resourceCloneDetails.getErrorMessage()));
@@ -54,7 +55,6 @@ public class UFClonedResource {
     OUT.println("Result: " + result);
 
     if (null != errorMessage) {
-      // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
       OUT.println("Error Message: " + errorMessage);
     }
     OUT.println();

@@ -76,7 +76,11 @@ public abstract class UFResource {
     this.privateUserRoles = builder.privateUserRoles;
   }
 
-  /** Print out this object in text format. */
+  /**
+   * Print out this object in text format.
+   *
+   * @param prefix string to prepend to all printed lines
+   */
   public void print(String prefix) {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "Name:         " + (name == null ? "" : name));
@@ -95,6 +99,7 @@ public abstract class UFResource {
     }
   }
 
+  /** Print out this object in text format. */
   public void print() {
     print("");
   }

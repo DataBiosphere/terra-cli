@@ -18,6 +18,7 @@ import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
+import harness.TestContext;
 import harness.TestUsers;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 @Tag("unit")
 public class CloneWorkspace extends ClearContextUnit {
-  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
+  private static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
@@ -45,8 +46,22 @@ public class CloneWorkspace extends ClearContextUnit {
 
   @BeforeAll
   public static void setupOnce() throws IOException {
-    // Add a referenced resource
+    TestContext.clearGlobalContextDir();
+    resetContext();
+
+    workspaceCreator.login(); // login needed to get user's proxy group
+
+    // create an external dataset to use for a referenced resource
     externalDataset = ExternalBQDatasets.createDataset();
+
+    // grant the workspace creator access to the dataset
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
+
+    // grant the user's proxy group access to the dataset so that it will pass WSM's access check
+    // when adding it as a referenced resource
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
   }
 
   @AfterEach
@@ -58,7 +73,7 @@ public class CloneWorkspace extends ClearContextUnit {
               "workspace", "delete", "--quiet", "--workspace=" + sourceWorkspace.id);
       sourceWorkspace = null;
       if (0 != result.exitCode) {
-        logger.error("Failed to delete source workspace.");
+        logger.error("Failed to delete source workspace. exit code = {}", result.exitCode);
       }
     }
     if (destinationWorkspace != null) {
@@ -67,7 +82,7 @@ public class CloneWorkspace extends ClearContextUnit {
               "workspace", "delete", "--quiet", "--workspace=" + destinationWorkspace.id);
       destinationWorkspace = null;
       if (0 != result.exitCode) {
-        logger.error("Failed to delete destination workspace.");
+        logger.error("Failed to delete destination workspace. exit code = {}", result.exitCode);
       }
     }
   }
@@ -122,14 +137,6 @@ public class CloneWorkspace extends ClearContextUnit {
             "--dataset-id=dataset_1",
             "--description=The first dataset.",
             "--cloning=COPY_RESOURCE");
-
-    ExternalBQDatasets.grantReadAccess(
-        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
-
-    // grant the user's proxy group access to the dataset so that it will pass WSM's access check
-    // when adding it as a referenced resource
-    ExternalBQDatasets.grantReadAccess(
-        externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
     UFBqDataset datasetReference =
         TestCommand.runAndParseCommandExpectSuccess(
