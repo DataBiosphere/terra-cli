@@ -165,13 +165,15 @@ public class User {
 
   /**
    * Fetch the pet SA credentials and email for this user + current workspace from SAM and persist
-   * it in the global context directory.
+   * it in the global context directory. This method assumes that this user is the current user, and
+   * that there is a current workspace specified.
    */
   public void fetchPetSaCredentials() {
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
-    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    Workspace currentWorkspace = Context.requireWorkspace();
+    String googleProjectId = currentWorkspace.getGoogleProjectId();
     if (googleProjectId == null || googleProjectId.isEmpty()) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
@@ -206,7 +208,7 @@ public class User {
     // other app calls can run.
     // TODO(PF-991): This behavior will change in the future when WSM disallows SA
     //  self-impersonation
-    Workspace.enablePet();
+    currentWorkspace.enablePet();
     logger.debug("Enabled pet SA impersonation");
 
     petSACredentials = createSaCredentials(jsonKeyPath);
