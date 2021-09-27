@@ -16,18 +16,21 @@ public class PDUser {
   public final String id;
   public final String email;
   public final String proxyGroupEmail;
+  public final String petSAEmail;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDUser(User internalObj) {
     this.id = internalObj.getId();
     this.email = internalObj.getEmail();
     this.proxyGroupEmail = internalObj.getProxyGroupEmail();
+    this.petSAEmail = internalObj.getPetSaEmail();
   }
 
   private PDUser(PDUser.Builder builder) {
     this.id = builder.id;
     this.email = builder.email;
     this.proxyGroupEmail = builder.proxyGroupEmail;
+    this.petSAEmail = builder.petSAEmail;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -35,6 +38,7 @@ public class PDUser {
     private String id;
     private String email;
     private String proxyGroupEmail;
+    private String petSAEmail;
 
     public Builder id(String id) {
       this.id = id;
@@ -48,6 +52,11 @@ public class PDUser {
 
     public Builder proxyGroupEmail(String proxyGroupEmail) {
       this.proxyGroupEmail = proxyGroupEmail;
+      return this;
+    }
+
+    public Builder petSAEmail(String petSAEmail) {
+      this.petSAEmail = petSAEmail;
       return this;
     }
 

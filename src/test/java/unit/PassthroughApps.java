@@ -121,7 +121,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertThat(
         "gcloud account = pet SA email",
         cmd.stdOut,
-        CoreMatchers.containsString(Context.requireUser().getPetSACredentials().getClientEmail()));
+        CoreMatchers.containsString(Context.requireUser().getPetSaEmail()));
   }
 
   @Test

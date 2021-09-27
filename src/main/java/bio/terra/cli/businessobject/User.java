@@ -9,6 +9,7 @@ import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.UserIO;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import com.google.common.annotations.VisibleForTesting;
@@ -50,6 +51,9 @@ public class User {
   // this field.
   private String proxyGroupEmail;
 
+  // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
+  private String petSAEmail;
+
   // Google credentials for the user and their pet SA
   private UserCredentials userCredentials;
   private ServiceAccountCredentials petSACredentials;
@@ -74,6 +78,7 @@ public class User {
     this.id = configFromDisk.id;
     this.email = configFromDisk.email;
     this.proxyGroupEmail = configFromDisk.proxyGroupEmail;
+    this.petSAEmail = configFromDisk.petSAEmail;
   }
 
   /** Build an empty instance of this class. */
@@ -159,22 +164,28 @@ public class User {
   }
 
   /**
-   * Fetch the pet SA credentials for this user + current workspace from SAM and persist it in the
-   * global context directory.
+   * Fetch the pet SA credentials and email for this user + current workspace from SAM and persist
+   * it in the global context directory. This method assumes that this user is the current user, and
+   * that there is a current workspace specified.
    */
   public void fetchPetSaCredentials() {
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
-    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    Workspace currentWorkspace = Context.requireWorkspace();
+    String googleProjectId = currentWorkspace.getGoogleProjectId();
     if (googleProjectId == null || googleProjectId.isEmpty()) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
     }
 
+    // ask SAM for the project-specific pet SA email and persist it on disk
+    SamService samService = new SamService(this, Context.getServer());
+    petSAEmail = samService.getPetSaEmailForProject(googleProjectId);
+    Context.setUser(this);
+
     // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSaKeySamResponse =
-        new SamService(this, Context.getServer()).getPetSaKeyForProject(googleProjectId);
+    HttpUtils.HttpResponse petSaKeySamResponse = samService.getPetSaKeyForProject(googleProjectId);
     logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       throw new SystemException(
@@ -197,7 +208,7 @@ public class User {
     // other app calls can run.
     // TODO(PF-991): This behavior will change in the future when WSM disallows SA
     //  self-impersonation
-    Workspace.enablePet();
+    currentWorkspace.enablePet();
     logger.debug("Enabled pet SA impersonation");
 
     petSACredentials = createSaCredentials(jsonKeyPath);
@@ -304,15 +315,15 @@ public class User {
   }
 
   public String getPetSaEmail() {
-    return petSACredentials == null ? null : petSACredentials.getClientEmail();
+    return petSAEmail;
   }
 
   public UserCredentials getUserCredentials() {
     return userCredentials;
   }
 
-  public ServiceAccountCredentials getPetSACredentials() {
-    return petSACredentials;
+  public GoogleCredentials getPetSACredentials() {
+    return GoogleCredentials.create(getPetSaAccessToken());
   }
 
   /** Return true if the user credentials are expired or do not exist on disk. */
@@ -336,6 +347,10 @@ public class User {
 
   /** Get the access token for the pet SA credentials. */
   public AccessToken getPetSaAccessToken() {
-    return GoogleOauth.getAccessToken(petSACredentials);
+    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    String accessTokenStr =
+        new SamService(this, Context.getServer())
+            .getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
+    return new AccessToken(accessTokenStr, null);
   }
 }
