@@ -253,7 +253,7 @@ public class User {
     UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
     id = userInfo.getUserSubjectId();
     email = userInfo.getUserEmail();
-    proxyGroupEmail = samService.getProxyGroupEmail();
+    proxyGroupEmail = samService.getProxyGroupEmail(email);
   }
 
   /**

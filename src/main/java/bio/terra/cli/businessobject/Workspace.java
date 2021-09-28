@@ -1,13 +1,26 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.persisted.PDWorkspace;
+import bio.terra.cli.service.GoogleOauth;
+import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.GetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -271,6 +284,70 @@ public class Workspace {
         WorkspaceManagerService.fromContextForPetSa()
             .cloneWorkspace(id, name, description, location);
     return result.getWorkspace();
+  }
+
+  /**
+   * Grant break-glass access to a user of this workspace. The user must be a workspace owner. The
+   * Editor role is granted to the user's proxy group.
+   *
+   * @param granteeEmail email of the workspace user requesting break-glass access
+   * @param saKeyFile path to the key file for a SA that has admin access on user projects in this
+   *     WSM deployment (e.g. WSM application SA)
+   */
+  public void grantBreakGlass(String granteeEmail, String saKeyFile) {
+    // check that the SA key file exists and is valid
+    ServiceAccountCredentials userProjectsAdminSA;
+    try {
+      final List<String> USER_PROJECTS_ADMIN_SA_SCOPES =
+          ImmutableList.of(
+              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
+      userProjectsAdminSA =
+          GoogleOauth.getServiceAccountCredential(
+              Path.of(saKeyFile).toFile(), USER_PROJECTS_ADMIN_SA_SCOPES);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error reading SA key file.", ioEx);
+    }
+
+    // require that the requester is a workspace owner
+    Optional<WorkspaceUser> granteeWorkspaceUser =
+        WorkspaceUser.list().stream()
+            .filter(user -> user.getEmail().equalsIgnoreCase(granteeEmail))
+            .findAny();
+    if (granteeWorkspaceUser.isEmpty()
+        || !granteeWorkspaceUser.get().getRoles().contains(WorkspaceUser.Role.OWNER)) {
+      throw new UserActionableException(
+          "The break-glass requester must be an owner of the workspace.");
+    }
+
+    // fetch the user's proxy group email from SAM
+    String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
+    logger.debug("granteeProxyGroupEmail: {}", granteeProxyGroupEmail);
+
+    // grant the Editor role to the user's proxy group email on the workspace project
+    CloudResourceManagerCow resourceManagerCow =
+        CrlUtils.createCloudResourceManagerCow(userProjectsAdminSA);
+    try {
+      Policy policy =
+          resourceManagerCow
+              .projects()
+              .getIamPolicy(googleProjectId, new GetIamPolicyRequest())
+              .execute();
+      List<Binding> updatedBindings =
+          Optional.ofNullable(policy.getBindings()).orElse(new ArrayList<>());
+      updatedBindings.add(
+          new Binding()
+              .setRole("roles/editor")
+              .setMembers(ImmutableList.of("group:" + granteeProxyGroupEmail)));
+      policy.setBindings(updatedBindings);
+      resourceManagerCow
+          .projects()
+          .setIamPolicy(googleProjectId, new SetIamPolicyRequest().setPolicy(policy))
+          .execute();
+    } catch (IOException ioEx) {
+      throw new SystemException("Error granting the Editor role to the user's proxy group.", ioEx);
+    }
+
+    // TODO: update the central BigQuery dataset with details of this request
   }
 
   // ====================================================

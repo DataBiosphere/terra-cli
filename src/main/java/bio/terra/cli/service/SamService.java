@@ -155,11 +155,12 @@ public class SamService {
    * Call the SAM "/api/google/v1/user/proxyGroup/{email}" endpoint to get the email for the current
    * user's proxy group.
    *
+   * @param email address of the user
    * @return email address of the user's proxy group
    */
-  public String getProxyGroupEmail() {
+  public String getProxyGroupEmail(String email) {
     return callWithRetries(
-        () -> new GoogleApi(apiClient).getProxyGroup(user.getEmail()),
+        () -> new GoogleApi(apiClient).getProxyGroup(email),
         "Error getting proxy group email from SAM.");
   }
 
