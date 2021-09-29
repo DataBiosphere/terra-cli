@@ -4,7 +4,6 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.persisted.PDWorkspace;
-import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -20,7 +19,6 @@ import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -291,23 +289,12 @@ public class Workspace {
    * Editor role is granted to the user's proxy group.
    *
    * @param granteeEmail email of the workspace user requesting break-glass access
-   * @param saKeyFile path to the key file for a SA that has admin access on user projects in this
-   *     WSM deployment (e.g. WSM application SA)
+   * @param userProjectsAdminCredentials credentials for a SA that has admin access on user projects
+   *     in this WSM deployment (e.g. WSM application SA)
+   * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public void grantBreakGlass(String granteeEmail, String saKeyFile) {
-    // check that the SA key file exists and is valid
-    ServiceAccountCredentials userProjectsAdminSA;
-    try {
-      final List<String> USER_PROJECTS_ADMIN_SA_SCOPES =
-          ImmutableList.of(
-              "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
-      userProjectsAdminSA =
-          GoogleOauth.getServiceAccountCredential(
-              Path.of(saKeyFile).toFile(), USER_PROJECTS_ADMIN_SA_SCOPES);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading SA key file.", ioEx);
-    }
-
+  public String grantBreakGlass(
+      String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // require that the requester is a workspace owner
     Optional<WorkspaceUser> granteeWorkspaceUser =
         WorkspaceUser.list().stream()
@@ -325,7 +312,7 @@ public class Workspace {
 
     // grant the Editor role to the user's proxy group email on the workspace project
     CloudResourceManagerCow resourceManagerCow =
-        CrlUtils.createCloudResourceManagerCow(userProjectsAdminSA);
+        CrlUtils.createCloudResourceManagerCow(userProjectsAdminCredentials);
     try {
       Policy policy =
           resourceManagerCow
@@ -347,7 +334,7 @@ public class Workspace {
       throw new SystemException("Error granting the Editor role to the user's proxy group.", ioEx);
     }
 
-    // TODO: update the central BigQuery dataset with details of this request
+    return granteeProxyGroupEmail;
   }
 
   // ====================================================
