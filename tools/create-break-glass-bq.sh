@@ -2,6 +2,12 @@
 
 ## This script creates a BigQuery dataset to catalog break-glass requests.
 ## Running this script more than once with the same project id has no effect (i.e. same as running it once).
+##
+## This script assumes that `bq` is authenticated with an account that has BigQuery admin permissions on
+## the specified project. e.g.
+##   gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/ci-account.json
+##   ./tools/create-break-glass-bq.sh terra-cli-dev
+##
 ## Dependencies: bq
 ## Inputs: projectId (arg, required)
 ## Usage: ./tools/create-break-glass-bq.sh [projectId]
