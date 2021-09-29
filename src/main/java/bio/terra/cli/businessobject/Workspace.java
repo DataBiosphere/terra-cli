@@ -289,8 +289,8 @@ public class Workspace {
    * Editor role is granted to the user's proxy group.
    *
    * @param granteeEmail email of the workspace user requesting break-glass access
-   * @param userProjectsAdminCredentials credentials for a SA that has admin access on user projects
-   *     in this WSM deployment (e.g. WSM application SA)
+   * @param userProjectsAdminCredentials credentials for a SA that has permission to set IAM policy
+   *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
   public String grantBreakGlass(

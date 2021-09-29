@@ -48,7 +48,7 @@ public class BreakGlass extends BaseCommand {
       names = "--user-project-admin-sa",
       required = true,
       description =
-          "Path to the key file for a SA that has admin permissions on user projects for the current server.")
+          "Path to the key file for a SA that has permission to set IAM policy on workspace projects for the current server.")
   private String userProjectAdminSAKeyFile;
 
   @CommandLine.Option(
@@ -96,6 +96,13 @@ public class BreakGlass extends BaseCommand {
         Context.requireWorkspace().grantBreakGlass(granteeEmail, userProjectsAdminCredentials);
 
     // update the central BigQuery dataset with details of this request
+    updateRequestsCatalog(bigQueryCredentials, granteeProxyGroupEmail);
+
+    OUT.println("Break-glass access successfully granted to: " + granteeEmail);
+  }
+
+  private void updateRequestsCatalog(
+      ServiceAccountCredentials bigQueryCredentials, String granteeProxyGroupEmail) {
     BigQuery bigQueryClient =
         BigQueryOptions.newBuilder()
             .setProjectId(bigQueryProjectId)
@@ -143,7 +150,5 @@ public class BreakGlass extends BaseCommand {
             "Error updating BigQuery dataset that catalogs break-glass requests.");
       }
     }
-
-    OUT.println("Break-glass access successfully granted to: " + granteeEmail);
   }
 }
