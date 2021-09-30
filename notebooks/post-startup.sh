@@ -23,12 +23,13 @@ now=$(date +"%m_%d_%Y_%H_%M_%S")
 exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output_$now.txt
 exec 2>&1
 
-echo "Type 'terra' to call the Terra CLI.
-
-If the command is not found, there may have been a problem with running the notebook startup script.
-Check that you have a recent Java version installed (>= 11) and re-run the script:
-
-curl -s https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh | bash" > /etc/profile.d/terra.sh
+echo "echo
+echo \"Type 'terra' to call the Terra CLI.\"
+echo
+echo \"If the command is not found, there may have been a problem with running the notebook startup script.\"
+echo \"Check that you have a recent Java version installed (>= 11) and re-run the script:\"
+echo
+echo \"curl -s https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh | bash\"" > /etc/profile.d/terra.sh
 
 #######################################
 # Retrieve a value from the GCE metadata server or return nothing.
