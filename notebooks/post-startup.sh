@@ -13,6 +13,17 @@ set -o xtrace
 # This post startup script is not run by the same user.
 readonly JUPYTER_USER="jupyter"
 
+# Add a welcome message to print on Jupyter terminal startup, with pointers to troubleshoot if this
+# script does not complete successfully.
+echo "echo
+echo \"Type 'terra' to call the Terra CLI.\"
+echo
+echo \"If the command is not found, there may have been a problem with running the notebook startup script.\"
+echo \"Check that you have a recent Java version installed (>= 11) and re-run the script:\"
+echo
+echo \"curl -s https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh | bash\"
+echo" > /etc/profile.d/terra.sh
+
 # Move to the /tmp directory to let any artifacts left behind by this script can be removed.
 cd /tmp || exit
 
@@ -22,14 +33,6 @@ sudo -u "${JUPYTER_USER}" sh -c "mkdir -p /home/${JUPYTER_USER}/.terra"
 now=$(date +"%m_%d_%Y_%H_%M_%S")
 exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output_$now.txt
 exec 2>&1
-
-echo "echo
-echo \"Type 'terra' to call the Terra CLI.\"
-echo
-echo \"If the command is not found, there may have been a problem with running the notebook startup script.\"
-echo \"Check that you have a recent Java version installed (>= 11) and re-run the script:\"
-echo
-echo \"curl -s https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh | bash\"" > /etc/profile.d/terra.sh
 
 #######################################
 # Retrieve a value from the GCE metadata server or return nothing.
