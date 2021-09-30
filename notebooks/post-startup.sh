@@ -19,8 +19,16 @@ cd /tmp || exit
 # Send stdout and stderr from this script to a file for debugging.
 # Make the .terra directory as the user so that they own it and have correct linux permissions.
 sudo -u "${JUPYTER_USER}" sh -c "mkdir -p /home/${JUPYTER_USER}/.terra"
-exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output.txt
+now=$(date +"%m_%d_%Y_%H_%M_%S")
+exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output_$now.txt
 exec 2>&1
+
+echo "Type 'terra' to call the Terra CLI.
+
+If the command is not found, there may have been a problem with running the notebook startup script.
+Check that you have a recent Java version installed (>= 11) and re-run the script:
+
+curl -s https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh | bash" > /etc/profile.d/terra.sh
 
 #######################################
 # Retrieve a value from the GCE metadata server or return nothing.
