@@ -1,6 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.SystemException;
@@ -21,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +73,11 @@ public class BreakGlass extends BaseCommand {
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
+  // pointers to the central BQ dataset where break-glass requests are logged
+  // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
+  private static String BQ_DATASET_NAME = "break_glass_requests";
+  private static String BQ_TABLE_NAME = "requests";
+
   /** Grant break-glass access to the workspace. */
   @Override
   protected void execute() {
@@ -91,18 +98,43 @@ public class BreakGlass extends BaseCommand {
       throw new UserActionableException("Error reading break-glass SA key files.", ioEx);
     }
 
+    // require that the requester is a workspace owner
+    Optional<WorkspaceUser> granteeWorkspaceUser =
+        WorkspaceUser.list().stream()
+            .filter(user -> user.getEmail().equalsIgnoreCase(granteeEmail))
+            .findAny();
+    if (granteeWorkspaceUser.isEmpty()
+        || !granteeWorkspaceUser.get().getRoles().contains(WorkspaceUser.Role.OWNER)) {
+      updateRequestsCatalogWithFailure(bigQueryCredentials, "Requestor is not a workspace owner.");
+      throw new UserActionableException(
+          "The break-glass requester must be an owner of the workspace.");
+    }
+
     // grant the user's proxy group the Editor role on the workspace project
     String granteeProxyGroupEmail =
         Context.requireWorkspace().grantBreakGlass(granteeEmail, userProjectsAdminCredentials);
 
     // update the central BigQuery dataset with details of this request
-    updateRequestsCatalog(bigQueryCredentials, granteeProxyGroupEmail);
+    updateRequestsCatalogWithSuccess(bigQueryCredentials, granteeProxyGroupEmail);
 
     OUT.println("Break-glass access successfully granted to: " + granteeEmail);
   }
 
-  private void updateRequestsCatalog(
+  private void updateRequestsCatalogWithFailure(
+      ServiceAccountCredentials bigQueryCredentials, String errorMsg) {
+    updateRequestsCatalog(bigQueryCredentials, true, null, errorMsg);
+  }
+
+  private void updateRequestsCatalogWithSuccess(
       ServiceAccountCredentials bigQueryCredentials, String granteeProxyGroupEmail) {
+    updateRequestsCatalog(bigQueryCredentials, false, granteeProxyGroupEmail, null);
+  }
+
+  private void updateRequestsCatalog(
+      ServiceAccountCredentials bigQueryCredentials,
+      boolean isFailure,
+      String granteeProxyGroupEmail,
+      String errorMsg) {
     BigQuery bigQueryClient =
         BigQueryOptions.newBuilder()
             .setProjectId(bigQueryProjectId)
@@ -111,7 +143,9 @@ public class BreakGlass extends BaseCommand {
             .getService();
     Map<String, Object> rowContent = new HashMap<>();
     rowContent.put("id", UUID.randomUUID().toString());
-    rowContent.put("requestGrantedTimestamp", new DateTime(new Date()));
+    rowContent.put("requestTimestamp", new DateTime(new Date()));
+    rowContent.put("isFailure", isFailure);
+    rowContent.put("errorMsg", errorMsg);
     rowContent.put("granteeEmail", granteeEmail);
     rowContent.put("granteeProxyGroupEmail", granteeProxyGroupEmail);
     rowContent.put("serverName", Context.getServer().getName());
@@ -121,10 +155,9 @@ public class BreakGlass extends BaseCommand {
     rowContent.put("workspaceName", Context.requireWorkspace().getName());
     rowContent.put("workspaceDescription", Context.requireWorkspace().getDescription());
     rowContent.put("granterEmail", Context.requireUser().getEmail());
-    rowContent.put("notes", notes);
+    rowContent.put("requestNotes", notes);
 
-    // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
-    TableId tableId = TableId.of("break_glass_requests", "requests");
+    TableId tableId = TableId.of(BQ_DATASET_NAME, BQ_TABLE_NAME);
     InsertAllRequest insertRequest =
         InsertAllRequest.newBuilder(tableId).addRow(rowContent).build();
     InsertAllResponse insertResponse = bigQueryClient.insertAll(insertRequest);

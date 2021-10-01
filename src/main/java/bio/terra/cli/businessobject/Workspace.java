@@ -285,8 +285,8 @@ public class Workspace {
   }
 
   /**
-   * Grant break-glass access to a user of this workspace. The user must be a workspace owner. The
-   * Editor role is granted to the user's proxy group.
+   * Grant break-glass access to a user of this workspace. The Editor role is granted to the user's
+   * proxy group.
    *
    * @param granteeEmail email of the workspace user requesting break-glass access
    * @param userProjectsAdminCredentials credentials for a SA that has permission to set IAM policy
@@ -295,17 +295,6 @@ public class Workspace {
    */
   public String grantBreakGlass(
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
-    // require that the requester is a workspace owner
-    Optional<WorkspaceUser> granteeWorkspaceUser =
-        WorkspaceUser.list().stream()
-            .filter(user -> user.getEmail().equalsIgnoreCase(granteeEmail))
-            .findAny();
-    if (granteeWorkspaceUser.isEmpty()
-        || !granteeWorkspaceUser.get().getRoles().contains(WorkspaceUser.Role.OWNER)) {
-      throw new UserActionableException(
-          "The break-glass requester must be an owner of the workspace.");
-    }
-
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
     logger.debug("granteeProxyGroupEmail: {}", granteeProxyGroupEmail);

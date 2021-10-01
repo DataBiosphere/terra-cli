@@ -6,8 +6,18 @@
   },
   {
     "mode": "REQUIRED",
-    "name": "requestGrantedTimestamp",
+    "name": "requestTimestamp",
     "type": "TIMESTAMP"
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "isFailure",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "errorMsg",
+    "type": "STRING"
   },
   {
     "mode": "REQUIRED",
@@ -15,7 +25,7 @@
     "type": "STRING"
   },
   {
-    "mode": "REQUIRED",
+    "mode": "NULLABLE",
     "name": "granteeProxyGroupEmail",
     "type": "STRING"
   },
@@ -56,7 +66,7 @@
   },
   {
     "mode": "NULLABLE",
-    "name": "notes",
+    "name": "requestNotes",
     "type": "STRING"
   }
 ]
