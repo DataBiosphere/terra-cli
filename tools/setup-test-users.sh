@@ -11,8 +11,15 @@ set -e
 ##
 ## Dependencies: jq
 ## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
-## Usage: ./setup-test-users.sh  developer-admins@dev.test.firecloud.org
+## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org
 #     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
+
+## The script assumes that it is being run from the top-level directory "terra-cli/".
+if [ $(basename $PWD) != 'terra-cli' ]; then
+  echo "Script must be run from top-level directory 'terra-cli/'"
+  exit 1
+fi
+terra=$PWD/build/install/terra-cli/bin/terra
 
 usage="Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
 
@@ -21,8 +28,6 @@ if [ -z "$adminUsersGroupEmail" ]; then
     echo $usage
     exit 1
 fi
-
-terra=/Users/marikomedlock/Workspaces/terra-cli/build/install/terra-cli/bin/terra
 
 # create the cli-test-users SAM group and add it as a user on the spend profile
 echo
