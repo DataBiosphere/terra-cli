@@ -33,9 +33,6 @@
     * [Alphabetize command lists](#alphabetize-command-lists)
     * [User readable exception messages](#user-readable-exception-messages)
     * [Singular command group names](#singular-command-group-names)
-7. [Break-glass access](#break-glass-access)
-    * [Grant break-glass](#grant-break-glass)
-    * [Requests catalog](#requests-catalog)
 
 -----
 
@@ -438,53 +435,3 @@ that should be reported, so there's no need to make these messages readable to t
 
 #### Singular command group names
 Use singular command group names instead of plural. e.g. `terra resource` instead of `terra resources`.
-
-
-### Break-glass access
-A break-glass implementation means that there is a way for users to request elevated permissions on a workspace.
-These elevated permissions invalidate the contract with WSM. Any guarantees about policy or access enforcement
-are off.
-
-The purpose of break-glass access is to grant select trusted users the ability to try out cloud features that
-are not yet available via WSM. The goal of this experimentation is to understand what use cases WSM could
-support in the future.
-
-Break-glass is intended for non-production environments only. This contributed to the decision to implement
-this on the client side, instead of e.g. as a new WSM endpoint.
-
-#### Grant break-glass
-To grant break-glass access to someone:
-1. Ask the requester to:
-    - Make your Terra user an owner of the workspace they want break-glass access to.
-      `terra workspace add-user --email=breakglassgranter@gmail.com --role=OWNER`
-    - Confirm that they are an owner of the workspace.
-      `terra workspace list-users`
-    - Relay any brief notes about the reason for the request.
-2. Download two SA key files:
-    - One that has permission to set IAM policy on all workspace projects. This will be specific 
-      to the server (i.e. WSM deployment) where the workspaces live.
-    - One that has permission to update a central BigQuery dataset that tracks break-glass requests.
-    - The `tools/render-config.sh` script downloads two SA key files that will work for workspaces 
-      on the `verily-cli` server and the central BigQuery dataset in the `terra-cli-dev` project.
-3. Run the `terra workspace break-glass` command.
-
-Example commands for granting break-glass access for a workspace in the `verily-cli` deployment:
-```
-./tools/render-config.sh
-terra auth login # login as yourself, the break-glass granter
-terra workspace break-glass --email=breakglassrequester@gmail.com --big-query-project=terra-cli-dev --big-query-sa=rendered/ci-account.json --user-project-admin-sa=rendered/verilycli-wsm-sa.json --notes="Testing break-glass command."
-```
-
-#### Requests catalog
-The `terra workspace break-glass` command updates a central BigQuery dataset to track break-glass requests.
-This dataset was setup by a script:
-```
-gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/ci-account.json
-./tools/create-break-glass-bq.sh terra-cli-dev
-```
-
-In the future, we can run the same script with different credentials and project id to setup another central
-BigQuery dataset somewhere else. (e.g. one for Verily deployments, one for Broad deployments). The SA activated
-in the first command needs to have BigQuery admin privileges in the target project.
-
-The current central BigQuery dataset exists in the `terra-cli-dev` project.
