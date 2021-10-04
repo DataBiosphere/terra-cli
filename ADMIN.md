@@ -43,8 +43,8 @@ group and grant that group OWNER access to the spend profile. e.g.:
 ```
 terra spend create-profile
 terra group create --name=developer-admins
-terra group add-user --email=admin1@gmail.com --policy=ADMIN
-terra group add-user --email=admin2@gmail.com --policy=ADMIN
+terra group add-user --name=developer-admins --email=admin1@gmail.com --policy=ADMIN
+terra group add-user --name=developer-admins --email=admin2@gmail.com --policy=ADMIN
 terra spend enable --email=developer-admins@gmail.com --policy=OWNER
 ```
 
