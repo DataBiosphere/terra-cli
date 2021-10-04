@@ -1,5 +1,7 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.spend.CreateProfile;
+import bio.terra.cli.command.spend.DeleteProfile;
 import bio.terra.cli.command.spend.Disable;
 import bio.terra.cli.command.spend.Enable;
 import bio.terra.cli.command.spend.ListUsers;
@@ -12,5 +14,11 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "spend",
     description = "Manage spend profiles.",
-    subcommands = {Enable.class, Disable.class, ListUsers.class})
+    subcommands = {
+      CreateProfile.class,
+      Enable.class,
+      DeleteProfile.class,
+      Disable.class,
+      ListUsers.class
+    })
 public class Spend {}

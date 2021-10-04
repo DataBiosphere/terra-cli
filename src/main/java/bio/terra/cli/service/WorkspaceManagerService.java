@@ -1037,6 +1037,7 @@ public class WorkspaceManagerService {
     } else if (!(ex instanceof ApiException)) {
       return false;
     }
+    logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
@@ -1138,36 +1139,37 @@ public class WorkspaceManagerService {
     } catch (ApiException | InterruptedException ex) {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        ApiException apiEx = (ApiException) ex;
-        logger.error(
-            "WSM exception status code: {}, response body: {}, message: {}",
-            apiEx.getCode(),
-            apiEx.getResponseBody(),
-            apiEx.getMessage());
-
-        // try to deserialize the response body into an ErrorReport
-        String apiExMsg = apiEx.getResponseBody();
-        if (apiExMsg != null)
-          try {
-            ErrorReport errorReport =
-                JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
-            apiExMsg = errorReport.getMessage();
-          } catch (JsonProcessingException jsonEx) {
-            logger.debug(
-                "Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
-          }
-
-        // if we found a WSM error message, then append it to the one passed in
-        // otherwise append the http code
-        errorMsg +=
-            ": "
-                + ((apiExMsg != null && !apiExMsg.isEmpty())
-                    ? apiExMsg
-                    : apiEx.getCode() + " " + apiEx.getMessage());
+        errorMsg += ": " + logErrorMessage((ApiException) ex);
       }
 
       // wrap the WSM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  private static String logErrorMessage(ApiException apiEx) {
+    logger.error(
+        "WSM exception status code: {}, response body: {}, message: {}",
+        apiEx.getCode(),
+        apiEx.getResponseBody(),
+        apiEx.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    String apiExMsg = apiEx.getResponseBody();
+    if (apiExMsg != null)
+      try {
+        ErrorReport errorReport =
+            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+        apiExMsg = errorReport.getMessage();
+      } catch (JsonProcessingException jsonEx) {
+        logger.debug("Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
+      }
+
+    // if we found a SAM error message, then return it
+    // otherwise return a string with the http code
+    return ((apiExMsg != null && !apiExMsg.isEmpty())
+        ? apiExMsg
+        : apiEx.getCode() + " " + apiEx.getMessage());
   }
 }

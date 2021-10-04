@@ -66,7 +66,7 @@ dependencies {
 
         // terra libraries
         crlPlatform = "0.2.0"
-        samClient = "0.1-9435410-SNAP"
+        samClient = "0.1-ffb0a89-SNAP" // "0.1-9435410-SNAP"
         workspaceManagerClient = "0.254.80-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
@@ -106,7 +106,7 @@ dependencies {
     implementation "bio.terra.cloud-resource-lib:google-notebooks"
     implementation "bio.terra.cloud-resource-lib:google-storage"
 
-    implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
+    implementation "org.broadinstitute.dsde.workbench:sam-client_2.13:${samClient}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
     implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
 

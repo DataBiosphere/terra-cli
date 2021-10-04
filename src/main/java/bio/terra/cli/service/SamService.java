@@ -12,6 +12,7 @@ import com.google.auth.oauth2.AccessToken;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
@@ -22,7 +23,9 @@ import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.CreateResourceRequestV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.ErrorReport;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
@@ -328,6 +331,37 @@ public class SamService {
   }
 
   /**
+   * Call the SAM "/api/resources/v2/{resourceTypeName}" POST endpoint to create a new resource with
+   * the given policies (i.e. not default owner policy).
+   *
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   * @param policies list of policies on the resource
+   */
+  public void createResource(
+      String resourceType, String resourceId, Map<String, AccessPolicyMembershipV2> policies) {
+    CreateResourceRequestV2 request =
+        new CreateResourceRequestV2().resourceId(resourceId).policies(policies);
+    logger.debug("create resource request: {}", request);
+    callWithRetries(
+        () -> new ResourcesApi(apiClient).createResourceV2(resourceType, request),
+        "Error creating SAM resource.");
+  }
+
+  /**
+   * Call the SAM "/api/resources/v2/{resourceTypeName}/{resourceId}" DELETE endpoint to delete an
+   * existing resource.
+   *
+   * @param resourceType type of resource
+   * @param resourceId id of resource
+   */
+  public void deleteResource(String resourceType, String resourceId) {
+    callWithRetries(
+        () -> new ResourcesApi(apiClient).deleteResourceV2(resourceType, resourceId),
+        "Error deleting SAM resource.");
+  }
+
+  /**
    * Call the SAM "POST /api/google/v1/user/petServiceAccount/{project}" GET endpoint to get a
    * project-specific pet SA email for the current user (i.e. the one whose credentials were
    * supplied to the apiClient object).
@@ -434,6 +468,7 @@ public class SamService {
     } else if (!(ex instanceof ApiException)) {
       return false;
     }
+    logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
@@ -568,32 +603,7 @@ public class SamService {
     } catch (ApiException | InterruptedException ex) {
       // if this is a SAM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        ApiException apiEx = (ApiException) ex;
-        logger.error(
-            "SAM exception status code: {}, response body: {}, message: {}",
-            apiEx.getCode(),
-            apiEx.getResponseBody(),
-            apiEx.getMessage());
-
-        // try to deserialize the response body into an ErrorReport
-        String apiExMsg = apiEx.getResponseBody();
-        if (apiExMsg != null)
-          try {
-            ErrorReport errorReport =
-                JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
-            apiExMsg = errorReport.getMessage();
-          } catch (JsonProcessingException jsonEx) {
-            logger.debug(
-                "Error deserializing SAM exception ErrorReport: {}", apiEx.getResponseBody());
-          }
-
-        // if we found a SAM error message, then append it to the one passed in
-        // otherwise append the http code
-        errorMsg +=
-            ": "
-                + ((apiExMsg != null && !apiExMsg.isEmpty())
-                    ? apiExMsg
-                    : apiEx.getCode() + " " + apiEx.getMessage());
+        errorMsg += ": " + logErrorMessage((ApiException) ex);
       }
 
       // wrap the SAM exception and re-throw it
@@ -609,5 +619,31 @@ public class SamService {
             anyEx);
       }
     }
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  private static String logErrorMessage(ApiException apiEx) {
+    logger.error(
+        "SAM exception status code: {}, response body: {}, message: {}",
+        apiEx.getCode(),
+        apiEx.getResponseBody(),
+        apiEx.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    String apiExMsg = apiEx.getResponseBody();
+    if (apiExMsg != null)
+      try {
+        ErrorReport errorReport =
+            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+        apiExMsg = errorReport.getMessage();
+      } catch (JsonProcessingException jsonEx) {
+        logger.debug("Error deserializing SAM exception ErrorReport: {}", apiEx.getResponseBody());
+      }
+
+    // if we found a SAM error message, then return it
+    // otherwise return a string with the http code
+    return ((apiExMsg != null && !apiExMsg.isEmpty())
+        ? apiExMsg
+        : apiEx.getCode() + " " + apiEx.getMessage());
   }
 }
