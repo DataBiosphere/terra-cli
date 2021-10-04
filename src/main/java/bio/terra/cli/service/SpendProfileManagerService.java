@@ -1,7 +1,10 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +28,11 @@ public class SpendProfileManagerService {
    * uses the current context's server and user.
    */
   public static SpendProfileManagerService fromContext() {
-    return new SpendProfileManagerService();
+    return new SpendProfileManagerService(SamService.fromContext());
   }
 
-  private SpendProfileManagerService() {
-    this.samService = SamService.fromContext();
+  private SpendProfileManagerService(SamService samService) {
+    this.samService = samService;
   }
 
   /**
@@ -81,6 +84,27 @@ public class SpendProfileManagerService {
    */
   public List<AccessPolicyResponseEntry> listUsersOfDefaultSpendProfile() {
     return samService.listPoliciesForResource(
+        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
+  }
+
+  /** Create a new SAM resource for the WSM default spend profile of the current server. */
+  public void createDefaultSpendProfile() {
+    // create two policies (owner, user) and make sure the current user is an owner
+    Map<String, AccessPolicyMembershipV2> policies = new HashMap<>();
+    policies.put(
+        "owner",
+        new AccessPolicyMembershipV2()
+            .addRolesItem("owner")
+            .addMemberEmailsItem(Context.requireUser().getEmail()));
+    policies.put("user", new AccessPolicyMembershipV2().addRolesItem("user"));
+
+    samService.createResource(
+        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile(), policies);
+  }
+
+  /** Delete the SAM resource for the WSM default spend profile of the current server. */
+  public void deleteDefaultSpendProfile() {
+    samService.deleteResource(
         SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
   }
 }
