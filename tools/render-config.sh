@@ -17,6 +17,7 @@ CI_SA_VAULT_PATH=secret/dsde/terra/kernel/dev/common/ci/ci-account.json
 TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
 EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
 JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
+VERILYCLI_WSM_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/verilycli/workspace/app-sa
 
 # Helper function to read a secret from Vault and write it to a local file in the rendered/ directory.
 # Inputs: vault path, file name, [optional] decode from base 64
@@ -59,3 +60,7 @@ readFromVault "$EXT_PROJECT_SA_VAULT_PATH" "external-project-account.json"
 # used for cleaning up external (to WSM) test resources with Janitor
 echo "Reading the Janitor client service account key file from Vault"
 readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json" "base64"
+
+# used for granting break-glass access to a workspace in the verilycli deployment
+echo "Reading the WSM app service account key file for the verilycli deployment from Vault"
+readFromVault "$VERILYCLI_WSM_SA_VAULT_PATH" "verilycli-wsm-sa.json" "base64"

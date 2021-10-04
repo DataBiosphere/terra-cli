@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.command.workspace.AddUser;
+import bio.terra.cli.command.workspace.BreakGlass;
 import bio.terra.cli.command.workspace.Clone;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
@@ -30,5 +31,6 @@ import picocli.CommandLine.Command;
       RemoveUser.class,
       Set.class,
       Update.class,
+      BreakGlass.class,
     })
 public class Workspace {}
