@@ -58,6 +58,9 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
+    // fetch the pet SA key file and persist it on disk
+    Context.requireUser().fetchPetSaKeyFile();
+
     // set the path to the pet SA key file
     envVars.put("GOOGLE_APPLICATION_CREDENTIALS", Context.getPetSaKeyFile().toString());
 

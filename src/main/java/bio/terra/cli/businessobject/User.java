@@ -54,9 +54,8 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user and their pet SA
+  // Google credentials for the user
   private UserCredentials userCredentials;
-  private ServiceAccountCredentials petSACredentials;
 
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
@@ -111,7 +110,6 @@ public class User {
       logger.debug("Pet SA key file not found for current user + workspace");
       return;
     }
-    petSACredentials = createSaCredentials(jsonKeyPath);
   }
 
   /**
@@ -164,9 +162,10 @@ public class User {
   }
 
   /**
-   * Fetch the pet SA credentials and email for this user + current workspace from SAM and persist
-   * it in the global context directory. This method assumes that this user is the current user, and
-   * that there is a current workspace specified.
+   * Fetch the pet SA email for this user + current workspace from SAM and persist it in the global
+   * context directory. If the pet SA does not yet exist for the user, then SAM will create it.
+   * Grant both the user and the pet SA permission to impersonate the pet SA. This method assumes
+   * that this user is the current user, and that there is a current workspace specified.
    */
   public void fetchPetSaCredentials() {
     // if the cloud context is undefined, then something went wrong during workspace creation
@@ -180,12 +179,36 @@ public class User {
     }
 
     // ask SAM for the project-specific pet SA email and persist it on disk
-    SamService samService = new SamService(this, Context.getServer());
-    petSAEmail = samService.getPetSaEmailForProject(googleProjectId);
+    petSAEmail = new SamService(this, Context.getServer()).getPetSaEmailForProject(googleProjectId);
     Context.setUser(this);
 
+    // Allow the user and their pet to impersonate the pet service account so that Nextflow and
+    // other app calls can run.
+    // TODO(PF-991): This behavior will change in the future when WSM disallows SA
+    //  self-impersonation
+    currentWorkspace.enablePet();
+    logger.debug("Enabled pet SA impersonation");
+  }
+
+  /**
+   * Fetch the pet SA key file for this user + current workspace from SAM and persist it in the
+   * global context directory. This method assumes that this user is the current user, and that
+   * there is a current workspace specified.
+   */
+  public void fetchPetSaKeyFile() {
+    // if the cloud context is undefined, then something went wrong during workspace creation
+    // just log an error here instead of throwing an exception, so that the workspace load will
+    // will succeed and the user can delete the corrupted workspace
+    Workspace currentWorkspace = Context.requireWorkspace();
+    String googleProjectId = currentWorkspace.getGoogleProjectId();
+    if (googleProjectId == null || googleProjectId.isEmpty()) {
+      logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
+      return;
+    }
+
     // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSaKeySamResponse = samService.getPetSaKeyForProject(googleProjectId);
+    HttpUtils.HttpResponse petSaKeySamResponse =
+        new SamService(this, Context.getServer()).getPetSaKeyForProject(googleProjectId);
     logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       throw new SystemException(
@@ -202,16 +225,7 @@ public class User {
     } catch (IOException ioEx) {
       throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
     }
-    logger.debug("Stored pet SA key file for this user and workspace.");
-
-    // Allow the user and their pet to impersonate the pet service account so that Nextflow and
-    // other app calls can run.
-    // TODO(PF-991): This behavior will change in the future when WSM disallows SA
-    //  self-impersonation
-    currentWorkspace.enablePet();
-    logger.debug("Enabled pet SA impersonation");
-
-    petSACredentials = createSaCredentials(jsonKeyPath);
+    logger.debug("Stored pet SA key file for this user and workspace: {}", jsonKeyPath);
   }
 
   /** Delete all pet SA credentials for this user. */

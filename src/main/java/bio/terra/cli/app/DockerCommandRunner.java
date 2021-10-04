@@ -57,6 +57,9 @@ public class DockerCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
+    // fetch the pet SA key file and persist it on disk
+    Context.requireUser().fetchPetSaKeyFile();
+
     // set the path to the pet SA key file, which may be different on the container vs the host
     envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
 
