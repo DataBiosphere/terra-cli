@@ -28,7 +28,7 @@ terra=/Users/marikomedlock/Workspaces/terra-cli/build/install/terra-cli/bin/terr
 echo
 echo "Creating the SAM group for CLI test users."
 groupName="cli-test-users"
-$terra group create --name=$groupName
+$terra group describe --name=$groupName || $terra group create --name=$groupName
 groupEmail=$($terra group describe --name=$groupName --format=json | jq -r .email)
 
 echo
