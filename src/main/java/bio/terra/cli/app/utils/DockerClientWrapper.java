@@ -96,13 +96,15 @@ public class DockerClientWrapper {
     // create Bind objects for each specified mount
     List<Bind> bindMountsObj = new ArrayList<>();
     for (Map.Entry<Path, Path> bindMount : bindMounts.entrySet()) {
-      File localDirectory = bindMount.getValue().toFile();
-      if (!localDirectory.exists() || !localDirectory.isDirectory()) {
+      File localFileOrDirectory = bindMount.getValue().toFile();
+      if (!localFileOrDirectory.exists()) {
         throw new SystemException(
-            "Bind mount does not specify a local directory: " + localDirectory.getAbsolutePath());
+            "Bind mount does not specify a local file or directory: "
+                + localFileOrDirectory.getAbsolutePath());
       }
       bindMountsObj.add(
-          new Bind(localDirectory.getAbsolutePath(), new Volume(bindMount.getKey().toString())));
+          new Bind(
+              localFileOrDirectory.getAbsolutePath(), new Volume(bindMount.getKey().toString())));
     }
 
     // create the container and start it

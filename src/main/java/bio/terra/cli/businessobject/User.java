@@ -179,7 +179,7 @@ public class User {
     }
 
     // ask SAM for the project-specific pet SA email and persist it on disk
-    petSAEmail = new SamService(this, Context.getServer()).getPetSaEmailForProject(googleProjectId);
+    petSAEmail = SamService.forUser(this).getPetSaEmailForProject(googleProjectId);
     Context.setUser(this);
 
     // Allow the user and their pet to impersonate the pet service account so that Nextflow and
@@ -208,7 +208,7 @@ public class User {
 
     // ask SAM for the project-specific pet SA key
     HttpUtils.HttpResponse petSaKeySamResponse =
-        new SamService(this, Context.getServer()).getPetSaKeyForProject(googleProjectId);
+        SamService.forUser(this).getPetSaKeyForProject(googleProjectId);
     logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       throw new SystemException(
@@ -274,7 +274,7 @@ public class User {
 
   /** Fetch the user information (id, email, proxy group email) for this user from SAM. */
   private void fetchUserInfo() {
-    SamService samService = new SamService(this, Context.getServer());
+    SamService samService = SamService.forUser(this);
     UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
     id = userInfo.getUserSubjectId();
     email = userInfo.getUserEmail();
@@ -363,8 +363,7 @@ public class User {
   public AccessToken getPetSaAccessToken() {
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String accessTokenStr =
-        new SamService(this, Context.getServer())
-            .getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
+        SamService.forUser(this).getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
     return new AccessToken(accessTokenStr, null);
   }
 }

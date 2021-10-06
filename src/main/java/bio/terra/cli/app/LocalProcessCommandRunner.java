@@ -1,8 +1,10 @@
 package bio.terra.cli.app;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,11 +60,18 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
-    // fetch the pet SA key file and persist it on disk
-    Context.requireUser().fetchPetSaKeyFile();
+    String appDefaultKeyFile = System.getProperty("GOOGLE_APPLICATION_CREDENTIALS");
+    if (appDefaultKeyFile != null && !appDefaultKeyFile.isEmpty()) {
+      logger.warn(
+          "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
+      Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
 
-    // set the path to the pet SA key file
-    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", Context.getPetSaKeyFile().toString());
+      // set the env var to point to the SA key file
+      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());
+    } else {
+      // application default credentials must be set to the user or their pet SA
+      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+    }
 
     // launch the child process
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
