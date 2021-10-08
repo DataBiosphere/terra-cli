@@ -15,5 +15,3 @@ then
 else
   echo "No user is logged in. Skipping creating a new workspace."
 fi
-
-cat /Users/marikomedlock/Workspaces/terra-cli/build/test-context/.terra/context.json
