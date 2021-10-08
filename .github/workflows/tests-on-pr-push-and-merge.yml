@@ -96,7 +96,7 @@ jobs:
         id: allow_write_gcloud_config
         run: |
           mkdir -p ~/.config/gcloud
-          chmod +rwx ~/.config/gcloud
+          chmod a+rwx ~/.config/gcloud
       - name: Run tests
         id: run_tests
         run: |
