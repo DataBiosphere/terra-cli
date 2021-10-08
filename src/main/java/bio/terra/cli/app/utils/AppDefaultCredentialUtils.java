@@ -7,7 +7,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -18,12 +17,7 @@ import org.slf4j.LoggerFactory;
 public class AppDefaultCredentialUtils {
   private static final Logger logger = LoggerFactory.getLogger(AppDefaultCredentialUtils.class);
 
-  // the Java system property that allows tests to specify a SA key file for the ADC and gcloud
-  // credentials
-  @VisibleForTesting
-  public static final String ADC_OVERRIDE_SYSTEM_PROPERTY = "TERRA_GOOGLE_CREDENTIALS";
-
-  /** Return the file backing the current application default credentials, null if none is found. */
+  /** Return the file backing the current application default credentials. */
   public static Optional<Path> getADCBackingFile() {
     // 1. check the GOOGLE_APPLICATION_CREDENTIALS env var
     // this path, if set, typically points to a SA key file
@@ -51,22 +45,6 @@ public class AppDefaultCredentialUtils {
     // there is no file backing ADC
     logger.debug("no adcBackingFile");
     return Optional.empty();
-  }
-
-  /**
-   * Tests can set a Java system property to point to a SA key file. Then we can use this to set
-   * ADC, without requiring a metadata server or a gcloud auth application-default login.
-   */
-  public static Optional<Path> getADCOverrideFileForTesting() {
-    String appDefaultKeyFile = System.getProperty(ADC_OVERRIDE_SYSTEM_PROPERTY);
-    if (appDefaultKeyFile == null || appDefaultKeyFile.isEmpty()) {
-      return Optional.empty();
-    }
-    logger.warn(
-        "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
-    Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
-    logger.info("adcBackingFile: {}", adcBackingFile);
-    return Optional.of(adcBackingFile);
   }
 
   /**

@@ -71,21 +71,21 @@ public class DockerCommandRunner extends CommandRunner {
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
-    // check if the testing flag is set to a key file
-    Optional<Path> adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
-    if (adcBackingFile.isEmpty()) {
-      // testing flag is not set, this is normal operation
-      // application default credentials must be set to the user or their pet SA
-      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
-      adcBackingFile = AppDefaultCredentialUtils.getADCBackingFile();
-    }
-
     // mount the gcloud config directory to the container
     // e.g. gcloud config dir (host) $HOME/.config/gcloud -> (container)
     // CONTAINER_HOME_DIR/.config/gcloud
     Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
     if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
       bindMounts.put(Path.of(CONTAINER_HOME_DIR, ".config/gcloud"), gcloudConfigDir);
+    }
+
+    // check if the testing flag is set to a key file
+    Optional<Path> adcBackingFile = getOverrideCredentialsFileForTesting();
+    if (adcBackingFile.isEmpty()) {
+      // testing flag is not set, this is normal operation
+      // application default credentials must be set to the user or their pet SA
+      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+      adcBackingFile = AppDefaultCredentialUtils.getADCBackingFile();
     }
 
     // mount the application default credentials file to the container

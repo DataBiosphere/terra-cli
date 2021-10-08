@@ -62,7 +62,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add(command);
 
     // check if the testing flag is set to a key file
-    Optional<Path> adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
+    Optional<Path> adcBackingFile = getOverrideCredentialsFileForTesting();
     if (adcBackingFile.isEmpty()) {
       // testing flag is not set, this is normal operation
       // application default credentials must be set to the user or their pet SA

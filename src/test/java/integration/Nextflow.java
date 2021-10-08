@@ -28,9 +28,6 @@ public class Nextflow extends ClearContextIntegration {
     assertEquals(0, exitCode, "workspace created without errors");
 
     // run the script that runs the NF hello world workflow
-    // set the GOOGLE_APPLICATION_CREDENTIALS env var to point to the pet SA key file
-    // this way, the script can call app commands, which will use the key file to setup ADC and
-    // gcloud credentials
     exitCode = TestBashScript.runScriptWithPetSACredentials("NextflowHelloWorld.sh");
 
     // check that the NF script ran successfully
@@ -59,9 +56,6 @@ public class Nextflow extends ClearContextIntegration {
     assertEquals(0, exitCode, "workspace created without errors");
 
     // run the script that downloads the NF workflow from GH and runs it
-    // set the GOOGLE_APPLICATION_CREDENTIALS env var to point to the pet SA key file
-    // this way, the script can call app commands, which will use the key file to setup ADC and
-    // gcloud credentials
     exitCode = TestBashScript.runScriptWithPetSACredentials("NextflowRnaseq.sh");
 
     // check that the NF script ran successfully

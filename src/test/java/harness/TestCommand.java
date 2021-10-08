@@ -2,7 +2,7 @@ package harness;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
+import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.UserIO;
@@ -55,7 +55,7 @@ public class TestCommand {
       Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
       if (jsonKeyPath != null) {
         System.setProperty(
-            AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+            CommandRunner.CREDENTIALS_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
       }
     }
 
