@@ -8,7 +8,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
@@ -40,10 +39,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("env vars include workspace cloud project and pet SA key file")
-  @SuppressFBWarnings(
-      value = "NP_NULL_ON_SOME_PATH",
-      justification =
-          "Pet SA key file in the Context must be populated if the earlier login() call succeeded.")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login();
 
@@ -60,7 +55,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertThat(
         "GOOGLE_APPLICATION_CREDENTIALS set to pet SA key file",
         cmd.stdOut,
-        CoreMatchers.containsString(Context.getPetSaKeyFile().getFileName().toString()));
+        CoreMatchers.containsString("application_default_credentials.json"));
 
     // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
     cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
