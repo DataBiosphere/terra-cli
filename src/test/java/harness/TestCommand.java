@@ -53,8 +53,10 @@ public class TestCommand {
     // credentials
     if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
       Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
-      System.setProperty(
-          AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+      if (jsonKeyPath != null) {
+        System.setProperty(
+            AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+      }
     }
 
     // execute the command from the top-level Main class
