@@ -56,11 +56,6 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
-    List<String> processCommand = new ArrayList<>();
-    processCommand.add("bash");
-    processCommand.add("-ce");
-    processCommand.add(command);
-
     // check if the testing flag is set to a key file
     Optional<Path> adcBackingFile = getOverrideCredentialsFileForTesting();
     if (adcBackingFile.isEmpty()) {
@@ -70,8 +65,15 @@ public class LocalProcessCommandRunner extends CommandRunner {
     } else {
       // testing flag is set, this is a unit test
       // set the env var to point to the key file
-      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());
+      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.get().toString());
+      command +=
+          "; gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}";
     }
+
+    List<String> processCommand = new ArrayList<>();
+    processCommand.add("bash");
+    processCommand.add("-ce");
+    processCommand.add(command);
 
     // launch the child process
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
