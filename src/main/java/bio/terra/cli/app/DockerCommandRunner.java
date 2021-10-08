@@ -78,6 +78,15 @@ public class DockerCommandRunner extends CommandRunner {
       logger.info("adcBackingFile: {}", adcBackingFile);
     }
 
+    // mount the gcloud config directory and the application default credentials file to the
+    // container
+    // e.g. gcloud config dir (host) $HOME/.config/gcloud -> (container)
+    // CONTAINER_HOME_DIR/.config/gcloud
+    //      ADC file (host) $HOME/pet-sa-key.json -> (container)
+    // CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/application_default_credentials.json
+    bindMounts.put(
+        Path.of(CONTAINER_HOME_DIR, ".config/gcloud"),
+        Path.of(System.getProperty("user.home"), ".config/gcloud"));
     if (adcBackingFile != null) {
       // if ADC are stored in a file, then mount the file onto the container
       logger.info("ADC set by a file: {}", adcBackingFile);
