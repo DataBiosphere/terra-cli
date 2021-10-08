@@ -70,7 +70,7 @@ public class DockerCommandRunner extends CommandRunner {
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
-    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFile();
+    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
     if (adcBackingFile == null) {
       // application default credentials must be set to the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();

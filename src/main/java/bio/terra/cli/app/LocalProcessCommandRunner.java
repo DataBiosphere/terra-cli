@@ -60,7 +60,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
-    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFile();
+    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
     if (adcBackingFile != null) {
       // set the env var to point to the key file
       envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());

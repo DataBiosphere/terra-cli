@@ -2,13 +2,14 @@ package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.service.SamService;
+import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public class AppDefaultCredentialUtils {
    * Tests can set a Java system property to point to a SA key file. Then we can use this to set
    * ADC, without requiring a metadata server or a gcloud auth application-default login.
    */
-  public static Path getADCOverrideFile() {
+  public static Path getADCOverrideFileForTesting() {
     String appDefaultKeyFile = System.getProperty(ADC_OVERRIDE_SYSTEM_PROPERTY);
     if (appDefaultKeyFile == null || appDefaultKeyFile.isEmpty()) {
       return null;
@@ -75,29 +76,27 @@ public class AppDefaultCredentialUtils {
   }
 
   /**
-   * Return true if the application default credentials match either the current user or their pet
-   * SA for the current workspace. Throw an exception if they are not defined.
+   * Return true if the application default credentials match the pet SA for the current
+   * user+workspace, or if they are end-user credentials, which we can't validate directly. Throw an
+   * exception if they are not defined.
    */
   private static boolean doADCMatchContext() {
     GoogleCredentials appDefaultCreds = getADC();
 
-    if (appDefaultCreds instanceof ServiceAccountCredentials) {
-      // for SA credentials, just check the client email property
-      String email = ((ServiceAccountCredentials) appDefaultCreds).getClientEmail();
-      return email != null && email.equalsIgnoreCase(Context.requireUser().getPetSaEmail());
-    } else {
-      // for other credentials (e.g. UserCredentials), ask SAM for the associated user email
-      UserStatusInfo userStatusInfo =
-          SamService.forToken(
-                  appDefaultCreds
-                      .createScoped("https://www.googleapis.com/auth/cloud-platform")
-                      .getAccessToken())
-              .getUserInfo();
-      logger.info("user status info: {}", userStatusInfo);
-      return userStatusInfo != null
-          && userStatusInfo.getUserEmail() != null
-          && userStatusInfo.getUserEmail().equalsIgnoreCase(Context.requireUser().getEmail());
+    if (appDefaultCreds instanceof UserCredentials) {
+      logger.info("ADC are end-user credentials. Skipping account/email validation.");
+      return true;
     }
+
+    String email = null;
+    if (appDefaultCreds instanceof ServiceAccountCredentials) {
+      email = ((ServiceAccountCredentials) appDefaultCreds).getClientEmail();
+    } else if (appDefaultCreds instanceof ComputeEngineCredentials) {
+      email = ((ComputeEngineCredentials) appDefaultCreds).getAccount();
+    } else if (appDefaultCreds instanceof ImpersonatedCredentials) {
+      email = ((ImpersonatedCredentials) appDefaultCreds).getAccount();
+    }
+    return email != null && email.equalsIgnoreCase(Context.requireUser().getPetSaEmail());
   }
 
   /** Get the application default credentials. Throw an exception if they are not defined. */

@@ -95,7 +95,8 @@ public enum TestUsers {
   }
 
   /**
-   * Fetch the pet SA key file for the current user and workspace.
+   * Fetch the pet SA key file for the current user and workspace. This method is called in
+   * integration tests after creating a workspace, but before running app commands.
    *
    * @return the absolute path to the pet SA key file
    */

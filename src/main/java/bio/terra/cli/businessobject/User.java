@@ -195,8 +195,12 @@ public class User {
    * global context directory. This method assumes that this user is the current user, and that
    * there is a current workspace specified.
    *
+   * <p>This method should only used for testing, because the relevant SAM endpoint may not be
+   * implemented in prod environments.
+   *
    * @return the absolute path to the pet SA key file
    */
+  @VisibleForTesting
   public Path fetchPetSaKeyFile() {
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
