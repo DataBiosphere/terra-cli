@@ -66,8 +66,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
       // testing flag is set, this is a unit test
       // set the env var to point to the key file
       envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.get().toString());
-      command +=
-          "; gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}";
+      command =
+          "echo \"Setting the gcloud credentials to match the application default credentials\"; "
+              + "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}; "
+              + command;
     }
 
     List<String> processCommand = new ArrayList<>();
