@@ -29,7 +29,7 @@ jobs:
   tests-against-source-code:
     strategy:
       matrix:
-        testTag: [ "unit", "integration" ]
+        testTag: [ "unit" ]
       fail-fast: false
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
@@ -92,19 +92,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           GHA_EVENT_NAME: ${{ github.event_name }}
-      - name: Grant write permission to the gcloud config directory
-        id: allow_write_gcloud_config
-        run: |
-          mkdir -p ~/.config/gcloud
-          chmod a+rwx ~/.config/gcloud
-          sudo chown -R $(whoami) ~/.config
       - name: Run tests
         id: run_tests
         run: |
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE
+          gcloud info
+          gcloud -v
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --tests "unit.Config.appLaunch" --info $TEST_DOCKER_IMAGE
+          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --tests "unit.PassthroughApps.exitCodePassedThroughLocalProcess" --info $TEST_DOCKER_IMAGE
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
       - name: Archive logs and context file

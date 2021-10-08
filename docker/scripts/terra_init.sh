@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -n "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-  echo "Setting the gcloud credentials to the user's pet service account"
+  echo "Setting the gcloud credentials to match the application default credentials"
   gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 fi
 
