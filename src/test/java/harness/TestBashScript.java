@@ -3,7 +3,6 @@ package harness;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 
-import bio.terra.cli.businessobject.Context;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -34,6 +33,25 @@ public class TestBashScript {
   }
 
   /**
+   * Executes a test script in a separate process from the current working directory. Sets the
+   * GOOGLE_APPLICATION_CREDENTIALS environment variable to the specified credentials file path.
+   *
+   * @param scriptName name of the script in the test/resources/testscripts directory (e.g.
+   *     NextflowRnaseq.sh)
+   * @param credentialsFile absolute path to the credentials file
+   * @return process exit code
+   */
+  public static int runScript(String scriptName, Path credentialsFile) {
+    // build the command from the script name
+    Path script = TestBashScript.getPathFromScriptName(scriptName);
+    List<String> command = Collections.singletonList("bash " + script);
+
+    return runCommands(
+        command,
+        Collections.singletonMap("GOOGLE_APPLICATION_CREDENTIALS", credentialsFile.toString()));
+  }
+
+  /**
    * Executes a command in a separate process from the given working directory, with the given
    * environment variables set beforehand. Adds `terra` to the $PATH.
    *
@@ -56,14 +74,6 @@ public class TestBashScript {
         installLocation,
         CoreMatchers.not(emptyOrNullString()));
     envVarsCopy.put("PATH", installLocation + ":" + System.getenv("PATH"));
-
-    // fetch the pet SA key file and set the GOOGLE_APPLICATION_CREDENTIALS env var to point to it
-    // this way, if the commands include an app command, it can use the key file to setup ADC and
-    // gcloud credentials
-    if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
-      Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
-      envVarsCopy.put("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath.toString());
-    }
 
     // use a working directory inside the gradle build directory, so it gets cleaned up with the
     // clean task

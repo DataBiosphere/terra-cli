@@ -5,7 +5,5 @@ set -e
 # but not unit, tests.
 
 terra status
-terra workspace create
-terra status
 
 terra nextflow run hello > nextflowHelloWorld_stdout.txt

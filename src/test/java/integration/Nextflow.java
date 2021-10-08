@@ -9,6 +9,7 @@ import harness.baseclasses.ClearContextIntegration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -23,8 +24,18 @@ public class Nextflow extends ClearContextIntegration {
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
 
+    // create a workspace
+    int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
+    assertEquals(0, exitCode, "workspace created without errors");
+
+    // fetch the pet SA key file
+    Path jsonKeyPath = testUser.getPetSAKeyFile();
+
     // run the script that runs the NF hello world workflow
-    int exitCode = TestBashScript.runScript("NextflowHelloWorld.sh");
+    // set the GOOGLE_APPLICATION_CREDENTIALS env var to point to the pet SA key file
+    // this way, the script can call app commands, which will use the key file to setup ADC and
+    // gcloud credentials
+    exitCode = TestBashScript.runScript("NextflowHelloWorld.sh", jsonKeyPath);
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");
@@ -47,8 +58,18 @@ public class Nextflow extends ClearContextIntegration {
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
 
+    // create a workspace
+    int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
+    assertEquals(0, exitCode, "workspace created without errors");
+
+    // fetch the pet SA key file
+    Path jsonKeyPath = testUser.getPetSAKeyFile();
+
     // run the script that downloads the NF workflow from GH and runs it
-    int exitCode = TestBashScript.runScript("NextflowRnaseq.sh");
+    // set the GOOGLE_APPLICATION_CREDENTIALS env var to point to the pet SA key file
+    // this way, the script can call app commands, which will use the key file to setup ADC and
+    // gcloud credentials
+    exitCode = TestBashScript.runScript("NextflowRnaseq.sh", jsonKeyPath);
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");

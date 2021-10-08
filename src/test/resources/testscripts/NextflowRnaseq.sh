@@ -12,19 +12,7 @@ set -e
 #       - https://cloud.google.com/life-sciences/docs/tutorials/nextflow
 #       - file:///Users/marikomedlock/Desktop/working-terra-cli/demo6/results/multiqc_report.html
 
-# Currently, we're connected to the Terra development server, and there is no current workspace defined.
-
-terra status
-
-# Now we can create a workspace. This will prompt a login. The scary-looking login screen is temporary, until we get our CLI app approved by Google.
-
-terra workspace create
-
-# [While that's running] This calls WSM to get a new Terra workspace. WSM in turn calls RBS to get a buffered GCP project, because creating a new project from scratch takes a while. The next part of this demo will run Nextflow against this GCP project. There were some short-term modifications we had to make to the buffered project configuration to support Nextflow.
-
-# [If that's still running] Nextflow expects the default VPC network and default Compute Engine service account to be defined. The "right" solution here is to modify the Nextflow codebase to allow specifying a non-default VPC network and Compute Engine service account. But for the alpha demo/release, it was more expedient to just modify the project configuration, and plan to make Nextflow code changes down the line.
-
-# Now the workspace was created. Check the status again to see the workspace id and backing GCP project.
+# Check the status to see the current workspace id and backing GCP project.
 
 terra status
 

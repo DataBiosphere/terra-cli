@@ -95,6 +95,21 @@ public enum TestUsers {
   }
 
   /**
+   * Fetch the pet SA key file for the current user and workspace.
+   *
+   * @return the absolute path to the pet SA key file
+   */
+  public Path getPetSAKeyFile() {
+    // read from disk to get any workspace id that a script has written
+    Context.initializeFromDisk();
+
+    // login again to get a new access token because the initialize above wiped out any existing one
+    User.login();
+
+    return Context.requireUser().fetchPetSaKeyFile();
+  }
+
+  /**
    * Get domain-wide delegated Google credentials for this user that include the cloud-platform
    * scope. This is useful for when the test user needs to talk directly to GCP, instead of to WSM
    * or another Terra service.
