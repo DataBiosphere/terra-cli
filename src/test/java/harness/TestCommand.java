@@ -52,10 +52,16 @@ public class TestCommand {
     // this way, if this is an app command, it will use the key file to setup ADC and gcloud
     // credentials
     if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
-      Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
-      if (jsonKeyPath != null) {
-        System.setProperty(
-            CommandRunner.CREDENTIALS_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+      String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+      if (googleProjectId != null && !googleProjectId.isEmpty()) {
+        Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
+        if (jsonKeyPath != null) {
+          System.setProperty(
+              CommandRunner.CREDENTIALS_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+        }
+      } else {
+        System.out.println(
+            "No Google context for the current workspace. Skip fetching pet SA from SAM.");
       }
     }
 
