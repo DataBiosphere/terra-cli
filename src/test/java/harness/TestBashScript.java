@@ -60,7 +60,7 @@ public class TestBashScript {
     // fetch the pet SA key file and set the GOOGLE_APPLICATION_CREDENTIALS env var to point to it
     // this way, if the commands include an app command, it can use the key file to setup ADC and
     // gcloud credentials
-    if (Context.getUser().isPresent()) {
+    if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
       Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
       envVarsCopy.put("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath.toString());
     }
