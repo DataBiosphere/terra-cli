@@ -62,7 +62,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         cmd.stdOut,
         CoreMatchers.containsString(Context.getPetSaKeyFile().getFileName().toString()));
 
-    // `terra app execute echo \$GOOGLE_APPLICATION_CREDENTIALS`
+    // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
     cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
 
     // check that GOOGLE_CLOUD_PROJECT = workspace project

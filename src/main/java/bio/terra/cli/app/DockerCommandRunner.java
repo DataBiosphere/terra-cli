@@ -70,16 +70,12 @@ public class DockerCommandRunner extends CommandRunner {
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
-    Path adcBackingFile;
-    String appDefaultKeyFile = System.getProperty("GOOGLE_APPLICATION_CREDENTIALS");
-    if (appDefaultKeyFile != null && !appDefaultKeyFile.isEmpty()) {
-      logger.warn(
-          "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
-      adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
-    } else {
+    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFile();
+    if (adcBackingFile == null) {
       // application default credentials must be set to the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();
       adcBackingFile = AppDefaultCredentialUtils.getADCBackingFile();
+      logger.info("adcBackingFile: {}", adcBackingFile);
     }
 
     if (adcBackingFile != null) {

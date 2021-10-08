@@ -194,8 +194,10 @@ public class User {
    * Fetch the pet SA key file for this user + current workspace from SAM and persist it in the
    * global context directory. This method assumes that this user is the current user, and that
    * there is a current workspace specified.
+   *
+   * @return the absolute path to the pet SA key file
    */
-  public void fetchPetSaKeyFile() {
+  public Path fetchPetSaKeyFile() {
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
@@ -203,7 +205,13 @@ public class User {
     String googleProjectId = currentWorkspace.getGoogleProjectId();
     if (googleProjectId == null || googleProjectId.isEmpty()) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
-      return;
+      return null;
+    }
+
+    // if the key file already exists on disk, just return it
+    Path jsonKeyPath = Context.getPetSaKeyFile(this);
+    if (jsonKeyPath.toFile().exists()) {
+      return jsonKeyPath;
     }
 
     // ask SAM for the project-specific pet SA key
@@ -216,16 +224,14 @@ public class User {
               + petSaKeySamResponse.statusCode
               + ").");
     }
-    Path jsonKeyPath;
     try {
       // persist the key file in the global context directory
-      jsonKeyPath =
-          FileUtils.writeStringToFile(
-              Context.getPetSaKeyFile(this).toFile(), petSaKeySamResponse.responseBody);
+      FileUtils.writeStringToFile(jsonKeyPath.toFile(), petSaKeySamResponse.responseBody);
     } catch (IOException ioEx) {
       throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
     }
     logger.debug("Stored pet SA key file for this user and workspace: {}", jsonKeyPath);
+    return jsonKeyPath;
   }
 
   /** Delete all pet SA credentials for this user. */

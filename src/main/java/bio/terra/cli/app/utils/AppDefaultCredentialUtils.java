@@ -1,15 +1,13 @@
 package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.SamService;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,11 @@ import org.slf4j.LoggerFactory;
 /** Utilities for working with Google application default credentials. */
 public class AppDefaultCredentialUtils {
   private static final Logger logger = LoggerFactory.getLogger(AppDefaultCredentialUtils.class);
+
+  // the Java system property that allows tests to specify a SA key file for the ADC and gcloud
+  // credentials
+  @VisibleForTesting
+  public static final String ADC_OVERRIDE_SYSTEM_PROPERTY = "TERRA_GOOGLE_CREDENTIALS";
 
   /** Return the file backing the current application default credentials, null if none is found. */
   public static Path getADCBackingFile() {
@@ -45,6 +48,22 @@ public class AppDefaultCredentialUtils {
   }
 
   /**
+   * Tests can set a Java system property to point to a SA key file. Then we can use this to set
+   * ADC, without requiring a metadata server or a gcloud auth application-default login.
+   */
+  public static Path getADCOverrideFile() {
+    String appDefaultKeyFile = System.getProperty(ADC_OVERRIDE_SYSTEM_PROPERTY);
+    if (appDefaultKeyFile == null || appDefaultKeyFile.isEmpty()) {
+      return null;
+    }
+    logger.warn(
+        "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
+    Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
+    logger.info("adcBackingFile: {}", adcBackingFile);
+    return adcBackingFile;
+  }
+
+  /**
    * Throw an exception if the application default credentials are not defined or do not match the
    * current user or their pet SA
    */
@@ -67,20 +86,6 @@ public class AppDefaultCredentialUtils {
       String email = ((ServiceAccountCredentials) appDefaultCreds).getClientEmail();
       return email != null && email.equalsIgnoreCase(Context.requireUser().getPetSaEmail());
     } else {
-      if (appDefaultCreds.hasRequestMetadata()) {
-        try {
-          Map<String, List<String>> metadata = appDefaultCreds.getRequestMetadata();
-          for (Map.Entry<String, List<String>> entry : metadata.entrySet()) {
-            System.out.println("key: " + entry.getKey());
-            for (String val : entry.getValue()) {
-              System.out.println("  val: " + val);
-            }
-          }
-        } catch (IOException ioEx) {
-          throw new SystemException("req metadata", ioEx);
-        }
-      }
-
       // for other credentials (e.g. UserCredentials), ask SAM for the associated user email
       UserStatusInfo userStatusInfo =
           SamService.forToken(

@@ -3,6 +3,7 @@ package harness;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 
+import bio.terra.cli.businessobject.Context;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -55,6 +56,14 @@ public class TestBashScript {
         installLocation,
         CoreMatchers.not(emptyOrNullString()));
     envVarsCopy.put("PATH", installLocation + ":" + System.getenv("PATH"));
+
+    // fetch the pet SA key file and set the GOOGLE_APPLICATION_CREDENTIALS env var to point to it
+    // this way, if the commands include an app command, it can use the key file to setup ADC and
+    // gcloud credentials
+    if (Context.getUser().isPresent()) {
+      Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
+      envVarsCopy.put("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath.toString());
+    }
 
     // use a working directory inside the gradle build directory, so it gets cleaned up with the
     // clean task

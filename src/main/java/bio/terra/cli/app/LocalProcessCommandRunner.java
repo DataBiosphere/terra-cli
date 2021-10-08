@@ -60,13 +60,9 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
-    String appDefaultKeyFile = System.getProperty("GOOGLE_APPLICATION_CREDENTIALS");
-    if (appDefaultKeyFile != null && !appDefaultKeyFile.isEmpty()) {
-      logger.warn(
-          "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
-      Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
-
-      // set the env var to point to the SA key file
+    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFile();
+    if (adcBackingFile != null) {
+      // set the env var to point to the key file
       envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());
     } else {
       // application default credentials must be set to the user or their pet SA

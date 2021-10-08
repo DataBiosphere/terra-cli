@@ -2,6 +2,8 @@ package harness;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,6 +47,15 @@ public class TestCommand {
         new PrintStream(stdOut, true, StandardCharsets.UTF_8),
         new PrintStream(stdErr, true, StandardCharsets.UTF_8),
         stdIn);
+
+    // fetch the pet SA key file and set a system property to point to it
+    // this way, if this is an app command, it will use the key file to setup ADC and gcloud
+    // credentials
+    if (Context.getUser().isPresent()) {
+      Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
+      System.setProperty(
+          AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
+    }
 
     // execute the command from the top-level Main class
     System.out.println("COMMAND: " + String.join(" ", args));
