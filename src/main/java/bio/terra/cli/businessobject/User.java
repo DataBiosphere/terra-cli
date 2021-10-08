@@ -202,16 +202,6 @@ public class User {
    */
   @VisibleForTesting
   public Path fetchPetSaKeyFile() {
-    // if the cloud context is undefined, then something went wrong during workspace creation
-    // just log an error here instead of throwing an exception, so that the workspace load will
-    // will succeed and the user can delete the corrupted workspace
-    Workspace currentWorkspace = Context.requireWorkspace();
-    String googleProjectId = currentWorkspace.getGoogleProjectId();
-    if (googleProjectId == null || googleProjectId.isEmpty()) {
-      logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
-      return null;
-    }
-
     // if the key file already exists on disk, just return it
     Path jsonKeyPath = Context.getPetSaKeyFile(this);
     if (jsonKeyPath.toFile().exists()) {
@@ -220,7 +210,8 @@ public class User {
 
     // ask SAM for the project-specific pet SA key
     HttpUtils.HttpResponse petSaKeySamResponse =
-        SamService.forUser(this).getPetSaKeyForProject(googleProjectId);
+        SamService.forUser(this)
+            .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
     logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
     if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
       throw new SystemException(

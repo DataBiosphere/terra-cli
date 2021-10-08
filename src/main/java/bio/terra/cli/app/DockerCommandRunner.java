@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,28 +71,30 @@ public class DockerCommandRunner extends CommandRunner {
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
 
-    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
-    if (adcBackingFile == null) {
+    // check if the testing flag is set to a key file
+    Optional<Path> adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
+    if (adcBackingFile.isEmpty()) {
+      // testing flag is not set, this is normal operation
       // application default credentials must be set to the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();
       adcBackingFile = AppDefaultCredentialUtils.getADCBackingFile();
-      logger.info("adcBackingFile: {}", adcBackingFile);
     }
 
-    // mount the gcloud config directory and the application default credentials file to the
-    // container
+    // mount the gcloud config directory to the container
     // e.g. gcloud config dir (host) $HOME/.config/gcloud -> (container)
     // CONTAINER_HOME_DIR/.config/gcloud
-    //      ADC file (host) $HOME/pet-sa-key.json -> (container)
-    // CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/application_default_credentials.json
     Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
     if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
       bindMounts.put(Path.of(CONTAINER_HOME_DIR, ".config/gcloud"), gcloudConfigDir);
     }
-    if (adcBackingFile != null) {
+
+    // mount the application default credentials file to the container
+    // e.g. ADC file (host) $HOME/pet-sa-key.json -> (container)
+    // CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/application_default_credentials.json
+    if (adcBackingFile.isPresent()) {
       // if ADC are stored in a file, then mount the file onto the container
-      logger.info("ADC set by a file: {}", adcBackingFile);
-      bindMounts.put(getADCFileOnContainer(), adcBackingFile);
+      logger.info("ADC set by a file: {}", adcBackingFile.get());
+      bindMounts.put(getADCFileOnContainer(), adcBackingFile.get());
 
       // set the env var to point to the ADC file, which may be in a different location on the
       // container vs the host

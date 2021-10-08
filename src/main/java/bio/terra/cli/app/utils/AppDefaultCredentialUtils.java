@@ -10,6 +10,7 @@ import com.google.auth.oauth2.UserCredentials;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +24,16 @@ public class AppDefaultCredentialUtils {
   public static final String ADC_OVERRIDE_SYSTEM_PROPERTY = "TERRA_GOOGLE_CREDENTIALS";
 
   /** Return the file backing the current application default credentials, null if none is found. */
-  public static Path getADCBackingFile() {
+  public static Optional<Path> getADCBackingFile() {
     // 1. check the GOOGLE_APPLICATION_CREDENTIALS env var
     // this path, if set, typically points to a SA key file
     String envVar = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
     if (envVar != null) {
       Path envVarPath = Path.of(envVar);
       if (envVarPath.toFile().exists()) {
-        return envVarPath.toAbsolutePath();
+        logger.debug(
+            "adcBackingFile from GOOGLE_APPLICATION_CREDENTIALS: {}", envVarPath.toAbsolutePath());
+        return Optional.of(envVarPath.toAbsolutePath());
       }
     }
 
@@ -41,27 +44,29 @@ public class AppDefaultCredentialUtils {
         Path.of(
             System.getProperty("user.home"), ".config/gcloud/application_default_credentials.json");
     if (gcloudConfigPath.toFile().exists()) {
-      return gcloudConfigPath.toAbsolutePath();
+      logger.debug("adcBackingFile from gcloud config dir: {}", gcloudConfigPath.toAbsolutePath());
+      return Optional.of(gcloudConfigPath.toAbsolutePath());
     }
 
     // there is no file backing ADC
-    return null;
+    logger.debug("no adcBackingFile");
+    return Optional.empty();
   }
 
   /**
    * Tests can set a Java system property to point to a SA key file. Then we can use this to set
    * ADC, without requiring a metadata server or a gcloud auth application-default login.
    */
-  public static Path getADCOverrideFileForTesting() {
+  public static Optional<Path> getADCOverrideFileForTesting() {
     String appDefaultKeyFile = System.getProperty(ADC_OVERRIDE_SYSTEM_PROPERTY);
     if (appDefaultKeyFile == null || appDefaultKeyFile.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
     logger.warn(
         "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
     Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
     logger.info("adcBackingFile: {}", adcBackingFile);
-    return adcBackingFile;
+    return Optional.of(adcBackingFile);
   }
 
   /**

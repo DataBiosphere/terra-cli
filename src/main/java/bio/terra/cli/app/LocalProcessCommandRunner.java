@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +61,16 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
-    Path adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
-    if (adcBackingFile != null) {
-      // set the env var to point to the key file
-      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());
-    } else {
+    // check if the testing flag is set to a key file
+    Optional<Path> adcBackingFile = AppDefaultCredentialUtils.getADCOverrideFileForTesting();
+    if (adcBackingFile.isEmpty()) {
+      // testing flag is not set, this is normal operation
       // application default credentials must be set to the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+    } else {
+      // testing flag is set, this is a unit test
+      // set the env var to point to the key file
+      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.toString());
     }
 
     // launch the child process
