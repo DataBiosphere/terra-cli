@@ -53,9 +53,6 @@ public class TestCommand {
     // credentials
     if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
       Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
-      if (jsonKeyPath == null) {
-        throw new RuntimeException("Error fetching pet SA key file in test harness.");
-      }
       if (jsonKeyPath != null) {
         System.setProperty(
             AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
