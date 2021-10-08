@@ -52,13 +52,11 @@ public class TestCommand {
     // this way, if this is an app command, it will use the key file to setup ADC and gcloud
     // credentials
     if (Context.getUser().isPresent() && Context.getWorkspace().isPresent()) {
-      System.out.println("PET SA KEY FILE: user and workspace are set");
       Path jsonKeyPath = Context.requireUser().fetchPetSaKeyFile();
       if (jsonKeyPath == null) {
         throw new RuntimeException("Error fetching pet SA key file in test harness.");
       }
       if (jsonKeyPath != null) {
-        System.out.println("PET SA KEY FILE: json key path defined");
         System.setProperty(
             AppDefaultCredentialUtils.ADC_OVERRIDE_SYSTEM_PROPERTY, jsonKeyPath.toString());
       }
