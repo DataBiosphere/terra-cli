@@ -56,6 +56,17 @@ public class Config extends SingleWorkspaceUnit {
         "docker image not found error returned",
         stdErr,
         CoreMatchers.containsString("No such image: badimageid"));
+
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
+    // apps launched via local process should not be affected
+    cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
+    // cmd exit code can either be 0=success or 127=command not found if gcloud is not installed on
+    // this machine
+    assertThat(
+        "app execute with local process did not throw system exception",
+        cmd.exitCode == 0 || cmd.exitCode == 127);
   }
 
   @Test

@@ -9,9 +9,11 @@ import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.SELContext;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -104,7 +106,10 @@ public class DockerClientWrapper {
       }
       bindMountsObj.add(
           new Bind(
-              localFileOrDirectory.getAbsolutePath(), new Volume(bindMount.getKey().toString())));
+              localFileOrDirectory.getAbsolutePath(),
+              new Volume(bindMount.getKey().toString()),
+              AccessMode.rw,
+              SELContext.shared));
     }
 
     // create the container and start it
