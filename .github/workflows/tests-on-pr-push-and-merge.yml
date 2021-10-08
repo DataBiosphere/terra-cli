@@ -97,6 +97,7 @@ jobs:
         run: |
           mkdir -p ~/.config/gcloud
           chmod a+rwx ~/.config/gcloud
+          sudo chown -R $(whoami) ~/.config
       - name: Run tests
         id: run_tests
         run: |
