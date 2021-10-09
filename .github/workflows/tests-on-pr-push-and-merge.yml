@@ -98,7 +98,6 @@ jobs:
           # runs against the default server: terra-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-          gcloud auth activate-service-account --key-file=rendered/external-project-account.json
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
