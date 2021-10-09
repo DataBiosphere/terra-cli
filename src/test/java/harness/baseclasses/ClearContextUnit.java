@@ -5,7 +5,11 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
 import harness.TestCommand;
 import harness.TestContext;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 
@@ -21,6 +25,14 @@ public class ClearContextUnit {
    * of the setupEachTime method so that each test method starts off with a clean context.
    */
   protected void setupEachTime() throws IOException {
+    // TODO: clear gcloud config dir
+    Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
+    if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
+      Files.walk(gcloudConfigDir)
+          .sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+    }
     TestContext.clearGlobalContextDir();
     resetContext();
   }
