@@ -40,7 +40,8 @@ public class TestContext {
               && !childPath.startsWith(globalContextLogsDir)) {
             childPath.toFile().delete();
           }
-        });
+        },
+        true);
   }
 
   /** Delete the contents of the working directory. */
@@ -51,7 +52,19 @@ public class TestContext {
     }
 
     // delete all children of the working directory
-    walkUpFileTree(workingDir, childPath -> childPath.toFile().delete());
+    walkUpFileTree(workingDir, childPath -> childPath.toFile().delete(), true);
+  }
+
+  /** Delete the contents of the $HOME/.config/gcloud directory. */
+  public static void clearGcloudConfigDirectory() {
+    Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
+    if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
+      try {
+        walkUpFileTree(gcloudConfigDir, childPath -> childPath.toFile().delete(), false);
+      } catch (IOException ioEx) {
+        System.out.println("Error deleting gcloud config directory: " + ioEx.getMessage());
+      }
+    }
   }
 
   /**
@@ -70,18 +83,19 @@ public class TestContext {
    * files or empty directories. In this method, since longer paths come first, all children of a
    * directory will be processed before we get to the parent directory.
    *
-   * @param root
-   * @param processChildPath
+   * @param root starting node
+   * @param processChildPath lambda to process each node
+   * @param skipRoot true to skip the root node and only process child nodes
    * @throws IOException
    */
-  private static void walkUpFileTree(Path root, Consumer<Path> processChildPath)
+  private static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
       throws IOException {
     Files.walk(root)
         .sorted(Comparator.reverseOrder())
         .forEach(
             childPath -> {
               // only process children of the root, not the root itself
-              if (!childPath.equals(root)) {
+              if (!skipRoot || !childPath.equals(root)) {
                 processChildPath.accept(childPath);
               }
             });

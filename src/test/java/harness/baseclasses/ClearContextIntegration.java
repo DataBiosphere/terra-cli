@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 public class ClearContextIntegration {
   @BeforeEach
   protected void setupEachTime() throws IOException {
+    TestContext.clearGcloudConfigDirectory();
     TestContext.clearGlobalContextDir();
     TestContext.clearWorkingDirectory();
 

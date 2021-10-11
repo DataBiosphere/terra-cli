@@ -54,9 +54,8 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user and their pet SA
+  // Google credentials for the user
   private UserCredentials userCredentials;
-  private ServiceAccountCredentials petSACredentials;
 
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
@@ -111,7 +110,6 @@ public class User {
       logger.debug("Pet SA key file not found for current user + workspace");
       return;
     }
-    petSACredentials = createSaCredentials(jsonKeyPath);
   }
 
   /**
@@ -164,9 +162,10 @@ public class User {
   }
 
   /**
-   * Fetch the pet SA credentials and email for this user + current workspace from SAM and persist
-   * it in the global context directory. This method assumes that this user is the current user, and
-   * that there is a current workspace specified.
+   * Fetch the pet SA email for this user + current workspace from SAM and persist it in the global
+   * context directory. If the pet SA does not yet exist for the user, then SAM will create it.
+   * Grant both the user and the pet SA permission to impersonate the pet SA. This method assumes
+   * that this user is the current user, and that there is a current workspace specified.
    */
   public void fetchPetSaCredentials() {
     // if the cloud context is undefined, then something went wrong during workspace creation
@@ -180,29 +179,8 @@ public class User {
     }
 
     // ask SAM for the project-specific pet SA email and persist it on disk
-    SamService samService = new SamService(this, Context.getServer());
-    petSAEmail = samService.getPetSaEmailForProject(googleProjectId);
+    petSAEmail = SamService.forUser(this).getPetSaEmailForProject(googleProjectId);
     Context.setUser(this);
-
-    // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSaKeySamResponse = samService.getPetSaKeyForProject(googleProjectId);
-    logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
-    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
-      throw new SystemException(
-          "Error fetching pet SA key from SAM (status code = "
-              + petSaKeySamResponse.statusCode
-              + ").");
-    }
-    Path jsonKeyPath;
-    try {
-      // persist the key file in the global context directory
-      jsonKeyPath =
-          FileUtils.writeStringToFile(
-              Context.getPetSaKeyFile(this).toFile(), petSaKeySamResponse.responseBody);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
-    }
-    logger.debug("Stored pet SA key file for this user and workspace.");
 
     // Allow the user and their pet to impersonate the pet service account so that Nextflow and
     // other app calls can run.
@@ -210,8 +188,45 @@ public class User {
     //  self-impersonation
     currentWorkspace.enablePet();
     logger.debug("Enabled pet SA impersonation");
+  }
 
-    petSACredentials = createSaCredentials(jsonKeyPath);
+  /**
+   * Fetch the pet SA key file for this user + current workspace from SAM and persist it in the
+   * global context directory. This method assumes that this user is the current user, and that
+   * there is a current workspace specified.
+   *
+   * <p>This method should only used for testing, because the relevant SAM endpoint may not be
+   * implemented in prod environments.
+   *
+   * @return the absolute path to the pet SA key file
+   */
+  @VisibleForTesting
+  public Path fetchPetSaKeyFile() {
+    // if the key file already exists on disk, just return it
+    Path jsonKeyPath = Context.getPetSaKeyFile(this);
+    if (jsonKeyPath.toFile().exists()) {
+      return jsonKeyPath;
+    }
+
+    // ask SAM for the project-specific pet SA key
+    HttpUtils.HttpResponse petSaKeySamResponse =
+        SamService.forUser(this)
+            .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
+    logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
+    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
+      throw new SystemException(
+          "Error fetching pet SA key from SAM (status code = "
+              + petSaKeySamResponse.statusCode
+              + ").");
+    }
+    try {
+      // persist the key file in the global context directory
+      FileUtils.writeStringToFile(jsonKeyPath.toFile(), petSaKeySamResponse.responseBody);
+    } catch (IOException ioEx) {
+      throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
+    }
+    logger.debug("Stored pet SA key file for this user and workspace: {}", jsonKeyPath);
+    return jsonKeyPath;
   }
 
   /** Delete all pet SA credentials for this user. */
@@ -260,7 +275,7 @@ public class User {
 
   /** Fetch the user information (id, email, proxy group email) for this user from SAM. */
   private void fetchUserInfo() {
-    SamService samService = new SamService(this, Context.getServer());
+    SamService samService = SamService.forUser(this);
     UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
     id = userInfo.getUserSubjectId();
     email = userInfo.getUserEmail();
@@ -349,8 +364,7 @@ public class User {
   public AccessToken getPetSaAccessToken() {
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String accessTokenStr =
-        new SamService(this, Context.getServer())
-            .getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
+        SamService.forUser(this).getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
     return new AccessToken(accessTokenStr, null);
   }
 }

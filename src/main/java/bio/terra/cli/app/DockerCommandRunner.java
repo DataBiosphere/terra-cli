@@ -1,12 +1,15 @@
 package bio.terra.cli.app;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +27,10 @@ public class DockerCommandRunner extends CommandRunner {
   private static final String CONTAINER_HOME_DIR = "/root";
   // mount point for the workspace directory
   private static final String CONTAINER_WORKING_DIR = "/usr/local/etc";
+
+  // name of the ADC file mounted on the container
+  private static final String APPLICATION_DEFAULT_CREDENTIALS_FILE_NAME =
+      "application_default_credentials.json";
 
   /**
    * This method builds a command string that:
@@ -57,15 +64,44 @@ public class DockerCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
-    // set the path to the pet SA key file, which may be different on the container vs the host
-    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getPetSaKeyFileOnContainer().toString());
-
     // mount the global context directory and the current working directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
     //       current working dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
     Map<Path, Path> bindMounts = new HashMap<>();
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
+
+    // mount the gcloud config directory to the container
+    // e.g. gcloud config dir (host) $HOME/.config/gcloud -> (container)
+    // CONTAINER_HOME_DIR/.config/gcloud
+    Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
+    if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
+      bindMounts.put(Path.of(CONTAINER_HOME_DIR, ".config/gcloud"), gcloudConfigDir);
+    }
+
+    // check if the testing flag is set to a key file
+    Optional<Path> adcBackingFile = getOverrideCredentialsFileForTesting();
+    if (adcBackingFile.isEmpty()) {
+      // testing flag is not set, this is normal operation
+      // application default credentials must be set to the user or their pet SA
+      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+      adcBackingFile = AppDefaultCredentialUtils.getADCBackingFile();
+    }
+
+    // mount the application default credentials file to the container
+    // e.g. ADC file (host) $HOME/pet-sa-key.json -> (container)
+    // CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/application_default_credentials.json
+    if (adcBackingFile.isPresent()) {
+      // if ADC are stored in a file, then mount the file onto the container
+      logger.info("ADC set by a file: {}", adcBackingFile.get());
+      bindMounts.put(getADCFileOnContainer(), adcBackingFile.get());
+
+      // set the env var to point to the ADC file, which may be in a different location on the
+      // container vs the host
+      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", getADCFileOnContainer().toString());
+    } else {
+      logger.info("ADC set by metadata server.");
+    }
 
     // create and start the docker container
     dockerClientWrapper.startContainer(
@@ -125,5 +161,25 @@ public class DockerCommandRunner extends CommandRunner {
 
     // key file path on container = global context dir on container + relative path to key file
     return getGlobalContextDirOnContainer().resolve(relativePathToKeyFile);
+  }
+
+  /**
+   * Get the application default credentials file for the given user on the container.
+   *
+   * <p>e.g. (host) $HOME/.config/gcloud/application_default_credentials.json -> (container)
+   * CONTAINER_HOME_DIR/.terra/pet-keys/application_default_credentials.json
+   *
+   * @return absolute path to the application default credentials file for the given user on the
+   *     container
+   */
+  @SuppressFBWarnings(
+      value = "NP_NULL_ON_SOME_PATH",
+      justification =
+          "Pet SA key files are stored in a sub-directory of the .terra context directory, so the file path will always have a parent.")
+  private static Path getADCFileOnContainer() {
+    // store the ADC credentials in the same directory as the user's pet SA key files
+    return getPetSaKeyFileOnContainer()
+        .getParent()
+        .resolve(APPLICATION_DEFAULT_CREDENTIALS_FILE_NAME);
   }
 }

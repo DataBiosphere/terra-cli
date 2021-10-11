@@ -3,6 +3,8 @@ package harness;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,6 +32,43 @@ public class TestBashScript {
     List<String> command = Collections.singletonList("bash " + script);
 
     return runCommands(command, Collections.emptyMap());
+  }
+
+  /**
+   * Fetches the pet SA key file for the current user and workspace. Sets the
+   * GOOGLE_APPLICATION_CREDENTIALS environment variable to that file path. Then executes a test
+   * script in a separate process from the current working directory.
+   *
+   * <p>The pet SA key file allows the script to call terra app commands (e.g. terra nextflow, terra
+   * gsutil) that use ADC or gcloud credentials. Both will be set by the pet SA key file.
+   *
+   * @param scriptName name of the script in the test/resources/testscripts directory (e.g.
+   *     NextflowRnaseq.sh)
+   * @return process exit code
+   */
+  public static int runScriptWithPetSACredentials(String scriptName) {
+    // build the command from the script name
+    Path script = TestBashScript.getPathFromScriptName(scriptName);
+    List<String> command = Collections.singletonList("bash " + script);
+
+    return runCommands(
+        command,
+        Collections.singletonMap("GOOGLE_APPLICATION_CREDENTIALS", getPetSAKeyFile().toString()));
+  }
+
+  /**
+   * Fetch the pet SA key file for the current user and workspace.
+   *
+   * @return the absolute path to the pet SA key file
+   */
+  private static Path getPetSAKeyFile() {
+    // read from disk to get any workspace id that a script has written
+    Context.initializeFromDisk();
+
+    // login again to get a new access token because the initialize above wiped out any existing one
+    User.login();
+
+    return Context.requireUser().fetchPetSaKeyFile();
   }
 
   /**

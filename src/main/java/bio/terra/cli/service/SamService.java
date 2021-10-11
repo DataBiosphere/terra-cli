@@ -42,8 +42,8 @@ public class SamService {
   // the Terra environment where the SAM service lives
   private final Server server;
 
-  // the Terra user whose credentials will be used to call authenticated requests
-  private final User user;
+  // access token to use for authenticated requests
+  private final AccessToken accessToken;
 
   // the client object used for talking to SAM
   private final ApiClient apiClient;
@@ -60,25 +60,34 @@ public class SamService {
    * Factory method for class that talks to SAM. Pulls the current server and user from the context.
    */
   public static SamService fromContext() {
-    return new SamService(Context.requireUser(), Context.getServer());
+    return forUser(Context.requireUser());
+  }
+
+  /** Factory method for class that talks to SAM. Pulls the current server from the context. */
+  public static SamService forUser(User user) {
+    return new SamService(user.getUserAccessToken(), Context.getServer());
+  }
+
+  /** Factory method for class that talks to SAM. Pulls the current server from the context. */
+  public static SamService forToken(AccessToken accessToken) {
+    return new SamService(accessToken, Context.getServer());
   }
 
   /**
-   * Constructor for class that talks to SAM. If the user is null, only unauthenticated endpoints
-   * can be called.
+   * Constructor for class that talks to SAM. If the access token is null, only unauthenticated
+   * endpoints can be called.
    */
-  public SamService(@Nullable User user, Server server) {
-    this.user = user;
+  private SamService(@Nullable AccessToken accessToken, Server server) {
+    this.accessToken = accessToken;
     this.server = server;
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
-    if (user != null) {
+    if (accessToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      AccessToken userAccessToken = user.getUserAccessToken();
-      this.apiClient.setAccessToken(userAccessToken.getTokenValue());
+      this.apiClient.setAccessToken(accessToken.getTokenValue());
     }
   }
 
@@ -424,7 +433,7 @@ public class SamService {
     // to get the key file contents.
     String apiEndpoint =
         server.getSamUri() + "/api/google/v1/user/petServiceAccount/" + googleProjectId + "/key";
-    String userAccessToken = user.getUserAccessToken().getTokenValue();
+    String userAccessToken = accessToken.getTokenValue();
     int statusCode;
     try {
       HttpUtils.HttpResponse response =

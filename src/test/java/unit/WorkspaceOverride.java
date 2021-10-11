@@ -136,7 +136,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra gcloud --workspace=$id2 config get project`
     cmd =
         TestCommand.runCommand(
-            "gcloud", "--workspace=" + workspace2.id, "config", "get", "project");
+            "gcloud", "--workspace=" + workspace2.id, "config", "get-value", "project");
 
     // check that the google cloud project id matches workspace 2
     assertThat(

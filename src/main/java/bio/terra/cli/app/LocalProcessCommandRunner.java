@@ -1,11 +1,14 @@
 package bio.terra.cli.app;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +56,26 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
+    // check if the testing flag is set to a key file
+    Optional<Path> adcBackingFile = getOverrideCredentialsFileForTesting();
+    if (adcBackingFile.isEmpty()) {
+      // testing flag is not set, this is normal operation
+      // application default credentials must be set to the user or their pet SA
+      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+    } else {
+      // testing flag is set, this is a unit test
+      // set the env var to point to the key file
+      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcBackingFile.get().toString());
+      command =
+          "echo \"Setting the gcloud credentials to match the application default credentials\"; "
+              + "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}; "
+              + command;
+    }
+
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
     processCommand.add("-ce");
     processCommand.add(command);
-
-    // set the path to the pet SA key file
-    envVars.put("GOOGLE_APPLICATION_CREDENTIALS", Context.getPetSaKeyFile().toString());
 
     // launch the child process
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();

@@ -21,6 +21,7 @@ public class ClearContextUnit {
    * of the setupEachTime method so that each test method starts off with a clean context.
    */
   protected void setupEachTime() throws IOException {
+    TestContext.clearGcloudConfigDirectory();
     TestContext.clearGlobalContextDir();
     resetContext();
   }

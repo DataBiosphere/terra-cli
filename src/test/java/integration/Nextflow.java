@@ -23,8 +23,12 @@ public class Nextflow extends ClearContextIntegration {
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
 
+    // create a workspace
+    int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
+    assertEquals(0, exitCode, "workspace created without errors");
+
     // run the script that runs the NF hello world workflow
-    int exitCode = TestBashScript.runScript("NextflowHelloWorld.sh");
+    exitCode = TestBashScript.runScriptWithPetSACredentials("NextflowHelloWorld.sh");
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");
@@ -47,8 +51,12 @@ public class Nextflow extends ClearContextIntegration {
     TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
     testUser.login();
 
+    // create a workspace
+    int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
+    assertEquals(0, exitCode, "workspace created without errors");
+
     // run the script that downloads the NF workflow from GH and runs it
-    int exitCode = TestBashScript.runScript("NextflowRnaseq.sh");
+    exitCode = TestBashScript.runScriptWithPetSACredentials("NextflowRnaseq.sh");
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");
