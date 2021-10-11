@@ -55,10 +55,14 @@ public class TestContext {
   }
 
   /** Delete the contents of the $HOME/.config/gcloud directory. */
-  public static void clearGcloudConfigDirectory() throws IOException {
+  public static void clearGcloudConfigDirectory() {
     Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
     if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
-      walkUpFileTree(gcloudConfigDir, childPath -> childPath.toFile().delete());
+      try {
+        walkUpFileTree(gcloudConfigDir, childPath -> childPath.toFile().delete());
+      } catch (IOException ioEx) {
+        System.out.println("Error deleting gcloud config directory: " + ioEx.getMessage());
+      }
     }
   }
 
