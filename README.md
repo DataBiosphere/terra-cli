@@ -167,9 +167,13 @@ in the workspace's backing Google project). This is the same example workflow us
           process.executor = 'google-lifesciences'
           process.container = 'nextflow/rnaseq-nf:latest'
           workDir = "$TERRA_mybucket/scratch"
-          google.location = 'europe-west2'
-          google.region  = 'europe-west1'
+
+          google.region  = 'us-east1'
           google.project = "$GOOGLE_CLOUD_PROJECT"
+          
+          google.lifeSciences.serviceAccountEmail = "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
+          google.lifeSciences.network = 'network'
+          google.lifeSciences.subnetwork = 'subnetwork'
       }
     ```
 - Do a dry-run to confirm the config is set correctly.
