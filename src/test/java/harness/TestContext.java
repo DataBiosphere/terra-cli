@@ -54,6 +54,14 @@ public class TestContext {
     walkUpFileTree(workingDir, childPath -> childPath.toFile().delete());
   }
 
+  /** Delete the contents of the $HOME/.config/gcloud directory. */
+  public static void clearGcloudConfigDirectory() throws IOException {
+    Path gcloudConfigDir = Path.of(System.getProperty("user.home"), ".config/gcloud");
+    if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
+      walkUpFileTree(gcloudConfigDir, childPath -> childPath.toFile().delete());
+    }
+  }
+
   /**
    * Walks a file tree from the bottom up, excluding the root. This means that all children of a
    * directory are walked before their parent.
