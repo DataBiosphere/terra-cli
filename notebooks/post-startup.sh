@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Default post startup script for AI notebooks.
-# AI Notebook post startup scrips are run only when the instance is first created.
+# Default post startup script for GCP notebooks.
+# GCP Notebook post startup scrips are run only when the instance is first created.
 
 set -o errexit
 set -o nounset
@@ -50,9 +50,9 @@ sudo mv nextflow /usr/bin/nextflow
 # Install & configure the Terra CLI
 sudo -u "${JUPYTER_USER}" sh -c "curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash"
 sudo cp terra /usr/bin/terra
-# Set browser manual login since that's the only login supported from an AI Notebook VM.
+# Set browser manual login since that's the only login supported from an GCP Notebook VM.
 sudo -u "${JUPYTER_USER}" sh -c "terra config set browser MANUAL"
-# Set the CLI terra server based on the terra server that created the AI notebook retrieved from
+# Set the CLI terra server based on the terra server that created the GCP notebook retrieved from
 # the VM metadata, if set.
 readonly TERRA_SERVER=$(get_metadata_value "instance/attributes/terra-cli-server")
 if [[ -n "${TERRA_SERVER}" ]]; then

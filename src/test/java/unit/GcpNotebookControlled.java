@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -24,9 +24,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra resource` commands that handle controlled AI notebooks. */
+/** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
 @Tag("unit")
-public class AiNotebookControlled extends SingleWorkspaceUnit {
+public class GcpNotebookControlled extends SingleWorkspaceUnit {
   @Test
   @DisplayName("list and describe reflect creating and deleting a controlled notebook")
   void listDescribeReflectCreateDelete() throws IOException {
@@ -35,16 +35,16 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource create ai-notebook --name=$name`
+    // `terra resource create gcp-notebook --name=$name`
     String name = "listDescribeReflectCreateDelete";
-    UFAiNotebook createdNotebook =
+    UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class, "resource", "create", "ai-notebook", "--name=" + name);
+            UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
 
-    // ai notebooks are always private
+    // gcp notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
     assertEquals(
@@ -53,19 +53,19 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         "create output matches private user name");
 
     // check that the notebook is in the list
-    UFAiNotebook matchedResource = listOneNotebookResourceWithName(name);
+    UFGcpNotebook matchedResource = listOneNotebookResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
 
     // `terra resource describe --name=$name --format=json`
-    UFAiNotebook describeResource =
+    UFGcpNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class, "resource", "describe", "--name=" + name);
+            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
 
     // check that the name matches and the instance id is populated
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertNotNull(describeResource.instanceName, "describe resource output includes instance name");
 
-    // ai notebooks are always private
+    // gcp notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, describeResource.accessScope, "describe output matches access");
     assertEquals(
@@ -85,7 +85,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
 
     if (!cliTimedOut) {
       // confirm it no longer appears in the resources list
-      List<UFAiNotebook> listedNotebooks = listNotebookResourcesWithName(name);
+      List<UFGcpNotebook> listedNotebooks = listNotebookResourcesWithName(name);
       assertThat(
           "deleted notebook no longer appears in the resources list",
           listedNotebooks,
@@ -101,11 +101,11 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource create ai-notebook --name=$name`
+    // `terra resource create gcp-notebook --name=$name`
     String name = "resolveAndCheckAccess";
-    UFAiNotebook createdNotebook =
+    UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class, "resource", "create", "ai-notebook", "--name=" + name);
+            UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
@@ -117,7 +117,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
     assertThat(
-        "check-access error is because ai notebooks are controlled resources",
+        "check-access error is because gcp notebooks are controlled resources",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
   }
@@ -130,7 +130,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource create ai-notebook --name=$name
+    // `terra resource create gcp-notebook --name=$name
     // --cloning=$cloning --description=$description
     // --location=$location --instance-id=$instanceId`
     String name = "overrideLocationAndInstanceId";
@@ -138,12 +138,12 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     String description = "\"override default location and instance id\"";
     String location = "us-central1-b";
     String instanceId = "a" + UUID.randomUUID().toString(); // instance id must start with a letter
-    UFAiNotebook createdNotebook =
+    UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class,
+            UFGcpNotebook.class,
             "resource",
             "create",
-            "ai-notebook",
+            "gcp-notebook",
             "--name=" + name,
             "--cloning=" + cloning,
             "--description=" + description,
@@ -157,7 +157,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     assertEquals(location, createdNotebook.location, "create output matches location");
     assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
 
-    // ai notebooks are always private
+    // gcp notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
     assertEquals(
@@ -166,9 +166,9 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         "create output matches private user name");
 
     // `terra resource describe --name=$name --format=json`
-    UFAiNotebook describeResource =
+    UFGcpNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAiNotebook.class, "resource", "describe", "--name=" + name);
+            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -178,7 +178,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     assertEquals(
         instanceId, describeResource.instanceId, "describe resource output matches instance id");
 
-    // ai notebooks are always private
+    // gcp notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, describeResource.accessScope, "describe output matches access");
     assertEquals(
@@ -195,9 +195,9 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource create ai-notebook --name=$name`
+    // `terra resource create gcp-notebook --name=$name`
     String name = "startStop";
-    TestCommand.runCommandExpectSuccess("resource", "create", "ai-notebook", "--name=" + name);
+    TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
     assertNotebookState(name, "PROVISIONING");
     pollDescribeForNotebookState(name, "ACTIVE");
 
@@ -243,9 +243,9 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
         () ->
             workspaceId == null
                 ? TestCommand.runAndParseCommandExpectSuccess(
-                    UFAiNotebook.class, "resource", "describe", "--name=" + resourceName)
+                    UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
                 : TestCommand.runAndParseCommandExpectSuccess(
-                    UFAiNotebook.class,
+                    UFGcpNotebook.class,
                     "resource",
                     "describe",
                     "--name=" + resourceName,
@@ -273,12 +273,12 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    */
   static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
       throws JsonProcessingException {
-    UFAiNotebook describeNotebook =
+    UFGcpNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                UFAiNotebook.class, "resource", "describe", "--name=" + resourceName)
+                UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
             : TestCommand.runAndParseCommandExpectSuccess(
-                UFAiNotebook.class,
+                UFGcpNotebook.class,
                 "resource",
                 "describe",
                 "--name=" + resourceName,
@@ -293,7 +293,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
    */
-  static UFAiNotebook listOneNotebookResourceWithName(String resourceName)
+  static UFGcpNotebook listOneNotebookResourceWithName(String resourceName)
       throws JsonProcessingException {
     return listOneNotebookResourceWithName(resourceName, null);
   }
@@ -302,9 +302,9 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFAiNotebook listOneNotebookResourceWithName(String resourceName, UUID workspaceId)
+  static UFGcpNotebook listOneNotebookResourceWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
-    List<UFAiNotebook> matchedResources = listNotebookResourcesWithName(resourceName, workspaceId);
+    List<UFGcpNotebook> matchedResources = listNotebookResourcesWithName(resourceName, workspaceId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -314,7 +314,7 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Uses the current workspace.
    */
-  static List<UFAiNotebook> listNotebookResourcesWithName(String resourceName)
+  static List<UFGcpNotebook> listNotebookResourcesWithName(String resourceName)
       throws JsonProcessingException {
     return listNotebookResourcesWithName(resourceName, null);
   }
@@ -323,10 +323,10 @@ public class AiNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  static List<UFAiNotebook> listNotebookResourcesWithName(String resourceName, UUID workspaceId)
+  static List<UFGcpNotebook> listNotebookResourcesWithName(String resourceName, UUID workspaceId)
       throws JsonProcessingException {
     // `terra resources list --type=AI_NOTEBOOK --format=json`
-    List<UFAiNotebook> listedResources =
+    List<UFGcpNotebook> listedResources =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {}, "resource", "list", "--type=AI_NOTEBOOK")

@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
-import bio.terra.cli.businessobject.resource.AiNotebook;
 import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
@@ -105,7 +105,7 @@ public abstract class Resource {
       case BIG_QUERY_DATASET:
         return new BqDataset(wsmObject);
       case AI_NOTEBOOK:
-        return new AiNotebook(wsmObject);
+        return new GcpNotebook(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }

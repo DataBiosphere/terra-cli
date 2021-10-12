@@ -4,12 +4,12 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static unit.AiNotebookControlled.assertNotebookState;
-import static unit.AiNotebookControlled.listNotebookResourcesWithName;
-import static unit.AiNotebookControlled.listOneNotebookResourceWithName;
-import static unit.AiNotebookControlled.pollDescribeForNotebookState;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
+import static unit.GcpNotebookControlled.assertNotebookState;
+import static unit.GcpNotebookControlled.listNotebookResourcesWithName;
+import static unit.GcpNotebookControlled.listOneNotebookResourceWithName;
+import static unit.GcpNotebookControlled.pollDescribeForNotebookState;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 import static unit.Workspace.listWorkspacesWithId;
@@ -19,8 +19,8 @@ import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
@@ -431,19 +431,19 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
 
-    // `terra resources create ai-notebook --name=$name`
+    // `terra resources create gcp-notebook --name=$name`
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
-        "resource", "create", "ai-notebook", "--name=" + name, "--workspace=" + workspace2.id);
+        "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
     assertNotebookState(name, "PROVISIONING", workspace2.id);
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
-    UFAiNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
+    UFGcpNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
     assertEquals(name, matchedNotebook.name, "list output for workspace 2 matches notebook name");
 
     // `terra resources list --type=AI_NOTEBOOK`
-    List<UFAiNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
+    List<UFGcpNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
     // `terra notebook start --name=$name`

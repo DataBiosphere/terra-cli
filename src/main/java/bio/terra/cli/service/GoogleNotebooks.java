@@ -14,10 +14,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.time.Duration;
 
-public class GoogleAiNotebooks {
+public class GoogleNotebooks {
   private final AIPlatformNotebooksCow notebooks;
 
-  public GoogleAiNotebooks(GoogleCredentials credentials) {
+  public GoogleNotebooks(GoogleCredentials credentials) {
     notebooks = CrlUtils.createNotebooksCow(credentials);
   }
 

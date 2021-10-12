@@ -209,7 +209,7 @@ Commands:
   group      Manage groups of users.
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
-  notebook   Use AI Notebooks in the workspace.
+  notebook   Use GCP Notebooks in the workspace.
   resolve    Resolve a resource to its cloud id or path.
   resource   Manage resources in the workspace.
   server     Connect to a Terra server.
@@ -413,14 +413,14 @@ Nextflow and the Gcloud SDK are the first examples of supported tools.
 #### Notebooks
 ```
 Usage: terra notebook [COMMAND]
-Use AI Notebooks in the workspace.
+Use GCP Notebooks in the workspace.
 Commands:
-  start  Start a stopped AI Notebook instance within your workspace.
-  stop   Stop a running AI Notebook instance within your workspace.
+  start  Start a stopped GCP Notebook instance within your workspace.
+  stop   Stop a running GCP Notebook instance within your workspace.
 ```
 
-You can create an [AI Platform Notebook](https://cloud.google.com/ai-platform-notebooks) controlled resource with 
-`terra resource create ai-notebook`. These `stop`, `start` commands are provided for convenience.
+You can create a [GCP Notebook](https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution) controlled
+resource with `terra resource create gcp-notebook`. These `stop`, `start` commands are provided for convenience.
 
 #### Groups
 ```

@@ -3,7 +3,7 @@ package bio.terra.cli.command.shared.options;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resource.AiNotebook;
+import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
@@ -45,11 +45,11 @@ public class NotebookInstance {
             "Only able to use notebook commands on notebook resources, but specified resource is "
                 + resource.getResourceType());
       }
-      AiNotebook aiNotebook = (AiNotebook) resource;
+      GcpNotebook gcpNotebook = (GcpNotebook) resource;
       return InstanceName.builder()
-          .projectId(aiNotebook.getProjectId())
-          .location(aiNotebook.getLocation())
-          .instanceId(aiNotebook.getInstanceId())
+          .projectId(gcpNotebook.getProjectId())
+          .location(gcpNotebook.getLocation())
+          .instanceId(gcpNotebook.getInstanceId())
           .build();
     } else {
       return InstanceName.builder()

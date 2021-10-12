@@ -3,10 +3,10 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.persisted.resource.PDAiNotebook;
-import bio.terra.cli.serialization.userfacing.input.CreateAiNotebookParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
-import bio.terra.cli.service.GoogleAiNotebooks;
+import bio.terra.cli.serialization.persisted.resource.PDGcpNotebook;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
+import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
@@ -17,18 +17,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of an AI notebook workspace resource. Instances of this class are part of
+ * Internal representation of a GCP notebook workspace resource. Instances of this class are part of
  * the current context or state.
  */
-public class AiNotebook extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(AiNotebook.class);
+public class GcpNotebook extends Resource {
+  private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
 
   private String projectId;
   private String instanceId;
   private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public AiNotebook(PDAiNotebook configFromDisk) {
+  public GcpNotebook(PDGcpNotebook configFromDisk) {
     super(configFromDisk);
     this.projectId = configFromDisk.projectId;
     this.instanceId = configFromDisk.instanceId;
@@ -36,7 +36,7 @@ public class AiNotebook extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
-  public AiNotebook(ResourceDescription wsmObject) {
+  public GcpNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AI_NOTEBOOK;
     this.projectId = wsmObject.getResourceAttributes().getGcpAiNotebookInstance().getProjectId();
@@ -45,7 +45,7 @@ public class AiNotebook extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AiNotebook(GcpAiNotebookInstanceResource wsmObject) {
+  public GcpNotebook(GcpAiNotebookInstanceResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AI_NOTEBOOK;
     this.projectId = wsmObject.getAttributes().getProjectId();
@@ -56,57 +56,53 @@ public class AiNotebook extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public UFAiNotebook serializeToCommand() {
-    return new UFAiNotebook(this);
+  public UFGcpNotebook serializeToCommand() {
+    return new UFGcpNotebook(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDAiNotebook serializeToDisk() {
-    return new PDAiNotebook(this);
+  public PDGcpNotebook serializeToDisk() {
+    return new PDGcpNotebook(this);
+  }
+
+  /** Add a GCP notebook as a referenced resource in the workspace. Currently unsupported. */
+  public static GcpNotebook addReferenced(CreateGcpNotebookParams createParams) {
+    throw new UserActionableException("Referenced resources not supported for GCP notebooks.");
   }
 
   /**
-   * Add an AI Platform notebook as a referenced resource in the workspace. Currently unsupported.
-   */
-  public static AiNotebook addReferenced(CreateAiNotebookParams createParams) {
-    throw new UserActionableException(
-        "Referenced resources not supported for AI Platform notebooks.");
-  }
-
-  /**
-   * Create an AI notebook as a controlled resource in the workspace.
+   * Create a GCP notebook as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
-  public static AiNotebook createControlled(CreateAiNotebookParams createParams) {
+  public static GcpNotebook createControlled(CreateGcpNotebookParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
         WorkspaceManagerService.fromContext()
-            .createControlledAiNotebookInstance(Context.requireWorkspace().getId(), createParams);
-    logger.info("Created AI notebook: {}", createdResource);
+            .createControlledGcpNotebookInstance(Context.requireWorkspace().getId(), createParams);
+    logger.info("Created GCP notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
-    return new AiNotebook(createdResource);
+    return new GcpNotebook(createdResource);
   }
 
-  /** Delete an AI Platform notebook referenced resource in the workspace. Currently unsupported. */
+  /** Delete a GCP notebook referenced resource in the workspace. Currently unsupported. */
   protected void deleteReferenced() {
-    throw new UserActionableException(
-        "Referenced resources not supported for AI Platform notebooks.");
+    throw new UserActionableException("Referenced resources not supported for GCP notebooks.");
   }
 
-  /** Delete an AI Platform notebook controlled resource in the workspace. */
+  /** Delete a GCP notebook controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
-        .deleteControlledAiNotebookInstance(Context.requireWorkspace().getId(), id);
+        .deleteControlledGcpNotebookInstance(Context.requireWorkspace().getId(), id);
   }
 
   /**
-   * Resolve an AI Platform notebook resource to its cloud identifier. Return the instance name
+   * Resolve a GCP notebook resource to its cloud identifier. Return the instance name
    * projects/[project_id]/locations/[location]/instances/[instanceId].
    *
    * @return full name of the instance
@@ -123,8 +119,7 @@ public class AiNotebook extends Resource {
             .location(location)
             .instanceId(instanceId)
             .build();
-    GoogleAiNotebooks notebooks =
-        new GoogleAiNotebooks(Context.requireUser().getPetSACredentials());
+    GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
     try {
       return Optional.of(notebooks.get(instanceName));
     } catch (Exception ex) {
