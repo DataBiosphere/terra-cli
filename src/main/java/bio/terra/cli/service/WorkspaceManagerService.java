@@ -4,8 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.CreateAiNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
@@ -536,14 +536,14 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
-   * add an AI Platform Notebook instance as a controlled resource in the workspace.
+   * add a GCP notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to create
-   * @return the AI Platform Notebook instance resource object
+   * @return the GCP notebook instance resource object
    */
-  public GcpAiNotebookInstanceResource createControlledAiNotebookInstance(
-      UUID workspaceId, CreateAiNotebookParams createParams) {
+  public GcpAiNotebookInstanceResource createControlledGcpNotebookInstance(
+      UUID workspaceId, CreateGcpNotebookParams createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
@@ -551,13 +551,13 @@ public class WorkspaceManagerService {
             .common(createCommonFields(createParams.resourceFields))
             .aiNotebookInstance(fromCLIObject(createParams))
             .jobControl(new JobControl().id(jobId));
-    logger.debug("Create controlled AI notebook request {}", createRequest);
+    logger.debug("Create controlled GCP notebook request {}", createRequest);
 
     return handleClientExceptions(
         () -> {
           ControlledGcpResourceApi controlledGcpResourceApi =
               new ControlledGcpResourceApi(apiClient);
-          // Start the AI notebook creation job.
+          // Start the GCP notebook creation job.
           HttpUtils.callWithRetries(
               () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
               WorkspaceManagerService::isRetryable);
@@ -570,25 +570,25 @@ public class WorkspaceManagerService {
                           workspaceId, jobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  // Creating an AI notebook instance should take less than ~10 minutes.
+                  // Creating a GCP notebook instance should take less than ~10 minutes.
                   60,
                   Duration.ofSeconds(10));
-          logger.debug("Create controlled AI notebook result {}", createResult);
+          logger.debug("Create controlled GCP notebook result {}", createResult);
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
           return createResult.getAiNotebookInstance();
         },
-        "Error creating controlled AI Notebook instance in the workspace.");
+        "Error creating controlled GCP Notebook instance in the workspace.");
   }
 
   /**
    * This method converts this CLI-defined POJO class into the WSM client library-defined request
    * object.
    *
-   * @return AI Platform notebook attributes in the format expected by the WSM client library
+   * @return GCP notebook attributes in the format expected by the WSM client library
    */
   private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
-      CreateAiNotebookParams createParams) {
-    GcpAiNotebookInstanceCreationParameters aiNotebookParams =
+      CreateGcpNotebookParams createParams) {
+    GcpAiNotebookInstanceCreationParameters notebookParams =
         new GcpAiNotebookInstanceCreationParameters()
             .instanceId(createParams.instanceId)
             .location(createParams.location)
@@ -602,26 +602,26 @@ public class WorkspaceManagerService {
             .dataDiskType(createParams.dataDiskType)
             .dataDiskSizeGb(createParams.dataDiskSizeGb);
     if (createParams.acceleratorType != null || createParams.acceleratorCoreCount != null) {
-      aiNotebookParams.acceleratorConfig(
+      notebookParams.acceleratorConfig(
           new GcpAiNotebookInstanceAcceleratorConfig()
               .type(createParams.acceleratorType)
               .coreCount(createParams.acceleratorCoreCount));
     }
     if (createParams.vmImageProject != null) {
-      aiNotebookParams.vmImage(
+      notebookParams.vmImage(
           new GcpAiNotebookInstanceVmImage()
               .projectId(createParams.vmImageProject)
               .imageFamily(createParams.vmImageFamily)
               .imageName(createParams.vmImageName));
     } else if (createParams.containerRepository != null) {
-      aiNotebookParams.containerImage(
+      notebookParams.containerImage(
           new GcpAiNotebookInstanceContainerImage()
               .repository(createParams.containerRepository)
               .tag(createParams.containerTag));
     } else {
       throw new SystemException("Expected either VM or Container image definition.");
     }
-    return aiNotebookParams;
+    return notebookParams;
   }
 
   /**
@@ -895,14 +895,14 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
-   * endpoint to delete an AI notebook instance as a controlled resource in the workspace.
+   * endpoint to delete a GCP notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
-   * @throws SystemException if the job to delete the AI notebook instance fails
+   * @throws SystemException if the job to delete the GCP notebook instance fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
-  public void deleteControlledAiNotebookInstance(UUID workspaceId, UUID resourceId) {
+  public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
     var deleteRequest =
@@ -925,11 +925,11 @@ public class WorkspaceManagerService {
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable);
-          logger.debug("delete controlled AI notebook instance result: {}", deleteResult);
+          logger.debug("delete controlled GCP notebook instance result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
         },
-        "Error deleting controlled AI Notebook instance in the workspace.");
+        "Error deleting controlled GCP Notebook instance in the workspace.");
   }
 
   /**

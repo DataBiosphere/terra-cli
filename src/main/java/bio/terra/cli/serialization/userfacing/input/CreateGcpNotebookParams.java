@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.Map;
 
 /**
- * Parameters for creating an AI notebook workspace resource. This class is not currently
+ * Parameters for creating a GCP notebook workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateAiNotebookParams.Builder.class)
-public class CreateAiNotebookParams {
+@JsonDeserialize(builder = CreateGcpNotebookParams.Builder.class)
+public class CreateGcpNotebookParams {
   public final CreateResourceParams resourceFields;
   public final String instanceId;
   public final String location;
@@ -32,7 +32,7 @@ public class CreateAiNotebookParams {
   public final Long dataDiskSizeGb;
   public final String dataDiskType;
 
-  protected CreateAiNotebookParams(Builder builder) {
+  protected CreateGcpNotebookParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.instanceId = builder.instanceId;
     this.location = builder.location;
@@ -172,8 +172,8 @@ public class CreateAiNotebookParams {
     }
 
     /** Call the private constructor. */
-    public CreateAiNotebookParams build() {
-      return new CreateAiNotebookParams(this);
+    public CreateGcpNotebookParams build() {
+      return new CreateGcpNotebookParams(this);
     }
 
     /** Default constructor for Jackson. */

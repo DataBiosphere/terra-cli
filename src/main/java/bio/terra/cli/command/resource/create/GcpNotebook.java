@@ -6,9 +6,9 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateAiNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.StewardshipType;
@@ -21,15 +21,15 @@ import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resource create ai-notebook" command. */
+/** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
 @CommandLine.Command(
-    name = "ai-notebook",
+    name = "gcp-notebook",
     description =
-        "Add a controlled AI Platform Notebook instance resource.\n"
-            + "For a detailed explanation of some parameters, see https://cloud.google.com/ai-platform/notebooks/docs/reference/rest/v1/projects.locations.instances#Instance.",
+        "Add a controlled GCP notebook instance resource.\n"
+            + "For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.",
     showDefaultValues = true,
     sortOptions = false)
-public class AiNotebook extends BaseCommand {
+public class GcpNotebook extends BaseCommand {
   private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
   private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
   /** See {@link #mangleUsername(String)}. */
@@ -83,7 +83,7 @@ public class AiNotebook extends BaseCommand {
   private Map<String, String> metadata;
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  AiNotebook.VmOrContainerImage vmOrContainerImage;
+  GcpNotebook.VmOrContainerImage vmOrContainerImage;
 
   static class VmOrContainerImage {
     @CommandLine.ArgGroup(
@@ -155,7 +155,7 @@ public class AiNotebook extends BaseCommand {
       exclusive = false,
       multiplicity = "0..1",
       heading = "The hardware accelerator used on this instance.%n")
-  AiNotebook.AcceleratorConfig acceleratorConfig;
+  GcpNotebook.AcceleratorConfig acceleratorConfig;
 
   static class AcceleratorConfig {
     @CommandLine.Option(names = "--accelerator-type", description = "Type of this accelerator.")
@@ -171,7 +171,7 @@ public class AiNotebook extends BaseCommand {
       exclusive = false,
       multiplicity = "0..1",
       heading = "GPU driver configurations.%n")
-  AiNotebook.GpuDriverConfiguration gpuDriverConfiguration;
+  GcpNotebook.GpuDriverConfiguration gpuDriverConfiguration;
 
   static class GpuDriverConfiguration {
     @CommandLine.Option(
@@ -190,7 +190,7 @@ public class AiNotebook extends BaseCommand {
       exclusive = false,
       multiplicity = "0..1",
       heading = "Boot disk configurations.%n")
-  AiNotebook.BootDiskConfiguration bootDiskConfiguration;
+  GcpNotebook.BootDiskConfiguration bootDiskConfiguration;
 
   static class BootDiskConfiguration {
     @CommandLine.Option(
@@ -209,7 +209,7 @@ public class AiNotebook extends BaseCommand {
       exclusive = false,
       multiplicity = "0..1",
       heading = "Data disk configurations.%n")
-  AiNotebook.DataDiskConfiguration dataDiskConfiguration;
+  GcpNotebook.DataDiskConfiguration dataDiskConfiguration;
 
   static class DataDiskConfiguration {
     @CommandLine.Option(
@@ -227,7 +227,7 @@ public class AiNotebook extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Add a controlled AI Notebook instance to the workspace. */
+  /** Add a controlled GCP Notebook instance to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -243,8 +243,8 @@ public class AiNotebook extends BaseCommand {
                     ControlledResourceIamRole.EDITOR,
                     ControlledResourceIamRole.WRITER,
                     ControlledResourceIamRole.READER));
-    CreateAiNotebookParams.Builder createParams =
-        new CreateAiNotebookParams.Builder()
+    CreateGcpNotebookParams.Builder createParams =
+        new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
             .instanceId(getInstanceId(Context.requireUser()))
             .location(location)
@@ -286,12 +286,12 @@ public class AiNotebook extends BaseCommand {
           .vmImageName(vmOrContainerImage.vm.imageConfig.name);
     }
 
-    bio.terra.cli.businessobject.resource.AiNotebook createdResource =
-        bio.terra.cli.businessobject.resource.AiNotebook.createControlled(createParams.build());
-    formatOption.printReturnValue(new UFAiNotebook(createdResource), AiNotebook::printText);
+    bio.terra.cli.businessobject.resource.GcpNotebook createdResource =
+        bio.terra.cli.businessobject.resource.GcpNotebook.createControlled(createParams.build());
+    formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
   }
 
-  /** Create the metadata to put on the AI Notebook instance. */
+  /** Create the metadata to put on the GCP Notebook instance. */
   private Map<String, String> defaultMetadata(UUID workspaceID) {
     return ImmutableMap.<String, String>builder()
         // Set additional Terra context as metadata on the VM instance.
@@ -344,8 +344,8 @@ public class AiNotebook extends BaseCommand {
   }
 
   /** Print this command's output in text format. */
-  private static void printText(UFAiNotebook returnValue) {
-    OUT.println("Successfully added controlled AI Notebook instance.");
+  private static void printText(UFGcpNotebook returnValue) {
+    OUT.println("Successfully added controlled GCP Notebook instance.");
     returnValue.print();
   }
 }

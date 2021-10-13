@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.userfacing.resource.UFAiNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AccessScope;
@@ -31,7 +31,7 @@ import java.util.UUID;
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "resourceType")
 @JsonSubTypes({
-  @Type(value = UFAiNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFGcpNotebook.class, name = "AI_NOTEBOOK"),
   @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET")
 })

@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.AiNotebook;
+import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -10,14 +10,14 @@ import java.io.PrintStream;
 import java.util.Optional;
 
 /**
- * External representation of a workspace AI notebook resource for command input/output.
+ * External representation of a workspace GCP notebook resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link AiNotebook} class for a notebook's internal representation.
+ * <p>See the {@link GcpNotebook} class for a notebook's internal representation.
  */
-@JsonDeserialize(builder = UFAiNotebook.Builder.class)
-public class UFAiNotebook extends UFResource {
+@JsonDeserialize(builder = UFGcpNotebook.Builder.class)
+public class UFGcpNotebook extends UFResource {
   public final String projectId;
   public final String instanceId;
   public final String location;
@@ -27,7 +27,7 @@ public class UFAiNotebook extends UFResource {
   public final String createTime;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFAiNotebook(AiNotebook internalObj) {
+  public UFGcpNotebook(GcpNotebook internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.instanceId = internalObj.getInstanceId();
@@ -41,7 +41,7 @@ public class UFAiNotebook extends UFResource {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFAiNotebook(Builder builder) {
+  private UFGcpNotebook(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.instanceId = builder.instanceId;
@@ -58,8 +58,8 @@ public class UFAiNotebook extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id:                " + projectId);
-    OUT.println(prefix + "AI Notebook instance location: " + location);
-    OUT.println(prefix + "AI Notebook instance id:       " + instanceId);
+    OUT.println(prefix + "GCP Notebook instance location: " + location);
+    OUT.println(prefix + "GCP Notebook instance id:       " + instanceId);
     OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
     OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
     OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
@@ -112,8 +112,8 @@ public class UFAiNotebook extends UFResource {
     }
 
     /** Call the private constructor. */
-    public UFAiNotebook build() {
-      return new UFAiNotebook(this);
+    public UFGcpNotebook build() {
+      return new UFGcpNotebook(this);
     }
 
     /** Default constructor for Jackson. */
