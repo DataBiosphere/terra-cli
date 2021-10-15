@@ -18,6 +18,7 @@ public class UFServer {
   public final String name;
   public final String description;
   public final String samUri;
+  public final boolean samInviteRequiresAdmin;
   public final String workspaceManagerUri;
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
@@ -27,6 +28,7 @@ public class UFServer {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();
+    this.samInviteRequiresAdmin = internalObj.getSamInviteRequiresAdmin();
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
@@ -37,6 +39,7 @@ public class UFServer {
     this.name = builder.name;
     this.description = builder.description;
     this.samUri = builder.samUri;
+    this.samInviteRequiresAdmin = builder.samInviteRequiresAdmin;
     this.workspaceManagerUri = builder.workspaceManagerUri;
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
@@ -53,6 +56,7 @@ public class UFServer {
     private String name;
     private String description;
     private String samUri;
+    private boolean samInviteRequiresAdmin;
     private String workspaceManagerUri;
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
@@ -69,6 +73,11 @@ public class UFServer {
 
     public Builder samUri(String samUri) {
       this.samUri = samUri;
+      return this;
+    }
+
+    public Builder samInviteRequiresAdmin(boolean samInviteRequiresAdmin) {
+      this.samInviteRequiresAdmin = samInviteRequiresAdmin;
       return this;
     }
 

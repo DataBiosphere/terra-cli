@@ -36,6 +36,7 @@ public class Server {
   // Terra services: information required to hit service endpoints
   // (e.g. URLs, WSM single spend profile)
   private String samUri;
+  private boolean samInviteRequiresAdmin;
   private String workspaceManagerUri;
   private String wsmDefaultSpendProfile;
   private String dataRepoUri;
@@ -49,6 +50,7 @@ public class Server {
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.samUri = configFromDisk.samUri;
+    this.samInviteRequiresAdmin = configFromDisk.samInviteRequiresAdmin;
     this.workspaceManagerUri = configFromDisk.workspaceManagerUri;
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
@@ -165,6 +167,10 @@ public class Server {
 
   public String getSamUri() {
     return samUri;
+  }
+
+  public boolean getSamInviteRequiresAdmin() {
+    return samInviteRequiresAdmin;
   }
 
   public String getWorkspaceManagerUri() {

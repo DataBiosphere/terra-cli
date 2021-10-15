@@ -102,6 +102,9 @@ public class WorkspaceManagerService {
   private static final int CLONE_WORKSPACE_MAXIMUM_RETRIES = 360;
   private static final Duration CLONE_WORKSPACE_RETRY_INTERVAL = Duration.ofSeconds(10);
 
+  // the Terra environment where the WSM service lives
+  private final Server server;
+
   // the client object used for talking to WSM
   private final ApiClient apiClient;
 
@@ -146,6 +149,7 @@ public class WorkspaceManagerService {
    * endpoints can be called.
    */
   private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+    this.server = server;
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
@@ -367,15 +371,23 @@ public class WorkspaceManagerService {
    * @param iamRole the role to assign
    */
   public void grantIamRole(UUID workspaceId, String userEmail, IamRole iamRole) {
-    // - try to grant the user an iam role
-    // - if this fails with a Bad Request error, it means the email is not found
-    // - so try to invite the user first, then retry granting them an iam role
     GrantRoleRequestBody grantRoleRequestBody = new GrantRoleRequestBody().memberEmail(userEmail);
-    callAndHandleOneTimeError(
-        () -> new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
-        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-        () -> SamService.fromContext().inviteUser(userEmail),
-        "Error granting IAM role on workspace.");
+    if (server.getSamInviteRequiresAdmin()) {
+      // if inviting a user requires admin permissions, don't invite whenever a user is not found
+      // instead, require the admin to explicitly invite someone
+      callWithRetries(
+          () -> new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
+          "Error granting IAM role on workspace");
+    } else {
+      // - try to grant the user an iam role
+      // - if this fails with a Bad Request error, it means the email is not found
+      // - so try to invite the user first, then retry granting them an iam role
+      callAndHandleOneTimeError(
+          () -> new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
+          (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+          () -> SamService.fromContext().inviteUser(userEmail),
+          "Error granting IAM role on workspace.");
+    }
   }
 
   /**
