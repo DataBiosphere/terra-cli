@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
+import org.broadinstitute.dsde.workbench.client.sam.api.AdminApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
@@ -138,9 +139,22 @@ public class SamService {
    *
    * @return SAM object with details about the user
    */
-  public UserStatusInfo getUserInfo() {
+  public UserStatusInfo getUserInfoForSelf() {
     return callWithRetries(
-        new UsersApi(apiClient)::getUserStatusInfo, "Error reading user information from SAM.");
+        new UsersApi(apiClient)::getUserStatusInfo,
+        "Error reading user information from SAM for current user.");
+  }
+
+  /**
+   * Call the SAM "/api/admin/user/email/{email}" admin endpoint to get the user info for the
+   * specified email.
+   *
+   * @return SAM object with details about the user
+   */
+  public UserStatus getUserInfo(String email) {
+    return callWithRetries(
+        () -> new AdminApi(apiClient).adminGetUserByEmail(email),
+        "Error reading user information from SAM.");
   }
 
   /**
