@@ -1,6 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
@@ -130,7 +131,17 @@ public class User {
 
     // if this is a new login...
     if (currentUser.isEmpty()) {
-      user.fetchUserInfo();
+      try {
+        user.fetchUserInfo();
+      } catch (SystemException sysEx) {
+        user.deleteOauthCredentials();
+        if (sysEx.getMessage().contains("Please request an invite from an admin")) {
+          throw new UserActionableException(
+              "Fetching the user's registration information failed. If you are not already a registered user, ask an administrator to invite you.");
+        } else {
+          throw sysEx;
+        }
+      }
 
       // update the global context on disk
       Context.setUser(user);
@@ -144,21 +155,11 @@ public class User {
 
   /** Delete all credentials associated with this user. */
   public void logout() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+    deleteOauthCredentials();
+    deletePetSaCredentials();
 
-      // delete the user credentials
-      GoogleOauth.deleteExistingCredential(
-          USER_SCOPES, inputStream, Context.getContextDir().toFile());
-
-      // delete the pet SA credentials
-      deletePetSaCredentials();
-
-      // unset the current user in the global context
-      Context.setUser(null);
-    } catch (IOException | GeneralSecurityException ex) {
-      throw new SystemException("Error deleting credentials.", ex);
-    }
+    // unset the current user in the global context
+    Context.setUser(null);
   }
 
   /**
@@ -227,6 +228,19 @@ public class User {
     }
     logger.debug("Stored pet SA key file for this user and workspace: {}", jsonKeyPath);
     return jsonKeyPath;
+  }
+
+  /** Delete this user's OAuth credentials. */
+  private void deleteOauthCredentials() {
+    try (InputStream inputStream =
+        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+
+      // delete the user credentials
+      GoogleOauth.deleteExistingCredential(
+          USER_SCOPES, inputStream, Context.getContextDir().toFile());
+    } catch (IOException | GeneralSecurityException ex) {
+      throw new SystemException("Error deleting credentials.", ex);
+    }
   }
 
   /** Delete all pet SA credentials for this user. */
