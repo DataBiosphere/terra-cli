@@ -1,6 +1,7 @@
 package bio.terra.cli.command.auth;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine.Command;
 
@@ -13,8 +14,17 @@ public class Login extends BaseCommand {
   /** Login the user and print out a success message. */
   @Override
   protected void execute() {
-    // the base class will always login the user unless the {@link CommandSetup#doLogin}
-    // method is overridden
+    // if the user is already logged in, log them out first
+    if (Context.getUser().isPresent()) {
+      Context.requireUser().logout();
+    }
+
+    User.login();
     OUT.println("Login successful: " + Context.requireUser().getEmail());
+  }
+
+  /** Suppress the login by the super class, so that we can logout the user first, if needed. */
+  protected boolean requiresLogin() {
+    return false;
   }
 }
