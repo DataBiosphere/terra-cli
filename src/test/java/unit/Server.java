@@ -1,20 +1,28 @@
 package unit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
-import harness.baseclasses.ClearContextUnit;
+import harness.baseclasses.SingleWorkspaceUnit;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra server` commands. */
 @Tag("unit")
-public class Server extends ClearContextUnit {
+public class Server extends SingleWorkspaceUnit {
   @Test
   @DisplayName("server status succeeds")
   void serverStatusSucceeds() throws JsonProcessingException {
@@ -29,7 +37,7 @@ public class Server extends ClearContextUnit {
   void statusListReflectSet() throws JsonProcessingException {
     // `terra server set --name=$serverName1`
     String serverName1 = "terra-verily-devel";
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName1);
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName1, "--quiet");
 
     // `terra status`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -50,7 +58,7 @@ public class Server extends ClearContextUnit {
 
     // `terra server set --name=$serverName2`
     String serverName2 = "terra-dev";
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName2);
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName2, "--quiet");
 
     // `terra status`
     status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -71,7 +79,7 @@ public class Server extends ClearContextUnit {
     // normal operation
     // `terra server set --name=$filepath`
     Path serverFilePath = TestCommand.getPathForTestInput("BadServer.json");
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverFilePath.toString());
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverFilePath, "--quiet");
 
     // `terra status`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -84,10 +92,56 @@ public class Server extends ClearContextUnit {
 
     // `terra server set --name=terra-dev`
     String serverName = "terra-dev";
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName);
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName, "--quiet");
 
     // `terra status`
     status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
     assertEquals(serverName, status.server.name, "status reflects server set");
+  }
+
+  @Test
+  @DisplayName(
+      "server set clears the auth and workspace context, doesn't prompt if already cleared")
+  void serverSetClearsAuthAndWorkspace() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra server set --name=verily-cli --quiet`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=verily-cli", "--quiet");
+
+    // `terra auth status --format=json`
+    UFAuthStatus authStatus =
+        TestCommand.runAndParseCommandExpectSuccess(UFAuthStatus.class, "auth", "status");
+    assertFalse(authStatus.loggedIn, "auth status indicates user is logged out");
+
+    // `terra status --format=json`
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
+    assertNull(status.workspace, "status indicates workspace is unset");
+    assertEquals("verily-cli", status.server.name, "status indicates server is changed");
+
+    // `terra server set --name=terra-dev`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-dev");
+    // now that the auth and workspace context are cleared, we shouldn't need the --quiet flag
+    // anymore
+  }
+
+  @Test
+  @DisplayName("server set aborts if the prompt response is no")
+  void serverSetChecksPromptResponse() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra server set --name=verily-cli --quiet`
+    ByteArrayInputStream stdIn = new ByteArrayInputStream("NO".getBytes(StandardCharsets.UTF_8));
+    TestCommand.Result cmd = TestCommand.runCommand(stdIn, "server", "set", "--name=verily-cli");
+    assertEquals(1, cmd.exitCode, "server set command threw a user actionable exception");
+    assertThat(
+        "output message says the server switch was aborted",
+        cmd.stdErr,
+        CoreMatchers.containsString("Switching server aborted"));
   }
 }

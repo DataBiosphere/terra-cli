@@ -95,7 +95,7 @@ public class Config extends SingleWorkspaceUnit {
   @DisplayName("config server set and server set are equivalent")
   void server() throws IOException {
     // `terra server set --name=terra-verily-devel`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-verily-devel");
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-verily-devel", "--quiet");
 
     // `terra config get server`
     UFServer getValue =
@@ -107,7 +107,7 @@ public class Config extends SingleWorkspaceUnit {
     assertEquals("terra-verily-devel", config.serverName, "server set affects config list");
 
     // `terra config set server --name=terra-dev`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-dev");
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-dev", "--quiet");
 
     // `terra config get server`
     getValue =
