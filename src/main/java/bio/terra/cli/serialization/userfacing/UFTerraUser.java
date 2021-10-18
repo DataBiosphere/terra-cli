@@ -1,27 +1,28 @@
 package bio.terra.cli.serialization.userfacing;
 
-import bio.terra.cli.businessobject.RegisteredUser;
+import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
 /**
- * External representation of a registered user for command input/output.
+ * External representation of someone who could register as a user in Terra, for command
+ * input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link RegisteredUser} class for a registered user's internal representation.
+ * <p>See the {@link TerraUser} class for a registered user's internal representation.
  */
-@JsonDeserialize(builder = UFRegisteredUser.Builder.class)
-public class UFRegisteredUser {
+@JsonDeserialize(builder = UFTerraUser.Builder.class)
+public class UFTerraUser {
   public final String email;
   public final String subjectId;
   public final boolean isRegistered;
   public final boolean isEnabled;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public UFRegisteredUser(RegisteredUser internalObj) {
+  public UFTerraUser(TerraUser internalObj) {
     this.email = internalObj.getEmail();
     this.subjectId = internalObj.getSubjectId();
     this.isRegistered = internalObj.isRegistered();
@@ -29,7 +30,7 @@ public class UFRegisteredUser {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFRegisteredUser(Builder builder) {
+  private UFTerraUser(Builder builder) {
     this.email = builder.email;
     this.subjectId = builder.subjectId;
     this.isRegistered = builder.isRegistered;
@@ -73,8 +74,8 @@ public class UFRegisteredUser {
     }
 
     /** Call the private constructor. */
-    public UFRegisteredUser build() {
-      return new UFRegisteredUser(this);
+    public UFTerraUser build() {
+      return new UFTerraUser(this);
     }
 
     /** Default constructor for Jackson. */

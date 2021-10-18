@@ -1,6 +1,6 @@
 package bio.terra.cli.command.user;
 
-import bio.terra.cli.businessobject.RegisteredUser;
+import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,7 +15,7 @@ public class Invite extends BaseCommand {
   /** Invite a new user. */
   @Override
   protected void execute() {
-    RegisteredUser.invite(email);
+    TerraUser.invite(email);
     OUT.println("Successfully invited user.");
   }
 }

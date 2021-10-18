@@ -1,9 +1,9 @@
 package bio.terra.cli.command.user;
 
-import bio.terra.cli.businessobject.RegisteredUser;
+import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.userfacing.UFRegisteredUser;
+import bio.terra.cli.serialization.userfacing.UFTerraUser;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -19,7 +19,7 @@ public class Status extends BaseCommand {
   /** Check the registration status of a user. */
   @Override
   protected void execute() {
-    RegisteredUser registeredUser = RegisteredUser.getUser(email);
-    formatOption.printReturnValue(new UFRegisteredUser(registeredUser), UFRegisteredUser::print);
+    TerraUser terraUser = TerraUser.getUser(email);
+    formatOption.printReturnValue(new UFTerraUser(terraUser), UFTerraUser::print);
   }
 }
