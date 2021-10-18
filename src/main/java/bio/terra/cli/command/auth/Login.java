@@ -24,6 +24,7 @@ public class Login extends BaseCommand {
   }
 
   /** Suppress the login by the super class, so that we can logout the user first, if needed. */
+  @Override
   protected boolean requiresLogin() {
     return false;
   }
