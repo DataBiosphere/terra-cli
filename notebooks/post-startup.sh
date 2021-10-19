@@ -22,6 +22,10 @@ sudo -u "${JUPYTER_USER}" sh -c "mkdir -p /home/${JUPYTER_USER}/.terra"
 exec >> /home/"${JUPYTER_USER}"/.terra/post-startup-output.txt
 exec 2>&1
 
+# start ssh-agent and add it to the bash profile
+ssh-agent -s
+echo eval '"$(ssh-agent -s)"' >> ~/.bash_profile
+
 #######################################
 # Retrieve a value from the GCE metadata server or return nothing.
 # See https://cloud.google.com/compute/docs/storing-retrieving-metadata
