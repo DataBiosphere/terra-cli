@@ -1,6 +1,7 @@
 {
   "name": "localhost",
   "description": "Local builds of WSM and SAM",
+
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://local.broadinstitute.org:50443",
   "samInviteRequiresAdmin": true,
