@@ -39,6 +39,7 @@ import picocli.CommandLine.ParseResult;
       Server.class,
       Spend.class,
       Status.class,
+      User.class,
       Version.class,
       Workspace.class
     },

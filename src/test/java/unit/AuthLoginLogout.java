@@ -85,7 +85,7 @@ public class AuthLoginLogout extends ClearContextUnit {
       testUser.login();
 
       // check that the user is enabled
-      UserStatusInfo userStatusInfo = SamService.fromContext().getUserInfo();
+      UserStatusInfo userStatusInfo = SamService.fromContext().getUserInfoForSelf();
       assertTrue(userStatusInfo.getEnabled(), "test user is enabled in SAM");
 
       // `terra auth revoke`

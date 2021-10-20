@@ -4,6 +4,7 @@
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://terra-staging-sam.api.verily.com",
+  "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-staging-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

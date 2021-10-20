@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.http.HttpStatus;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiException;
+import org.broadinstitute.dsde.workbench.client.sam.api.AdminApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GoogleApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
@@ -138,9 +139,22 @@ public class SamService {
    *
    * @return SAM object with details about the user
    */
-  public UserStatusInfo getUserInfo() {
+  public UserStatusInfo getUserInfoForSelf() {
     return callWithRetries(
-        new UsersApi(apiClient)::getUserStatusInfo, "Error reading user information from SAM.");
+        new UsersApi(apiClient)::getUserStatusInfo,
+        "Error reading user information from SAM for current user.");
+  }
+
+  /**
+   * Call the SAM "/api/admin/user/email/{email}" admin endpoint to get the user info for the
+   * specified email.
+   *
+   * @return SAM object with details about the user
+   */
+  public UserStatus getUserInfo(String email) {
+    return callWithRetries(
+        () -> new AdminApi(apiClient).adminGetUserByEmail(email),
+        "Error reading user information from SAM.");
   }
 
   /**
@@ -242,14 +256,24 @@ public class SamService {
    * @param userEmail email of the user to add
    */
   public void addUserToGroup(String groupName, GroupPolicy policy, String userEmail) {
-    // - try to add the email to the group
-    // - if this fails with a Bad Request error, it means the email is not found
-    // - so try to invite the user first, then retry adding them to the group
-    callAndHandleOneTimeError(
-        () -> new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
-        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-        () -> inviteUser(userEmail),
-        "Error adding user to SAM group.");
+    if (server.getSamInviteRequiresAdmin()) {
+      // if inviting a user requires admin permissions, don't invite whenever a user is not found
+      // instead, require the admin to explicitly invite someone
+      callWithRetries(
+          () ->
+              new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+          "Error adding user to SAM group.");
+    } else {
+      // - try to add the email to the group
+      // - if this fails with a Bad Request error, it means the email is not found
+      // - so try to invite the user first, then retry adding them to the group
+      callAndHandleOneTimeError(
+          () ->
+              new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+          (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+          () -> inviteUser(userEmail),
+          "Error adding user to SAM group.");
+    }
   }
 
   /**
@@ -293,17 +317,27 @@ public class SamService {
    */
   public void addUserToResourceOrInviteUser(
       String resourceType, String resourceId, String resourcePolicyName, String userEmail) {
-    // - try to add user to the policy
-    // - if the add user to policy failed with a Bad Request error, it means the email is not
-    // found
-    // - so try to invite the user first, then retry adding them to the policy
-    callAndHandleOneTimeError(
-        () ->
-            new ResourcesApi(apiClient)
-                .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
-        (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
-        () -> inviteUser(userEmail),
-        "Error adding user to SAM resource.");
+    if (server.getSamInviteRequiresAdmin()) {
+      // if inviting a user requires admin permissions, don't invite whenever a user is not found
+      // instead, require the admin to explicitly invite someone
+      callWithRetries(
+          () ->
+              new ResourcesApi(apiClient)
+                  .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+          "Error adding user to SAM resource.");
+    } else {
+      // - try to add user to the policy
+      // - if the add user to policy failed with a Bad Request error, it means the email is not
+      // found
+      // - so try to invite the user first, then retry adding them to the policy
+      callAndHandleOneTimeError(
+          () ->
+              new ResourcesApi(apiClient)
+                  .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+          (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+          () -> inviteUser(userEmail),
+          "Error adding user to SAM resource.");
+    }
   }
 
   /**
