@@ -507,17 +507,25 @@ public class SamService {
    * @return true if the exception is retryable
    */
   static boolean isRetryable(Exception ex) {
-    if (ex instanceof SocketTimeoutException) {
-      return true;
-    } else if (!(ex instanceof ApiException)) {
+    if (!(ex instanceof ApiException)) {
       return false;
     }
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
+
+    // if SAM gets a SocketTimeoutException internally, it wraps it in an ApiException, sets the
+    // http status code to 0, and rethrows it to the caller. these socket timeouts should probably
+    // be retried within SAM, or use a valid http status code (e.g. 500 or 503), but for now we
+    // depend on the caller to detect this case and retry it
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isSamInternalSocketTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketTimeoutException;
+
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
+        || isSamInternalSocketTimeout;
   }
 
   /**
