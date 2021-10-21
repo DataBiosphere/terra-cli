@@ -513,10 +513,8 @@ public class SamService {
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
 
-    // if SAM gets a SocketTimeoutException internally, it wraps it in an ApiException, sets the
-    // http status code to 0, and rethrows it to the caller. these socket timeouts should probably
-    // be retried within SAM, or use a valid http status code (e.g. 500 or 503), but for now we
-    // depend on the caller to detect this case and retry it
+    // if the SAM client gets a SocketTimeoutException, it wraps it in an ApiException, sets the
+    // HTTP status code to 0, and rethrows it to the caller. detect this case here and retry it.
     final int TIMEOUT_STATUS_CODE = 0;
     boolean isSamInternalSocketTimeout =
         statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketTimeoutException;
