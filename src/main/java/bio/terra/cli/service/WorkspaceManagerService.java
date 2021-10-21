@@ -79,7 +79,6 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
-import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -1044,9 +1043,7 @@ public class WorkspaceManagerService {
    * @return true if the exception is retryable
    */
   private static boolean isRetryable(Exception ex) {
-    if (ex instanceof SocketTimeoutException) {
-      return true;
-    } else if (!(ex instanceof ApiException)) {
+    if (!(ex instanceof ApiException)) {
       return false;
     }
     logErrorMessage((ApiException) ex);
