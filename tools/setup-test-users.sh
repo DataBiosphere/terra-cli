@@ -4,6 +4,10 @@ set -e
 ## This script sets up users for running CLI tests. It only needs to be run once per SAM instance.
 ## Keep this script in sync with the harness.TestUsers class in the src/test/java directory.
 ##
+## If the current server requires users to be invited before they can register, then the user who runs this
+## script must be an admin user (i.e. a member of the fc-admins Google group in the SAM Gsuite). The script
+## invites all the test users if they do not already exist in SAM, and this requires admin permissions.
+##
 ## The admin users group email argument for this script should be the email address of a SAM group that contains
 ## several admin emails (e.g. developer-admins group on the dev SAM deployment at the Broad contains the corporate
 ## emails of all PF team developers as of Sept 23, 2021). This is to prevent the team from losing access if the
@@ -27,6 +31,26 @@ adminUsersGroupEmail=$1
 if [ -z "$adminUsersGroupEmail" ]; then
     echo $usage
     exit 1
+fi
+
+# invite all the test users if the server requires it
+echo
+echo "Checking whether the server requires inviting new users."
+requiresInvite=$($terra config get server --format=json | jq .samInviteRequiresAdmin)
+if [ $requiresInvite == "true" ]; then
+  echo "Inviting test users."
+  declare -a testUsers=("Penelope.TwilightsHammer@test.firecloud.org"
+                  "John.Whiteclaw@test.firecloud.org"
+                  "Lily.Shadowmoon@test.firecloud.org"
+                  "Brooklyn.Thunderlord@test.firecloud.org"
+                  "Noah.Frostwolf@test.firecloud.org"
+                  "Ethan.Bonechewer@test.firecloud.org")
+  for testUser in "${testUsers[@]}"
+  do
+    $terra user status --email="$testUser" || $terra user invite --email="$testUser"
+  done
+else
+  echo "Server does not require inviting new users."
 fi
 
 # create the cli-test-users SAM group and add it as a user on the spend profile
