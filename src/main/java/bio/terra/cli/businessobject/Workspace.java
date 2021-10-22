@@ -285,8 +285,8 @@ public class Workspace {
   }
 
   /**
-   * Grant break-glass access to a user of this workspace. The Editor role is granted to the user's
-   * proxy group.
+   * Grant break-glass access to a user of this workspace. The Editor and Project IAM Admin roles
+   * are granted to the user's proxy group.
    *
    * @param granteeEmail email of the workspace user requesting break-glass access
    * @param userProjectsAdminCredentials credentials for a SA that has permission to set IAM policy
@@ -314,13 +314,18 @@ public class Workspace {
           new Binding()
               .setRole("roles/editor")
               .setMembers(ImmutableList.of("group:" + granteeProxyGroupEmail)));
+      updatedBindings.add(
+          new Binding()
+              .setRole("roles/resourcemanager.projectIamAdmin")
+              .setMembers(ImmutableList.of("group:" + granteeProxyGroupEmail)));
       policy.setBindings(updatedBindings);
       resourceManagerCow
           .projects()
           .setIamPolicy(googleProjectId, new SetIamPolicyRequest().setPolicy(policy))
           .execute();
     } catch (IOException ioEx) {
-      throw new SystemException("Error granting the Editor role to the user's proxy group.", ioEx);
+      throw new SystemException(
+          "Error granting the Editor and Project IAM Admin roles to the user's proxy group.", ioEx);
     }
 
     return granteeProxyGroupEmail;
