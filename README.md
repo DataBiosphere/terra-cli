@@ -66,7 +66,7 @@ manual login flow by setting the browser flag `terra config set browser MANUAL`.
 section below for more details.
 
 #### Spend profile access
-In order to spend money (e.g. by creating a worksapce and resources within it) in Terra, you need
+In order to spend money (e.g. by creating a workspace and resources within it) in Terra, you need
 access to a billing account via a spend profile. Currently, there is a single spend profile used
 by Workspace Manager. A spend profile admin can grant you access (admins see ADMIN.md for instructions).
 
@@ -378,7 +378,7 @@ different user created or added the resource and subsequently shared the workspa
 
 The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
 of resources locally. Third-party tools can access resource details via environment variables (e.g. $TERRA_mybucket
-holds the `gs://` URL of the workspace bucket resource named `mybucket`. The CLI updates the cache on every call to
+holds the `gs://` URL of the workspace bucket resource named `mybucket`). The CLI updates the cache on every call to
 a `terra resource` command. So, if you are working in a shared workspace, you can run `terra resource list` (for
 example) to pick up any changes that your collaborators have made.
 
@@ -514,7 +514,6 @@ Example commands for creating a new controlled bucket resource and then using `g
 Successfully added controlled GCS bucket.
 
 > terra gsutil iam get \$TERRA_mybucket
-  Setting the gcloud credentials to match the application default credentials
   Setting the gcloud project to the workspace project
   Updated property [core/project].
   
@@ -543,7 +542,8 @@ To use a workspace reference in a file or config that will be read by an applica
 environment variable. Since this will be running inside the Docker container or local process, there is
 no need to bypass shell substitution.
 
-Example `nextflow.config` file that includes a reference to the backing Google project and pet SA email.
+Example `nextflow.config` file that includes a reference to a bucket resource in the workspace, the backing
+Google project, and the workspace pet SA email.
 ```
 profiles {
   gls {
