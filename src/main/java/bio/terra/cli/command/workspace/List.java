@@ -65,6 +65,14 @@ public class List extends BaseCommand {
       if (!(description == null || description.isBlank())) {
         OUT.println(String.format(propertyDescription, "Description", description));
       }
+      String googleProjectId = workspace.googleProjectId;
+      OUT.println(
+          String.format(
+              propertyDescription,
+              "Google project ID",
+              (googleProjectId == null || googleProjectId.isBlank())
+                  ? "(UNSET)"
+                  : googleProjectId));
     }
   }
 }
