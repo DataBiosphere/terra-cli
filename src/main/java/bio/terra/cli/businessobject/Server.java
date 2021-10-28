@@ -8,15 +8,16 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Internal representation of a server. An instance of this class is part of the current context or
@@ -94,34 +95,43 @@ public class Server {
    * treats all network or API exceptions when calling "/status" the same as a bad status code.
    */
   public boolean ping() {
+    boolean samUriSpecified = (samUri != null);
     SystemStatus samStatus = null;
-    try {
-      samStatus = SamService.unauthenticated(this).getStatus();
-      logger.info("SAM status: {}", samStatus);
-    } catch (Exception ex) {
-      logger.error("Error getting SAM status.", ex);
+    if (samUriSpecified) {
+      try {
+        samStatus = SamService.unauthenticated(this).getStatus();
+        logger.info("SAM status: {}", samStatus);
+      } catch (Exception ex) {
+        logger.error("Error getting SAM status.", ex);
+      }
     }
 
+    boolean wsmUriSpecified = (workspaceManagerUri != null);
     boolean wsmStatusIsOk = true;
-    try {
-      WorkspaceManagerService.unauthenticated(this).getStatus();
-      logger.info("WSM status: {}", wsmStatusIsOk);
-    } catch (Exception ex) {
-      logger.error("Error getting WSM status.", ex);
-      wsmStatusIsOk = false;
+    if (wsmUriSpecified) {
+      try {
+        WorkspaceManagerService.unauthenticated(this).getStatus();
+        logger.info("WSM status: {}", wsmStatusIsOk);
+      } catch (Exception ex) {
+        logger.error("Error getting WSM status.", ex);
+        wsmStatusIsOk = false;
+      }
     }
 
+    boolean dataRepoUriSpecified = (dataRepoUri != null);
     RepositoryStatusModel tdrStatus = null;
-    try {
-      tdrStatus = DataRepoService.unauthenticated(this).getStatus();
-      logger.info("TDR status: {}", tdrStatus);
-    } catch (Exception ex) {
-      logger.error("Error getting TDR status.", ex);
+    if (dataRepoUriSpecified) {
+      try {
+        tdrStatus = DataRepoService.unauthenticated(this).getStatus();
+        logger.info("TDR status: {}", tdrStatus);
+      } catch (Exception ex) {
+        logger.error("Error getting TDR status.", ex);
+      }
     }
 
-    return (samStatus != null && samStatus.getOk())
-        && wsmStatusIsOk
-        && (tdrStatus != null && tdrStatus.isOk());
+    return (!samUriSpecified || (samStatus != null && samStatus.getOk()))
+        && (!wsmUriSpecified || wsmStatusIsOk)
+        && (!dataRepoUriSpecified || (tdrStatus != null && tdrStatus.isOk()));
   }
 
   /**

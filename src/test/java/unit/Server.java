@@ -78,7 +78,7 @@ public class Server extends SingleWorkspaceUnit {
     // NOTE: this feature is intended to help debugging without requiring a recompile, not for
     // normal operation
     // `terra server set --name=$filepath`
-    Path serverFilePath = TestCommand.getPathForTestInput("BadServer.json");
+    Path serverFilePath = TestCommand.getPathForTestInput("servers/BadServer.json");
     TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverFilePath, "--quiet");
 
     // `terra status`
@@ -97,6 +97,25 @@ public class Server extends SingleWorkspaceUnit {
     // `terra status`
     status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
     assertEquals(serverName, status.server.name, "status reflects server set");
+  }
+
+  @Test
+  @DisplayName("service URLs are optional")
+  void serviceUrlsAreOptional() throws JsonProcessingException {
+    // NOTE: this feature is intended to help debugging without requiring a recompile, not for
+    // normal operation
+    // `terra server set --name=$filepath`
+    Path serverFilePath = TestCommand.getPathForTestInput("servers/MissingDataRepoURI.json");
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverFilePath, "--quiet");
+
+    // `terra status`
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
+    assertEquals("missing-data-repo-uri", status.server.name, "status reflects server set");
+
+    // `terra server status`
+    String statusMsg =
+        TestCommand.runAndParseCommandExpectSuccess(String.class, "server", "status");
+    assertEquals("OKAY", statusMsg, "server status returns successfully");
   }
 
   @Test

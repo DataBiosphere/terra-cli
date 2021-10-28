@@ -2,7 +2,6 @@
   "name": "terra-verily-devel",
   "description": "Verily devel environment",
 
-  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://terra-devel-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-devel-wsm.api.verily.com",
