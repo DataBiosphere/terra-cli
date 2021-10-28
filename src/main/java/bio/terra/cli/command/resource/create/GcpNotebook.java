@@ -56,7 +56,8 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance.")
+      description =
+          "The Google Cloud location of the instance (https://cloud.google.com/vertex-ai/docs/general/locations#user-managed-notebooks-locations).")
   private String location;
 
   @CommandLine.Option(
