@@ -6,5 +6,5 @@
   "samUri": "https://terra-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-wsm.api.verily.com",
-  "wsmDefaultSpendProfile": "wm-default-spend-profile"
+  "wsmDefaultSpendProfile": "wm-temp-spend-profile"
 }
