@@ -94,34 +94,43 @@ public class Server {
    * treats all network or API exceptions when calling "/status" the same as a bad status code.
    */
   public boolean ping() {
+    boolean samUriSpecified = (samUri != null);
     SystemStatus samStatus = null;
-    try {
-      samStatus = SamService.unauthenticated(this).getStatus();
-      logger.info("SAM status: {}", samStatus);
-    } catch (Exception ex) {
-      logger.error("Error getting SAM status.", ex);
+    if (samUriSpecified) {
+      try {
+        samStatus = SamService.unauthenticated(this).getStatus();
+        logger.info("SAM status: {}", samStatus);
+      } catch (Exception ex) {
+        logger.error("Error getting SAM status.", ex);
+      }
     }
 
+    boolean wsmUriSpecified = (workspaceManagerUri != null);
     boolean wsmStatusIsOk = true;
-    try {
-      WorkspaceManagerService.unauthenticated(this).getStatus();
-      logger.info("WSM status: {}", wsmStatusIsOk);
-    } catch (Exception ex) {
-      logger.error("Error getting WSM status.", ex);
-      wsmStatusIsOk = false;
+    if (wsmUriSpecified) {
+      try {
+        WorkspaceManagerService.unauthenticated(this).getStatus();
+        logger.info("WSM status: {}", wsmStatusIsOk);
+      } catch (Exception ex) {
+        logger.error("Error getting WSM status.", ex);
+        wsmStatusIsOk = false;
+      }
     }
 
+    boolean dataRepoUriSpecified = (dataRepoUri != null);
     RepositoryStatusModel tdrStatus = null;
-    try {
-      tdrStatus = DataRepoService.unauthenticated(this).getStatus();
-      logger.info("TDR status: {}", tdrStatus);
-    } catch (Exception ex) {
-      logger.error("Error getting TDR status.", ex);
+    if (dataRepoUriSpecified) {
+      try {
+        tdrStatus = DataRepoService.unauthenticated(this).getStatus();
+        logger.info("TDR status: {}", tdrStatus);
+      } catch (Exception ex) {
+        logger.error("Error getting TDR status.", ex);
+      }
     }
 
-    return (samStatus != null && samStatus.getOk())
-        && wsmStatusIsOk
-        && (tdrStatus != null && tdrStatus.isOk());
+    return (!samUriSpecified || (samStatus != null && samStatus.getOk()))
+        && (!wsmUriSpecified || wsmStatusIsOk)
+        && (!dataRepoUriSpecified || (tdrStatus != null && tdrStatus.isOk()));
   }
 
   /**

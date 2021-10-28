@@ -2,7 +2,6 @@
   "name": "terra-verily-preprod",
   "description": "Verily preprod environment",
 
-  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://terra-preprod-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-preprod-wsm.api.verily.com",
