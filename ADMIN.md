@@ -1,15 +1,32 @@
 # terra-cli
 
-1. [Spend profile](#spend-profile)
+1. [Spend](#spend)
     * [Grant spend access](#grant-spend-access)
     * [Setup spend profile](#setup-spend-profile)
 2. [Break-glass](#break-glass)
     * [Grant break-glass](#grant-break-glass)
     * [Requests catalog](#requests-catalog)
-
+3. [Users](#users)
+    * [Invite user](#invite-user)
+    * [Check registration status](#check-registration-status)
+    
 -----
 
-### Spend profile
+### Spend
+```
+Usage: terra spend [COMMAND]
+Manage spend profiles.
+Commands:
+  create-profile  Create the Workspace Manager default spend profile.
+  enable          Enable use of the Workspace Manager default spend profile for
+                    a user or group.
+  delete-profile  Delete the Workspace Manager default spend profile.
+  disable         Disable use of the Workspace Manager default spend profile
+                    for a user or group.
+  list-users      List the users enabled on the Workspace Manager default spend
+                    profile.
+```
+
 In order to spend money (e.g. by creating a project and resources within it) in Terra, you need
 access to a billing account via a spend profile. In the future, there will be a dedicated Spend
 Profile Manager service that will allow users to setup different profiles that map to different
@@ -20,6 +37,9 @@ This single spend profile corresponds to a SAM resource. The name of this resour
 the Workspace Manager deployment configuration (e.g. Helm charts) but needs to be setup and managed
 manually in SAM (i.e. there are no WSM endpoints for managing spend profiles, you have to talk to SAM
 directly). The CLI provides convenience commands for this setup and management.
+
+Note that these commands are intended for admin users. In the context of spend, admin means a user
+who is an owner of the default spend profile resource.
 
 #### Grant spend access
 - [Preferred] Add a user to a Terra group that is a user of the spend profile. To also grant permission
@@ -41,16 +61,18 @@ permissions to add new users. You should also make sure that other people have a
 so that changes can be made when you're unavailable. The recommended way to do this is to create an admins
 group and grant that group OWNER access to the spend profile. e.g.:
 ```
-terra spend create-profile
 terra group create --name=developer-admins
 terra group add-user --name=developer-admins --email=admin1@gmail.com --policy=ADMIN
 terra group add-user --name=developer-admins --email=admin2@gmail.com --policy=ADMIN
+
+terra spend create-profile
 terra spend enable --email=developer-admins@gmail.com --policy=OWNER
 ```
 
 To delete the spend profile:
   `terra spend delete-profile`
-This is helpful if you accidentally create the spend profile with the wrong name and need to start over.
+This is helpful if you accidentally create the spend profile with e.g. the wrong name and need to start over.
+
 
 ### Break-glass
 A break-glass implementation means that there is a way for users to request elevated permissions on a workspace.
@@ -101,3 +123,54 @@ in the first command needs to have BigQuery admin privileges in the target proje
 
 The current central BigQuery dataset exists in the `terra-cli-dev` project.
 
+
+### Users
+```
+Usage: terra user [COMMAND]
+Manage users.
+Commands:
+  invite  Invite a new user.
+  status  Check the registration status of a user.
+```
+
+Note that these commands are intended for admin users. In the context of user management, admin means a user
+who is a member of the `fc-admins` Google group in the GSuite domain that SAM manages.
+
+#### Invite user
+In Broad deployments, registration is open to anyone with a Google account. In Verily deployments, registration is
+not open to anyone with a Google account. Instead, users must be invited into the system (`terra user invite`) before
+they can register.
+
+When inviting a new user, admins can also optionally enable the user on the default spend profile.
+```
+> terra user invite --email=newuser@gmail.com --enable-spend
+Successfully invited user.
+User enabled on the default spend profile.
+```
+
+Registration happens automatically with the first CLI login. `terra auth login` or any other command that requires
+being logged in (e.g. `terra workspace list`) will trigger the login flow.
+
+#### Check registration status
+The `terra user status` command indicates whether:
+- A user has no record in the system (i.e. not been invited or registered).
+    ```
+      > terra user status --email=notinvited@gmail.com
+      User not found: notinvited@gmail.com
+    ```
+- A user has been invited, but not yet registered by logging in for the first time.
+    ```
+      > terra user status --email=invited@gmail.com
+      Email: invited@gmail.com
+      Subject ID: 263543418278082e7fc11
+      NOT REGISTERED
+      DISABLED
+    ```
+- A user has registered by logging in for the first time.
+    ```
+      > terra user status --email=registered@gmail.com
+      Email: registered@gmail.com
+      Subject ID: 263543418278082e7fc11
+      REGISTERED
+      ENABLED
+    ```

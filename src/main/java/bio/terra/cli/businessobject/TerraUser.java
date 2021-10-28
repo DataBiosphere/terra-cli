@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.SamService;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatus;
 import org.slf4j.Logger;
@@ -38,6 +39,9 @@ public class TerraUser {
   /** Get the registered user object. */
   public static TerraUser getUser(String email) {
     UserStatus userStatus = SamService.fromContext().getUserInfo(email);
+    if (userStatus == null) {
+      throw new UserActionableException("User not found: " + email);
+    }
     logger.info("Found user in SAM: {}", userStatus);
 
     // lowercase the email so there is a consistent way of looking up the email address

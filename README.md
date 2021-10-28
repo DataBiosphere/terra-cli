@@ -68,7 +68,8 @@ section below for more details.
 #### Spend profile access
 In order to spend money (e.g. by creating a workspace and resources within it) in Terra, you need
 access to a billing account via a spend profile. Currently, there is a single spend profile used
-by Workspace Manager. A spend profile admin can grant you access (admins see ADMIN.md for instructions).
+by Workspace Manager. An admin user can grant you access.
+Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend) for more details.
 
 #### External data 
 In order to read or write external data from Terra, you should grant data access to your proxy group.
@@ -244,6 +245,7 @@ The other commands are groupings of sub-commands, described in the sections belo
 * `resource` [Resources](#resources)
 * `server` [Server](#server)
 * `spend` [Spend](#spend)
+* `user` [User](#user)
 * `workspace` [Workspace](#workspace)
 
 #### Applications
@@ -460,22 +462,12 @@ A Terra server or environment is a set of connected Terra services (e.g. Workspa
 Workspaces exist on a single server, so switching servers will change the list of workspaces available to you.
 
 #### Spend
-```
-Usage: terra spend [COMMAND]
-Manage spend profiles.
-Commands:
-  enable      Enable use of the Workspace Manager default spend profile for a
-                user or group.
-  disable     Disable use of the Workspace Manager default spend profile for a
-                user or group.
-  list-users  List the users enabled on the Workspace Manager default spend
-                profile.
-```
+These commands are intended for admin users.
+Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend) for more details.
 
-These commands allow managing users who are authorized to spend money with Workspace Manager (e.g. by
-creating a project and resources within it). A Spend Profile Manager service has not yet been built.
-In the meantime, WSM uses a single billing account and manages access to it with a single SAM resource.
-These commands are utility wrappers around adding users to this single resource.
+#### User
+These commands are intended for admin users.
+Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#users) for more details.
 
 #### Workspace
 ```
@@ -483,6 +475,7 @@ Usage: terra workspace [COMMAND]
 Setup a Terra workspace.
 Commands:
   add-user     Add a user or group to the workspace.
+  break-glass  Grant break-glass access to a workspace user.
   clone        Clone an existing workspace.
   create       Create a new workspace.
   delete       Delete an existing workspace.
@@ -495,6 +488,9 @@ Commands:
 ```
 
 A Terra workspace is backed by a Google project. Creating/deleting a workspace also creates/deletes the project.
+
+The `break-glass` command is intended for admin users.
+Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#break-glass) for more details.
 
 ### Workspace context for applications
 The Terra CLI defines a workspace context for applications to run in. This context includes:

@@ -41,11 +41,11 @@ public class List extends BaseCommand {
   }
 
   /**
-   * This enum specifies the list returned by the 'terra app list' command. These commands are
-   * hidden top-level commands that can be called in a pass-through manner, meaning the user can
-   * call them as if they were running the commands locally, except with a "terra" prefix. This
-   * prefix means that the command will run within the context of a Terra workspace (e.g. in the
-   * backing Google project, with data references scoped to the workspace, etc).
+   * This enum specifies the list returned by the 'terra app list' command. These commands can be
+   * called in a pass-through manner, meaning the user can call them as if they were running the
+   * commands locally, except with a "terra" prefix. This prefix means that the command will run
+   * within the context of a Terra workspace (e.g. in the backing Google project, with data
+   * references scoped to the workspace, etc).
    */
   public enum PassThrough {
     nextflow,

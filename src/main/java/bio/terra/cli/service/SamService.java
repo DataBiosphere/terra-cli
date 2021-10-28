@@ -149,11 +149,20 @@ public class SamService {
    * Call the SAM "/api/admin/user/email/{email}" admin endpoint to get the user info for the
    * specified email.
    *
-   * @return SAM object with details about the user
+   * @return SAM object with details about the user, or null if not found
    */
   public UserStatus getUserInfo(String email) {
     return callWithRetries(
-        () -> new AdminApi(apiClient).adminGetUserByEmail(email),
+        () -> {
+          try {
+            return new AdminApi(apiClient).adminGetUserByEmail(email);
+          } catch (Exception ex) {
+            if (isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_NOT_FOUND)) {
+              return null;
+            }
+            throw ex;
+          }
+        },
         "Error reading user information from SAM.");
   }
 

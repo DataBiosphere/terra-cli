@@ -22,6 +22,7 @@ import picocli.CommandLine.Command;
     description = "Setup a Terra workspace.",
     subcommands = {
       AddUser.class,
+      BreakGlass.class,
       Clone.class,
       Create.class,
       Delete.class,
@@ -31,6 +32,5 @@ import picocli.CommandLine.Command;
       RemoveUser.class,
       Set.class,
       Update.class,
-      BreakGlass.class,
     })
 public class Workspace {}

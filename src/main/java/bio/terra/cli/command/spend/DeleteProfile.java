@@ -9,8 +9,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra spend delete-profile" command. */
 @Command(
     name = "delete-profile",
-    description = "Delete the Workspace Manager default spend profile.",
-    hidden = true)
+    description = "Delete the Workspace Manager default spend profile.")
 public class DeleteProfile extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
 

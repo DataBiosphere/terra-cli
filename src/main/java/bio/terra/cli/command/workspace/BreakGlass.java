@@ -29,14 +29,8 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/**
- * This class corresponds to the third-level "terra workspace break-glass" command. This command is
- * hidden in the usage help.
- */
-@Command(
-    name = "break-glass",
-    description = "Grant break-glass access to a workspace user.",
-    hidden = true)
+/** This class corresponds to the third-level "terra workspace break-glass" command. */
+@Command(name = "break-glass", description = "Grant break-glass access to a workspace user.")
 public class BreakGlass extends BaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(BreakGlass.class);
 
