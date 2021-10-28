@@ -25,6 +25,7 @@ public class BqDataset extends BaseCommand {
 
   @CommandLine.Option(
       names = "--location",
+      defaultValue = "us-central1",
       description = "Dataset location (https://cloud.google.com/bigquery/docs/locations).")
   private String location;
 
