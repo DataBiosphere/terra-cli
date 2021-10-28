@@ -138,8 +138,8 @@ who is a member of the `fc-admins` Google group in the GSuite domain that SAM ma
 
 #### Invite user
 In Broad deployments, registration is open to anyone with a Google account. In Verily deployments, registration is
-not open to anyone with a Google account. Instead, users must be invited into the system (`terra user invite`) before
-they can register.
+not open to anyone with a Google account. Instead, users must accept the Terms of Service associated with the
+VerilyGroup of Terra users. Then they must be invited into the system (`terra user invite`) before they can register.
 
 When inviting a new user, admins can also optionally enable the user on the default spend profile.
 ```
