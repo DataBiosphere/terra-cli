@@ -8,16 +8,15 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.datarepo.model.RepositoryStatusModel;
-import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Internal representation of a server. An instance of this class is part of the current context or
