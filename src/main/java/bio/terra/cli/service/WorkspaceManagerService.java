@@ -1149,6 +1149,9 @@ public class WorkspaceManagerService {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
         String exceptionErrorMessage = logErrorMessage((ApiException) ex);
+
+        // if this is a spend profile access denied error, then throw a more user-friendly error
+        // message
         if (exceptionErrorMessage.contains("spend profile")
             && ((ApiException) ex).getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
           throw new UserActionableException(
