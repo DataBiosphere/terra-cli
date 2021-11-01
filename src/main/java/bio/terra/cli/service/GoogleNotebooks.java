@@ -8,6 +8,7 @@ import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.services.notebooks.v1.model.Instance;
 import com.google.api.services.notebooks.v1.model.Operation;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -71,7 +72,8 @@ public class GoogleNotebooks {
       GoogleJsonResponseException googleJsonEx = (GoogleJsonResponseException) ex;
       int httpCode = googleJsonEx.getStatusCode();
       String message = googleJsonEx.getDetails().getMessage();
-      if (httpCode == 409 && message.contains("unable to queue the operation")) {
+      if (httpCode == HttpStatusCodes.STATUS_CODE_CONFLICT
+          && message.contains("unable to queue the operation")) {
         throw new UserActionableException(
             "Error changing notebook state: The notebook is not in the right state to start/stop. Wait a few minutes and try again. (409: unable to queue the operation)",
             googleJsonEx);
