@@ -113,14 +113,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "--bucket-name=" + externalBucket.getName());
 
     // `terra resource delete --name=$name --format=json`
-    UFGcsBucket deletedBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resource", "delete", "--name=" + name, "--quiet");
-
-    // check that the name and bucket name match
-    assertEquals(name, deletedBucket.name, "delete output matches name");
-    assertEquals(
-        externalBucket.getName(), deletedBucket.bucketName, "delete output matches bucket name");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the bucket is not in the list
     List<UFGcsBucket> matchedResources = listBucketResourcesWithName(name);

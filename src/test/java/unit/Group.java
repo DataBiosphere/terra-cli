@@ -94,16 +94,7 @@ public class Group extends ClearContextUnit {
         "group policies for current user matches describe output after create");
 
     // `terra group delete --name=$name`
-    UFGroup groupDeleted =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "group", "delete", "--name=" + name, "--quiet");
-
-    // check that the name and email match, and that the creator was an admin
-    assertEquals(name, groupDeleted.name, "group name matches after delete");
-    assertThat(
-        "group email contained the name", groupDeleted.email, CoreMatchers.containsString(name));
-    assertThat(
-        "group creator was an admin", groupDeleted.currentUserPolicies.contains(GroupPolicy.ADMIN));
+    TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name, "--quiet");
 
     // `terra group list`
     groupList =

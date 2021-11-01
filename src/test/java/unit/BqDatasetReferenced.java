@@ -134,20 +134,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         "--dataset-id=" + externalDataset.getDatasetId());
 
     // `terra resource delete --name=$name --format=json`
-    UFBqDataset deletedDataset =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "delete", "--name=" + name, "--quiet");
-
-    // check that the name, project id, and dataset id match
-    assertEquals(name, deletedDataset.name, "delete output matches name");
-    assertEquals(
-        externalDataset.getProjectId(),
-        deletedDataset.projectId,
-        "delete output matches project id");
-    assertEquals(
-        externalDataset.getDatasetId(),
-        deletedDataset.datasetId,
-        "delete output matches dataset id");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the dataset is not in the list
     List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
