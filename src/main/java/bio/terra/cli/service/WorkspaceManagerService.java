@@ -1149,7 +1149,8 @@ public class WorkspaceManagerService {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
         String exceptionErrorMessage = logErrorMessage((ApiException) ex);
-        if (exceptionErrorMessage.contains("User is unauthorized to link spend profile")) {
+        if (exceptionErrorMessage.contains("spend profile")
+            && ((ApiException) ex).getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
           throw new UserActionableException(
               "Accessing the spend profile failed. Ask an administrator to grant you access.", ex);
         }
