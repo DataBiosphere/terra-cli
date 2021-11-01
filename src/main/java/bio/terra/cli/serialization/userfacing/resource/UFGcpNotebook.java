@@ -58,7 +58,7 @@ public class UFGcpNotebook extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id:                " + projectId);
-    OUT.println(prefix + "Location: " + location);
+    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(prefix + "Instance id:       " + instanceId);
     OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
     OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
