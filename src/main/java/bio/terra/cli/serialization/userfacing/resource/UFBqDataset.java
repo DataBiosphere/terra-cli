@@ -47,7 +47,7 @@ public class UFBqDataset extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId);
-    OUT.println(prefix + "Location: " + location);
+    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

@@ -43,7 +43,7 @@ public class UFGcsBucket extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName);
-    OUT.println(prefix + "Location: " + location);
+    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
