@@ -1148,7 +1148,13 @@ public class WorkspaceManagerService {
     } catch (ApiException | InterruptedException ex) {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        errorMsg += ": " + logErrorMessage((ApiException) ex);
+        String exceptionErrorMessage = logErrorMessage((ApiException) ex);
+        if (exceptionErrorMessage.contains("User is unauthorized to link spend profile")) {
+          throw new UserActionableException(
+              "Accessing the spend profile failed. Ask an administrator to grant you access.", ex);
+        }
+
+        errorMsg += ": " + exceptionErrorMessage;
       }
 
       // wrap the WSM exception and re-throw it

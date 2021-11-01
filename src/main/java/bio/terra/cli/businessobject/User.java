@@ -137,7 +137,8 @@ public class User {
         user.deleteOauthCredentials();
         if (sysEx.getMessage().contains("Please request an invite from an admin")) {
           throw new UserActionableException(
-              "Fetching the user's registration information failed. If you are not already a registered user, ask an administrator to invite you.");
+              "Fetching the user's registration information failed. If you are not already a registered user, ask an administrator to invite you.",
+              sysEx);
         } else {
           throw sysEx;
         }
