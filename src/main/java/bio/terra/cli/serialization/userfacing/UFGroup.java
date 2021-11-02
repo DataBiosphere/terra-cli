@@ -21,11 +21,13 @@ import java.util.List;
 public class UFGroup {
   public final String name;
   public final String email;
+  public final long numMembers;
   public final List<GroupPolicy> currentUserPolicies;
 
   public UFGroup(Group internalObj) {
     this.name = internalObj.getName();
     this.email = internalObj.getEmail();
+    this.numMembers = internalObj.getMembers().size();
     this.currentUserPolicies = internalObj.getCurrentUserPolicies();
   }
 
@@ -33,6 +35,7 @@ public class UFGroup {
   private UFGroup(Builder builder) {
     this.name = builder.name;
     this.email = builder.email;
+    this.numMembers = builder.numMembers;
     this.currentUserPolicies = builder.currentUserPolicies;
   }
 
@@ -44,6 +47,7 @@ public class UFGroup {
             currentUserPolicies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
     OUT.println(name);
     OUT.println("  Email: " + email);
+    OUT.println("  # Members: " + numMembers);
     OUT.println("  Current user's policies: " + String.join(", ", policiesStr));
   }
 
@@ -51,6 +55,7 @@ public class UFGroup {
   public static class Builder {
     private String name;
     private String email;
+    private long numMembers;
     private List<GroupPolicy> currentUserPolicies;
 
     public Builder name(String name) {
@@ -60,6 +65,11 @@ public class UFGroup {
 
     public Builder email(String email) {
       this.email = email;
+      return this;
+    }
+
+    public Builder numMembers(long numMembers) {
+      this.numMembers = numMembers;
       return this;
     }
 

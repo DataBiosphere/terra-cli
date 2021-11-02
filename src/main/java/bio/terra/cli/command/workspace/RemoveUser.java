@@ -1,5 +1,6 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -25,7 +26,7 @@ public class RemoveUser extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    WorkspaceUser.remove(email, role);
+    WorkspaceUser.remove(email, role, Context.requireWorkspace());
     OUT.println("User (" + email + ") removed from workspace role (" + role + ").");
   }
 }

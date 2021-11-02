@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -21,6 +22,7 @@ public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
   public final String location;
+  public final long numTables;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataset(BqDataset internalObj) {
@@ -28,8 +30,10 @@ public class UFBqDataset extends UFResource {
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
 
-    Optional<Dataset> dataset = internalObj.getDataset();
+    GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
+    Optional<Dataset> dataset = bigQuery.getDataset(projectId, datasetId);
     this.location = dataset.isPresent() ? dataset.get().getLocation() : null;
+    this.numTables = bigQuery.getNumTables(projectId, datasetId);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -38,6 +42,7 @@ public class UFBqDataset extends UFResource {
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.location = builder.location;
+    this.numTables = builder.numTables;
   }
 
   /** Print out this object in text format. */
@@ -48,6 +53,7 @@ public class UFBqDataset extends UFResource {
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
+    OUT.println(prefix + "# Tables: " + numTables);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -55,6 +61,7 @@ public class UFBqDataset extends UFResource {
     private String projectId;
     private String datasetId;
     private String location;
+    private long numTables;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -68,6 +75,11 @@ public class UFBqDataset extends UFResource {
 
     public Builder location(String location) {
       this.location = location;
+      return this;
+    }
+
+    public Builder numTables(long numTables) {
+      this.numTables = numTables;
       return this;
     }
 
