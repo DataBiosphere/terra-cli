@@ -8,8 +8,12 @@ import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cloudres.google.storage.BucketCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,6 +146,18 @@ public class GcsBucket extends Resource {
    */
   public String resolve(boolean includePrefix) {
     return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
+  }
+
+  /** Query the cloud for information about the bucket. */
+  public Optional<BucketCow> getBucket() {
+    try {
+      StorageCow storageCow =
+          CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials());
+      return Optional.of(storageCow.get(bucketName));
+    } catch (Exception ex) {
+      logger.error("Caught exception looking up bucket", ex);
+      return Optional.empty();
+    }
   }
 
   // ====================================================

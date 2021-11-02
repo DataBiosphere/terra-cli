@@ -8,8 +8,12 @@ import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.ResourceDescription;
+import com.google.api.services.bigquery.model.Dataset;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +174,18 @@ public class BqDataset extends Resource {
         return projectId;
       default:
         throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
+    }
+  }
+
+  /** Query the cloud for information about the dataset. */
+  public Optional<Dataset> getDataset() {
+    try {
+      BigQueryCow bigQueryCow =
+          CrlUtils.createBigQueryCow(Context.requireUser().getPetSACredentials());
+      return Optional.of(bigQueryCow.datasets().get(projectId, datasetId).execute());
+    } catch (Exception ex) {
+      logger.error("Caught exception looking up dataset", ex);
+      return Optional.empty();
     }
   }
 

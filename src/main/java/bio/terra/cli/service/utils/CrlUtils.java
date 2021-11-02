@@ -2,9 +2,12 @@ package bio.terra.cli.service.utils;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cloudres.common.ClientConfig;
+import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -31,6 +34,19 @@ public class CrlUtils {
       return CloudResourceManagerCow.create(clientConfig, googleCredentials);
     } catch (GeneralSecurityException | IOException ex) {
       throw new SystemException("Error creating cloud resource manager client.", ex);
+    }
+  }
+
+  public static StorageCow createStorageCow(GoogleCredentials googleCredentials) {
+    return new StorageCow(
+        clientConfig, StorageOptions.newBuilder().setCredentials(googleCredentials).build());
+  }
+
+  public static BigQueryCow createBigQueryCow(GoogleCredentials googleCredentials) {
+    try {
+      return BigQueryCow.create(clientConfig, googleCredentials);
+    } catch (GeneralSecurityException | IOException ex) {
+      throw new SystemException("Error creating Big Query client.", ex);
     }
   }
 }

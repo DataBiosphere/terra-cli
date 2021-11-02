@@ -5,7 +5,9 @@ import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.api.services.bigquery.model.Dataset;
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * External representation of a workspace BigQuery dataset resource for command input/output.
@@ -18,12 +20,16 @@ import java.io.PrintStream;
 public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
+  public final String location;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataset(BqDataset internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
+
+    Optional<Dataset> dataset = internalObj.getDataset();
+    this.location = dataset.isPresent() ? dataset.get().getLocation() : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -31,6 +37,7 @@ public class UFBqDataset extends UFResource {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
+    this.location = builder.location;
   }
 
   /** Print out this object in text format. */
@@ -40,12 +47,14 @@ public class UFBqDataset extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId);
+    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;
     private String datasetId;
+    private String location;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -54,6 +63,11 @@ public class UFBqDataset extends UFResource {
 
     public Builder datasetId(String datasetId) {
       this.datasetId = datasetId;
+      return this;
+    }
+
+    public Builder location(String location) {
+      this.location = location;
       return this;
     }
 
