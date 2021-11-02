@@ -1,7 +1,6 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
@@ -135,12 +134,7 @@ public class User {
         user.fetchUserInfo();
       } catch (SystemException sysEx) {
         user.deleteOauthCredentials();
-        if (sysEx.getMessage().contains("Please request an invite from an admin")) {
-          throw new UserActionableException(
-              "Fetching the user's registration information failed. If you are not already a registered user, ask an administrator to invite you.");
-        } else {
-          throw sysEx;
-        }
+        throw sysEx;
       }
 
       // update the global context on disk

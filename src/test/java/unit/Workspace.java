@@ -252,11 +252,12 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
 
     // `terra workspace create`
-    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "create");
+    String stdErr = TestCommand.runCommandExpectExitCode(1, "workspace", "create");
     assertThat(
         "error message includes spend profile unauthorized",
         stdErr,
-        CoreMatchers.containsString("User is unauthorized to link spend profile"));
+        CoreMatchers.containsString(
+            "Accessing the spend profile failed. Ask an administrator to grant you access."));
   }
 
   /**

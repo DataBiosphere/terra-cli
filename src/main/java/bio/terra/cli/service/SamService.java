@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -662,7 +663,18 @@ public class SamService {
     } catch (ApiException | InterruptedException ex) {
       // if this is a SAM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        errorMsg += ": " + logErrorMessage((ApiException) ex);
+        String exceptionErrorMessage = logErrorMessage((ApiException) ex);
+
+        // if this is a not-invited user access denied error, then throw a more user-friendly error
+        // message
+        if (exceptionErrorMessage.contains("request an invite from an admin")
+            && ((ApiException) ex).getCode() == HttpStatusCodes.STATUS_CODE_BAD_REQUEST) {
+          throw new UserActionableException(
+              "Fetching the user's registration information failed. Ask an administrator to invite you.",
+              ex);
+        }
+
+        errorMsg += ": " + exceptionErrorMessage;
       }
 
       // wrap the SAM exception and re-throw it
