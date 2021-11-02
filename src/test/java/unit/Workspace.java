@@ -68,6 +68,8 @@ public class Workspace extends ClearContextUnit {
         createWorkspace.googleProjectId,
         describeWorkspace.googleProjectId,
         "workspace gcp project matches that in describe");
+    assertEquals(
+        0, describeWorkspace.numResources, "workspace has zero resources in describe output");
 
     // check the new workspace is included in the list
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);

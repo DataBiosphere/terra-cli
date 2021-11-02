@@ -94,12 +94,24 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
 
+    // `terra workspace describe --format=json`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        1, describeWorkspace.numResources, "workspace describe says one resource after create");
+
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the dataset is not in the list
     List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
+
+    // `terra workspace describe --format=json`
+    describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        0, describeWorkspace.numResources, "workspace describe says zero resources after delete");
   }
 
   @Test
@@ -356,6 +368,31 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
+  }
+
+  @Test
+  @DisplayName("describe reflects the number of tables")
+  void describeReflectsNumTables() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id --format=json`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    String name = "listReflectsDelete";
+    String datasetId = randomDatasetId();
+    UFBqDataset createdDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "create",
+            "bq-dataset",
+            "--name=" + name,
+            "--dataset-id=" + datasetId);
+    assertEquals(0, createdDataset.numTables, "created dataset says zero tables");
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   /**

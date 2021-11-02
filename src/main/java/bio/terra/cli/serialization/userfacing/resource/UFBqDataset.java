@@ -22,7 +22,7 @@ public class UFBqDataset extends UFResource {
   public final String projectId;
   public final String datasetId;
   public final String location;
-  public final long numTables;
+  public final Integer numTables;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataset(BqDataset internalObj) {
@@ -53,7 +53,7 @@ public class UFBqDataset extends UFResource {
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-    OUT.println(prefix + "# Tables: " + numTables);
+    OUT.println(prefix + "# Tables: " + (numTables == null ? "(unknown)" : numTables));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -61,7 +61,7 @@ public class UFBqDataset extends UFResource {
     private String projectId;
     private String datasetId;
     private String location;
-    private long numTables;
+    private Integer numTables;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -78,7 +78,7 @@ public class UFBqDataset extends UFResource {
       return this;
     }
 
-    public Builder numTables(long numTables) {
+    public Builder numTables(Integer numTables) {
       this.numTables = numTables;
       return this;
     }

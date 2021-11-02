@@ -50,7 +50,11 @@ public class GoogleBigQuery {
     }
   }
 
-  public long getNumTables(String projectId, String datasetId) {
+  /**
+   * Returns the number of tables in the dataset, or null if there was an error looking it up. This
+   * behavior is useful for display purposes.
+   */
+  public Integer getNumTables(String projectId, String datasetId) {
     try {
       TableList tables =
           callWithRetries(
@@ -58,7 +62,7 @@ public class GoogleBigQuery {
               "Error looking up dataset tables.");
       return tables.getTotalItems();
     } catch (Exception ex) {
-      return 0;
+      return null;
     }
   }
 

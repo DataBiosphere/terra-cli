@@ -49,17 +49,25 @@ public class GoogleCloudStorage {
     }
   }
 
-  public long getNumObjects(BucketCow bucket) {
-    Page<BlobCow> objList =
-        callWithRetries(() -> bucket.list(), "Error looking up objects in bucket.");
-    Iterator<BlobCow> objItr = objList.getValues().iterator();
+  /**
+   * Returns the number of objects in the bucket, or null if there was an error looking it up. This
+   * behavior is useful for display purposes.
+   */
+  public Integer getNumObjects(BucketCow bucket) {
+    try {
+      Page<BlobCow> objList =
+          callWithRetries(() -> bucket.list(), "Error looking up objects in bucket.");
+      Iterator<BlobCow> objItr = objList.getValues().iterator();
 
-    int numObjectsCtr = 0;
-    while (objItr.hasNext()) {
-      numObjectsCtr++;
-      objItr.next();
+      int numObjectsCtr = 0;
+      while (objItr.hasNext()) {
+        numObjectsCtr++;
+        objItr.next();
+      }
+      return numObjectsCtr;
+    } catch (Exception ex) {
+      return null;
     }
-    return numObjectsCtr;
   }
 
   /**

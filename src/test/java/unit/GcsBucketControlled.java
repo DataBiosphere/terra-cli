@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.AccessScope;
@@ -84,12 +85,24 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
+    // `terra workspace describe --format=json`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        1, describeWorkspace.numResources, "workspace describe says one resource after create");
+
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the bucket is not in the list
     List<UFGcsBucket> matchedResources = listBucketResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
+
+    // `terra workspace describe --format=json`
+    describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        0, describeWorkspace.numResources, "workspace describe says zero resources after delete");
   }
 
   @Test

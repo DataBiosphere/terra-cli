@@ -21,7 +21,7 @@ import java.util.Optional;
 public class UFGcsBucket extends UFResource {
   public final String bucketName;
   public final String location;
-  public final long numObjects;
+  public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcsBucket(GcsBucket internalObj) {
@@ -31,7 +31,7 @@ public class UFGcsBucket extends UFResource {
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
     this.location = bucket.isPresent() ? bucket.get().getBucketInfo().getLocation() : null;
-    this.numObjects = bucket.isPresent() ? storage.getNumObjects(bucket.get()) : 0;
+    this.numObjects = bucket.isPresent() ? storage.getNumObjects(bucket.get()) : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -49,14 +49,14 @@ public class UFGcsBucket extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-    OUT.println(prefix + "# Objects: " + numObjects);
+    OUT.println(prefix + "# Objects: " + (numObjects == null ? "(unknown)" : numObjects));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;
     private String location;
-    private long numObjects;
+    private Integer numObjects;
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
@@ -68,7 +68,7 @@ public class UFGcsBucket extends UFResource {
       return this;
     }
 
-    public Builder numObjects(long numObjects) {
+    public Builder numObjects(Integer numObjects) {
       this.numObjects = numObjects;
       return this;
     }

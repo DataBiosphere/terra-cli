@@ -21,14 +21,21 @@ import java.util.List;
 public class UFGroup {
   public final String name;
   public final String email;
-  public final long numMembers;
+  public final Integer numMembers;
   public final List<GroupPolicy> currentUserPolicies;
 
   public UFGroup(Group internalObj) {
     this.name = internalObj.getName();
     this.email = internalObj.getEmail();
-    this.numMembers = internalObj.getMembers().size();
     this.currentUserPolicies = internalObj.getCurrentUserPolicies();
+
+    Integer numMembersNotFinal;
+    try {
+      numMembersNotFinal = internalObj.getMembers().size();
+    } catch (Exception ex) {
+      numMembersNotFinal = null;
+    }
+    this.numMembers = numMembersNotFinal;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -47,7 +54,7 @@ public class UFGroup {
             currentUserPolicies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
     OUT.println(name);
     OUT.println("  Email: " + email);
-    OUT.println("  # Members: " + numMembers);
+    OUT.println("  # Members: " + (numMembers == null ? "(unknown)" : numMembers));
     OUT.println("  Current user's policies: " + String.join(", ", policiesStr));
   }
 
@@ -55,7 +62,7 @@ public class UFGroup {
   public static class Builder {
     private String name;
     private String email;
-    private long numMembers;
+    private Integer numMembers;
     private List<GroupPolicy> currentUserPolicies;
 
     public Builder name(String name) {
@@ -68,7 +75,7 @@ public class UFGroup {
       return this;
     }
 
-    public Builder numMembers(long numMembers) {
+    public Builder numMembers(Integer numMembers) {
       this.numMembers = numMembers;
       return this;
     }

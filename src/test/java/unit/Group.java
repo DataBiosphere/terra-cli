@@ -92,6 +92,8 @@ public class Group extends ClearContextUnit {
     assertTrue(
         groupDescribed.currentUserPolicies.contains(GroupPolicy.ADMIN),
         "group policies for current user matches describe output after create");
+    assertEquals(
+        1, groupDescribed.numMembers, "group # members matches describe output after create");
 
     // `terra group delete --name=$name`
     TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name, "--quiet");
@@ -212,6 +214,12 @@ public class Group extends ClearContextUnit {
 
     // check that group member is included in the list-users output with two policies
     expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
+
+    // `terra group describe --name=$name`
+    UFGroup groupDescribed =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGroup.class, "group", "describe", "--name=" + name);
+    assertEquals(2, groupDescribed.numMembers, "group describe shows two members");
 
     // `terra group remove-user --name=$name --email=$email --policy=MEMBER`
     TestCommand.runCommandExpectSuccess(
