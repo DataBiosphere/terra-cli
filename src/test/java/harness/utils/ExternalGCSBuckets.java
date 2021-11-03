@@ -1,20 +1,27 @@
 package harness.utils;
 
+import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
+import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.UUID;
+import org.apache.http.HttpStatus;
 
 /**
  * Utility methods for creating external GCS buckets for testing workspace references. Most methods
@@ -124,5 +131,28 @@ public class ExternalGCSBuckets {
   /** Utility method to get the gs:// path of a bucket. */
   public static String getGsPath(String bucketName) {
     return "gs://" + bucketName;
+  }
+
+  /** Utility method to write an arbitrary blob to a bucket. */
+  public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
+      throws InterruptedException {
+    Storage storageClient = ExternalGCSBuckets.getStorageClient(credentials);
+    BucketInfo bucket = storageClient.get(bucketName);
+    BlobId blobId = BlobId.of(bucket.getName(), blobName);
+    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+    byte[] blobData = "test blob data".getBytes(StandardCharsets.UTF_8);
+
+    // retry forbidden errors because we often see propagation delays when a user is just granted
+    // access
+    HttpUtils.callWithRetries(
+        () -> {
+          storageClient.create(blobInfo, blobData);
+          return null;
+        },
+        (ex) ->
+            (ex instanceof StorageException)
+                && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+        5,
+        Duration.ofMinutes(1));
   }
 }
