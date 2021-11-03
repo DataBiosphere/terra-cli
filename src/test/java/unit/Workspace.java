@@ -68,8 +68,6 @@ public class Workspace extends ClearContextUnit {
         createWorkspace.googleProjectId,
         describeWorkspace.googleProjectId,
         "workspace gcp project matches that in describe");
-    assertEquals(
-        0, describeWorkspace.numResources, "workspace has zero resources in describe output");
 
     // check the new workspace is included in the list
     List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
@@ -260,6 +258,54 @@ public class Workspace extends ClearContextUnit {
         stdErr,
         CoreMatchers.containsString(
             "Accessing the spend profile failed. Ask an administrator to grant you access."));
+  }
+
+  @Test
+  @DisplayName("workspace describe reflects the number of resources")
+  void describeReflectsNumResources() throws IOException {
+    // select a test user and login
+    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    // `terra workspace create`
+    UFWorkspace createdWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
+
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
+    String bucketResourceName = "describeReflectsNumResourcesGCS";
+    String bucketName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        "gcs-bucket",
+        "--name=" + bucketResourceName,
+        "--bucket-name=" + bucketName);
+
+    // `terra workspace describe`
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        1, describeWorkspace.numResources, "worksapce has 1 resource after creating bucket");
+
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
+    String datasetResourceName = "describeReflectsNumResourcesBQ";
+    String datasetId = "bq1";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        "bq-dataset",
+        "--name=" + datasetResourceName,
+        "--dataset-id=" + datasetId);
+
+    // `terra workspace describe`
+    describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    assertEquals(
+        2, describeWorkspace.numResources, "worksapce has 2 resources after creating dataset");
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   /**

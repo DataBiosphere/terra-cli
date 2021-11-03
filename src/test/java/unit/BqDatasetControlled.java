@@ -94,24 +94,12 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
 
-    // `terra workspace describe --format=json`
-    UFWorkspace describeWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(
-        1, describeWorkspace.numResources, "workspace describe says one resource after create");
-
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the dataset is not in the list
     List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
-
-    // `terra workspace describe --format=json`
-    describeWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(
-        0, describeWorkspace.numResources, "workspace describe says zero resources after delete");
   }
 
   @Test
