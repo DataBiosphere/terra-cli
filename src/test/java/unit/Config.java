@@ -94,29 +94,29 @@ public class Config extends SingleWorkspaceUnit {
   @Test
   @DisplayName("config server set and server set are equivalent")
   void server() throws IOException {
-    // `terra server set --name=terra-verily-devel`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-verily-devel", "--quiet");
+    // `terra server set --name=verily-devel`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=verily-devel", "--quiet");
 
     // `terra config get server`
     UFServer getValue =
         TestCommand.runAndParseCommandExpectSuccess(UFServer.class, "config", "get", "server");
-    assertEquals("terra-verily-devel", getValue.name, "server set affects config get");
+    assertEquals("verily-devel", getValue.name, "server set affects config get");
 
     // `terra config list`
     UFConfig config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals("terra-verily-devel", config.serverName, "server set affects config list");
+    assertEquals("verily-devel", config.serverName, "server set affects config list");
 
-    // `terra config set server --name=terra-dev`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=terra-dev", "--quiet");
+    // `terra config set server --name=broad-dev`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=broad-dev", "--quiet");
 
     // `terra config get server`
     getValue =
         TestCommand.runAndParseCommandExpectSuccess(UFServer.class, "config", "get", "server");
-    assertEquals("terra-dev", getValue.name, "config set server affects config get");
+    assertEquals("broad-dev", getValue.name, "config set server affects config get");
 
     // `terra config list`
     config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals("terra-dev", config.serverName, "config set server affects config list");
+    assertEquals("broad-dev", config.serverName, "config set server affects config list");
   }
 
   @Test

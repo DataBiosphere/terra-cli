@@ -158,9 +158,9 @@ CLI installation on the same machine.
 `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
 
 #### Override default server
-The tests run against the `terra-dev` server by default. You can run them against a different server
+The tests run against the `broad-dev` server by default. You can run them against a different server
 by specifying the Gradle `server` property. e.g.:
-`./gradlew runTestsWithTag -PtestTag=unit -Pserver=verily-cli`
+`./gradlew runTestsWithTag -PtestTag=unit -Pserver=verily-devel`
 
 #### Override default Docker image
 The tests use the default Docker image by default. This is the image in GCR that corresponds the current version in

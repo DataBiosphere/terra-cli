@@ -1,6 +1,6 @@
 {
-  "name": "verily-cli",
-  "description": "A more stable dev-like environment for development with the CLI.",
+  "name": "broad-dev-cli-testing",
+  "description": "Broad development environment for CLI testing. More stable and updated less frequently than the main development environment.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",

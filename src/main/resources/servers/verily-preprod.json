@@ -1,6 +1,6 @@
 {
-  "name": "terra-verily-preprod",
-  "description": "Verily preprod environment",
+  "name": "verily-preprod",
+  "description": "Verily pre-prod environment",
 
   "samUri": "https://terra-preprod-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

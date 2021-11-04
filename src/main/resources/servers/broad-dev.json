@@ -1,8 +1,9 @@
 {
-  "name": "jcarlton-dev",
-  "description": "(jcarlton) Personal development environment",
+  "name": "broad-dev",
+  "description": "Broad main development environment",
+
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.jcarlton.integ.envs.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

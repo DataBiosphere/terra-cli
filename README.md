@@ -318,7 +318,7 @@ configuration properties are:
 [logging, console] logging level for printing directly to the terminal = OFF
 [logging, file] logging level for writing to files in /Users/marikomedlock/.terra/logs = INFO
 
-[server] server = terra-verily-devel
+[server] server = verily-devel
 [workspace] workspace = ef8cf0a4-ec70-41be-9fae-9ab6f98cd7e7
 ```
 

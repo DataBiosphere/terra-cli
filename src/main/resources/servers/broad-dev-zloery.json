@@ -1,9 +1,9 @@
 {
-  "name": "mm-dev",
-  "description": "(mmedlock) Personal development environment",
+  "name": "broad-dev-zloery",
+  "description": "Broad developer environment (zloery)",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.mmedlock.integ.envs.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.zloery.integ.envs.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }
