@@ -1,10 +1,9 @@
 {
-  "name": "localhost",
-  "description": "Local builds of WSM and SAM",
+  "name": "broad-dev-local-sam",
+  "description": "Local SAM and Broad development environment for other services.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://local.broadinstitute.org:50443",
-  "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

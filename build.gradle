@@ -173,8 +173,8 @@ task runTestsWithTag(type: Test) {
             environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
         }
 
-        // specify the server to run tests against (e.g. -Pserver=verily-cli). defaults to "terra-dev"
-        String terraServer = project.hasProperty("server") ? project.findProperty("server") : "terra-dev"
+        // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to "broad-dev"
+        String terraServer = project.hasProperty("server") ? project.findProperty("server") : "broad-dev"
         environment "TERRA_SERVER", terraServer
 
         // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
@@ -211,9 +211,9 @@ task runTestsWithTag(type: Test) {
 
 // cleanup workspaces owned by test users.
 // 1) do a dry run (i.e. don't actually try to delete anything)
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev -PdryRun
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PdryRun
 // 2) try to delete each workspace owned by a test user
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=terra-dev
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
     main = "harness.utils.CleanupTestUserWorkspaces"
@@ -223,7 +223,7 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
     mkdir "${project.buildDir}/test-context/"
 
-    // [required] specify the server to cleanup (e.g. -Pserver=terra-dev). no default value, force caller to specify this
+    // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
     systemProperty "TERRA_SERVER", project.findProperty("server")
 
     // [optional] specify that this is a dry run (e.g. -PdryRun)

@@ -95,7 +95,7 @@ jobs:
       - name: Run tests
         id: run_tests
         run: |
-          # runs against the default server: terra-dev
+          # runs against the default server: broad-dev
           echo "Running tests with tag: ${{ matrix.testTag }}"
           echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} $TEST_DOCKER_IMAGE

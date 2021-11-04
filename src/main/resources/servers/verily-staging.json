@@ -1,5 +1,5 @@
 {
-  "name": "terra-verily-staging",
+  "name": "verily-staging",
   "description": "Verily staging environment",
 
   "samUri": "https://terra-staging-sam.api.verily.com",

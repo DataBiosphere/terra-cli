@@ -1,9 +1,9 @@
 {
-  "name": "wchamber-dev",
-  "description": "(wchamber) Personal development environment",
+  "name": "broad-dev-local-wsm",
+  "description": "Local WSM and Broad development environment for other services.",
 
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.wchamber.integ.envs.broadinstitute.org",
+  "workspaceManagerUri": "http://localhost:8080",
   "wsmDefaultSpendProfile": "wm-default-spend-profile"
 }

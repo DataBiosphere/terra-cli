@@ -7,7 +7,7 @@ on:
         required: false
         default: 'true'
       terra_server:
-        description: 'the server to cleanup (e.g. terra-dev)'
+        description: 'the server to cleanup (e.g. broad-dev)'
         required: true
 
 jobs:

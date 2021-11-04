@@ -1,6 +1,6 @@
 {
-  "name": "terra-verily-autopush",
-  "description": "Verily autopush environment",
+  "name": "verily-autopush",
+  "description": "Verily auto-push environment",
 
   "samUri": "https://terra-autopush-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

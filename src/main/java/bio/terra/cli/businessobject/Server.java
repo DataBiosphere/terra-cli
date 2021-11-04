@@ -8,6 +8,7 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class Server {
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
   // unique identifier that matches the JSON file name under resources/servers.
-  // (e.g. terra-dev)
+  // (e.g. broad-dev)
   private String name;
 
   // free-form text field that indicates what the server is used for
@@ -41,9 +42,9 @@ public class Server {
   private String wsmDefaultSpendProfile;
   private String dataRepoUri;
 
-  private static final String DEFAULT_SERVER_FILENAME = "verily-cli.json";
-  private static final String RESOURCE_DIRECTORY = "servers";
-  private static final String ALL_SERVERS_FILENAME = "all-servers.json";
+  private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
+  @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
+  @VisibleForTesting public static final String ALL_SERVERS_FILENAME = "all-servers.json";
 
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
@@ -141,7 +142,8 @@ public class Server {
    * @param fileName file name
    * @return an instance of this class
    */
-  private static PDServer fromJsonFile(String fileName) {
+  @VisibleForTesting
+  public static PDServer fromJsonFile(String fileName) {
     PDServer server;
     try {
       try {

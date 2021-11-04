@@ -99,10 +99,10 @@ To grant break-glass access to someone:
       to the server (i.e. WSM deployment) where the workspaces live.
     - One that has permission to update a central BigQuery dataset that tracks break-glass requests.
     - The `tools/render-config.sh` script downloads two SA key files that will work for workspaces
-      on the `verily-cli` server and the central BigQuery dataset in the `terra-cli-dev` project.
+      on the `broad-dev-*` servers and the central BigQuery dataset in the `terra-cli-dev` project.
 3. Run the `terra workspace break-glass` command.
 
-Example commands for granting break-glass access for a workspace in the `verily-cli` deployment:
+Example commands for granting break-glass access for a workspace in the `broad-dev-cli-testing` deployment:
 ```
 ./tools/render-config.sh
 terra auth login # login as yourself, the break-glass granter
