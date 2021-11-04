@@ -103,6 +103,29 @@ public class ExternalGCSBuckets {
     storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
+  /** Utility method to write an arbitrary blob to a bucket. */
+  public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
+      throws InterruptedException {
+    Storage storageClient = getStorageClient(credentials);
+    BucketInfo bucket = storageClient.get(bucketName);
+    BlobId blobId = BlobId.of(bucket.getName(), blobName);
+    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+    byte[] blobData = "test blob data".getBytes(StandardCharsets.UTF_8);
+
+    // retry forbidden errors because we often see propagation delays when a user is just granted
+    // access
+    HttpUtils.callWithRetries(
+        () -> {
+          storageClient.create(blobInfo, blobData);
+          return null;
+        },
+        (ex) ->
+            (ex instanceof StorageException)
+                && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+        5,
+        Duration.ofMinutes(1));
+  }
+
   /**
    * Helper method to build the CRL wrapper around the GCS client object with SA credentials that
    * have permissions on the external (to WSM) project.
@@ -131,28 +154,5 @@ public class ExternalGCSBuckets {
   /** Utility method to get the gs:// path of a bucket. */
   public static String getGsPath(String bucketName) {
     return "gs://" + bucketName;
-  }
-
-  /** Utility method to write an arbitrary blob to a bucket. */
-  public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
-      throws InterruptedException {
-    Storage storageClient = ExternalGCSBuckets.getStorageClient(credentials);
-    BucketInfo bucket = storageClient.get(bucketName);
-    BlobId blobId = BlobId.of(bucket.getName(), blobName);
-    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-    byte[] blobData = "test blob data".getBytes(StandardCharsets.UTF_8);
-
-    // retry forbidden errors because we often see propagation delays when a user is just granted
-    // access
-    HttpUtils.callWithRetries(
-        () -> {
-          storageClient.create(blobInfo, blobData);
-          return null;
-        },
-        (ex) ->
-            (ex instanceof StorageException)
-                && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
-        5,
-        Duration.ofMinutes(1));
   }
 }

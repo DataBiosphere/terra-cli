@@ -61,6 +61,8 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
       BlobId blobId = BlobId.of(externalBucket.getName(), externalBucketBlobName);
       storageClient.delete(blobId);
     } catch (IOException ioEx) {
+      System.out.println("Error deleting objects in the external bucket.");
+      ioEx.printStackTrace();
     }
 
     ExternalGCSBuckets.deleteBucket(externalBucket);
@@ -87,8 +89,10 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
             "--name=" + name,
             "--bucket-name=" + bucketName);
 
+    // check that there are initially 0 objects reported in the bucket
     assertEquals(0, createdBucket.numObjects, "created bucket contains 0 objects");
 
+    // write a blob to the bucket
     String blobName = "testBlob";
     ExternalGCSBuckets.writeBlob(
         workspaceCreator.getCredentialsWithCloudPlatformScope(), bucketName, blobName);
@@ -98,6 +102,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + name);
 
+    // check that there is now 1 object reported in the bucket
     assertEquals(1, describedBucket.numObjects, "described bucket contains 1 object");
   }
 
@@ -120,6 +125,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
             "--name=" + name,
             "--bucket-name=" + externalBucket.getName());
 
+    // the external bucket created in the beforeall method should have 1 blob in it
     assertEquals(1, addedBucket.numObjects, "referenced bucket contains 1 object");
   }
 
@@ -152,6 +158,8 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + name);
 
+    // the external bucket created in the beforeall method should have 1 blob in it, but the sharee
+    // user doesn't have read access to the bucket so they can't know that
     assertNull(describeBucket.numObjects, "referenced bucket with no access contains NULL objects");
   }
 }

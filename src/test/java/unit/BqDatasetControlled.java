@@ -358,31 +358,6 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     assertEquals(newDescription, describeDataset.description);
   }
 
-  @Test
-  @DisplayName("describe reflects the number of tables")
-  void describeReflectsNumTables() throws IOException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id --format=json`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
-    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
-    String name = "listReflectsDelete";
-    String datasetId = randomDatasetId();
-    UFBqDataset createdDataset =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
-            "resource",
-            "create",
-            "bq-dataset",
-            "--name=" + name,
-            "--dataset-id=" + datasetId);
-    assertEquals(0, createdDataset.numTables, "created dataset says zero tables");
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
-  }
-
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
