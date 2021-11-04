@@ -9,6 +9,7 @@ import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.api.gax.paging.Page;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import java.util.Iterator;
 import java.util.Optional;
@@ -50,13 +51,15 @@ public class GoogleCloudStorage {
   }
 
   /**
-   * Returns the number of objects in the bucket, or null if there was an error looking it up. This
-   * behavior is useful for display purposes.
+   * Returns the number of objects in the bucket, up to the given limit, or null if there was an
+   * error looking it up. This behavior is useful for display purposes.
    */
-  public Integer getNumObjects(BucketCow bucket) {
+  public Integer getNumObjects(BucketCow bucket, long limit) {
     try {
       Page<BlobCow> objList =
-          callWithRetries(() -> bucket.list(), "Error looking up objects in bucket.");
+          callWithRetries(
+              () -> bucket.list(Storage.BlobListOption.pageSize(limit)),
+              "Error looking up objects in bucket.");
       Iterator<BlobCow> objItr = objList.getValues().iterator();
 
       int numObjectsCtr = 0;

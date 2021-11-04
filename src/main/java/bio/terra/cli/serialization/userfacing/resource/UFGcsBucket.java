@@ -23,6 +23,10 @@ public class UFGcsBucket extends UFResource {
   public final String location;
   public final Integer numObjects;
 
+  // the maximum number of objects to iterate through in the bucket.
+  // if there are more, we just add a "+" at the end for display
+  private static final long MAX_NUM_OBJECTS = 100;
+
   /** Serialize an instance of the internal class to the command format. */
   public UFGcsBucket(GcsBucket internalObj) {
     super(internalObj);
@@ -31,7 +35,8 @@ public class UFGcsBucket extends UFResource {
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
     this.location = bucket.isPresent() ? bucket.get().getBucketInfo().getLocation() : null;
-    this.numObjects = bucket.isPresent() ? storage.getNumObjects(bucket.get()) : null;
+    this.numObjects =
+        bucket.isPresent() ? storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1) : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -49,7 +54,12 @@ public class UFGcsBucket extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-    OUT.println(prefix + "# Objects: " + (numObjects == null ? "(unknown)" : numObjects));
+    OUT.println(
+        prefix
+            + "# Objects: "
+            + (numObjects == null
+                ? "(unknown)"
+                : (numObjects > MAX_NUM_OBJECTS ? MAX_NUM_OBJECTS + "+" : numObjects)));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
