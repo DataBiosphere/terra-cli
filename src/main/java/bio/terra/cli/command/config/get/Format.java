@@ -2,14 +2,13 @@ package bio.terra.cli.command.config.get;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFFormatOptionConfig;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "format-option", description = "Output format option.")
-public class FormatOption extends BaseCommand {
-  @CommandLine.Mixin Format formatOption;
+@Command(name = "format", description = "Output format option.")
+public class Format extends BaseCommand {
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.Format formatOption;
 
   @Override
   protected void execute() {
@@ -17,7 +16,7 @@ public class FormatOption extends BaseCommand {
         new UFFormatOptionConfig.Builder()
             .formatOption(Context.getConfig().getFormatOption())
             .build();
-    formatOption.printReturnValue(formatOptionConfig, FormatOption::printText);
+    formatOption.printReturnValue(formatOptionConfig, Format::printText);
   }
 
   public static void printText(UFFormatOptionConfig returnValue) {

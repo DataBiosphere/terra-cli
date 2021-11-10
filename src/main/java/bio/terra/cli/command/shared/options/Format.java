@@ -23,7 +23,7 @@ public class Format {
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
           "Set the format for printing command output: ${COMPLETION-CANDIDATES}."
-              + " Defaults to the config value format-option")
+              + " Defaults to the config value format.")
   private FormatOptions format;
 
   // Return the option in force, either from the --format passed in or the Config system.

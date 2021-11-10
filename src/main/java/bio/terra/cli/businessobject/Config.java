@@ -5,6 +5,7 @@ import bio.terra.cli.app.DockerCommandRunner;
 import bio.terra.cli.app.LocalProcessCommandRunner;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.Format.FormatOptions;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class Config {
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
 
   // Output format option
-  private Format.FormatOptions formatOption;
+  private Format.FormatOptions formatOption = FormatOptions.text;
 
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
