@@ -10,6 +10,7 @@ import com.google.api.services.bigquery.model.Dataset;
 import com.google.api.services.bigquery.model.TableList;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -51,18 +52,18 @@ public class GoogleBigQuery {
   }
 
   /**
-   * Returns the number of tables in the dataset, or null if there was an error looking it up. This
+   * Returns the number of tables in the dataset, or empty if there was an error looking it up. This
    * behavior is useful for display purposes.
    */
-  public Integer getNumTables(String projectId, String datasetId) {
+  public Optional<Integer> getNumTables(String projectId, String datasetId) {
     try {
       TableList tables =
           callWithRetries(
               () -> bigQuery.tables().list(projectId, datasetId).execute(),
               "Error looking up dataset tables.");
-      return tables.getTotalItems();
+      return Optional.ofNullable(tables.getTotalItems());
     } catch (Exception ex) {
-      return null;
+      return Optional.empty();
     }
   }
 
@@ -112,6 +113,9 @@ public class GoogleBigQuery {
    * @return true if the exception is retryable
    */
   static boolean isRetryable(Exception ex) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    }
     if (!(ex instanceof GoogleJsonResponseException)) {
       return false;
     }

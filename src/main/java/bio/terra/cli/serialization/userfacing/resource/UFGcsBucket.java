@@ -34,9 +34,11 @@ public class UFGcsBucket extends UFResource {
 
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
-    this.location = bucket.isPresent() ? bucket.get().getBucketInfo().getLocation() : null;
+    this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
     this.numObjects =
-        bucket.isPresent() ? storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1) : null;
+        bucket
+            .map((bucketCow) -> storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1))
+            .orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */

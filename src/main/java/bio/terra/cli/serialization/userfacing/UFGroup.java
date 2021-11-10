@@ -33,6 +33,9 @@ public class UFGroup {
     try {
       numMembersNotFinal = internalObj.getMembers().size();
     } catch (Exception ex) {
+      // an exception will be thrown if the user does not have permission to list the group members.
+      // only group admins have this permission, so non-admins can see/describe the group, but they
+      // can't see how many people are in it.
       numMembersNotFinal = null;
     }
     this.numMembers = numMembersNotFinal;

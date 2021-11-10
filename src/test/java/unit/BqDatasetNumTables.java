@@ -32,8 +32,6 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantWriteAccess(
-        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
     // grant the user's proxy group access to the dataset so that it will pass WSM's access check
     // when adding it as a referenced resource

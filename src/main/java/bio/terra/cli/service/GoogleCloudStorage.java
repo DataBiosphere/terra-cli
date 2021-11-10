@@ -11,6 +11,7 @@ import com.google.api.gax.paging.Page;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
+import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.Optional;
 import org.apache.http.HttpStatus;
@@ -119,6 +120,9 @@ public class GoogleCloudStorage {
    * @return true if the exception is retryable
    */
   static boolean isRetryable(Exception ex) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    }
     if (!(ex instanceof StorageException)) {
       return false;
     }

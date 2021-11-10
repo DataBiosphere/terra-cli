@@ -32,8 +32,8 @@ public class UFBqDataset extends UFResource {
 
     GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
     Optional<Dataset> dataset = bigQuery.getDataset(projectId, datasetId);
-    this.location = dataset.isPresent() ? dataset.get().getLocation() : null;
-    this.numTables = bigQuery.getNumTables(projectId, datasetId);
+    this.location = dataset.map(Dataset::getLocation).orElse(null);
+    this.numTables = bigQuery.getNumTables(projectId, datasetId).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
