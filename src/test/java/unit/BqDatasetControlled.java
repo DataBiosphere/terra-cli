@@ -86,9 +86,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
-    UFWorkspace workspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listReflectsDelete";
@@ -97,15 +95,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
 
     // `terra resource delete --name=$name --format=json`
-    UFBqDataset deletedDataset =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "delete", "--name=" + name, "--quiet");
-
-    // check that the name, project id, and dataset id match
-    assertEquals(name, deletedDataset.name, "delete output matches name");
-    assertEquals(
-        workspace.googleProjectId, deletedDataset.projectId, "delete output matches project id");
-    assertEquals(datasetId, deletedDataset.datasetId, "delete output matches dataset id");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the dataset is not in the list
     List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);

@@ -1,17 +1,28 @@
 package harness.utils;
 
+import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import com.google.api.services.bigquery.model.Dataset;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.LegacySQLTypeName;
+import com.google.cloud.bigquery.Schema;
+import com.google.cloud.bigquery.StandardTableDefinition;
+import com.google.cloud.bigquery.TableDefinition;
+import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableInfo;
 import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import org.apache.http.HttpStatus;
 
 /**
  * Utility methods for creating external BQ datasets for testing workspace references. Most methods
@@ -76,18 +87,38 @@ public class ExternalBQDatasets {
   }
 
   /**
-   * Grant a given user or group reader access to a dataset. This method uses SA credentials that
+   * Grant a given user or group READER access to a dataset. This method uses SA credentials that
    * have permissions on the external (to WSM) project.
    */
   public static void grantReadAccess(
       DatasetReference datasetRef, String memberEmail, IamMemberType memberType)
+      throws IOException {
+    grantAccess(datasetRef, memberEmail, memberType, "READER");
+  }
+
+  /**
+   * Grant a given user or group WRITER access to a dataset. This method uses SA credentials that
+   * have permissions on the external (to WSM) project.
+   */
+  public static void grantWriteAccess(
+      DatasetReference datasetRef, String memberEmail, IamMemberType memberType)
+      throws IOException {
+    grantAccess(datasetRef, memberEmail, memberType, "WRITER");
+  }
+
+  /**
+   * Grant a given user or group access to a dataset. This method uses SA credentials that have
+   * permissions on the external (to WSM) project.
+   */
+  private static void grantAccess(
+      DatasetReference datasetRef, String memberEmail, IamMemberType memberType, String role)
       throws IOException {
     BigQueryCow bigQuery = getBQCow();
     Dataset datasetToUpdate =
         bigQuery.datasets().get(datasetRef.getProjectId(), datasetRef.getDatasetId()).execute();
     List<Dataset.Access> accessToUpdate = datasetToUpdate.getAccess();
 
-    Dataset.Access newAccess = new Dataset.Access().setRole("READER");
+    Dataset.Access newAccess = new Dataset.Access().setRole(role);
     if (memberType.equals(IamMemberType.USER)) {
       newAccess.setUserByEmail(memberEmail);
     } else {
@@ -100,6 +131,38 @@ public class ExternalBQDatasets {
         .datasets()
         .update(datasetRef.getProjectId(), datasetRef.getDatasetId(), datasetToUpdate)
         .execute();
+  }
+
+  /** Utility method to create an arbitrary table in a dataset. */
+  public static void createTable(
+      GoogleCredentials credentials, String projectId, String datasetId, String tableName)
+      throws InterruptedException {
+    BigQuery bqClient = getBQClient(credentials);
+
+    // table field definition
+    String fieldName = "test_string_field";
+    Field field = Field.of(fieldName, LegacySQLTypeName.STRING);
+
+    // table schema definition
+    Schema schema = Schema.of(field);
+    TableDefinition tableDefinition = StandardTableDefinition.of(schema);
+
+    // table definition
+    TableId tableId = TableId.of(projectId, datasetId, tableName);
+    TableInfo tableInfo = TableInfo.newBuilder(tableId, tableDefinition).build();
+
+    // retry forbidden errors because we often see propagation delays when a user is just granted
+    // access
+    HttpUtils.callWithRetries(
+        () -> {
+          bqClient.create(tableInfo);
+          return null;
+        },
+        (ex) ->
+            (ex instanceof BigQueryException)
+                && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+        5,
+        Duration.ofMinutes(1));
   }
 
   /**

@@ -4,7 +4,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.DeletePrompt;
-import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
@@ -15,21 +14,18 @@ import picocli.CommandLine.Command;
 public class Delete extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
 
   /** Delete an existing workspace. */
   @Override
   protected void execute() {
-    deletePromptOption.confirmOrThrow();
     workspaceOption.overrideIfSpecified();
     Workspace workspaceToDelete = Context.requireWorkspace();
-    workspaceToDelete.delete();
-    formatOption.printReturnValue(new UFWorkspace(workspaceToDelete), this::printText);
-  }
 
-  /** Print this command's output in text format. */
-  private void printText(UFWorkspace returnValue) {
+    // print details about the workspace before showing the delete prompt
+    new UFWorkspace(workspaceToDelete).print();
+    deletePromptOption.confirmOrThrow();
+
+    workspaceToDelete.delete();
     OUT.println("Workspace successfully deleted.");
-    returnValue.print();
   }
 }

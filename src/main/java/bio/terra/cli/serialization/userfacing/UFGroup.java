@@ -21,18 +21,31 @@ import java.util.List;
 public class UFGroup {
   public final String name;
   public final String email;
+  public final Integer numMembers;
   public final List<GroupPolicy> currentUserPolicies;
 
   public UFGroup(Group internalObj) {
     this.name = internalObj.getName();
     this.email = internalObj.getEmail();
     this.currentUserPolicies = internalObj.getCurrentUserPolicies();
+
+    Integer numMembersNotFinal;
+    try {
+      numMembersNotFinal = internalObj.getMembers().size();
+    } catch (Exception ex) {
+      // an exception will be thrown if the user does not have permission to list the group members.
+      // only group admins have this permission, so non-admins can see/describe the group, but they
+      // can't see how many people are in it.
+      numMembersNotFinal = null;
+    }
+    this.numMembers = numMembersNotFinal;
   }
 
   /** Constructor for Jackson deserialization during testing. */
   private UFGroup(Builder builder) {
     this.name = builder.name;
     this.email = builder.email;
+    this.numMembers = builder.numMembers;
     this.currentUserPolicies = builder.currentUserPolicies;
   }
 
@@ -44,6 +57,7 @@ public class UFGroup {
             currentUserPolicies, Comparator.comparing(GroupPolicy::name), GroupPolicy::toString);
     OUT.println(name);
     OUT.println("  Email: " + email);
+    OUT.println("  # Members: " + (numMembers == null ? "(unknown)" : numMembers));
     OUT.println("  Current user's policies: " + String.join(", ", policiesStr));
   }
 
@@ -51,6 +65,7 @@ public class UFGroup {
   public static class Builder {
     private String name;
     private String email;
+    private Integer numMembers;
     private List<GroupPolicy> currentUserPolicies;
 
     public Builder name(String name) {
@@ -60,6 +75,11 @@ public class UFGroup {
 
     public Builder email(String email) {
       this.email = email;
+      return this;
+    }
+
+    public Builder numMembers(Integer numMembers) {
+      this.numMembers = numMembers;
       return this;
     }
 

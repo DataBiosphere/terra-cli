@@ -22,6 +22,7 @@ public class UFWorkspace {
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
+  public final long numResources;
 
   /** Serialize an instance of the internal class to the disk format. */
   public UFWorkspace(Workspace internalObj) {
@@ -31,6 +32,7 @@ public class UFWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
+    this.numResources = internalObj.getResources().size();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -41,6 +43,7 @@ public class UFWorkspace {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
+    this.numResources = builder.numResources;
   }
 
   /** Print out a workspace object in text format. */
@@ -53,6 +56,7 @@ public class UFWorkspace {
     OUT.println(
         "Cloud console: https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
+    OUT.println("# Resources: " + numResources);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -63,6 +67,7 @@ public class UFWorkspace {
     private String googleProjectId;
     private String serverName;
     private String userEmail;
+    private long numResources;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -91,6 +96,11 @@ public class UFWorkspace {
 
     public Builder userEmail(String userEmail) {
       this.userEmail = userEmail;
+      return this;
+    }
+
+    public Builder numResources(long numResources) {
+      this.numResources = numResources;
       return this;
     }
 

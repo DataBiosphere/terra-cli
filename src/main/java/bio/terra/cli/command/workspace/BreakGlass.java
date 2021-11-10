@@ -1,6 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -93,8 +94,9 @@ public class BreakGlass extends BaseCommand {
     }
 
     // require that the requester is a workspace owner
+    Workspace currentWorkspace = Context.requireWorkspace();
     Optional<WorkspaceUser> granteeWorkspaceUser =
-        WorkspaceUser.list().stream()
+        WorkspaceUser.list(currentWorkspace).stream()
             .filter(user -> user.getEmail().equalsIgnoreCase(granteeEmail))
             .findAny();
     if (granteeWorkspaceUser.isEmpty()
@@ -106,7 +108,7 @@ public class BreakGlass extends BaseCommand {
 
     // grant the user's proxy group the Editor role on the workspace project
     String granteeProxyGroupEmail =
-        Context.requireWorkspace().grantBreakGlass(granteeEmail, userProjectsAdminCredentials);
+        currentWorkspace.grantBreakGlass(granteeEmail, userProjectsAdminCredentials);
 
     // update the central BigQuery dataset with details of this request
     updateRequestsCatalogWithSuccess(bigQueryCredentials, granteeProxyGroupEmail);
