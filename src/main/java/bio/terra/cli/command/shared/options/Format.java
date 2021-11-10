@@ -1,10 +1,12 @@
 package bio.terra.cli.command.shared.options;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.Optional;
 import java.util.function.Consumer;
 import picocli.CommandLine;
 
@@ -18,13 +20,19 @@ public class Format {
 
   @CommandLine.Option(
       names = "--format",
-      defaultValue = "text",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
-      description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}.")
+      description =
+          "Set the format for printing command output: ${COMPLETION-CANDIDATES}."
+              + " Defaults to the config value format-option")
   private FormatOptions format;
 
+  // Return the option in force, either from the --format passed in or the Config system.
+  private FormatOptions getEffectiveFormatOption() {
+    return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().getFormatOption());
+  }
+
   /** This enum specifies the format options for printing the command output. */
-  private enum FormatOptions {
+  public enum FormatOptions {
     json,
     text;
   }
@@ -63,7 +71,7 @@ public class Format {
    */
   public <T> void printReturnValue(
       T returnValue, Consumer<T> printTextFunction, Consumer<T> printJsonFunction) {
-    if (format == FormatOptions.json) {
+    if (getEffectiveFormatOption() == FormatOptions.json) {
       printJsonFunction.accept(returnValue);
     } else {
       printTextFunction.accept(returnValue);
@@ -94,7 +102,7 @@ public class Format {
    */
   public static <T> void printText(T returnValue) {
     if (returnValue != null) {
-      UserIO.getOut().println(returnValue.toString());
+      UserIO.getOut().println(returnValue);
     }
   }
 }

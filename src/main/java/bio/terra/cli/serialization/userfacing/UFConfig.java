@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -29,6 +30,7 @@ public class UFConfig {
   public final Logger.LogLevel consoleLoggingLevel;
   public final String serverName;
   public final UUID workspaceId;
+  public final Format.FormatOptions formatOption;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFConfig(
@@ -41,6 +43,7 @@ public class UFConfig {
     this.consoleLoggingLevel = internalConfig.getConsoleLoggingLevel();
     this.serverName = internalServer.getName();
     this.workspaceId = internalWorkspace.map(Workspace::getId).orElse(null);
+    this.formatOption = internalConfig.getFormatOption();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -53,6 +56,7 @@ public class UFConfig {
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
     this.serverName = builder.serverName;
     this.workspaceId = builder.workspaceId;
+    this.formatOption = builder.formatOption;
   }
 
   /** Print out this object in text format. */
@@ -75,6 +79,7 @@ public class UFConfig {
     OUT.println();
     OUT.println("[server] server = " + serverName);
     OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
+    OUT.println("[text, json] output format = " + formatOption);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -87,6 +92,7 @@ public class UFConfig {
     private Logger.LogLevel consoleLoggingLevel;
     private String serverName;
     private UUID workspaceId;
+    private Format.FormatOptions formatOption;
 
     public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
@@ -125,6 +131,11 @@ public class UFConfig {
 
     public Builder workspaceId(UUID workspaceId) {
       this.workspaceId = workspaceId;
+      return this;
+    }
+
+    public Builder formatOption(Format.FormatOptions formatOption) {
+      this.formatOption = formatOption;
       return this;
     }
 

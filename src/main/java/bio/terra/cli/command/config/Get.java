@@ -2,6 +2,7 @@ package bio.terra.cli.command.config;
 
 import bio.terra.cli.command.config.get.AppLaunch;
 import bio.terra.cli.command.config.get.Browser;
+import bio.terra.cli.command.config.get.FormatOption;
 import bio.terra.cli.command.config.get.Image;
 import bio.terra.cli.command.config.get.Logging;
 import bio.terra.cli.command.config.get.ResourceLimit;
@@ -19,6 +20,7 @@ import picocli.CommandLine.Command;
     subcommands = {
       AppLaunch.class,
       Browser.class,
+      FormatOption.class,
       Image.class,
       Logging.class,
       ResourceLimit.class,
