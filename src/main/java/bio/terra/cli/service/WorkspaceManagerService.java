@@ -61,6 +61,7 @@ import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
+import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceIamRoles;
 import bio.terra.workspace.model.PrivateResourceUser;
@@ -242,6 +243,13 @@ public class WorkspaceManagerService {
                   CREATE_WORKSPACE_MAXIMUM_RETRIES,
                   CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
           logger.debug("create workspace context result: {}", createContextResult);
+          StatusEnum status = createContextResult.getJobReport().getStatus();
+          if (StatusEnum.FAILED == status || StatusEnum.RUNNING == status) {
+            // need to delete the empty workspace before bailing below
+            HttpUtils.callWithRetries(
+                () -> workspaceApi.deleteWorkspace(workspaceId),
+                WorkspaceManagerService::isRetryable);
+          }
           throwIfJobNotCompleted(
               createContextResult.getJobReport(), createContextResult.getErrorReport());
 
