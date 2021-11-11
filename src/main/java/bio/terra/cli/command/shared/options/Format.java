@@ -28,7 +28,7 @@ public class Format {
 
   // Return the option in force, either from the --format passed in or the Config system.
   private FormatOptions getEffectiveFormatOption() {
-    return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().getFormatOption());
+    return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().getFormat());
   }
 
   /** This enum specifies the format options for printing the command output. */

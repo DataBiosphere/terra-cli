@@ -8,7 +8,7 @@ public class FormatDefaultValueProvider implements IDefaultValueProvider {
 
   @Override
   public String defaultValue(ArgSpec argSpec) throws Exception {
-    Format.FormatOptions formatOption = Context.getConfig().getFormatOption();
+    Format.FormatOptions formatOption = Context.getConfig().getFormat();
     return formatOption.toString();
   }
 }

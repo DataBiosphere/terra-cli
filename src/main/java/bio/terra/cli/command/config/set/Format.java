@@ -13,19 +13,19 @@ public class Format extends BaseCommand {
   @CommandLine.Parameters(
       index = "0",
       description = "Output format option: ${COMPLETION-CANDIDATES}.")
-  private FormatOptions formatOption;
+  private FormatOptions format;
 
   @Override
   protected void execute() {
     Config config = Context.getConfig();
-    FormatOptions previousFormatOption = config.getFormatOption();
-    config.setFormatOption(formatOption);
+    FormatOptions previousFormatOption = config.getFormat();
+    config.setFormat(format);
 
     OUT.println(
-        "Output format option is "
-            + config.getFormatOption()
+        "Output format is "
+            + config.getFormat()
             + " ("
-            + (config.getFormatOption() == previousFormatOption ? "UNCHANGED" : "CHANGED")
+            + (config.getFormat() == previousFormatOption ? "UNCHANGED" : "CHANGED")
             + ").");
   }
 

@@ -24,7 +24,7 @@ public class PDConfig {
   public final int resourcesCacheSize;
   public final Logger.LogLevel fileLoggingLevel;
   public final Logger.LogLevel consoleLoggingLevel;
-  public final Format.FormatOptions formatOption;
+  public final Format.FormatOptions format;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDConfig(Config internalObj) {
@@ -34,7 +34,7 @@ public class PDConfig {
     this.resourcesCacheSize = internalObj.getResourcesCacheSize();
     this.fileLoggingLevel = internalObj.getFileLoggingLevel();
     this.consoleLoggingLevel = internalObj.getConsoleLoggingLevel();
-    this.formatOption = internalObj.getFormatOption();
+    this.format = internalObj.getFormat();
   }
 
   private PDConfig(Builder builder) {
@@ -44,7 +44,7 @@ public class PDConfig {
     this.resourcesCacheSize = builder.resourcesCacheSize;
     this.fileLoggingLevel = builder.fileLoggingLevel;
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
-    this.formatOption = builder.formatOption;
+    this.format = builder.format;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -55,7 +55,7 @@ public class PDConfig {
     private int resourcesCacheSize;
     private Logger.LogLevel fileLoggingLevel;
     private Logger.LogLevel consoleLoggingLevel;
-    private Format.FormatOptions formatOption;
+    private Format.FormatOptions format;
 
     public Builder browserLaunchOption(BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
@@ -87,8 +87,8 @@ public class PDConfig {
       return this;
     }
 
-    public Builder formatOption(Format.FormatOptions formatOption) {
-      this.formatOption = formatOption;
+    public Builder format(Format.FormatOptions formatOption) {
+      this.format = formatOption;
       return this;
     }
 

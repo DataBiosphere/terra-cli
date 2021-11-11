@@ -33,7 +33,7 @@ public class Config {
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
 
   // Output format option
-  private Format.FormatOptions formatOption = FormatOptions.text;
+  private Format.FormatOptions format = FormatOptions.text;
 
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
@@ -45,7 +45,7 @@ public class Config {
     this.resourcesCacheSize = configFromDisk.resourcesCacheSize;
     this.fileLoggingLevel = configFromDisk.fileLoggingLevel;
     this.consoleLoggingLevel = configFromDisk.consoleLoggingLevel;
-    this.formatOption = configFromDisk.formatOption;
+    this.format = configFromDisk.format;
   }
 
   /** Build an instance of this class with default values. */
@@ -151,12 +151,12 @@ public class Config {
     Context.synchronizeToDisk();
   }
 
-  public Format.FormatOptions getFormatOption() {
-    return formatOption;
+  public Format.FormatOptions getFormat() {
+    return format;
   }
 
-  public void setFormatOption(Format.FormatOptions formatOption) {
-    this.formatOption = formatOption;
+  public void setFormat(Format.FormatOptions format) {
+    this.format = format;
     Context.synchronizeToDisk();
   }
 }

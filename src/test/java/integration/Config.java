@@ -88,4 +88,19 @@ public class Config extends ClearContextIntegration {
         imageDefaultOutput,
         CoreMatchers.containsString(versionOutput.trim()));
   }
+
+  @Test
+  @DisplayName("configured format is respected")
+  void format() throws IOException {
+    String configListOutputFileName = "Config_format_stdout";
+    List<String> commands = new ArrayList<>();
+    commands.add("terra config set format json");
+    commands.add("terra config list > " + configListOutputFileName);
+    int exitCode = TestBashScript.runCommands(commands, Collections.emptyMap());
+    assertEquals(0, exitCode, "config list executed successfully");
+    String configListOutput =
+        Files.readString(
+            TestBashScript.getOutputFilePath(configListOutputFileName), StandardCharsets.UTF_8);
+    assertThat("config list is in JSON format", configListOutput, CoreMatchers.containsString("{"));
+  }
 }
