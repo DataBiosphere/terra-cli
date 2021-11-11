@@ -30,7 +30,7 @@ public class UFConfig {
   public final Logger.LogLevel consoleLoggingLevel;
   public final String serverName;
   public final UUID workspaceId;
-  public final Format.FormatOptions formatOption;
+  public final Format.FormatOptions format;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFConfig(
@@ -43,7 +43,7 @@ public class UFConfig {
     this.consoleLoggingLevel = internalConfig.getConsoleLoggingLevel();
     this.serverName = internalServer.getName();
     this.workspaceId = internalWorkspace.map(Workspace::getId).orElse(null);
-    this.formatOption = internalConfig.getFormat();
+    this.format = internalConfig.getFormat();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -56,7 +56,7 @@ public class UFConfig {
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
     this.serverName = builder.serverName;
     this.workspaceId = builder.workspaceId;
-    this.formatOption = builder.formatOption;
+    this.format = builder.format;
   }
 
   /** Print out this object in text format. */
@@ -79,7 +79,7 @@ public class UFConfig {
     OUT.println();
     OUT.println("[server] server = " + serverName);
     OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
-    OUT.println("[text, json] output format = " + formatOption);
+    OUT.println("[text, json] output format = " + format);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -92,7 +92,7 @@ public class UFConfig {
     private Logger.LogLevel consoleLoggingLevel;
     private String serverName;
     private UUID workspaceId;
-    private Format.FormatOptions formatOption;
+    private Format.FormatOptions format;
 
     public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
@@ -134,8 +134,8 @@ public class UFConfig {
       return this;
     }
 
-    public Builder formatOption(Format.FormatOptions formatOption) {
-      this.formatOption = formatOption;
+    public Builder format(Format.FormatOptions format) {
+      this.format = format;
       return this;
     }
 

@@ -87,8 +87,8 @@ public class PDConfig {
       return this;
     }
 
-    public Builder format(Format.FormatOptions formatOption) {
-      this.format = formatOption;
+    public Builder format(Format.FormatOptions format) {
+      this.format = format;
       return this;
     }
 
