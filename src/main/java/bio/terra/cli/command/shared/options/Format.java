@@ -71,6 +71,7 @@ public class Format {
    */
   public <T> void printReturnValue(
       T returnValue, Consumer<T> printTextFunction, Consumer<T> printJsonFunction) {
+    // Default to text output if the effective option is null
     if (getEffectiveFormatOption() == FormatOptions.json) {
       printJsonFunction.accept(returnValue);
     } else {
