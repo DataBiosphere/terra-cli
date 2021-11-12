@@ -119,11 +119,11 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
 
     // `terra workspace add-user --email=$email --role=READER --format=json
     TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + testUser.email, "--role=READER", "--format=json");
+        "workspace", "add-user", "--email=" + testUser.email, "--role=READER", "--format=JSON");
 
     // `terra workspace add-user --email=$email --role=OWNER --format=json
     TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + testUser.email, "--role=OWNER", "--format=json");
+        "workspace", "add-user", "--email=" + testUser.email, "--role=OWNER", "--format=JSON");
 
     // `terra workspace remove-user --email=$email --role=READER --format=json
     TestCommand.runCommandExpectSuccess(
