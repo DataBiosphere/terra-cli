@@ -79,7 +79,7 @@ public class UFConfig {
     OUT.println();
     OUT.println("[server] server = " + serverName);
     OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
-    OUT.println("[text, json] output format = " + format);
+    OUT.println("[format] output format = " + format);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
