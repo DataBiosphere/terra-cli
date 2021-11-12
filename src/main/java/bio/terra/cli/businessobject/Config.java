@@ -34,7 +34,7 @@ public class Config {
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
 
   // Output format option
-  private Format.FormatOptions format = FormatOptions.TEXT;
+  private Format.FormatOptions format = FormatOptions.text;
 
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
@@ -46,7 +46,7 @@ public class Config {
     this.resourcesCacheSize = configFromDisk.resourcesCacheSize;
     this.fileLoggingLevel = configFromDisk.fileLoggingLevel;
     this.consoleLoggingLevel = configFromDisk.consoleLoggingLevel;
-    this.format = Optional.ofNullable(configFromDisk.format).orElse(FormatOptions.TEXT);
+    this.format = Optional.ofNullable(configFromDisk.format).orElse(FormatOptions.text);
   }
 
   /** Build an instance of this class with default values. */

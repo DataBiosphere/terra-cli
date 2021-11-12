@@ -213,7 +213,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
         "--auto-delete=" + autoDeleteAgeDays,
-        "--format=JSON");
+        "--format=json");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
