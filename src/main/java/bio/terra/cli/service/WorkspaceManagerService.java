@@ -244,12 +244,22 @@ public class WorkspaceManagerService {
                   CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
-          if (StatusEnum.FAILED == status || StatusEnum.RUNNING == status) {
-            // need to delete the empty workspace before bailing below
+          if (StatusEnum.FAILED == status) {
+            // need to delete the empty workspace before continuing
             HttpUtils.callWithRetries(
                 () -> workspaceApi.deleteWorkspace(workspaceId),
                 WorkspaceManagerService::isRetryable);
+
+            // if this is a spend profile access denied error, then throw a more user-friendly error
+            // message
+            if (createContextResult.getErrorReport().getMessage().contains("spend profile")
+                && createContextResult.getErrorReport().getStatusCode()
+                    == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
+              throw new UserActionableException(
+                  "Accessing the spend profile failed. Ask an administrator to grant you access.");
+            }
           }
+          // handle non-spend-profile-related failures
           throwIfJobNotCompleted(
               createContextResult.getJobReport(), createContextResult.getErrorReport());
 
@@ -1157,14 +1167,6 @@ public class WorkspaceManagerService {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
         String exceptionErrorMessage = logErrorMessage((ApiException) ex);
-
-        // if this is a spend profile access denied error, then throw a more user-friendly error
-        // message
-        if (exceptionErrorMessage.contains("spend profile")
-            && ((ApiException) ex).getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
-          throw new UserActionableException(
-              "Accessing the spend profile failed. Ask an administrator to grant you access.", ex);
-        }
 
         errorMsg += ": " + exceptionErrorMessage;
       }
