@@ -136,11 +136,10 @@ public class Workspace extends ClearContextUnit {
     // `terra workspace create --format=json --name=$newName --description=$newDescription`
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
-    // verify mixed case enum works
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
-        "--format=jSON",
+        "--format=json",
         "--name=" + newName,
         "--description=" + newDescription);
 
