@@ -8,7 +8,6 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.Format.FormatOptions;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
-import java.util.Optional;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -46,12 +45,13 @@ public class Config {
     this.resourcesCacheSize = configFromDisk.resourcesCacheSize;
     this.fileLoggingLevel = configFromDisk.fileLoggingLevel;
     this.consoleLoggingLevel = configFromDisk.consoleLoggingLevel;
-    this.format = Optional.ofNullable(configFromDisk.format).orElse(FormatOptions.text);
+    this.format = configFromDisk.format;
   }
 
   /** Build an instance of this class with default values. */
   public Config() {
     this.dockerImageId = getDefaultImageId();
+    this.format = FormatOptions.text;
   }
 
   /** Returns the default Docker image id for launching apps. */

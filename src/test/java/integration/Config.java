@@ -101,6 +101,9 @@ public class Config extends ClearContextIntegration {
     String configListOutput =
         Files.readString(
             TestBashScript.getOutputFilePath(configListOutputFileName), StandardCharsets.UTF_8);
-    assertThat("config list is in JSON format", configListOutput, CoreMatchers.containsString("{"));
+    assertThat(
+        "config list is in JSON format",
+        configListOutput,
+        CoreMatchers.containsString("\"browserLaunchOption\" :"));
   }
 }

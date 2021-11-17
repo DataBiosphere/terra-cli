@@ -7,7 +7,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config get format" command. */
-@Command(name = "format", description = "Output format option.")
+@Command(name = "format", description = "Get the default output format option.")
 public class Format extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.Format formatOption;
 

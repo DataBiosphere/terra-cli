@@ -8,7 +8,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config set format" command. */
-@Command(name = "format", description = "Output format option.")
+@Command(name = "format", description = "Set the default output format option.")
 public class Format extends BaseCommand {
   @CommandLine.Parameters(
       index = "0",
