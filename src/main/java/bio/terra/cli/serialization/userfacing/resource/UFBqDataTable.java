@@ -23,7 +23,6 @@ public class UFBqDataTable extends UFResource {
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
-  public final String location;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataTable(BqDataTable internalObj) {
@@ -31,10 +30,6 @@ public class UFBqDataTable extends UFResource {
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
     this.dataTableId = internalObj.getDataTableId();
-
-    GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
-    Optional<Dataset> dataset = bigQuery.getDataset(projectId, datasetId);
-    this.location = dataset.map(Dataset::getLocation).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -43,7 +38,6 @@ public class UFBqDataTable extends UFResource {
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.dataTableId = builder.dataTableId;
-    this.location = builder.location;
   }
 
   /** Print out this object in text format. */
@@ -53,14 +47,12 @@ public class UFBqDataTable extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId + " table id: " + dataTableId);
-    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;
     private String datasetId;
-    private String location;
     private String dataTableId;
 
     public Builder projectId(String projectId) {
@@ -70,11 +62,6 @@ public class UFBqDataTable extends UFResource {
 
     public Builder datasetId(String datasetId) {
       this.datasetId = datasetId;
-      return this;
-    }
-
-    public Builder location(String location) {
-      this.location = location;
       return this;
     }
 
