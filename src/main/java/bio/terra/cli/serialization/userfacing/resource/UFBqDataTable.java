@@ -2,13 +2,10 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.google.api.services.bigquery.model.Dataset;
 import java.io.PrintStream;
-import java.util.Optional;
 
 /**
  * External representation of a workspace BigQuery data table resource for command input/output.
