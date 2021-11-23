@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a GCS bucket file workspace resource. Instances of this class are part of
- * the current context or state.
+ * Internal representation of a GCS bucket file workspace resource. Instances of this class are part
+ * of the current context or state.
  */
 public class GcsBucketFile extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
