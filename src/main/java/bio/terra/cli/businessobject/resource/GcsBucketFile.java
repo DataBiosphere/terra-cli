@@ -108,16 +108,7 @@ public class GcsBucketFile extends Resource {
 
   /** Resolve a GCS bucket resource to its cloud identifier. */
   public String resolve() {
-    return resolve(true);
-  }
-
-  /**
-   * Resolve a GCS bucket file resource to its cloud identifier. Optionally include the 'gs://'
-   * prefix.
-   */
-  public String resolve(boolean includePrefix) {
-    // TODO: update this
-    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
+    return bucketFileName;
   }
 
   // ====================================================

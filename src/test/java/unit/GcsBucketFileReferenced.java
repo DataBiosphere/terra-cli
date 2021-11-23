@@ -129,6 +129,31 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName("resolve a referenced bucket file")
+  void resolve() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName`
+    String name = "resolve";
+    addGcsBucketFileReference(name, null, null);
+
+    // `terra resource resolve --name=$name --format=json`
+    String resolved =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name);
+    assertEquals(
+        externalBucketBlobName,
+        resolved,
+        "default resolve includes gs:// prefix");
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+  }
+
+  @Test
   @DisplayName("list reflects deleting a referenced bucket")
   void listReflectsDelete() throws IOException {
     workspaceCreator.login();
