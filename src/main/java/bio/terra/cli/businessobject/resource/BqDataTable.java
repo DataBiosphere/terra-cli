@@ -131,18 +131,6 @@ public class BqDataTable extends Resource {
         + dataTableId;
   }
 
-  /** Query the cloud for information about the dataset. */
-  public Optional<Table> getDataset() {
-    try {
-      BigQueryCow bigQueryCow =
-          CrlUtils.createBigQueryCow(Context.requireUser().getPetSACredentials());
-      return Optional.of(bigQueryCow.tables().get(projectId, datasetId, dataTableId).execute());
-    } catch (Exception ex) {
-      logger.error("Caught exception looking up data table", ex);
-      return Optional.empty();
-    }
-  }
-
   // ====================================================
   // Property getters.
 

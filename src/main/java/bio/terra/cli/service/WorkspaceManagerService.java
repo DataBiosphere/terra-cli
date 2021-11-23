@@ -959,7 +959,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager DELETE
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
-   * endpoint to delete a BigQuery dataset as a referenced resource in the workspace.
+   * endpoint to delete a BigQuery data table as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
