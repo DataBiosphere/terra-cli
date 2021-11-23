@@ -22,12 +22,6 @@ import picocli.CommandLine.Command;
 @Command(name = "clone", description = "Clone an existing workspace.")
 public class Clone extends BaseCommand {
 
-  @CommandLine.Option(
-      names = "--location",
-      required = false,
-      description = "Location for newly created resources.")
-  private String location;
-
   @CommandLine.Mixin private WorkspaceNameAndDescription workspaceNameAndDescription;
 
   @CommandLine.Mixin private Format formatOption;
@@ -41,9 +35,7 @@ public class Clone extends BaseCommand {
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
-            workspaceNameAndDescription.displayName,
-            workspaceNameAndDescription.description,
-            location);
+            workspaceNameAndDescription.displayName, workspaceNameAndDescription.description);
     Workspace destinationWorkspaceHydrated =
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 

@@ -71,6 +71,7 @@ public class Main implements Runnable {
     cmd.setExecutionStrategy(new CommandLine.RunLast());
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
     cmd.setColorScheme(colorScheme);
+    cmd.setCaseInsensitiveEnumValuesAllowed(true);
 
     // set the output and error streams to the defaults: stdout, stderr
     // save pointers to these streams in a singleton class, so we can access them throughout the
