@@ -7,12 +7,8 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cli.service.utils.CrlUtils;
-import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.ResourceDescription;
-import com.google.api.services.bigquery.model.Table;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
