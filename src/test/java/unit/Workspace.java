@@ -3,6 +3,7 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -250,14 +251,21 @@ public class Workspace extends ClearContextUnit {
     // select a test user and login
     TestUsers testUser = TestUsers.chooseTestUserWithoutSpendAccess();
     testUser.login();
-
+    final String workspaceName = "bad-profile-6789";
     // `terra workspace create`
-    String stdErr = TestCommand.runCommandExpectExitCode(1, "workspace", "create");
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(1, "workspace", "create", "--name=" + workspaceName);
     assertThat(
         "error message includes spend profile unauthorized",
         stdErr,
         CoreMatchers.containsString(
             "Accessing the spend profile failed. Ask an administrator to grant you access."));
+
+    // workspace was deleted
+    List<UFWorkspace> listWorkspaces =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "workspace", "list", "--limit=100");
+    assertFalse(listWorkspaces.stream().anyMatch(w -> workspaceName.equals(w.name)));
   }
 
   @Test

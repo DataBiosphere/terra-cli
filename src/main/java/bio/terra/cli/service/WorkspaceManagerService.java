@@ -61,6 +61,7 @@ import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
+import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceIamRoles;
 import bio.terra.workspace.model.PrivateResourceUser;
@@ -242,17 +243,39 @@ public class WorkspaceManagerService {
                   CREATE_WORKSPACE_MAXIMUM_RETRIES,
                   CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
           logger.debug("create workspace context result: {}", createContextResult);
-
-          // if this is a spend profile access denied error, then throw a more user-friendly error
-          // message
-          if (createContextResult.getJobReport().getStatus().equals(JobReport.StatusEnum.FAILED)
-              && createContextResult.getErrorReport().getMessage().contains("spend profile")
-              && createContextResult.getErrorReport().getStatusCode()
-                  == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
-            throw new UserActionableException(
-                "Accessing the spend profile failed. Ask an administrator to grant you access.");
+          StatusEnum status = createContextResult.getJobReport().getStatus();
+          if (StatusEnum.FAILED == status) {
+            // need to delete the empty workspace before continuing
+            boolean workspaceSuccessfullyDeleted = false;
+            try {
+              deleteWorkspace(workspaceId);
+              workspaceSuccessfullyDeleted = true;
+            } catch (RuntimeException ex) {
+              logger.error(
+                  "Failed to delete workspace {} when cleaning up failed creation of cloud context. ",
+                  workspaceId,
+                  ex);
+            }
+            // if this is a spend profile access denied error, then throw a more user-friendly error
+            // message
+            if (createContextResult.getErrorReport().getMessage().contains("spend profile")
+                && createContextResult.getErrorReport().getStatusCode()
+                    == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
+              final String errorMessage;
+              if (workspaceSuccessfullyDeleted) {
+                errorMessage =
+                    "Accessing the spend profile failed. Ask an administrator to grant you access.";
+              } else {
+                errorMessage =
+                    String.format(
+                        "Accessing the spend profile failed. Ask an administrator to grant you access. "
+                            + "There was a problem cleaning up the partially created workspace ID %s",
+                        workspaceId);
+              }
+              throw new UserActionableException(errorMessage);
+            }
           }
-
+          // handle non-spend-profile-related failures
           throwIfJobNotCompleted(
               createContextResult.getJobReport(), createContextResult.getErrorReport());
 
