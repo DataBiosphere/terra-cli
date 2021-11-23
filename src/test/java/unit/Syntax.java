@@ -5,13 +5,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import harness.TestCommand;
 import harness.TestCommand.Result;
+import harness.baseclasses.ClearContextUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for syntax variations */
 @Tag("unit")
-public class Syntax {
+public class Syntax extends ClearContextUnit {
 
   @Test
   @DisplayName("format options are accepted in any case")
