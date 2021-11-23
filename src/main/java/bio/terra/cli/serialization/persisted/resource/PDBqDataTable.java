@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * External representation of a workspace BQ dataset resource for writing to disk.
+ * External representation of a workspace BQ data table resource for writing to disk.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
