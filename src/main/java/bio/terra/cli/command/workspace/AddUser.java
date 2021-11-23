@@ -1,5 +1,6 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -28,7 +29,7 @@ public class AddUser extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    WorkspaceUser workspaceUser = WorkspaceUser.add(email, role);
+    WorkspaceUser workspaceUser = WorkspaceUser.add(email, role, Context.requireWorkspace());
     formatOption.printReturnValue(new UFWorkspaceUser(workspaceUser), AddUser::printText);
   }
 

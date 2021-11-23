@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ public class WorkspaceUser {
 
   private String email;
   private List<Role> roles;
+  private UUID workspaceId;
 
   /**
    * Enum for the workspace user roles supported by the CLI. Each enum value maps to a single WSM
@@ -60,72 +62,74 @@ public class WorkspaceUser {
   }
 
   /**
-   * Add a user to the current workspace. Possible roles are defined by the WSM client library.
+   * Add a user to a workspace. Possible roles are defined by the WSM client library.
    *
    * @param email email of the user to add
    * @param role role to assign the user
+   * @param workspace workspace to add the user to
    * @throws UserActionableException if there is no current workspace
    */
-  public static WorkspaceUser add(String email, Role role) {
-    Workspace currentWorkspace = Context.requireWorkspace();
-
-    // call WSM to add a user + role to the current workspace
-    WorkspaceManagerService.fromContext()
-        .grantIamRole(currentWorkspace.getId(), email, role.getWsmRole());
-    logger.info("Added user to workspace: user={}, role={}", email, role);
+  public static WorkspaceUser add(String email, Role role, Workspace workspace) {
+    // call WSM to add a user + role to the workspace
+    WorkspaceManagerService.fromContext().grantIamRole(workspace.getId(), email, role.getWsmRole());
+    logger.info(
+        "Added user to workspace: user={}, role={}, workspaceId={}",
+        email,
+        role,
+        workspace.getId());
 
     // return a WorkspaceUser = email + all roles (not just the one that was added here)
-    return getUser(email);
+    return getUser(email, workspace);
   }
 
   /**
-   * Remove a user + role from the current workspace. Possible roles are defined by the WSM client
-   * library.
+   * Remove a user + role from a workspace. Possible roles are defined by the WSM client library.
    *
    * @param email email of the user to remove
    * @param role role to remove from the user
+   * @param workspace workspace to remove the user from
    * @throws UserActionableException if there is no current workspace
    */
-  public static WorkspaceUser remove(String email, Role role) {
-    Workspace currentWorkspace = Context.requireWorkspace();
-
+  public static WorkspaceUser remove(String email, Role role, Workspace workspace) {
     // call WSM to remove a user + role from the current workspace
     WorkspaceManagerService.fromContext()
-        .removeIamRole(currentWorkspace.getId(), email, role.getWsmRole());
-    logger.info("Removed user from workspace: user={}, role={}", email, role);
+        .removeIamRole(workspace.getId(), email, role.getWsmRole());
+    logger.info(
+        "Removed user from workspace: user={}, role={}, workspaceId={}",
+        email,
+        role,
+        workspace.getId());
 
     // return a WorkspaceUser = email + all roles (not just the one that was removed here)
-    return getUser(email);
+    return getUser(email, workspace);
   }
 
-  /** Get the workspace user object in the current workspace. */
-  private static WorkspaceUser getUser(String email) {
+  /** Get the workspace user object in a workspace. */
+  private static WorkspaceUser getUser(String email, Workspace workspace) {
     // lowercase the email so there is a consistent way of looking up the email address
     // the email address casing in SAM may not match the case of what is provided by the user
-    return listUsersInMap().get(email.toLowerCase());
+    return listUsersInMap(workspace).get(email.toLowerCase());
   }
 
   /**
-   * List the workspace users for the current workspace.
+   * List the workspace users for a workspace.
    *
    * @return a list of workspace users
    */
-  public static List<WorkspaceUser> list() {
-    return listUsersInMap().values().stream().collect(Collectors.toList());
+  public static List<WorkspaceUser> list(Workspace workspace) {
+    return listUsersInMap(workspace).values().stream().collect(Collectors.toList());
   }
 
   /**
-   * Get the workspace users for the current workspace in a map, to make it easy to lookup a
-   * particular user.
+   * Get the workspace users for a workspace in a map, to make it easy to lookup a particular user.
    *
+   * @param workspace workspace to list users in
    * @return a map of email -> workspace user object
    */
-  private static Map<String, WorkspaceUser> listUsersInMap() {
-    Workspace currentWorkspace = Context.requireWorkspace();
-
+  private static Map<String, WorkspaceUser> listUsersInMap(Workspace workspace) {
     // call WSM to get the users + roles for the existing workspace
     RoleBindingList roleBindings =
-        WorkspaceManagerService.fromContext().getRoles(currentWorkspace.getId());
+        WorkspaceManagerService.fromContext().getRoles(workspace.getId());
 
     // convert the WSM objects (role -> list of emails) to CLI objects (email -> list of roles)
     Map<String, WorkspaceUser> workspaceUsers = new HashMap<>();
@@ -157,5 +161,9 @@ public class WorkspaceUser {
 
   public List<Role> getRoles() {
     return roles;
+  }
+
+  public UUID getWorkspaceId() {
+    return workspaceId;
   }
 }
