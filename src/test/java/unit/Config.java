@@ -263,7 +263,7 @@ public class Config extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("config", "set", "format", "json");
     // if this works, the format was valid json
     Result result1 = TestCommand.runCommand("config", "list");
-    assertThat(result1.stdOut, containsString("\"format\" : \"json\""));
+    assertThat(result1.stdOut, containsString("\"format\" : \"JSON\""));
 
     TestCommand.runCommand("config", "set", "format", "text");
     Result result2 = TestCommand.runCommand("config", "list");
@@ -271,6 +271,6 @@ public class Config extends SingleWorkspaceUnit {
 
     // --format switch overrides current setting
     Result result3 = TestCommand.runCommand("config", "list", "--format=json");
-    assertThat(result3.stdOut, containsString("\"format\" : \"text\""));
+    assertThat(result3.stdOut, containsString("\"format\" : \"TEXT\""));
   }
 }
