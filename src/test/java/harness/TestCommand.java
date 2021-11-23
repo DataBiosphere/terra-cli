@@ -142,7 +142,7 @@ public class TestCommand {
   /** Add the `--format=json` argument to the end of the arguments list. */
   private static String[] addFormatJsonArg(String... args) {
     List<String> argsWithFormatJson = new ArrayList<>(Arrays.asList(args));
-    argsWithFormatJson.add("--format=JSON");
+    argsWithFormatJson.add("--format=json");
     return argsWithFormatJson.toArray(new String[0]);
   }
 

@@ -270,7 +270,7 @@ public class Config extends SingleWorkspaceUnit {
     assertThat(result2.stdOut, containsString("[format] output format = TEXT"));
 
     // --format switch overrides current setting
-    Result result3 = TestCommand.runCommand("config", "list", "--format=JSON");
+    Result result3 = TestCommand.runCommand("config", "list", "--format=json");
     assertThat(result3.stdOut, containsString("\"format\" : \"text\""));
   }
 }

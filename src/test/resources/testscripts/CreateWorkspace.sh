@@ -5,10 +5,10 @@ set -e
 terra status
 terra auth status
 
-isLoggedIn=$(terra auth status --format=JSON | jq .loggedIn)
+isLoggedIn=$(terra auth status --format=json | jq .loggedIn)
 if [[ "true" = "$isLoggedIn" ]]
 then
-  currentUser=$(terra auth status --format=JSON | jq .userEmail)
+  currentUser=$(terra auth status --format=json | jq .userEmail)
   echo "User $currentUser is logged in. Creating a new workspace."
   terra workspace create
   terra auth status
