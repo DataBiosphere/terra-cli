@@ -274,14 +274,11 @@ public class Workspace {
    *
    * @param name - name of the new workspace
    * @param description - description of the new workspace
-   * @param location - location for resources in the new workspace
    * @return - ClonedWorkspace structure with details on each resource
    */
-  public ClonedWorkspace clone(
-      @Nullable String name, @Nullable String description, @Nullable String location) {
+  public ClonedWorkspace clone(@Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContextForPetSa()
-            .cloneWorkspace(id, name, description, location);
+        WorkspaceManagerService.fromContextForPetSa().cloneWorkspace(id, name, description);
     return result.getWorkspace();
   }
 
