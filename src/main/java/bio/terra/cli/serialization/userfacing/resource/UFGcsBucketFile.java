@@ -21,7 +21,6 @@ import java.util.Optional;
 public class UFGcsBucketFile extends UFResource {
   public final String bucketName;
   public final String bucketFileName;
-  public final String location;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcsBucketFile(GcsBucketFile internalObj) {
@@ -31,7 +30,6 @@ public class UFGcsBucketFile extends UFResource {
 
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
-    this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -39,7 +37,6 @@ public class UFGcsBucketFile extends UFResource {
     super(builder);
     this.bucketName = builder.bucketName;
     this.bucketFileName = builder.bucketFileName;
-    this.location = builder.location;
   }
 
   /** Print out this object in text format. */
@@ -48,22 +45,15 @@ public class UFGcsBucketFile extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName + " file name: " + bucketFileName);
-    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;
     private String bucketFileName;
-    private String location;
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
-      return this;
-    }
-
-    public Builder location(String location) {
-      this.location = location;
       return this;
     }
 

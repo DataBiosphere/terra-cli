@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a GCS bucket workspace resource. Instances of this class are part of
+ * Internal representation of a GCS bucket file workspace resource. Instances of this class are part of
  * the current context or state.
  */
 public class GcsBucketFile extends Resource {
@@ -41,11 +41,11 @@ public class GcsBucketFile extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public GcsBucketFile(GcpGcsBucketFileResource wsmObject) {
-    super(wsmObject.getMetadata());
+  public GcsBucketFile(GcpGcsBucketFileResource resource) {
+    super(resource.getMetadata());
     this.resourceType = Type.GCS_BUCKET_FILE;
-    this.bucketName = wsmObject.getAttributes().getBucketName();
-    this.bucketFileName = wsmObject.getAttributes().getFileName();
+    this.bucketName = resource.getAttributes().getBucketName();
+    this.bucketFileName = resource.getAttributes().getFileName();
   }
 
   /**
@@ -61,7 +61,7 @@ public class GcsBucketFile extends Resource {
   }
 
   /**
-   * Add a GCS bucket as a referenced resource in the workspace.
+   * Add a GCS bucket file as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
@@ -82,7 +82,7 @@ public class GcsBucketFile extends Resource {
     return new GcsBucketFile(addedResource);
   }
 
-  /** Update a GCS bucket referenced resource in the workspace. */
+  /** Update a GCS bucket file referenced resource in the workspace. */
   public void updateReferenced(UpdateResourceParams updateParams) {
     if (updateParams.name != null) {
       validateEnvironmentVariableName(updateParams.name);
@@ -92,21 +92,20 @@ public class GcsBucketFile extends Resource {
     super.updatePropertiesAndSync(updateParams);
   }
 
-  /** Delete a GCS bucket referenced resource in the workspace. */
+  /** Delete a GCS bucket file referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
         .deleteReferencedGcsBucketFile(Context.requireWorkspace().getId(), id);
   }
 
-  /** Delete a GCS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     throw new UnsupportedOperationException(
         "Does not support creating a bucket file controlled resource in workspace manager yet");
   }
 
-  /** Resolve a GCS bucket resource to its cloud identifier. */
+  /** Resolve a GCS bucket file resource to its cloud identifier. */
   public String resolve() {
     return bucketFileName;
   }

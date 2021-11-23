@@ -811,7 +811,7 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager POST
+   * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/files/{resourceId}" endpoint
    * to update a GCS bucket file referenced resource in the workspace.
    *
@@ -834,7 +834,7 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager POST
+   * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/buckets/{resourceId}" endpoint to
    * update a GCS bucket referenced resource in the workspace.
    *

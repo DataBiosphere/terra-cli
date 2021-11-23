@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating a GCS bucket workspace resource. This class is not currently user-facing,
+ * Parameters for creating a GCS bucket file workspace resource. This class is not currently user-facing,
  * but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -14,13 +14,11 @@ public class CreateGcsBucketFileParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
   public final String bucketFileName;
-  public final String location;
 
   protected CreateGcsBucketFileParams(CreateGcsBucketFileParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.bucketFileName = builder.bucketFileName;
-    this.location = builder.location;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -28,7 +26,6 @@ public class CreateGcsBucketFileParams {
     private CreateResourceParams resourceFields;
     private String bucketName;
     private String bucketFileName;
-    private String location;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -42,11 +39,6 @@ public class CreateGcsBucketFileParams {
 
     public Builder bucketFileName(String bucketFileName) {
       this.bucketFileName = bucketFileName;
-      return this;
-    }
-
-    public Builder location(String location) {
-      this.location = location;
       return this;
     }
 

@@ -10,7 +10,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket" command. */
+/** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket-file" command. */
 @CommandLine.Command(
     name = "gcs-bucket-file",
     description = "Add a referenced GCS bucket file.",
@@ -34,7 +34,7 @@ public class GcsBucketFile extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Add a referenced GCS bucket to the workspace. */
+  /** Add a referenced GCS bucket file to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -55,7 +55,7 @@ public class GcsBucketFile extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(UFGcsBucket returnValue) {
-    OUT.println("Successfully added referenced GCS bucket.");
+    OUT.println("Successfully added referenced GCS bucket file.");
     returnValue.print();
   }
 }
