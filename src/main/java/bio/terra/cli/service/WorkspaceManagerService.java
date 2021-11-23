@@ -250,9 +250,9 @@ public class WorkspaceManagerService {
             try {
               deleteWorkspace(workspaceId);
               workspaceSuccessfullyDeleted = true;
-            } catch (SystemException ex) {
-              logger.error("Failed to delete workspace {} when cleaning up failed creation of cloud context. "
-                  + "Exception: {}", workspaceApi, ex.getMessage());
+            } catch (RuntimeException ex) {
+              logger.error("Failed to delete workspace {} when cleaning up failed creation of cloud context. ",
+                  workspaceId, ex);
             }
             // if this is a spend profile access denied error, then throw a more user-friendly error
             // message
@@ -264,8 +264,7 @@ public class WorkspaceManagerService {
                 errorMessage = "Accessing the spend profile failed. Ask an administrator to grant you access.";
               } else {
                 errorMessage = String.format("Accessing the spend profile failed. Ask an administrator to grant you access. "
-                + "Additionally, there was a problem cleaning up the workspace, and now workspace ID %s is left behind "
-                + "but won't function.", workspaceId);
+                + "There was a problem cleaning up the partially created workspace ID %s", workspaceId);
               }
               throw new UserActionableException(errorMessage);
             }
