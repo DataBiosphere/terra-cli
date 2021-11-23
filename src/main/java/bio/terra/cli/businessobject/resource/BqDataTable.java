@@ -17,10 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a BigQuery dataset workspace resource. Instances of this class are
+ * Internal representation of a BigQuery data table workspace resource. Instances of this class are
  * part of the current context or state.
  */
 public class BqDataTable extends Resource {
+
   private static final Logger logger = LoggerFactory.getLogger(BqDataTable.class);
 
   private String projectId;
@@ -28,10 +29,10 @@ public class BqDataTable extends Resource {
   private String dataTableId;
 
   /**
-   * Delimiter between the project id and dataset id for a BigQuery DataTable.
+   * Delimiter between the project id, dataset id and data table id for a BigQuery DataTable.
    *
-   * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
+   * <p>The choice is somewhat arbitrary. BigQuery tables do not have true URIs. The '.' delimiter
+   * allows the path to be used directly in SQL calls with a BigQuery extension.
    */
   private static final char BQ_PROJECT_DATA_TABLE_DELIMITER = '.';
 
@@ -118,37 +119,16 @@ public class BqDataTable extends Resource {
         "Unsupport this operation because workspace manager does not support creating a controlled data table");
   }
 
-  /** This enum specifies the possible ways to resolve a BigQuery data table resource. */
-  public enum ResolveOptions {
-    FULL_PATH, // [project id].[dataset id]
-    DATASET_ID_ONLY, // [dataset id]
-    PROJECT_ID_ONLY, // [project id]
-    DATA_TABLE_ID_ONLY; // [dataTable id]
-  }
-
   /**
    * Resolve a BigQuery data table resource to its cloud identifier. Returns the SQL path to the
-   * dataset: [GCP project id].[BQ dataset id]
+   * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
   public String resolve() {
-    return resolve(ResolveOptions.FULL_PATH);
-  }
-
-  /**
-   * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
-   * dataset: [GCP project id].[BQ dataset id]
-   */
-  public String resolve(ResolveOptions resolveOption) {
-    switch (resolveOption) {
-      case FULL_PATH:
-        return projectId + BQ_PROJECT_DATA_TABLE_DELIMITER + datasetId;
-      case DATASET_ID_ONLY:
-        return datasetId;
-      case PROJECT_ID_ONLY:
-        return projectId;
-      default:
-        throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
-    }
+    return projectId
+        + BQ_PROJECT_DATA_TABLE_DELIMITER
+        + datasetId
+        + BQ_PROJECT_DATA_TABLE_DELIMITER
+        + dataTableId;
   }
 
   /** Query the cloud for information about the dataset. */

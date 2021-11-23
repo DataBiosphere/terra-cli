@@ -22,7 +22,7 @@ public class Resolve extends BaseCommand {
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
-      names = "--bq-path",
+      names = "--bq-dataset-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
           "[For BIG_QUERY_DATASET] Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id].")

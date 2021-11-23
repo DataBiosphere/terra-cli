@@ -191,4 +191,12 @@ public class ExternalBQDatasets {
         .build()
         .getService();
   }
+
+  public static String getDatasetFullPath(String projectId, String datasetId) {
+    return projectId + "." + datasetId;
+  }
+
+  public static String getDataTablePath(String projectId, String datasetId, String dataTableId) {
+    return projectId + "." + datasetId + "." + dataTableId;
+  }
 }
