@@ -246,17 +246,28 @@ public class WorkspaceManagerService {
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
             // need to delete the empty workspace before continuing
-            HttpUtils.callWithRetries(
-                () -> workspaceApi.deleteWorkspace(workspaceId),
-                WorkspaceManagerService::isRetryable);
-
+            boolean workspaceSuccessfullyDeleted = false;
+            try {
+              deleteWorkspace(workspaceId);
+              workspaceSuccessfullyDeleted = true;
+            } catch (SystemException ex) {
+              logger.error("Failed to delete workspace {} when cleaning up failed creation of cloud context. "
+                  + "Exception: {}", workspaceApi, ex.getMessage());
+            }
             // if this is a spend profile access denied error, then throw a more user-friendly error
             // message
             if (createContextResult.getErrorReport().getMessage().contains("spend profile")
                 && createContextResult.getErrorReport().getStatusCode()
                     == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
-              throw new UserActionableException(
-                  "Accessing the spend profile failed. Ask an administrator to grant you access.");
+              final String errorMessage;
+              if (workspaceSuccessfullyDeleted) {
+                errorMessage = "Accessing the spend profile failed. Ask an administrator to grant you access.";
+              } else {
+                errorMessage = String.format("Accessing the spend profile failed. Ask an administrator to grant you access. "
+                + "Additionally, there was a problem cleaning up the workspace, and now workspace ID %s is left behind "
+                + "but won't function.", workspaceId);
+              }
+              throw new UserActionableException(errorMessage);
             }
           }
           // handle non-spend-profile-related failures
