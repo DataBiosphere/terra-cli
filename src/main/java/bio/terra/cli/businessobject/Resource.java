@@ -3,6 +3,7 @@ package bio.terra.cli.businessobject;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsBucketFile;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -103,6 +104,8 @@ public abstract class Resource {
     switch (wsmResourceType) {
       case GCS_BUCKET:
         return new GcsBucket(wsmObject);
+      case GCS_BUCKET_FILE:
+        return new GcsBucketFile(wsmObject);
       case BIG_QUERY_DATASET:
         return new BqDataset(wsmObject);
       case AI_NOTEBOOK:
