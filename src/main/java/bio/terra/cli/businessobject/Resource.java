@@ -53,6 +53,7 @@ public abstract class Resource {
    */
   public enum Type {
     GCS_BUCKET,
+    GCS_BUCKET_FILE,
     BQ_DATASET,
     AI_NOTEBOOK;
   }
