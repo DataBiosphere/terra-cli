@@ -15,14 +15,12 @@ public class CreateBqDataTableParams {
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
-  public final String location;
 
   protected CreateBqDataTableParams(CreateBqDataTableParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.dataTableId = builder.dataTableId;
-    this.location = builder.location;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -31,7 +29,6 @@ public class CreateBqDataTableParams {
     private String projectId;
     private String datasetId;
     private String dataTableId;
-    private String location;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -50,11 +47,6 @@ public class CreateBqDataTableParams {
 
     public Builder dataTableId(String dataTableId) {
       this.dataTableId = dataTableId;
-      return this;
-    }
-
-    public Builder location(String location) {
-      this.location = location;
       return this;
     }
 

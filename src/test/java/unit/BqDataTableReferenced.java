@@ -411,9 +411,9 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
+   * name on current workspace.
    */
-  static List<UFBqDataTable> listDataTableResourcesWithName(String resourceName)
+  private static List<UFBqDataTable> listDataTableResourcesWithName(String resourceName)
       throws JsonProcessingException {
     // `terra resources list --type=BQ_DATA_TABLE --format=json`
     List<UFBqDataTable> listedResources =

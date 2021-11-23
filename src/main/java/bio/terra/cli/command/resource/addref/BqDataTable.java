@@ -41,19 +41,20 @@ public class BqDataTable extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
-    CreateResourceParams.Builder createResourceParams =
+    CreateResourceParams.Builder createResourceParamsBuilder =
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.REFERENCED);
-    CreateBqDataTableParams.Builder createParams =
+    CreateBqDataTableParams.Builder createParamsBuilder =
         new CreateBqDataTableParams.Builder()
-            .resourceFields(createResourceParams.build())
+            .resourceFields(createResourceParamsBuilder.build())
             .projectId(gcpProjectId)
             .datasetId(bigQueryDatasetId)
             .dataTableId(bigQueryDataTableId);
 
     bio.terra.cli.businessobject.resource.BqDataTable createdResource =
-        bio.terra.cli.businessobject.resource.BqDataTable.addReferenced(createParams.build());
+        bio.terra.cli.businessobject.resource.BqDataTable.addReferenced(
+            createParamsBuilder.build());
     formatOption.printReturnValue(new UFBqDataTable(createdResource), BqDataTable::printText);
   }
 

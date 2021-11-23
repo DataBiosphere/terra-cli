@@ -865,7 +865,7 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager POST
+   * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
    * endpoint to update a BigQuery data table referenced resource in the workspace.
    *

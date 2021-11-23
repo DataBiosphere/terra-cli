@@ -50,12 +50,12 @@ public class BqDataTable extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public BqDataTable(GcpBigQueryDataTableResource wsmObject) {
-    super(wsmObject.getMetadata());
+  public BqDataTable(GcpBigQueryDataTableResource resource) {
+    super(resource.getMetadata());
     this.resourceType = Type.BQ_DATA_TABLE;
-    this.projectId = wsmObject.getAttributes().getProjectId();
-    this.datasetId = wsmObject.getAttributes().getDatasetId();
-    this.dataTableId = wsmObject.getAttributes().getDataTableId();
+    this.projectId = resource.getAttributes().getProjectId();
+    this.datasetId = resource.getAttributes().getDatasetId();
+    this.dataTableId = resource.getAttributes().getDataTableId();
   }
 
   /**

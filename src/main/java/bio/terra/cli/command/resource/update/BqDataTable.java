@@ -17,7 +17,6 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataTable extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
