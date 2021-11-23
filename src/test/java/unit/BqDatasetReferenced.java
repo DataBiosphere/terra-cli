@@ -173,7 +173,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --bq-dataset-path=PROJECT_ID_ONLY --format=json`
     String resolvedProjectIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-dataset-path=PROJECT_ID_ONLY");
+            String.class,
+            "resource",
+            "resolve",
+            "--name=" + name,
+            "--bq-dataset-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getProjectId(),
         resolvedProjectIdOnly,
@@ -182,7 +186,11 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --bq-dataset-path=DATASET_ID_ONLY --format=json`
     String resolvedDatasetIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-dataset-path=DATASET_ID_ONLY");
+            String.class,
+            "resource",
+            "resolve",
+            "--name=" + name,
+            "--bq-dataset-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId(),
         resolvedDatasetIdOnly,

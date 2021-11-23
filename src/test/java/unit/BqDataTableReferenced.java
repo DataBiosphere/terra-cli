@@ -142,16 +142,15 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "listReflectsDelete";
-    UFBqDataTable addedDataTable =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataTable.class,
-            "resource",
-            "add-ref",
-            "bq-table",
-            "--name=" + name,
-            "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId(),
-            "--table-id=" + externalDataTableName);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
+        "resource",
+        "add-ref",
+        "bq-table",
+        "--name=" + name,
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -172,16 +171,15 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "resolve";
-    UFBqDataTable addedDataTable =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataTable.class,
-            "resource",
-            "add-ref",
-            "bq-table",
-            "--name=" + name,
-            "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId(),
-            "--table-id=" + externalDataTableName);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
+        "resource",
+        "add-ref",
+        "bq-table",
+        "--name=" + name,
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
@@ -208,16 +206,15 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "checkAccess";
-    UFBqDataTable addedDataTable =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataTable.class,
-            "resource",
-            "add-ref",
-            "bq-table",
-            "--name=" + name,
-            "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId(),
-            "--table-id=" + externalDataTableName);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
+        "resource",
+        "add-ref",
+        "bq-table",
+        "--name=" + name,
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource check-access --name=$name
     TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
