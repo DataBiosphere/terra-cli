@@ -33,8 +33,8 @@ public class Format {
 
   /** This enum specifies the format options for printing the command output. */
   public enum FormatOptions {
-    json,
-    text;
+    JSON,
+    TEXT;
   }
 
   /**
@@ -71,7 +71,7 @@ public class Format {
    */
   public <T> void printReturnValue(
       T returnValue, Consumer<T> printTextFunction, Consumer<T> printJsonFunction) {
-    if (getEffectiveFormatOption() == FormatOptions.json) {
+    if (getEffectiveFormatOption() == FormatOptions.JSON) {
       printJsonFunction.accept(returnValue);
     } else {
       printTextFunction.accept(returnValue);

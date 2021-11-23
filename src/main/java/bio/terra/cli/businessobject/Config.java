@@ -33,7 +33,7 @@ public class Config {
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
 
   // Output format option
-  private Format.FormatOptions format = FormatOptions.text;
+  private Format.FormatOptions format = FormatOptions.TEXT;
 
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
@@ -51,7 +51,7 @@ public class Config {
   /** Build an instance of this class with default values. */
   public Config() {
     this.dockerImageId = getDefaultImageId();
-    this.format = FormatOptions.text;
+    this.format = FormatOptions.TEXT;
   }
 
   /** Returns the default Docker image id for launching apps. */
