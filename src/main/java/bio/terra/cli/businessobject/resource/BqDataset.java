@@ -145,13 +145,6 @@ public class BqDataset extends Resource {
         .deleteControlledBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
-  /** This enum specifies the possible ways to resolve a BigQuery dataset resource. */
-  public enum ResolveOptions {
-    FULL_PATH, // [project id].[dataset id]
-    DATASET_ID_ONLY, // [dataset id]
-    PROJECT_ID_ONLY; // [project id]
-  }
-
   /**
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]

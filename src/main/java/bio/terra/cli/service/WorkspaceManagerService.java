@@ -554,7 +554,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .createBigQueryDataTableReference(createRequest, workspaceId),
-        "Error creating referenced BigQuery dataset in the workspace.");
+        "Error creating referenced BigQuery data table in the workspace.");
   }
 
   /**

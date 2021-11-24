@@ -1,6 +1,7 @@
 package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.BigQueryIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -19,20 +20,12 @@ public class BqDataTable extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.Option(
-      names = "--project-id",
-      required = true,
-      description = "GCP project id of the data table.")
-  private String gcpProjectId;
-
-  @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
-  private String bigQueryDatasetId;
-
-  @CommandLine.Option(
       names = "--table-id",
       required = true,
       description = "BigQuery data table id.")
   private String bigQueryDataTableId;
 
+  @CommandLine.Mixin BigQueryIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -48,8 +41,8 @@ public class BqDataTable extends BaseCommand {
     CreateBqDataTableParams.Builder createParamsBuilder =
         new CreateBqDataTableParams.Builder()
             .resourceFields(createResourceParamsBuilder.build())
-            .projectId(gcpProjectId)
-            .datasetId(bigQueryDatasetId)
+            .projectId(bigQueryIds.getGcpProjectId())
+            .datasetId(bigQueryIds.getBigQueryDatasetId())
             .dataTableId(bigQueryDataTableId);
 
     bio.terra.cli.businessobject.resource.BqDataTable createdResource =

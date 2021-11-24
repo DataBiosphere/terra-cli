@@ -112,7 +112,7 @@ public class BqDataTable extends Resource {
   /** Delete a BigQuery data table controlled resource in the workspace. */
   protected void deleteControlled() {
     throw new UnsupportedOperationException(
-        "Unsupport this operation because workspace manager does not support creating a controlled data table");
+        "Unsupport this operation because workspace manager does not support creating a controlled BigQuery data table");
   }
 
   /**
@@ -120,11 +120,26 @@ public class BqDataTable extends Resource {
    * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
   public String resolve() {
-    return projectId
-        + BQ_PROJECT_DATA_TABLE_DELIMITER
-        + datasetId
-        + BQ_PROJECT_DATA_TABLE_DELIMITER
-        + dataTableId;
+    return resolve(ResolveOptions.FULL_PATH);
+  }
+
+  public String resolve(ResolveOptions resolveOption) {
+    switch (resolveOption) {
+      case FULL_PATH:
+        return projectId
+            + BQ_PROJECT_DATA_TABLE_DELIMITER
+            + datasetId
+            + BQ_PROJECT_DATA_TABLE_DELIMITER
+            + dataTableId;
+      case TABLE_ID_ONLY:
+        return dataTableId;
+      case DATASET_ID_ONLY:
+        return datasetId;
+      case PROJECT_ID_ONLY:
+        return projectId;
+      default:
+        throw new IllegalArgumentException("Unknown BigQuery data table resolve option.");
+    }
   }
 
   // ====================================================

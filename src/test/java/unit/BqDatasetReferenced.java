@@ -170,27 +170,19 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         resolved,
         "default resolve includes [project id].[dataset id]");
 
-    // `terra resource resolve --name=$name --bq-dataset-path=PROJECT_ID_ONLY --format=json`
+    // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     String resolvedProjectIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class,
-            "resource",
-            "resolve",
-            "--name=" + name,
-            "--bq-dataset-path=PROJECT_ID_ONLY");
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getProjectId(),
         resolvedProjectIdOnly,
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
-    // `terra resource resolve --name=$name --bq-dataset-path=DATASET_ID_ONLY --format=json`
+    // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
     String resolvedDatasetIdOnly =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class,
-            "resource",
-            "resolve",
-            "--name=" + name,
-            "--bq-dataset-path=DATASET_ID_ONLY");
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId(),
         resolvedDatasetIdOnly,

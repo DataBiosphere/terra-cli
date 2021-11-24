@@ -12,5 +12,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "update",
     description = "Update the properties of a resource.",
-    subcommands = {BqDataset.class, GcsBucket.class, BqDataTable.class})
+    subcommands = {BqDataTable.class, BqDataset.class, GcsBucket.class})
 public class Update {}

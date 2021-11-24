@@ -14,5 +14,5 @@ import picocli.CommandLine;
     name = "add-ref",
     aliases = {"add-referenced"},
     description = "Add a new referenced resource.",
-    subcommands = {BqDataset.class, GcsBucket.class, BqDataTable.class})
+    subcommands = {BqDataTable.class, BqDataset.class, GcsBucket.class})
 public class AddRef {}

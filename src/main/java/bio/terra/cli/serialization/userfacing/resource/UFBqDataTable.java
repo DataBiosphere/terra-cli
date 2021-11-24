@@ -2,10 +2,15 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.api.services.bigquery.model.Table;
 import java.io.PrintStream;
+import java.math.BigInteger;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * External representation of a workspace BigQuery data table resource for command input/output.
@@ -20,6 +25,8 @@ public class UFBqDataTable extends UFResource {
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
+  public @Nullable final String tableDescription;
+  public final BigInteger numRows;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFBqDataTable(BqDataTable internalObj) {
@@ -27,6 +34,11 @@ public class UFBqDataTable extends UFResource {
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
     this.dataTableId = internalObj.getDataTableId();
+
+    GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
+    Optional<Table> dataTableOptional = bigQuery.getDataTable(projectId, datasetId, dataTableId);
+    tableDescription = dataTableOptional.map(Table::getDescription).orElse(null);
+    numRows = dataTableOptional.map(Table::getNumRows).orElse(BigInteger.ZERO);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -35,6 +47,8 @@ public class UFBqDataTable extends UFResource {
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
     this.dataTableId = builder.dataTableId;
+    this.tableDescription = builder.tableDescription;
+    this.numRows = builder.numRows;
   }
 
   /** Print out this object in text format. */
@@ -44,6 +58,11 @@ public class UFBqDataTable extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId + " table id: " + dataTableId);
+
+    if (tableDescription != null) {
+      OUT.println(prefix + "table description: " + tableDescription);
+    }
+    OUT.println(prefix + "table has row #: " + numRows.toString());
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -51,6 +70,8 @@ public class UFBqDataTable extends UFResource {
     private String projectId;
     private String datasetId;
     private String dataTableId;
+    private @Nullable String tableDescription;
+    private BigInteger numRows;
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -67,6 +88,15 @@ public class UFBqDataTable extends UFResource {
       return this;
     }
 
+    public Builder tableDescription(@Nullable String tableDescription) {
+      this.tableDescription = tableDescription;
+      return this;
+    }
+
+    public Builder numRows(BigInteger numRows) {
+      this.numRows = numRows;
+      return this;
+    }
     /** Call the private constructor. */
     public UFBqDataTable build() {
       return new UFBqDataTable(this);

@@ -33,9 +33,9 @@ import java.util.UUID;
     property = "resourceType")
 @JsonSubTypes({
   @Type(value = UFGcpNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFBqDataTable.class, name = "BQ_DATA_TABLE"),
   @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
-  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
-  @Type(value = UFBqDataTable.class, name = "BQ_DATA_TABLE")
+  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET")
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {

@@ -186,10 +186,36 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalBQDatasets.getDataTablePath(
+        ExternalBQDatasets.getDataTableFullPath(
             externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
         resolved,
         "default resolve include full path");
+
+    // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
+    String resolvedProjectIdOnly =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
+    assertEquals(
+        externalDataset.getProjectId(),
+        resolvedProjectIdOnly,
+        "resolve with option PROJECT_ID_ONLY only includes the project id");
+
+    // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
+    String resolvedDatasetIdOnly =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
+    assertEquals(
+        externalDataset.getDatasetId(),
+        resolvedDatasetIdOnly,
+        "resolve with option DATASET_ID_ONLY only includes the project id");
+
+    String resolveTableIdOnly =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
+    assertEquals(
+        externalDataTableName,
+        resolveTableIdOnly,
+        "resolve with option TABLE_ID_ONLY only includes the table id");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -355,7 +381,7 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("update a referenced dataset, specifying multiple or none of the properties")
+  @DisplayName("update a referenced data table, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
     workspaceCreator.login();
 
