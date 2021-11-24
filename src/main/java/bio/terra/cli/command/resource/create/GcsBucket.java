@@ -43,7 +43,6 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    controlledResourceCreationOptions.validateAccessOptions();
 
     // build the resource object to create
     CreateResourceParams.Builder createResourceParams =

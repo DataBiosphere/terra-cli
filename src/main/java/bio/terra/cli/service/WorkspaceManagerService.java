@@ -63,8 +63,6 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -783,19 +781,11 @@ public class WorkspaceManagerService {
    */
   private static ControlledResourceCommonFields createCommonFields(
       CreateResourceParams createParams) {
-    PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-    if (createParams.privateUserRoles != null) {
-      privateResourceIamRoles.addAll(createParams.privateUserRoles);
-    }
     return new ControlledResourceCommonFields()
         .name(createParams.name)
         .description(createParams.description)
         .cloningInstructions(createParams.cloningInstructions)
         .accessScope(createParams.accessScope)
-        .privateResourceUser(
-            new PrivateResourceUser()
-                .userName(createParams.privateUserName)
-                .privateResourceIamRoles(privateResourceIamRoles))
         .managedBy(ManagedBy.USER);
   }
 
