@@ -552,7 +552,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables" endpoint to add
-   * a BigQuery dataset as a referenced resource in the workspace.
+   * a BigQuery data table as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to add
