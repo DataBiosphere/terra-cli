@@ -156,7 +156,6 @@ public class ExternalBQDatasets {
     HttpUtils.callWithRetries(
         () -> {
           bqClient.create(tableInfo);
-          System.out.println("Created BQ data table " + tableName + "in dataset " + datasetId);
           return null;
         },
         (ex) ->
@@ -190,16 +189,5 @@ public class ExternalBQDatasets {
         .setCredentials(credentials)
         .build()
         .getService();
-  }
-
-  /** Gets cloud identifier for Dataset in full-path: [project id].[dataset id] */
-  public static String getDatasetFullPath(String projectId, String datasetId) {
-    return projectId + "." + datasetId;
-  }
-
-  /** Gets cloud identifier for data table in full-path: [project id].[dataset id].[table id] */
-  public static String getDataTableFullPath(
-      String projectId, String datasetId, String dataTableId) {
-    return projectId + "." + datasetId + "." + dataTableId;
   }
 }

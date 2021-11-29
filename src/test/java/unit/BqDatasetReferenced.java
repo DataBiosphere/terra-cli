@@ -165,8 +165,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalBQDatasets.getDatasetFullPath(
-            externalDataset.getProjectId(), externalDataset.getDatasetId()),
+        externalDataset.getProjectId() + "." + externalDataset.getDatasetId(),
         resolved,
         "default resolve includes [project id].[dataset id]");
 
