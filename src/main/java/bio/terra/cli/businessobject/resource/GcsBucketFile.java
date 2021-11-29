@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * of the current context or state.
  */
 public class GcsBucketFile extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
+  private static final Logger logger = LoggerFactory.getLogger(GcsBucketFile.class);
 
   private String bucketName;
   private String filePath;
@@ -107,14 +107,17 @@ public class GcsBucketFile extends Resource {
 
   /** Resolve a GCS bucket file resource to its cloud identifier. */
   public String resolve() {
-    return resolve(true);
+    return resolve(/*includePrefix=*/ true);
   }
 
   /**
-   * Resolve a GCS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
+   * Resolve a GCS bucket file resource to its cloud identifier. Optionally include the 'gs://'
+   * prefix.
    */
   public String resolve(boolean includePrefix) {
-    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + filePath : bucketName;
+    return includePrefix
+        ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + filePath
+        : bucketName + "/" + filePath;
   }
 
   // ====================================================

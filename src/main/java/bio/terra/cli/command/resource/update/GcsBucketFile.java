@@ -21,7 +21,7 @@ public class GcsBucketFile extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Update a BigQuery bucket file in the workspace. */
+  /** Update a bucket file in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();

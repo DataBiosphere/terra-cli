@@ -28,7 +28,7 @@ public class GcsBucketFile extends BaseCommand {
   @CommandLine.Option(
       names = "--file-path",
       required = true,
-      description = "Full path to the file in the specified GCS bucket.")
+      description = "Full path to the file or folder in the specified GCS bucket.")
   private String filePath;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

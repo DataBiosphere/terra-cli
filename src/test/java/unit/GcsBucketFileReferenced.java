@@ -169,7 +169,9 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name + "--exclude-bucket-prefix");
     assertEquals(
-        externalBucketBlobName, resolveExcludeBucketPrefix, "resolve matches bucket file name");
+        externalBucket.getName() + "/" + externalBucketBlobName,
+        resolveExcludeBucketPrefix,
+        "resolve matches bucket file name");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
