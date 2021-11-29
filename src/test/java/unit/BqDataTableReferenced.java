@@ -2,11 +2,11 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static unit.BqDatasetControlled.listDatasetResourcesWithName;
-import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
-import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
 import bio.terra.workspace.model.CloningInstructionsEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
@@ -14,6 +14,7 @@ import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,25 +22,30 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra resource` commands that handle referenced BQ datasets. */
 @Tag("unit")
-public class BqDatasetReferenced extends SingleWorkspaceUnit {
+public class BqDataTableReferenced extends SingleWorkspaceUnit {
 
-  // external dataset to use for creating BQ dataset references in the workspace
-  private DatasetReference externalDataset;
+  DatasetReference externalDataset;
+  // name of table in external dataset
+  private String externalDataTableName = "testTable";
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(
-        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
     // grant the user's proxy group access to the dataset so that it will pass WSM's access check
     // when adding it as a referenced resource
-    ExternalBQDatasets.grantReadAccess(
+    ExternalBQDatasets.grantWriteAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
+
+    // create a table in the dataset
+    ExternalBQDatasets.createTable(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalDataset.getProjectId(),
+        externalDataset.getDatasetId(),
+        externalDataTableName);
   }
 
   @AfterAll
@@ -51,39 +57,44 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("list and describe reflect adding a new referenced dataset")
+  @DisplayName("list and describe reflect adding a new referenced data table")
   void listDescribeReflectAdd() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --format=json`
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "listDescribeReflectAdd";
-    UFBqDataset addedDataset =
+    UFBqDataTable addedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
+            UFBqDataTable.class,
             "resource",
             "add-ref",
-            "bq-dataset",
+            "bq-table",
             "--name=" + name,
             "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId());
+            "--dataset-id=" + externalDataset.getDatasetId(),
+            "--table-id=" + externalDataTableName);
 
-    // check that the name, project id, and dataset id match
-    assertEquals(name, addedDataset.name, "add ref output matches name");
+    // check that the name, project id, dataset id and table id match
+    assertEquals(name, addedDataTable.name, "add ref output matches name");
     assertEquals(
         externalDataset.getProjectId(),
-        addedDataset.projectId,
+        addedDataTable.projectId,
         "add ref output matches project id");
     assertEquals(
         externalDataset.getDatasetId(),
-        addedDataset.datasetId,
+        addedDataTable.datasetId,
         "add ref output matches dataset id");
+    assertEquals(
+        externalDataTableName, addedDataTable.dataTableId, "add ref output matches data table id");
 
-    // check that the dataset is in the list
-    UFBqDataset matchedResource = listOneDatasetResourceWithName(name);
+    // check that the data table is in the list
+    List<UFBqDataTable> matchedResourceList = listDataTableResourcesWithName(name);
+    assertEquals(1, matchedResourceList.size(), "Only 1 data table in the list");
+    UFBqDataTable matchedResource = matchedResourceList.get(0);
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
         externalDataset.getProjectId(),
@@ -93,13 +104,15 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         externalDataset.getDatasetId(),
         matchedResource.datasetId,
         "list output matches dataset id");
+    assertEquals(
+        externalDataTableName, matchedResource.dataTableId, "List output matches data table id");
 
     // `terra resource describe --name=$name --format=json`
-    UFBqDataset describeResource =
+    UFBqDataTable describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "describe", "--name=" + name);
+            UFBqDataTable.class, "resource", "describe", "--name=" + name);
 
-    // check that the name, project id, and dataset id match
+    // check that the name, project id, dataset id and table id match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
         externalDataset.getProjectId(),
@@ -109,66 +122,74 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         externalDataset.getDatasetId(),
         describeResource.datasetId,
         "describe resource output matches dataset id");
+    assertEquals(
+        externalDataTableName,
+        describeResource.dataTableId,
+        "describe resource output matches data table id");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
-  @DisplayName("list reflects deleting a referenced dataset")
+  @DisplayName("list reflects deleting a referenced data table")
   void listReflectsDelete() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --format=json`
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "listReflectsDelete";
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
         "resource",
         "add-ref",
-        "bq-dataset",
+        "bq-table",
         "--name=" + name,
         "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId());
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
-    // check that the dataset is not in the list
-    List<UFBqDataset> matchedResources = listDatasetResourcesWithName(name);
+    // check that the data table is not in the list
+    List<UFBqDataTable> matchedResources = listDataTableResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 
   @Test
-  @DisplayName("resolve a referenced dataset")
+  @DisplayName("resolve a referenced data table")
   void resolve() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --format=json`
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "resolve";
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
         "resource",
         "add-ref",
-        "bq-dataset",
+        "bq-table",
         "--name=" + name,
         "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId());
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalBQDatasets.getDatasetFullPath(
-            externalDataset.getProjectId(), externalDataset.getDatasetId()),
+        ExternalBQDatasets.getDataTableFullPath(
+            externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
         resolved,
-        "default resolve includes [project id].[dataset id]");
+        "default resolve include full path");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     String resolvedProjectIdOnly =
@@ -188,28 +209,38 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         resolvedDatasetIdOnly,
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
+    String resolveTableIdOnly =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
+    assertEquals(
+        externalDataTableName,
+        resolveTableIdOnly,
+        "resolve with option TABLE_ID_ONLY only includes the table id");
+
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
-  @DisplayName("check-access for a referenced dataset")
+  @DisplayName("check-access for a referenced data table")
   void checkAccess() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --format=json`
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
     String name = "checkAccess";
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataTable.class,
         "resource",
         "add-ref",
-        "bq-dataset",
+        "bq-table",
         "--name=" + name,
         "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId());
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // `terra resource check-access --name=$name
     TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
@@ -219,48 +250,51 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add a referenced dataset, specifying all options")
+  @DisplayName("add a referenced data table, specifying all options")
   void addWithAllOptions() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --cloning=$cloning
     // --description=$description --format=json`
     String name = "addWithAllOptions";
     CloningInstructionsEnum cloning = CloningInstructionsEnum.NOTHING;
     String description = "add with all options";
-    UFBqDataset addedDataset =
+    UFBqDataTable addedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
+            UFBqDataTable.class,
             "resource",
             "add-ref",
-            "bq-dataset",
+            "bq-table",
             "--name=" + name,
             "--project-id=" + externalDataset.getProjectId(),
             "--dataset-id=" + externalDataset.getDatasetId(),
+            "--table-id=" + externalDataTableName,
             "--cloning=" + cloning,
             "--description=" + description);
 
     // check that the properties match
-    assertEquals(name, addedDataset.name, "add ref output matches name");
+    assertEquals(name, addedDataTable.name, "add ref output matches name");
     assertEquals(
         externalDataset.getProjectId(),
-        addedDataset.projectId,
+        addedDataTable.projectId,
         "add ref output matches project id");
     assertEquals(
         externalDataset.getDatasetId(),
-        addedDataset.datasetId,
+        addedDataTable.datasetId,
         "add ref output matches dataset id");
-    assertEquals(cloning, addedDataset.cloningInstructions, "add ref output matches cloning");
-    assertEquals(description, addedDataset.description, "add ref output matches description");
+    assertEquals(
+        externalDataTableName, addedDataTable.dataTableId, "add ref output matches data table id");
+    assertEquals(cloning, addedDataTable.cloningInstructions, "add ref output matches cloning");
+    assertEquals(description, addedDataTable.description, "add ref output matches description");
 
     // `terra resource describe --name=$name --format=json`
-    UFBqDataset describeResource =
+    UFBqDataTable describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "describe", "--name=" + name);
+            UFBqDataTable.class, "resource", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -272,6 +306,10 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         externalDataset.getDatasetId(),
         describeResource.datasetId,
         "describe resource output matches dataset id");
+    assertEquals(
+        externalDataTableName,
+        describeResource.dataTableId,
+        "describe resource output matches data table id");
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
 
@@ -287,112 +325,130 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resources add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
     String name = "updateIndividualProperties";
     String description = "updateDescription";
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
-        "bq-dataset",
+        "bq-table",
         "--name=" + name,
         "--description=" + description,
         "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId());
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // update just the name
-    // `terra resources update bq-dataset --name=$name --new-name=$newName`
+    // `terra resources update bq-table --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFBqDataset updateDataset =
+    UFBqDataTable updateDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
+            UFBqDataTable.class,
             "resource",
             "update",
-            "bq-dataset",
+            "bq-table",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(description, updateDataset.description);
+    assertEquals(newName, updateDataTable.name);
+    assertEquals(description, updateDataTable.description);
 
     // `terra resources describe --name=$newName`
-    UFBqDataset describeDataset =
+    UFBqDataTable describeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeDataset.description);
+            UFBqDataTable.class, "resource", "describe", "--name=" + newName);
+    assertEquals(description, describeDataTable.description);
 
     // update just the description
-    // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    // `terra resources update bq-table --name=$newName --description=$newDescription`
     String newDescription = "updateDescription_NEW";
-    updateDataset =
+    updateDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
+            UFBqDataTable.class,
             "resource",
             "update",
-            "bq-dataset",
+            "bq-table",
             "--name=" + newName,
             "--description=" + newDescription);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(newDescription, updateDataset.description);
+    assertEquals(newName, updateDataTable.name);
+    assertEquals(newDescription, updateDataTable.description);
 
     // `terra resources describe --name=$newName`
-    describeDataset =
+    describeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeDataset.description);
+            UFBqDataTable.class, "resource", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataTable.description);
   }
 
   @Test
-  @DisplayName("update a referenced dataset, specifying multiple or none of the properties")
+  @DisplayName("update a referenced data table, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
+    // `terra resources add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
     String name = "updateMultipleOrNoProperties";
     String description = "updateDescription";
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
-        "bq-dataset",
+        "bq-table",
         "--name=" + name,
         "--description=" + description,
         "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId());
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
 
     // call update without specifying any properties to modify
-    // `terra resources update bq-dataset --name=$name`
+    // `terra resources update bq-table --name=$name`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(
-            1, "resource", "update", "bq-dataset", "--name=" + name);
+        TestCommand.runCommandExpectExitCode(1, "resource", "update", "bq-table", "--name=" + name);
     assertThat(
         "error message says that at least one property must be specified",
         stdErr,
         CoreMatchers.containsString("Specify at least one property to update"));
 
     // update both the name and description
-    // `terra resources update bq-dataset --name=$newName --new-name=$newName
+    // `terra resources update bq-table --name=$newName --new-name=$newName
     // --description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
-    UFBqDataset updateDataset =
+    UFBqDataTable updateDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
+            UFBqDataTable.class,
             "resource",
             "update",
-            "bq-dataset",
+            "bq-table",
             "--name=" + name,
             "--new-name=" + newName,
             "--description=" + newDescription);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(newDescription, updateDataset.description);
+    assertEquals(newName, updateDataTable.name);
+    assertEquals(newDescription, updateDataTable.description);
 
     // `terra resources describe --name=$newName`
-    UFBqDataset describeDataset =
+    UFBqDataTable describeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeDataset.description);
+            UFBqDataTable.class, "resource", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataTable.description);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name on current workspace.
+   */
+  private static List<UFBqDataTable> listDataTableResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    // `terra resources list --type=BQ_DATA_TABLE --format=json`
+    List<UFBqDataTable> listedResources =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "resource", "list", "--type=BQ_DATA_TABLE");
+
+    // find the matching data table in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
   }
 }

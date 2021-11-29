@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
@@ -56,6 +57,7 @@ public abstract class Resource {
     GCS_BUCKET,
     GCS_BUCKET_FILE,
     BQ_DATASET,
+    BQ_DATA_TABLE,
     AI_NOTEBOOK;
   }
 
@@ -108,6 +110,8 @@ public abstract class Resource {
         return new GcsBucketFile(wsmObject);
       case BIG_QUERY_DATASET:
         return new BqDataset(wsmObject);
+      case BIG_QUERY_DATA_TABLE:
+        return new BqDataTable(wsmObject);
       case AI_NOTEBOOK:
         return new GcpNotebook(wsmObject);
       default:
