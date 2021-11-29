@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.AccessScope;
@@ -161,14 +160,13 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --access=$access
-    // --cloning=$cloning --description=$description --email=$email --iam-roles=$iamRole
-    // --location=$location --storage=$storage --format=json`
+    // --cloning=$cloning --description=$description --location=$location --storage=$storage
+    // --format=json`
     String name = "createWithAllOptionsExceptLifecycle";
     String bucketName = UUID.randomUUID().toString();
     AccessScope access = AccessScope.PRIVATE_ACCESS;
     CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
     String description = "\"create with all options except lifecycle\"";
-    WorkspaceUser.Role role = WorkspaceUser.Role.WRITER;
     String location = "US";
     GcsStorageClass storage = GcsStorageClass.NEARLINE;
     UFGcsBucket createdBucket =
@@ -182,8 +180,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "--access=" + access,
             "--cloning=" + cloning,
             "--description=" + description,
-            "--email=" + workspaceCreator.email,
-            "--iam-roles=" + role,
             "--location=" + location,
             "--storage=" + storage);
 
