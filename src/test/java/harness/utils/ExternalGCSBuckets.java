@@ -160,7 +160,7 @@ public class ExternalGCSBuckets {
 
   public static String getGsPath(String bucketName, Optional<String> filePath) {
     if (filePath.isPresent()) {
-      return "gs://" + bucketName + "/" + filePath;
+      return "gs://" + bucketName + "/" + filePath.get();
     } else {
       return "gs://" + bucketName;
     }
