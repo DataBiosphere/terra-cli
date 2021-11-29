@@ -13,19 +13,19 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class CreateGcsBucketFileParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
-  public final String bucketFileName;
+  public final String filePath;
 
   protected CreateGcsBucketFileParams(CreateGcsBucketFileParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
-    this.bucketFileName = builder.bucketFileName;
+    this.filePath = builder.filePath;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String bucketName;
-    private String bucketFileName;
+    private String filePath;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -37,8 +37,8 @@ public class CreateGcsBucketFileParams {
       return this;
     }
 
-    public Builder bucketFileName(String bucketFileName) {
-      this.bucketFileName = bucketFileName;
+    public Builder filePath(String filePath) {
+      this.filePath = filePath;
       return this;
     }
 

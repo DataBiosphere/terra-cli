@@ -20,7 +20,7 @@ public class GcsBucketFile extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
 
   private String bucketName;
-  private String bucketFileName;
+  private String filePath;
 
   // prefix for GCS bucket to make a valid URL.
   private static final String GCS_BUCKET_URL_PREFIX = "gs://";
@@ -29,7 +29,7 @@ public class GcsBucketFile extends Resource {
   public GcsBucketFile(PDGcsBucketFile configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
-    this.bucketFileName = configFromDisk.bucketFileName;
+    this.filePath = configFromDisk.filePath;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -37,7 +37,7 @@ public class GcsBucketFile extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.GCS_BUCKET_FILE;
     this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getBucketName();
-    this.bucketFileName = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getFileName();
+    this.filePath = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getFileName();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
@@ -45,7 +45,7 @@ public class GcsBucketFile extends Resource {
     super(resource.getMetadata());
     this.resourceType = Type.GCS_BUCKET_FILE;
     this.bucketName = resource.getAttributes().getBucketName();
-    this.bucketFileName = resource.getAttributes().getFileName();
+    this.filePath = resource.getAttributes().getFileName();
   }
 
   /**
@@ -107,7 +107,14 @@ public class GcsBucketFile extends Resource {
 
   /** Resolve a GCS bucket file resource to its cloud identifier. */
   public String resolve() {
-    return bucketFileName;
+    return resolve(true);
+  }
+
+  /**
+   * Resolve a GCS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
+   */
+  public String resolve(boolean includePrefix) {
+    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + filePath : bucketName;
   }
 
   // ====================================================
@@ -117,7 +124,7 @@ public class GcsBucketFile extends Resource {
     return bucketName;
   }
 
-  public String getBucketFileName() {
-    return bucketFileName;
+  public String getFilePath() {
+    return filePath;
   }
 }

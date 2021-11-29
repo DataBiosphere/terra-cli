@@ -11,6 +11,7 @@ import com.google.cloud.Identity;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
+import com.google.common.base.Optional;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
@@ -18,7 +19,6 @@ import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,7 +33,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
   private BucketInfo externalBucket;
 
   // name of blob in external bucket
-  private String externalBucketBlobName = "testBlob";
+  private String externalBucketBlobName = "blobs/testBlob";
 
   @BeforeAll
   @Override
@@ -81,9 +81,18 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
+    // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
+    // --file-path=$filePath`
     String name = "listDescribeReflectAdd";
     UFGcsBucketFile addedBucketFileReference =
-        addGcsBucketFileReference(name, /*description=*/ null, /*cloningInstructionsEnum*/ null);
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucketFile.class,
+            "resource",
+            "add-ref",
+            "gcs-bucket-file",
+            "--name=" + name,
+            "--bucket-name=" + externalBucket.getName(),
+            "--file-path=" + externalBucketBlobName);
 
     // check that the name and bucket name match
     assertEquals(name, addedBucketFileReference.name, "add ref output matches name");
@@ -93,7 +102,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         "add ref output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        addedBucketFileReference.bucketFileName,
+        addedBucketFileReference.filePath,
         "add ref output matches bucket file name");
 
     // check that the bucket is in the list
@@ -104,9 +113,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     assertEquals(
         externalBucket.getName(), matchedResource.bucketName, "list output matches bucket name");
     assertEquals(
-        externalBucketBlobName,
-        matchedResource.bucketFileName,
-        "List output matches bucket file name");
+        externalBucketBlobName, matchedResource.filePath, "List output matches bucket file name");
 
     // `terra resource describe --name=$name --format=json`
     UFGcsBucketFile describeResource =
@@ -121,7 +128,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         "describe resource output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        describeResource.bucketFileName,
+        describeResource.filePath,
         "describe resource output matches bucket file name");
 
     // `terra resource delete --name=$name`
@@ -136,15 +143,33 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName`
+    // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
+    // --file-path=$filePath`
     String name = "resolve";
-    addGcsBucketFileReference(name, null, null);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucketFile.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket-file",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--file-path=" + externalBucketBlobName);
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
-    assertEquals(externalBucketBlobName, resolved, "resolve matches bucket file name");
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(externalBucket.getName(), Optional.of(externalBucketBlobName)),
+        resolved,
+        "resolve matches bucket file name");
+
+    // `terra resource resolve --name=$name --format=json --exclude-bucket-prefix`
+    String resolveExcludeBucketPrefix =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + name + "--exclude-bucket-prefix");
+    assertEquals(
+        externalBucketBlobName, resolveExcludeBucketPrefix, "resolve matches bucket file name");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -158,8 +183,17 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
+    // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
+    // --file-path=$filePath`
     String name = "listReflectsDelete";
-    addGcsBucketFileReference(name, /*description=*/ null, /*cloningInstructionsEnum*/ null);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucketFile.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket-file",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--file-path=" + externalBucketBlobName);
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -178,9 +212,16 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
-    // --bucket-file-name=$externalBucketBlobName`
+    // --file-path=$filePath`
     String name = "checkAccess";
-    addGcsBucketFileReference(name, /*description=*/ null, /*cloningInstructionsEnum*/ null);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucketFile.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket-file",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--file-path=" + externalBucketBlobName);
 
     // `terra resource check-access --name=$name
     TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
@@ -198,13 +239,21 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resources add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
-    // --bucket-file-name=$externalBucketBlobName --cloning=$cloning
-    // --description=$description --format=json`
+    // --file-path=$filePath --cloning=$cloning --description=$description --format=json`
     String name = "addWithAllOptionsExceptLifecycle";
     CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
     String description = "add with all options except lifecycle";
     UFGcsBucketFile addedBucketFileReference =
-        addGcsBucketFileReference(name, description, cloning);
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucketFile.class,
+            "resource",
+            "add-ref",
+            "gcs-bucket-file",
+            "--name=" + name,
+            "--description=" + description,
+            "--cloning=" + cloning,
+            "--bucket-name=" + externalBucket.getName(),
+            "--file-path=" + externalBucketBlobName);
 
     // check that the properties match
     assertEquals(name, addedBucketFileReference.name, "add ref output matches name");
@@ -214,7 +263,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         "add ref output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        addedBucketFileReference.bucketFileName,
+        addedBucketFileReference.filePath,
         "add ref output matches bucket file name");
     assertEquals(
         cloning, addedBucketFileReference.cloningInstructions, "add ref output matches cloning");
@@ -234,7 +283,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         "describe resource output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        describeResource.bucketFileName,
+        describeResource.filePath,
         "describe resource output matches bucket file name");
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
@@ -251,9 +300,19 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
+    // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
+    // --file-path=$filePath --description=$description`
     String name = "updateIndividualProperties";
     String description = "updateDescription";
-    addGcsBucketFileReference(name, description, /*cloningInstructionsEnum=*/ null);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucketFile.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket-file",
+        "--name=" + name,
+        "--description=" + description,
+        "--bucket-name=" + externalBucket.getName(),
+        "--file-path=" + externalBucketBlobName);
 
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
@@ -305,10 +364,18 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resources add-ref gcs-bucket-file --name=$name --description=$description
-    // --bucket-name=$bucketName`
+    // --bucket-name=$bucketName --file-path=$filePath`
     String name = "updateMultipleOrNoProperties";
     String description = "updateDescription";
-    addGcsBucketFileReference(name, description, /*cloningInstructionsEnum=*/ null);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucketFile.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket-file",
+        "--name=" + name,
+        "--description=" + description,
+        "--bucket-name=" + externalBucket.getName(),
+        "--file-path=" + externalBucketBlobName);
 
     // call update without specifying any properties to modify
     // `terra resources update gcs-bucket --name=$name`
@@ -342,25 +409,6 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucketFile.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucketFile.description);
-  }
-
-  private UFGcsBucketFile addGcsBucketFileReference(
-      String name,
-      @Nullable String description,
-      @Nullable CloningInstructionsEnum cloningInstructionsEnum)
-      throws JsonProcessingException {
-    // `terra resource add-ref gcs-bucket-file --name=$name --bucket-name=$bucketName
-    // --bucket-file-name=$externalBucketBlobName --format=json`
-    return TestCommand.runAndParseCommandExpectSuccess(
-        UFGcsBucketFile.class,
-        "resource",
-        "add-ref",
-        "gcs-bucket-file",
-        "--name=" + name,
-        description == null ? "" : "--description=" + description,
-        cloningInstructionsEnum == null ? "" : "--cloning=" + cloningInstructionsEnum,
-        "--bucket-name=" + externalBucket.getName(),
-        "--bucket-file-name=" + externalBucketBlobName);
   }
 
   /**

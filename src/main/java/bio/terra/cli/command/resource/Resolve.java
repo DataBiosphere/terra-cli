@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsBucketFile;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
@@ -14,11 +15,12 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra resource resolve" command. */
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends BaseCommand {
+
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
-      description = "[For GCS_BUCKET] Exclude the 'gs://' prefix.")
+      description = "[For GCS_BUCKET and GCS_BUCKET_FILE] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
@@ -41,6 +43,9 @@ public class Resolve extends BaseCommand {
     switch (resource.getResourceType()) {
       case GCS_BUCKET:
         cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
+        break;
+      case GCS_BUCKET_FILE:
+        cloudId = ((GcsBucketFile) resource).resolve(!excludeBucketPrefix);
         break;
       case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);

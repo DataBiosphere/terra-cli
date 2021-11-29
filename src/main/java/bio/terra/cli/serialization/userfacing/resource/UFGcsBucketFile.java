@@ -2,13 +2,10 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.GcsBucketFile;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.cloudres.google.storage.BucketCow;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.Optional;
 
 /**
  * External representation of a workspace GCS bucket file resource for command input/output.
@@ -20,23 +17,20 @@ import java.util.Optional;
 @JsonDeserialize(builder = UFGcsBucketFile.Builder.class)
 public class UFGcsBucketFile extends UFResource {
   public final String bucketName;
-  public final String bucketFileName;
+  public final String filePath;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcsBucketFile(GcsBucketFile internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
-    this.bucketFileName = internalObj.getBucketFileName();
-
-    GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
-    Optional<BucketCow> bucket = storage.getBucket(bucketName);
+    this.filePath = internalObj.getFilePath();
   }
 
   /** Constructor for Jackson deserialization during testing. */
   private UFGcsBucketFile(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
-    this.bucketFileName = builder.bucketFileName;
+    this.filePath = builder.filePath;
   }
 
   /** Print out this object in text format. */
@@ -44,21 +38,21 @@ public class UFGcsBucketFile extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "GCS bucket name: " + bucketName + " file name: " + bucketFileName);
+    OUT.println(prefix + "GCS bucket name: " + bucketName + " file full path: " + filePath);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;
-    private String bucketFileName;
+    private String filePath;
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
     }
 
-    public Builder bucketFileName(String bucketFileName) {
-      this.bucketFileName = bucketFileName;
+    public Builder filePath(String filePath) {
+      this.filePath = filePath;
       return this;
     }
 

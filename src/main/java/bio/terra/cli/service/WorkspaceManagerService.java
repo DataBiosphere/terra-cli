@@ -544,7 +544,7 @@ public class WorkspaceManagerService {
             .file(
                 new GcpGcsBucketFileAttributes()
                     .bucketName(createParams.bucketName)
-                    .fileName(createParams.bucketFileName));
+                    .fileName(createParams.filePath));
     return callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)

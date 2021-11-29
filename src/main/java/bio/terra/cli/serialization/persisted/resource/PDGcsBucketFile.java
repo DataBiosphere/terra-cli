@@ -17,19 +17,19 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = PDGcsBucketFile.Builder.class)
 public class PDGcsBucketFile extends PDResource {
   public final String bucketName;
-  public final String bucketFileName;
+  public final String filePath;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDGcsBucketFile(GcsBucketFile internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
-    this.bucketFileName = internalObj.getBucketFileName();
+    this.filePath = internalObj.getFilePath();
   }
 
   private PDGcsBucketFile(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
-    this.bucketFileName = builder.bucketFileName;
+    this.filePath = builder.filePath;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
@@ -40,15 +40,15 @@ public class PDGcsBucketFile extends PDResource {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends PDResource.Builder {
     private String bucketName;
-    private String bucketFileName;
+    private String filePath;
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
     }
 
-    public Builder bucketFileName(String bucketFileName) {
-      this.bucketFileName = bucketFileName;
+    public Builder filePath(String filePath) {
+      this.filePath = filePath;
       return this;
     }
 

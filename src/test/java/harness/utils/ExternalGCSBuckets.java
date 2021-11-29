@@ -15,6 +15,7 @@ import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
+import com.google.common.base.Optional;
 import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
@@ -108,6 +109,7 @@ public class ExternalGCSBuckets {
       throws InterruptedException {
     Storage storageClient = getStorageClient(credentials);
     BucketInfo bucket = storageClient.get(bucketName);
+
     BlobId blobId = BlobId.of(bucket.getName(), blobName);
     BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
     byte[] blobData = "test blob data".getBytes(StandardCharsets.UTF_8);
@@ -153,6 +155,14 @@ public class ExternalGCSBuckets {
 
   /** Utility method to get the gs:// path of a bucket. */
   public static String getGsPath(String bucketName) {
-    return "gs://" + bucketName;
+    return getGsPath(bucketName, Optional.absent());
+  }
+
+  public static String getGsPath(String bucketName, Optional<String> filePath) {
+    if (filePath.isPresent()) {
+      return "gs://" + bucketName + "/" + filePath;
+    } else {
+      return "gs://" + bucketName;
+    }
   }
 }
