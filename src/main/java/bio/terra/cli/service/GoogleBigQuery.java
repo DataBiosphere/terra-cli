@@ -7,6 +7,7 @@ import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.bigquery.model.Dataset;
+import com.google.api.services.bigquery.model.Table;
 import com.google.api.services.bigquery.model.TableList;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
@@ -47,6 +48,19 @@ public class GoogleBigQuery {
               "Error looking up dataset.");
       return Optional.ofNullable(dataset);
     } catch (Exception ex) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<Table> getDataTable(String projectId, String datasetId, String dataTableId) {
+    try {
+      Table table =
+          callWithRetries(
+              () -> bigQuery.tables().get(projectId, datasetId, dataTableId).execute(),
+              "Retryable error looking up data table");
+      return Optional.ofNullable(table);
+    } catch (Exception e) {
+      logger.error("Error looking up data table", e);
       return Optional.empty();
     }
   }

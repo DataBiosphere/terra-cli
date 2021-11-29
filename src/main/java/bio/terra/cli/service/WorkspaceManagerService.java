@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -33,6 +34,7 @@ import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
+import bio.terra.workspace.model.CreateGcpBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
@@ -47,6 +49,8 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
+import bio.terra.workspace.model.GcpBigQueryDataTableAttributes;
+import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -549,6 +553,37 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables" endpoint to add
+   * a BigQuery data table as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams resource definition to add
+   * @return the BigQuery dataset resource object
+   */
+  public GcpBigQueryDataTableResource createReferencedBigQueryDataTable(
+      UUID workspaceId, CreateBqDataTableParams createParams) {
+    // convert the CLI object to a WSM request object
+    CreateGcpBigQueryDataTableReferenceRequestBody createRequest =
+        new CreateGcpBigQueryDataTableReferenceRequestBody()
+            .metadata(
+                new ReferenceResourceCommonFields()
+                    .name(createParams.resourceFields.name)
+                    .description(createParams.resourceFields.description)
+                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
+            .dataTable(
+                new GcpBigQueryDataTableAttributes()
+                    .projectId(createParams.projectId)
+                    .datasetId(createParams.datasetId)
+                    .dataTableId(createParams.dataTableId));
+    return callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .createBigQueryDataTableReference(createRequest, workspaceId),
+        "Error creating referenced BigQuery data table in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets" endpoint to add a
    * BigQuery dataset as a referenced resource in the workspace.
    *
@@ -865,6 +900,29 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Call the Workspace Manager PATCH
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
+   * endpoint to update a BigQuery data table referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedBigQueryDataTable(
+      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateDataReferenceRequestBody updateRequest =
+        new UpdateDataReferenceRequestBody()
+            .name(updateParams.name)
+            .description(updateParams.description);
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBigQueryDataTableReference(updateRequest, workspaceId, resourceId),
+        "Error updating referenced BigQuery data table in the workspace.");
+  }
+
+  /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
    * endpoint to update a BigQuery dataset referenced resource in the workspace.
@@ -928,6 +986,22 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient).deleteBucketReference(workspaceId, resourceId),
         "Error deleting referenced GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager DELETE
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
+   * endpoint to delete a BigQuery data table as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   */
+  public void deleteReferencedBigQueryDataTable(UUID workspaceId, UUID resourceId) {
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .deleteBigQueryDataTableReference(workspaceId, resourceId),
+        "Error deleting referenced BigQuery data table in the workspace.");
   }
 
   /**

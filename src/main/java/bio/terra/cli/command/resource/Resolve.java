@@ -2,8 +2,10 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.ResolveOptions;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
@@ -14,6 +16,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra resource resolve" command. */
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends BaseCommand {
+
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
@@ -25,8 +28,10 @@ public class Resolve extends BaseCommand {
       names = "--bq-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
-          "[For BIG_QUERY_DATASET] Cloud id format: FULL_PATH=[project id].[dataset id], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id].")
-  private BqDataset.ResolveOptions bqPathFormat = BqDataset.ResolveOptions.FULL_PATH;
+          "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id], "
+              + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id]."
+              + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
+  private ResolveOptions bqPathFormat = ResolveOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -44,6 +49,9 @@ public class Resolve extends BaseCommand {
         break;
       case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);
+        break;
+      case BQ_DATA_TABLE:
+        cloudId = ((BqDataTable) resource).resolve(bqPathFormat);
         break;
       default:
         cloudId = resource.resolve();
