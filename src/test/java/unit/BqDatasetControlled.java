@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.AccessScope;
@@ -186,14 +185,12 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --access=$access
-    // --cloning=$cloning --description=$description --email=$email --iam-roles=$iamRole
-    // --location=$location --format=json`
+    // --cloning=$cloning --description=$description --location=$location --format=json`
     String name = "createWithAllOptions";
     String datasetId = randomDatasetId();
     AccessScope access = AccessScope.PRIVATE_ACCESS;
     CloningInstructionsEnum cloning = CloningInstructionsEnum.DEFINITION;
     String description = "\"create with all options\"";
-    WorkspaceUser.Role role = WorkspaceUser.Role.READER;
     String location = "us-east1";
     UFBqDataset createdDataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -206,8 +203,6 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "--access=" + access,
             "--cloning=" + cloning,
             "--description=" + description,
-            "--email=" + workspaceCreator.email,
-            "--iam-roles=" + role,
             "--location=" + location);
 
     // check that the properties match

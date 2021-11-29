@@ -10,13 +10,11 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.StewardshipType;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -237,13 +235,7 @@ public class GcpNotebook extends BaseCommand {
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
-            .accessScope(AccessScope.PRIVATE_ACCESS)
-            .privateUserName(Context.requireUser().getEmail())
-            .privateUserRoles(
-                List.of(
-                    ControlledResourceIamRole.EDITOR,
-                    ControlledResourceIamRole.WRITER,
-                    ControlledResourceIamRole.READER));
+            .accessScope(AccessScope.PRIVATE_ACCESS);
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
