@@ -167,7 +167,7 @@ public class GcsBucketFileReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json --exclude-bucket-prefix`
     String resolveExcludeBucketPrefix =
         TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name + "--exclude-bucket-prefix");
+            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalBucket.getName() + "/" + externalBucketBlobName,
         resolveExcludeBucketPrefix,
