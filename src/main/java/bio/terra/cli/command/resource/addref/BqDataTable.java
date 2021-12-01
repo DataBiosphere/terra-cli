@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.BigQueryIds;
+import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -25,7 +25,7 @@ public class BqDataTable extends BaseCommand {
       description = "BigQuery data table id.")
   private String bigQueryDataTableId;
 
-  @CommandLine.Mixin BigQueryIds bigQueryIds;
+  @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

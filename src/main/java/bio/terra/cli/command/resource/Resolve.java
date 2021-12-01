@@ -2,10 +2,10 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.resource.BigQueryResolveOptions;
 import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcsBucket;
-import bio.terra.cli.businessobject.resource.ResolveOptions;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
@@ -28,10 +28,10 @@ public class Resolve extends BaseCommand {
       names = "--bq-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
-          "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id], "
-              + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id]."
+          "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id].[table id if applicable], "
+              + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], "
               + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
-  private ResolveOptions bqPathFormat = ResolveOptions.FULL_PATH;
+  private BigQueryResolveOptions bqPathFormat = BigQueryResolveOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

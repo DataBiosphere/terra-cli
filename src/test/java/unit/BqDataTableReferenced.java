@@ -2,6 +2,7 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
+import harness.TestUsers;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -433,6 +435,44 @@ public class BqDataTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataTable.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataTable.description);
+  }
+
+  @Test
+  @DisplayName("referenced dataset with no access does not fail the describe command")
+  void numRowsForReferencedWithNoAccess() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --dataset-id=$datasetId`
+    String name = "numRowsForReferencedWithNoAccess";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "bq-table",
+        "--name=" + name,
+        "--project-id=" + externalDataset.getProjectId(),
+        "--dataset-id=" + externalDataset.getDatasetId(),
+        "--table-id=" + externalDataTableName);
+
+    // `terra workspace add-user --email=$email --role=READER`
+    TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
+
+    shareeUser.login();
+
+    // `terra resource describe --name=$name`
+    UFBqDataTable describeDataTable =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataTable.class, "resource", "describe", "--name=" + name);
+
+    // the external dataset created in the beforeall method should have 1 table in it, but the
+    // sharee user doesn't have read access to the table so they can't know that
+    assertNull(
+        describeDataTable.numRows, "referenced dataset with no access contains NULL numRows");
   }
 
   /**

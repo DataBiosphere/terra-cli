@@ -558,7 +558,7 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to add
-   * @return the BigQuery dataset resource object
+   * @return the BigQuery data table resource object
    */
   public GcpBigQueryDataTableResource createReferencedBigQueryDataTable(
       UUID workspaceId, CreateBqDataTableParams createParams) {

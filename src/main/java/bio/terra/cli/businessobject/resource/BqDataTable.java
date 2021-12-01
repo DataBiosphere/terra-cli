@@ -1,5 +1,7 @@
 package bio.terra.cli.businessobject.resource;
 
+import static bio.terra.cli.businessobject.resource.BigQueryResolveOptions.BQ_PROJECT_DATA_TABLE_DELIMITER;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataTable;
@@ -23,14 +25,6 @@ public class BqDataTable extends Resource {
   private String projectId;
   private String datasetId;
   private String dataTableId;
-
-  /**
-   * Delimiter between the project id, dataset id and data table id for a BigQuery DataTable.
-   *
-   * <p>The choice is somewhat arbitrary. BigQuery tables do not have true URIs. The '.' delimiter
-   * allows the path to be used directly in SQL calls with a BigQuery extension.
-   */
-  private static final char BQ_PROJECT_DATA_TABLE_DELIMITER = '.';
 
   /** Deserialize an instance of the disk format to the internal object. */
   public BqDataTable(PDBqDataTable configFromDisk) {
@@ -120,10 +114,14 @@ public class BqDataTable extends Resource {
    * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
   public String resolve() {
-    return resolve(ResolveOptions.FULL_PATH);
+    return resolve(BigQueryResolveOptions.FULL_PATH);
   }
 
-  public String resolve(ResolveOptions resolveOption) {
+  /**
+   * Resolve a BigQuery data table resource to its cloud identifier with a specified {@code
+   * resolveOption}.
+   */
+  public String resolve(BigQueryResolveOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId

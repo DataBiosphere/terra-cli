@@ -38,7 +38,7 @@ public class UFBqDataTable extends UFResource {
     GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
     Optional<Table> dataTableOptional = bigQuery.getDataTable(projectId, datasetId, dataTableId);
     tableDescription = dataTableOptional.map(Table::getDescription).orElse(null);
-    numRows = dataTableOptional.map(Table::getNumRows).orElse(BigInteger.ZERO);
+    numRows = dataTableOptional.map(Table::getNumRows).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -57,12 +57,13 @@ public class UFBqDataTable extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
-    OUT.println(prefix + "BigQuery dataset id: " + datasetId + " table id: " + dataTableId);
+    OUT.println(prefix + "BigQuery dataset id: " + datasetId);
+    OUT.println(prefix + "BigQuery table id: " + dataTableId);
 
     if (tableDescription != null) {
-      OUT.println(prefix + "table description: " + tableDescription);
+      OUT.println(prefix + "Table description: " + tableDescription);
     }
-    OUT.println(prefix + "table has row #: " + numRows.toString());
+    OUT.println(prefix + "# Rows: " + numRows.toString());
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
