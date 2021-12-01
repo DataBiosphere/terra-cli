@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
+import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -561,7 +561,7 @@ public class WorkspaceManagerService {
    * @return the BigQuery data table resource object
    */
   public GcpBigQueryDataTableResource createReferencedBigQueryDataTable(
-      UUID workspaceId, CreateBqDataTableParams createParams) {
+      UUID workspaceId, CreateBqTableParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDataTableReferenceRequestBody createRequest =
         new CreateGcpBigQueryDataTableReferenceRequestBody()

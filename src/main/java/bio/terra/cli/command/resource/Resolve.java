@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BigQueryResolveOptions;
-import bio.terra.cli.businessobject.resource.BqDataTable;
+import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -50,8 +50,8 @@ public class Resolve extends BaseCommand {
       case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);
         break;
-      case BQ_DATA_TABLE:
-        cloudId = ((BqDataTable) resource).resolve(bqPathFormat);
+      case BQ_TABLE:
+        cloudId = ((BqTable) resource).resolve(bqPathFormat);
         break;
       default:
         cloudId = resource.resolve();

@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.BqDataTable;
+import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.utils.UserIO;
@@ -17,11 +17,11 @@ import javax.annotation.Nullable;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link bio.terra.cli.businessobject.resource.BqDataTable} class for a dataset's
+ * <p>See the {@link BqTable} class for a dataset's
  * internal representation.
  */
-@JsonDeserialize(builder = UFBqDataTable.Builder.class)
-public class UFBqDataTable extends UFResource {
+@JsonDeserialize(builder = UFBqTable.Builder.class)
+public class UFBqTable extends UFResource {
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
@@ -29,7 +29,7 @@ public class UFBqDataTable extends UFResource {
   public final BigInteger numRows;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFBqDataTable(BqDataTable internalObj) {
+  public UFBqTable(BqTable internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
@@ -42,7 +42,7 @@ public class UFBqDataTable extends UFResource {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFBqDataTable(Builder builder) {
+  private UFBqTable(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
@@ -99,8 +99,8 @@ public class UFBqDataTable extends UFResource {
       return this;
     }
     /** Call the private constructor. */
-    public UFBqDataTable build() {
-      return new UFBqDataTable(this);
+    public UFBqTable build() {
+      return new UFBqTable(this);
     }
 
     /** Default constructor for Jackson. */
