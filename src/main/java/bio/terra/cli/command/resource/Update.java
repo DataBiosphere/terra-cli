@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resource;
 
-import bio.terra.cli.command.resource.update.BqTable;
 import bio.terra.cli.command.resource.update.BqDataset;
+import bio.terra.cli.command.resource.update.BqTable;
 import bio.terra.cli.command.resource.update.GcsBucket;
 import picocli.CommandLine;
 

@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resource;
 
-import bio.terra.cli.command.resource.addref.BqTable;
 import bio.terra.cli.command.resource.addref.BqDataset;
+import bio.terra.cli.command.resource.addref.BqTable;
 import bio.terra.cli.command.resource.addref.GcsBucket;
 import picocli.CommandLine;
 

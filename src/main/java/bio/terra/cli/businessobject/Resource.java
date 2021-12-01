@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
-import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;

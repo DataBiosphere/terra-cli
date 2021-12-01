@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link BqTable} class for a dataset's
- * internal representation.
+ * <p>See the {@link BqTable} class for a dataset's internal representation.
  */
 @JsonDeserialize(builder = UFBqTable.Builder.class)
 public class UFBqTable extends UFResource {

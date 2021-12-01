@@ -46,8 +46,7 @@ public class BqTable extends BaseCommand {
             .dataTableId(bigQueryTableId);
 
     bio.terra.cli.businessobject.resource.BqTable createdResource =
-        bio.terra.cli.businessobject.resource.BqTable.addReferenced(
-            createParamsBuilder.build());
+        bio.terra.cli.businessobject.resource.BqTable.addReferenced(createParamsBuilder.build());
     formatOption.printReturnValue(new UFBqTable(createdResource), BqTable::printText);
   }
 

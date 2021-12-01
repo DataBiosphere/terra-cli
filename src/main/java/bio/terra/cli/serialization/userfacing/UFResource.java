@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.utils.UserIO;
