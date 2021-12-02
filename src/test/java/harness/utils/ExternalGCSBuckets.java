@@ -9,7 +9,6 @@ import com.google.cloud.Policy;
 import com.google.cloud.Role;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Acl.Group;
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;

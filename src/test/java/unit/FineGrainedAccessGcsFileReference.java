@@ -47,9 +47,9 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
 
     // upload a file to the bucket
     ExternalGCSBuckets.writeBlob(
-            workspaceCreator.getCredentialsWithCloudPlatformScope(),
-            externalBucket.getName(),
-            externalBucketBlobName);
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalBucket.getName(),
+        externalBucketBlobName);
 
     ExternalGCSBuckets.grantAccess(
         externalBucket.getName(),
