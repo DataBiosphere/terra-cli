@@ -2,8 +2,8 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.resource.BigQueryResolveOptions;
 import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -31,7 +31,7 @@ public class Resolve extends BaseCommand {
           "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id].[table id if applicable], "
               + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], "
               + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
-  private BigQueryResolveOptions bqPathFormat = BigQueryResolveOptions.FULL_PATH;
+  private BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

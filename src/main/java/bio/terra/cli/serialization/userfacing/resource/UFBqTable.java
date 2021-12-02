@@ -62,7 +62,7 @@ public class UFBqTable extends UFResource {
     if (tableDescription != null) {
       OUT.println(prefix + "Table description: " + tableDescription);
     }
-    OUT.println(prefix + "# Rows: " + numRows.toString());
+    OUT.println(prefix + "# Rows: " + (numRows == null ? "(unknown)" : numRows.toString()));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

@@ -463,12 +463,10 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + name);
 
-    // the external dataset created in the beforeall method should have 1 table in it, but the
-    // sharee user doesn't have read access to the table so they can't know that
     assertEquals(
         BigInteger.ZERO,
         describeDataTable.numRows,
-        "referenced dataset with no access contains NULL numRows");
+        "referenced dataset with access and has zero row.");
 
     // `terra workspace add-user --email=$email --role=READER`
     TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
@@ -478,15 +476,14 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     shareeUser.login();
 
     // `terra resource describe --name=$name`
-    UFBqTable secondUserDescribeDataTable =
+    UFBqTable shareeDescribeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + name);
 
     // the external dataset created in the beforeall method should have 1 table in it, but the
     // sharee user doesn't have read access to the table so they can't know that
     assertNull(
-        secondUserDescribeDataTable.numRows,
-        "referenced dataset with no access contains NULL numRows");
+        shareeDescribeDataTable.numRows, "referenced dataset with no access contains NULL numRows");
   }
 
   /**

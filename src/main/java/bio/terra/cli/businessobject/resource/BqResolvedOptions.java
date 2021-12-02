@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject.resource;
 
-/** This enum specifies the possible ways to resolve a BigQuery dataset resource. */
-public enum BigQueryResolveOptions {
+/** This enum specifies the possible ways to resolve a BigQuery resource. */
+public enum BqResolvedOptions {
   FULL_PATH, // For data table: [project id].[dataset id].[data table id if applicable]
   TABLE_ID_ONLY, // [data table id]
   DATASET_ID_ONLY, // [dataset id]

@@ -1,6 +1,6 @@
 package bio.terra.cli.businessobject.resource;
 
-import static bio.terra.cli.businessobject.resource.BigQueryResolveOptions.BQ_PROJECT_DATA_TABLE_DELIMITER;
+import static bio.terra.cli.businessobject.resource.BqResolvedOptions.BQ_PROJECT_DATA_TABLE_DELIMITER;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
@@ -114,14 +114,14 @@ public class BqTable extends Resource {
    * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
   public String resolve() {
-    return resolve(BigQueryResolveOptions.FULL_PATH);
+    return resolve(BqResolvedOptions.FULL_PATH);
   }
 
   /**
    * Resolve a BigQuery data table resource to its cloud identifier with a specified {@code
    * resolveOption}.
    */
-  public String resolve(BigQueryResolveOptions resolveOption) {
+  public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId

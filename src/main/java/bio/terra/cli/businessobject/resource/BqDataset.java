@@ -150,14 +150,14 @@ public class BqDataset extends Resource {
    * dataset: [GCP project id].[BQ dataset id]
    */
   public String resolve() {
-    return resolve(BigQueryResolveOptions.FULL_PATH);
+    return resolve(BqResolvedOptions.FULL_PATH);
   }
 
   /**
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
-  public String resolve(BigQueryResolveOptions resolveOption) {
+  public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;
