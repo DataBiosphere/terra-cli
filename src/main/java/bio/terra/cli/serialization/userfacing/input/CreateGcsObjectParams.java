@@ -5,27 +5,27 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating a GCS bucket file workspace resource. This class is not currently
+ * Parameters for creating a GCS bucket object workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateGcsFileParams.Builder.class)
-public class CreateGcsFileParams {
+@JsonDeserialize(builder = CreateGcsObjectParams.Builder.class)
+public class CreateGcsObjectParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
-  public final String filePath;
+  public final String objectName;
 
-  protected CreateGcsFileParams(CreateGcsFileParams.Builder builder) {
+  protected CreateGcsObjectParams(CreateGcsObjectParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
-    this.filePath = builder.filePath;
+    this.objectName = builder.objectName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String bucketName;
-    private String filePath;
+    private String objectName;
 
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -37,14 +37,14 @@ public class CreateGcsFileParams {
       return this;
     }
 
-    public Builder filePath(String filePath) {
-      this.filePath = filePath;
+    public Builder objectName(String objectName) {
+      this.objectName = objectName;
       return this;
     }
 
     /** Call the private constructor. */
-    public CreateGcsFileParams build() {
-      return new CreateGcsFileParams(this);
+    public CreateGcsObjectParams build() {
+      return new CreateGcsObjectParams(this);
     }
 
     /** Default constructor for Jackson. */

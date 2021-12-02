@@ -5,31 +5,31 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsFileParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFGcsFile;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket-file" command. */
 @CommandLine.Command(
-    name = "gcs-file",
-    description = "Add a referenced GCS bucket file.",
+    name = "gcs-object",
+    description = "Add a referenced GCS bucket object.",
     showDefaultValues = true)
-public class GcsFile extends BaseCommand {
+public class GcsObject extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
   @CommandLine.Mixin GcsBucketName bucketNameOption;
 
   @CommandLine.Option(
-      names = "--file-path",
+      names = "--object-name",
       required = true,
-      description = "Full path to the file or folder in the specified GCS bucket.")
-  private String filePath;
+      description = "Full path to the object in the specified GCS bucket.")
+  private String objectName;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Add a referenced GCS bucket file to the workspace. */
+  /** Add a referenced GCS bucket object to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -38,20 +38,20 @@ public class GcsFile extends BaseCommand {
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.REFERENCED);
-    CreateGcsFileParams.Builder createParams =
-        new CreateGcsFileParams.Builder()
+    CreateGcsObjectParams.Builder createParams =
+        new CreateGcsObjectParams.Builder()
             .resourceFields(createResourceParams.build())
             .bucketName(bucketNameOption.getBucketName())
-            .filePath(filePath);
+            .objectName(objectName);
 
-    bio.terra.cli.businessobject.resource.GcsFile addedResource =
-        bio.terra.cli.businessobject.resource.GcsFile.addReferenced(createParams.build());
-    formatOption.printReturnValue(new UFGcsFile(addedResource), GcsFile::printText);
+    bio.terra.cli.businessobject.resource.GcsObject addedResource =
+        bio.terra.cli.businessobject.resource.GcsObject.addReferenced(createParams.build());
+    formatOption.printReturnValue(new UFGcsObject(addedResource), GcsObject::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(UFGcsFile returnValue) {
-    OUT.println("Successfully added referenced GCS bucket file.");
+  private static void printText(UFGcsObject returnValue) {
+    OUT.println("Successfully added referenced GCS bucket object.");
     returnValue.print();
   }
 }

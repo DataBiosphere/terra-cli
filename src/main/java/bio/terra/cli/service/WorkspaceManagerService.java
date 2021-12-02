@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsFileParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
@@ -538,7 +538,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket file resource object
    */
   public GcpGcsBucketFileResource createReferencedGcsBucketFile(
-      UUID workspaceId, CreateGcsFileParams createParams) {
+      UUID workspaceId, CreateGcsObjectParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketFileReferenceRequestBody createRequest =
         new CreateGcpGcsBucketFileReferenceRequestBody()
@@ -550,7 +550,7 @@ public class WorkspaceManagerService {
             .file(
                 new GcpGcsBucketFileAttributes()
                     .bucketName(createParams.bucketName)
-                    .fileName(createParams.filePath));
+                    .fileName(createParams.objectName));
     return callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)

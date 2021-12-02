@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.GcsFile;
+import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.utils.UserIO;
@@ -11,30 +11,30 @@ import java.io.PrintStream;
 import java.util.Optional;
 
 /**
- * External representation of a workspace GCS bucket file resource for command input/output.
+ * External representation of a workspace GCS bucket object resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link GcsFile} class for a bucket's internal representation.
+ * <p>See the {@link GcsObject} class for a bucket's internal representation.
  */
-@JsonDeserialize(builder = UFGcsFile.Builder.class)
-public class UFGcsFile extends UFResource {
+@JsonDeserialize(builder = UFGcsObject.Builder.class)
+public class UFGcsObject extends UFResource {
 
   public final String bucketName;
   public final String contentType;
-  public final String filePath;
+  public final String objectName;
   public final Boolean isDirectory;
   public final Long size;
   public final Long timeStorageClassUpdated;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFGcsFile(GcsFile internalObj) {
+  public UFGcsObject(GcsObject internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
-    this.filePath = internalObj.getFilePath();
+    this.objectName = internalObj.getObjectName();
 
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
-    Optional<BlobCow> blob = storage.getBlob(bucketName, filePath);
+    Optional<BlobCow> blob = storage.getBlob(bucketName, objectName);
     isDirectory = blob.map(blobCow -> blobCow.getBlobInfo().isDirectory()).orElse(null);
     size = blob.map(blobCow -> blobCow.getBlobInfo().getSize()).orElse(null);
     contentType = blob.map(blobCow -> blobCow.getBlobInfo().getContentType()).orElse(null);
@@ -43,10 +43,10 @@ public class UFGcsFile extends UFResource {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFGcsFile(Builder builder) {
+  private UFGcsObject(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
-    this.filePath = builder.filePath;
+    this.objectName = builder.objectName;
     this.isDirectory = builder.isDirectory;
     this.size = builder.size;
     this.contentType = builder.contentType;
@@ -59,7 +59,7 @@ public class UFGcsFile extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName);
-    OUT.println(prefix + "Full path to the file: " + filePath);
+    OUT.println(prefix + "Full path to the object: " + objectName);
     OUT.println(prefix + "Content type: " + contentType == null ? "(Unknown)" : contentType);
     OUT.println(prefix + "Is directory: " + (isDirectory == null ? "(Unknown)" : isDirectory));
     OUT.println(prefix + "Size: " + (size == null ? "(Unknown)" : size));
@@ -74,7 +74,7 @@ public class UFGcsFile extends UFResource {
 
     private String bucketName;
     private String contentType;
-    private String filePath;
+    private String objectName;
     private Boolean isDirectory;
     private Long size;
     private Long timeStorageClassUpdated;
@@ -89,8 +89,8 @@ public class UFGcsFile extends UFResource {
       return this;
     }
 
-    public Builder filePath(String filePath) {
-      this.filePath = filePath;
+    public Builder objectName(String objectName) {
+      this.objectName = objectName;
       return this;
     }
 
@@ -110,8 +110,8 @@ public class UFGcsFile extends UFResource {
     }
 
     /** Call the private constructor. */
-    public UFGcsFile build() {
-      return new UFGcsFile(this);
+    public UFGcsObject build() {
+      return new UFGcsObject(this);
     }
 
     /** Default constructor for Jackson. */

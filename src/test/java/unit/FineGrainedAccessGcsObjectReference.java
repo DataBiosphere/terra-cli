@@ -2,9 +2,9 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static unit.GcsFileReferenced.listFileResourceWithName;
+import static unit.GcsObjectReferenced.listObjectResourceWithName;
 
-import bio.terra.cli.serialization.userfacing.resource.UFGcsFile;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Acl.Role;
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("unit")
-public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
+public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
@@ -45,7 +45,7 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(proxyGroupEmail));
 
-    // upload a file to the bucket
+    // upload a object to the bucket
     ExternalGCSBuckets.writeBlob(
         workspaceCreator.getCredentialsWithCloudPlatformScope(),
         externalBucket.getName(),
@@ -80,41 +80,41 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add reference to a bucket file that the user has access to")
-  void addFileReferenceWithAccess() throws IOException {
+  @DisplayName("add reference to a bucket object that the user has access to")
+  void addObjectReferenceWithAccess() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref gcs-file --name=$name --bucket-name=$bucketName
-    // --file-path=$filePath`
-    String name = "addFileReferenceWithAccess";
-    UFGcsFile addedBucketFileReference =
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
+    String name = "addObjectReferenceWithAccess";
+    UFGcsObject addedBucketObjectReference =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsFile.class,
+            UFGcsObject.class,
             "resource",
             "add-ref",
-            "gcs-file",
+            "gcs-object",
             "--name=" + name,
             "--bucket-name=" + externalBucket.getName(),
-            "--file-path=" + externalBucketBlobName);
+            "--object-name=" + externalBucketBlobName);
 
     // check that the name and bucket name match
-    assertEquals(name, addedBucketFileReference.name, "add ref output matches name");
+    assertEquals(name, addedBucketObjectReference.name, "add ref output matches name");
     assertEquals(
         externalBucket.getName(),
-        addedBucketFileReference.bucketName,
+        addedBucketObjectReference.bucketName,
         "add ref output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        addedBucketFileReference.filePath,
-        "add ref output matches bucket file name");
+        addedBucketObjectReference.objectName,
+        "add ref output matches bucket object name");
 
     // `terra resource describe --name=$name --format=json`
-    UFGcsFile describeResource =
+    UFGcsObject describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsFile.class, "resource", "describe", "--name=" + name);
+            UFGcsObject.class, "resource", "describe", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -124,8 +124,8 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
         "describe resource output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        describeResource.filePath,
-        "describe resource output matches file name");
+        describeResource.objectName,
+        "describe resource output matches object name");
     assertFalse(describeResource.isDirectory);
 
     // `terra resource delete --name=$name`
@@ -133,30 +133,29 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("describe the reference to a bucket file that the user has access to")
-  void describeFileReferenceWithAccess() throws IOException {
+  @DisplayName("describe the reference to a bucket object that the user has access to")
+  void describeObjectReferenceWithAccess() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra resource add-ref gcs-file --name=$name --bucket-name=$bucketName
-    // --file-path=$filePath`
-    String name = "describeFileReferenceWithAccess";
-    UFGcsFile addedBucketFileReference =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsFile.class,
-            "resource",
-            "add-ref",
-            "gcs-file",
-            "--name=" + name,
-            "--bucket-name=" + externalBucket.getName(),
-            "--file-path=" + externalBucketBlobName);
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
+    String name = "describeObjectReferenceWithAccess";
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsObject.class,
+        "resource",
+        "add-ref",
+        "gcs-object",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--object-name=" + externalBucketBlobName);
 
     // `terra resource describe --name=$name --format=json`
-    UFGcsFile describeResource =
+    UFGcsObject describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsFile.class, "resource", "describe", "--name=" + name);
+            UFGcsObject.class, "resource", "describe", "--name=" + name);
 
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -166,8 +165,8 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
         "describe resource output matches bucket name");
     assertEquals(
         externalBucketBlobName,
-        describeResource.filePath,
-        "describe resource output matches file name");
+        describeResource.objectName,
+        "describe resource output matches object name");
     assertFalse(describeResource.isDirectory);
 
     // `terra resource delete --name=$name`
@@ -175,7 +174,7 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add reference to a bucket file that the user has no access to")
+  @DisplayName("add reference to a bucket object that the user has no access to")
   void addRefWithNoAccess() throws IOException {
     workspaceCreator.login();
 
@@ -189,26 +188,26 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
 
     shareeUser.login();
 
-    // `terra resource add-ref gcs-file --name=$name --bucket-name=$bucketName
-    // --file-path=$filePath`
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
     String name = "addRefWithNoAccess";
     TestCommand.runCommandExpectExitCode(
         2,
         "resource",
         "add-ref",
-        "gcs-file",
+        "gcs-object",
         "--name=" + name,
         "--bucket-name=" + externalBucket.getName(),
-        "--file-path=" + externalBucketBlobName);
+        "--object-name=" + externalBucketBlobName);
 
-    // check that the file is in the list
-    List<UFGcsFile> matchedResourceList = listFileResourceWithName(name);
+    // check that the object is in the list
+    List<UFGcsObject> matchedResourceList = listObjectResourceWithName(name);
     assertEquals(0, matchedResourceList.size());
   }
 
   @Test
-  @DisplayName("describe reference to a bucket file that the user has no access to")
-  void describeFileReferenceWithNoAccess() throws IOException {
+  @DisplayName("describe reference to a bucket object that the user has no access to")
+  void describeObjectReferenceWithNoAccess() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -221,17 +220,17 @@ public class FineGrainedAccessGcsFileReference extends SingleWorkspaceUnit {
 
     shareeUser.login();
 
-    // `terra resource add-ref gcs-file --name=$name --bucket-name=$bucketName
-    // --file-path=$filePath`
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
     String name = "addRefWithNoAccess";
     TestCommand.runCommandExpectExitCode(
         2,
         "resource",
         "add-ref",
-        "gcs-file",
+        "gcs-object",
         "--name=" + name,
         "--bucket-name=" + externalBucket.getName(),
-        "--file-path=" + externalBucketBlobName);
+        "--object-name=" + externalBucketBlobName);
 
     // `terra resource describe --name=$name --format=json`
     TestCommand.runCommandExpectExitCode(1, "resource", "describe", "--name=" + name);
