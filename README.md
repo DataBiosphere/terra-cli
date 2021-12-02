@@ -188,6 +188,14 @@ we just created.
     terra nextflow run rnaseq-nf/main.nf -profile gls
     ```
 
+- To send metrics about the workflow run to a Nextflow Tower server, first define an environment variable with the Tower
+access token. Then specify the `-with-tower` flag when kicking off the workflow.
+    ```
+    export TOWER_ACCESS_TOKEN=*****
+    terra nextflow run hello -with-tower
+    terra nextflow run rnaseq-nf/main.nf -profile gls -with-tower
+    ```
+
 - Call the Gcloud CLI tools in the current workspace context.
 This means that Gcloud is configured with the backing Google project and environment variables are defined that
 contain workspace and resource properties (e.g. bucket names, pet service account email).

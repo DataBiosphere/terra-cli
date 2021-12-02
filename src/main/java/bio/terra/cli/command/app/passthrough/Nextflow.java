@@ -24,6 +24,15 @@ public class Nextflow extends BaseCommand {
     command.add(0, "nextflow");
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
+    addEnvVarIfDefinedInHost("TOWER_ACCESS_TOKEN", envVars);
+    addEnvVarIfDefinedInHost("TOWER_WORKSPACE_ID", envVars);
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command, envVars);
+  }
+
+  private void addEnvVarIfDefinedInHost(String envVarName, Map<String, String> envVars) {
+    String envVarValue = System.getenv(envVarName);
+    if (envVarValue != null && !envVars.isEmpty()) {
+      envVars.put(envVarName, envVarValue);
+    }
   }
 }
