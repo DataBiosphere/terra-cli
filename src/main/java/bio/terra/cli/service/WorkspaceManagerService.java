@@ -7,8 +7,8 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketFileParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsFileParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
@@ -538,7 +538,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket file resource object
    */
   public GcpGcsBucketFileResource createReferencedGcsBucketFile(
-      UUID workspaceId, CreateGcsBucketFileParams createParams) {
+      UUID workspaceId, CreateGcsFileParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketFileReferenceRequestBody createRequest =
         new CreateGcpGcsBucketFileReferenceRequestBody()
@@ -1041,7 +1041,8 @@ public class WorkspaceManagerService {
   public void deleteReferencedGcsBucketFile(UUID workspaceId, UUID resourceId) {
     callWithRetries(
         () ->
-            new ReferencedGcpResourceApi(apiClient).deleteBucketReference(workspaceId, resourceId),
+            new ReferencedGcpResourceApi(apiClient)
+                .deleteBucketFileReference(workspaceId, resourceId),
         "Error deleting referenced GCS bucket file in the workspace.");
   }
 

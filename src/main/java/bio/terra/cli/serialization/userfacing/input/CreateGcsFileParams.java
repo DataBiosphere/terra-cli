@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateGcsBucketFileParams.Builder.class)
-public class CreateGcsBucketFileParams {
+@JsonDeserialize(builder = CreateGcsFileParams.Builder.class)
+public class CreateGcsFileParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
   public final String filePath;
 
-  protected CreateGcsBucketFileParams(CreateGcsBucketFileParams.Builder builder) {
+  protected CreateGcsFileParams(CreateGcsFileParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.filePath = builder.filePath;
@@ -43,8 +43,8 @@ public class CreateGcsBucketFileParams {
     }
 
     /** Call the private constructor. */
-    public CreateGcsBucketFileParams build() {
-      return new CreateGcsBucketFileParams(this);
+    public CreateGcsFileParams build() {
+      return new CreateGcsFileParams(this);
     }
 
     /** Default constructor for Jackson. */

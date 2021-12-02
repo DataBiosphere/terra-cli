@@ -7,15 +7,18 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Acl.Group;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.BucketInfo.IamConfiguration;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
-import com.google.common.base.Optional;
 import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
@@ -32,12 +35,22 @@ import org.apache.http.HttpStatus;
  * Fetching information from the cloud as a user may do should use the unwrapped client object.
  */
 public class ExternalGCSBuckets {
+
+  public static BucketInfo createBucketWithFineGrainedAccess() throws IOException {
+    return createBucket(/*isUniformBucketLevelAccessEnabled=*/ false);
+  }
+
+  public static BucketInfo createBucketWithUniformAccess() throws IOException {
+    return createBucket(/*isUniformBucketLevelAccessEnabled=*/ true);
+  }
+
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
    * resources. This method uses SA credentials that have permissions in the external (to WSM)
    * project.
    */
-  public static BucketInfo createBucket() throws IOException {
+  private static BucketInfo createBucket(boolean isUniformBucketLevelAccessEnabled)
+      throws IOException {
     String bucketName = UUID.randomUUID().toString();
     StorageClass storageClass = StorageClass.STANDARD;
     String location = "US";
@@ -48,6 +61,10 @@ public class ExternalGCSBuckets {
                 BucketInfo.newBuilder(bucketName)
                     .setStorageClass(storageClass)
                     .setLocation(location)
+                    .setIamConfiguration(
+                        IamConfiguration.newBuilder()
+                            .setIsUniformBucketLevelAccessEnabled(isUniformBucketLevelAccessEnabled)
+                            .build())
                     .build());
 
     BucketInfo bucketInfo = bucket.getBucketInfo();
@@ -104,6 +121,16 @@ public class ExternalGCSBuckets {
     storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
+  /** Grant a user role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
+  public static void grantAccess(
+      String bucketName, String blobName, Group group, com.google.cloud.storage.Acl.Role role)
+      throws IOException {
+    StorageCow storage = getStorageCow();
+    storage.updateAcl(bucketName, Acl.of(group, role));
+    BlobId blobId = BlobId.of(bucketName, blobName);
+    storage.createAcl(blobId, Acl.of(group, role));
+  }
+
   /** Utility method to write an arbitrary blob to a bucket. */
   public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
       throws InterruptedException {
@@ -155,14 +182,10 @@ public class ExternalGCSBuckets {
 
   /** Utility method to get the gs:// path of a bucket. */
   public static String getGsPath(String bucketName) {
-    return getGsPath(bucketName, Optional.absent());
+    return "gs://" + bucketName;
   }
 
-  public static String getGsPath(String bucketName, Optional<String> filePath) {
-    if (filePath.isPresent()) {
-      return "gs://" + bucketName + "/" + filePath.get();
-    } else {
-      return "gs://" + bucketName;
-    }
+  public static String getGsPath(String bucketName, String filePath) {
+    return getGsPath(bucketName) + "/" + filePath;
   }
 }

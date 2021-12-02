@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.persisted.resource;
 
-import bio.terra.cli.businessobject.resource.GcsBucketFile;
+import bio.terra.cli.businessobject.resource.GcsFile;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,30 +11,30 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link GcsBucketFile} class for a bucket file's internal representation.
+ * <p>See the {@link GcsFile} class for a bucket file's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = PDGcsBucketFile.Builder.class)
-public class PDGcsBucketFile extends PDResource {
+@JsonDeserialize(builder = PDGcsFile.Builder.class)
+public class PDGcsFile extends PDResource {
   public final String bucketName;
   public final String filePath;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public PDGcsBucketFile(GcsBucketFile internalObj) {
+  public PDGcsFile(GcsFile internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
     this.filePath = internalObj.getFilePath();
   }
 
-  private PDGcsBucketFile(Builder builder) {
+  private PDGcsFile(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
     this.filePath = builder.filePath;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public GcsBucketFile deserializeToInternal() {
-    return new GcsBucketFile(this);
+  public GcsFile deserializeToInternal() {
+    return new GcsFile(this);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -53,8 +53,8 @@ public class PDGcsBucketFile extends PDResource {
     }
 
     /** Call the private constructor. */
-    public PDGcsBucketFile build() {
-      return new PDGcsBucketFile(this);
+    public PDGcsFile build() {
+      return new PDGcsFile(this);
     }
 
     /** Default constructor for Jackson. */

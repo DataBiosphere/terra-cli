@@ -33,7 +33,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    externalBucket = ExternalGCSBuckets.createBucket();
+    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
 
     // grant the user's proxy group access to the bucket so that it will pass WSM's access check

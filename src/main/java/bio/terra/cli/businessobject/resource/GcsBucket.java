@@ -27,7 +27,7 @@ public class GcsBucket extends Resource {
   private String bucketName;
 
   // prefix for GCS bucket to make a valid URL.
-  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsBucket(PDGcsBucket configFromDisk) {

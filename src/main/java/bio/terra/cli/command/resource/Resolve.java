@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BqDataTable;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.GcsBucket;
-import bio.terra.cli.businessobject.resource.GcsBucketFile;
+import bio.terra.cli.businessobject.resource.GcsFile;
 import bio.terra.cli.businessobject.resource.ResolveOptions;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -48,8 +48,8 @@ public class Resolve extends BaseCommand {
       case GCS_BUCKET:
         cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
         break;
-      case GCS_BUCKET_FILE:
-        cloudId = ((GcsBucketFile) resource).resolve(!excludeBucketPrefix);
+      case GCS_FILE:
+        cloudId = ((GcsFile) resource).resolve(!excludeBucketPrefix);
         break;
       case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);

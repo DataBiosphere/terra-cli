@@ -1,11 +1,13 @@
 package bio.terra.cli.businessobject.resource;
 
+import static bio.terra.cli.businessobject.resource.GcsBucket.GCS_BUCKET_URL_PREFIX;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.persisted.resource.PDGcsBucketFile;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketFileParams;
+import bio.terra.cli.serialization.persisted.resource.PDGcsFile;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsFileParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFGcsBucketFile;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsFile;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsBucketFileResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -16,34 +18,31 @@ import org.slf4j.LoggerFactory;
  * Internal representation of a GCS bucket file workspace resource. Instances of this class are part
  * of the current context or state.
  */
-public class GcsBucketFile extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(GcsBucketFile.class);
+public class GcsFile extends Resource {
+  private static final Logger logger = LoggerFactory.getLogger(GcsFile.class);
 
   private String bucketName;
   private String filePath;
 
-  // prefix for GCS bucket to make a valid URL.
-  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
-
   /** Deserialize an instance of the disk format to the internal object. */
-  public GcsBucketFile(PDGcsBucketFile configFromDisk) {
+  public GcsFile(PDGcsFile configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
     this.filePath = configFromDisk.filePath;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
-  public GcsBucketFile(ResourceDescription wsmObject) {
+  public GcsFile(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.GCS_BUCKET_FILE;
+    this.resourceType = Type.GCS_FILE;
     this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getBucketName();
     this.filePath = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getFileName();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public GcsBucketFile(GcpGcsBucketFileResource resource) {
+  public GcsFile(GcpGcsBucketFileResource resource) {
     super(resource.getMetadata());
-    this.resourceType = Type.GCS_BUCKET_FILE;
+    this.resourceType = Type.GCS_FILE;
     this.bucketName = resource.getAttributes().getBucketName();
     this.filePath = resource.getAttributes().getFileName();
   }
@@ -51,13 +50,13 @@ public class GcsBucketFile extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public UFGcsBucketFile serializeToCommand() {
-    return new UFGcsBucketFile(this);
+  public UFGcsFile serializeToCommand() {
+    return new UFGcsFile(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcsBucketFile serializeToDisk() {
-    return new PDGcsBucketFile(this);
+  public PDGcsFile serializeToDisk() {
+    return new PDGcsFile(this);
   }
 
   /**
@@ -65,7 +64,7 @@ public class GcsBucketFile extends Resource {
    *
    * @return the resource that was added
    */
-  public static GcsBucketFile addReferenced(CreateGcsBucketFileParams createParams) {
+  public static GcsFile addReferenced(CreateGcsFileParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference. use the pet SA credentials instead of the end user's
@@ -79,7 +78,7 @@ public class GcsBucketFile extends Resource {
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
-    return new GcsBucketFile(addedResource);
+    return new GcsFile(addedResource);
   }
 
   /** Update a GCS bucket file referenced resource in the workspace. */

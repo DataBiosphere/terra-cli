@@ -7,17 +7,16 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.resource.UFGcsBucketFile;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsFile;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-bucket-file" command. */
 @CommandLine.Command(
-    name = "gcs-bucket-file",
+    name = "gcs-file",
     description = "Update a GCS bucket file.",
     showDefaultValues = true)
-public class GcsBucketFile extends BaseCommand {
+public class GcsFile extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -32,18 +31,18 @@ public class GcsBucketFile extends BaseCommand {
     }
 
     // get the resource and make sure it's the right type
-    bio.terra.cli.businessobject.resource.GcsBucketFile resource =
+    bio.terra.cli.businessobject.resource.GcsFile resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
-            .castToType(Resource.Type.GCS_BUCKET_FILE);
+            .castToType(Resource.Type.GCS_FILE);
 
     resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
 
-    formatOption.printReturnValue(new UFGcsBucketFile(resource), GcsBucketFile::printText);
+    formatOption.printReturnValue(new UFGcsFile(resource), GcsFile::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(UFGcsBucketFile returnValue) {
+  private static void printText(UFGcsFile returnValue) {
     OUT.println("Successfully updated GCS bucket file.");
     returnValue.print();
   }

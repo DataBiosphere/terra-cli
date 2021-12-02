@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource;
 import bio.terra.cli.command.resource.addref.BqDataTable;
 import bio.terra.cli.command.resource.addref.BqDataset;
 import bio.terra.cli.command.resource.addref.GcsBucket;
-import bio.terra.cli.command.resource.addref.GcsBucketFile;
+import bio.terra.cli.command.resource.addref.GcsFile;
 import picocli.CommandLine;
 
 /**
@@ -15,5 +15,5 @@ import picocli.CommandLine;
     name = "add-ref",
     aliases = {"add-referenced"},
     description = "Add a new referenced resource.",
-    subcommands = {BqDataTable.class, BqDataset.class, GcsBucket.class, GcsBucketFile.class})
+    subcommands = {BqDataTable.class, BqDataset.class, GcsBucket.class, GcsFile.class})
 public class AddRef {}
