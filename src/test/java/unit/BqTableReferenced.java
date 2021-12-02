@@ -492,10 +492,10 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
    */
   private static List<UFBqTable> listDataTableResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    // `terra resources list --type=BQ_DATA_TABLE --format=json`
+    // `terra resources list --type=BQ_TABLE --format=json`
     List<UFBqTable> listedResources =
         TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resource", "list", "--type=BQ_DATA_TABLE");
+            new TypeReference<>() {}, "resource", "list", "--type=BQ_TABLE");
 
     // find the matching data table in the list
     return listedResources.stream()
