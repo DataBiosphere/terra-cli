@@ -125,7 +125,6 @@ public class ExternalGCSBuckets {
       String bucketName, String blobName, Group group, com.google.cloud.storage.Acl.Role role)
       throws IOException {
     StorageCow storage = getStorageCow();
-    storage.updateAcl(bucketName, Acl.of(group, role));
     BlobId blobId = BlobId.of(bucketName, blobName);
     storage.createAcl(blobId, Acl.of(group, role));
   }
