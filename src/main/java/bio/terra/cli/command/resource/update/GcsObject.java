@@ -2,7 +2,6 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -11,17 +10,17 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resource update gcs-bucket-file" command. */
+/** This class corresponds to the fourth-level "terra resource update gcs-object" command. */
 @CommandLine.Command(
-    name = "gcs-file",
-    description = "Update a GCS bucket file.",
+    name = "gcs-object",
+    description = "Update a GCS bucket object.",
     showDefaultValues = true)
-public class GcsFile extends BaseCommand {
+public class GcsObject extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Update a bucket file in the workspace. */
+  /** Update a bucket object in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -32,19 +31,19 @@ public class GcsFile extends BaseCommand {
     }
 
     // get the resource and make sure it's the right type
-    GcsObject resource =
+    bio.terra.cli.businessobject.resource.GcsObject resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Resource.Type.GCS_OBJECT);
 
     resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
 
-    formatOption.printReturnValue(new UFGcsObject(resource), GcsFile::printText);
+    formatOption.printReturnValue(new UFGcsObject(resource), GcsObject::printText);
   }
 
   /** Print this command's output in text format. */
   private static void printText(UFGcsObject returnValue) {
-    OUT.println("Successfully updated GCS bucket file.");
+    OUT.println("Successfully updated GCS bucket object.");
     returnValue.print();
   }
 }
