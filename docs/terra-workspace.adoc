@@ -1,0 +1,71 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace - Setup a Terra workspace.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Setup a Terra workspace.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*add-user*::
+  Add a user or group to the workspace.
+
+*break-glass*::
+  Grant break-glass access to a workspace user.
+
+*clone*::
+  Clone an existing workspace.
+
+*create*::
+  Create a new workspace.
+
+*delete*::
+  Delete an existing workspace.
+
+*describe*::
+  Describe the workspace.
+
+*list*::
+  List all workspaces the current user can access.
+
+*list-users*::
+  List the users of the workspace.
+
+*remove-user*::
+  Remove a user or group from the workspace.
+
+*set*::
+  Set the workspace to an existing one.
+
+*update*::
+  Update an existing workspace.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

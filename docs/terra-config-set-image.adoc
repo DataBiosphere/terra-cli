@@ -1,0 +1,44 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-config-set-image(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-config-set-image - Set the Docker image to use for launching applications.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra config set image* (*--image*=_<imageId>_ | *--default*)
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Set the Docker image to use for launching applications.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--default*::
+  Use the default image id or tag.
+
+*--image*=_<imageId>_::
+  Docker image id or tag.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

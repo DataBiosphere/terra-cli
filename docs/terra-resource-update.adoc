@@ -1,0 +1,47 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-update(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-update - Update the properties of a resource.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource update* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Update the properties of a resource.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*bq-dataset*::
+  Update a BigQuery dataset.
+
+*bq-table*::
+  Update a BigQuery data table.
+
+*gcs-bucket*::
+  Update a GCS bucket.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

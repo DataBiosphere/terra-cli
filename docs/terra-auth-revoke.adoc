@@ -1,0 +1,33 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-auth-revoke(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-auth-revoke - Revoke credentials from an account.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra auth revoke*
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Revoke credentials from an account.
+
+// end::picocli-generated-man-section-description[]
+
+// end::picocli-generated-full-manpage[]

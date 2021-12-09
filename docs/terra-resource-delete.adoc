@@ -1,0 +1,47 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-delete(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-delete - Delete a resource from the workspace.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource delete* [*--quiet*] *--name*=_<name>_ [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Delete a resource from the workspace.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--quiet*::
+  Suppress interactive prompt.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

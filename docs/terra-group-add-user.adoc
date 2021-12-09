@@ -1,0 +1,53 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-group-add-user(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-group-add-user - Add a user to a group with a given policy.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra group add-user* *--email*=_<email>_ [*--format*=_<format>_] *--name*=_<name>_
+                     *--policy*=_<policy>_
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a user to a group with a given policy.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--email*=_<email>_::
+  User (or other group) email.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--name*=_<name>_::
+  Group name.
+
+*--policy*=_<policy>_::
+  Group policy: MEMBER, ADMIN.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

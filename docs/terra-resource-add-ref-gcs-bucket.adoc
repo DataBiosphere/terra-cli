@@ -1,0 +1,64 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-add-ref-gcs-bucket(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-add-ref-gcs-bucket - Add a referenced GCS bucket.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource add-ref gcs-bucket* *--bucket-name*=_<bucketName>_
+                                  [*--cloning*=_<cloning>_]
+                                  [*--description*=_<description>_]
+                                  [*--format*=_<format>_] *--name*=_<name>_
+                                  [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a referenced GCS bucket.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--bucket-name*=_<bucketName>_::
+  Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').
+
+*--cloning*=_<cloning>_::
+  Instructions for handling when cloning the workspace or resource: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE, COPY_REFERENCE.
++
+  Default: COPY_NOTHING
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

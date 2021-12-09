@@ -1,0 +1,67 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-add-ref-bq-dataset(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-add-ref-bq-dataset - Add a referenced BigQuery dataset.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource add-ref bq-dataset* [*--cloning*=_<cloning>_]
+                                  *--dataset-id*=_<bigQueryDatasetId>_
+                                  [*--description*=_<description>_]
+                                  [*--format*=_<format>_] *--name*=_<name>_
+                                  *--project-id*=_<gcpProjectId>_ [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a referenced BigQuery dataset.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--cloning*=_<cloning>_::
+  Instructions for handling when cloning the workspace or resource: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE, COPY_REFERENCE.
++
+  Default: COPY_NOTHING
+
+*--dataset-id*=_<bigQueryDatasetId>_::
+  BigQuery dataset id.
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--project-id*=_<gcpProjectId>_::
+  GCP project id of the dataset.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

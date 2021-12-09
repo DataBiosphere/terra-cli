@@ -1,0 +1,44 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-spend-disable(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-spend-disable - Disable use of the Workspace Manager default spend profile for a user or group.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra spend disable* *--email*=_<email>_ *--policy*=_<policy>_
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Disable use of the Workspace Manager default spend profile for a user or group.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--email*=_<email>_::
+  User (or other group) email.
+
+*--policy*=_<policy>_::
+  Spend policy: OWNER, USER.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

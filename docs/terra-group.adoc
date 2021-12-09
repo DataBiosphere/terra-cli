@@ -1,0 +1,59 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-group(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-group - Manage groups of users.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra group* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Manage groups of users.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*add-user*::
+  Add a user to a group with a given policy.
+
+*create*::
+  Create a new Terra group.
+
+*delete*::
+  Delete an existing Terra group.
+
+*describe*::
+  Describe the group.
+
+*list*::
+  List the groups to which the current user belongs.
+
+*list-users*::
+  List the users in a group.
+
+*remove-user*::
+  Remove a user from a group with a given policy.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

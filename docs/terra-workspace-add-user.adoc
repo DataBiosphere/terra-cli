@@ -1,0 +1,53 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace-add-user(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace-add-user - Add a user or group to the workspace.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace add-user* *--email*=_<email>_ [*--format*=_<format>_] *--role*=_<role>_
+                         [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a user or group to the workspace.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--email*=_<email>_::
+  User or group email.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--role*=_<role>_::
+  Role to grant: READER, WRITER, OWNER.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

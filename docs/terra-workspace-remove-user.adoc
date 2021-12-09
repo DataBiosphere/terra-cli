@@ -1,0 +1,47 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace-remove-user(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace-remove-user - Remove a user or group from the workspace.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace remove-user* *--email*=_<email>_ *--role*=_<role>_ [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Remove a user or group from the workspace.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--email*=_<email>_::
+  User or group email.
+
+*--role*=_<role>_::
+  Role to grant: READER, WRITER, OWNER.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

@@ -1,0 +1,47 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-auth(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-auth - Retrieve and manage user credentials.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra auth* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Retrieve and manage user credentials.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*login*::
+  Authorize the CLI to access Terra APIs and data with user credentials.
+
+*revoke*::
+  Revoke credentials from an account.
+
+*status*::
+  Print details about the currently authorized account.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

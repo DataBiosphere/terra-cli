@@ -1,0 +1,47 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-config(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-config - Configure the CLI.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra config* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Configure the CLI.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*get*::
+  Get a configuration property value.
+
+*list*::
+  List all configuration properties and their values.
+
+*set*::
+  Set a configuration property value.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

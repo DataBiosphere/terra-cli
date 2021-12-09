@@ -1,0 +1,60 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace-break-glass(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace-break-glass - Grant break-glass access to a workspace user.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace break-glass* *--big-query-project*=_<bigQueryProjectId>_
+                            *--big-query-sa*=_<bigQuerySAKeyFile>_
+                            *--email*=_<granteeEmail>_ [*--notes*=_<notes>_]
+                            *--user-project-admin-sa*=_<userProjectAdminSAKeyFile>_
+                            [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Grant break-glass access to a workspace user.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--big-query-project*=_<bigQueryProjectId>_::
+  Project ID that contains the BigQuery dataset tracking break-glass requests.
+
+*--big-query-sa*=_<bigQuerySAKeyFile>_::
+  Path to the key file for a SA that has permissions to update the BigQuery dataset tracking break-glass requests.
+
+*--email*=_<granteeEmail>_::
+  Email of workspace user requesting break-glass access.
+
+*--notes*=_<notes>_::
+  Free text string about this request, to store in the BigQuery dataset.
+
+*--user-project-admin-sa*=_<userProjectAdminSAKeyFile>_::
+  Path to the key file for a SA that has permission to set IAM policy on workspace projects for the current server.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

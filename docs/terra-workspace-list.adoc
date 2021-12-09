@@ -1,0 +1,53 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace-list(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace-list - List all workspaces the current user can access.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace list* [*--format*=_<format>_] [*--limit*=_<limit>_] [*--offset*=_<offset>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+List all workspaces the current user can access.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--limit*=_<limit>_::
+  The maximum number of workspaces to return.
++
+  Default: 30
+
+*--offset*=_<offset>_::
+  The offset to use when listing workspaces. (Zero means to start from the beginning.)
++
+  Default: 0
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

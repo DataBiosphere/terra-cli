@@ -1,0 +1,55 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-workspace-update(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-workspace-update - Update an existing workspace.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra workspace update* [*--format*=_<format>_] [*--workspace*=_<id>_]
+                       ([*--name*=_<displayName>_] [*--description*=_<description>_])
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Update an existing workspace.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+== Property update parameters:
+
+*--description*=_<description>_::
+  Workspace description.
+
+*--name*=_<displayName>_::
+  Workspace display name (not unique).
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

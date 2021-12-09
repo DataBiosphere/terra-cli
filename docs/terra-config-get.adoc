@@ -1,0 +1,59 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-config-get(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-config-get - Get a configuration property value.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra config get* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Get a configuration property value.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*app-launch*::
+  Check the way apps are launched.
+
+*browser*::
+  Check whether a browser is launched automatically during the login process.
+
+*image*::
+  Get the Docker image used for launching applications.
+
+*logging*::
+  Get the logging level.
+
+*resource-limit*::
+  Get the maximum number of resources allowed per workspace.
+
+*server*::
+  Get the Terra server the CLI connects to.
+
+*workspace*::
+  Get the current Terra workspace.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

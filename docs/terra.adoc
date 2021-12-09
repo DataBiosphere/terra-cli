@@ -1,0 +1,89 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra - Terra CLI
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Terra CLI
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*app*::
+  Run applications in the workspace.
+
+*auth*::
+  Retrieve and manage user credentials.
+
+*bq*::
+  Call bq in the Terra workspace.
+
+*config*::
+  Configure the CLI.
+
+*gcloud*::
+  Call gcloud in the Terra workspace.
+
+*group*::
+  Manage groups of users.
+
+*gsutil*::
+  Call gsutil in the Terra workspace.
+
+*nextflow*::
+  Call nextflow in the Terra workspace.
+
+*notebook*::
+  Use GCP Notebooks in the workspace.
+
+*resolve*::
+  Resolve a resource to its cloud id or path.
+
+*resource*::
+  Manage resources in the workspace.
+
+*server*::
+  Connect to a Terra server.
+
+*spend*::
+  Manage spend profiles.
+
+*status*::
+  Print details about the current workspace and server.
+
+*user*::
+  Manage users.
+
+*version*::
+  Get the installed version.
+
+*workspace*::
+  Setup a Terra workspace.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]

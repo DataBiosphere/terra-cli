@@ -1,0 +1,158 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-create-gcp-notebook(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-create-gcp-notebook - Add a controlled GCP notebook instance resource.
+For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource create gcp-notebook* [*--cloning*=_<cloning>_]
+                                   [*--description*=_<description>_]
+                                   [*--format*=_<format>_]
+                                   [*--instance-id*=_<instanceId>_]
+                                   [*--location*=_<location>_]
+                                   [*--machine-type*=_<machineType>_] *--name*=_<name>_
+                                   [*--post-startup-script*=_<postStartupScript>_]
+                                   [*--workspace*=_<id>_]
+                                   [*--metadata*=_<String=String>_]...
+                                   [(*--vm-image-project*=_<project>_
+                                   (*--vm-image-family*=_<family>_ |
+                                   *--vm-image-name*=_<name>_)) |
+                                   (*--container-repository*=_<repository>_
+                                   [*--container-tag*=_<tag>_])]
+                                   [[*--accelerator-type*=_<type>_]
+                                   [*--accelerator-core-count*=_<coreCount>_]]
+                                   [[*--install-gpu-driver*]
+                                   [*--custom-gpu-driver-path*=_<customGpuDriverPat_
+                _                   h>_]] [[*--boot-disk-size*=_<sizeGb>_]
+                                   [*--boot-disk-type*=_<type>_]]
+                                   [[*--data-disk-size*=_<sizeGb>_]
+                                   [*--data-disk-type*=_<type>_]]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a controlled GCP notebook instance resource.
+For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--cloning*=_<cloning>_::
+  Instructions for handling when cloning the workspace or resource: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE, COPY_REFERENCE.
++
+  Default: COPY_NOTHING
+
+*--instance-id*=_<instanceId>_::
+  The unique name to give to the notebook instance. Cannot be changed later. The instance name must be 1 to 63 characters long and contain only lowercase letters, numeric characters, and dashes. The first character must be a lowercase letter and the last character cannot be a dash. If not specified, an auto-generated name based on your email address and time will be used.
++
+  Default: {username}-yyyyMMdd-HHmmss
+
+*--location*=_<location>_::
+  The Google Cloud location of the instance (https://cloud.google.com/vertex-ai/docs/general/locations#user-managed-notebooks-locations).
++
+  Default: us-central1-a
+
+*--machine-type*=_<machineType>_::
+  The Compute Engine machine type of this instance.
++
+  Default: n1-standard-4
+
+*--post-startup-script*=_<postStartupScript>_::
+  Path to a Bash script that automatically runs after a notebook instance fully boots up. The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'.
++
+  Default: https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh
+
+*--metadata*=_<String=String>_::
+  Custom metadata to apply to this instance.
++
+By default sets some jupyterlab extensions (installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz) and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).
+
+*--vm-image-family*=_<family>_::
+  Use this VM image family to find the image; the newest image in this family will be used.
+
+*--vm-image-name*=_<name>_::
+  Use this VM image name to find the image.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+== Definition of a custom Compute Engine virtual machine image for starting a notebook instance with the environment installed directly on the VM.
+If neither this nor --container-* are specified, default to 
+'--vm-image-project=deeplearning-platform-release --vm-image-family=r-latest-cpu-experimental'.
+
+*--vm-image-project*=_<project>_::
+  The ID of the Google Cloud project that this VM image belongs to.
+
+== Definition of a container image for starting a notebook instance with the environment installed in a container.
+
+*--container-repository*=_<repository>_::
+  The path to the container image repository. For example: 'gcr.io/{project_id}/{imageName}'.
+
+*--container-tag*=_<tag>_::
+  The tag of the container image. If not specified, this defaults to the latest tag.
+
+== The hardware accelerator used on this instance.
+
+*--accelerator-type*=_<type>_::
+  Type of this accelerator.
+
+*--accelerator-core-count*=_<coreCount>_::
+  Count of cores of this accelerator.
+
+== GPU driver configurations.
+
+*--install-gpu-driver*::
+  If true, the end user authorizes Google Cloud to install a GPU driver on this instance.
+
+*--custom-gpu-driver-path*=_<customGpuDriverPath>_::
+  Specify a custom Cloud Storage path where the GPU driver is stored.
+
+== Boot disk configurations.
+
+*--boot-disk-size*=_<sizeGb>_::
+  The size of the disk in GB attached to this instance.
+
+*--boot-disk-type*=_<type>_::
+  The type of disk attached to this instance, defaults to the standard persistent disk.
+
+== Data disk configurations.
+
+*--data-disk-size*=_<sizeGb>_::
+  The size of the disk in GB attached to this instance.
+
+*--data-disk-type*=_<type>_::
+  The type of disk attached to this instance, defaults to the standard persistent disk.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

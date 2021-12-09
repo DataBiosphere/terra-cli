@@ -1,0 +1,57 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-update-bq-table(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-update-bq-table - Update a BigQuery data table.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource update bq-table* [*--description*=_<description>_]
+                               [*--format*=_<format>_] *--name*=_<name>_
+                               [*--new-name*=_<newName>_] [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Update a BigQuery data table.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--new-name*=_<newName>_::
+  New name of the resource. Only alphanumeric and underscore characters are permitted.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

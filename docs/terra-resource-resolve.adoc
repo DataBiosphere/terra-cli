@@ -1,0 +1,58 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-resolve(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-resolve - Resolve a resource to its cloud id or path.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource resolve* [*--exclude-bucket-prefix*] [*--bq-path*=_<bqPathFormat>_]
+                       [*--format*=_<format>_] *--name*=_<name>_ [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Resolve a resource to its cloud id or path.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--bq-path*=_<bqPathFormat>_::
+  [For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id].[table id if applicable], DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], [For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]
++
+  Default: FULL_PATH
+
+*--exclude-bucket-prefix*::
+  [For GCS_BUCKET] Exclude the 'gs://' prefix.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

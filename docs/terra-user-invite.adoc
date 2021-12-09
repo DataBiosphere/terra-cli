@@ -1,0 +1,44 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-user-invite(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-user-invite - Invite a new user.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra user invite* [*--enable-spend*] *--email*=_<email>_
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Invite a new user.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--email*=_<email>_::
+  User email.
+
+*--enable-spend*::
+  Also enable the email as a user on the default spend profile.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

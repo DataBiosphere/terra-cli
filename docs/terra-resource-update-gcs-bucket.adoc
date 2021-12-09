@@ -1,0 +1,69 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-update-gcs-bucket(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-update-gcs-bucket - Update a GCS bucket.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource update gcs-bucket* [*--description*=_<description>_]
+                                 [*--format*=_<format>_] *--name*=_<name>_
+                                 [*--new-name*=_<newName>_]
+                                 [*--storage*=_<storageClass>_] [*--workspace*=_<id>_]
+                                 [*--lifecycle*=_<pathToLifecycleFile>_ |
+                                 *--auto-delete*=_<autoDelete>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Update a GCS bucket.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--auto-delete*=_<autoDelete>_::
+  Number of days after which to auto-delete the objects in the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--lifecycle*=_<pathToLifecycleFile>_::
+  Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--new-name*=_<newName>_::
+  New name of the resource. Only alphanumeric and underscore characters are permitted.
+
+*--storage*=_<storageClass>_::
+  Storage class (https://cloud.google.com/storage/docs/storage-classes): STANDARD, NEARLINE, COLDLINE, ARCHIVE.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

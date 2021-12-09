@@ -1,0 +1,83 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-create-bq-dataset(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-create-bq-dataset - Add a controlled BigQuery dataset.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource create bq-dataset* [*--access*=_<access>_] [*--cloning*=_<cloning>_]
+                                 *--dataset-id*=_<bigQueryDatasetId>_
+                                 [*--default-partition-lifetime*=_<defaultPartition_
+                _                 LifetimeSeconds>_]
+                                 [*--default-table-lifetime*=_<defaultTableLifetime_
+            _                     Seconds>_] [*--description*=_<description>_]
+                                 [*--format*=_<format>_] [*--location*=_<location>_]
+                                 *--name*=_<name>_ [*--workspace*=_<id>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a controlled BigQuery dataset.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--access*=_<access>_::
+  Access scope for the resource: SHARED_ACCESS, PRIVATE_ACCESS.
++
+  Default: SHARED_ACCESS
+
+*--cloning*=_<cloning>_::
+  Instructions for handling when cloning the workspace or resource: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE, COPY_REFERENCE.
++
+  Default: COPY_NOTHING
+
+*--dataset-id*=_<bigQueryDatasetId>_::
+  BigQuery dataset id.
+
+*--default-partition-lifetime*=_<defaultPartitionLifetimeSeconds>_::
+  The default lifetime, in seconds, for partitions in newly created partitioned tables. This flag has no minimum value. Specify 0 to remove the existing expiration time. Any partitions in newly created partitioned tables are deleted this many seconds after the partition's create time, adjusted to UTC (_https://en.wikipedia.org/wiki/Coordinated_Universal_Time_) such that time zone changes will not affect this lifetime.  This value is applied if you do not set a partition expiration on the table when it is created.
+
+*--default-table-lifetime*=_<defaultTableLifetimeSeconds>_::
+  The default lifetime, in seconds, for newly created tables. The minimum value is 3600 seconds (one hour). Specify 0 to remove the existing expiration time. The expiration time evaluates to the current time plus this value, adjusted to UTC such that time zone changes will not affect this lifetime. Any table created in the dataset is deleted this many seconds after its creation time. This value is applied if you do not set a table expiration when the table is created.
+
+*--description*=_<description>_::
+  Description of the resource.
+
+*--format*=_<format>_::
+  Set the format for printing command output: json, text.
++
+  Default: text
+
+*--location*=_<location>_::
+  Dataset location (https://cloud.google.com/bigquery/docs/locations).
++
+  Default: us-central1
+
+*--name*=_<name>_::
+  Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.
+
+*--workspace*=_<id>_::
+  Workspace id to use for this command only.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

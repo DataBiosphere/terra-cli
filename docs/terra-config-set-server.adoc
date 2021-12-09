@@ -1,0 +1,44 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-config-set-server(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-config-set-server - Set the Terra server to connect to.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra config set server* [*--quiet*] *--name*=_<name>_
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Set the Terra server to connect to.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--name*=_<name>_::
+  Server name. Run `terra server list` to see the available servers.
+
+*--quiet*::
+  Suppress interactive prompt.
+
+// end::picocli-generated-man-section-options[]
+
+// end::picocli-generated-full-manpage[]

@@ -17,6 +17,7 @@ plugins {
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
 }
 
+
 if (hasProperty('buildScan')) {
     buildScan {
         termsOfServiceUrl = 'https://gradle.com/terms-of-service'
@@ -43,7 +44,7 @@ dependencies {
     ext {
         // command parsing
         picocli = '4.6.1'
-        picocliAnnotations = '4.2.0'
+        picocliAnnotations = '4.6.1'
 
         // logging
         logback = '1.2.3'
@@ -311,6 +312,15 @@ jar {
                 'Implementation-Title': 'bio.terra.cli',
                 'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
     }
+}
+
+task generateDocs (type: JavaExec) {
+    dependsOn(classes)
+    group = "Documentation"
+    description = "Generate Terra CLI docs"
+    classpath(configurations.compile, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
+    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
+    args 'bio.terra.cli.command.Main', "--outdir=${project.rootDir}/docs", "-v" // "--template-dir=src/docs/templates"
 }
 
 // convenience tasks to fetch build properties from scripts (e.g. see ./tools/)

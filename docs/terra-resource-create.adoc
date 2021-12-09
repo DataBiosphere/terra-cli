@@ -1,0 +1,49 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Terra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= terra-resource-create(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+terra-resource-create - Add a new controlled resource.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*terra resource create* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Add a new controlled resource.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+*gcp-notebook*::
+  Add a controlled GCP notebook instance resource.
++
+For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.
+
+*bq-dataset*::
+  Add a controlled BigQuery dataset.
+
+*gcs-bucket*::
+  Add a controlled GCS bucket.
+
+// end::picocli-generated-man-section-commands[]
+
+// end::picocli-generated-full-manpage[]
