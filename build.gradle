@@ -322,7 +322,7 @@ task generateDocs (type: JavaExec) {
     main 'picocli.codegen.docgen.manpage.ManPageGenerator'
     args 'bio.terra.cli.command.Main', "--outdir=${project.rootDir}/docs/commands/"
 }
-build.dependsOn tasks.generateDocs
+assemble.dependsOn tasks.generateDocs
 
 // convenience tasks to fetch build properties from scripts (e.g. see ./tools/)
 task getBuildVersion {
