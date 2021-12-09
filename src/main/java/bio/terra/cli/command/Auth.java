@@ -13,8 +13,8 @@ import picocli.CommandLine.Command;
     name = "auth",
     header = "Commands to manage user credentials.",
     description =
-        "Only one user can be logged in at a time. Call terra auth login to login as a different user. \n"
-            + "You don't need to login again after switching workspaces. \n"
-            + "You will need to login again after switching servers, because different Terra deployments may have different OAuth flows. \n",
+        "Only one user can be logged in at a time. Call terra auth login to login as a different user. \n\n"
+            + "You don't need to login again after switching workspaces. \n\n"
+            + "You will need to login again after switching servers, because different Terra deployments may have different OAuth flows. \n\n",
     subcommands = {Login.class, Revoke.class, Status.class})
 public class Auth {}
