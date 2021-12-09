@@ -12,7 +12,7 @@
 // tag::picocli-generated-man-section-name[]
 == Name
 
-terra-config - Configure the CLI.
+terra-config - Commands to configure the CLI.
 
 // end::picocli-generated-man-section-name[]
 
@@ -26,7 +26,9 @@ terra-config - Configure the CLI.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Configure the CLI.
+These commands are property getters and setters for configuring the Terra CLI. 
+
+See the +get+ and +set+ subcommands for a list of available properties.
 
 // end::picocli-generated-man-section-description[]
 

@@ -49,13 +49,13 @@ xref:terra-bq.adoc[*bq*]::
   Call bq in the Terra workspace.
 
 xref:terra-config.adoc[*config*]::
-  Configure the CLI.
+  Commands to configure the CLI.
 
 xref:terra-gcloud.adoc[*gcloud*]::
   Call gcloud in the Terra workspace.
 
 xref:terra-group.adoc[*group*]::
-  Manage groups of users.
+  Manage groups of Terra users.
 
 xref:terra-gsutil.adoc[*gsutil*]::
   Call gsutil in the Terra workspace.

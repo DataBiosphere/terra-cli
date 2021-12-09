@@ -15,7 +15,9 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "group",
-    description = "Manage groups of users.",
+    header = "Manage groups of Terra users.",
+    description =
+        "Terra contains a directory-like system for managing groups of users. These commands are utility wrappers around the group management API endpoints. \n\n",
     subcommands = {
       AddUser.class,
       Create.class,

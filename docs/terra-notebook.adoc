@@ -26,7 +26,11 @@ terra-notebook - Use GCP Notebooks in the workspace.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Use GCP Notebooks in the workspace.
+Commands to create and manage GCP Notebook resources within the workspace. 
+
+You can create a https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution[GCP Notebook] controlled resource with +terra resource create gcp-notebook+. The +stop+, +start+ commands are provided for convenience. 
+
+You can also stop and start the notebook using the +gcloud notebooks instances start/stop+ commands.
 
 // end::picocli-generated-man-section-description[]
 
