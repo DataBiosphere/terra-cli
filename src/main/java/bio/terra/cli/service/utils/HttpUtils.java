@@ -22,7 +22,7 @@ public class HttpUtils {
   private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
   // default value for the maximum number of times to retry HTTP requests
-  public static final int DEFAULT_MAXIMUM_RETRIES = 30;
+  public static final int DEFAULT_MAXIMUM_RETRIES = 15;
 
   // default value for the time to sleep between retries
   public static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
@@ -185,7 +185,13 @@ public class HttpUtils {
       Duration sleepDuration)
       throws E, InterruptedException {
     // isDone always return true
-    return pollWithRetries(makeRequest, (result) -> true, isRetryable, maxCalls, sleepDuration);
+    return pollWithRetries(
+        makeRequest,
+        (result) -> true,
+        isRetryable, /* shouldPrintToStderrOnRetry */
+        true,
+        maxCalls,
+        sleepDuration);
   }
 
   /**
@@ -216,20 +222,12 @@ public class HttpUtils {
   /**
    * Helper method to poll with retries.
    *
-   * <p>If there is no timeout, the method returns the last result.
-   *
-   * <p>If there is a timeout, the behavior depends on the last attempt.
-   *
-   * <p>- If the last attempt produced a result that is not done (i.e. isDone returns false), then
-   * the result is returned.
-   *
-   * <p>- If the last attempt threw a retryable exception, then this method re-throws that last
-   * exception wrapped in a {@link SystemException} with a timeout message.
-   *
    * @param <T> type of the response object (i.e. return type of the makeRequest function)
    * @param makeRequest function to perform the request
    * @param isDone function to decide whether to keep polling or not, based on the result
    * @param isRetryable function to test whether the exception is retryable or not
+   * @param shouldPrintToStderrOnRetry should print to stderr on retry
+   * @param shouldPrintToStderrOnRetry should print to stderr on retry
    * @param maxCalls maximum number of times to poll or retry
    * @param sleepDuration time to sleep between tries
    * @return the response object
@@ -244,12 +242,61 @@ public class HttpUtils {
       int maxCalls,
       Duration sleepDuration)
       throws E, InterruptedException {
+    return pollWithRetries(
+        makeRequest,
+        isDone,
+        isRetryable,
+        /* shouldPrintToStderrOnRetry */ false,
+        maxCalls,
+        sleepDuration);
+  }
+
+  /**
+   * Helper method to poll with retries.
+   *
+   * <p>If there is no timeout, the method returns the last result.
+   *
+   * <p>If there is a timeout, the behavior depends on the last attempt.
+   *
+   * <p>- If the last attempt produced a result that is not done (i.e. isDone returns false), then
+   * the result is returned.
+   *
+   * <p>- If the last attempt threw a retryable exception, then this method re-throws that last
+   * exception wrapped in a {@link SystemException} with a timeout message.
+   *
+   * @param <T> type of the response object (i.e. return type of the makeRequest function)
+   * @param makeRequest function to perform the request
+   * @param isDone function to decide whether to keep polling or not, based on the result
+   * @param isRetryable function to test whether the exception is retryable or not
+   * @param shouldPrintToStderrOnRetry should print to stderr on retry
+   * @param maxCalls maximum number of times to poll or retry
+   * @param sleepDuration time to sleep between tries
+   * @return the response object
+   * @throws E if makeRequest throws an exception that is not retryable
+   * @throws SystemException if the maximum number of retries is exhausted, and the last attempt
+   *     threw a retryable exception
+   */
+  public static <T, E extends Exception> T pollWithRetries(
+      SupplierWithCheckedException<T, E> makeRequest,
+      Predicate<T> isDone,
+      Predicate<Exception> isRetryable,
+      boolean shouldPrintToStderrOnRetry,
+      int maxCalls,
+      Duration sleepDuration)
+      throws E, InterruptedException {
     int numTries = 0;
     Exception lastRetryableException = null;
     do {
       numTries++;
       try {
         logger.debug("Request attempt #{}", numTries);
+
+        // Print to STDERR so that terminal command doesn't appear to hang.
+        if (shouldPrintToStderrOnRetry && numTries > 1) {
+          System.err.printf(
+              "Encountered error, retrying request (%s/%s)\n", numTries - 1, maxCalls);
+        }
+
         T result = makeRequest.makeRequest();
         logger.debug("Result: {}", result);
 
