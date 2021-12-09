@@ -29,8 +29,20 @@ import picocli.CommandLine.ParseResult;
         "The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. \n\n"
             + "== Example usage \n\n"
             + "....\n\n"
-            + "// Fetch the user's credentials and check the authentication status"
+            + "// Fetch the user's credentials and check the authentication status. \n\n"
             + "terra auth login \n\n"
+            + "terra auth status \n\n\n\n"
+            + "// Ping the Terra server. \n\n"
+            + "terra server status \n\n\n\n"
+            + "// Create a new Terra workspace and backing Google project. Check the current context to confirm it was created successfully. \n\n"
+            + "terra workspace create \n\n"
+            + "terra status \n\n\n\n"
+            + "// List all workspaces the user has read or write access to. \n\n"
+            + "terra workspace list \n\n\n\n"
+            + "// To use an existing Terra workspace, use the set command instead of create. \n\n"
+            + "terra workspace set --id=eb0753f9-5c45-46b3-b3b4-80b4c7bea248 \n\n\n\n"
+            + "// Create a Terra-managed bucket for temporary data storage. \n\n"
+            + "terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket \n\n\n\n"
             + "....\n\n",
     subcommands = {
       App.class,

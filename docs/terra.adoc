@@ -32,7 +32,45 @@ The Terra CLI allows advanced users to interact with Terra workspaces and resour
 
 ....
 
-// Fetch the user's credentials and check the authentication statusterra auth login 
+// Fetch the user's credentials and check the authentication status. 
+
+terra auth login 
+
+terra auth status 
+
+
+
+// Ping the Terra server. 
+
+terra server status 
+
+
+
+// Create a new Terra workspace and backing Google project. Check the current context to confirm it was created successfully. 
+
+terra workspace create 
+
+terra status 
+
+
+
+// List all workspaces the user has read or write access to. 
+
+terra workspace list 
+
+
+
+// To use an existing Terra workspace, use the set command instead of create. 
+
+terra workspace set --id=eb0753f9-5c45-46b3-b3b4-80b4c7bea248 
+
+
+
+// Create a Terra-managed bucket for temporary data storage. 
+
+terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket 
+
+
 
 ....
 
