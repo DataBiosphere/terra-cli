@@ -38,18 +38,30 @@ By default, the CLI opens a browser window for the user to click through the OAu
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*login*::
+xref:terra-auth-login.adoc[*login*]::
   Authorize the CLI to access Terra APIs and data with user credentials.
 
-*revoke*::
+xref:terra-auth-revoke.adoc[*revoke*]::
   Revoke credentials from an account.
 
-*status*::
+xref:terra-auth-status.adoc[*status*]::
   Print details about the currently authorized account.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

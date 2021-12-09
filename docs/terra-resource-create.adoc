@@ -30,20 +30,32 @@ Add a new controlled resource.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*gcp-notebook*::
+xref:terra-resource-create-gcp-notebook.adoc[*gcp-notebook*]::
   Add a controlled GCP notebook instance resource.
 +
 For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.
 
-*bq-dataset*::
+xref:terra-resource-create-bq-dataset.adoc[*bq-dataset*]::
   Add a controlled BigQuery dataset.
 
-*gcs-bucket*::
+xref:terra-resource-create-gcs-bucket.adoc[*gcs-bucket*]::
   Add a controlled GCS bucket.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

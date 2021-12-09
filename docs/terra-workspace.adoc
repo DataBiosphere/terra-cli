@@ -30,42 +30,54 @@ Setup a Terra workspace.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*add-user*::
+xref:terra-workspace-add-user.adoc[*add-user*]::
   Add a user or group to the workspace.
 
-*break-glass*::
+xref:terra-workspace-break-glass.adoc[*break-glass*]::
   Grant break-glass access to a workspace user.
 
-*clone*::
+xref:terra-workspace-clone.adoc[*clone*]::
   Clone an existing workspace.
 
-*create*::
+xref:terra-workspace-create.adoc[*create*]::
   Create a new workspace.
 
-*delete*::
+xref:terra-workspace-delete.adoc[*delete*]::
   Delete an existing workspace.
 
-*describe*::
+xref:terra-workspace-describe.adoc[*describe*]::
   Describe the workspace.
 
-*list*::
+xref:terra-workspace-list.adoc[*list*]::
   List all workspaces the current user can access.
 
-*list-users*::
+xref:terra-workspace-list-users.adoc[*list-users*]::
   List the users of the workspace.
 
-*remove-user*::
+xref:terra-workspace-remove-user.adoc[*remove-user*]::
   Remove a user or group from the workspace.
 
-*set*::
+xref:terra-workspace-set.adoc[*set*]::
   Set the workspace to an existing one.
 
-*update*::
+xref:terra-workspace-update.adoc[*update*]::
   Update an existing workspace.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

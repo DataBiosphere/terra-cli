@@ -30,15 +30,27 @@ Manage users.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*invite*::
+xref:terra-user-invite.adoc[*invite*]::
   Invite a new user.
 
-*status*::
+xref:terra-user-status.adoc[*status*]::
   Check the registration status of a user.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

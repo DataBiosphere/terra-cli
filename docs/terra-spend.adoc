@@ -30,24 +30,36 @@ Manage spend profiles.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*create-profile*::
+xref:terra-spend-create-profile.adoc[*create-profile*]::
   Create the Workspace Manager default spend profile.
 
-*enable*::
+xref:terra-spend-enable.adoc[*enable*]::
   Enable use of the Workspace Manager default spend profile for a user or group.
 
-*delete-profile*::
+xref:terra-spend-delete-profile.adoc[*delete-profile*]::
   Delete the Workspace Manager default spend profile.
 
-*disable*::
+xref:terra-spend-disable.adoc[*disable*]::
   Disable use of the Workspace Manager default spend profile for a user or group.
 
-*list-users*::
+xref:terra-spend-list-users.adoc[*list-users*]::
   List the users enabled on the Workspace Manager default spend profile.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

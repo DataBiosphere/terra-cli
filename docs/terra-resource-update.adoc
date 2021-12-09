@@ -30,18 +30,30 @@ Update the properties of a resource.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*bq-dataset*::
+xref:terra-resource-update-bq-dataset.adoc[*bq-dataset*]::
   Update a BigQuery dataset.
 
-*bq-table*::
+xref:terra-resource-update-bq-table.adoc[*bq-table*]::
   Update a BigQuery data table.
 
-*gcs-bucket*::
+xref:terra-resource-update-gcs-bucket.adoc[*gcs-bucket*]::
   Update a GCS bucket.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

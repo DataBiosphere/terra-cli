@@ -30,15 +30,27 @@ Run applications in the workspace.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*execute*::
+xref:terra-app-execute.adoc[*execute*]::
   [FOR DEBUG] Execute a command in the application container for the Terra workspace, with no setup.
 
-*list*::
+xref:terra-app-list.adoc[*list*]::
   List the supported applications.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

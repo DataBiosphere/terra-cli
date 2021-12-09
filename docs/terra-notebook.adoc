@@ -30,15 +30,27 @@ Use GCP Notebooks in the workspace.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*start*::
+xref:terra-notebook-start.adoc[*start*]::
   Start a stopped GCP Notebook instance within your workspace.
 
-*stop*::
+xref:terra-notebook-stop.adoc[*stop*]::
   Stop a running GCP Notebook instance within your workspace.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

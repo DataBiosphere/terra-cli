@@ -30,30 +30,42 @@ Set a configuration property value.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*app-launch*::
+xref:terra-config-set-app-launch.adoc[*app-launch*]::
   Configure the ways apps are launched.
 
-*browser*::
+xref:terra-config-set-browser.adoc[*browser*]::
   Configure whether a browser is launched automatically during the login process.
 
-*image*::
+xref:terra-config-set-image.adoc[*image*]::
   Set the Docker image to use for launching applications.
 
-*logging*::
+xref:terra-config-set-logging.adoc[*logging*]::
   Set the logging level.
 
-*resource-limit*::
+xref:terra-config-set-resource-limit.adoc[*resource-limit*]::
   Set the maximum number of resources allowed per workspace.
 
-*server*::
+xref:terra-config-set-server.adoc[*server*]::
   Set the Terra server to connect to.
 
-*workspace*::
+xref:terra-config-set-workspace.adoc[*workspace*]::
   Set the workspace to an existing one.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

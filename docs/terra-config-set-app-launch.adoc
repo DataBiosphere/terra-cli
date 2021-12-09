@@ -30,6 +30,9 @@ Configure the ways apps are launched.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
 // tag::picocli-generated-man-section-arguments[]
 == Arguments
 
@@ -37,5 +40,14 @@ _<mode>_::
   App launch mode: DOCKER_CONTAINER, LOCAL_PROCESS.
 
 // end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

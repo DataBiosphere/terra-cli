@@ -30,18 +30,30 @@ Configure the CLI.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*get*::
+xref:terra-config-get.adoc[*get*]::
   Get a configuration property value.
 
-*list*::
+xref:terra-config-list.adoc[*list*]::
   List all configuration properties and their values.
 
-*set*::
+xref:terra-config-set.adoc[*set*]::
   Set a configuration property value.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

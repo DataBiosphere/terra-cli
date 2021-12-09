@@ -30,30 +30,42 @@ Get a configuration property value.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*app-launch*::
+xref:terra-config-get-app-launch.adoc[*app-launch*]::
   Check the way apps are launched.
 
-*browser*::
+xref:terra-config-get-browser.adoc[*browser*]::
   Check whether a browser is launched automatically during the login process.
 
-*image*::
+xref:terra-config-get-image.adoc[*image*]::
   Get the Docker image used for launching applications.
 
-*logging*::
+xref:terra-config-get-logging.adoc[*logging*]::
   Get the logging level.
 
-*resource-limit*::
+xref:terra-config-get-resource-limit.adoc[*resource-limit*]::
   Get the maximum number of resources allowed per workspace.
 
-*server*::
+xref:terra-config-get-server.adoc[*server*]::
   Get the Terra server the CLI connects to.
 
-*workspace*::
+xref:terra-config-get-workspace.adoc[*workspace*]::
   Get the current Terra workspace.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

@@ -30,18 +30,30 @@ Connect to a Terra server.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*list*::
+xref:terra-server-list.adoc[*list*]::
   List all available Terra servers.
 
-*set*::
+xref:terra-server-set.adoc[*set*]::
   Set the Terra server to connect to.
 
-*status*::
+xref:terra-server-status.adoc[*status*]::
   Print status and details of the Terra server context.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

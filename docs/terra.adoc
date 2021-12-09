@@ -30,60 +30,72 @@ Terra CLI
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*app*::
+xref:terra-app.adoc[*app*]::
   Run applications in the workspace.
 
-*auth*::
+xref:terra-auth.adoc[*auth*]::
   Commands to manage user credentials.
 
-*bq*::
+xref:terra-bq.adoc[*bq*]::
   Call bq in the Terra workspace.
 
-*config*::
+xref:terra-config.adoc[*config*]::
   Configure the CLI.
 
-*gcloud*::
+xref:terra-gcloud.adoc[*gcloud*]::
   Call gcloud in the Terra workspace.
 
-*group*::
+xref:terra-group.adoc[*group*]::
   Manage groups of users.
 
-*gsutil*::
+xref:terra-gsutil.adoc[*gsutil*]::
   Call gsutil in the Terra workspace.
 
-*nextflow*::
+xref:terra-nextflow.adoc[*nextflow*]::
   Call nextflow in the Terra workspace.
 
-*notebook*::
+xref:terra-notebook.adoc[*notebook*]::
   Use GCP Notebooks in the workspace.
 
-*resolve*::
+xref:terra-resolve.adoc[*resolve*]::
   Resolve a resource to its cloud id or path.
 
-*resource*::
+xref:terra-resource.adoc[*resource*]::
   Manage resources in the workspace.
 
-*server*::
+xref:terra-server.adoc[*server*]::
   Connect to a Terra server.
 
-*spend*::
+xref:terra-spend.adoc[*spend*]::
   Manage spend profiles.
 
-*status*::
+xref:terra-status.adoc[*status*]::
   Print details about the current workspace and server.
 
-*user*::
+xref:terra-user.adoc[*user*]::
   Manage users.
 
-*version*::
+xref:terra-version.adoc[*version*]::
   Get the installed version.
 
-*workspace*::
+xref:terra-workspace.adoc[*workspace*]::
   Setup a Terra workspace.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

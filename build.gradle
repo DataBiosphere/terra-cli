@@ -44,7 +44,7 @@ dependencies {
     ext {
         // command parsing
         picocli = '4.6.1'
-        picocliAnnotations = '4.6.1'
+        picocliAnnotations = '4.6.2'
 
         // logging
         logback = '1.2.3'

@@ -30,33 +30,45 @@ Manage resources in the workspace.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*add-ref*, *add-referenced*::
+xref:terra-resource-add-ref.adoc[*add-ref*, *add-referenced*]::
   Add a new referenced resource.
 
-*check-access*::
+xref:terra-resource-check-access.adoc[*check-access*]::
   Check if you have access to a referenced resource.
 
-*create*, *create-controlled*::
+xref:terra-resource-create.adoc[*create*, *create-controlled*]::
   Add a new controlled resource.
 
-*delete*::
+xref:terra-resource-delete.adoc[*delete*]::
   Delete a resource from the workspace.
 
-*describe*::
+xref:terra-resource-describe.adoc[*describe*]::
   Describe a resource.
 
-*list*::
+xref:terra-resource-list.adoc[*list*]::
   List all resources.
 
-*resolve*::
+xref:terra-resource-resolve.adoc[*resolve*]::
   Resolve a resource to its cloud id or path.
 
-*update*::
+xref:terra-resource-update.adoc[*update*]::
   Update the properties of a resource.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]

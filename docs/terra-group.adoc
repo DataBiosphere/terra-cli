@@ -30,30 +30,42 @@ Manage groups of users.
 
 // end::picocli-generated-man-section-description[]
 
+// tag::picocli-generated-man-section-options[]
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
 // tag::picocli-generated-man-section-commands[]
 == Commands
 
-*add-user*::
+xref:terra-group-add-user.adoc[*add-user*]::
   Add a user to a group with a given policy.
 
-*create*::
+xref:terra-group-create.adoc[*create*]::
   Create a new Terra group.
 
-*delete*::
+xref:terra-group-delete.adoc[*delete*]::
   Delete an existing Terra group.
 
-*describe*::
+xref:terra-group-describe.adoc[*describe*]::
   Describe the group.
 
-*list*::
+xref:terra-group-list.adoc[*list*]::
   List the groups to which the current user belongs.
 
-*list-users*::
+xref:terra-group-list-users.adoc[*list-users*]::
   List the users in a group.
 
-*remove-user*::
+xref:terra-group-remove-user.adoc[*remove-user*]::
   Remove a user from a group with a given policy.
 
 // end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
 
 // end::picocli-generated-full-manpage[]
