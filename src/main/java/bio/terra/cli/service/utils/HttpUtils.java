@@ -227,7 +227,6 @@ public class HttpUtils {
    * @param isDone function to decide whether to keep polling or not, based on the result
    * @param isRetryable function to test whether the exception is retryable or not
    * @param shouldPrintToStderrOnRetry should print to stderr on retry
-   * @param shouldPrintToStderrOnRetry should print to stderr on retry
    * @param maxCalls maximum number of times to poll or retry
    * @param sleepDuration time to sleep between tries
    * @return the response object
