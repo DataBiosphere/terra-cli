@@ -28,11 +28,13 @@ terra - Terra command-line interface.
 
 The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. 
 
-==Example usage 
+== Example usage 
 
 ....
 
-asdfasdf....
+// Fetch the user's credentials and check the authentication statusterra auth login 
+
+....
 
 
 

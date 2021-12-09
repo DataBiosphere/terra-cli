@@ -27,9 +27,10 @@ import picocli.CommandLine.ParseResult;
     header = "Terra command-line interface.",
     description =
         "The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. \n\n"
-            + "==Example usage \n\n"
+            + "== Example usage \n\n"
             + "....\n\n"
-            + "asdfasdf"
+            + "// Fetch the user's credentials and check the authentication status"
+            + "terra auth login \n\n"
             + "....\n\n",
     subcommands = {
       App.class,
