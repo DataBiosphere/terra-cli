@@ -10,7 +10,7 @@ import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -26,8 +26,9 @@ public class Logger {
   private static final String LOG_FORMAT =
       "%d{yyyy-MM-dd HH:mm:ss.SSS zz} [%thread] %-5level %logger{50} - %msg%n";
 
-  private static final long MAX_FILE_SIZE = 50 * FileSize.MB_COEFFICIENT; // 5 MB
-  private static final int MAX_NUM_FILES = 5;
+  private static final long MAX_PER_FILE_SIZE = 10 * FileSize.MB_COEFFICIENT;
+  private static final long MAX_TOTAL_LOG_SIZE = 100 * FileSize.MB_COEFFICIENT;
+  private static final int MAX_HISTORY_FILES = 30; // Keep up to 30 archived log files
 
   /**
    * Setup a file and console appender for the root logger. Each may use a different logging level,
@@ -47,26 +48,27 @@ public class Logger {
     StatusPrinter.printIfErrorsOccured(loggerContext);
 
     // build the rolling file appender
-    RollingFileAppender rollingFileAppender = new RollingFileAppender();
-    rollingFileAppender.setName("RollingFileAppender");
-    rollingFileAppender.setContext(loggerContext);
-    rollingFileAppender.setFile(Context.getLogFile().toString());
+    RollingFileAppender fileAppender = new RollingFileAppender();
+    fileAppender.setName("RollingFileAppender");
+    fileAppender.setContext(loggerContext);
 
-    TimeBasedRollingPolicy timeBasedRollingPolicy = new TimeBasedRollingPolicy();
-    timeBasedRollingPolicy.setContext(loggerContext);
-    timeBasedRollingPolicy.setMaxHistory(MAX_NUM_FILES);
-    timeBasedRollingPolicy.setTotalSizeCap(new FileSize(MAX_FILE_SIZE));
-    timeBasedRollingPolicy.setFileNamePattern("%d-terra.log");
-    // Context.getLogFile().getParent().resolve("%d{yyyy-MM-dd}-terra.log").toString());
-    rollingFileAppender.setRollingPolicy(timeBasedRollingPolicy);
-    rollingFileAppender.setTriggeringPolicy(timeBasedRollingPolicy);
+    SizeAndTimeBasedRollingPolicy rollingPolicy = new SizeAndTimeBasedRollingPolicy();
+    rollingPolicy.setContext(loggerContext);
+    rollingPolicy.setParent(fileAppender);
+    rollingPolicy.setFileNamePattern(
+        Context.getLogFile().getParent().resolve("terra-%d{yyyy-MM-dd}.%i.log").toString());
+    rollingPolicy.setMaxHistory(MAX_HISTORY_FILES);
+    rollingPolicy.setTotalSizeCap(new FileSize(MAX_TOTAL_LOG_SIZE));
+    rollingPolicy.setMaxFileSize(new FileSize(MAX_PER_FILE_SIZE));
+    fileAppender.setRollingPolicy(rollingPolicy);
+    fileAppender.setTriggeringPolicy(rollingPolicy);
 
     // make sure to start the policies after the cross-references between the policy and appender
     // have been set
-    timeBasedRollingPolicy.start();
+    rollingPolicy.start();
 
-    setupEncoderAndFilter(rollingFileAppender, loggerContext, fileLoggingLevel.getLogLevelImpl());
-    rollingFileAppender.start();
+    setupEncoderAndFilter(fileAppender, loggerContext, fileLoggingLevel.getLogLevelImpl());
+    fileAppender.start();
 
     // build the console appender
     ConsoleAppender consoleAppender = new ConsoleAppender();
@@ -82,19 +84,19 @@ public class Logger {
     ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.ALL);
     rootLogger.detachAndStopAllAppenders();
-    rootLogger.addAppender(rollingFileAppender);
+    rootLogger.addAppender(fileAppender);
     rootLogger.addAppender(consoleAppender);
 
     // if a process is too short-lived, then the policy may not check if it should rollover.
     // each CLI command invocation is a new process (i.e. new JVM) and may be very short-lived.
     // so, include an additional manual check here on startup, to see if we should roll over the
     // file based on its size.
-    File activeFile = new File(timeBasedRollingPolicy.getActiveFileName());
-    if (activeFile.length() > MAX_FILE_SIZE) {
-      rollingFileAppender.rollover();
+    File activeFile = new File(rollingPolicy.getActiveFileName());
+    if (activeFile.length() > MAX_PER_FILE_SIZE) {
+      fileAppender.rollover();
     }
 
-    // StatusPrinter.print(loggerContext); // helpful for debugging
+    StatusPrinter.print(loggerContext); // helpful for debugging
   }
 
   /**
