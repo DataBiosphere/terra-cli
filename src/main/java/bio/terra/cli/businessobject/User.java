@@ -132,9 +132,9 @@ public class User {
     if (currentUser.isEmpty()) {
       try {
         user.fetchUserInfo();
-      } catch (SystemException sysEx) {
+      } catch (Exception exception) {
         user.deleteOauthCredentials();
-        throw sysEx;
+        throw exception;
       }
 
       // update the global context on disk
