@@ -9,7 +9,10 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
+import scala.Predef.StringFormat;
 
 /** This class corresponds to the fourth-level "terra resource create bq-dataset" command. */
 @CommandLine.Command(
@@ -17,6 +20,7 @@ import picocli.CommandLine;
     description = "Add a controlled BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
 
@@ -35,6 +39,7 @@ public class BqDataset extends BaseCommand {
   /** Add a controlled BigQuery dataset to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource create bq-dataset");
     workspaceOption.overrideIfSpecified();
 
     // build the resource object to create

@@ -9,6 +9,8 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
 import bio.terra.workspace.model.StewardshipType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref bq-table" command. */
@@ -17,6 +19,7 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery Data Table.",
     showDefaultValues = true)
 public class BqDataTable extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(BqDataTable.class);
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.Option(
@@ -32,6 +35,7 @@ public class BqDataTable extends BaseCommand {
   /** Add a referenced BigQuery DataTable to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource addref bq-table");
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParamsBuilder =

@@ -17,6 +17,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
@@ -28,6 +30,7 @@ import picocli.CommandLine;
     showDefaultValues = true,
     sortOptions = false)
 public class GcpNotebook extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
   private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
   private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
   /** See {@link #mangleUsername(String)}. */
@@ -229,6 +232,7 @@ public class GcpNotebook extends BaseCommand {
   /** Add a controlled GCP Notebook instance to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource create gcp-notebook");
     workspaceOption.overrideIfSpecified();
     // build the resource object to create. force the resource to be private
     CreateResourceParams.Builder createResourceParams =

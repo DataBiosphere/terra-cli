@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resource.addref;
 
+import bio.terra.cli.command.resource.create.GcsBucket;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BigQueryIds;
 import bio.terra.cli.command.shared.options.Format;
@@ -9,6 +10,8 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref bq-dataset" command. */
@@ -17,6 +20,7 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
   @CommandLine.Mixin BigQueryIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -25,6 +29,7 @@ public class BqDataset extends BaseCommand {
   /** Add a referenced BigQuery dataset to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource addref bq-dataset");
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
