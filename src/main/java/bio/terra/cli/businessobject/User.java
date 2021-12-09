@@ -72,6 +72,13 @@ public class User {
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
+  // URL of the landing page shown in the browser after completing the OAuth part of login
+  // ideally this should point to product documentation or perhaps the UI, but for now the CLI
+  // README seems like the best option. in the future, if we want to make this server-specific, then
+  // it should become a property of the Server
+  private static final String LOGIN_LANDING_PAGE =
+      "https://github.com/DataBiosphere/terra-cli/blob/main/README.md";
+
   /** Build an instance of this class from the serialized format on disk. */
   public User(PDUser configFromDisk) {
     this.id = configFromDisk.id;
@@ -275,7 +282,8 @@ public class User {
               USER_SCOPES,
               inputStream,
               Context.getContextDir().toFile(),
-              launchBrowserAutomatically);
+              launchBrowserAutomatically,
+              LOGIN_LANDING_PAGE);
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
