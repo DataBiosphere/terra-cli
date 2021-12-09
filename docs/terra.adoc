@@ -62,6 +62,8 @@ terra status
 
 List all workspaces the user has read or write access to. 
 
+....
+
 terra workspace list 
 
 ....

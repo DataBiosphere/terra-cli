@@ -43,6 +43,7 @@ import picocli.CommandLine.ParseResult;
             + "terra status \n\n"
             + "....\n\n"
             + "List all workspaces the user has read or write access to. \n\n"
+            + "....\n\n"
             + "terra workspace list \n\n"
             + "....\n\n"
             + "To use an existing Terra workspace, use the set command instead of create. \n\n"

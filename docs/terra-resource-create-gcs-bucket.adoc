@@ -33,7 +33,23 @@ terra-resource-create-gcs-bucket - Add a controlled GCS bucket.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Add a controlled GCS bucket.
+Adds a controlled GCS bucket resource. 
+
+== Lifecycle rules 
+
+GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the `terra resource create gcs-bucket` command. 
+
+The expected JSON structure matches the one used by the https://cloud.google.com/storage/docs/gsutil/commands/lifecycle[gsutil lifecycle command]. This structure is a subset of the https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle[GCS resource specification]. 
+
+There is a command shortcut for specifying a lifecycle rule which deletes any objects more than N days old: 
+
+.... 
+
+terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365 
+
+.... 
+
+
 
 // end::picocli-generated-man-section-description[]
 
