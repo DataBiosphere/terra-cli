@@ -9,9 +9,8 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -27,7 +26,7 @@ public class Logger {
   private static final String LOG_FORMAT =
       "%d{yyyy-MM-dd HH:mm:ss.SSS zz} [%thread] %-5level %logger{50} - %msg%n";
 
-  private static final long MAX_FILE_SIZE = 5 * FileSize.MB_COEFFICIENT; // 5 MB
+  private static final long MAX_FILE_SIZE = 50 * FileSize.MB_COEFFICIENT; // 5 MB
   private static final int MAX_NUM_FILES = 5;
 
   /**
@@ -53,38 +52,18 @@ public class Logger {
     rollingFileAppender.setContext(loggerContext);
     rollingFileAppender.setFile(Context.getLogFile().toString());
 
-    // trigger a file rollover based on the log file size
-    SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
-    triggeringPolicy.setContext(loggerContext);
-    triggeringPolicy.setMaxFileSize(new FileSize(MAX_FILE_SIZE));
-    rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
-
-    // maintain a window of logs (e.g. the last 5 files worth)
-    // this means that once the maximum amount of logs are stored (i.e. max # of files, max size
-    // each), the oldest logs will be overwritten
-    FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
-    rollingPolicy.setContext(loggerContext);
-    rollingPolicy.setFileNamePattern(
-        Context.getLogFile()
-            .getParent()
-            .resolve("%i." + Context.getLogFile().getFileName())
-            .toString());
-    rollingPolicy.setParent(rollingFileAppender);
-
-    // the base file name (e.g. terra.log) is not included in rollingPolicy's count, so subtract one
-    // here to account for that
-    // e.g. MAX_NUM_FILES=3: terra.log, 1.terra.log, 2.terra.log
-    if (MAX_NUM_FILES < 1) {
-      throw new IllegalArgumentException("Maximum number of log files must be >= 1");
-    }
-    rollingPolicy.setMinIndex(1);
-    rollingPolicy.setMaxIndex(MAX_NUM_FILES - 1);
-    rollingFileAppender.setRollingPolicy(rollingPolicy);
+    TimeBasedRollingPolicy timeBasedRollingPolicy = new TimeBasedRollingPolicy();
+    timeBasedRollingPolicy.setContext(loggerContext);
+    timeBasedRollingPolicy.setMaxHistory(MAX_NUM_FILES);
+    timeBasedRollingPolicy.setTotalSizeCap(new FileSize(MAX_FILE_SIZE));
+    timeBasedRollingPolicy.setFileNamePattern("%d-terra.log");
+    // Context.getLogFile().getParent().resolve("%d{yyyy-MM-dd}-terra.log").toString());
+    rollingFileAppender.setRollingPolicy(timeBasedRollingPolicy);
+    rollingFileAppender.setTriggeringPolicy(timeBasedRollingPolicy);
 
     // make sure to start the policies after the cross-references between the policy and appender
     // have been set
-    triggeringPolicy.start();
-    rollingPolicy.start();
+    timeBasedRollingPolicy.start();
 
     setupEncoderAndFilter(rollingFileAppender, loggerContext, fileLoggingLevel.getLogLevelImpl());
     rollingFileAppender.start();
@@ -110,7 +89,7 @@ public class Logger {
     // each CLI command invocation is a new process (i.e. new JVM) and may be very short-lived.
     // so, include an additional manual check here on startup, to see if we should roll over the
     // file based on its size.
-    File activeFile = new File(rollingPolicy.getActiveFileName());
+    File activeFile = new File(timeBasedRollingPolicy.getActiveFileName());
     if (activeFile.length() > MAX_FILE_SIZE) {
       rollingFileAppender.rollover();
     }
