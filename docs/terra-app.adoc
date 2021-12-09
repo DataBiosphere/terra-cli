@@ -26,7 +26,9 @@ terra-app - Run applications in the workspace.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Run applications in the workspace.
+The Terra CLI allows running supported third-party applications within the context of a workspace. The `app-launch` config property controls how tools are run: either in a Docker container, or as a child process. 
+
+Nextflow and the `gcloud` SDK are the first examples of supported third-party applications.
 
 // end::picocli-generated-man-section-description[]
 
