@@ -14,7 +14,7 @@ import picocli.CommandLine;
     description =
         "Commands to create and manage GCP Notebook resources within the workspace. \n\n"
             + "You can create a https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution[GCP Notebook] controlled resource "
-            + "with +terra resource create gcp-notebook+. The +stop+, +start+ commands are provided for convenience. \n\n"
-            + "You can also stop and start the notebook using the +gcloud notebooks instances start/stop+ commands.",
+            + "with `terra resource create gcp-notebook`. The `stop`, `start` commands are provided for convenience. \n\n"
+            + "You can also stop and start the notebook using the `gcloud notebooks instances start/stop` commands.",
     subcommands = {Start.class, Stop.class})
 public class Notebook {}

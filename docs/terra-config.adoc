@@ -28,7 +28,7 @@ terra-config - Commands to configure the CLI.
 
 These commands are property getters and setters for configuring the Terra CLI. 
 
-See the +get+ and +set+ subcommands for a list of available properties.
+See the `get` and `set` subcommands for a list of available properties.
 
 // end::picocli-generated-man-section-description[]
 
