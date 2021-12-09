@@ -1,13 +1,13 @@
 package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.BigQueryIds;
+import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
+import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
+import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.workspace.model.StewardshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +16,16 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resource add-ref bq-table" command. */
 @CommandLine.Command(
     name = "bq-table",
-    description = "Add a referenced BigQuery Data Table.",
+    description = "Add a referenced BigQuery Table.",
     showDefaultValues = true)
-public class BqDataTable extends BaseCommand {
-  private static final Logger logger = LoggerFactory.getLogger(BqDataTable.class);
+public class BqTable extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(BqTable.class);
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
-  @CommandLine.Option(
-      names = "--table-id",
-      required = true,
-      description = "BigQuery data table id.")
-  private String bigQueryDataTableId;
+  @CommandLine.Option(names = "--table-id", required = true, description = "BigQuery table id.")
+  private String bigQueryTableId;
 
-  @CommandLine.Mixin BigQueryIds bigQueryIds;
+  @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -42,21 +39,20 @@ public class BqDataTable extends BaseCommand {
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.REFERENCED);
-    CreateBqDataTableParams.Builder createParamsBuilder =
-        new CreateBqDataTableParams.Builder()
+    CreateBqTableParams.Builder createParamsBuilder =
+        new CreateBqTableParams.Builder()
             .resourceFields(createResourceParamsBuilder.build())
             .projectId(bigQueryIds.getGcpProjectId())
             .datasetId(bigQueryIds.getBigQueryDatasetId())
-            .dataTableId(bigQueryDataTableId);
+            .dataTableId(bigQueryTableId);
 
-    bio.terra.cli.businessobject.resource.BqDataTable createdResource =
-        bio.terra.cli.businessobject.resource.BqDataTable.addReferenced(
-            createParamsBuilder.build());
-    formatOption.printReturnValue(new UFBqDataTable(createdResource), BqDataTable::printText);
+    bio.terra.cli.businessobject.resource.BqTable createdResource =
+        bio.terra.cli.businessobject.resource.BqTable.addReferenced(createParamsBuilder.build());
+    formatOption.printReturnValue(new UFBqTable(createdResource), BqTable::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(UFBqDataTable returnValue) {
+  private static void printText(UFBqTable returnValue) {
     OUT.println("Successfully added referenced BigQuery data table.");
     returnValue.print();
   }

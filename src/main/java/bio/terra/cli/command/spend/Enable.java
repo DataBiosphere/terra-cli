@@ -4,6 +4,8 @@ import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -12,12 +14,14 @@ import picocli.CommandLine.Command;
     name = "enable",
     description = "Enable use of the Workspace Manager default spend profile for a user or group.")
 public class Enable extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Enable.class);
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Enable access to the WSM default spend profile for the given email. */
   @Override
   protected void execute() {
+    logger.debug("terra spend enable");
     SpendProfileUser spendProfileUser =
         SpendProfileUser.enable(spendProfileUserOption.email, spendProfileUserOption.policy);
     formatOption.printReturnValue(new UFSpendProfileUser(spendProfileUser), Enable::printText);

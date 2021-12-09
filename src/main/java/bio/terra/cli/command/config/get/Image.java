@@ -3,18 +3,22 @@ package bio.terra.cli.command.config.get;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config get image" command. */
 @Command(name = "image", description = "Get the Docker image used for launching applications.")
 public class Image extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Image.class);
 
   @CommandLine.Mixin Format formatOption;
 
   /** Return the docker image id property of the global context. */
   @Override
   protected void execute() {
+    logger.debug("terra config get image");
     formatOption.printReturnValue(Context.getConfig().getDockerImageId());
   }
 

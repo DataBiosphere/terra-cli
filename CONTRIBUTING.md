@@ -14,6 +14,7 @@
     * [Override default Docker image](#override-default-docker-image)
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
+    * [Automated tests](#automated-tests)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
@@ -218,6 +219,22 @@ invites all the test users if they do not already exist in SAM, and this require
 
 You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
 `test.firecloud.org` GSuite account.
+
+#### Automated tests
+All unit and integration tests are run nightly via GitHub action against two environments: `broad-dev` and
+`verily-devel`. On test completion, a Slack notification is sent to the Broad `#platform-foundation-alerts` channel.
+If you kick off a full test run manually, it will not send a notification.
+
+Running the tests locally on your machine and via GitHub actions uses the same set of test users. While the nightly CLI
+tests should not leak resources (e.g. workspaces, SAM groups), this often happens when debugging something locally.
+There is a GitHub action specifically for cleaning up these leaked resources. It can be triggered manually from the
+GitHub repo UI. There is an option to run the cleanup in `dry-run` mode, which should show whether there are any leaked
+resources without actually deleting them.
+
+Some tests may start failing once the number of leaked resources gets too high. Usually, this is a
+`terra workspace list` test that does not page through more than ~30 workspaces. We could fix this test to be more
+resilient, but it's been a useful reminder to kick off the cleanup GitHub action, so we haven't done that yet. If
+you see unexpected failures around listing workspaces, try kicking off the cleanup action and re-running.
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.

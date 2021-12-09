@@ -5,12 +5,15 @@ import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra user invite" command. */
 @Command(name = "invite", description = "Invite a new user.")
 public class Invite extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Invite.class);
 
   @CommandLine.Option(names = "--email", required = true, description = "User email.")
   private String email;
@@ -24,6 +27,7 @@ public class Invite extends BaseCommand {
   /** Invite a new user. */
   @Override
   protected void execute() {
+    logger.debug("terra user invite --email={}", email);
     TerraUser.invite(email);
     OUT.println("Successfully invited user.");
 

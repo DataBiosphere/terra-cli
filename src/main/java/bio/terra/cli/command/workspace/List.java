@@ -8,6 +8,8 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -17,6 +19,7 @@ import picocli.CommandLine.Command;
     description = "List all workspaces the current user can access.",
     showDefaultValues = true)
 public class List extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(List.class);
 
   @CommandLine.Option(
       names = "--offset",
@@ -38,6 +41,7 @@ public class List extends BaseCommand {
   /** List all workspaces a user has access to. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace list");
     formatOption.printReturnValue(
         UserIO.sortAndMap(
             Workspace.list(offset, limit),

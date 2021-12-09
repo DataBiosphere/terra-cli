@@ -3,6 +3,8 @@ package bio.terra.cli.command.config.set;
 import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -11,6 +13,7 @@ import picocli.CommandLine.Command;
     name = "browser",
     description = "Configure whether a browser is launched automatically during the login process.")
 public class Browser extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Browser.class);
 
   @CommandLine.Parameters(
       index = "0",
@@ -20,6 +23,7 @@ public class Browser extends BaseCommand {
   /** Updates the browser launch option property of the global context. */
   @Override
   protected void execute() {
+    logger.debug("terra config set browser");
     Config config = Context.getConfig();
     Config.BrowserLaunchOption prevBrowserLaunchOption = config.getBrowserLaunchOption();
     config.setBrowserLaunchOption(mode);

@@ -10,11 +10,15 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource list" command. */
 @CommandLine.Command(name = "list", description = "List all resources.")
 public class List extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(List.class);
+
   @CommandLine.Option(
       names = "--stewardship",
       description = "Filter on a particular stewardship type: ${COMPLETION-CANDIDATES}.")
@@ -31,6 +35,7 @@ public class List extends BaseCommand {
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource list");
     workspaceOption.overrideIfSpecified();
     java.util.List<UFResource> resources =
         Context.requireWorkspace().listResourcesAndSync().stream()

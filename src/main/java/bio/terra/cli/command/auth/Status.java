@@ -6,12 +6,15 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra auth status" command. */
 @Command(name = "status", description = "Print details about the currently authorized account.")
 public class Status extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Status.class);
 
   @CommandLine.Mixin Format formatOption;
 
@@ -21,6 +24,7 @@ public class Status extends BaseCommand {
    */
   @Override
   protected void execute() {
+    logger.debug("terra auth status");
     // check if current user is defined
     Optional<User> currentUserOpt = Context.getUser();
     UFAuthStatus authStatusReturnValue;

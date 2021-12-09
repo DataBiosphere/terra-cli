@@ -4,17 +4,21 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config get logging" command. */
 @Command(name = "logging", description = "Get the logging level.")
 public class Logging extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Logging.class);
   @CommandLine.Mixin Format formatOption;
 
   /** Return the logging level properties of the global context. */
   @Override
   protected void execute() {
+    logger.debug("terra config get logging");
     UFLoggingConfig loggingLevels =
         new UFLoggingConfig.Builder()
             .consoleLoggingLevel(Context.getConfig().getConsoleLoggingLevel())

@@ -3,12 +3,15 @@ package bio.terra.cli.command.config.set;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.utils.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra config set logging" command. */
 @Command(name = "logging", description = "Set the logging level.")
 public class Logging extends BaseCommand {
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Logging.class);
+
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   Logging.LogLevelArgGroup argGroup;
 
@@ -29,6 +32,7 @@ public class Logging extends BaseCommand {
   /** Updates the logging level properties of the global context. */
   @Override
   protected void execute() {
+    logger.debug("terra config set logging");
     // note that this new log level will take effect on the NEXT command.
     // for the log level to take effect for the rest of THIS command, we'd need to re-initialize the
     // logger(s) (e.g. by calling Logger.setupLogging or some subset of that method). there's

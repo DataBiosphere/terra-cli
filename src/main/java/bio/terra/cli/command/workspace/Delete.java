@@ -6,18 +6,22 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.DeletePrompt;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace delete" command. */
 @Command(name = "delete", description = "Delete an existing workspace.")
 public class Delete extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Delete.class);
   @CommandLine.Mixin DeletePrompt deletePromptOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   /** Delete an existing workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace delete");
     workspaceOption.overrideIfSpecified();
     Workspace workspaceToDelete = Context.requireWorkspace();
 

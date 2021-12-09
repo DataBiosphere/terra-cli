@@ -6,12 +6,15 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace update" command. */
 @Command(name = "update", description = "Update an existing workspace.")
 public class Update extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Update.class);
 
   @CommandLine.ArgGroup(
       exclusive = false,
@@ -39,6 +42,7 @@ public class Update extends BaseCommand {
   /** Update the mutable properties of an existing workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace update");
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.displayName, argGroup.description);

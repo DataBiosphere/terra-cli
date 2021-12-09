@@ -7,6 +7,8 @@ import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -15,12 +17,13 @@ import picocli.CommandLine.Command;
     name = "list-users",
     description = "List the users enabled on the Workspace Manager default spend profile.")
 public class ListUsers extends BaseCommand {
-
+  private static final Logger logger = LoggerFactory.getLogger(ListUsers.class);
   @CommandLine.Mixin Format formatOption;
 
   /** List all users that have access to the WSM default spend profile. */
   @Override
   protected void execute() {
+    logger.debug("terra spend list-users");
     formatOption.printReturnValue(
         UserIO.sortAndMap(
             SpendProfileUser.list(),

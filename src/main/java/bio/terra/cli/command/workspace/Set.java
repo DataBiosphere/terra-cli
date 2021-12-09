@@ -5,12 +5,15 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace set" command. */
 @Command(name = "set", description = "Set the workspace to an existing one.")
 public class Set extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Set.class);
 
   @CommandLine.Option(names = "--id", required = true, description = "Workspace id.")
   private UUID id;
@@ -26,6 +29,7 @@ public class Set extends BaseCommand {
   /** Load an existing workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace set --id={}", id);
     Workspace workspace = Workspace.load(id);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }

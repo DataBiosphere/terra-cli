@@ -5,18 +5,22 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.utils.UserIO;
 import java.util.Arrays;
 import java.util.Comparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra app list" command. */
 @Command(name = "list", description = "List the supported applications.")
 public class List extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(List.class);
 
   @CommandLine.Mixin Format formatOption;
 
   /** Print out a list of all the supported apps. */
   @Override
   protected void execute() {
+    logger.debug("terra app list");
     java.util.List<String> returnValue =
         UserIO.sortAndMap(
             Arrays.asList(PassThrough.values()),

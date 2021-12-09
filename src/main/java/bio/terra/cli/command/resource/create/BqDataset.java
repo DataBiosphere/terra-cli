@@ -12,7 +12,6 @@ import bio.terra.workspace.model.StewardshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
-import scala.Predef.StringFormat;
 
 /** This class corresponds to the fourth-level "terra resource create bq-dataset" command. */
 @CommandLine.Command(

@@ -4,6 +4,8 @@ import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.exception.UserActionableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -12,6 +14,7 @@ import picocli.CommandLine.Command;
     name = "resource-limit",
     description = "Set the maximum number of resources allowed per workspace.")
 public class ResourceLimit extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(ResourceLimit.class);
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ResourceLimitArgGroup argGroup;
@@ -32,6 +35,7 @@ public class ResourceLimit extends BaseCommand {
   /** Updates the resources cache size property of the global context. */
   @Override
   protected void execute() {
+    logger.debug("terra config set resource-limit");
     Config config = Context.getConfig();
     int prevMaxResources = config.getResourcesCacheSize();
     int newMaxResources = argGroup.useDefault ? Config.DEFAULT_RESOURCES_CACHE_SIZE : argGroup.max;

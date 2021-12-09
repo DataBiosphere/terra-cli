@@ -76,6 +76,7 @@ public class BreakGlass extends BaseCommand {
   /** Grant break-glass access to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace break-glass");
     workspaceOption.overrideIfSpecified();
 
     // check that the SA key files exist and are valid

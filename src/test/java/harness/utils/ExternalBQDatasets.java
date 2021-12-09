@@ -156,7 +156,7 @@ public class ExternalBQDatasets {
     HttpUtils.callWithRetries(
         () -> {
           bqClient.create(tableInfo);
-          System.out.println("Created BQ data table " + tableName + "in dataset " + datasetId);
+          System.out.println("Created BQ data table " + tableName + " in dataset " + datasetId);
           return null;
         },
         (ex) ->

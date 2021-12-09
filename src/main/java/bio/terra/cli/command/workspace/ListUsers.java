@@ -8,19 +8,22 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace list-users" command. */
 @Command(name = "list-users", description = "List the users of the workspace.")
 public class ListUsers extends BaseCommand {
-
+  private static final Logger logger = LoggerFactory.getLogger(ListUsers.class);
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
   /** List all users of the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace list-users");
     workspaceOption.overrideIfSpecified();
     formatOption.printReturnValue(
         UserIO.sortAndMap(

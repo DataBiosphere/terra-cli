@@ -15,12 +15,15 @@ import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceCloneDetails;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This corresponds to the third-level "terra workspace clone" command. */
 @Command(name = "clone", description = "Clone an existing workspace.")
 public class Clone extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Clone.class);
 
   @CommandLine.Mixin private WorkspaceNameAndDescription workspaceNameAndDescription;
 
@@ -30,6 +33,7 @@ public class Clone extends BaseCommand {
 
   @Override
   protected void execute() {
+    logger.debug("terra workspace clone");
     workspaceOption.overrideIfSpecified();
     Workspace sourceWorkspace = Context.requireWorkspace();
 

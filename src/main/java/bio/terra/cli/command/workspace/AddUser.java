@@ -6,12 +6,15 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace add-user" command. */
 @Command(name = "add-user", description = "Add a user or group to the workspace.")
 public class AddUser extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(AddUser.class);
 
   @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
   private String email;
@@ -28,6 +31,7 @@ public class AddUser extends BaseCommand {
   /** Add an email to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra workspace add-user --email={} --role={}", email, role);
     workspaceOption.overrideIfSpecified();
     WorkspaceUser workspaceUser = WorkspaceUser.add(email, role, Context.requireWorkspace());
     formatOption.printReturnValue(new UFWorkspaceUser(workspaceUser), AddUser::printText);

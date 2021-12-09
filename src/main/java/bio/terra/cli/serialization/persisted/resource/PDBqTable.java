@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.persisted.resource;
 
-import bio.terra.cli.businessobject.resource.BqDataTable;
+import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,24 +11,24 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link BqDataTable} class for a data table's internal representation.
+ * <p>See the {@link BqTable} class for a data table's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = PDBqDataTable.Builder.class)
-public class PDBqDataTable extends PDResource {
+@JsonDeserialize(builder = PDBqTable.Builder.class)
+public class PDBqTable extends PDResource {
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public PDBqDataTable(BqDataTable internalObj) {
+  public PDBqTable(BqTable internalObj) {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
     this.dataTableId = internalObj.getDataTableId();
   }
 
-  private PDBqDataTable(Builder builder) {
+  private PDBqTable(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
@@ -36,8 +36,8 @@ public class PDBqDataTable extends PDResource {
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public BqDataTable deserializeToInternal() {
-    return new BqDataTable(this);
+  public BqTable deserializeToInternal() {
+    return new BqTable(this);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -62,8 +62,8 @@ public class PDBqDataTable extends PDResource {
     }
 
     /** Call the private constructor. */
-    public PDBqDataTable build() {
-      return new PDBqDataTable(this);
+    public PDBqTable build() {
+      return new PDBqTable(this);
     }
 
     /** Default constructor for Jackson. */

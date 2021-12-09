@@ -8,6 +8,8 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket" command. */
@@ -16,6 +18,7 @@ import picocli.CommandLine;
     description = "Add a referenced GCS bucket.",
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.Option(
@@ -31,6 +34,7 @@ public class GcsBucket extends BaseCommand {
   /** Add a referenced GCS bucket to the workspace. */
   @Override
   protected void execute() {
+    logger.debug("terra resource addref gcs-bucket");
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =

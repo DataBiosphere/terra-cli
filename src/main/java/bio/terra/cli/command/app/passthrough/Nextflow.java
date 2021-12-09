@@ -7,23 +7,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra nextflow" command. */
 @Command(name = "nextflow", description = "Call nextflow in the Terra workspace.")
 public class Nextflow extends BaseCommand {
-
+  private static final Logger logger = LoggerFactory.getLogger(Nextflow.class);
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Unmatched private List<String> command = new ArrayList<>();
 
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
+    logger.debug("terra nextflow");
     workspaceOption.overrideIfSpecified();
     command.add(0, "nextflow");
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
+    addEnvVarIfDefinedInHost("TOWER_ACCESS_TOKEN", envVars);
+    addEnvVarIfDefinedInHost("TOWER_WORKSPACE_ID", envVars);
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command, envVars);
+  }
+
+  private void addEnvVarIfDefinedInHost(String envVarName, Map<String, String> envVars) {
+    String envVarValue = System.getenv(envVarName);
+    if (envVarValue != null && !envVars.isEmpty()) {
+      envVars.put(envVarName, envVarValue);
+    }
   }
 }
