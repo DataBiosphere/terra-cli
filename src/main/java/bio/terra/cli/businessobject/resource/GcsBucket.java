@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -113,7 +113,7 @@ public class GcsBucket extends Resource {
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */
-  public void updateControlled(UpdateGcsBucketParams updateParams) {
+  public void updateControlled(UpdateControlledGcsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }

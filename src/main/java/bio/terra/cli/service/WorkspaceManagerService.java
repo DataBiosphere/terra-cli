@@ -12,8 +12,9 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
-import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
@@ -37,8 +38,8 @@ import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
-import bio.terra.workspace.model.CreateGcpGcsBucketFileReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
+import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
@@ -59,14 +60,14 @@ import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
-import bio.terra.workspace.model.GcpGcsBucketFileAttributes;
-import bio.terra.workspace.model.GcpGcsBucketFileResource;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRule;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleAction;
 import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleCondition;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.GcpGcsBucketUpdateParameters;
+import bio.terra.workspace.model.GcpGcsObjectAttributes;
+import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
@@ -83,6 +84,7 @@ import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
+import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
@@ -530,31 +532,31 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/files" endpoint to add a GCS
-   * bucket file as a referenced resource in the workspace.
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects" endpoint to add a
+   * GCS bucket file as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams creation parameters
    * @return the GCS bucket file resource object
    */
-  public GcpGcsBucketFileResource createReferencedGcsBucketFile(
+  public GcpGcsObjectResource createReferencedGcsObject(
       UUID workspaceId, CreateGcsObjectParams createParams) {
     // convert the CLI object to a WSM request object
-    CreateGcpGcsBucketFileReferenceRequestBody createRequest =
-        new CreateGcpGcsBucketFileReferenceRequestBody()
+    CreateGcpGcsObjectReferenceRequestBody createRequest =
+        new CreateGcpGcsObjectReferenceRequestBody()
             .metadata(
                 new ReferenceResourceCommonFields()
                     .name(createParams.resourceFields.name)
                     .description(createParams.resourceFields.description)
                     .cloningInstructions(createParams.resourceFields.cloningInstructions))
             .file(
-                new GcpGcsBucketFileAttributes()
+                new GcpGcsObjectAttributes()
                     .bucketName(createParams.bucketName)
                     .fileName(createParams.objectName));
     return callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .createBucketFileReference(createRequest, workspaceId),
+                .createGcsObjectReference(createRequest, workspaceId),
         "Error creating referenced GCS bucket file in the workspace.");
   }
 
@@ -881,26 +883,35 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager PATCH
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/files/{resourceId}" endpoint
-   * to update a GCS bucket file referenced resource in the workspace.
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects/{resourceId}"
+   * endpoint to update a GCS bucket file referenced resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
    * @param updateParams resource properties to update
    */
-  public void updateReferencedGcsBucketFile(
-      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+  public void updateReferencedGcsObject(
+      UUID workspaceId, UUID resourceId, UpdateReferencedGcsObjectParams updateParams) {
     // convert the CLI object to a WSM request object
-    UpdateDataReferenceRequestBody updateRequest =
-        new UpdateDataReferenceRequestBody()
-            .name(updateParams.name)
-            .description(updateParams.description);
+    UpdateGcsBucketObjectReferenceRequestBody updateRequest =
+        new UpdateGcsBucketObjectReferenceRequestBody();
+    if (updateParams.resourceFields != null) {
+      updateRequest
+          .name(updateParams.resourceFields.name)
+          .description(updateParams.resourceFields.description);
+    }
+    if (updateParams.objectName != null && updateParams.bucketName != null) {
+      GcpGcsObjectAttributes gcsObjectAttributes = new GcpGcsObjectAttributes();
+      gcsObjectAttributes.bucketName(updateParams.bucketName);
+      gcsObjectAttributes.fileName(updateParams.objectName);
+      updateRequest.resourceAttributes(gcsObjectAttributes);
+    }
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .updateBucketFileReference(updateRequest, workspaceId, resourceId),
-        "Error updating referenced GCS bucket file in the workspace.");
+                .updateBucketObjectReferenceResource(updateRequest, workspaceId, resourceId),
+        "Error updating referenced GCS bucket object in the workspace.");
   }
 
   /**
@@ -936,7 +947,7 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateControlledGcsBucket(
-      UUID workspaceId, UUID resourceId, UpdateGcsBucketParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateControlledGcsBucketParams updateParams) {
     // convert the CLI lifecycle rule object into the WSM request objects
     List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(updateParams.lifecycle);
 
@@ -1012,7 +1023,7 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateControlledBigQueryDataset(
-      UUID workspaceId, UUID resourceId, UpdateBqDatasetParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateControlledBqDatasetParams updateParams) {
 
     // convert the CLI object to a WSM request object
     UpdateControlledGcpBigQueryDatasetRequestBody updateRequest =
@@ -1032,18 +1043,18 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager DELETE
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/files/{resourceId}" endpoint
-   * to delete a GCS bucket file as a referenced resource in the workspace.
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects/{resourceId}"
+   * endpoint to delete a GCS bucket file as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
    */
-  public void deleteReferencedGcsBucketFile(UUID workspaceId, UUID resourceId) {
+  public void deleteReferenceGcsObject(UUID workspaceId, UUID resourceId) {
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .deleteBucketFileReference(workspaceId, resourceId),
-        "Error deleting referenced GCS bucket file in the workspace.");
+                .deleteGcsObjectReference(workspaceId, resourceId),
+        "Error deleting referenced GCS bucket object in the workspace.");
   }
 
   /**

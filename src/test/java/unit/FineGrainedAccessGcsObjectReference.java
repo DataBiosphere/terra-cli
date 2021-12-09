@@ -31,7 +31,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   private BucketInfo externalBucket;
 
   // name of blob in external bucket
-  private String externalBucketBlobName = "testBlob";
+  private String externalBucketBlobName = "foo/testBlob";
 
   @BeforeAll
   @Override
@@ -45,17 +45,21 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(proxyGroupEmail));
 
-    // upload a object to the bucket
+    // upload an object to the bucket
     ExternalGCSBuckets.writeBlob(
         workspaceCreator.getCredentialsWithCloudPlatformScope(),
         externalBucket.getName(),
         externalBucketBlobName);
+    ExternalGCSBuckets.writeBlob(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(), externalBucket.getName(), "foo/");
 
     ExternalGCSBuckets.grantAccess(
         externalBucket.getName(),
         externalBucketBlobName,
         new Acl.Group(proxyGroupEmail),
         Role.READER);
+    ExternalGCSBuckets.grantAccess(
+        externalBucket.getName(), "foo/", new Acl.Group(proxyGroupEmail), Role.READER);
   }
 
   @AfterAll
@@ -70,6 +74,8 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
               workspaceCreator.getCredentialsWithCloudPlatformScope());
       BlobId blobId = BlobId.of(externalBucket.getName(), externalBucketBlobName);
       storageClient.delete(blobId);
+      BlobId blobId1 = BlobId.of(externalBucket.getName(), "foo/");
+      storageClient.delete(blobId1);
     } catch (IOException ioEx) {
       System.out.println("Error deleting objects in the external bucket.");
       ioEx.printStackTrace();
@@ -130,6 +136,50 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+  }
+
+  @Test
+  @DisplayName(
+      "update reference to a bucket object that the user has access to to another bucket object that the user has access to")
+  void updateObjectReferenceWithAccess() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
+    String name = "updateObjectReferenceWithAccess";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "gcs-object",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--object-name=" + externalBucketBlobName);
+
+    String newName = "yetAnotherName";
+    String newDescription = "yetAnotherDescription";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "update",
+        "gcs-object",
+        "--name=" + name,
+        "--new-name=" + newName,
+        "--description=" + newDescription,
+        "--new-bucket-name=" + externalBucket.getName(),
+        "--new-object-name=" + "foo/");
+    // `terra resource describe --name=$name --format=json`
+    UFGcsObject describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class, "resource", "describe", "--name=" + newName);
+    assertEquals(newName, describeResource.name);
+    assertEquals(newDescription, describeResource.description);
+    assertEquals(externalBucket.getName(), describeResource.bucketName);
+    assertEquals("foo/", describeResource.objectName);
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
   }
 
   @Test

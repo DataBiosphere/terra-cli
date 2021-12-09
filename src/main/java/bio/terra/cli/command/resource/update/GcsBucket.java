@@ -8,7 +8,7 @@ import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -53,7 +53,7 @@ public class GcsBucket extends BaseCommand {
       resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
     } else {
       resource.updateControlled(
-          new UpdateGcsBucketParams.Builder()
+          new UpdateControlledGcsBucketParams.Builder()
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultStorageClass(storageClassOption.storageClass)
               .lifecycle(lifecycleOptions.buildLifecycleObject())

@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -122,7 +122,7 @@ public class BqDataset extends Resource {
   }
 
   /** Update a BigQuery dataset controlled resource in the workspace. */
-  public void updateControlled(UpdateBqDatasetParams updateParams) {
+  public void updateControlled(UpdateControlledBqDatasetParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }

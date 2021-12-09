@@ -33,6 +33,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
   // name of blob in external bucket
   private String externalBucketBlobName = "blobs/testBlob";
+  private String externalBucketBlobName2 = "blob2";
 
   @BeforeAll
   @Override
@@ -44,11 +45,16 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // upload a object to the bucket
+    // upload an object to the bucket
     ExternalGCSBuckets.writeBlob(
         workspaceCreator.getCredentialsWithCloudPlatformScope(),
         externalBucket.getName(),
         externalBucketBlobName);
+
+    ExternalGCSBuckets.writeBlob(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalBucket.getName(),
+        externalBucketBlobName2);
   }
 
   @AfterAll
@@ -63,6 +69,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
               workspaceCreator.getCredentialsWithCloudPlatformScope());
       BlobId blobId = BlobId.of(externalBucket.getName(), externalBucketBlobName);
       storageClient.delete(blobId);
+      BlobId blobId1 = BlobId.of(externalBucket.getName(), externalBucketBlobName2);
+      storageClient.delete(blobId1);
     } catch (IOException ioEx) {
       System.out.println("Error deleting objects in the external bucket.");
       ioEx.printStackTrace();
@@ -391,7 +399,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         CoreMatchers.containsString("Specify at least one property to update"));
 
     // update the name and description
-    // `terra resources update gcs-object --name=$newName --new-name=$newName
+    // `terra resources update gcs-object --name=$name --new-name=$newName
     // --description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
@@ -412,6 +420,30 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucketObject.description);
+
+    // update referencing target
+    // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName
+    // --new-name=$newName --description=$newDescription --new-object-name=$newObjectName`
+    String yetAnotherName = "updateMultipleOrNoProperties_NEW";
+    String yetAnotherDescription = "updateDescription_NEW";
+    UFGcsObject updateBucketObjectReferencingTarget =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "update",
+            "gcs-object",
+            "--name=" + newName,
+            "--new-name=" + yetAnotherName,
+            "--description=" + yetAnotherDescription,
+            "--new-bucket-name=" + externalBucket.getName(),
+            "--new-object-name=" + externalBucketBlobName2);
+    assertEquals(externalBucket.getName(), updateBucketObjectReferencingTarget.bucketName);
+    assertEquals(externalBucketBlobName2, updateBucketObjectReferencingTarget.objectName);
+
+    UFGcsObject describeBucketObjectUpdatingReferencingTarget =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class, "resource", "describe", "--name=" + yetAnotherName);
+    assertEquals(yetAnotherDescription, describeBucketObjectUpdatingReferencingTarget.description);
   }
 
   /**

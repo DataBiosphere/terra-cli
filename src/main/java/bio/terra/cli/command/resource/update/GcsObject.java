@@ -4,9 +4,12 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.GcsBucketResourceUpdate;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import picocli.CommandLine;
 
@@ -17,8 +20,14 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GcsObject extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
+  @CommandLine.Mixin GcsBucketResourceUpdate bucketResourceUpdate;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
+  @CommandLine.Option(
+      names = "--new-object-name",
+      description = "Full path to the object in the specified GCS bucket.")
+  private String newObjectName;
 
   /** Update a bucket object in the workspace. */
   @Override
@@ -36,7 +45,15 @@ public class GcsObject extends BaseCommand {
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Resource.Type.GCS_OBJECT);
 
-    resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+    UpdateResourceParams updateResourceParams =
+        resourceUpdateOptions.populateMetadataFields().build();
+    UpdateReferencedGcsObjectParams gcsObjectParams =
+        new UpdateReferencedGcsObjectParams.Builder()
+            .resourceFields(updateResourceParams)
+            .bucketName(bucketResourceUpdate.getNewBucketName())
+            .objectName(newObjectName)
+            .build();
+    resource.updateReferenced(gcsObjectParams);
 
     formatOption.printReturnValue(new UFGcsObject(resource), GcsObject::printText);
   }

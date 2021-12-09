@@ -8,7 +8,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -49,7 +49,7 @@ public class BqDataset extends BaseCommand {
       resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
     } else {
       resource.updateControlled(
-          new UpdateBqDatasetParams.Builder()
+          new UpdateControlledBqDatasetParams.Builder()
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultPartitionLifetimeSeconds(
                   bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())

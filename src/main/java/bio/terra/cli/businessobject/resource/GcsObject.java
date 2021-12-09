@@ -6,10 +6,10 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.workspace.model.GcpGcsBucketFileResource;
+import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +35,12 @@ public class GcsObject extends Resource {
   public GcsObject(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.GCS_OBJECT;
-    this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getBucketName();
-    this.objectName = wsmObject.getResourceAttributes().getGcpGcsBucketFile().getFileName();
+    this.bucketName = wsmObject.getResourceAttributes().getGcpGcsObject().getBucketName();
+    this.objectName = wsmObject.getResourceAttributes().getGcpGcsObject().getFileName();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public GcsObject(GcpGcsBucketFileResource resource) {
+  public GcsObject(GcpGcsObjectResource resource) {
     super(resource.getMetadata());
     this.resourceType = Type.GCS_OBJECT;
     this.bucketName = resource.getAttributes().getBucketName();
@@ -71,9 +71,9 @@ public class GcsObject extends Resource {
     // credentials, because they include the cloud-platform scope. WSM needs the cloud-platform
     // scope to perform its access check before adding the reference. note that this means a user
     // cannot add a reference unless their pet SA has access to it.
-    GcpGcsBucketFileResource addedResource =
+    GcpGcsObjectResource addedResource =
         WorkspaceManagerService.fromContextForPetSa()
-            .createReferencedGcsBucketFile(Context.requireWorkspace().getId(), createParams);
+            .createReferencedGcsObject(Context.requireWorkspace().getId(), createParams);
     logger.info("Created GCS bucket object: {}", addedResource);
 
     // convert the WSM object to a CLI object
@@ -82,20 +82,26 @@ public class GcsObject extends Resource {
   }
 
   /** Update a GCS bucket object referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedGcsObjectParams updateParams) {
+    if (updateParams.resourceFields != null && updateParams.resourceFields.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedGcsBucketFile(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+        .updateReferencedGcsObject(Context.requireWorkspace().getId(), id, updateParams);
+    if (updateParams.bucketName != null) {
+      this.bucketName = updateParams.bucketName;
+    }
+    if (updateParams.objectName != null) {
+      this.objectName = updateParams.objectName;
+    }
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /** Delete a GCS bucket object referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedGcsBucketFile(Context.requireWorkspace().getId(), id);
+        .deleteReferenceGcsObject(Context.requireWorkspace().getId(), id);
   }
 
   protected void deleteControlled() {
