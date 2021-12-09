@@ -35,7 +35,7 @@ import picocli.CommandLine.ParseResult;
             + "....\n\n"
             + "Ping the Terra server. \n\n"
             + "....\n\n"
-            + "terra server status \n\n\n\n"
+            + "terra server statusz \n\n\n\n"
             + "....\n\n"
             + "Create a new Terra workspace and backing Google project. Check the current context to confirm it was created successfully. \n\n"
             + "....\n\n"

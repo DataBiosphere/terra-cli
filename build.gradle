@@ -320,8 +320,9 @@ task generateDocs (type: JavaExec) {
     description = "Generate Terra CLI docs"
     classpath(configurations.compile, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
     main 'picocli.codegen.docgen.manpage.ManPageGenerator'
-    args 'bio.terra.cli.command.Main', "--outdir=${project.rootDir}/docs", "-v" // "--template-dir=src/docs/templates"
+    args 'bio.terra.cli.command.Main', "--outdir=${project.rootDir}/docs/commands/"
 }
+build.dependsOn tasks.generateDocs
 
 // convenience tasks to fetch build properties from scripts (e.g. see ./tools/)
 task getBuildVersion {
