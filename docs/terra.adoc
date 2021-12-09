@@ -12,7 +12,7 @@
 // tag::picocli-generated-man-section-name[]
 == Name
 
-terra - Terra CLI
+terra - Terra command-line interface.
 
 // end::picocli-generated-man-section-name[]
 
@@ -26,7 +26,15 @@ terra - Terra CLI
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Terra CLI
+The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. 
+
+==Example usage 
+
+....
+
+asdfasdf....
+
+
 
 // end::picocli-generated-man-section-description[]
 

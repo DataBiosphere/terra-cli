@@ -24,6 +24,13 @@ import picocli.CommandLine.ParseResult;
  */
 @Command(
     name = "terra",
+    header = "Terra command-line interface.",
+    description =
+        "The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. \n\n"
+            + "==Example usage \n\n"
+            + "....\n\n"
+            + "asdfasdf"
+            + "....\n\n",
     subcommands = {
       App.class,
       Auth.class,
@@ -42,8 +49,7 @@ import picocli.CommandLine.ParseResult;
       User.class,
       Version.class,
       Workspace.class
-    },
-    description = "Terra CLI")
+    })
 public class Main implements Runnable {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
 
