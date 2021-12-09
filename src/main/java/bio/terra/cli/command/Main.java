@@ -53,7 +53,15 @@ import picocli.CommandLine.ParseResult;
             + "Create a Terra-managed bucket for temporary data storage. \n\n"
             + "....\n\n"
             + "terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket \n\n"
-            + "....\n\n",
+            + "....\n\n"
+            + "== Exit codes \n\n"
+            + "The CLI sets the process exit code as follows: \n\n"
+            + "* 0 = Successful program execution \n\n"
+            + "* 1 = User-actionable error (e.g. missing parameter, workspace not defined in the current context) \n\n"
+            + "* 2 = System or internal error (e.g. error response from the Terra server) \n\n"
+            + "* 3 = Unexpected error (e.g. Java exception) \n\n"
+            + "Third-party application exit codes will be passed through to the caller. "
+            + "For example, if `gcloud --malformedOption` returns exit code `2`, then `terra gcloud --malformedOption` will also return exit code `2`.",
     subcommands = {
       App.class,
       Auth.class,

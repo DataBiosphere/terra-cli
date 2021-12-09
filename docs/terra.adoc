@@ -84,7 +84,19 @@ terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket
 
 ....
 
+== Exit codes 
 
+The CLI sets the process exit code as follows: 
+
+* 0 = Successful program execution 
+
+* 1 = User-actionable error (e.g. missing parameter, workspace not defined in the current context) 
+
+* 2 = System or internal error (e.g. error response from the Terra server) 
+
+* 3 = Unexpected error (e.g. Java exception) 
+
+Third-party application exit codes will be passed through to the caller. For example, if `gcloud --malformedOption` returns exit code `2`, then `terra gcloud --malformedOption` will also return exit code `2`.
 
 // end::picocli-generated-man-section-description[]
 
