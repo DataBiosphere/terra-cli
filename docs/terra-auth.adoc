@@ -26,7 +26,10 @@ terra-auth - Commands to manage user credentials.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Only one user can be logged in at a time. Call terra auth login to login as a different user.asdfasdfasdf
+Only one user can be logged in at a time. Call terra auth login to login as a different user. 
+You don't need to login again after switching workspaces. 
+You will need to login again after switching servers, because different Terra deployments may have different OAuth flows. 
+
 
 // end::picocli-generated-man-section-description[]
 
