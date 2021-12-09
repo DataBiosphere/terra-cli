@@ -12,7 +12,7 @@
 // tag::picocli-generated-man-section-name[]
 == Name
 
-terra-auth - Retrieve and manage user credentials.
+terra-auth - Commands to manage user credentials.
 
 // end::picocli-generated-man-section-name[]
 
@@ -26,7 +26,7 @@ terra-auth - Retrieve and manage user credentials.
 // tag::picocli-generated-man-section-description[]
 == Description
 
-Retrieve and manage user credentials.
+Only one user can be logged in at a time. Call terra auth login to login as a different user.asdfasdfasdf
 
 // end::picocli-generated-man-section-description[]
 

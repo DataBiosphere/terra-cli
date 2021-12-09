@@ -11,6 +11,9 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "auth",
-    description = "Retrieve and manage user credentials.",
+    header = "Commands to manage user credentials.",
+    description =
+        "Only one user can be logged in at a time. Call terra auth login to login as a different user."
+            + "asdfasdfasdf",
     subcommands = {Login.class, Revoke.class, Status.class})
 public class Auth {}

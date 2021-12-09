@@ -37,7 +37,7 @@ Terra CLI
   Run applications in the workspace.
 
 *auth*::
-  Retrieve and manage user credentials.
+  Commands to manage user credentials.
 
 *bq*::
   Call bq in the Terra workspace.
