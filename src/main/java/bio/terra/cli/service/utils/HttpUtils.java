@@ -292,7 +292,7 @@ public class HttpUtils {
         // Print to STDERR so that terminal command doesn't appear to hang.
         if (shouldPrintToStderrOnRetry && numTries > 1) {
           System.err.printf(
-              "Encountered error, retrying request (%s/%s)\n", numTries - 1, maxCalls);
+              "Encountered error, retrying request (%s/%s)%n", numTries - 1, maxCalls);
         }
 
         T result = makeRequest.makeRequest();
