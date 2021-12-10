@@ -35,7 +35,7 @@ public class GcsObject extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined()) {
+    if (!resourceUpdateOptions.isDefined() && newObjectName == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 

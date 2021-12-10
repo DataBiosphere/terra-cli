@@ -9,6 +9,7 @@ import com.google.cloud.Policy;
 import com.google.cloud.Role;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Acl.Group;
+import com.google.cloud.storage.Acl.User;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;
@@ -120,13 +121,22 @@ public class ExternalGCSBuckets {
     storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
-  /** Grant a user role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
+  /** Grant a group role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
   public static void grantAccess(
       String bucketName, String blobName, Group group, com.google.cloud.storage.Acl.Role role)
       throws IOException {
     StorageCow storage = getStorageCow();
     BlobId blobId = BlobId.of(bucketName, blobName);
     storage.createAcl(blobId, Acl.of(group, role));
+  }
+
+  /** Grant a user role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
+  public static void grantAccess(
+      String bucketName, String blobName, User user, com.google.cloud.storage.Acl.Role role)
+      throws IOException {
+    StorageCow storage = getStorageCow();
+    BlobId blobId = BlobId.of(bucketName, blobName);
+    storage.createAcl(blobId, Acl.of(user, role));
   }
 
   /** Utility method to write an arbitrary blob to a bucket. */
