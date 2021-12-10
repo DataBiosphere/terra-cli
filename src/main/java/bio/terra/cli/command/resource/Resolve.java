@@ -7,7 +7,6 @@ import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
-import bio.terra.cli.businessobject.resource.ResolveOptions;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
