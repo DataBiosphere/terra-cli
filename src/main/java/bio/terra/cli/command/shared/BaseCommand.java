@@ -58,7 +58,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     }
 
     // execute the command
-    logger.debug("terra " + String.join(" ", Main.getArgList()));
+    logger.debug("[COMMAND RUN] terra " + String.join(" ", Main.getArgList()));
     execute();
 
     // set the command exit code

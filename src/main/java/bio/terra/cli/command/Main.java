@@ -60,6 +60,7 @@ public class Main implements Runnable {
           .stackTraces(CommandLine.Help.Ansi.Style.italic)
           .build();
 
+  /** List of user input command and arguments. */
   private static List<String> argList = List.of();
 
   /**
@@ -108,13 +109,14 @@ public class Main implements Runnable {
    * @param args from stdin
    */
   public static void main(String... args) {
+    // Save the user input args so that {@link BaseCommand} can log the command and arguments being
+    // executed.
     argList = Arrays.asList(args);
     // run the command
     int exitCode = runCommand(args);
 
     // set the exit code and terminate the process
     System.exit(exitCode);
-    resetArgList();
   }
 
   /** Required method to implement Runnable, but not actually called by picocli. */
@@ -124,11 +126,6 @@ public class Main implements Runnable {
   /** Get the user input arguments */
   public static List<String> getArgList() {
     return argList;
-  }
-
-  /** Resets the arg list after executing the command. */
-  private static void resetArgList() {
-    argList = List.of();
   }
 
   /**
