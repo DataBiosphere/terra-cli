@@ -1,9 +1,7 @@
-# terra-cli
 
 The Terra command-line interface (CLI) makes it easy to interact with Terra workspaces and resources interactively or from programmatic environments (e.g. Terra notebooks or shell scripts).
 
------
-## Installation
+# Installation
 To install the latest version:
 ```
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
@@ -23,7 +21,9 @@ or move it to a place that is already on your `$PATH` (e.g. `/usr/local/bin`).
 Re-installing will overwrite any existing installation (i.e. all JARs and scripts will be overwritten), but will not
 modify the `$PATH`. So if you have added it to your `$PATH`, that step needs to be repeated after each install.
 
-## Requirements
+`terra auth login` launches an OAuth flow that pops out a browser window to complete the login.
+
+# Requirements
 1. Java 11
 2. Docker 20.10.2 (Must be running)
 3. `curl`, `tar`, `gcloud` (For install only)
@@ -32,13 +32,7 @@ Note: The CLI doesn't use `gcloud` directly either during install or normal oper
 However, `docker pull` [may use](https://cloud.google.com/container-registry/docs/quickstart#auth) `gcloud` under the 
 covers to pull the default Docker image from GCR. This is the reason for the `gcloud` requirement for install.
 
-## Authentication
-1. `terra auth login` launches an OAuth flow that pops out a browser window to complete the login.
-2. If the machine where you're running the CLI does not have a browser available to it, then use the
-manual login flow by setting the browser flag `terra config set browser MANUAL`. See the [Authentication](#authentication)
-section below for more details.
-
-## Commands
+# Command reference
 
 See the [Terra CLI command docs](/docs/commands/terra.adoc).
 
@@ -47,10 +41,6 @@ In order to spend money (e.g. by creating a workspace and resources within it) i
 access to a billing account via a spend profile. Currently, there is a single spend profile used
 by Workspace Manager. An admin user can grant you access.
 Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend) for more details.
-
-## External data 
-In order to read or write external data from Terra, you should grant data access to your proxy group.
-`terra auth status` shows the email of your proxy group.
 
 ## Troubleshooting
 ### Clear global context
