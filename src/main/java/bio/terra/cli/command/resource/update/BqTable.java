@@ -7,7 +7,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
+import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update bq-table" command. */
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     name = "bq-table",
     description = "Update a BigQuery data table.",
     showDefaultValues = true)
-public class BqDataTable extends BaseCommand {
+public class BqTable extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -31,18 +31,18 @@ public class BqDataTable extends BaseCommand {
     }
 
     // get the resource and make sure it's the right type
-    bio.terra.cli.businessobject.resource.BqDataTable resource =
+    bio.terra.cli.businessobject.resource.BqTable resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
-            .castToType(Resource.Type.BQ_DATA_TABLE);
+            .castToType(Resource.Type.BQ_TABLE);
 
     resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
 
-    formatOption.printReturnValue(new UFBqDataTable(resource), BqDataTable::printText);
+    formatOption.printReturnValue(new UFBqTable(resource), BqTable::printText);
   }
 
   /** Print this command's output in text format. */
-  private static void printText(UFBqDataTable returnValue) {
+  private static void printText(UFBqTable returnValue) {
     OUT.println("Successfully updated BigQuery data table.");
     returnValue.print();
   }

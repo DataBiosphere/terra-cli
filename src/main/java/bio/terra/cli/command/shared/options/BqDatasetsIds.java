@@ -2,8 +2,13 @@ package bio.terra.cli.command.shared.options;
 
 import picocli.CommandLine;
 
-/** Ids for building BigQuery datasets or BigQuery data table. */
-public class BigQueryIds {
+/**
+ * Command helper class that defines the project id and dataset id when building a BigQuery datasets
+ * or BigQuery data table.
+ *
+ * <p>This class is meant to be used as a @CommandLine.Mixin.
+ */
+public class BqDatasetsIds {
 
   @CommandLine.Option(
       names = "--project-id",

@@ -1,11 +1,13 @@
 package bio.terra.cli.businessobject.resource;
 
+import static bio.terra.cli.businessobject.resource.BqResolvedOptions.BQ_PROJECT_DATA_TABLE_DELIMITER;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.persisted.resource.PDBqDataTable;
-import bio.terra.cli.serialization.userfacing.input.CreateBqDataTableParams;
+import bio.terra.cli.serialization.persisted.resource.PDBqTable;
+import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFBqDataTable;
+import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -16,24 +18,16 @@ import org.slf4j.LoggerFactory;
  * Internal representation of a BigQuery data table workspace resource. Instances of this class are
  * part of the current context or state.
  */
-public class BqDataTable extends Resource {
+public class BqTable extends Resource {
 
-  private static final Logger logger = LoggerFactory.getLogger(BqDataTable.class);
+  private static final Logger logger = LoggerFactory.getLogger(BqTable.class);
 
   private String projectId;
   private String datasetId;
   private String dataTableId;
 
-  /**
-   * Delimiter between the project id, dataset id and data table id for a BigQuery DataTable.
-   *
-   * <p>The choice is somewhat arbitrary. BigQuery tables do not have true URIs. The '.' delimiter
-   * allows the path to be used directly in SQL calls with a BigQuery extension.
-   */
-  private static final char BQ_PROJECT_DATA_TABLE_DELIMITER = '.';
-
   /** Deserialize an instance of the disk format to the internal object. */
-  public BqDataTable(PDBqDataTable configFromDisk) {
+  public BqTable(PDBqTable configFromDisk) {
     super(configFromDisk);
     this.projectId = configFromDisk.projectId;
     this.datasetId = configFromDisk.datasetId;
@@ -41,18 +35,18 @@ public class BqDataTable extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
-  public BqDataTable(ResourceDescription wsmObject) {
+  public BqTable(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.BQ_DATA_TABLE;
+    this.resourceType = Type.BQ_TABLE;
     this.projectId = wsmObject.getResourceAttributes().getGcpBqDataTable().getProjectId();
     this.datasetId = wsmObject.getResourceAttributes().getGcpBqDataTable().getDatasetId();
     this.dataTableId = wsmObject.getResourceAttributes().getGcpBqDataTable().getDataTableId();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public BqDataTable(GcpBigQueryDataTableResource resource) {
+  public BqTable(GcpBigQueryDataTableResource resource) {
     super(resource.getMetadata());
-    this.resourceType = Type.BQ_DATA_TABLE;
+    this.resourceType = Type.BQ_TABLE;
     this.projectId = resource.getAttributes().getProjectId();
     this.datasetId = resource.getAttributes().getDatasetId();
     this.dataTableId = resource.getAttributes().getDataTableId();
@@ -61,13 +55,13 @@ public class BqDataTable extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public UFBqDataTable serializeToCommand() {
-    return new UFBqDataTable(this);
+  public UFBqTable serializeToCommand() {
+    return new UFBqTable(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDBqDataTable serializeToDisk() {
-    return new PDBqDataTable(this);
+  public PDBqTable serializeToDisk() {
+    return new PDBqTable(this);
   }
 
   /**
@@ -75,7 +69,7 @@ public class BqDataTable extends Resource {
    *
    * @return the resource that was added
    */
-  public static BqDataTable addReferenced(CreateBqDataTableParams createParams) {
+  public static BqTable addReferenced(CreateBqTableParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference. use the pet SA credentials instead of the end user's
@@ -89,7 +83,7 @@ public class BqDataTable extends Resource {
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
-    return new BqDataTable(addedResource);
+    return new BqTable(addedResource);
   }
 
   /** Update a BigQuery data table referenced resource in the workspace. */
@@ -120,10 +114,14 @@ public class BqDataTable extends Resource {
    * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
   public String resolve() {
-    return resolve(ResolveOptions.FULL_PATH);
+    return resolve(BqResolvedOptions.FULL_PATH);
   }
 
-  public String resolve(ResolveOptions resolveOption) {
+  /**
+   * Resolve a BigQuery data table resource to its cloud identifier with a specified {@code
+   * resolveOption}.
+   */
+  public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId
