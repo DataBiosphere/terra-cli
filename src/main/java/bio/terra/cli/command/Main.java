@@ -10,6 +10,8 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.UserIO;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,6 +60,9 @@ public class Main implements Runnable {
           .stackTraces(CommandLine.Help.Ansi.Style.italic)
           .build();
 
+  /** List of user input command and arguments. */
+  private static List<String> argList = List.of();
+
   /**
    * Create and execute the top-level command. Tests call this method instead of {@link
    * #main(String...)} so that the process isn't terminated.
@@ -104,6 +109,9 @@ public class Main implements Runnable {
    * @param args from stdin
    */
   public static void main(String... args) {
+    // Save the user input args so that {@link BaseCommand} can log the command and arguments being
+    // executed.
+    argList = Arrays.asList(args);
     // run the command
     int exitCode = runCommand(args);
 
@@ -114,6 +122,11 @@ public class Main implements Runnable {
   /** Required method to implement Runnable, but not actually called by picocli. */
   @Override
   public void run() {}
+
+  /** Get the user input arguments */
+  public static List<String> getArgList() {
+    return argList;
+  }
 
   /**
    * Custom handler class that intercepts all exceptions.
