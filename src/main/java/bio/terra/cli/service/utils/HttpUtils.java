@@ -1,12 +1,9 @@
 package bio.terra.cli.service.utils;
 
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.utils.UserIO;
 import com.google.api.client.http.HttpStatusCodes;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -291,8 +288,8 @@ public class HttpUtils {
 
         // Print to STDERR so that terminal command doesn't appear to hang.
         if (shouldPrintToStderrOnRetry && numTries > 1) {
-          System.err.printf(
-              "Encountered error, retrying request (%s/%s)%n", numTries - 1, maxCalls);
+          UserIO.getErr()
+              .printf("Encountered error, retrying request (%s/%s)%n", numTries - 1, maxCalls);
         }
 
         T result = makeRequest.makeRequest();
