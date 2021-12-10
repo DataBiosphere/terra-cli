@@ -264,6 +264,8 @@ public class User {
       throw new SystemException(
           "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
     }
+
+    this.petSAEmail = null;
   }
 
   /**
