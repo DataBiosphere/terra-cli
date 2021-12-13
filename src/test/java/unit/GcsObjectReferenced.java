@@ -25,6 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+/** Test for CLI commands for GCS objects. */
 @Tag("unit")
 public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
@@ -251,9 +252,9 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // `terra resources add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName --cloning=$cloning --description=$description --format=json`
-    String name = "addWithAllOptionsExceptLifecycle";
+    String name = "addWithAllOptions";
     CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
-    String description = "add with all options except lifecycle";
+    String description = "add with all options";
     UFGcsObject addedBucketObjectReference =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,
@@ -364,6 +365,26 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucketObject.description);
+
+    updateBucketObject =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "update",
+            "gcs-object",
+            "--name=" + newName,
+            "--new-bucket-name=" + externalBucket.getName(),
+            "--new-object-name=" + externalBucketBlobName2);
+    assertEquals(externalBucketBlobName2, updateBucketObject.objectName);
+    assertEquals(externalBucket.getName(), updateBucketObject.bucketName);
+
+    String resolved =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + newName);
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName2),
+        resolved,
+        "resolve matches bucket object name");
   }
 
   @Test
@@ -394,9 +415,10 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "update", "gcs-object", "--name=" + name);
     assertThat(
-        "error message says that at least one property must be specified",
+        "To update referencing target, both new bucket name and new object name needs to be specified.",
         stdErr,
-        CoreMatchers.containsString("Specify at least one property to update"));
+        CoreMatchers.containsString(
+            "both new bucket name and new object name needs to be specified"));
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName
@@ -444,6 +466,10 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + yetAnotherName);
     assertEquals(yetAnotherDescription, describeBucketObjectUpdatingReferencingTarget.description);
+    assertEquals(externalBucketBlobName2, describeBucketObjectUpdatingReferencingTarget.objectName);
+    assertEquals(
+        externalBucket.getName(), describeBucketObjectUpdatingReferencingTarget.bucketName);
+    assertEquals(yetAnotherName, describeBucketObjectUpdatingReferencingTarget.name);
   }
 
   /**

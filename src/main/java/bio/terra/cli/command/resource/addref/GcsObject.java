@@ -5,13 +5,13 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket-file" command. */
+/** This class corresponds to the fourth-level "terra resource add-ref gcs-object" command. */
 @CommandLine.Command(
     name = "gcs-object",
     description = "Add a referenced GCS bucket object.",
@@ -23,7 +23,8 @@ public class GcsObject extends BaseCommand {
   @CommandLine.Option(
       names = "--object-name",
       required = true,
-      description = "Full path to the object in the specified GCS bucket.")
+      description =
+          "Full path to the object in the specified GCS bucket, such as folder1/file.txt and folder1/")
   private String objectName;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -38,8 +39,8 @@ public class GcsObject extends BaseCommand {
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.REFERENCED);
-    CreateGcsObjectParams.Builder createParams =
-        new CreateGcsObjectParams.Builder()
+    AddGcsObjectParams.Builder createParams =
+        new AddGcsObjectParams.Builder()
             .resourceFields(createResourceParams.build())
             .bucketName(bucketNameOption.getBucketName())
             .objectName(objectName);

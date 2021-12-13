@@ -4,11 +4,11 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
@@ -540,7 +540,7 @@ public class WorkspaceManagerService {
    * @return the GCS bucket file resource object
    */
   public GcpGcsObjectResource createReferencedGcsObject(
-      UUID workspaceId, CreateGcsObjectParams createParams) {
+      UUID workspaceId, AddGcsObjectParams createParams) {
     // convert the CLI object to a WSM request object
     CreateGcpGcsObjectReferenceRequestBody createRequest =
         new CreateGcpGcsObjectReferenceRequestBody()
@@ -885,7 +885,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects/{resourceId}"
-   * endpoint to update a GCS bucket file referenced resource in the workspace.
+   * endpoint to update a GCS bucket object referenced resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -1044,12 +1044,12 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager DELETE
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects/{resourceId}"
-   * endpoint to delete a GCS bucket file as a referenced resource in the workspace.
+   * endpoint to delete a GCS bucket object as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
    */
-  public void deleteReferenceGcsObject(UUID workspaceId, UUID resourceId) {
+  public void deleteReferencedGcsObject(UUID workspaceId, UUID resourceId) {
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)

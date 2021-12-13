@@ -5,7 +5,7 @@ import static bio.terra.cli.businessobject.resource.GcsBucket.GCS_BUCKET_URL_PRE
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -64,7 +64,7 @@ public class GcsObject extends Resource {
    *
    * @return the resource that was added
    */
-  public static GcsObject addReferenced(CreateGcsObjectParams createParams) {
+  public static GcsObject addReferenced(AddGcsObjectParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference. use the pet SA credentials instead of the end user's
@@ -101,7 +101,7 @@ public class GcsObject extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferenceGcsObject(Context.requireWorkspace().getId(), id);
+        .deleteReferencedGcsObject(Context.requireWorkspace().getId(), id);
   }
 
   protected void deleteControlled() {

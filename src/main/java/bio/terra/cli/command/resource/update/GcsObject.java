@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.GcsBucketResourceUpdate;
+import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
@@ -20,7 +20,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GcsObject extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin GcsBucketResourceUpdate bucketResourceUpdate;
+  @CommandLine.Mixin GcsBucketNewName newBucketName;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -35,7 +35,11 @@ public class GcsObject extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && newObjectName == null) {
+    if (!resourceUpdateOptions.isDefined() && (newObjectName == null || newBucketName == null)) {
+      if (newObjectName != null || newBucketName != null) {
+        throw new UserActionableException(
+            "To update referencing target, both new bucket name and new object name needs to be specified.");
+      }
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -50,7 +54,7 @@ public class GcsObject extends BaseCommand {
     UpdateReferencedGcsObjectParams gcsObjectParams =
         new UpdateReferencedGcsObjectParams.Builder()
             .resourceFields(updateResourceParams)
-            .bucketName(bucketResourceUpdate.getNewBucketName())
+            .bucketName(newBucketName.getNewBucketName())
             .objectName(newObjectName)
             .build();
     resource.updateReferenced(gcsObjectParams);

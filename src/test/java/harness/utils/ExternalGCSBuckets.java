@@ -8,8 +8,9 @@ import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
 import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Acl.Entity;
 import com.google.cloud.storage.Acl.Group;
-import com.google.cloud.storage.Acl.User;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;
@@ -121,26 +122,28 @@ public class ExternalGCSBuckets {
     storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
-  /** Grant a group role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
+  /**
+   * Grant an {@link Entity} role on a gcs file, a.k.a set the {@link Acl} of the given {@link
+   * BlobId}.
+   */
   public static void grantAccess(
-      String bucketName, String blobName, Group group, com.google.cloud.storage.Acl.Role role)
+      String bucketName, String blobName, Entity entity, com.google.cloud.storage.Acl.Role role)
       throws IOException {
     StorageCow storage = getStorageCow();
     BlobId blobId = BlobId.of(bucketName, blobName);
-    storage.createAcl(blobId, Acl.of(group, role));
+    storage.createAcl(blobId, Acl.of(entity, role));
   }
 
-  /** Grant a user role on a gcs file, a.k.a set the {@link Acl} of the given {@link BlobId}. */
-  public static void grantAccess(
-      String bucketName, String blobName, User user, com.google.cloud.storage.Acl.Role role)
+  /** Revokes access of {@code group} to the specified blob in the bucket. */
+  public static void revokeAccess(String bucketName, String blobName, Group group)
       throws IOException {
     StorageCow storage = getStorageCow();
     BlobId blobId = BlobId.of(bucketName, blobName);
-    storage.createAcl(blobId, Acl.of(user, role));
+    storage.deleteAcl(blobId, group);
   }
 
   /** Utility method to write an arbitrary blob to a bucket. */
-  public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
+  public static Blob writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
       throws InterruptedException {
     Storage storageClient = getStorageClient(credentials);
     BucketInfo bucket = storageClient.get(bucketName);
@@ -151,11 +154,8 @@ public class ExternalGCSBuckets {
 
     // retry forbidden errors because we often see propagation delays when a user is just granted
     // access
-    HttpUtils.callWithRetries(
-        () -> {
-          storageClient.create(blobInfo, blobData);
-          return null;
-        },
+    return HttpUtils.callWithRetries(
+        () -> storageClient.create(blobInfo, blobData),
         (ex) ->
             (ex instanceof StorageException)
                 && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
@@ -193,7 +193,8 @@ public class ExternalGCSBuckets {
     return "gs://" + bucketName;
   }
 
-  public static String getGsPath(String bucketName, String filePath) {
-    return getGsPath(bucketName) + "/" + filePath;
+  /** Utility method to get the gs:// path of a bucket object. */
+  public static String getGsPath(String bucketName, String objectPath) {
+    return getGsPath(bucketName) + "/" + objectPath;
   }
 }

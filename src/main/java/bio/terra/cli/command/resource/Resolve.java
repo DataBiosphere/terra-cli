@@ -22,7 +22,7 @@ public class Resolve extends BaseCommand {
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
-      description = "[For GCS_BUCKET and GCS_BUCKET_FILE] Exclude the 'gs://' prefix.")
+      description = "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
