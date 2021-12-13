@@ -28,7 +28,7 @@ public class Logger {
 
   private static final long MAX_PER_FILE_SIZE = 10 * FileSize.MB_COEFFICIENT;
   private static final long MAX_TOTAL_LOG_SIZE = 100 * FileSize.MB_COEFFICIENT;
-  private static final int MAX_HISTORY_FILES = 30; // Keep up to 30 archived log files
+  private static final int MAX_HISTORY_FILES = 30;
 
   /**
    * Setup a file and console appender for the root logger. Each may use a different logging level,
@@ -55,6 +55,7 @@ public class Logger {
     SizeAndTimeBasedRollingPolicy rollingPolicy = new SizeAndTimeBasedRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setParent(fileAppender);
+    // Log files will be stored at "~/.terra/logs/terra-2021-01-01.0.log", etc.
     rollingPolicy.setFileNamePattern(
         Context.getLogFile().getParent().resolve("terra-%d{yyyy-MM-dd}.%i.log").toString());
     rollingPolicy.setMaxHistory(MAX_HISTORY_FILES);
