@@ -433,7 +433,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     if (resourceName.isPresent()) {
       // `terra resource delete --name=$name`
       TestCommand.runCommandExpectSuccess(
-          "resource", "delete", "--name=" + resourceName, "--quiet");
+          "resource", "delete", "--name=" + resourceName.get(), "--quiet");
     }
   }
 }
