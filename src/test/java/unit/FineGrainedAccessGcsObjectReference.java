@@ -105,8 +105,8 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add reference to a bucket object that the user has access to")
-  void addObjectReferenceWithAccess() throws IOException {
+  @DisplayName("add reference to a bucket object that the user has bucket-level access to")
+  void addObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -156,8 +156,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName(
-      "update reference to a bucket object that the user has access to to another bucket object that the user has bucket level access to")
+  @DisplayName("user with bucket level access updates object reference")
   void updateObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
@@ -358,7 +357,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add reference to a bucket object that the user has partial access to")
+  @DisplayName("user with partial access attempt to add reference to bucket objects")
   void addRefWithPartialAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
