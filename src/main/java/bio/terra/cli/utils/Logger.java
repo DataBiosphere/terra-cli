@@ -97,7 +97,7 @@ public class Logger {
       fileAppender.rollover();
     }
 
-    StatusPrinter.print(loggerContext); // helpful for debugging
+    // StatusPrinter.print(loggerContext); // helpful for debugging
   }
 
   /**
