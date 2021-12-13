@@ -138,7 +138,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     UFGcsObject describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + name);
-    
+
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
