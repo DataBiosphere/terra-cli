@@ -5,7 +5,7 @@ import static bio.terra.cli.businessobject.resource.BqResolvedOptions.BQ_PROJECT
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqTable;
-import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.service.WorkspaceManagerService;

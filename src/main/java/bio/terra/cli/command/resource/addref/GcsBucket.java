@@ -5,7 +5,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;

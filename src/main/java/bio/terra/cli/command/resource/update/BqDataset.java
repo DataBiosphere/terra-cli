@@ -8,7 +8,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
