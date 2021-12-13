@@ -31,6 +31,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
+  private BucketInfo externalBucket2;
 
   // name of blob in external bucket
   private String externalBucketBlobName = "blobs/testBlob";
@@ -41,10 +42,12 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
+    externalBucket2 = ExternalGCSBuckets.createBucketWithUniformAccess();
 
     // grant the user's proxy group access to the bucket so that it will pass WSM's access check
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
+    ExternalGCSBuckets.grantWriteAccess(externalBucket2, Identity.group(Auth.getProxyGroupEmail()));
 
     // upload an object to the bucket
     ExternalGCSBuckets.writeBlob(
@@ -55,6 +58,11 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     ExternalGCSBuckets.writeBlob(
         workspaceCreator.getCredentialsWithCloudPlatformScope(),
         externalBucket.getName(),
+        externalBucketBlobName2);
+
+    ExternalGCSBuckets.writeBlob(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalBucket2.getName(),
         externalBucketBlobName2);
   }
 
@@ -373,7 +381,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-object",
             "--name=" + newName,
-            "--new-bucket-name=" + externalBucket.getName(),
             "--new-object-name=" + externalBucketBlobName2);
     assertEquals(externalBucketBlobName2, updateBucketObject.objectName);
     assertEquals(externalBucket.getName(), updateBucketObject.bucketName);
@@ -384,7 +391,26 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName2),
         resolved,
-        "resolve matches bucket object name");
+        "resolve matches bucket object blob2 name");
+
+    updateBucketObject =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "update",
+            "gcs-object",
+            "--name=" + newName,
+            "--new-bucket-name=" + externalBucket2.getName());
+    assertEquals(externalBucketBlobName2, updateBucketObject.objectName);
+    assertEquals(externalBucket2.getName(), updateBucketObject.bucketName);
+
+    String resolved2 =
+        TestCommand.runAndParseCommandExpectSuccess(
+            String.class, "resource", "resolve", "--name=" + newName);
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
+        resolved2,
+        "resolve matches bucket2 bucket name");
   }
 
   @Test
@@ -415,10 +441,9 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "update", "gcs-object", "--name=" + name);
     assertThat(
-        "To update referencing target, both new bucket name and new object name needs to be specified.",
+        "Specify at least one property to update..",
         stdErr,
-        CoreMatchers.containsString(
-            "both new bucket name and new object name needs to be specified"));
+        CoreMatchers.containsString("Specify at least one property to update."));
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName

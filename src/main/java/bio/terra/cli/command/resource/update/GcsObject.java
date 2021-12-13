@@ -35,11 +35,9 @@ public class GcsObject extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && (newObjectName == null || newBucketName == null)) {
-      if (newObjectName != null || newBucketName != null) {
-        throw new UserActionableException(
-            "To update referencing target, both new bucket name and new object name needs to be specified.");
-      }
+    if (!resourceUpdateOptions.isDefined()
+        && newObjectName == null
+        && newBucketName.getNewBucketName() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -54,8 +52,11 @@ public class GcsObject extends BaseCommand {
     UpdateReferencedGcsObjectParams gcsObjectParams =
         new UpdateReferencedGcsObjectParams.Builder()
             .resourceFields(updateResourceParams)
-            .bucketName(newBucketName.getNewBucketName())
-            .objectName(newObjectName)
+            .bucketName(
+                newBucketName.getNewBucketName() == null
+                    ? resource.getBucketName()
+                    : newBucketName.getNewBucketName())
+            .objectName(newObjectName == null ? resource.getObjectName() : newObjectName)
             .build();
     resource.updateReferenced(gcsObjectParams);
 
