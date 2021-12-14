@@ -3,7 +3,6 @@ package bio.terra.cli.serialization.userfacing.input;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import javax.annotation.Nullable;
 
 /**
  * Parameters for updating a referenced GCS bucket workspace resource. This class is not currently
@@ -13,8 +12,8 @@ import javax.annotation.Nullable;
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateReferencedGcsObjectParams {
   public final UpdateResourceParams resourceFields;
-  public final @Nullable String bucketName;
-  public final @Nullable String objectName;
+  public final String bucketName;
+  public final String objectName;
 
   protected UpdateReferencedGcsObjectParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -25,8 +24,8 @@ public class UpdateReferencedGcsObjectParams {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UpdateResourceParams resourceFields;
-    private @Nullable String bucketName;
-    private @Nullable String objectName;
+    private String bucketName;
+    private String objectName;
 
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -34,12 +33,12 @@ public class UpdateReferencedGcsObjectParams {
       return this;
     }
 
-    public UpdateReferencedGcsObjectParams.Builder bucketName(@Nullable String bucketName) {
+    public UpdateReferencedGcsObjectParams.Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
     }
 
-    public UpdateReferencedGcsObjectParams.Builder objectName(@Nullable String objectName) {
+    public UpdateReferencedGcsObjectParams.Builder objectName(String objectName) {
       this.objectName = objectName;
       return this;
     }
