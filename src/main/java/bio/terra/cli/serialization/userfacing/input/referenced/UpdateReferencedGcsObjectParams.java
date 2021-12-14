@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import javax.annotation.Nullable;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Parameters for updating a referenced GCS bucket workspace resource. This class is not currently
@@ -14,7 +13,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateReferencedGcsObjectParams {
-  public final @MonotonicNonNull UpdateResourceParams resourceFields;
+  public final UpdateResourceParams resourceFields;
   public final @Nullable String bucketName;
   public final @Nullable String objectName;
 
@@ -26,7 +25,7 @@ public class UpdateReferencedGcsObjectParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private @MonotonicNonNull UpdateResourceParams resourceFields;
+    private UpdateResourceParams resourceFields;
     private @Nullable String bucketName;
     private @Nullable String objectName;
 
