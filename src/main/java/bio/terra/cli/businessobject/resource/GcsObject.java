@@ -7,6 +7,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsObjectResource;
@@ -83,7 +84,8 @@ public class GcsObject extends Resource {
 
   /** Update a GCS bucket object referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGcsObjectParams updateParams) {
-    if (updateParams.resourceFields != null && updateParams.resourceFields.name != null) {
+    UpdateResourceParams resourceParams = updateParams.resourceFields;
+    if (resourceParams.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
@@ -94,7 +96,7 @@ public class GcsObject extends Resource {
     if (updateParams.objectName != null) {
       this.objectName = updateParams.objectName;
     }
-    super.updatePropertiesAndSync(updateParams.resourceFields);
+    super.updatePropertiesAndSync(resourceParams);
   }
 
   /** Delete a GCS bucket object referenced resource in the workspace. */

@@ -22,7 +22,6 @@ import bio.terra.workspace.model.StewardshipType;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
