@@ -6,7 +6,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqTable;
 import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
@@ -87,13 +87,18 @@ public class BqTable extends Resource {
   }
 
   /** Update a BigQuery data table referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedBqTableParams updateParams) {
+    if (updateParams.getUpdateReferencedBqDatasetParams().getResourceParams().name != null) {
+      validateEnvironmentVariableName(
+          updateParams.getUpdateReferencedBqDatasetParams().getResourceParams().name);
     }
+    this.projectId = updateParams.getUpdateReferencedBqDatasetParams().getProjectId();
+    this.datasetId = updateParams.getUpdateReferencedBqDatasetParams().getDatasetId();
+    this.dataTableId = updateParams.getTableId();
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataTable(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(
+        updateParams.getUpdateReferencedBqDatasetParams().getResourceParams());
   }
 
   /** Delete a BigQuery data table referenced resource in the workspace. */

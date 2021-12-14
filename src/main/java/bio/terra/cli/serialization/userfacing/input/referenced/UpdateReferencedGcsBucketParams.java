@@ -6,60 +6,40 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for updating a BigQuery dataset workspace referenced resource. This class is not
+ * Parameters for updating a BigQuery table workspace referenced resource. This class is not
  * currently user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
-public class UpdateReferencedBqDatasetParams {
+public class UpdateReferencedGcsBucketParams {
   private final UpdateResourceParams resourceParams;
-  private final String datasetId;
-  private final String projectId;
+  private final String bucketName;
 
-  protected UpdateReferencedBqDatasetParams(UpdateReferencedBqDatasetParams.Builder builder) {
+  protected UpdateReferencedGcsBucketParams(UpdateReferencedGcsBucketParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
-    this.datasetId = builder.datasetId;
-    this.projectId = builder.projectId;
-  }
-
-  public UpdateResourceParams getResourceParams() {
-    return resourceParams;
-  }
-
-  public String getDatasetId() {
-    return datasetId;
-  }
-
-  public String getProjectId() {
-    return projectId;
+    this.bucketName = builder.bucketName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
 
     private UpdateResourceParams resourceFields;
-    private String datasetId;
-    private String projectId;
+    private String bucketName;
 
-    public UpdateReferencedBqDatasetParams.Builder resourceParams(
+    public UpdateReferencedGcsBucketParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
 
-    public UpdateReferencedBqDatasetParams.Builder datasetId(String datasetId) {
-      this.datasetId = datasetId;
-      return this;
-    }
-
-    public UpdateReferencedBqDatasetParams.Builder projectId(String projectId) {
-      this.projectId = projectId;
+    public UpdateReferencedGcsBucketParams.Builder bucketName(String bucketName) {
+      this.bucketName = bucketName;
       return this;
     }
 
     /** Call the private constructor. */
-    public UpdateReferencedBqDatasetParams build() {
-      return new UpdateReferencedBqDatasetParams(this);
+    public UpdateReferencedGcsBucketParams build() {
+      return new UpdateReferencedGcsBucketParams(this);
     }
 
     /** Default constructor for Jackson. */

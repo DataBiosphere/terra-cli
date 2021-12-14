@@ -3,9 +3,14 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
+<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+=======
+import bio.terra.cli.serialization.userfacing.input.controlled.UpdateGcsBucketParams;
+>>>>>>> a77ab26 (add test)
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;

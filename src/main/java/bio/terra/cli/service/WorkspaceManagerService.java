@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
@@ -16,6 +17,20 @@ import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledB
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+=======
+import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
+import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.UpdateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
+>>>>>>> a77ab26 (add test)
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -81,6 +96,8 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
+import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
@@ -977,16 +994,22 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateReferencedBigQueryDataTable(
-      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateReferencedBqTableParams updateParams) {
     // convert the CLI object to a WSM request object
-    UpdateDataReferenceRequestBody updateRequest =
-        new UpdateDataReferenceRequestBody()
-            .name(updateParams.name)
-            .description(updateParams.description);
+    UpdateBigQueryDataTableReferenceRequestBody updateRequest =
+        new UpdateBigQueryDataTableReferenceRequestBody()
+            .name(updateParams.getUpdateReferencedBqDatasetParams().getResourceParams().name)
+            .description(
+                updateParams.getUpdateReferencedBqDatasetParams().getResourceParams().description)
+            .resourceAttributes(
+                new GcpBigQueryDataTableAttributes()
+                    .projectId(updateParams.getUpdateReferencedBqDatasetParams().getProjectId())
+                    .datasetId(updateParams.getUpdateReferencedBqDatasetParams().getDatasetId())
+                    .dataTableId(updateParams.getTableId()));
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .updateBigQueryDataTableReference(updateRequest, workspaceId, resourceId),
+                .updateBigQueryDataTableReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced BigQuery data table in the workspace.");
   }
 
@@ -1000,16 +1023,20 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateReferencedBigQueryDataset(
-      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateReferencedBqDatasetParams updateParams) {
     // convert the CLI object to a WSM request object
-    UpdateDataReferenceRequestBody updateRequest =
-        new UpdateDataReferenceRequestBody()
-            .name(updateParams.name)
-            .description(updateParams.description);
+    UpdateBigQueryDatasetReferenceRequestBody updateRequest =
+        new UpdateBigQueryDatasetReferenceRequestBody()
+            .name(updateParams.getResourceParams().name)
+            .description(updateParams.getResourceParams().description)
+            .resourceAttributes(
+                new GcpBigQueryDatasetAttributes()
+                    .projectId(updateParams.getProjectId())
+                    .datasetId(updateParams.getDatasetId()));
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .updateBigQueryDatasetReference(updateRequest, workspaceId, resourceId),
+                .updateBigQueryDatasetReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced BigQuery dataset in the workspace.");
   }
 

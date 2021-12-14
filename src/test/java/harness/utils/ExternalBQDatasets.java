@@ -2,8 +2,12 @@ package harness.utils;
 
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
+import com.google.api.services.bigquery.model.Binding;
 import com.google.api.services.bigquery.model.Dataset;
 import com.google.api.services.bigquery.model.DatasetReference;
+import com.google.api.services.bigquery.model.GetIamPolicyRequest;
+import com.google.api.services.bigquery.model.Policy;
+import com.google.api.services.bigquery.model.SetIamPolicyRequest;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryException;
@@ -15,12 +19,15 @@ import com.google.cloud.bigquery.StandardTableDefinition;
 import com.google.cloud.bigquery.TableDefinition;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableInfo;
+import com.google.common.collect.ImmutableList;
 import harness.CRLJanitor;
 import harness.TestExternalResources;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 
@@ -104,6 +111,27 @@ public class ExternalBQDatasets {
       DatasetReference datasetRef, String memberEmail, IamMemberType memberType)
       throws IOException {
     grantAccess(datasetRef, memberEmail, memberType, "WRITER");
+  }
+
+  /** Grants a given group dataViewer role to the specified table. */
+  public static void grantReadAccessToTable(
+      String projectId, String datasetId, String tableId, String groupEmail) throws IOException {
+    BigQueryCow bigQuery = getBQCow();
+    Policy policy =
+        bigQuery
+            .tables()
+            .getIamPolicy(projectId, datasetId, tableId, new GetIamPolicyRequest())
+            .execute();
+    List<Binding> updatedBindings =
+        Optional.ofNullable(policy.getBindings()).orElse(new ArrayList<>());
+    updatedBindings.add(
+        new Binding()
+            .setRole("roles/bigquery.dataViewer")
+            .setMembers(ImmutableList.of("group:" + groupEmail)));
+    bigQuery
+        .tables()
+        .setIamPolicy(projectId, datasetId, tableId, new SetIamPolicyRequest().setPolicy(policy))
+        .execute();
   }
 
   /**

@@ -4,11 +4,17 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
+import bio.terra.cli.command.shared.options.BqDatasetNewIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
+=======
+import bio.terra.cli.serialization.userfacing.input.controlled.UpdateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
+>>>>>>> a77ab26 (add test)
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -21,6 +27,7 @@ import picocli.CommandLine;
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
+  @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -31,7 +38,9 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && !bqDatasetLifetimeOptions.isDefined()) {
+    if (!resourceUpdateOptions.isDefined()
+        && !bqDatasetLifetimeOptions.isDefined()
+        && !bqDatasetNewIds.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -46,7 +55,12 @@ public class BqDataset extends BaseCommand {
         throw new UserActionableException(
             "Default lifetime can only be updated for controlled resources.");
       }
-      resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+      UpdateReferencedBqDatasetParams.Builder updateParams =
+          new UpdateReferencedBqDatasetParams.Builder()
+              .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
+              .datasetId(bqDatasetNewIds.getNewBqDatasetId().orElse(resource.getDatasetId()))
+              .projectId(bqDatasetNewIds.getNewGcpProjectId().orElse(resource.getProjectId()));
+      resource.updateReferenced(updateParams.build());
     } else {
       resource.updateControlled(
           new UpdateControlledBqDatasetParams.Builder()

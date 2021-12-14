@@ -29,19 +29,24 @@ import org.junit.jupiter.api.Test;
 public class BqTableReferenced extends SingleWorkspaceUnit {
 
   DatasetReference externalDataset;
+  DatasetReference externalDataset2;
   // name of table in external dataset
   private String externalDataTableName = "testTable";
+  private String externalDataTableName2 = "testTable2";
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
+    externalDataset2 = ExternalBQDatasets.createDataset();
 
     // grant the user's proxy group access to the dataset so that it will pass WSM's access check
     // when adding it as a referenced resource
     ExternalBQDatasets.grantWriteAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
+    ExternalBQDatasets.grantWriteAccess(
+        externalDataset2, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
     // create a table in the dataset
     ExternalBQDatasets.createTable(
@@ -49,6 +54,18 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
         externalDataTableName);
+
+    ExternalBQDatasets.createTable(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalDataset.getProjectId(),
+        externalDataset.getDatasetId(),
+        externalDataTableName2);
+
+    ExternalBQDatasets.createTable(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        externalDataset2.getProjectId(),
+        externalDataset2.getDatasetId(),
+        externalDataTableName2);
   }
 
   @AfterAll
@@ -381,6 +398,30 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataTable.description);
+
+    updateDataTable =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqTable.class,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + newName,
+            "--new-table-id=" + externalDataTableName2);
+    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
+    assertEquals(externalDataset.getDatasetId(), updateDataTable.datasetId);
+    assertEquals(externalDataset.getProjectId(), updateDataTable.projectId);
+
+    updateDataTable =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqTable.class,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + newName,
+            "--new-dataset-id=" + externalDataset2.getDatasetId());
+    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
+    assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
+    assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
   }
 
   @Test
@@ -427,9 +468,15 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-project-id=" + externalDataset2.getProjectId(),
+            "--new-dataset-id=" + externalDataset2.getDatasetId(),
+            "--new-table-id=" + externalDataTableName2);
     assertEquals(newName, updateDataTable.name);
     assertEquals(newDescription, updateDataTable.description);
+    assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
+    assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
+    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
 
     // `terra resources describe --name=$newName`
     UFBqTable describeDataTable =

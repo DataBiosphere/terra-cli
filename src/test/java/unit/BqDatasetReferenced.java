@@ -12,6 +12,7 @@ import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
+import harness.utils.ExternalBQDatasets.IamMemberType;
 import java.io.IOException;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
@@ -27,12 +28,16 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;
+  private DatasetReference externalDataset2;
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
+    externalDataset2 = ExternalBQDatasets.createDataset();
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
     ExternalBQDatasets.grantReadAccess(
         externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
@@ -40,6 +45,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // when adding it as a referenced resource
     ExternalBQDatasets.grantReadAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
+    ExternalBQDatasets.grantReadAccess(
+        externalDataset2, Auth.getProxyGroupEmail(), IamMemberType.GROUP);
   }
 
   @AfterAll
@@ -47,7 +54,9 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
     ExternalBQDatasets.deleteDataset(externalDataset);
+    ExternalBQDatasets.deleteDataset(externalDataset2);
     externalDataset = null;
+    externalDataset2 = null;
   }
 
   @Test
@@ -339,6 +348,24 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
+
+    updateDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "update",
+            "bq-dataset",
+            "--name=" + newName,
+            "--new-dataset-id=" + externalDataset2.getDatasetId());
+    assertEquals(externalDataset2.getDatasetId(), updateDataset.datasetId);
+    assertEquals(externalDataset2.getProjectId(), updateDataset.projectId);
+
+    describeDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resource", "describe", "--name=" + newName);
+    assertEquals(newDescription, describeDataset.description);
+    assertEquals(externalDataset2.getProjectId(), describeDataset.projectId);
+    assertEquals(externalDataset2.getDatasetId(), describeDataset.datasetId);
   }
 
   @Test
@@ -385,14 +412,20 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-project-id=" + externalDataset2.getProjectId(),
+            "--new-dataset-id=" + externalDataset2.getDatasetId());
     assertEquals(newName, updateDataset.name);
     assertEquals(newDescription, updateDataset.description);
+    assertEquals(externalDataset2.getProjectId(), updateDataset.projectId);
+    assertEquals(externalDataset2.getDatasetId(), updateDataset.datasetId);
 
     // `terra resources describe --name=$newName`
     UFBqDataset describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
+    assertEquals(externalDataset2.getDatasetId(), describeDataset.datasetId);
+    assertEquals(externalDataset2.getProjectId(), describeDataset.projectId);
   }
 }
