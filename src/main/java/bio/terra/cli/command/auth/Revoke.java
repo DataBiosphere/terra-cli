@@ -1,7 +1,6 @@
 package bio.terra.cli.command.auth;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine.Command;
 
@@ -12,8 +11,12 @@ public class Revoke extends BaseCommand {
   /** Logout the user and print out a success message. */
   @Override
   protected void execute() {
-    Context.getUser().ifPresent(User::logout);
-    OUT.println("Logout successful.");
+    if (Context.getUser().isPresent()) {
+      Context.requireUser().logout();
+      OUT.println("Logout successful.");
+    } else {
+      OUT.println("No user logged in.");
+    }
   }
 
   /** This command never requires login. */

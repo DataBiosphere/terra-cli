@@ -235,6 +235,12 @@ public class Context {
   }
 
   public static void useOverrideWorkspace(UUID id) {
+    if (currentWorkspace != null && id.equals(currentWorkspace.getId())) {
+      // If the user provides the --workspace argument with the same ID as their current workspace,
+      // ignore it. We should still update the current context so that the user does not see out
+      // of date workspace information.
+      return;
+    }
     useOverrideWorkspace = true;
     Workspace.load(id);
   }

@@ -44,12 +44,15 @@ public class Status extends BaseCommand {
   private void printText(UFAuthStatus returnValue) {
     // check if current user is defined
     if (returnValue.userEmail == null) {
-      OUT.println("No current Terra user defined.");
+      OUT.println("NO USER LOGGED IN");
     } else {
-      OUT.println("Current user: " + returnValue.userEmail);
-      OUT.println("Proxy group for current user: " + returnValue.proxyGroupEmail);
+      OUT.println("User email: " + returnValue.userEmail);
+      OUT.println("Proxy group email: " + returnValue.proxyGroupEmail);
       OUT.println(
-          "Service account for current user and workspace: " + returnValue.serviceAccountEmail);
+          "Service account email for current workspace: "
+              + (returnValue.serviceAccountEmail == null
+                  ? "(undefined)"
+                  : returnValue.serviceAccountEmail));
 
       // check if the current user needs to re-authenticate (i.e. is logged out)
       OUT.println("LOGGED " + (returnValue.loggedIn ? "IN" : "OUT"));

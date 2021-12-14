@@ -55,13 +55,15 @@ public final class GoogleOauth {
    * @param launchBrowserAutomatically true to launch a browser automatically and listen on a local
    *     server for the token response, false to print the url to stdout and ask the user to
    *     copy/paste the token response to stdin
+   * @param loginLandingPage URL of the page to load in the browser upon completion of login
    * @return credentials object for the user
    */
   public static UserCredentials doLoginAndConsent(
       List<String> scopes,
       InputStream clientSecretFile,
       File dataStoreDir,
-      boolean launchBrowserAutomatically)
+      boolean launchBrowserAutomatically,
+      String loginLandingPage)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
@@ -75,7 +77,10 @@ public final class GoogleOauth {
     Credential credential;
     if (launchBrowserAutomatically) {
       // launch a browser window on this machine and listen on a local port for the token response
-      LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
+      LocalServerReceiver receiver =
+          new LocalServerReceiver.Builder()
+              .setLandingPages(loginLandingPage, loginLandingPage)
+              .build();
       credential =
           new AuthorizationCodeInstalledApp(flow, receiver).authorize(CREDENTIAL_STORE_KEY);
     } else {
