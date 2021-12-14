@@ -11,6 +11,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
+import java.util.Optional;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-object" command. */
@@ -53,10 +54,9 @@ public class GcsObject extends BaseCommand {
         new UpdateReferencedGcsObjectParams.Builder()
             .resourceFields(updateResourceParams)
             .bucketName(
-                newBucketName.getNewBucketName() == null
-                    ? resource.getBucketName()
-                    : newBucketName.getNewBucketName())
-            .objectName(newObjectName == null ? resource.getObjectName() : newObjectName)
+                Optional.ofNullable(newBucketName.getNewBucketName())
+                    .orElse(resource.getBucketName()))
+            .objectName(Optional.ofNullable(newObjectName).orElse(resource.getObjectName()))
             .build();
     resource.updateReferenced(gcsObjectParams);
 
