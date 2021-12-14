@@ -2,6 +2,7 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static unit.GcsObjectReferenced.listObjectResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
@@ -66,16 +67,11 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
-    String shareeProxyEmail = Auth.getProxyGroupEmail();
-
-    // workspaceCreator.login();
-    // // `terra workspace set --id=$id`
-    // TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     ExternalGCSBuckets.grantAccess(
         externalBucket.getName(),
         sharedExternalBlobName,
-        new Acl.Group(shareeProxyEmail),
+        new Acl.Group(Auth.getProxyGroupEmail()),
         Role.READER);
   }
 
@@ -306,6 +302,46 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
 
     cleanUp(Optional.of("WRITER"), Optional.empty());
+  }
+
+  @Test
+  @DisplayName("describe the reference to a bucket object that the user has no access to")
+  void describeObjectReferenceWhenUserHasNoAccess() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
+    String name = "describeObjectReferenceWhenUserHasNoAccess";
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsObject.class,
+        "resource",
+        "add-ref",
+        "gcs-object",
+        "--name=" + name,
+        "--bucket-name=" + externalBucket.getName(),
+        "--object-name=" + privateExternalBlobName);
+
+    shareeUser.login();
+    UFGcsObject describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class, "resource", "describe", "--name=" + name);
+    // check that the name and bucket name match
+    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        externalBucket.getName(),
+        describeResource.bucketName,
+        "describe resource output matches bucket name");
+    assertEquals(
+        privateExternalBlobName,
+        describeResource.objectName,
+        "describe resource output matches object name");
+    assertNull(describeResource.contentType);
+    assertNull(describeResource.timeStorageClassUpdated);
+    assertNull(describeResource.isDirectory);
+    assertNull(describeResource.size);
+
+    cleanUp(Optional.empty(), Optional.of(name));
   }
 
   @Test
