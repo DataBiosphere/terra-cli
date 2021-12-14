@@ -130,26 +130,14 @@ public class ExternalBQDatasets {
             .setMembers(ImmutableList.of("group:" + groupEmail)));
     bigQuery
         .tables()
-        .setIamPolicy(projectId, datasetId, tableId, new SetIamPolicyRequest().setPolicy(policy))
+        .setIamPolicy(
+            projectId,
+            datasetId,
+            tableId,
+            new SetIamPolicyRequest().setPolicy(policy.setBindings(updatedBindings)))
         .execute();
     System.out.println(
         "Grant dataViewer access to table " + tableId + " for proxy group: " + groupEmail);
-  }
-
-  public static void checkAccess(
-      String projectId, String datasetId, String tableId, GoogleCredentials googleCredentials)
-      throws IOException, InterruptedException {
-    BigQuery bigQuery = getBQClient(googleCredentials);
-    HttpUtils.callWithRetries(
-        () -> {
-          bigQuery.getTable(TableId.of(projectId, datasetId, tableId)).getCreationTime();
-          return null;
-        },
-        (ex) ->
-            (ex instanceof BigQueryException)
-                && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
-        5,
-        Duration.ofMinutes(1));
   }
 
   /**

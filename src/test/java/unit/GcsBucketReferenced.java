@@ -28,17 +28,21 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
+  private BucketInfo externalBucket2;
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
+    externalBucket2 = ExternalGCSBuckets.createBucketWithUniformAccess();
+
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
 
     // grant the user's proxy group access to the bucket so that it will pass WSM's access check
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
+    ExternalGCSBuckets.grantReadAccess(externalBucket2, Identity.group(Auth.getProxyGroupEmail()));
   }
 
   @AfterAll
@@ -291,6 +295,21 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
+
+    updateBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resource",
+            "update",
+            "gcs-bucket",
+            "--name=" + newName,
+            "--new-bucket-name=" + externalBucket2.getName());
+    assertEquals(externalBucket2.getName(), updateBucket.bucketName);
+    // `terra resources describe --name=$newName`
+    describeBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "describe", "--name=" + newName);
+    assertEquals(externalBucket2.getName(), describeBucket.bucketName);
   }
 
   @Test
@@ -336,7 +355,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-bucket-name=" + externalBucket2.getName());
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
 
@@ -345,5 +365,6 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
+    assertEquals(externalBucket2.getName(), describeBucket.bucketName);
   }
 }

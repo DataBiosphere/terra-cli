@@ -239,7 +239,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
     assertEquals(newName, updateTable.name);
 
     TestCommand.runCommandExpectExitCode(
-        2,
+        1,
         "resource",
         "update",
         "bq-table",
@@ -248,7 +248,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
-  void addTableReferenceWithPartialAccess() throws IOException, InterruptedException {
+  void addTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -260,12 +260,6 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
     shareeUser.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
-    ExternalBQDatasets.checkAccess(
-        externalDataset.getProjectId(),
-        externalDataset.getDatasetId(),
-        sharedExternalTable,
-        shareeUser.getCredentialsWithCloudPlatformScope());
 
     String succeedName = "addTableReferenceWithPartialAccess_withAccess";
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
