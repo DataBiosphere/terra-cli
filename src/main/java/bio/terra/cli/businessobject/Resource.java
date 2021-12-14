@@ -146,11 +146,9 @@ public abstract class Resource {
   }
 
   /** Update the properties of this resource object that are common to all resource types. */
-  protected void updatePropertiesAndSync(@Nullable UpdateResourceParams updateParams) {
-    if (updateParams != null) {
-      this.name = updateParams.name == null ? name : updateParams.name;
-      this.description = updateParams.description == null ? description : updateParams.description;
-    }
+  protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
     Context.requireWorkspace().listResourcesAndSync();
   }
 
