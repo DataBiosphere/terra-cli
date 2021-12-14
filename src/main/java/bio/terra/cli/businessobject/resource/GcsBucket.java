@@ -3,14 +3,9 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
-<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-=======
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateGcsBucketParams;
->>>>>>> a77ab26 (add test)
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -108,13 +103,14 @@ public class GcsBucket extends Resource {
   }
 
   /** Update a GCS bucket referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
+    if (updateParams.getResourceParams().name != null) {
+      validateEnvironmentVariableName(updateParams.getResourceParams().name);
     }
+    this.bucketName = updateParams.getBucketName();
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.getResourceParams());
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */

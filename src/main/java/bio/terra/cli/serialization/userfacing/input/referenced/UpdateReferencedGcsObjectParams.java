@@ -1,5 +1,6 @@
-package bio.terra.cli.serialization.userfacing.input;
+package bio.terra.cli.serialization.userfacing.input.referenced;
 
+import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

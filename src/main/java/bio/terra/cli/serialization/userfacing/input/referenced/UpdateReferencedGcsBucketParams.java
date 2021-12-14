@@ -20,6 +20,14 @@ public class UpdateReferencedGcsBucketParams {
     this.bucketName = builder.bucketName;
   }
 
+  public UpdateResourceParams getResourceParams() {
+    return resourceParams;
+  }
+
+  public String getBucketName() {
+    return bucketName;
+  }
+
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
 

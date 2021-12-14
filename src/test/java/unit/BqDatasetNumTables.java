@@ -56,14 +56,11 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
 
     shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
-    String proxyEmail = Auth.getProxyGroupEmail();
-    workspaceCreator.login();
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
     ExternalBQDatasets.grantReadAccessToTable(
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
         sharedExternalTable,
-        proxyEmail);
+        Auth.getProxyGroupEmail());
   }
 
   @AfterAll
@@ -206,7 +203,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
-  void updateTableReferenceWithPartialAccess() throws IOException {
+  void updateTableReferenceWithPartialAccess() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -251,7 +248,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
-  void addTableReferenceWithPartialAccess() throws IOException {
+  void addTableReferenceWithPartialAccess() throws IOException, InterruptedException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -263,6 +260,12 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
     shareeUser.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    ExternalBQDatasets.checkAccess(
+        externalDataset.getProjectId(),
+        externalDataset.getDatasetId(),
+        sharedExternalTable,
+        shareeUser.getCredentialsWithCloudPlatformScope());
 
     String succeedName = "addTableReferenceWithPartialAccess_withAccess";
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId

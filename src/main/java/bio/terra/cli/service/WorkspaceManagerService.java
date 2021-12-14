@@ -4,33 +4,20 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-=======
-import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
-import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.CreateBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
->>>>>>> a77ab26 (add test)
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -100,8 +87,8 @@ import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
-import bio.terra.workspace.model.UpdateDataReferenceRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
+import bio.terra.workspace.model.UpdateGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
@@ -941,16 +928,18 @@ public class WorkspaceManagerService {
    * @param updateParams resource properties to update
    */
   public void updateReferencedGcsBucket(
-      UUID workspaceId, UUID resourceId, UpdateResourceParams updateParams) {
+      UUID workspaceId, UUID resourceId, UpdateReferencedGcsBucketParams updateParams) {
     // convert the CLI object to a WSM request object
-    UpdateDataReferenceRequestBody updateRequest =
-        new UpdateDataReferenceRequestBody()
-            .name(updateParams.name)
-            .description(updateParams.description);
+    UpdateGcsBucketReferenceRequestBody updateRequest =
+        new UpdateGcsBucketReferenceRequestBody()
+            .name(updateParams.getResourceParams().name)
+            .description(updateParams.getResourceParams().description)
+            .resourceAttributes(
+                new GcpGcsBucketAttributes().bucketName(updateParams.getBucketName()));
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
-                .updateBucketReference(updateRequest, workspaceId, resourceId),
+                .updateBucketReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced GCS bucket in the workspace.");
   }
 

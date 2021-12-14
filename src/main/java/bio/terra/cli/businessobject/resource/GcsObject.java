@@ -6,7 +6,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsObjectResource;

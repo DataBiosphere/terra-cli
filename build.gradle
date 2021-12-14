@@ -67,11 +67,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
-<<<<<<< HEAD
-        workspaceManagerClient = "0.254.136-SNAPSHOT"
-=======
         workspaceManagerClient = "0.254.141-SNAPSHOT"
->>>>>>> a77ab26 (add test)
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library

@@ -22,7 +22,6 @@ import bio.terra.workspace.model.StewardshipType;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
@@ -146,11 +145,9 @@ public abstract class Resource {
   }
 
   /** Update the properties of this resource object that are common to all resource types. */
-  protected void updatePropertiesAndSync(@Nullable UpdateResourceParams updateParams) {
-    if (updateParams != null) {
-      this.name = updateParams.name == null ? name : updateParams.name;
-      this.description = updateParams.description == null ? description : updateParams.description;
-    }
+  protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
+    this.name = updateParams.name == null ? name : updateParams.name;
+    this.description = updateParams.description == null ? description : updateParams.description;
     Context.requireWorkspace().listResourcesAndSync();
   }
 

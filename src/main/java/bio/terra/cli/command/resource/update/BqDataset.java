@@ -9,12 +9,8 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
-=======
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
->>>>>>> a77ab26 (add test)
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
