@@ -4,13 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
-<<<<<<< HEAD
 import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-=======
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
->>>>>>> a77ab26 (add test)
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
