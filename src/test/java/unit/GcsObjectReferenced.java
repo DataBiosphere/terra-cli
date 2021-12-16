@@ -182,9 +182,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         addedBucketObjectReference.bucketName,
         "add ref output matches bucket name");
     assertEquals(
-        folder,
-        addedBucketObjectReference.objectName,
-        "add ref output matches bucket object name");
+        folder, addedBucketObjectReference.objectName, "add ref output matches bucket object name");
 
     // check that the object is in the list
     List<UFGcsObject> matchedResourceList = listObjectResourceWithName(name);
@@ -207,12 +205,56 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         describeResource.bucketName,
         "describe resource output matches bucket name");
     assertEquals(
-        folder,
-        describeResource.objectName,
-        "describe resource output matches bucket object name");
+        folder, describeResource.objectName, "describe resource output matches bucket object name");
+
+    String name2 = "addReftoGcsFilesInFolder";
+    String filesInFolder = "blobs/*";
+    UFGcsObject addedBucketObjectReference2 =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "add-ref",
+            "gcs-object",
+            "--name=" + name2,
+            "--bucket-name=" + externalBucket.getName(),
+            "--object-name=" + filesInFolder);
+    // check that the name and bucket name match
+    assertEquals(name2, addedBucketObjectReference2.name, "add ref output matches name");
+    assertEquals(
+        externalBucket.getName(),
+        addedBucketObjectReference2.bucketName,
+        "add ref output matches bucket name");
+    assertEquals(
+        filesInFolder,
+        addedBucketObjectReference2.objectName,
+        "add ref output matches bucket object name");
+
+    String name3 = "addRefToGcsTextFilesInFolder";
+    String textFilesInFolder = "blobs/*.txt";
+    UFGcsObject addedBucketObjectReference3 =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "add-ref",
+            "gcs-object",
+            "--name=" + name3,
+            "--bucket-name=" + externalBucket.getName(),
+            "--object-name=" + textFilesInFolder);
+    // check that the name and bucket name match
+    assertEquals(name3, addedBucketObjectReference3.name, "add ref output matches name");
+    assertEquals(
+        externalBucket.getName(),
+        addedBucketObjectReference3.bucketName,
+        "add ref output matches bucket name");
+    assertEquals(
+        textFilesInFolder,
+        addedBucketObjectReference3.objectName,
+        "add ref output matches bucket object name");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name2, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name3, "--quiet");
   }
 
   @Test
