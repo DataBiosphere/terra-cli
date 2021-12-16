@@ -66,7 +66,7 @@ public class UFGcsObject extends UFResource {
     OUT.println(prefix + "Full path to the object: " + objectName);
     OUT.println(prefix + "Content type: " + contentType == null ? "(unknown)" : contentType);
     OUT.println(prefix + "Is directory: " + (isDirectory == null ? "(unknown)" : isDirectory));
-    OUT.println(prefix + "Size: " + (size == null ? "(Unknown)" : size + " bytes"));
+    OUT.println(prefix + "Size: " + (size == null ? "(unknown)" : size + " bytes"));
 
     String dateFormatted;
     if (timeStorageClassUpdated == null) {

@@ -154,6 +154,68 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName("list and describe reflect adding a new referenced bucket object")
+  void addRefToGcsFolder() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
+    // --object-name=$objectName`
+    String name = "addRefToGcsFolder";
+    String folder = "blobs/";
+    UFGcsObject addedBucketObjectReference =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "add-ref",
+            "gcs-object",
+            "--name=" + name,
+            "--bucket-name=" + externalBucket.getName(),
+            "--object-name=" + folder);
+
+    // check that the name and bucket name match
+    assertEquals(name, addedBucketObjectReference.name, "add ref output matches name");
+    assertEquals(
+        externalBucket.getName(),
+        addedBucketObjectReference.bucketName,
+        "add ref output matches bucket name");
+    assertEquals(
+        folder,
+        addedBucketObjectReference.objectName,
+        "add ref output matches bucket object name");
+
+    // check that the object is in the list
+    List<UFGcsObject> matchedResourceList = listObjectResourceWithName(name);
+    assertEquals(1, matchedResourceList.size());
+    UFGcsObject matchedResource = matchedResourceList.get(0);
+    assertEquals(name, matchedResource.name, "list output matches name");
+    assertEquals(
+        externalBucket.getName(), matchedResource.bucketName, "list output matches bucket name");
+    assertEquals(folder, matchedResource.objectName, "List output matches bucket object name");
+
+    // `terra resource describe --name=$name --format=json`
+    UFGcsObject describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class, "resource", "describe", "--name=" + name);
+
+    // check that the name and bucket name match
+    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        externalBucket.getName(),
+        describeResource.bucketName,
+        "describe resource output matches bucket name");
+    assertEquals(
+        folder,
+        describeResource.objectName,
+        "describe resource output matches bucket object name");
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+  }
+
+  @Test
   @DisplayName("resolve a referenced bucket object")
   void resolve() throws IOException {
     workspaceCreator.login();
