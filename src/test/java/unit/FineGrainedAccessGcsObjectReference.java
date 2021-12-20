@@ -299,6 +299,11 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -348,6 +353,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -458,5 +464,10 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
         "resource", "delete", "--name=" + withAccessBlobName, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

@@ -9,7 +9,6 @@ import com.google.cloud.Policy;
 import com.google.cloud.Role;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Acl.Entity;
-import com.google.cloud.storage.Acl.Group;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -132,14 +131,6 @@ public class ExternalGCSBuckets {
     StorageCow storage = getStorageCow();
     BlobId blobId = BlobId.of(bucketName, blobName);
     storage.createAcl(blobId, Acl.of(entity, role));
-  }
-
-  /** Revokes access of {@code group} to the specified blob in the bucket. */
-  public static void revokeAccess(String bucketName, String blobName, Group group)
-      throws IOException {
-    StorageCow storage = getStorageCow();
-    BlobId blobId = BlobId.of(bucketName, blobName);
-    storage.deleteAcl(blobId, group);
   }
 
   /** Utility method to write an arbitrary blob to a bucket. */
