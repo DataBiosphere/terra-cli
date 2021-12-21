@@ -230,8 +230,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         "add ref output matches bucket object name");
 
     String name3 = "addRefToGcsTextFilesInFolder";
-    // String textFilesInFolder = "blobs/*.txt";
-    String textFilesInFolder = "blobs123";
+    String textFilesInFolder = "blobs/*.txt";
     UFGcsObject addedBucketObjectReference3 =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,

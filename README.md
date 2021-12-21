@@ -16,6 +16,9 @@
     * [Workspace](#workspace)
     * [Resources](#resources)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
+        * [GCS bucket object reference](#gcs-bucket-object-reference)
+          * [Reference to a file or folder](#reference-to-a-file-or-folder)
+          * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
     * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
@@ -461,14 +464,14 @@ A reference to an GCS bucket object can be created by calling
 terra resource add-ref gcs-object --name=referencename --bucket-name=mybucket --object-name=myobject
 ```
 
-**Reference to a file or folder** 
+###### Reference to a file or folder
 A file or folder is treated as an object in GCS bucket. By either creating a folder
 through the cloud console UI or copying an existing folder of files to the GCS
 bucket, a user can create a folder object. So the user can create a reference to
 the folder if they have at least `READER` access to the bucket and/or `READER` access to
 the folder. Same with a file. 
 
-**Reference to multiple objects under a folder**
+###### Reference to multiple objects under a folder
 Different from other referenced resource type, there is also support for
 creating a reference to objects in the folder. For instance, a user may create a
 a `foo/` folder with `bar.txt` and `secret.txt` in it. If the user have at least READ
@@ -478,10 +481,9 @@ they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`.
 > **NOTE** Be careful to provide the correct object name when creating a
 > reference. We only check if the user has READER access to the provided path, 
 > we **do not** check whether the object exists. This is helpful
-> because when referencing to foo/\*, it is actually not a real object! But
-> because of so, a reference to `fooo/` can be created if the user has
-> `READER` access to the bucket or `foo/\*.png` if they have access to the 
-> `foo/` folder.
+> because when referencing to foo/\*, it is actually not a real object! So
+> a reference to `fooo/` can be created if the user has `READER` access to the
+> bucket or `foo/\*.png` if they have access to the `foo/` folder.
 
 #### Server
 ```
