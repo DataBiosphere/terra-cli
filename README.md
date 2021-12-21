@@ -482,8 +482,9 @@ they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`.
 > reference. We only check if the user has READER access to the provided path, 
 > we **do not** check whether the object exists. This is helpful
 > because when referencing to foo/\*, it is actually not a real object! So
-> a reference to `fooo/` can be created if the user has `READER` access to the
-> bucket or `foo/\*.png` if they have access to the `foo/` folder.
+> a reference to `fooo/` (where object `fooo` does not exist) can be created if
+> the user has `READER` access to the bucket or `foo/\*.png` (where there is no
+> png files) if they have access to the `foo/` folder.
 
 #### Server
 ```
