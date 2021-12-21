@@ -5,6 +5,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -35,7 +36,8 @@ import java.util.UUID;
   @Type(value = UFGcpNotebook.class, name = "AI_NOTEBOOK"),
   @Type(value = UFBqTable.class, name = "BQ_TABLE"),
   @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
-  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET")
+  @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
+  @Type(value = UFGcsObject.class, name = "GCS_OBJECT"),
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {

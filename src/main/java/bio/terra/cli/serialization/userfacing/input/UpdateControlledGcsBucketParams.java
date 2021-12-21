@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
-public class UpdateGcsBucketParams {
+public class UpdateControlledGcsBucketParams {
   public final UpdateResourceParams resourceFields;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
 
-  protected UpdateGcsBucketParams(Builder builder) {
+  protected UpdateControlledGcsBucketParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.lifecycle = builder.lifecycle;
     this.defaultStorageClass = builder.defaultStorageClass;
@@ -28,25 +28,26 @@ public class UpdateGcsBucketParams {
     private GcsBucketLifecycle lifecycle;
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
 
-    public UpdateGcsBucketParams.Builder resourceFields(UpdateResourceParams resourceFields) {
+    public UpdateControlledGcsBucketParams.Builder resourceFields(
+        UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
 
-    public UpdateGcsBucketParams.Builder lifecycle(GcsBucketLifecycle lifecycle) {
+    public UpdateControlledGcsBucketParams.Builder lifecycle(GcsBucketLifecycle lifecycle) {
       this.lifecycle = lifecycle;
       return this;
     }
 
-    public UpdateGcsBucketParams.Builder defaultStorageClass(
+    public UpdateControlledGcsBucketParams.Builder defaultStorageClass(
         GcpGcsBucketDefaultStorageClass defaultStorageClass) {
       this.defaultStorageClass = defaultStorageClass;
       return this;
     }
 
     /** Call the private constructor. */
-    public UpdateGcsBucketParams build() {
-      return new UpdateGcsBucketParams(this);
+    public UpdateControlledGcsBucketParams build() {
+      return new UpdateControlledGcsBucketParams(this);
     }
 
     /** Default constructor for Jackson. */

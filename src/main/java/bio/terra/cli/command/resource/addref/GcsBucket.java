@@ -2,6 +2,7 @@ package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -17,14 +18,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
-
-  @CommandLine.Option(
-      names = "--bucket-name",
-      required = true,
-      description =
-          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
-  private String bucketName;
-
+  @CommandLine.Mixin GcsBucketName bucketNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -40,7 +34,7 @@ public class GcsBucket extends BaseCommand {
     CreateGcsBucketParams.Builder createParams =
         new CreateGcsBucketParams.Builder()
             .resourceFields(createResourceParams.build())
-            .bucketName(bucketName);
+            .bucketName(bucketNameOption.getBucketName());
 
     bio.terra.cli.businessobject.resource.GcsBucket addedResource =
         bio.terra.cli.businessobject.resource.GcsBucket.addReferenced(createParams.build());

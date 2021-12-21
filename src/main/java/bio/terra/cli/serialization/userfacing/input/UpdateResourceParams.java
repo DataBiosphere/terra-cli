@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.userfacing.input;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import javax.annotation.Nullable;
 
 /**
  * Parameters for updating a workspace resource. This class is not currently user-facing, but could
@@ -13,8 +14,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateResourceParams {
-  public final String name;
-  public final String description;
+
+  /** When null, the name of the resource should not be updated. */
+  public final @Nullable String name;
+  /** When null, the description of the resource should not be updated. */
+  public final @Nullable String description;
 
   protected UpdateResourceParams(Builder builder) {
     this.name = builder.name;
@@ -23,15 +27,15 @@ public class UpdateResourceParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private String name;
-    private String description;
+    private @Nullable String name;
+    private @Nullable String description;
 
-    public Builder name(String name) {
+    public Builder name(@Nullable String name) {
       this.name = name;
       return this;
     }
 
-    public Builder description(String description) {
+    public Builder description(@Nullable String description) {
       this.description = description;
       return this;
     }

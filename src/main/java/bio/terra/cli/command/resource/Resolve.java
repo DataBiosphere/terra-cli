@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
@@ -21,7 +22,7 @@ public class Resolve extends BaseCommand {
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
-      description = "[For GCS_BUCKET] Exclude the 'gs://' prefix.")
+      description = "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
@@ -46,6 +47,9 @@ public class Resolve extends BaseCommand {
     switch (resource.getResourceType()) {
       case GCS_BUCKET:
         cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
+        break;
+      case GCS_OBJECT:
+        cloudId = ((GcsObject) resource).resolve(!excludeBucketPrefix);
         break;
       case BQ_DATASET:
         cloudId = ((BqDataset) resource).resolve(bqPathFormat);

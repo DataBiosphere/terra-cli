@@ -71,7 +71,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // grant the user's proxy group access to the bucket and dataset so that they will pass WSM's
     // access check when adding them as referenced resources
-    externalBucket = ExternalGCSBuckets.createBucket();
+    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
     externalDataset = ExternalBQDatasets.createDataset();
