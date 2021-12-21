@@ -103,6 +103,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -905,10 +906,15 @@ public class WorkspaceManagerService {
           .name(updateParams.resourceFields.name)
           .description(updateParams.resourceFields.description);
     }
-    if (updateParams.objectName != null && updateParams.bucketName != null) {
+
+    if (updateParams.bucketName != null || updateParams.objectName != null) {
       GcpGcsObjectAttributes gcsObjectAttributes = new GcpGcsObjectAttributes();
-      gcsObjectAttributes.bucketName(updateParams.bucketName);
-      gcsObjectAttributes.fileName(updateParams.objectName);
+      gcsObjectAttributes.bucketName(
+          Optional.ofNullable(updateParams.bucketName)
+              .orElse(updateParams.originalResource.getBucketName()));
+      gcsObjectAttributes.fileName(
+          Optional.ofNullable(updateParams.objectName)
+              .orElse(updateParams.originalResource.getObjectName()));
       updateRequest.resourceAttributes(gcsObjectAttributes);
     }
     callWithRetries(
