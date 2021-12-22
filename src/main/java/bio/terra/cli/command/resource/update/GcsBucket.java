@@ -13,7 +13,6 @@ import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledG
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
-import java.util.Optional;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-bucket" command. */
@@ -58,9 +57,7 @@ public class GcsBucket extends BaseCommand {
       UpdateReferencedGcsBucketParams.Builder gcsBucketParams =
           new UpdateReferencedGcsBucketParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-              .bucketName(
-                  Optional.ofNullable(newBucketName.getNewBucketName())
-                      .orElse(resource.getBucketName()));
+              .bucketName(newBucketName.getNewBucketName());
       resource.updateReferenced(gcsBucketParams.build());
     } else {
       resource.updateControlled(

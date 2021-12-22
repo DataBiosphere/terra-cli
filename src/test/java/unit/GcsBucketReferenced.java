@@ -2,14 +2,17 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
+import harness.TestUsers;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
@@ -27,30 +30,42 @@ import org.junit.jupiter.api.Test;
 public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
   // external bucket to use for creating GCS bucket references in the workspace
-  private BucketInfo externalBucket;
-  private BucketInfo externalBucket2;
+  private BucketInfo externalSharedBucket;
+  private BucketInfo externalPrivateBucket;
+
+  private TestUsers shareeUser;
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
-    externalBucket2 = ExternalGCSBuckets.createBucketWithUniformAccess();
+    externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
+    externalPrivateBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
 
-    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
+    ExternalGCSBuckets.grantWriteAccess(
+        externalSharedBucket, Identity.user(workspaceCreator.email));
+    ExternalGCSBuckets.grantReadAccess(
+        externalPrivateBucket, Identity.user(workspaceCreator.email));
 
     // grant the user's proxy group access to the bucket so that it will pass WSM's access check
     // when adding it as a referenced resource
-    ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
-    ExternalGCSBuckets.grantReadAccess(externalBucket2, Identity.group(Auth.getProxyGroupEmail()));
+    ExternalGCSBuckets.grantWriteAccess(
+        externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
+    ExternalGCSBuckets.grantReadAccess(
+        externalPrivateBucket, Identity.group(Auth.getProxyGroupEmail()));
+
+    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    shareeUser.login();
+    ExternalGCSBuckets.grantReadAccess(
+        externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
   }
 
   @AfterAll
   @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
-    ExternalGCSBuckets.deleteBucket(externalBucket);
-    externalBucket = null;
+    ExternalGCSBuckets.deleteBucket(externalSharedBucket);
+    externalSharedBucket = null;
   }
 
   @Test
@@ -70,18 +85,22 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "gcs-bucket",
             "--name=" + name,
-            "--bucket-name=" + externalBucket.getName());
+            "--bucket-name=" + externalSharedBucket.getName());
 
     // check that the name and bucket name match
     assertEquals(name, addedBucket.name, "add ref output matches name");
     assertEquals(
-        externalBucket.getName(), addedBucket.bucketName, "add ref output matches bucket name");
+        externalSharedBucket.getName(),
+        addedBucket.bucketName,
+        "add ref output matches bucket name");
 
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
-        externalBucket.getName(), matchedResource.bucketName, "list output matches bucket name");
+        externalSharedBucket.getName(),
+        matchedResource.bucketName,
+        "list output matches bucket name");
 
     // `terra resource describe --name=$name --format=json`
     UFGcsBucket describeResource =
@@ -91,9 +110,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // check that the name and bucket name match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
-        externalBucket.getName(),
+        externalSharedBucket.getName(),
         describeResource.bucketName,
         "describe resource output matches bucket name");
+    assertEquals(
+        externalSharedBucket.getLocation(),
+        describeResource.location,
+        "describe resource location matches bucket location");
+    assertEquals(0, describeResource.numObjects, "describe resource numObjects is zero");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -114,7 +138,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "gcs-bucket",
         "--name=" + name,
-        "--bucket-name=" + externalBucket.getName());
+        "--bucket-name=" + externalSharedBucket.getName());
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -139,14 +163,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "gcs-bucket",
         "--name=" + name,
-        "--bucket-name=" + externalBucket.getName());
+        "--bucket-name=" + externalSharedBucket.getName());
 
     // `terra resource resolve --name=$name --format=json`
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalGCSBuckets.getGsPath(externalBucket.getName()),
+        ExternalGCSBuckets.getGsPath(externalSharedBucket.getName()),
         resolved,
         "default resolve includes gs:// prefix");
 
@@ -155,7 +179,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
-        externalBucket.getName(),
+        externalSharedBucket.getName(),
         resolvedExcludePrefix,
         "exclude prefix resolve only includes bucket name");
 
@@ -178,7 +202,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "gcs-bucket",
         "--name=" + name,
-        "--bucket-name=" + externalBucket.getName());
+        "--bucket-name=" + externalSharedBucket.getName());
 
     // `terra resource check-access --name=$name
     TestCommand.runCommandExpectSuccess("resource", "check-access", "--name=" + name);
@@ -207,14 +231,16 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "gcs-bucket",
             "--name=" + name,
-            "--bucket-name=" + externalBucket.getName(),
+            "--bucket-name=" + externalSharedBucket.getName(),
             "--cloning=" + cloning,
             "--description=" + description);
 
     // check that the properties match
     assertEquals(name, addedBucket.name, "add ref output matches name");
     assertEquals(
-        externalBucket.getName(), addedBucket.bucketName, "add ref output matches bucket name");
+        externalSharedBucket.getName(),
+        addedBucket.bucketName,
+        "add ref output matches bucket name");
     assertEquals(cloning, addedBucket.cloningInstructions, "add ref output matches cloning");
     assertEquals(description, addedBucket.description, "add ref output matches description");
 
@@ -226,7 +252,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
-        externalBucket.getName(),
+        externalSharedBucket.getName(),
         describeResource.bucketName,
         "describe resource output matches bucket name");
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
@@ -254,7 +280,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + name,
         "--description=" + description,
-        "--bucket-name=" + externalBucket.getName());
+        "--bucket-name=" + externalSharedBucket.getName());
 
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
@@ -303,13 +329,13 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--new-bucket-name=" + externalBucket2.getName());
-    assertEquals(externalBucket2.getName(), updateBucket.bucketName);
+            "--new-bucket-name=" + externalPrivateBucket.getName());
+    assertEquals(externalPrivateBucket.getName(), updateBucket.bucketName);
     // `terra resources describe --name=$newName`
     describeBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
-    assertEquals(externalBucket2.getName(), describeBucket.bucketName);
+    assertEquals(externalPrivateBucket.getName(), describeBucket.bucketName);
   }
 
   @Test
@@ -330,7 +356,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + name,
         "--description=" + description,
-        "--bucket-name=" + externalBucket.getName());
+        "--bucket-name=" + externalSharedBucket.getName());
 
     // call update without specifying any properties to modify
     // `terra resources update gcs-bucket --name=$name`
@@ -356,7 +382,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "--name=" + name,
             "--new-name=" + newName,
             "--description=" + newDescription,
-            "--new-bucket-name=" + externalBucket2.getName());
+            "--new-bucket-name=" + externalPrivateBucket.getName());
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
 
@@ -365,6 +391,143 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
-    assertEquals(externalBucket2.getName(), describeBucket.bucketName);
+    assertEquals(externalPrivateBucket.getName(), describeBucket.bucketName);
+  }
+
+  @Test
+  @DisplayName(
+      "Attempt to update the gcs bucket while the user only have access to the externalSharedBucket")
+  void updateGcsBucketWithPartialAccess() throws IOException {
+    workspaceCreator.login();
+
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace add-user --email=$email --role=READER`
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+
+    String name = "updateGcsBucketWithPartialAccess";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + name,
+        "--bucket-name=" + externalSharedBucket.getName());
+
+    shareeUser.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+
+    String newName = "updateGcsBucketWithPartialAccess_NEW";
+    UFGcsBucket updateBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resource",
+            "update",
+            "gcs-bucket",
+            "--name=" + name,
+            "--new-name=" + newName);
+    assertEquals(newName, updateBucket.name);
+
+    TestCommand.runCommandExpectExitCode(
+        1,
+        "resource",
+        "update",
+        "gcs-bucket",
+        "--name=" + name,
+        "--new-bucket-name=" + externalPrivateBucket.getName());
+
+    // clean up
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
+  @DisplayName(
+      "Attempt to descrone the gcs bucket while the user does not have access to the externalPrivateBucket")
+  void describeBucketReferenceWithoutAccess() throws IOException {
+    workspaceCreator.login();
+
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace add-user --email=$email --role=READER`
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+
+    String name = "updateGcsBucketWithPartialAccess";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + name,
+        "--bucket-name=" + externalPrivateBucket.getName());
+
+    shareeUser.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+
+    // `terra resource describe --name=$name --format=json`
+    UFGcsBucket describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "describe", "--name=" + name);
+
+    // check that the name and bucket name match
+    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        externalPrivateBucket.getName(),
+        describeResource.bucketName,
+        "describe resource output matches bucket name");
+    assertNull(describeResource.numObjects);
+    assertNull(describeResource.location);
+
+    // clean up
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
+  @DisplayName(
+      "Attempt to add reference to buckets while the user only have access to externalSharedbucket")
+  void addBucketRefWithPartialAccess() throws IOException {
+    workspaceCreator.login();
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace add-user --email=$email --role=READER`
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+
+    shareeUser.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+
+    String succeedName = "addBucketRefWithPartialAccess_withAccess";
+    // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + succeedName,
+        "--bucket-name=" + externalSharedBucket.getName());
+
+    String failureName = "addBucketRefWithPartialAccess_withNoAccess";
+    TestCommand.runCommandExpectExitCode(
+        2,
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + failureName,
+        "--bucket-name=" + externalPrivateBucket.getName());
   }
 }

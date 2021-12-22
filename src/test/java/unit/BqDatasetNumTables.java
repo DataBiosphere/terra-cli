@@ -186,6 +186,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName("Attempt to update table reference but the user has no access.")
   void updateTableReferenceWithNoAccess() throws IOException {
     workspaceCreator.login();
 
@@ -225,6 +226,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName(
+      "Attempt to update table reference when the user only have access to sharedExternalTable.")
   void updateTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
 
@@ -280,6 +283,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName(
+      "Attempt to add a reference to tables when the user only has access to sharedExternalTable.")
   void addTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
     UFWorkspace createWorkspace =

@@ -939,9 +939,11 @@ public class WorkspaceManagerService {
     UpdateGcsBucketReferenceRequestBody updateRequest =
         new UpdateGcsBucketReferenceRequestBody()
             .name(updateParams.getResourceParams().name)
-            .description(updateParams.getResourceParams().description)
-            .resourceAttributes(
-                new GcpGcsBucketAttributes().bucketName(updateParams.getBucketName()));
+            .description(updateParams.getResourceParams().description);
+    if (updateParams.getBucketName() != null) {
+      updateRequest.resourceAttributes(
+          new GcpGcsBucketAttributes().bucketName(updateParams.getBucketName()));
+    }
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
