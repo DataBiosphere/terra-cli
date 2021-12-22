@@ -4,20 +4,20 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.controlled.UpdateControlledGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.AddBqTableParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.AddGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -910,11 +910,9 @@ public class WorkspaceManagerService {
     if (updateParams.bucketName != null || updateParams.objectName != null) {
       GcpGcsObjectAttributes gcsObjectAttributes = new GcpGcsObjectAttributes();
       gcsObjectAttributes.bucketName(
-          Optional.ofNullable(updateParams.bucketName)
-              .orElse(updateParams.originalResource.getBucketName()));
+          Optional.ofNullable(updateParams.bucketName).orElse(updateParams.originalBucketName));
       gcsObjectAttributes.fileName(
-          Optional.ofNullable(updateParams.objectName)
-              .orElse(updateParams.originalResource.getObjectName()));
+          Optional.ofNullable(updateParams.objectName).orElse(updateParams.originalObjectName));
       updateRequest.resourceAttributes(gcsObjectAttributes);
     }
     callWithRetries(
@@ -997,18 +995,18 @@ public class WorkspaceManagerService {
         new UpdateBigQueryDataTableReferenceRequestBody()
             .name(updateParams.getResourceParams().name)
             .description(updateParams.getResourceParams().description);
-    if (updateParams.updateReferenceTarget()) {
+    if (updateParams.hasNewReferenceTargetFields()) {
       updateRequest.resourceAttributes(
           new GcpBigQueryDataTableAttributes()
               .projectId(
                   Optional.ofNullable(updateParams.getProjectId())
-                      .orElse(updateParams.getOriginalResource().getProjectId()))
+                      .orElse(updateParams.getOriginalProjectId()))
               .datasetId(
                   Optional.ofNullable(updateParams.getDatasetId())
-                      .orElse(updateParams.getOriginalResource().getDatasetId()))
+                      .orElse(updateParams.getOriginalDatasetId()))
               .dataTableId(
                   Optional.ofNullable(updateParams.getTableId())
-                      .orElse(updateParams.getOriginalResource().getDataTableId())));
+                      .orElse(updateParams.getOriginalTableId())));
     }
 
     callWithRetries(
@@ -1034,15 +1032,15 @@ public class WorkspaceManagerService {
         new UpdateBigQueryDatasetReferenceRequestBody()
             .name(updateParams.getResourceParams().name)
             .description(updateParams.getResourceParams().description);
-    if (updateParams.updateReferencingTarget()) {
+    if (updateParams.hasNewReferenceTargetFields()) {
       updateRequest.resourceAttributes(
           new GcpBigQueryDatasetAttributes()
               .projectId(
                   Optional.ofNullable(updateParams.getProjectId())
-                      .orElse(updateParams.getProjectId()))
+                      .orElse(updateParams.getOriginalProjectId()))
               .datasetId(
                   Optional.ofNullable(updateParams.getDatasetId())
-                      .orElse(updateParams.getDatasetId())));
+                      .orElse(updateParams.getOriginalDatasetId())));
     }
     callWithRetries(
         () ->

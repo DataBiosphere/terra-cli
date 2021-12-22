@@ -1,7 +1,5 @@
-package bio.terra.cli.serialization.userfacing.input.referenced;
+package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.cli.businessobject.resource.BqTable;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -19,14 +17,18 @@ public class UpdateReferencedBqTableParams {
   private final @Nullable String datasetId;
   private final @Nullable String projectId;
   private final @Nullable String tableId;
-  private final BqTable originalResource;
+  private final String originalDatasetId;
+  private final String originalProjectId;
+  private final String originalTableId;
 
   protected UpdateReferencedBqTableParams(UpdateReferencedBqTableParams.Builder builder) {
     this.resourceParams = builder.resourceParams;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
     this.tableId = builder.tableId;
-    this.originalResource = builder.originalResource;
+    this.originalDatasetId = builder.originalDatasetId;
+    this.originalProjectId = builder.originalProjectId;
+    this.originalTableId = builder.originalTableId;
   }
 
   public UpdateResourceParams getResourceParams() {
@@ -63,16 +65,22 @@ public class UpdateReferencedBqTableParams {
   }
 
   /** Gets the original referenced resources. */
-  public BqTable getOriginalResource() {
-    return originalResource;
+  public String getOriginalTableId() {
+    return originalTableId;
   }
 
-  /**
-   * Whether to update the target that the referenced resource is pointing to.
-   *
-   * @return
-   */
-  public boolean updateReferenceTarget() {
+  /** Gets the original BqDataset id that the reference is pointing to. */
+  public String getOriginalDatasetId() {
+    return originalDatasetId;
+  }
+
+  /** Gets the original BqDataset project id that the reference is pointing to. */
+  public String getOriginalProjectId() {
+    return originalProjectId;
+  }
+
+  /** Whether to update the target that the referenced resource is pointing to. */
+  public boolean hasNewReferenceTargetFields() {
     return projectId != null || datasetId != null || tableId != null;
   }
 
@@ -83,7 +91,9 @@ public class UpdateReferencedBqTableParams {
     private @Nullable String datasetId;
     private @Nullable String projectId;
     private @Nullable String tableId;
-    private BqTable originalResource;
+    private String originalDatasetId;
+    private String originalProjectId;
+    private String originalTableId;
 
     public UpdateReferencedBqTableParams.Builder resourceParams(
         UpdateResourceParams resourceParams) {
@@ -106,8 +116,18 @@ public class UpdateReferencedBqTableParams {
       return this;
     }
 
-    public UpdateReferencedBqTableParams.Builder originalResource(BqTable originalResource) {
-      this.originalResource = originalResource;
+    public UpdateReferencedBqTableParams.Builder originalTableId(String originalTableId) {
+      this.originalTableId = originalTableId;
+      return this;
+    }
+
+    public UpdateReferencedBqTableParams.Builder originalDatasetId(String originalDatasetId) {
+      this.originalDatasetId = originalDatasetId;
+      return this;
+    }
+
+    public UpdateReferencedBqTableParams.Builder originalProjectId(String originalProjectId) {
+      this.originalProjectId = originalProjectId;
       return this;
     }
 

@@ -2,11 +2,9 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
@@ -42,17 +40,16 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
     externalPrivateBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
 
-    ExternalGCSBuckets.grantWriteAccess(
-        externalSharedBucket, Identity.user(workspaceCreator.email));
-    ExternalGCSBuckets.grantReadAccess(
-        externalPrivateBucket, Identity.user(workspaceCreator.email));
-
     // grant the user's proxy group access to the bucket so that it will pass WSM's access check
     // when adding it as a referenced resource
     ExternalGCSBuckets.grantWriteAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
     ExternalGCSBuckets.grantReadAccess(
         externalPrivateBucket, Identity.group(Auth.getProxyGroupEmail()));
+
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 
     shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
@@ -65,7 +62,9 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
     ExternalGCSBuckets.deleteBucket(externalSharedBucket);
+    ExternalGCSBuckets.deleteBucket(externalPrivateBucket);
     externalSharedBucket = null;
+    externalPrivateBucket = null;
   }
 
   @Test
@@ -400,13 +399,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   void updateGcsBucketWithPartialAccess() throws IOException {
     workspaceCreator.login();
 
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    // `terra workspace add-user --email=$email --role=READER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     String name = "updateGcsBucketWithPartialAccess";
     TestCommand.runCommandExpectSuccess(
@@ -418,7 +412,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     String newName = "updateGcsBucketWithPartialAccess_NEW";
     UFGcsBucket updateBucket =
@@ -441,58 +435,6 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // clean up
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
-    workspaceCreator.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
-  }
-
-  @Test
-  @DisplayName(
-      "Attempt to descrone the gcs bucket while the user does not have access to the externalPrivateBucket")
-  void describeBucketReferenceWithoutAccess() throws IOException {
-    workspaceCreator.login();
-
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    // `terra workspace add-user --email=$email --role=READER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
-
-    String name = "updateGcsBucketWithPartialAccess";
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "add-ref",
-        "gcs-bucket",
-        "--name=" + name,
-        "--bucket-name=" + externalPrivateBucket.getName());
-
-    shareeUser.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-
-    // `terra resource describe --name=$name --format=json`
-    UFGcsBucket describeResource =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resource", "describe", "--name=" + name);
-
-    // check that the name and bucket name match
-    assertEquals(name, describeResource.name, "describe resource output matches name");
-    assertEquals(
-        externalPrivateBucket.getName(),
-        describeResource.bucketName,
-        "describe resource output matches bucket name");
-    assertNull(describeResource.numObjects);
-    assertNull(describeResource.location);
-
-    // clean up
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
-    workspaceCreator.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -500,17 +442,12 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
       "Attempt to add reference to buckets while the user only have access to externalSharedbucket")
   void addBucketRefWithPartialAccess() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    // `terra workspace add-user --email=$email --role=READER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     String succeedName = "addBucketRefWithPartialAccess_withAccess";
     // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName

@@ -5,9 +5,9 @@ import static bio.terra.cli.businessobject.resource.GcsBucket.GCS_BUCKET_URL_PRE
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
+import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.AddGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsObjectResource;

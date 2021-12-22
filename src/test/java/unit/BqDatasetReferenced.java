@@ -36,10 +36,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
     externalDataset2 = ExternalBQDatasets.createDataset();
-    ExternalBQDatasets.grantReadAccess(
-        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
-    ExternalBQDatasets.grantReadAccess(
-        externalDataset, workspaceCreator.email, ExternalBQDatasets.IamMemberType.USER);
 
     // grant the user's proxy group access to the dataset so that it will pass WSM's access check
     // when adding it as a referenced resource

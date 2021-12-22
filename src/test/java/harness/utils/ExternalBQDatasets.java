@@ -137,7 +137,7 @@ public class ExternalBQDatasets {
             new SetIamPolicyRequest().setPolicy(policy.setBindings(updatedBindings)))
         .execute();
     System.out.println(
-        "Grant dataViewer access to table " + tableId + " for proxy group: " + groupEmail);
+        "Grant dataViewer access to table " + tableId + " for group email: " + groupEmail);
   }
 
   /**

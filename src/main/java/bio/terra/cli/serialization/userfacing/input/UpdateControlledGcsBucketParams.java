@@ -1,7 +1,5 @@
-package bio.terra.cli.serialization.userfacing.input.controlled;
+package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

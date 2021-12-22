@@ -8,7 +8,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import picocli.CommandLine;
 
@@ -23,7 +23,7 @@ public class BqTable extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  @CommandLine.Option(names = "--new-table-id", description = "new BigQuery table id.")
+  @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;
 
   /** Update a BigQuery dataset in the workspace. */
@@ -50,7 +50,9 @@ public class BqTable extends BaseCommand {
             .tableId(newBqTableId)
             .datasetId(bqDatasetNewIds.getNewBqDatasetId())
             .projectId(bqDatasetNewIds.getNewGcpProjectId())
-            .originalResource(resource);
+            .originalTableId(resource.getDataTableId())
+            .originalDatasetId(resource.getDataTableId())
+            .originalProjectId(resource.getProjectId());
 
     resource.updateReferenced(bqTableParams.build());
 

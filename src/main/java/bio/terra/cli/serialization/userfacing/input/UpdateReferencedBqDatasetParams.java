@@ -1,7 +1,5 @@
-package bio.terra.cli.serialization.userfacing.input.referenced;
+package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.cli.businessobject.resource.BqDataset;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -17,13 +15,15 @@ public class UpdateReferencedBqDatasetParams {
   private final UpdateResourceParams resourceParams;
   private final @Nullable String datasetId;
   private final @Nullable String projectId;
-  private final BqDataset originalResource;
+  private final String originalDatasetId;
+  private final String originalProjectId;
 
   protected UpdateReferencedBqDatasetParams(UpdateReferencedBqDatasetParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
-    this.originalResource = builder.originalResource;
+    this.originalDatasetId = builder.originalDatasetId;
+    this.originalProjectId = builder.originalProjectId;
   }
 
   public UpdateResourceParams getResourceParams() {
@@ -50,21 +50,18 @@ public class UpdateReferencedBqDatasetParams {
     return projectId;
   }
 
-  /**
-   * Gets the original BqDataset that the reference is pointing to.
-   *
-   * @return
-   */
-  public BqDataset getOriginalResource() {
-    return originalResource;
+  /** Gets the original BqDataset id that the reference is pointing to. */
+  public String getOriginalDatasetId() {
+    return originalDatasetId;
   }
 
-  /**
-   * Whether to update the reference to point to another BqDataset.
-   *
-   * @return
-   */
-  public boolean updateReferencingTarget() {
+  /** Gets the original BqDataset project id that the reference is pointing to. */
+  public String getOriginalProjectId() {
+    return originalProjectId;
+  }
+
+  /** Whether to update the reference to point to another BqDataset. */
+  public boolean hasNewReferenceTargetFields() {
     return datasetId != null || projectId != null;
   }
 
@@ -74,7 +71,8 @@ public class UpdateReferencedBqDatasetParams {
     private UpdateResourceParams resourceFields;
     private String datasetId;
     private String projectId;
-    private BqDataset originalResource;
+    private String originalDatasetId;
+    private String originalProjectId;
 
     public UpdateReferencedBqDatasetParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
@@ -92,8 +90,13 @@ public class UpdateReferencedBqDatasetParams {
       return this;
     }
 
-    public UpdateReferencedBqDatasetParams.Builder originalResource(BqDataset originalResource) {
-      this.originalResource = originalResource;
+    public UpdateReferencedBqDatasetParams.Builder originalDatasetId(String originalDatasetId) {
+      this.originalDatasetId = originalDatasetId;
+      return this;
+    }
+
+    public UpdateReferencedBqDatasetParams.Builder originalProjectId(String originalProjectId) {
+      this.originalProjectId = originalProjectId;
       return this;
     }
 

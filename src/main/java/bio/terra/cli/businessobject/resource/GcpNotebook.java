@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDGcpNotebook;
-import bio.terra.cli.serialization.userfacing.input.controlled.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
