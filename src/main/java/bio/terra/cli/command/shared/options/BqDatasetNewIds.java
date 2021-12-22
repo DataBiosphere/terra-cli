@@ -1,6 +1,5 @@
 package bio.terra.cli.command.shared.options;
 
-import java.util.Optional;
 import picocli.CommandLine;
 
 /**
@@ -19,12 +18,12 @@ public class BqDatasetNewIds {
   @CommandLine.Option(names = "--new-dataset-id", description = "new BigQuery dataset id.")
   private String newBqDatasetId;
 
-  public Optional<String> getNewGcpProjectId() {
-    return Optional.ofNullable(newGcpProjectId);
+  public String getNewGcpProjectId() {
+    return newGcpProjectId;
   }
 
-  public Optional<String> getNewBqDatasetId() {
-    return Optional.ofNullable(newBqDatasetId);
+  public String getNewBqDatasetId() {
+    return newBqDatasetId;
   }
 
   public boolean isDefined() {

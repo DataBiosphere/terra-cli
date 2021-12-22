@@ -4,6 +4,7 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import com.google.api.services.bigquery.model.DatasetReference;
@@ -109,6 +110,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
 
     // check that there is now 1 table reported in the dataset
     assertEquals(1, describedDataset.numTables, "described dataset contains 1 table");
+
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -134,6 +137,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
 
     // the external dataset created in the beforeall method should have 2 table in it
     assertEquals(2, addedDataset.numTables, "referenced dataset contains 2 table");
+
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -141,8 +146,12 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   void numTablesForReferencedWithNoAccess() throws IOException {
     workspaceCreator.login();
 
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
 
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`
@@ -155,13 +164,10 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "--project-id=" + externalDataset.getProjectId(),
         "--dataset-id=" + externalDataset.getDatasetId());
 
-    // `terra workspace add-user --email=$email --role=READER`
-    TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
-
     shareeUser.login();
 
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     // `terra resource describe --name=$name`
     UFBqDataset describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -170,14 +176,25 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
     // the external dataset created in the beforeall method should have 1 table in it, but the
     // sharee user doesn't have read access to the dataset so they can't know that
     assertNull(describeDataset.numTables, "referenced dataset with no access contains NULL tables");
+
+    // Clean up.
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
   void updateTableReferenceWithNoAccess() throws IOException {
     workspaceCreator.login();
 
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
 
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`
@@ -191,23 +208,33 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "--dataset-id=" + externalDataset.getDatasetId(),
         "--table-id=" + privateExternalTable);
 
-    // `terra workspace add-user --email=$email --role=READER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
-
     shareeUser.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
 
     String newName = "updateTableReferenceWithNoAccess_NEW";
     TestCommand.runCommandExpectExitCode(
         2, "resource", "update", "bq-table", "--name=" + name, "--new-name=" + newName);
+
+    // Clean up.
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
-  void updateTableReferenceWithPartialAccess() throws IOException, InterruptedException {
+  void updateTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
 
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    // `terra workspace add-user --email=$email --role=READER`
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`
@@ -221,11 +248,9 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "--dataset-id=" + externalDataset.getDatasetId(),
         "--table-id=" + sharedExternalTable);
 
-    // `terra workspace add-user --email=$email --role=READER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
-
     shareeUser.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
 
     String newName = "updateTableReferenceWithPartialAccess_NEW";
     UFBqTable updateTable =
@@ -245,21 +270,29 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "bq-table",
         "--name=" + name,
         "--new-table-id=" + privateExternalTable);
+
+    // clean up
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
   void addTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
+    UFWorkspace createWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     // `terra workspace add-user --email=$email --role=READER`
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
 
     String succeedName = "addTableReferenceWithPartialAccess_withAccess";
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
@@ -293,5 +326,12 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "--name=" + failureDatasetName,
         "--project-id=" + externalDataset.getProjectId(),
         "--dataset-id=" + externalDataset.getDatasetId());
+
+    // clean up
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + succeedName, "--quiet");
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

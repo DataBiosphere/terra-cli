@@ -8,10 +8,8 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.referenced.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
-import java.util.Optional;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update bq-table" command. */
@@ -48,13 +46,11 @@ public class BqTable extends BaseCommand {
 
     UpdateReferencedBqTableParams.Builder bqTableParams =
         new UpdateReferencedBqTableParams.Builder()
-            .tableId(Optional.ofNullable(newBqTableId).orElse(resource.getDataTableId()))
-            .updateReferencedBqDatasetParams(
-                new UpdateReferencedBqDatasetParams.Builder()
-                    .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-                    .projectId(bqDatasetNewIds.getNewGcpProjectId().orElse(resource.getProjectId()))
-                    .datasetId(bqDatasetNewIds.getNewBqDatasetId().orElse(resource.getDatasetId()))
-                    .build());
+            .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
+            .tableId(newBqTableId)
+            .datasetId(bqDatasetNewIds.getNewBqDatasetId())
+            .projectId(bqDatasetNewIds.getNewGcpProjectId())
+            .originalResource(resource);
 
     resource.updateReferenced(bqTableParams.build());
 

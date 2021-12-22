@@ -54,8 +54,9 @@ public class BqDataset extends BaseCommand {
       UpdateReferencedBqDatasetParams.Builder updateParams =
           new UpdateReferencedBqDatasetParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-              .datasetId(bqDatasetNewIds.getNewBqDatasetId().orElse(resource.getDatasetId()))
-              .projectId(bqDatasetNewIds.getNewGcpProjectId().orElse(resource.getProjectId()));
+              .datasetId(bqDatasetNewIds.getNewBqDatasetId())
+              .projectId(bqDatasetNewIds.getNewGcpProjectId())
+              .originalResource(resource);
       resource.updateReferenced(updateParams.build());
     } else {
       resource.updateControlled(
