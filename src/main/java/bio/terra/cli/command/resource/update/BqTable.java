@@ -51,7 +51,7 @@ public class BqTable extends BaseCommand {
             .datasetId(bqDatasetNewIds.getNewBqDatasetId())
             .projectId(bqDatasetNewIds.getNewGcpProjectId())
             .originalTableId(resource.getDataTableId())
-            .originalDatasetId(resource.getDataTableId())
+            .originalDatasetId(resource.getDatasetId())
             .originalProjectId(resource.getProjectId());
 
     resource.updateReferenced(bqTableParams.build());

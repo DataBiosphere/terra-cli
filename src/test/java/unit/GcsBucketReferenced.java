@@ -48,10 +48,9 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         externalPrivateBucket, Identity.group(Auth.getProxyGroupEmail()));
 
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
-
-    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
