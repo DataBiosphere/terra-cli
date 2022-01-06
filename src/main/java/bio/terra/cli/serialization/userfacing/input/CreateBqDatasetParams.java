@@ -3,7 +3,6 @@ package bio.terra.cli.serialization.userfacing.input;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import javax.annotation.Nullable;
 
 /**
  * Parameters for creating a BQ dataset workspace controlled resource. This class is not currently
@@ -14,7 +13,7 @@ import javax.annotation.Nullable;
 public class CreateBqDatasetParams {
   public final CreateResourceParams resourceFields;
   public final String projectId;
-  public final @Nullable String datasetId;
+  public final String datasetId;
   public final String location;
   public final Integer defaultPartitionLifetimeSeconds;
   public final Integer defaultTableLifetimeSeconds;
@@ -32,7 +31,7 @@ public class CreateBqDatasetParams {
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String projectId;
-    private @Nullable String datasetId;
+    private String datasetId;
     private String location;
     private Integer defaultPartitionLifetimeSeconds;
     private Integer defaultTableLifetimeSeconds;
@@ -47,7 +46,7 @@ public class CreateBqDatasetParams {
       return this;
     }
 
-    public Builder datasetId(@Nullable String datasetId) {
+    public Builder datasetId(String datasetId) {
       this.datasetId = datasetId;
       return this;
     }

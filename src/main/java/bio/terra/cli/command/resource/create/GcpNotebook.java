@@ -1,7 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
@@ -12,9 +11,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import com.google.common.collect.ImmutableMap;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -28,10 +24,6 @@ import picocli.CommandLine;
     showDefaultValues = true,
     sortOptions = false)
 public class GcpNotebook extends BaseCommand {
-  private static final String AUTO_NAME_DATE_FORMAT = "-yyyyMMdd-HHmmss";
-  private static final String AUTO_GENERATE_NAME = "{username}" + AUTO_NAME_DATE_FORMAT;
-  /** See {@link #mangleUsername(String)}. */
-  private static final int MAX_INSTANCE_NAME_LENGTH = 61;
 
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
@@ -47,8 +39,7 @@ public class GcpNotebook extends BaseCommand {
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
               + "letters, numeric characters, and dashes. The first character must be a lowercase "
               + "letter and the last character cannot be a dash. If not specified, an "
-              + "auto-generated name based on your email address and time will be used.",
-      defaultValue = AUTO_GENERATE_NAME)
+              + "auto-generated name based on your email address and time will be used.")
   private String instanceId;
 
   @CommandLine.Option(
@@ -239,7 +230,7 @@ public class GcpNotebook extends BaseCommand {
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
-            .instanceId(getInstanceId(Context.requireUser()))
+            .instanceId(instanceId)
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
@@ -291,49 +282,6 @@ public class GcpNotebook extends BaseCommand {
         .put("terra-workspace-id", workspaceID.toString())
         .put("terra-cli-server", Context.getServer().getName())
         .build();
-  }
-
-  /**
-   * Returns the specified instanceId or an auto generated instance name with the username and date
-   * time.
-   */
-  // TODO add some unit tests when we have a testing framework.
-  private String getInstanceId(User user) {
-    if (!AUTO_GENERATE_NAME.equals(instanceId)) {
-      return instanceId;
-    }
-    String mangledUsername = mangleUsername(extractUsername(user.getEmail()));
-    String localDateTimeSuffix =
-        DateTimeFormatter.ofPattern(AUTO_NAME_DATE_FORMAT)
-            .format(Instant.now().atZone(ZoneId.systemDefault()));
-    return mangledUsername + localDateTimeSuffix;
-  }
-
-  /**
-   * Best effort mangle the user's name so that it meets the requirements for a valid instance name.
-   *
-   * <p>Instance name id must match the regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)', i.e. starting
-   * with a lowercase alpha character, only alphanumerics and '-' of max length 61. I don't have a
-   * documentation link, but gcloud will complain otherwise.
-   */
-  private static String mangleUsername(String username) {
-    // Strip non alpha-numeric or '-' characters.
-    String mangledName = username.replaceAll("[^a-zA-Z0-9-]", "");
-    if (mangledName.isEmpty()) {
-      mangledName = "notebook";
-    }
-    // Lower case everything, even though only the first character requires lowercase.
-    mangledName = mangledName.toLowerCase();
-    // Make sure the returned name isn't too long to not have the date time suffix.
-    int maxNameLength = MAX_INSTANCE_NAME_LENGTH - AUTO_NAME_DATE_FORMAT.length();
-    if (mangledName.length() > maxNameLength) {
-      mangledName = mangledName.substring(0, maxNameLength);
-    }
-    return mangledName;
-  }
-
-  private static String extractUsername(String validEmail) {
-    return validEmail.substring(0, validEmail.indexOf('@'));
   }
 
   /** Print this command's output in text format. */

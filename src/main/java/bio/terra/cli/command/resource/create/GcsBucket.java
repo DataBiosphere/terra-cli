@@ -22,7 +22,7 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Option(
       names = "--bucket-name",
       description =
-          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
+          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket'). If not provided, a unique bucket name will be generated.")
   private String bucketName;
 
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;

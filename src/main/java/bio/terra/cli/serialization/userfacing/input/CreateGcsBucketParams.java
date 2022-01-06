@@ -4,7 +4,6 @@ import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import javax.annotation.Nullable;
 
 /**
  * Parameters for creating a GCS bucket workspace resource. This class is not currently user-facing,
@@ -14,7 +13,7 @@ import javax.annotation.Nullable;
 @JsonDeserialize(builder = CreateGcsBucketParams.Builder.class)
 public class CreateGcsBucketParams {
   public final CreateResourceParams resourceFields;
-  public final @Nullable String bucketName;
+  public final String bucketName;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
   public final String location;
@@ -30,7 +29,7 @@ public class CreateGcsBucketParams {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private CreateResourceParams resourceFields;
-    private @Nullable String bucketName;
+    private String bucketName;
     private GcsBucketLifecycle lifecycle;
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
     private String location;
@@ -40,7 +39,7 @@ public class CreateGcsBucketParams {
       return this;
     }
 
-    public Builder bucketName(@Nullable String bucketName) {
+    public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
     }
