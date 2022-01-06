@@ -1,9 +1,11 @@
 package unit;
 
+import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -426,11 +428,29 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("update a referenced data table, specifying multiple or none of the properties")
-  void updateMultipleOrNoProperties() throws IOException {
+  void updateMultipleOrNoProperties() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    String controlledDataset = "controlledDataset";
+    String datasetId = randomDatasetId();
+    UFBqDataset createdDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "create",
+            "bq-dataset",
+            "--name=" + controlledDataset,
+            "--dataset-id=" + datasetId);
+    String tableInControlledDataset = "tableInControlledDataset";
+    ExternalBQDatasets.createTable(
+        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        createdDataset.projectId,
+        createdDataset.datasetId,
+        tableInControlledDataset);
 
     // `terra resources add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
@@ -469,20 +489,29 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "--name=" + name,
             "--new-name=" + newName,
             "--description=" + newDescription,
-            "--new-project-id=" + externalDataset2.getProjectId(),
-            "--new-dataset-id=" + externalDataset2.getDatasetId(),
-            "--new-table-id=" + externalDataTableName2);
+            "--new-project-id=" + createdDataset.projectId,
+            "--new-dataset-id=" + createdDataset.datasetId,
+            "--new-table-id=" + tableInControlledDataset);
     assertEquals(newName, updateDataTable.name);
     assertEquals(newDescription, updateDataTable.description);
-    assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
-    assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
-    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
+    assertEquals(createdDataset.datasetId, updateDataTable.datasetId);
+    assertEquals(createdDataset.projectId, updateDataTable.projectId);
+    assertEquals(tableInControlledDataset, updateDataTable.dataTableId);
 
     // `terra resources describe --name=$newName`
     UFBqTable describeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataTable.description);
+    assertEquals(newName, describeDataTable.name);
+    assertEquals(createdDataset.projectId, describeDataTable.projectId);
+    assertEquals(createdDataset.datasetId, describeDataTable.datasetId);
+    assertEquals(tableInControlledDataset, describeDataTable.dataTableId);
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "resource", "delete", "--name=" + controlledDataset, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
   }
 
   @Test

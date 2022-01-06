@@ -113,18 +113,18 @@ public class BqDataset extends Resource {
 
   /** Update a BigQuery dataset referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqDatasetParams updateParams) {
-    if (updateParams.getResourceParams().name != null) {
-      validateEnvironmentVariableName(updateParams.getResourceParams().name);
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
     }
-    if (updateParams.getProjectId() != null) {
-      this.projectId = updateParams.getProjectId();
+    if (updateParams.projectId != null) {
+      this.projectId = updateParams.projectId;
     }
-    if (updateParams.getDatasetId() != null) {
-      this.datasetId = updateParams.getDatasetId();
+    if (updateParams.datasetId != null) {
+      this.datasetId = updateParams.datasetId;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams.getResourceParams());
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a BigQuery dataset controlled resource in the workspace. */

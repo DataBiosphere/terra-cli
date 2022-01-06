@@ -88,21 +88,21 @@ public class BqTable extends Resource {
 
   /** Update a BigQuery data table referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqTableParams updateParams) {
-    if (updateParams.getResourceParams().name != null) {
-      validateEnvironmentVariableName(updateParams.getResourceParams().name);
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
     }
-    if (updateParams.getProjectId() != null) {
-      this.projectId = updateParams.getProjectId();
+    if (updateParams.projectId != null) {
+      this.projectId = updateParams.projectId;
     }
-    if (updateParams.getDatasetId() != null) {
-      this.datasetId = updateParams.getDatasetId();
+    if (updateParams.datasetId != null) {
+      this.datasetId = updateParams.datasetId;
     }
-    if (updateParams.getTableId() != null) {
-      this.dataTableId = updateParams.getTableId();
+    if (updateParams.tableId != null) {
+      this.dataTableId = updateParams.tableId;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataTable(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams.getResourceParams());
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Delete a BigQuery data table referenced resource in the workspace. */

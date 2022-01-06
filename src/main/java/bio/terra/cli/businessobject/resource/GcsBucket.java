@@ -104,15 +104,15 @@ public class GcsBucket extends Resource {
 
   /** Update a GCS bucket referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
-    if (updateParams.getResourceParams().name != null) {
-      validateEnvironmentVariableName(updateParams.getResourceParams().name);
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
     }
-    if (updateParams.getBucketName() != null) {
-      this.bucketName = updateParams.getBucketName();
+    if (updateParams.bucketName != null) {
+      this.bucketName = updateParams.bucketName;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams.getResourceParams());
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */

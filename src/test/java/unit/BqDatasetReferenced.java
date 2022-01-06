@@ -1,5 +1,6 @@
 package unit;
 
+import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
@@ -372,6 +373,18 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    String controlledDataset = "controlledDataset";
+    String datasetId = randomDatasetId();
+    UFBqDataset createdDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "create",
+            "bq-dataset",
+            "--name=" + controlledDataset,
+            "--dataset-id=" + datasetId);
+
     // `terra resources add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
     String name = "updateMultipleOrNoProperties";
@@ -409,19 +422,24 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "--name=" + name,
             "--new-name=" + newName,
             "--description=" + newDescription,
-            "--new-project-id=" + externalDataset2.getProjectId(),
-            "--new-dataset-id=" + externalDataset2.getDatasetId());
+            "--new-project-id=" + createdDataset.projectId,
+            "--new-dataset-id=" + createdDataset.datasetId);
     assertEquals(newName, updateDataset.name);
     assertEquals(newDescription, updateDataset.description);
-    assertEquals(externalDataset2.getProjectId(), updateDataset.projectId);
-    assertEquals(externalDataset2.getDatasetId(), updateDataset.datasetId);
+    assertEquals(createdDataset.projectId, updateDataset.projectId);
+    assertEquals(createdDataset.datasetId, updateDataset.datasetId);
 
     // `terra resources describe --name=$newName`
     UFBqDataset describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
-    assertEquals(externalDataset2.getDatasetId(), describeDataset.datasetId);
-    assertEquals(externalDataset2.getProjectId(), describeDataset.projectId);
+    assertEquals(createdDataset.datasetId, describeDataset.datasetId);
+    assertEquals(createdDataset.projectId, describeDataset.projectId);
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "resource", "delete", "--name=" + controlledDataset, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
   }
 }

@@ -11,20 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateReferencedGcsBucketParams {
-  private final UpdateResourceParams resourceParams;
-  private final String bucketName;
+  public final UpdateResourceParams resourceParams;
+  public final String bucketName;
 
   protected UpdateReferencedGcsBucketParams(UpdateReferencedGcsBucketParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
     this.bucketName = builder.bucketName;
-  }
-
-  public UpdateResourceParams getResourceParams() {
-    return resourceParams;
-  }
-
-  public String getBucketName() {
-    return bucketName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

@@ -51,7 +51,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-    // `terra workspace add-user --email=$email --role=READER`
+    // `terra workspace add-user --email=$email --role=WRITER`
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 

@@ -936,11 +936,11 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     UpdateGcsBucketReferenceRequestBody updateRequest =
         new UpdateGcsBucketReferenceRequestBody()
-            .name(updateParams.getResourceParams().name)
-            .description(updateParams.getResourceParams().description);
-    if (updateParams.getBucketName() != null) {
+            .name(updateParams.resourceParams.name)
+            .description(updateParams.resourceParams.description);
+    if (updateParams.bucketName != null) {
       updateRequest.resourceAttributes(
-          new GcpGcsBucketAttributes().bucketName(updateParams.getBucketName()));
+          new GcpGcsBucketAttributes().bucketName(updateParams.bucketName));
     }
     callWithRetries(
         () ->
@@ -993,20 +993,19 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     UpdateBigQueryDataTableReferenceRequestBody updateRequest =
         new UpdateBigQueryDataTableReferenceRequestBody()
-            .name(updateParams.getResourceParams().name)
-            .description(updateParams.getResourceParams().description);
+            .name(updateParams.resourceParams.name)
+            .description(updateParams.resourceParams.description);
     if (updateParams.hasNewReferenceTargetFields()) {
       updateRequest.resourceAttributes(
           new GcpBigQueryDataTableAttributes()
               .projectId(
-                  Optional.ofNullable(updateParams.getProjectId())
-                      .orElse(updateParams.getOriginalProjectId()))
+                  Optional.ofNullable(updateParams.projectId)
+                      .orElse(updateParams.originalProjectId))
               .datasetId(
-                  Optional.ofNullable(updateParams.getDatasetId())
-                      .orElse(updateParams.getOriginalDatasetId()))
+                  Optional.ofNullable(updateParams.datasetId)
+                      .orElse(updateParams.originalDatasetId))
               .dataTableId(
-                  Optional.ofNullable(updateParams.getTableId())
-                      .orElse(updateParams.getOriginalTableId())));
+                  Optional.ofNullable(updateParams.tableId).orElse(updateParams.originalTableId)));
     }
 
     callWithRetries(
@@ -1030,17 +1029,17 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     UpdateBigQueryDatasetReferenceRequestBody updateRequest =
         new UpdateBigQueryDatasetReferenceRequestBody()
-            .name(updateParams.getResourceParams().name)
-            .description(updateParams.getResourceParams().description);
+            .name(updateParams.resourceParams.name)
+            .description(updateParams.resourceParams.description);
     if (updateParams.hasNewReferenceTargetFields()) {
       updateRequest.resourceAttributes(
           new GcpBigQueryDatasetAttributes()
               .projectId(
-                  Optional.ofNullable(updateParams.getProjectId())
-                      .orElse(updateParams.getOriginalProjectId()))
+                  Optional.ofNullable(updateParams.projectId)
+                      .orElse(updateParams.originalProjectId))
               .datasetId(
-                  Optional.ofNullable(updateParams.getDatasetId())
-                      .orElse(updateParams.getOriginalDatasetId())));
+                  Optional.ofNullable(updateParams.datasetId)
+                      .orElse(updateParams.originalDatasetId)));
     }
     callWithRetries(
         () ->

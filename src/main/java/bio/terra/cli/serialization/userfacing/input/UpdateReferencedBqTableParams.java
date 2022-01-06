@@ -14,12 +14,34 @@ import javax.annotation.Nullable;
 public class UpdateReferencedBqTableParams {
 
   public final UpdateResourceParams resourceParams;
-  private final @Nullable String datasetId;
-  private final @Nullable String projectId;
-  private final @Nullable String tableId;
-  private final String originalDatasetId;
-  private final String originalProjectId;
-  private final String originalTableId;
+  /**
+   * New datasetId to be updated to.
+   *
+   * <p>When {@code datasetId} is null, do not update the tableId. Instead, use the datasetId from
+   * the {@code originalResource}.
+   */
+  public final @Nullable String datasetId;
+  /**
+   * New projectId to be updated to.
+   *
+   * <p>When {@code projectId} is null, do not update the tableId. Instead, use the projectId from
+   * the {@code originalResource}.
+   */
+  public final @Nullable String projectId;
+  /**
+   * New tableId to be updated to.
+   *
+   * <p>When {@code tableId} is null, do not update the tableId. Instead, use the tableId from the
+   * {@code originalResource}.
+   */
+  public final @Nullable String tableId;
+
+  /** The original BqDataset id that the reference is pointing to. */
+  public final String originalDatasetId;
+  /** The original BqDataset project id that the reference is pointing to. */
+  public final String originalProjectId;
+  /** The original BqDataset table id that the reference is pointing to. */
+  public final String originalTableId;
 
   protected UpdateReferencedBqTableParams(UpdateReferencedBqTableParams.Builder builder) {
     this.resourceParams = builder.resourceParams;
@@ -29,54 +51,6 @@ public class UpdateReferencedBqTableParams {
     this.originalDatasetId = builder.originalDatasetId;
     this.originalProjectId = builder.originalProjectId;
     this.originalTableId = builder.originalTableId;
-  }
-
-  public UpdateResourceParams getResourceParams() {
-    return resourceParams;
-  }
-  /**
-   * Gets the datasetId to be updated to.
-   *
-   * <p>When {@code datasetId} is null, do not update the tableId. Instead, use the datasetId from
-   * the {@code originalResource}.
-   */
-  public @Nullable String getDatasetId() {
-    return datasetId;
-  }
-
-  /**
-   * Gets the projectId to be updated to.
-   *
-   * <p>When {@code projectId} is null, do not update the tableId. Instead, use the projectId from
-   * the {@code originalResource}.
-   */
-  public @Nullable String getProjectId() {
-    return projectId;
-  }
-
-  /**
-   * Gets the tableId to be updated to.
-   *
-   * <p>When {@code tableId} is null, do not update the tableId. Instead, use the tableId from the
-   * {@code originalResource}.
-   */
-  public @Nullable String getTableId() {
-    return tableId;
-  }
-
-  /** Gets the original referenced resources. */
-  public String getOriginalTableId() {
-    return originalTableId;
-  }
-
-  /** Gets the original BqDataset id that the reference is pointing to. */
-  public String getOriginalDatasetId() {
-    return originalDatasetId;
-  }
-
-  /** Gets the original BqDataset project id that the reference is pointing to. */
-  public String getOriginalProjectId() {
-    return originalProjectId;
   }
 
   /** Whether to update the target that the referenced resource is pointing to. */
