@@ -71,7 +71,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("list and describe reflect creating a new controlled bucket")
+  @DisplayName("create a new controlled gcs bucket without specifying the bucket name")
   void createGcsBucketWithoutSpecifyingBucketName() throws IOException {
     workspaceCreator.login();
 
