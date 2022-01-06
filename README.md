@@ -19,6 +19,7 @@
         * [GCS bucket object reference](#gcs-bucket-object-reference)
           * [Reference to a file or folder](#reference-to-a-file-or-folder)
           * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
+        * [Update A Reference resource](#update-a-reference-resource)
     * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
@@ -376,7 +377,7 @@ Commands:
   describe                   Describe a resource.
   list                       List all resources.
   resolve                    Resolve a resource to its cloud id or path.
-  update                     Update the properties of a resource.
+  update                     Update the properties of a resouce
 ```
 
 A controlled resource is a cloud resource that is managed by Terra. It exists within the current workspace context.
@@ -485,6 +486,16 @@ they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`.
 > a reference to `fooo/` (where object `fooo` does not exist) can be created if
 > the user has `READER` access to the bucket or `foo/\*.png` (where there is no
 > png files) if they have access to the `foo/` folder.
+
+##### Update A Reference resource
+User can update the name and description of a reference resource. User can also
+update a reference resource to another of the same type. For instance, if a user 
+creates a reference resource to Bq dataset `foo` and later on wants to point to
+Bq dataset `bar` in the same project, one can use 
+`terra resource udpate --name=<fooReferenceName> --new-dataset-id=bar` to update
+the reference. However, one is not allowed to update the reference to a
+different type (e.g. update a dataset reference to a data table reference is not
+allowed).
 
 #### Server
 ```

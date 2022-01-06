@@ -56,6 +56,9 @@ public class BqDataset extends BaseCommand {
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
               .datasetId(bqDatasetNewIds.getNewBqDatasetId())
               .projectId(bqDatasetNewIds.getNewGcpProjectId())
+              // TODO (PF-1271): remove the original reference's attributes once WSM does not
+              // require specifying dataset Id and project Id when updating reference to a BQ
+              // dataset.
               .originalDatasetId(resource.getDatasetId())
               .originalProjectId(resource.getProjectId());
       resource.updateReferenced(updateParams.build());
