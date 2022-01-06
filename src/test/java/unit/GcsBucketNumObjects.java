@@ -160,5 +160,6 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
     // the external bucket created in the beforeall method should have 1 blob in it, but the sharee
     // user doesn't have read access to the bucket so they can't know that
     assertNull(describeBucket.numObjects, "referenced bucket with no access contains NULL objects");
+    assertNull(describeBucket.location, "referenced bucket with no access contains NULL location");
   }
 }

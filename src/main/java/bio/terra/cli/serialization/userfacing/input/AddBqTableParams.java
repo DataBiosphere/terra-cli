@@ -9,14 +9,14 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateBqTableParams.Builder.class)
-public class CreateBqTableParams {
+@JsonDeserialize(builder = AddBqTableParams.Builder.class)
+public class AddBqTableParams {
   public final CreateResourceParams resourceFields;
   public final String projectId;
   public final String datasetId;
   public final String dataTableId;
 
-  protected CreateBqTableParams(CreateBqTableParams.Builder builder) {
+  protected AddBqTableParams(AddBqTableParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.projectId = builder.projectId;
     this.datasetId = builder.datasetId;
@@ -51,8 +51,8 @@ public class CreateBqTableParams {
     }
 
     /** Call the private constructor. */
-    public CreateBqTableParams build() {
-      return new CreateBqTableParams(this);
+    public AddBqTableParams build() {
+      return new AddBqTableParams(this);
     }
 
     /** Default constructor for Jackson. */

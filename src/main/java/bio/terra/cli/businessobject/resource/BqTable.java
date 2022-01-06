@@ -5,8 +5,8 @@ import static bio.terra.cli.businessobject.resource.BqResolvedOptions.BQ_PROJECT
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqTable;
-import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
@@ -69,7 +69,7 @@ public class BqTable extends Resource {
    *
    * @return the resource that was added
    */
-  public static BqTable addReferenced(CreateBqTableParams createParams) {
+  public static BqTable addReferenced(AddBqTableParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
     // call WSM to add the reference. use the pet SA credentials instead of the end user's
@@ -87,13 +87,22 @@ public class BqTable extends Resource {
   }
 
   /** Update a BigQuery data table referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedBqTableParams updateParams) {
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
+    }
+    if (updateParams.projectId != null) {
+      this.projectId = updateParams.projectId;
+    }
+    if (updateParams.datasetId != null) {
+      this.datasetId = updateParams.datasetId;
+    }
+    if (updateParams.tableId != null) {
+      this.dataTableId = updateParams.tableId;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataTable(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Delete a BigQuery data table referenced resource in the workspace. */

@@ -3,10 +3,12 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.BqDatasetNewIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import picocli.CommandLine;
 
@@ -16,9 +18,13 @@ import picocli.CommandLine;
     description = "Update a BigQuery data table.",
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
+  @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
+  @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
+  private String newBqTableId;
 
   /** Update a BigQuery dataset in the workspace. */
   @Override
@@ -26,7 +32,9 @@ public class BqTable extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined()) {
+    if (!resourceUpdateOptions.isDefined()
+        && !bqDatasetNewIds.isDefined()
+        && newBqTableId == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -36,7 +44,20 @@ public class BqTable extends BaseCommand {
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Resource.Type.BQ_TABLE);
 
-    resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+    UpdateReferencedBqTableParams.Builder bqTableParams =
+        new UpdateReferencedBqTableParams.Builder()
+            .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
+            .tableId(newBqTableId)
+            .datasetId(bqDatasetNewIds.getNewBqDatasetId())
+            .projectId(bqDatasetNewIds.getNewGcpProjectId())
+            // TODO (PF-1271): remove the original reference's attributes once WSM does not require
+            // specifying tableId, datasetId and projectId when updating referencing target to a
+            // BQ table.
+            .originalTableId(resource.getDataTableId())
+            .originalDatasetId(resource.getDatasetId())
+            .originalProjectId(resource.getProjectId());
+
+    resource.updateReferenced(bqTableParams.build());
 
     formatOption.printReturnValue(new UFBqTable(resource), BqTable::printText);
   }

@@ -1,6 +1,5 @@
 package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.cli.businessobject.resource.GcsObject;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -30,13 +29,16 @@ public class UpdateReferencedGcsObjectParams {
    * bucket and didn't specify the bucket name, we will fetch the original bucketName from {@code
    * originalResource}. Same when the user only specify new bucket name.
    */
-  public final GcsObject originalResource;
+  public final String originalBucketName;
+
+  public final String originalObjectName;
 
   protected UpdateReferencedGcsObjectParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.objectName = builder.objectName;
-    this.originalResource = builder.originalResource;
+    this.originalBucketName = builder.originalBucketName;
+    this.originalObjectName = builder.originalObjectName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -44,7 +46,8 @@ public class UpdateReferencedGcsObjectParams {
     private UpdateResourceParams resourceFields;
     private @Nullable String bucketName;
     private @Nullable String objectName;
-    private GcsObject originalResource;
+    private String originalBucketName;
+    private String originalObjectName;
 
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -52,18 +55,23 @@ public class UpdateReferencedGcsObjectParams {
       return this;
     }
 
-    public UpdateReferencedGcsObjectParams.Builder bucketName(@Nullable String bucketName) {
+    public UpdateReferencedGcsObjectParams.Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
     }
 
-    public UpdateReferencedGcsObjectParams.Builder objectName(@Nullable String objectName) {
+    public UpdateReferencedGcsObjectParams.Builder objectName(String objectName) {
       this.objectName = objectName;
       return this;
     }
 
-    public UpdateReferencedGcsObjectParams.Builder originalResource(GcsObject originalResource) {
-      this.originalResource = originalResource;
+    public UpdateReferencedGcsObjectParams.Builder originalBucketName(String originalBucketName) {
+      this.originalBucketName = originalBucketName;
+      return this;
+    }
+
+    public UpdateReferencedGcsObjectParams.Builder originalObjectName(String originalObjectName) {
+      this.originalObjectName = originalObjectName;
       return this;
     }
 

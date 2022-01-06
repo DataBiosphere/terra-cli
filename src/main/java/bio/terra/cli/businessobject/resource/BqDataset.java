@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -112,13 +112,19 @@ public class BqDataset extends Resource {
   }
 
   /** Update a BigQuery dataset referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedBqDatasetParams updateParams) {
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
+    }
+    if (updateParams.projectId != null) {
+      this.projectId = updateParams.projectId;
+    }
+    if (updateParams.datasetId != null) {
+      this.datasetId = updateParams.datasetId;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a BigQuery dataset controlled resource in the workspace. */

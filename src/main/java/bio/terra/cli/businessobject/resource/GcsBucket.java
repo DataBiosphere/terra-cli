@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -103,13 +103,16 @@ public class GcsBucket extends Resource {
   }
 
   /** Update a GCS bucket referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
+    }
+    if (updateParams.bucketName != null) {
+      this.bucketName = updateParams.bucketName;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */

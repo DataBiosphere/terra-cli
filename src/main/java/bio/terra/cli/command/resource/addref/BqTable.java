@@ -5,7 +5,7 @@ import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateBqTableParams;
+import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.workspace.model.StewardshipType;
@@ -38,8 +38,8 @@ public class BqTable extends BaseCommand {
         resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.REFERENCED);
-    CreateBqTableParams.Builder createParamsBuilder =
-        new CreateBqTableParams.Builder()
+    AddBqTableParams.Builder createParamsBuilder =
+        new AddBqTableParams.Builder()
             .resourceFields(createResourceParamsBuilder.build())
             .projectId(bigQueryIds.getGcpProjectId())
             .datasetId(bigQueryIds.getBigQueryDatasetId())
