@@ -3,6 +3,7 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
@@ -49,6 +50,45 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     // check that the name and bucket name match
     assertEquals(name, createdBucket.name, "create output matches name");
     assertEquals(bucketName, createdBucket.bucketName, "create output matches bucket name");
+
+    // check that the bucket is in the list
+    UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
+    assertEquals(name, matchedResource.name, "list output matches name");
+    assertEquals(bucketName, matchedResource.bucketName, "list output matches bucket name");
+
+    // `terra resource describe --name=$name --format=json`
+    UFGcsBucket describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "describe", "--name=" + name);
+
+    // check that the name and bucket name match
+    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        bucketName, describeResource.bucketName, "describe resource output matches bucket name");
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+  }
+
+  @Test
+  @DisplayName("create a new controlled gcs bucket without specifying the bucket name")
+  void createGcsBucketWithoutSpecifyingBucketName() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
+    String name = "listDescribeReflectCreate";
+    UFGcsBucket createdBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + name);
+
+    // check that the name and bucket name match
+    assertEquals(name, createdBucket.name, "create output matches name");
+    String bucketName = createdBucket.bucketName;
+    assertNotNull(bucketName, "a random bucket name is generated");
+    assertTrue(bucketName.contains("bucket"));
 
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);

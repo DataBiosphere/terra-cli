@@ -20,7 +20,10 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
 
-  @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
+  @CommandLine.Option(
+      names = "--dataset-id",
+      description =
+          "BigQuery dataset id. If not provided, the resource name will be used as the dataset id.")
   private String bigQueryDatasetId;
 
   @CommandLine.Option(
