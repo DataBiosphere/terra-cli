@@ -49,13 +49,7 @@ public class BqTable extends BaseCommand {
             .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
             .tableId(newBqTableId)
             .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-            .projectId(bqDatasetNewIds.getNewGcpProjectId())
-            // TODO (PF-1271): remove the original reference's attributes once WSM does not require
-            // specifying tableId, datasetId and projectId when updating referencing target to a
-            // BQ table.
-            .originalTableId(resource.getDataTableId())
-            .originalDatasetId(resource.getDatasetId())
-            .originalProjectId(resource.getProjectId());
+            .projectId(bqDatasetNewIds.getNewGcpProjectId());
 
     resource.updateReferenced(bqTableParams.build());
 

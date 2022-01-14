@@ -23,22 +23,11 @@ public class UpdateReferencedGcsObjectParams {
    * originalResource} instead.
    */
   public final @Nullable String objectName;
-  /**
-   * WSM currently requires both bucket name and object name to be specified when updating the
-   * referencing target. So when a user wants to update the reference to another object in the same
-   * bucket and didn't specify the bucket name, we will fetch the original bucketName from {@code
-   * originalResource}. Same when the user only specify new bucket name.
-   */
-  public final String originalBucketName;
-
-  public final String originalObjectName;
 
   protected UpdateReferencedGcsObjectParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.objectName = builder.objectName;
-    this.originalBucketName = builder.originalBucketName;
-    this.originalObjectName = builder.originalObjectName;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -46,8 +35,6 @@ public class UpdateReferencedGcsObjectParams {
     private UpdateResourceParams resourceFields;
     private @Nullable String bucketName;
     private @Nullable String objectName;
-    private String originalBucketName;
-    private String originalObjectName;
 
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -62,16 +49,6 @@ public class UpdateReferencedGcsObjectParams {
 
     public UpdateReferencedGcsObjectParams.Builder objectName(String objectName) {
       this.objectName = objectName;
-      return this;
-    }
-
-    public UpdateReferencedGcsObjectParams.Builder originalBucketName(String originalBucketName) {
-      this.originalBucketName = originalBucketName;
-      return this;
-    }
-
-    public UpdateReferencedGcsObjectParams.Builder originalObjectName(String originalObjectName) {
-      this.originalObjectName = originalObjectName;
       return this;
     }
 

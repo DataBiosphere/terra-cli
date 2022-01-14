@@ -54,10 +54,6 @@ public class GcsObject extends BaseCommand {
             .resourceFields(updateResourceParams)
             .bucketName(newBucketName.getNewBucketName())
             .objectName(newObjectName)
-            // TODO (PF-1271): remove the original reference's attributes once WSM does not require
-            // specifying both objectName and bucketName when updating reference target.
-            .originalObjectName(resource.getObjectName())
-            .originalBucketName(resource.getBucketName())
             .build();
     resource.updateReferenced(gcsObjectParams);
 
