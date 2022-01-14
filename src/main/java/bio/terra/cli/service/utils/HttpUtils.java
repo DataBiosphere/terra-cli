@@ -3,7 +3,6 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.UserIO;
 import com.google.api.client.http.HttpStatusCodes;
-import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
@@ -55,7 +55,8 @@ public class HttpUtils {
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
       throws IOException {
-    Map<String, String> headers = ImmutableMap.of("accept", "*/*");
+    Map<String, String> headers = new HashMap<>();
+    headers.put("accept", "*/*");
     if (accessToken != null) {
       headers.put("Authorization", "Bearer " + accessToken);
     }

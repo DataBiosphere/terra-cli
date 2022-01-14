@@ -284,7 +284,7 @@ public final class GoogleOauth {
     try {
       HttpUtils.sendHttpRequest("https://oauth2.googleapis.com/revoke", "POST", headers, params);
     } catch (IOException ioEx) {
-      throw new SystemException("Unable to revoke token");
+      throw new SystemException("Unable to revoke token", ioEx);
     }
   }
 }
