@@ -29,23 +29,10 @@ public class UpdateReferencedBqDatasetParams {
    */
   public final @Nullable String projectId;
 
-  /** The original BqDataset id that the reference is pointing to. */
-  public final String originalDatasetId;
-
-  /** The original BqDataset project id that the reference is pointing to. */
-  public final String originalProjectId;
-
   protected UpdateReferencedBqDatasetParams(UpdateReferencedBqDatasetParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
-    this.originalDatasetId = builder.originalDatasetId;
-    this.originalProjectId = builder.originalProjectId;
-  }
-
-  /** Whether to update the reference to point to another BqDataset. */
-  public boolean hasNewReferenceTargetFields() {
-    return datasetId != null || projectId != null;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -54,8 +41,6 @@ public class UpdateReferencedBqDatasetParams {
     private UpdateResourceParams resourceFields;
     private String datasetId;
     private String projectId;
-    private String originalDatasetId;
-    private String originalProjectId;
 
     public UpdateReferencedBqDatasetParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
@@ -70,16 +55,6 @@ public class UpdateReferencedBqDatasetParams {
 
     public UpdateReferencedBqDatasetParams.Builder projectId(String projectId) {
       this.projectId = projectId;
-      return this;
-    }
-
-    public UpdateReferencedBqDatasetParams.Builder originalDatasetId(String originalDatasetId) {
-      this.originalDatasetId = originalDatasetId;
-      return this;
-    }
-
-    public UpdateReferencedBqDatasetParams.Builder originalProjectId(String originalProjectId) {
-      this.originalProjectId = originalProjectId;
       return this;
     }
 

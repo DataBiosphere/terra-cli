@@ -36,21 +36,11 @@ public class UpdateReferencedBqTableParams {
    */
   public final @Nullable String tableId;
 
-  /** The original BqDataset id that the reference is pointing to. */
-  public final String originalDatasetId;
-  /** The original BqDataset project id that the reference is pointing to. */
-  public final String originalProjectId;
-  /** The original BqDataset table id that the reference is pointing to. */
-  public final String originalTableId;
-
   protected UpdateReferencedBqTableParams(UpdateReferencedBqTableParams.Builder builder) {
     this.resourceParams = builder.resourceParams;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
     this.tableId = builder.tableId;
-    this.originalDatasetId = builder.originalDatasetId;
-    this.originalProjectId = builder.originalProjectId;
-    this.originalTableId = builder.originalTableId;
   }
 
   /** Whether to update the target that the referenced resource is pointing to. */
@@ -65,9 +55,6 @@ public class UpdateReferencedBqTableParams {
     private @Nullable String datasetId;
     private @Nullable String projectId;
     private @Nullable String tableId;
-    private String originalDatasetId;
-    private String originalProjectId;
-    private String originalTableId;
 
     public UpdateReferencedBqTableParams.Builder resourceParams(
         UpdateResourceParams resourceParams) {
@@ -87,21 +74,6 @@ public class UpdateReferencedBqTableParams {
 
     public UpdateReferencedBqTableParams.Builder projectId(@Nullable String projectId) {
       this.projectId = projectId;
-      return this;
-    }
-
-    public UpdateReferencedBqTableParams.Builder originalTableId(String originalTableId) {
-      this.originalTableId = originalTableId;
-      return this;
-    }
-
-    public UpdateReferencedBqTableParams.Builder originalDatasetId(String originalDatasetId) {
-      this.originalDatasetId = originalDatasetId;
-      return this;
-    }
-
-    public UpdateReferencedBqTableParams.Builder originalProjectId(String originalProjectId) {
-      this.originalProjectId = originalProjectId;
       return this;
     }
 

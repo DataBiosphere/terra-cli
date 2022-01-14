@@ -907,14 +907,9 @@ public class WorkspaceManagerService {
           .description(updateParams.resourceFields.description);
     }
 
-    if (updateParams.bucketName != null || updateParams.objectName != null) {
-      GcpGcsObjectAttributes gcsObjectAttributes = new GcpGcsObjectAttributes();
-      gcsObjectAttributes.bucketName(
-          Optional.ofNullable(updateParams.bucketName).orElse(updateParams.originalBucketName));
-      gcsObjectAttributes.fileName(
-          Optional.ofNullable(updateParams.objectName).orElse(updateParams.originalObjectName));
-      updateRequest.resourceAttributes(gcsObjectAttributes);
-    }
+    updateRequest.bucketName(updateParams.bucketName);
+    updateRequest.objectName(updateParams.objectName);
+
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -995,18 +990,9 @@ public class WorkspaceManagerService {
         new UpdateBigQueryDataTableReferenceRequestBody()
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description);
-    if (updateParams.hasNewReferenceTargetFields()) {
-      updateRequest.resourceAttributes(
-          new GcpBigQueryDataTableAttributes()
-              .projectId(
-                  Optional.ofNullable(updateParams.projectId)
-                      .orElse(updateParams.originalProjectId))
-              .datasetId(
-                  Optional.ofNullable(updateParams.datasetId)
-                      .orElse(updateParams.originalDatasetId))
-              .dataTableId(
-                  Optional.ofNullable(updateParams.tableId).orElse(updateParams.originalTableId)));
-    }
+    updateRequest.projectId(updateParams.projectId);
+    updateRequest.datasetId(updateParams.datasetId);
+    updateRequest.dataTableId(updateParams.tableId);
 
     callWithRetries(
         () ->
@@ -1031,16 +1017,8 @@ public class WorkspaceManagerService {
         new UpdateBigQueryDatasetReferenceRequestBody()
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description);
-    if (updateParams.hasNewReferenceTargetFields()) {
-      updateRequest.resourceAttributes(
-          new GcpBigQueryDatasetAttributes()
-              .projectId(
-                  Optional.ofNullable(updateParams.projectId)
-                      .orElse(updateParams.originalProjectId))
-              .datasetId(
-                  Optional.ofNullable(updateParams.datasetId)
-                      .orElse(updateParams.originalDatasetId)));
-    }
+    updateRequest.projectId(updateParams.projectId);
+    updateRequest.datasetId(updateParams.datasetId);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
