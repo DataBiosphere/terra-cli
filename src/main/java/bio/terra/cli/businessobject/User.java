@@ -158,6 +158,7 @@ public class User {
   public void logout() {
     deleteOauthCredentials();
     deletePetSaCredentials();
+    GoogleOauth.revokeToken(userCredentials);
 
     // unset the current user in the global context
     Context.setUser(null);

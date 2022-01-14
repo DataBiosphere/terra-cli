@@ -3,6 +3,7 @@ package bio.terra.cli.service.utils;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.UserIO;
 import com.google.api.client.http.HttpStatusCodes;
+import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -54,6 +55,27 @@ public class HttpUtils {
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
       throws IOException {
+    Map<String, String> headers = ImmutableMap.of("accept", "*/*");
+    if (accessToken != null) {
+      headers.put("Authorization", "Bearer " + accessToken);
+    }
+
+    return sendHttpRequest(urlStr, requestType, headers, params);
+  }
+
+  /**
+   * Sends an HTTP request using Java's HTTPURLConnection class.
+   *
+   * @param urlStr where to direct the request
+   * @param requestType the type of request, GET/PUT/POST/DELETE
+   * @param headers map of request headers
+   * @param params map of request parameters
+   * @return a POJO that includes the HTTP status code and the raw JSON response body
+   * @throws IOException
+   */
+  public static HttpResponse sendHttpRequest(
+      String urlStr, String requestType, Map<String, String> headers, Map<String, String> params)
+      throws IOException {
     // build parameter string
     boolean hasParams = params != null && params.size() > 0;
     String paramsStr = "";
@@ -78,11 +100,9 @@ public class HttpUtils {
     HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
     // set header properties
-    //    con.setRequestProperty("Content-Type", "*/*");
     con.setRequestMethod(requestType);
-    con.setRequestProperty("accept", "*/*");
-    if (accessToken != null) {
-      con.setRequestProperty("Authorization", "Bearer " + accessToken);
+    for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+      con.setRequestProperty(headerEntry.getKey(), headerEntry.getValue());
     }
 
     // for other request types, write the parameters to the request body
