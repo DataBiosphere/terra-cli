@@ -1,5 +1,7 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.UserIO;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
@@ -17,6 +19,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,5 +264,27 @@ public final class GoogleOauth {
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getAccessToken();
+  }
+
+  /**
+   * Revoke token (https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke).
+   *
+   * <p>Google Java OAuth library doesn't support revoking tokens
+   * (https://github.com/googleapis/google-oauth-java-client/issues/250), so make the call ourself.
+   *
+   * @param credential credentials object
+   */
+  public static void revokeToken(GoogleCredentials credential) {
+    String endpoint = "https://oauth2.googleapis.com/revoke";
+    Map<String, String> headers =
+        ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
+    Map<String, String> params =
+        ImmutableMap.of("token", credential.getAccessToken().getTokenValue());
+
+    try {
+      HttpUtils.sendHttpRequest("https://oauth2.googleapis.com/revoke", "POST", headers, params);
+    } catch (IOException ioEx) {
+      throw new SystemException("Unable to revoke token", ioEx);
+    }
   }
 }

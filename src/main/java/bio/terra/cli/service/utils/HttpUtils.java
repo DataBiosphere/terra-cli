@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
@@ -54,6 +55,28 @@ public class HttpUtils {
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
       throws IOException {
+    Map<String, String> headers = new HashMap<>();
+    headers.put("accept", "*/*");
+    if (accessToken != null) {
+      headers.put("Authorization", "Bearer " + accessToken);
+    }
+
+    return sendHttpRequest(urlStr, requestType, headers, params);
+  }
+
+  /**
+   * Sends an HTTP request using Java's HTTPURLConnection class.
+   *
+   * @param urlStr where to direct the request
+   * @param requestType the type of request, GET/PUT/POST/DELETE
+   * @param headers map of request headers
+   * @param params map of request parameters
+   * @return a POJO that includes the HTTP status code and the raw JSON response body
+   * @throws IOException
+   */
+  public static HttpResponse sendHttpRequest(
+      String urlStr, String requestType, Map<String, String> headers, Map<String, String> params)
+      throws IOException {
     // build parameter string
     boolean hasParams = params != null && params.size() > 0;
     String paramsStr = "";
@@ -78,11 +101,9 @@ public class HttpUtils {
     HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
     // set header properties
-    //    con.setRequestProperty("Content-Type", "*/*");
     con.setRequestMethod(requestType);
-    con.setRequestProperty("accept", "*/*");
-    if (accessToken != null) {
-      con.setRequestProperty("Authorization", "Bearer " + accessToken);
+    for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+      con.setRequestProperty(headerEntry.getKey(), headerEntry.getValue());
     }
 
     // for other request types, write the parameters to the request body
