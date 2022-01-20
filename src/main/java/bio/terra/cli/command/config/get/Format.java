@@ -2,7 +2,6 @@ package bio.terra.cli.command.config.get;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.Format.FormatOptions;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -13,11 +12,7 @@ public class Format extends BaseCommand {
 
   @Override
   protected void execute() {
-    formatOption.printReturnValue(Context.getConfig().getFormat(), Format::printText);
-  }
-
-  public static void printText(FormatOptions format) {
-    OUT.println("[text, json] output format = " + format);
+    formatOption.printReturnValue(Context.getConfig().getFormat());
   }
 
   /** This command never requires login. */

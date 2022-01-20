@@ -312,14 +312,15 @@ configuration properties are:
 ```
 [app-launch] app launch mode = DOCKER_CONTAINER
 [browser] browser launch for login = AUTO
-[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.106.0:stable
+[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.118.0:stable
 [resource-limit] max number of resources to allow per workspace = 1000
 
 [logging, console] logging level for printing directly to the terminal = OFF
-[logging, file] logging level for writing to files in /Users/marikomedlock/.terra/logs = INFO
+[logging, file] logging level for writing to files in /Users/jaycarlton/.terra/logs = INFO
 
-[server] server = verily-devel
-[workspace] workspace = ef8cf0a4-ec70-41be-9fae-9ab6f98cd7e7
+[server] server = broad-dev-cli-testing
+[workspace] workspace = (unset)
+[format] output format = TEXT
 ```
 
 #### Groups

@@ -255,7 +255,7 @@ public class Config extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("config format determines output format")
+  @DisplayName("config format determines default output format")
   void format() throws JsonProcessingException {
     // Note: we can't use runAndParseCommandExpectSuccess() here, since it sets the format
     // to JSON internally.

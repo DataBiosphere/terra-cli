@@ -51,7 +51,6 @@ public class Config {
   /** Build an instance of this class with default values. */
   public Config() {
     this.dockerImageId = getDefaultImageId();
-    this.format = FormatOptions.TEXT;
   }
 
   /** Returns the default Docker image id for launching apps. */
