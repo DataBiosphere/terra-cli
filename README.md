@@ -362,7 +362,7 @@ Commands:
 ```
 
 You can create a [GCP Notebook](https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution) controlled
-resource with `terra resource create gcp-notebook --name=resourcename [--workspace=workspaceid]`. These `stop`, `start`
+resource with `terra resource create gcp-notebook --name=<resourcename> [--workspace=<id>]`. These `stop`, `start`
 commands are provided for convenience. You can also stop and start the notebook using the `gcloud notebooks instances
 start/stop` commands.
 
