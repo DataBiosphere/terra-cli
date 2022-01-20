@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
-public class UpdateBqDatasetParams {
+public class UpdateControlledBqDatasetParams {
   public final UpdateResourceParams resourceFields;
   public final Integer defaultPartitionLifetimeSeconds;
   public final Integer defaultTableLifetimeSeconds;
 
-  protected UpdateBqDatasetParams(UpdateBqDatasetParams.Builder builder) {
+  protected UpdateControlledBqDatasetParams(UpdateControlledBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.defaultPartitionLifetimeSeconds = builder.defaultPartitionLifetimeSeconds;
     this.defaultTableLifetimeSeconds = builder.defaultTableLifetimeSeconds;
@@ -27,7 +27,8 @@ public class UpdateBqDatasetParams {
     private Integer defaultPartitionLifetimeSeconds;
     private Integer defaultTableLifetimeSeconds;
 
-    public UpdateBqDatasetParams.Builder resourceFields(UpdateResourceParams resourceFields) {
+    public UpdateControlledBqDatasetParams.Builder resourceFields(
+        UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
     }
@@ -43,8 +44,8 @@ public class UpdateBqDatasetParams {
     }
 
     /** Call the private constructor. */
-    public UpdateBqDatasetParams build() {
-      return new UpdateBqDatasetParams(this);
+    public UpdateControlledBqDatasetParams build() {
+      return new UpdateControlledBqDatasetParams(this);
     }
 
     /** Default constructor for Jackson. */

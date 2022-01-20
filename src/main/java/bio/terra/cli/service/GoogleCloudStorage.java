@@ -9,6 +9,7 @@ import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.api.gax.paging.Page;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import java.net.SocketTimeoutException;
@@ -47,6 +48,16 @@ public class GoogleCloudStorage {
           callWithRetries(() -> storage.get(bucketName), "Error looking up bucket.");
       return Optional.of(bucketCow);
     } catch (Exception ex) {
+      return Optional.empty();
+    }
+  }
+
+  public Optional<BlobCow> getBlob(String bucketName, String blobPath) {
+    try {
+      BlobId blobId = BlobId.of(bucketName, blobPath);
+      BlobCow blobCow = callWithRetries(() -> storage.get(blobId), "Error looking up blob.");
+      return Optional.ofNullable(blobCow);
+    } catch (Exception e) {
       return Optional.empty();
     }
   }

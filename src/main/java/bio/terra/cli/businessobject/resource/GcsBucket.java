@@ -4,8 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -27,7 +27,7 @@ public class GcsBucket extends Resource {
   private String bucketName;
 
   // prefix for GCS bucket to make a valid URL.
-  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsBucket(PDGcsBucket configFromDisk) {
@@ -103,17 +103,20 @@ public class GcsBucket extends Resource {
   }
 
   /** Update a GCS bucket referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
+    }
+    if (updateParams.bucketName != null) {
+      this.bucketName = updateParams.bucketName;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */
-  public void updateControlled(UpdateGcsBucketParams updateParams) {
+  public void updateControlled(UpdateControlledGcsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }

@@ -3,6 +3,7 @@ package unit;
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
@@ -17,6 +18,7 @@ import static unit.WorkspaceUser.expectListedUserWithRoles;
 import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
 import bio.terra.cli.businessobject.WorkspaceUser;
+import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
@@ -69,7 +71,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
     // grant the user's proxy group access to the bucket and dataset so that they will pass WSM's
     // access check when adding them as referenced resources
-    externalBucket = ExternalGCSBuckets.createBucket();
+    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.user(workspaceCreator.email));
     ExternalGCSBuckets.grantReadAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
     externalDataset = ExternalBQDatasets.createDataset();
@@ -421,6 +423,42 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace list`
     matchingWorkspaces = listWorkspacesWithId(workspace1.id);
     assertEquals(1, matchingWorkspaces.size(), "workspace 1 is still included in list");
+  }
+
+  @Test
+  @DisplayName("workspace commands ignore workspace override when it matches current workspace")
+  void matchingCurrentWorkspace() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace create`
+    UFWorkspace workspace3 =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+
+    // `terra workspace set --id=$id3`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace3.id);
+
+    // `terra workspace update --name=$newName --description=$newDescription --workspace=$id3`
+    String newName = "workspace3_name_NEW";
+    String newDescription = "workspace3 description NEW";
+    TestCommand.runCommandExpectSuccess(
+        "workspace",
+        "update",
+        "--name=" + newName,
+        "--description=" + newDescription,
+        "--workspace=" + workspace3.id);
+
+    // Check that current workspace status is updated, despite the --workspace flag.
+    // `terra status`
+    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
+    assertEquals(newName, status.workspace.name);
+    assertEquals(newDescription, status.workspace.description);
+
+    // `terra workspace delete --workspace=$id3`
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "delete", "--workspace=" + workspace3.id, "--quiet");
+    // Confirm current workspace status was cleared, despite the --workspace flag.
+    UFStatus clearedStatus = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
+    assertNull(clearedStatus.workspace);
   }
 
   @Test

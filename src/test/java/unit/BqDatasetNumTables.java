@@ -24,8 +24,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;
 
-  // name of table in external dataset
-  private String externalDatasetTableName = "testTable";
+  // name of tables in external dataset
+  private String externalTable = "testTable";
 
   @BeforeAll
   @Override
@@ -43,7 +43,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         workspaceCreator.getCredentialsWithCloudPlatformScope(),
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
-        externalDatasetTableName);
+        externalTable);
   }
 
   @AfterAll
@@ -92,6 +92,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
 
     // check that there is now 1 table reported in the dataset
     assertEquals(1, describedDataset.numTables, "described dataset contains 1 table");
+
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -117,6 +119,8 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
 
     // the external dataset created in the beforeall method should have 1 table in it
     assertEquals(1, addedDataset.numTables, "referenced dataset contains 1 table");
+
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test

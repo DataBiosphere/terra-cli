@@ -4,11 +4,13 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.userfacing.input.UpdateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -19,6 +21,7 @@ import picocli.CommandLine;
     description = "Update a GCS bucket.",
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
+  @CommandLine.Mixin GcsBucketNewName newBucketName;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
@@ -26,7 +29,7 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Update a BigQuery dataset in the workspace. */
+  /** Update a bucket in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -34,7 +37,8 @@ public class GcsBucket extends BaseCommand {
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
-        && !lifecycleOptions.isDefined()) {
+        && !lifecycleOptions.isDefined()
+        && newBucketName.getNewBucketName() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -50,10 +54,14 @@ public class GcsBucket extends BaseCommand {
         throw new UserActionableException(
             "Storage and lifecycle options can only be updated for controlled resources.");
       }
-      resource.updateReferenced(resourceUpdateOptions.populateMetadataFields().build());
+      UpdateReferencedGcsBucketParams.Builder gcsBucketParams =
+          new UpdateReferencedGcsBucketParams.Builder()
+              .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
+              .bucketName(newBucketName.getNewBucketName());
+      resource.updateReferenced(gcsBucketParams.build());
     } else {
       resource.updateControlled(
-          new UpdateGcsBucketParams.Builder()
+          new UpdateControlledGcsBucketParams.Builder()
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultStorageClass(storageClassOption.storageClass)
               .lifecycle(lifecycleOptions.buildLifecycleObject())

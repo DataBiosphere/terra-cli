@@ -1,8 +1,10 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -53,7 +55,9 @@ public abstract class Resource {
    */
   public enum Type {
     GCS_BUCKET,
+    GCS_OBJECT,
     BQ_DATASET,
+    BQ_TABLE,
     AI_NOTEBOOK;
   }
 
@@ -102,8 +106,12 @@ public abstract class Resource {
     switch (wsmResourceType) {
       case GCS_BUCKET:
         return new GcsBucket(wsmObject);
+      case GCS_OBJECT:
+        return new GcsObject(wsmObject);
       case BIG_QUERY_DATASET:
         return new BqDataset(wsmObject);
+      case BIG_QUERY_DATA_TABLE:
+        return new BqTable(wsmObject);
       case AI_NOTEBOOK:
         return new GcpNotebook(wsmObject);
       default:

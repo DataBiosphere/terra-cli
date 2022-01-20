@@ -2,13 +2,11 @@ package bio.terra.cli.serialization.userfacing.input;
 
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ResourceType;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.List;
 
 /**
  * Parameters for creating a workspace resource. This class is not currently user-facing, but could
@@ -25,8 +23,6 @@ public class CreateResourceParams {
   public final StewardshipType stewardshipType;
   public final CloningInstructionsEnum cloningInstructions;
   public final AccessScope accessScope;
-  public final String privateUserName;
-  public final List<ControlledResourceIamRole> privateUserRoles;
 
   protected CreateResourceParams(Builder builder) {
     this.name = builder.name;
@@ -35,8 +31,6 @@ public class CreateResourceParams {
     this.stewardshipType = builder.stewardshipType;
     this.cloningInstructions = builder.cloningInstructions;
     this.accessScope = builder.accessScope;
-    this.privateUserName = builder.privateUserName;
-    this.privateUserRoles = builder.privateUserRoles;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -47,8 +41,6 @@ public class CreateResourceParams {
     private StewardshipType stewardshipType;
     private CloningInstructionsEnum cloningInstructions;
     private AccessScope accessScope;
-    private String privateUserName;
-    private List<ControlledResourceIamRole> privateUserRoles;
 
     public Builder name(String name) {
       this.name = name;
@@ -77,16 +69,6 @@ public class CreateResourceParams {
 
     public Builder accessScope(AccessScope accessScope) {
       this.accessScope = accessScope;
-      return this;
-    }
-
-    public Builder privateUserName(String privateUserName) {
-      this.privateUserName = privateUserName;
-      return this;
-    }
-
-    public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
-      this.privateUserRoles = privateUserRoles;
       return this;
     }
 

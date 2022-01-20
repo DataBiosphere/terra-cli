@@ -4,8 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqDataset;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -112,17 +112,23 @@ public class BqDataset extends Resource {
   }
 
   /** Update a BigQuery dataset referenced resource in the workspace. */
-  public void updateReferenced(UpdateResourceParams updateParams) {
-    if (updateParams.name != null) {
-      validateEnvironmentVariableName(updateParams.name);
+  public void updateReferenced(UpdateReferencedBqDatasetParams updateParams) {
+    if (updateParams.resourceParams.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceParams.name);
+    }
+    if (updateParams.projectId != null) {
+      this.projectId = updateParams.projectId;
+    }
+    if (updateParams.datasetId != null) {
+      this.datasetId = updateParams.datasetId;
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
-    super.updatePropertiesAndSync(updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
   /** Update a BigQuery dataset controlled resource in the workspace. */
-  public void updateControlled(UpdateBqDatasetParams updateParams) {
+  public void updateControlled(UpdateControlledBqDatasetParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
@@ -145,26 +151,19 @@ public class BqDataset extends Resource {
         .deleteControlledBigQueryDataset(Context.requireWorkspace().getId(), id);
   }
 
-  /** This enum specifies the possible ways to resolve a BigQuery dataset resource. */
-  public enum ResolveOptions {
-    FULL_PATH, // [project id].[dataset id]
-    DATASET_ID_ONLY, // [dataset id]
-    PROJECT_ID_ONLY; // [project id]
-  }
-
   /**
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
   public String resolve() {
-    return resolve(ResolveOptions.FULL_PATH);
+    return resolve(BqResolvedOptions.FULL_PATH);
   }
 
   /**
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
-  public String resolve(ResolveOptions resolveOption) {
+  public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;

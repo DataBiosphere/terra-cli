@@ -2,11 +2,13 @@ package bio.terra.cli.command.shared;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
+import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /**
@@ -31,6 +33,7 @@ import picocli.CommandLine;
             + "the command classes, we can't set the output streams in the constructor and make them "
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BaseCommand.class);
   // output streams for commands to write to
   protected static PrintStream OUT;
   protected static PrintStream ERR;
@@ -55,6 +58,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     }
 
     // execute the command
+    logger.debug("[COMMAND RUN] terra " + String.join(" ", Main.getArgList()));
     execute();
 
     // set the command exit code

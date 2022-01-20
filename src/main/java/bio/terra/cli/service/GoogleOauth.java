@@ -1,5 +1,7 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.UserIO;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.StoredCredential;
@@ -17,6 +19,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +59,15 @@ public final class GoogleOauth {
    * @param launchBrowserAutomatically true to launch a browser automatically and listen on a local
    *     server for the token response, false to print the url to stdout and ask the user to
    *     copy/paste the token response to stdin
+   * @param loginLandingPage URL of the page to load in the browser upon completion of login
    * @return credentials object for the user
    */
   public static UserCredentials doLoginAndConsent(
       List<String> scopes,
       InputStream clientSecretFile,
       File dataStoreDir,
-      boolean launchBrowserAutomatically)
+      boolean launchBrowserAutomatically,
+      String loginLandingPage)
       throws IOException, GeneralSecurityException {
     // load client_secret.json file
     GoogleClientSecrets clientSecrets =
@@ -75,7 +81,10 @@ public final class GoogleOauth {
     Credential credential;
     if (launchBrowserAutomatically) {
       // launch a browser window on this machine and listen on a local port for the token response
-      LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
+      LocalServerReceiver receiver =
+          new LocalServerReceiver.Builder()
+              .setLandingPages(loginLandingPage, loginLandingPage)
+              .build();
       credential =
           new AuthorizationCodeInstalledApp(flow, receiver).authorize(CREDENTIAL_STORE_KEY);
     } else {
@@ -255,5 +264,27 @@ public final class GoogleOauth {
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getAccessToken();
+  }
+
+  /**
+   * Revoke token (https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke).
+   *
+   * <p>Google Java OAuth library doesn't support revoking tokens
+   * (https://github.com/googleapis/google-oauth-java-client/issues/250), so make the call ourself.
+   *
+   * @param credential credentials object
+   */
+  public static void revokeToken(GoogleCredentials credential) {
+    String endpoint = "https://oauth2.googleapis.com/revoke";
+    Map<String, String> headers =
+        ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
+    Map<String, String> params =
+        ImmutableMap.of("token", credential.getAccessToken().getTokenValue());
+
+    try {
+      HttpUtils.sendHttpRequest("https://oauth2.googleapis.com/revoke", "POST", headers, params);
+    } catch (IOException ioEx) {
+      throw new SystemException("Unable to revoke token", ioEx);
+    }
   }
 }

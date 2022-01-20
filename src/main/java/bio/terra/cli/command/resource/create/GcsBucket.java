@@ -21,9 +21,8 @@ public class GcsBucket extends BaseCommand {
 
   @CommandLine.Option(
       names = "--bucket-name",
-      required = true,
       description =
-          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
+          "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket'). If not provided, a unique bucket name will be generated.")
   private String bucketName;
 
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
@@ -43,7 +42,6 @@ public class GcsBucket extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    controlledResourceCreationOptions.validateAccessOptions();
 
     // build the resource object to create
     CreateResourceParams.Builder createResourceParams =

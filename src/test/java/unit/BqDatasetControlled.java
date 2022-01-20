@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.AccessScope;
@@ -75,6 +74,51 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "describe resource output matches project id");
     assertEquals(
         datasetId, describeResource.datasetId, "describe resource output matches dataset id");
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+  }
+
+  @Test
+  @DisplayName("create a new dataset but not specify dataset id")
+  void createDatasetWithoutSpecifyingDatasetId() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id --format=json`
+    UFWorkspace workspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
+    String name = "createDatasetWithoutSpecifyingDatasetId";
+    UFBqDataset createdDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resource", "create", "bq-dataset", "--name=" + name);
+
+    // check that the name, project id, and dataset id match
+    assertEquals(name, createdDataset.name, "create output matches name");
+    assertEquals(
+        workspace.googleProjectId, createdDataset.projectId, "create output matches project id");
+    assertEquals(
+        name, createdDataset.datasetId, "reuse resource name because dataset-id is not specified");
+
+    // check that the dataset is in the list
+    UFBqDataset matchedResource = listOneDatasetResourceWithName(name);
+    assertEquals(name, matchedResource.name, "list output matches name");
+    assertEquals(name, matchedResource.datasetId, "list output matches dataset id");
+
+    // `terra resource describe --name=$name --format=json`
+    UFBqDataset describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resource", "describe", "--name=" + name);
+
+    // check that the name, project id, and dataset id match
+    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(
+        workspace.googleProjectId,
+        describeResource.projectId,
+        "describe resource output matches project id");
+    assertEquals(name, describeResource.datasetId, "describe resource output matches dataset id");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -186,14 +230,12 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --access=$access
-    // --cloning=$cloning --description=$description --email=$email --iam-roles=$iamRole
-    // --location=$location --format=json`
+    // --cloning=$cloning --description=$description --location=$location --format=json`
     String name = "createWithAllOptions";
     String datasetId = randomDatasetId();
     AccessScope access = AccessScope.PRIVATE_ACCESS;
     CloningInstructionsEnum cloning = CloningInstructionsEnum.DEFINITION;
     String description = "\"create with all options\"";
-    WorkspaceUser.Role role = WorkspaceUser.Role.READER;
     String location = "us-east1";
     UFBqDataset createdDataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -206,8 +248,6 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "--access=" + access,
             "--cloning=" + cloning,
             "--description=" + description,
-            "--email=" + workspaceCreator.email,
-            "--iam-roles=" + role,
             "--location=" + location);
 
     // check that the properties match

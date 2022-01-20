@@ -16,6 +16,10 @@
     * [Workspace](#workspace)
     * [Resources](#resources)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
+        * [GCS bucket object reference](#gcs-bucket-object-reference)
+          * [Reference to a file or folder](#reference-to-a-file-or-folder)
+          * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
+        * [Update A Reference resource](#update-a-reference-resource)
     * [Data References](#data-references)
     * [Applications](#applications)
     * [Notebooks](#notebooks)
@@ -186,6 +190,14 @@ we just created.
 - Kick off the workflow. (This takes about 10 minutes to complete.)
     ```
     terra nextflow run rnaseq-nf/main.nf -profile gls
+    ```
+
+- To send metrics about the workflow run to a Nextflow Tower server, first define an environment variable with the Tower
+access token. Then specify the `-with-tower` flag when kicking off the workflow.
+    ```
+    export TOWER_ACCESS_TOKEN=*****
+    terra nextflow run hello -with-tower
+    terra nextflow run rnaseq-nf/main.nf -profile gls -with-tower
     ```
 
 - Call the Gcloud CLI tools in the current workspace context.
@@ -366,7 +378,7 @@ Commands:
   describe                   Describe a resource.
   list                       List all resources.
   resolve                    Resolve a resource to its cloud id or path.
-  update                     Update the properties of a resource.
+  update                     Update the properties of a resouce
 ```
 
 A controlled resource is a cloud resource that is managed by Terra. It exists within the current workspace context.
@@ -447,6 +459,44 @@ There is also a command shortcut for specifying this type of lifecycle rule (3).
 ```
 terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
 ```
+
+##### GCS bucket object reference
+A reference to an GCS bucket object can be created by calling
+```
+terra resource add-ref gcs-object --name=referencename --bucket-name=mybucket --object-name=myobject
+```
+
+###### Reference to a file or folder
+A file or folder is treated as an object in GCS bucket. By either creating a folder
+through the cloud console UI or copying an existing folder of files to the GCS
+bucket, a user can create a folder object. So the user can create a reference to
+the folder if they have at least `READER` access to the bucket and/or `READER` access to
+the folder. Same with a file. 
+
+###### Reference to multiple objects under a folder
+Different from other referenced resource type, there is also support for
+creating a reference to objects in the folder. For instance, a user may create a
+a `foo/` folder with `bar.txt` and `secret.txt` in it. If the user have at least READ
+access to foo/ folder, they have access to anything in the foo/ folder. So
+they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`. 
+
+> **NOTE** Be careful to provide the correct object name when creating a
+> reference. We only check if the user has READER access to the provided path, 
+> we **do not** check whether the object exists. This is helpful
+> because when referencing to foo/\*, it is actually not a real object! So
+> a reference to `fooo/` (where object `fooo` does not exist) can be created if
+> the user has `READER` access to the bucket or `foo/\*.png` (where there is no
+> png files) if they have access to the `foo/` folder.
+
+##### Update A Reference resource
+User can update the name and description of a reference resource. User can also
+update a reference resource to another of the same type. For instance, if a user 
+creates a reference resource to Bq dataset `foo` and later on wants to point to
+Bq dataset `bar` in the same project, one can use 
+`terra resource udpate --name=<fooReferenceName> --new-dataset-id=bar` to update
+the reference. However, one is not allowed to update the reference to a
+different type (e.g. update a dataset reference to a data table reference is not
+allowed).
 
 #### Server
 ```

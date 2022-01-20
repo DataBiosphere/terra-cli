@@ -37,7 +37,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    externalBucket = ExternalGCSBuckets.createBucket();
+    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
 
     // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
     // lifecycle` with the same JSON format used for creating controlled bucket resources with

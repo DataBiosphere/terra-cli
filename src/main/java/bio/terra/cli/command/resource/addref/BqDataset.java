@@ -1,6 +1,7 @@
 package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -17,16 +18,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
-
-  @CommandLine.Option(
-      names = "--project-id",
-      required = true,
-      description = "GCP project id of the dataset.")
-  private String gcpProjectId;
-
-  @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
-  private String bigQueryDatasetId;
-
+  @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -42,8 +34,8 @@ public class BqDataset extends BaseCommand {
     CreateBqDatasetParams.Builder createParams =
         new CreateBqDatasetParams.Builder()
             .resourceFields(createResourceParams.build())
-            .projectId(gcpProjectId)
-            .datasetId(bigQueryDatasetId);
+            .projectId(bigQueryIds.getGcpProjectId())
+            .datasetId(bigQueryIds.getBigQueryDatasetId());
 
     bio.terra.cli.businessobject.resource.BqDataset createdResource =
         bio.terra.cli.businessobject.resource.BqDataset.addReferenced(createParams.build());

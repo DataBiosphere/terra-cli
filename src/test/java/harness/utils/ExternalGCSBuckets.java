@@ -7,9 +7,13 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Acl.Entity;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.BucketInfo.IamConfiguration;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageException;
@@ -31,12 +35,22 @@ import org.apache.http.HttpStatus;
  * Fetching information from the cloud as a user may do should use the unwrapped client object.
  */
 public class ExternalGCSBuckets {
+
+  public static BucketInfo createBucketWithFineGrainedAccess() throws IOException {
+    return createBucket(/*isUniformBucketLevelAccessEnabled=*/ false);
+  }
+
+  public static BucketInfo createBucketWithUniformAccess() throws IOException {
+    return createBucket(/*isUniformBucketLevelAccessEnabled=*/ true);
+  }
+
   /**
    * Create a bucket in an external project. This is helpful for testing referenced GCS bucket
    * resources. This method uses SA credentials that have permissions in the external (to WSM)
    * project.
    */
-  public static BucketInfo createBucket() throws IOException {
+  private static BucketInfo createBucket(boolean isUniformBucketLevelAccessEnabled)
+      throws IOException {
     String bucketName = UUID.randomUUID().toString();
     StorageClass storageClass = StorageClass.STANDARD;
     String location = "US";
@@ -47,6 +61,10 @@ public class ExternalGCSBuckets {
                 BucketInfo.newBuilder(bucketName)
                     .setStorageClass(storageClass)
                     .setLocation(location)
+                    .setIamConfiguration(
+                        IamConfiguration.newBuilder()
+                            .setIsUniformBucketLevelAccessEnabled(isUniformBucketLevelAccessEnabled)
+                            .build())
                     .build());
 
     BucketInfo bucketInfo = bucket.getBucketInfo();
@@ -103,22 +121,32 @@ public class ExternalGCSBuckets {
     storage.setIamPolicy(bucketInfo.getName(), updatedPolicyBuilder.build());
   }
 
+  /**
+   * Grant an {@link Entity} role on a gcs file, a.k.a set the {@link Acl} of the given {@link
+   * BlobId}.
+   */
+  public static void grantAccess(
+      String bucketName, String blobName, Entity entity, com.google.cloud.storage.Acl.Role role)
+      throws IOException {
+    StorageCow storage = getStorageCow();
+    BlobId blobId = BlobId.of(bucketName, blobName);
+    storage.createAcl(blobId, Acl.of(entity, role));
+  }
+
   /** Utility method to write an arbitrary blob to a bucket. */
-  public static void writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
+  public static Blob writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
       throws InterruptedException {
     Storage storageClient = getStorageClient(credentials);
     BucketInfo bucket = storageClient.get(bucketName);
+
     BlobId blobId = BlobId.of(bucket.getName(), blobName);
     BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
     byte[] blobData = "test blob data".getBytes(StandardCharsets.UTF_8);
 
     // retry forbidden errors because we often see propagation delays when a user is just granted
     // access
-    HttpUtils.callWithRetries(
-        () -> {
-          storageClient.create(blobInfo, blobData);
-          return null;
-        },
+    return HttpUtils.callWithRetries(
+        () -> storageClient.create(blobInfo, blobData),
         (ex) ->
             (ex instanceof StorageException)
                 && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
@@ -154,5 +182,10 @@ public class ExternalGCSBuckets {
   /** Utility method to get the gs:// path of a bucket. */
   public static String getGsPath(String bucketName) {
     return "gs://" + bucketName;
+  }
+
+  /** Utility method to get the gs:// path of a bucket object. */
+  public static String getGsPath(String bucketName, String objectPath) {
+    return getGsPath(bucketName) + "/" + objectPath;
   }
 }
