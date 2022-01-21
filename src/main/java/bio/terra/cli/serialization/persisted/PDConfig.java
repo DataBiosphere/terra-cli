@@ -4,6 +4,7 @@ import static bio.terra.cli.businessobject.Config.BrowserLaunchOption;
 import static bio.terra.cli.businessobject.Config.CommandRunnerOption;
 
 import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.utils.Logger;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -23,6 +24,7 @@ public class PDConfig {
   public final int resourcesCacheSize;
   public final Logger.LogLevel fileLoggingLevel;
   public final Logger.LogLevel consoleLoggingLevel;
+  public final Format.FormatOptions format;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDConfig(Config internalObj) {
@@ -32,6 +34,7 @@ public class PDConfig {
     this.resourcesCacheSize = internalObj.getResourcesCacheSize();
     this.fileLoggingLevel = internalObj.getFileLoggingLevel();
     this.consoleLoggingLevel = internalObj.getConsoleLoggingLevel();
+    this.format = internalObj.getFormat();
   }
 
   private PDConfig(Builder builder) {
@@ -41,6 +44,7 @@ public class PDConfig {
     this.resourcesCacheSize = builder.resourcesCacheSize;
     this.fileLoggingLevel = builder.fileLoggingLevel;
     this.consoleLoggingLevel = builder.consoleLoggingLevel;
+    this.format = builder.format;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -51,6 +55,7 @@ public class PDConfig {
     private int resourcesCacheSize;
     private Logger.LogLevel fileLoggingLevel;
     private Logger.LogLevel consoleLoggingLevel;
+    private Format.FormatOptions format;
 
     public Builder browserLaunchOption(BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
@@ -79,6 +84,11 @@ public class PDConfig {
 
     public Builder consoleLoggingLevel(Logger.LogLevel consoleLoggingLevel) {
       this.consoleLoggingLevel = consoleLoggingLevel;
+      return this;
+    }
+
+    public Builder format(Format.FormatOptions format) {
+      this.format = format;
       return this;
     }
 

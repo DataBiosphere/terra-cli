@@ -1,5 +1,6 @@
 package unit;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,11 +12,12 @@ import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
 import bio.terra.cli.serialization.userfacing.UFServer;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.Logger;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
 import java.util.UUID;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -38,8 +40,7 @@ public class Config extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
 
     // apps launched via local process should not be affected
-    TestCommand.Result cmd =
-        TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
+    Result cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
     // cmd exit code can either be 0=success or 127=command not found if gcloud is not installed on
     // this machine
     assertThat(
@@ -55,7 +56,7 @@ public class Config extends SingleWorkspaceUnit {
     assertThat(
         "docker image not found error returned",
         stdErr,
-        CoreMatchers.containsString("No such image: badimageid"));
+        containsString("No such image: badimageid"));
   }
 
   @Test
@@ -88,7 +89,7 @@ public class Config extends SingleWorkspaceUnit {
     assertThat(
         "error thrown when resource limit exceeded",
         stdErr,
-        CoreMatchers.containsString("Total number of resources (2) exceeds the CLI limit (1)"));
+        containsString("Total number of resources (2) exceeds the CLI limit (1)"));
   }
 
   @Test
@@ -251,5 +252,25 @@ public class Config extends SingleWorkspaceUnit {
         Logger.LogLevel.ERROR, config.consoleLoggingLevel, "list reflects set for console logging");
     assertEquals(
         Logger.LogLevel.TRACE, config.fileLoggingLevel, "list reflects set for file logging");
+  }
+
+  @Test
+  @DisplayName("config format determines default output format")
+  void format() throws JsonProcessingException {
+    // Note: we can't use runAndParseCommandExpectSuccess() here, since it sets the format
+    // to JSON internally.
+
+    TestCommand.runCommandExpectSuccess("config", "set", "format", "json");
+    // if this works, the format was valid json
+    Result result1 = TestCommand.runCommand("config", "list");
+    assertThat(result1.stdOut, containsString("\"format\" : \"JSON\""));
+
+    TestCommand.runCommand("config", "set", "format", "text");
+    Result result2 = TestCommand.runCommand("config", "list");
+    assertThat(result2.stdOut, containsString("[format] output format = TEXT"));
+
+    // --format switch overrides current setting
+    Result result3 = TestCommand.runCommand("config", "list", "--format=json");
+    assertThat(result3.stdOut, containsString("\"format\" : \"TEXT\""));
   }
 }

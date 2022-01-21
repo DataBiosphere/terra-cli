@@ -4,6 +4,8 @@ import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.app.DockerCommandRunner;
 import bio.terra.cli.app.LocalProcessCommandRunner;
 import bio.terra.cli.app.utils.DockerClientWrapper;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.Format.FormatOptions;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,9 @@ public class Config {
   private Logger.LogLevel consoleLoggingLevel = Logger.LogLevel.OFF;
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
 
+  // Output format option
+  private Format.FormatOptions format = FormatOptions.TEXT;
+
   public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
   /** Build an instance of this class from the serialized format on disk. */
@@ -40,6 +45,7 @@ public class Config {
     this.resourcesCacheSize = configFromDisk.resourcesCacheSize;
     this.fileLoggingLevel = configFromDisk.fileLoggingLevel;
     this.consoleLoggingLevel = configFromDisk.consoleLoggingLevel;
+    this.format = configFromDisk.format;
   }
 
   /** Build an instance of this class with default values. */
@@ -142,6 +148,15 @@ public class Config {
 
   public void setFileLoggingLevel(Logger.LogLevel fileLoggingLevel) {
     this.fileLoggingLevel = fileLoggingLevel;
+    Context.synchronizeToDisk();
+  }
+
+  public Format.FormatOptions getFormat() {
+    return format;
+  }
+
+  public void setFormat(Format.FormatOptions format) {
+    this.format = format;
     Context.synchronizeToDisk();
   }
 }
