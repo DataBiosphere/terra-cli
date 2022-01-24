@@ -243,11 +243,12 @@ public class DockerClientWrapper {
         ex.getCause() != null
             && ex.getCause() instanceof IOException
             && ex.getCause().getMessage() != null
-            && (ex.getCause().getMessage().contains("Connection refused")
+            && (ex.getCause().getMessage().toLowerCase().contains("connection refused")
                 || ex.getCause().getMessage().contains("native connect() failed"));
     if (isDockerConnectionFailed) {
       return new UserActionableException(
-          "Connecting to Docker daemon failed. Check that Docker is installed and running.", ex);
+          "Connecting to Docker daemon failed. Check that Docker is installed and running. "
+              + "To run apps without Docker, use the LOCAL_PROCESS app launch mode (terra config set app-launch LOCAL_PROCESS).", ex);
     } else {
       return ex;
     }

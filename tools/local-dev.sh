@@ -6,27 +6,42 @@ set -e
 ## Usage: source tools/local-dev.sh
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
+if [ "$(basename "$PWD")" != 'terra-cli' ]; then
   echo "Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
+
+echo "Determining installation mode"
+if [ -z "$TERRA_CLI_INSTALLATION_MODE" ] || [ "$TERRA_CLI_INSTALLATION_MODE" == "SUPPORT_DOCKER" ]; then
+  terraCliInstallationMode="SUPPORT_DOCKER"
+elif [ "$TERRA_CLI_INSTALLATION_MODE" == "LOCAL_ONLY" ]; then
+  terraCliInstallationMode="LOCAL_ONLY"
+else
+  echo "Unsupported TERRA_CLI_INSTALLATION_MODE specified: $TERRA_CLI_INSTALLATION_MODE"
+  exit 1
+fi
+
+echo "Installation mode is $terraCliInstallationMode"
 
 echo "Building Java code"
 ./gradlew clean install
 
 echo "Aliasing JAR file"
-alias terra=$(pwd)/build/install/terra-cli/bin/terra
+alias terra="$(pwd)"/build/install/terra-cli/bin/terra
 
-echo "Setting the Docker image id to the default"
-terra config set image --default
-
-echo "Pulling the default Docker image"
-defaultDockerImage=$(terra config get image)
-docker pull $defaultDockerImage
+if [ "$terraCliInstallationMode" == "LOCAL_ONLY" ]; then
+  echo "Installing without docker support"
+else
+  echo "Setting the Docker image id to the default"
+  terra config set image --default
+  echo "Pulling the default Docker image"
+  defaultDockerImage=$(terra config get image)
+  docker pull "$defaultDockerImage"
+fi
 
 echo "Setting the server to its current value, to pull any changes"
 currentServer=$(terra config get server)
-terra config set server --name=$currentServer
+terra config set server --name="$currentServer"
 
 echo "Making all 'tools' scripts executable"
 chmod a+x tools/*

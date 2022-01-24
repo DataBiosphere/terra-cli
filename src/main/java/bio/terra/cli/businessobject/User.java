@@ -128,7 +128,7 @@ public class User {
     currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
-    User user = currentUser.orElseGet(() -> new User());
+    User user = currentUser.orElseGet(User::new);
 
     // do the login flow if the current user is undefined or has expired credentials
     if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
