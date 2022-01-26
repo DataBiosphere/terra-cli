@@ -1,14 +1,19 @@
 #!/bin/bash
 set -e
 ## This script installs the Terra CLI from an unarchived release directory.
-## Dependencies: docker, gcloud
+## TERRA_CLI_INSTALLATION_MODE environment variable controls docker support. Set to
+##     SUPPORT_DOCKER (default) or LOCAL_ONLY to skip docker steps.
+# # Dependencies: docker, gcloud
 ## Usage: ./install.sh
 
-echo "--  Determining installation mode"
-if [[ -z "$TERRA_CLI_INSTALLATION_MODE" ]]; then
-  terraCliInstallationMode="SUPPORT_DOCKER"
+echo "Determining installation mode"
+if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
+  terraCliInstallationMode="DOCKER_AVAILABLE"
+elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
+  terraCliInstallationMode="DOCKER_NOT_AVAILABLE"
 else
-  terraCliInstallationMode="LOCAL_ONLY"
+  echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
+  exit 1
 fi
 
 echo "--  Checking that script is being run from the same directory"
@@ -40,15 +45,16 @@ echo "--  Deleting the archive directory"
 cd "$archiveDir"/..
 rm -R "$archiveDir"
 
-echo "--  Setting the Docker image id to the default"
-./terra config set image --default
-
-if [ "$terraCliInstallationMode" == "SUPPORT_DOCKER" ]; then
-  echo "--  Pulling the default Docker image"
-  defaultDockerImage=$(./terra config get image)
-  docker pull "$defaultDockerImage"
+if [ "$terraCliInstallationMode" == "DOCKER_NOT_AVAILABLE" ]; then
+  echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
+  terra config set app-launch LOCAL_PROCESS
 else
-  echo "-- No Docker support required. Will not pull image."
+  echo "Setting the Docker image id to the default"
+  terra config set image --default
+
+  echo "Pulling the default Docker image"
+  defaultDockerImage=$(terra config get image)
+  docker pull "$defaultDockerImage"
 fi
 
 echo "-- Setting the server to its current value, to pull any changes"

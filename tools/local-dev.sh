@@ -12,16 +12,16 @@ if [ "$(basename "$PWD")" != 'terra-cli' ]; then
 fi
 
 echo "Determining installation mode"
-if [ -z "$TERRA_CLI_INSTALLATION_MODE" ] || [ "$TERRA_CLI_INSTALLATION_MODE" == "SUPPORT_DOCKER" ]; then
-  terraCliInstallationMode="SUPPORT_DOCKER"
-elif [ "$TERRA_CLI_INSTALLATION_MODE" == "LOCAL_ONLY" ]; then
-  terraCliInstallationMode="LOCAL_ONLY"
+if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
+  terraCliInstallationMode="DOCKER_AVAILABLE"
+elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
+  terraCliInstallationMode="DOCKER_NOT_AVAILABLE"
 else
-  echo "Unsupported TERRA_CLI_INSTALLATION_MODE specified: $TERRA_CLI_INSTALLATION_MODE"
+  echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
   exit 1
 fi
 
-echo "Installation mode is $terraCliInstallationMode"
+echo "Docker availability mode is $terraCliInstallationMode"
 
 echo "Building Java code"
 ./gradlew clean install
@@ -29,11 +29,13 @@ echo "Building Java code"
 echo "Aliasing JAR file"
 alias terra="$(pwd)"/build/install/terra-cli/bin/terra
 
-if [ "$terraCliInstallationMode" == "LOCAL_ONLY" ]; then
-  echo "Installing without docker support"
+if [ "$terraCliInstallationMode" == "DOCKER_NOT_AVAILABLE" ]; then
+  echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
+  terra config set app-launch LOCAL_PROCESS
 else
   echo "Setting the Docker image id to the default"
   terra config set image --default
+
   echo "Pulling the default Docker image"
   defaultDockerImage=$(terra config get image)
   docker pull "$defaultDockerImage"

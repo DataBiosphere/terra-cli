@@ -23,6 +23,7 @@ if [ "$terraCliVersion" == "latest" ]; then
 else
   releaseTarUrl="$ghRepoReleasesUrl/download/$terraCliVersion/$installPackageFileName"
 fi
+
 archiveFileName="terra-cli.tar"
 curl -L "$releaseTarUrl" > $archiveFileName
 if [ ! -f "${archiveFileName}" ]; then
