@@ -6,7 +6,7 @@ set -e
 # # Dependencies: docker, gcloud
 ## Usage: ./install.sh
 
-echo "Determining installation mode"
+echo "--  Determining Docker availability mode"
 if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
   terraCliInstallationMode="DOCKER_AVAILABLE"
 elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
@@ -15,6 +15,8 @@ else
   echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
   exit 1
 fi
+
+echo "Docker availability mode is $terraCliInstallationMode"
 
 echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
