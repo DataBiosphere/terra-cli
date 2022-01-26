@@ -49,10 +49,10 @@ rm -R "$archiveDir"
 
 if [ "$terraCliInstallationMode" == "DOCKER_NOT_AVAILABLE" ]; then
   echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
-  terra config set app-launch LOCAL_PROCESS
+  ./terra config set app-launch LOCAL_PROCESS
 else
   echo "Setting the Docker image id to the default"
-  terra config set image --default
+  ./terra config set image --default
 
   echo "Pulling the default Docker image"
   defaultDockerImage=$(terra config get image)
