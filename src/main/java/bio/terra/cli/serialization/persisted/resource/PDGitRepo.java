@@ -2,6 +2,8 @@ package bio.terra.cli.serialization.persisted.resource;
 
 import bio.terra.cli.businessobject.resource.GitRepo;
 import bio.terra.cli.serialization.persisted.PDResource;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>See the {@link GitRepo} class for a git repo's internal representation.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonDeserialize(builder = PDGitRepo.Builder.class)
 public class PDGitRepo extends PDResource {
   public final String gitRepoUrl;
 

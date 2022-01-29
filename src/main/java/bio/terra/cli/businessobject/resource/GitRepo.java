@@ -69,7 +69,6 @@ public class GitRepo extends Resource {
         WorkspaceManagerService.fromContextForPetSa()
             .createReferencedGitRepo(Context.requireWorkspace().getId(), addGitRepoParams);
     logger.info("Created Git repo reference: {}", addedResource);
-    System.out.println("yuhuyoyo created git repo reference: " + addedResource);
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GitRepo(addedResource);
