@@ -60,7 +60,7 @@ public class Context {
       currentWorkspace =
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
     } catch (IOException ioEx) {
-      System.out.println("yuhuyoyo io exception from syncing to disk");
+      // System.out.println("yuhuyoyo io exception from syncing to disk");
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing global context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
