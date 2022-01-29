@@ -60,6 +60,7 @@ public class Context {
       currentWorkspace =
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
     } catch (IOException ioEx) {
+      System.out.println("yuhuyoyo io exception from syncing to disk");
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing global context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
@@ -78,6 +79,11 @@ public class Context {
    */
   public static void synchronizeToDisk() {
     try {
+      if (currentWorkspace == null) {
+        System.out.println("current workspace id is null");
+      } else {
+        System.out.println("synchornize to disk, " + currentWorkspace.getGoogleProjectId());
+      }
       PDContext diskContext =
           new PDContext(currentConfig, currentServer, currentUser, currentWorkspace);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
@@ -214,6 +220,11 @@ public class Context {
   }
 
   public static Optional<Workspace> getWorkspace() {
+    System.out.println(
+        "yuhuyoyo useOverrideWorkspace"
+            + useOverrideWorkspace
+            + " current workspace: "
+            + currentWorkspace);
     return Optional.ofNullable(useOverrideWorkspace ? overrideWorkspace : currentWorkspace);
   }
 
@@ -226,6 +237,7 @@ public class Context {
   }
 
   public static void setWorkspace(Workspace workspace) {
+    System.out.println("yuhuyoyo set workspace");
     if (useOverrideWorkspace) {
       overrideWorkspace = workspace;
     } else {

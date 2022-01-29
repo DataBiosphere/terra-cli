@@ -4,6 +4,7 @@ import bio.terra.cli.command.resource.update.BqDataset;
 import bio.terra.cli.command.resource.update.BqTable;
 import bio.terra.cli.command.resource.update.GcsBucket;
 import bio.terra.cli.command.resource.update.GcsObject;
+import bio.terra.cli.command.resource.update.GitRepo;
 import picocli.CommandLine;
 
 /**
@@ -13,5 +14,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "update",
     description = "Update the properties of a resource.",
-    subcommands = {BqDataset.class, BqTable.class, GcsBucket.class, GcsObject.class})
+    subcommands = {BqDataset.class, BqTable.class, GcsBucket.class, GcsObject.class, GitRepo.class})
 public class Update {}

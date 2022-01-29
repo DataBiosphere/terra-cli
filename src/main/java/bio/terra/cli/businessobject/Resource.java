@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
+import bio.terra.cli.businessobject.resource.GitRepo;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -58,7 +59,8 @@ public abstract class Resource {
     GCS_OBJECT,
     BQ_DATASET,
     BQ_TABLE,
-    AI_NOTEBOOK;
+    AI_NOTEBOOK,
+    GIT_REPO;
   }
 
   /** Deserialize an instance of the disk format to the internal object. */
@@ -114,6 +116,8 @@ public abstract class Resource {
         return new BqTable(wsmObject);
       case AI_NOTEBOOK:
         return new GcpNotebook(wsmObject);
+      case GIT_REPO:
+        return new GitRepo(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }

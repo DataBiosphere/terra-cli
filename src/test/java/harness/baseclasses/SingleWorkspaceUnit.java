@@ -43,9 +43,11 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     // login as the same user that created the workspace
     workspaceCreator.login();
 
+    TestCommand.runCommandExpectSuccess("status");
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspaceId);
 
+    TestCommand.runCommandExpectSuccess("status");
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
