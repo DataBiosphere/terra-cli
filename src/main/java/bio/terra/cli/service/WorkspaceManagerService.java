@@ -650,6 +650,13 @@ public class WorkspaceManagerService {
         .cloningInstructions(resourceFields.cloningInstructions);
   }
 
+  /**
+   * Call the workspace Manager POST "/api/workspace/v1/{workspaceId}/resources/referenced/gitrepos"
+   * endpoint to add a reference to a git repository in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param addGitRepoParams git repo referenced resource definition
+   */
   public GitRepoResource createReferencedGitRepo(
       UUID workspaceId, AddGitRepoParams addGitRepoParams) {
     CreateGitRepoReferenceRequestBody createGitRepoReferenceRequestBody =
