@@ -7,12 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,6 +42,10 @@ import org.slf4j.LoggerFactory;
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
+
+  private static final String GIT_REPO_HTTPS_URL =
+      "https://github.com/DataBiosphere/terra-workspace-manager.git";
+
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
   private UFWorkspace destinationWorkspace;
@@ -149,6 +155,16 @@ public class CloneWorkspace extends ClearContextUnit {
             "--dataset-id=" + externalDataset.getDatasetId(),
             "--cloning=COPY_REFERENCE");
 
+    UFGitRepo gitRepositoryReference =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGitRepo.class,
+            "resource",
+            "add-ref",
+            "git-repo",
+            "--name=gitrepo_ref",
+            "--repo-url=" + GIT_REPO_HTTPS_URL,
+            "--cloning=COPY_REFERENCE");
+
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -213,6 +229,18 @@ public class CloneWorkspace extends ClearContextUnit {
         "The first dataset.",
         datasetClonedResource.destinationResource.description,
         "Dataset description matches.");
+
+    UFClonedResource gitRepoClonedResource =
+        getOrFail(
+            clonedWorkspace.resources.stream()
+                .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
+                .findFirst());
+    assertEquals(
+        CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
+    assertEquals(
+        Resource.Type.GIT_REPO,
+        gitRepoClonedResource.destinationResource.resourceType,
+        "Resource type matches GIT_REPO");
 
     // Switch to the new workspace from the clone
     TestCommand.runCommandExpectSuccess(
