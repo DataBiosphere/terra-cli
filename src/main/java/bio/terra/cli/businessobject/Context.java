@@ -82,7 +82,6 @@ public class Context {
           new PDContext(currentConfig, currentServer, currentUser, currentWorkspace);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
     } catch (IOException ioEx) {
-      System.out.println("Error persisting content to disk");
       logger.error("Error persisting context to disk.", ioEx);
     }
   }

@@ -264,7 +264,6 @@ public class Workspace {
    * disk.
    */
   public List<Resource> listResourcesAndSync() {
-    System.out.println("yuhuyoyo list resources and sync");
     populateResources();
     Context.synchronizeToDisk();
     return resources;
