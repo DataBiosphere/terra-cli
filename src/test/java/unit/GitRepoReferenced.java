@@ -130,7 +130,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("add a referenced object, specifying all options")
+  @DisplayName("add a referenced git repo, specifying all options")
   void addWithAllOptions() throws IOException {
     workspaceCreator.login();
 
@@ -179,7 +179,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("update a referenced object, one property at a time")
+  @DisplayName("update a referenced git repo, one property at a time")
   void updateIndividualProperties() throws IOException {
     workspaceCreator.login();
 
@@ -255,7 +255,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("update a referenced object, specifying multiple or none of the properties")
+  @DisplayName("update a referenced git repo, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
     workspaceCreator.login();
 
