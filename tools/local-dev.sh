@@ -11,11 +11,10 @@ if [ "$(basename "$PWD")" != 'terra-cli' ]; then
   exit 1
 fi
 
-echo "Determining Docker availability mode"
-if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
-  terraCliInstallationMode="DOCKER_AVAILABLE"
-elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
+if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
   terraCliInstallationMode="DOCKER_NOT_AVAILABLE"
+elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
+  terraCliInstallationMode="DOCKER_AVAILABLE"
 else
   echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
   exit 1
