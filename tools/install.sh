@@ -54,7 +54,7 @@ else
   ./terra config set image --default
   ./terra config set app-launch DOCKER_CONTAINER
   echo "Pulling the default Docker image"
-  defaultDockerImage=$(terra config get image)
+  defaultDockerImage=$(./terra config get image)
   docker pull "$defaultDockerImage"
 fi
 
