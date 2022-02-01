@@ -667,7 +667,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .createGitRepoReference(createGitRepoReferenceRequestBody, workspaceId),
-        "Error when creating referenced git repo referenced resource in the workspace");
+        "Error when creating a git repo referenced resource in the workspace");
   }
 
   /**

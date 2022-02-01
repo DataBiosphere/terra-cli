@@ -66,7 +66,7 @@ public class GitRepo extends Resource {
     // scope to perform its access check before adding the reference. note that this means a user
     // cannot add a reference unless their pet SA has access to it.
     GitRepoResource addedResource =
-        WorkspaceManagerService.fromContextForPetSa()
+        WorkspaceManagerService.fromContext()
             .createReferencedGitRepo(Context.requireWorkspace().getId(), addGitRepoParams);
     logger.info("Created Git repo reference: {}", addedResource);
     // convert the WSM object to a CLI object
@@ -97,6 +97,8 @@ public class GitRepo extends Resource {
   @Override
   protected void deleteControlled() {
     logger.warn("Controlled git repo resource is not supported in workspace.");
+    throw new UnsupportedOperationException(
+        "Controlled git repo resource is not supported in workspace.");
   }
 
   /** Resolve git repo resource. */

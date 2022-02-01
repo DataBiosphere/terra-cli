@@ -64,7 +64,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + name);
 
-    // check that the url and git repo url match
+    // check that the name and the git repo url match
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertEquals(
         GIT_REPO_HTTPS_URL,
@@ -338,7 +338,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
    */
   static List<UFGitRepo> listGitRepoResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    // `terra resources list --type=GCS_OBJECT --format=json`
+    // `terra resources list --type=GIT_REPO --format=json`
     List<UFGitRepo> listedResources =
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "resource", "list", "--type=GIT_REPO");
