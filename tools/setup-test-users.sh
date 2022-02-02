@@ -9,9 +9,9 @@ set -e
 ## invites all the test users if they do not already exist in SAM, and this requires admin permissions.
 ##
 ## The admin users group email argument for this script should be the email address of a SAM group that contains
-## several admin emails (e.g. developer-admins group on the dev SAM deployment at the Broad contains the corporate
-## emails of all PF team developers as of Sept 23, 2021). This is to prevent the team from losing access if the
-## person who originally ran this script is not available.
+## several admin emails
+## [developer-admins-devel|developer-admins-autopush|developer-admins-staging|developer-admins-preprod|developer-admins].
+## This is to prevent the team from losing access if the person who originally ran this script is not available.
 ##
 ## Dependencies: jq
 ## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
