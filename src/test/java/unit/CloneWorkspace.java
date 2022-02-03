@@ -45,6 +45,7 @@ public class CloneWorkspace extends ClearContextUnit {
 
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
+  private static final int CLONED_RESOURCES_NUM = 5;
 
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
@@ -179,7 +180,8 @@ public class CloneWorkspace extends ClearContextUnit {
         clonedWorkspace.sourceWorkspace.id,
         "Correct source workspace ID for clone.");
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
-    assertThat("There are 4 cloned resources", clonedWorkspace.resources, hasSize(4));
+    assertThat(
+        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(CLONED_RESOURCES_NUM));
 
     UFClonedResource bucketClonedResource =
         getOrFail(
