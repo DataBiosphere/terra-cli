@@ -176,7 +176,7 @@ public abstract class Resource {
   public abstract String resolve();
 
   /**
-   * Check whether a user can access a resource.
+   * Check whether a user's pet SA can access a resource.
    *
    * @return true if the user can access the referenced resource with the given credentials
    * @throws UserActionableException if the resource is CONTROLLED
