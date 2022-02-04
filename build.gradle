@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -15,6 +16,9 @@ plugins {
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
+    // GraalVM Native Image plugin
+//    id 'org.graalvm.buildtools.native' version '0.9.4'
+    id "org.mikeneck.graalvm-native-image" version "1.4.1"
 }
 
 if (hasProperty('buildScan')) {
@@ -333,4 +337,18 @@ task getDockerImageTag {
     doLast {
         println("${project.properties['dockerImageTag']}")
     }
+}
+
+nativeImage {
+    graalVmHome = System.getProperty('java.home')
+    mainClass = 'bio.terra.cli.command.Main'
+    executableName = 'terra'
+    outputDirectory = file("$buildDir/bin")
+    arguments(
+            '--no-fallback',
+            '--enable-all-security-services',
+            '--initialize-at-run-time=com.example.runtime',
+            '--report-unsupported-elements-at-runtime',
+            '--allow-incomplete-classpath'
+    )
 }
