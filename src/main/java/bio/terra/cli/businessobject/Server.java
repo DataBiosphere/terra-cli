@@ -73,7 +73,7 @@ public class Server {
     try {
       // read in the list of servers file
       InputStream inputStream =
-          FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + ALL_SERVERS_FILENAME);
+          FileUtils.getResourceFileHandle(/*RESOURCE_DIRECTORY + "/" +*/ ALL_SERVERS_FILENAME);
       List<String> allServerFileNames =
           JacksonMapper.getMapper().readValue(inputStream, List.class);
 
@@ -149,7 +149,7 @@ public class Server {
       try {
         // first check for a servers/[filename] resource on the classpath
         InputStream inputStream =
-            FileUtils.getResourceFileHandle(RESOURCE_DIRECTORY + "/" + fileName);
+            FileUtils.getResourceFileHandle(/*RESOURCE_DIRECTORY + "/" +*/ fileName);
         server = JacksonMapper.getMapper().readValue(inputStream, PDServer.class);
 
       } catch (FileNotFoundException fnfEx) {

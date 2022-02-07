@@ -12,7 +12,7 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
 fi
 
 echo "Building Java code"
-./gradlew clean install
+./gradlew clean installDist
 
 echo "Aliasing JAR file"
 alias terra=$(pwd)/build/install/terra-cli/bin/terra

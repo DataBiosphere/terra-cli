@@ -339,16 +339,23 @@ task getDockerImageTag {
     }
 }
 
+// GraalVM Native Image configuration.
+// See https://github.com/mike-neck/graalvm-native-image-plugin/blob/master/README.md
 nativeImage {
     graalVmHome = System.getProperty('java.home')
     mainClass = 'bio.terra.cli.command.Main'
+
     executableName = 'terra'
-    outputDirectory = file("$buildDir/bin")
     arguments(
+            "-g",
+            "--verbose",
+            "-H:Log=registerResource:",
+            '-H:ResourceConfigurationFiles=native-image/resource-config.json',
+            '-H:IncludeResources=.*/broad-dev-cli-testing.json$',
+            "-H:IncludeResources=src/main/resources/servers/all-servers.json",
             '--no-fallback',
-            '--enable-all-security-services',
-            '--initialize-at-run-time=com.example.runtime',
-            '--report-unsupported-elements-at-runtime',
-            '--allow-incomplete-classpath'
+//            '--report-unsupported-elements-at-runtime',
+            '--allow-incomplete-classpath',
+//            '-H:ResourceConfigurationFiles=/Users/jaycarlton/repos/terra-cli/native-image/resource-config.json'
     )
 }
