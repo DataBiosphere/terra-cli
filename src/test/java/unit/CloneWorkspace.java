@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -45,7 +44,9 @@ public class CloneWorkspace extends ClearContextUnit {
 
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
-  private static final int CLONED_RESOURCES_NUM = 5;
+  private static final String GIT_REPO_REF_NAME = "gitrepo_ref";
+  private static final int SOURCE_RESOURCE_NUM = 5;
+  private static final int DESTINATION_RESOURCE_NUM = 4;
 
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
@@ -162,7 +163,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "resource",
             "add-ref",
             "git-repo",
-            "--name=gitrepo_ref",
+            "--name=" + GIT_REPO_REF_NAME,
             "--repo-url=" + GIT_REPO_HTTPS_URL,
             "--cloning=COPY_REFERENCE");
 
@@ -181,7 +182,7 @@ public class CloneWorkspace extends ClearContextUnit {
         "Correct source workspace ID for clone.");
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
     assertThat(
-        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(CLONED_RESOURCES_NUM));
+        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
 
     UFClonedResource bucketClonedResource =
         getOrFail(
@@ -240,8 +241,8 @@ public class CloneWorkspace extends ClearContextUnit {
     assertEquals(
         CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
     assertEquals(
-        Resource.Type.GIT_REPO,
-        gitRepoClonedResource.destinationResource.resourceType,
+        GIT_REPO_REF_NAME,
+        gitRepoClonedResource.destinationResource.name,
         "Resource type matches GIT_REPO");
 
     // Switch to the new workspace from the clone
@@ -251,7 +252,8 @@ public class CloneWorkspace extends ClearContextUnit {
     // Validate resources
     List<UFResource> resources =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
-    assertThat("Destination workspace has three resources.", resources, hasSize(3));
+    assertThat(
+        "Destination workspace has three resources.", resources, hasSize(DESTINATION_RESOURCE_NUM));
   }
 
   /**
