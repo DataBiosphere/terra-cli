@@ -72,8 +72,8 @@ public class Server {
   public static List<Server> list() {
     try {
       // read in the list of servers file
-      InputStream inputStream =
-          FileUtils.getResourceFileHandle(/*RESOURCE_DIRECTORY + "/" +*/ ALL_SERVERS_FILENAME);
+      String resourcePath = RESOURCE_DIRECTORY + "/" + ALL_SERVERS_FILENAME;
+      InputStream inputStream = FileUtils.getResourceFileHandle(resourcePath);
       List<String> allServerFileNames =
           JacksonMapper.getMapper().readValue(inputStream, List.class);
 
@@ -146,16 +146,17 @@ public class Server {
   public static PDServer fromJsonFile(String fileName) {
     PDServer server;
     try {
+      String resourcePath = RESOURCE_DIRECTORY + "/" + fileName;
       try {
         // first check for a servers/[filename] resource on the classpath
-        InputStream inputStream =
-            FileUtils.getResourceFileHandle(/*RESOURCE_DIRECTORY + "/" +*/ fileName);
+        InputStream inputStream = FileUtils.getResourceFileHandle(resourcePath);
         server = JacksonMapper.getMapper().readValue(inputStream, PDServer.class);
 
       } catch (FileNotFoundException fnfEx) {
         // second treat the [filename] as an absolute path
         logger.debug(
-            "Server file ({}) not found in resource directory, now trying as absolute path.",
+            "Server file ({}) not found in resource directory, now trying as absolute path ({}).",
+            resourcePath,
             fileName);
         server = JacksonMapper.readFileIntoJavaObject(new File(fileName), PDServer.class);
       }
