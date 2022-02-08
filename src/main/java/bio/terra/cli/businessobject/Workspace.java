@@ -278,7 +278,7 @@ public class Workspace {
    */
   public ClonedWorkspace clone(@Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContextForPetSa().cloneWorkspace(id, name, description);
+        WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description);
     return result.getWorkspace();
   }
 
