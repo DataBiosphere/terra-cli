@@ -178,7 +178,7 @@ public abstract class Resource {
   /**
    * Check whether a user's pet SA can access a resource.
    *
-   * @return true if the user's pet SA can access the referenced resource with the given credentials
+   * @return true if the user can access the referenced resource with the given credentials
    * @throws UserActionableException if the resource is CONTROLLED
    */
   public boolean checkAccess() {
@@ -187,7 +187,7 @@ public abstract class Resource {
           "Unexpected stewardship type. Checking access is intended for REFERENCED resources only.");
     }
     // call WSM to check access to the resource
-    return WorkspaceManagerService.fromContextForPetSa()
+    return WorkspaceManagerService.fromContext()
         .checkAccess(Context.requireWorkspace().getId(), id);
   }
 

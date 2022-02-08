@@ -68,12 +68,8 @@ public class GcsObject extends Resource {
   public static GcsObject addReferenced(AddGcsObjectParams createParams) {
     validateEnvironmentVariableName(createParams.resourceFields.name);
 
-    // call WSM to add the reference. use the pet SA credentials instead of the end user's
-    // credentials, because they include the cloud-platform scope. WSM needs the cloud-platform
-    // scope to perform its access check before adding the reference. note that this means a user
-    // cannot add a reference unless their pet SA has access to it.
     GcpGcsObjectResource addedResource =
-        WorkspaceManagerService.fromContextForPetSa()
+        WorkspaceManagerService.fromContext()
             .createReferencedGcsObject(Context.requireWorkspace().getId(), createParams);
     logger.info("Created GCS bucket object: {}", addedResource);
 

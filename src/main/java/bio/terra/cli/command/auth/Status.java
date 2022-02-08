@@ -36,8 +36,7 @@ public class Status extends BaseCommand {
               !currentUser.requiresReauthentication());
     }
 
-    formatOption.printReturnValue(
-        authStatusReturnValue, returnValue -> this.printText(returnValue));
+    formatOption.printReturnValue(authStatusReturnValue, this::printText);
   }
 
   /** Print this command's output in text format. */
