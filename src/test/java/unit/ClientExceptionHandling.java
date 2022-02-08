@@ -80,6 +80,6 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
     assertThat(
         "stderr includes the WSM error message",
         stdErr,
-        CoreMatchers.containsString("A BigQuery dataset with ID " + datasetId + " already exists"));
+        CoreMatchers.containsString("A resource with matching attributes already exists"));
   }
 }
