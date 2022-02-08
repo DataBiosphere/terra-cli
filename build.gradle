@@ -347,15 +347,16 @@ nativeImage {
 
     executableName = 'terra'
     arguments(
-            "-g",
             "--verbose",
-            "-H:Log=registerResource:",
             '-H:ResourceConfigurationFiles=native-image/resource-config.json',
+            '-H:ReflectionConfigurationFiles=native-image/reflection-config.json',
             '--no-fallback',
-            '-O0',
             '--allow-incomplete-classpath',
+            '-Dgraal.LogFile=/Users/jaycarlton/scratch/graalvm.log'
     )
 }
 //            '--report-unsupported-elements-at-runtime',
 //'-H:IncludeResources=.*/broad-dev-cli-testing.json$',
 //"-H:IncludeResources=src/main/resources/servers/all-servers.json",
+//            "-g",
+//             "-H:Log=registerResource:",
