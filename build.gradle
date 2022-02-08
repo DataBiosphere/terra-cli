@@ -351,11 +351,11 @@ nativeImage {
             "--verbose",
             "-H:Log=registerResource:",
             '-H:ResourceConfigurationFiles=native-image/resource-config.json',
-            '-H:IncludeResources=.*/broad-dev-cli-testing.json$',
-            "-H:IncludeResources=src/main/resources/servers/all-servers.json",
             '--no-fallback',
-//            '--report-unsupported-elements-at-runtime',
+            '-O0',
             '--allow-incomplete-classpath',
-//            '-H:ResourceConfigurationFiles=/Users/jaycarlton/repos/terra-cli/native-image/resource-config.json'
     )
 }
+//            '--report-unsupported-elements-at-runtime',
+//'-H:IncludeResources=.*/broad-dev-cli-testing.json$',
+//"-H:IncludeResources=src/main/resources/servers/all-servers.json",
