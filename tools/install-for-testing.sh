@@ -26,7 +26,7 @@ if [ "$installMode" = "SOURCE_CODE" ]; then
   $terra config set image --default
 
   echo "Pulling the default Docker image"
-  /usr/local/bin/docker pull $($terra config get image)
+  docker pull $($terra config get image)
 
 elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   echo "Creating a new build/test-install directory"
