@@ -2,20 +2,21 @@
 set -e
 ## This script installs the Terra CLI from an unarchived release directory.
 ## TERRA_CLI_DOCKER_MODE environment variable controls docker support. Set to
-##     SUPPORT_DOCKER (default) or LOCAL_ONLY to skip docker steps.
+##     DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image
+#      or DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
 # # Dependencies: docker, gcloud
 ## Usage: ./install.sh
 
 if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
-  terraCliInstallationMode="DOCKER_NOT_AVAILABLE"
+  terraCliDockerMode="DOCKER_NOT_AVAILABLE"
 elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
-  terraCliInstallationMode="DOCKER_AVAILABLE"
+  terraCliDockerMode="DOCKER_AVAILABLE"
 else
   echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
   exit 1
 fi
 
-echo "-- Docker availability mode is $terraCliInstallationMode"
+echo "-- Docker availability mode is $terraCliDockerMode"
 
 echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
