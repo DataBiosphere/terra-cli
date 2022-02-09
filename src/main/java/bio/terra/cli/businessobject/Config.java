@@ -6,6 +6,7 @@ import bio.terra.cli.app.LocalProcessCommandRunner;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.Format.FormatOptions;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +121,11 @@ public class Config {
     this.dockerImageId = dockerImageId;
     if (!new DockerClientWrapper().checkImageExists(dockerImageId)) {
       logger.warn("image not found: {}", dockerImageId);
+      throw new UserActionableException(
+          String.format(
+              "Either Docker is not available or docker image %s was not found on the local machine. "
+                  + "Do `docker pull %s` to obtain it.",
+              dockerImageId, dockerImageId));
     }
     Context.synchronizeToDisk();
   }
