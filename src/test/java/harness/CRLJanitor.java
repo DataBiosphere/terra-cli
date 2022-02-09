@@ -1,5 +1,6 @@
 package harness;
 
+import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.common.cleanup.CleanupConfig;
 import com.google.auth.oauth2.GoogleCredentials;
