@@ -130,11 +130,6 @@ public class Config {
     this.dockerImageId = dockerImageId;
     if (!new DockerClientWrapper().checkImageExists(dockerImageId)) {
       logger.warn("image not found: {}", dockerImageId);
-      throw new UserActionableException(
-          String.format(
-              "Docker image %s was not found on the local machine. "
-                  + "Do `docker pull %s` to obtain it.",
-              dockerImageId, dockerImageId));
     }
     Context.synchronizeToDisk();
   }

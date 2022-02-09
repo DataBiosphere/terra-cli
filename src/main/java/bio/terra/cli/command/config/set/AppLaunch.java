@@ -1,6 +1,8 @@
 package bio.terra.cli.command.config.set;
 
+import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Config.CommandRunnerOption;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import picocli.CommandLine;
@@ -18,6 +20,15 @@ public class AppLaunch extends BaseCommand {
   protected void execute() {
     Config config = Context.getConfig();
     Config.CommandRunnerOption prevAppLaunchOption = config.getCommandRunnerOption();
+    if (CommandRunnerOption.DOCKER_CONTAINER == mode) {
+      String imageId = Context.getConfig().getDockerImageId();
+      if (!new DockerClientWrapper().checkImageExists(Config.getDefaultImageId())) {
+        OUT.printf(
+            "WARNING: Either the Docker daemon isn't running or image %s was not found on the local machine. "
+                + "Do `docker pull %s` to obtain it.%n",
+            imageId, imageId);
+      }
+    }
     config.setCommandRunnerOption(mode);
 
     OUT.println(

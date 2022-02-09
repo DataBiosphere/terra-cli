@@ -15,6 +15,7 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
   exit 1
 fi
 
+# Tests currently assume Docker is available and running.
 installMode=$1
 echo "installMode: $installMode"
 if [ "$installMode" = "SOURCE_CODE" ]; then
@@ -25,7 +26,7 @@ if [ "$installMode" = "SOURCE_CODE" ]; then
   $terra config set image --default
 
   echo "Pulling the default Docker image"
-  docker pull $($terra config get image)
+  /usr/local/bin/docker pull $($terra config get image)
 
 elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   echo "Creating a new build/test-install directory"
