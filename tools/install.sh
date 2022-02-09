@@ -47,7 +47,7 @@ echo "--  Deleting the archive directory"
 cd "$archiveDir"/..
 rm -R "$archiveDir"
 
-if [ "$terraCliInstallationMode" == "DOCKER_NOT_AVAILABLE" ]; then
+if [ "$terraCliDockerMode" == "DOCKER_NOT_AVAILABLE" ]; then
   echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
   ./terra config set app-launch LOCAL_PROCESS
 else
