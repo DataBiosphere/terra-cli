@@ -6,6 +6,7 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -18,6 +19,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -42,6 +44,7 @@ import bio.terra.workspace.model.CreateGcpBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
+import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
@@ -70,6 +73,8 @@ import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.GcpGcsBucketUpdateParameters;
 import bio.terra.workspace.model.GcpGcsObjectAttributes;
 import bio.terra.workspace.model.GcpGcsObjectResource;
+import bio.terra.workspace.model.GitRepoAttributes;
+import bio.terra.workspace.model.GitRepoResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
@@ -89,6 +94,7 @@ import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketReferenceRequestBody;
+import bio.terra.workspace.model.UpdateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
@@ -535,11 +541,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateGcpGcsObjectReferenceRequestBody createRequest =
         new CreateGcpGcsObjectReferenceRequestBody()
-            .metadata(
-                new ReferenceResourceCommonFields()
-                    .name(createParams.resourceFields.name)
-                    .description(createParams.resourceFields.description)
-                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
+            .metadata(getReferencedResourceMetadata(createParams.resourceFields))
             .file(
                 new GcpGcsObjectAttributes()
                     .bucketName(createParams.bucketName)
@@ -565,11 +567,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateGcpGcsBucketReferenceRequestBody createRequest =
         new CreateGcpGcsBucketReferenceRequestBody()
-            .metadata(
-                new ReferenceResourceCommonFields()
-                    .name(createParams.resourceFields.name)
-                    .description(createParams.resourceFields.description)
-                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
+            .metadata(getReferencedResourceMetadata(createParams.resourceFields))
             .bucket(new GcpGcsBucketAttributes().bucketName(createParams.bucketName));
     return callWithRetries(
         () ->
@@ -592,11 +590,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDataTableReferenceRequestBody createRequest =
         new CreateGcpBigQueryDataTableReferenceRequestBody()
-            .metadata(
-                new ReferenceResourceCommonFields()
-                    .name(createParams.resourceFields.name)
-                    .description(createParams.resourceFields.description)
-                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
+            .metadata(getReferencedResourceMetadata(createParams.resourceFields))
             .dataTable(
                 new GcpBigQueryDataTableAttributes()
                     .projectId(createParams.projectId)
@@ -623,11 +617,7 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateGcpBigQueryDatasetReferenceRequestBody createRequest =
         new CreateGcpBigQueryDatasetReferenceRequestBody()
-            .metadata(
-                new ReferenceResourceCommonFields()
-                    .name(createParams.resourceFields.name)
-                    .description(createParams.resourceFields.description)
-                    .cloningInstructions(createParams.resourceFields.cloningInstructions))
+            .metadata(getReferencedResourceMetadata(createParams.resourceFields))
             .dataset(
                 new GcpBigQueryDatasetAttributes()
                     .projectId(createParams.projectId)
@@ -637,6 +627,34 @@ public class WorkspaceManagerService {
             new ReferencedGcpResourceApi(apiClient)
                 .createBigQueryDatasetReference(createRequest, workspaceId),
         "Error creating referenced BigQuery dataset in the workspace.");
+  }
+
+  private ReferenceResourceCommonFields getReferencedResourceMetadata(
+      CreateResourceParams resourceFields) {
+    return new ReferenceResourceCommonFields()
+        .name(resourceFields.name)
+        .description(resourceFields.description)
+        .cloningInstructions(resourceFields.cloningInstructions);
+  }
+
+  /**
+   * Call the workspace Manager POST "/api/workspace/v1/{workspaceId}/resources/referenced/gitrepos"
+   * endpoint to add a reference to a git repository in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param addGitRepoParams git repo referenced resource definition
+   */
+  public GitRepoResource createReferencedGitRepo(
+      UUID workspaceId, AddGitRepoParams addGitRepoParams) {
+    CreateGitRepoReferenceRequestBody createGitRepoReferenceRequestBody =
+        new CreateGitRepoReferenceRequestBody()
+            .metadata(getReferencedResourceMetadata(addGitRepoParams.resourceFields))
+            .gitrepo(new GitRepoAttributes().gitRepoUrl(addGitRepoParams.gitRepoUrl));
+    return callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .createGitRepoReference(createGitRepoReferenceRequestBody, workspaceId),
+        "Error when creating a git repo referenced resource in the workspace");
   }
 
   /**
@@ -887,14 +905,11 @@ public class WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     UpdateGcsBucketObjectReferenceRequestBody updateRequest =
         new UpdateGcsBucketObjectReferenceRequestBody();
-    if (updateParams.resourceFields != null) {
-      updateRequest
-          .name(updateParams.resourceFields.name)
-          .description(updateParams.resourceFields.description);
-    }
-
-    updateRequest.bucketName(updateParams.bucketName);
-    updateRequest.objectName(updateParams.objectName);
+    updateRequest
+        .name(updateParams.resourceFields.name)
+        .description(updateParams.resourceFields.description)
+        .bucketName(updateParams.bucketName)
+        .objectName(updateParams.objectName);
 
     callWithRetries(
         () ->
@@ -918,13 +933,36 @@ public class WorkspaceManagerService {
     UpdateGcsBucketReferenceRequestBody updateRequest =
         new UpdateGcsBucketReferenceRequestBody()
             .name(updateParams.resourceParams.name)
-            .description(updateParams.resourceParams.description);
-    updateRequest.bucketName(updateParams.bucketName);
+            .description(updateParams.resourceParams.description)
+            .bucketName(updateParams.bucketName);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .updateBucketReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager PATCH
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gitrepos/{resourceId}" endpoint to
+   * update a Git repository referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedGitRepo(
+      UUID workspaceId, UUID resourceId, UpdateReferencedGitRepoParams updateParams) {
+    UpdateGitRepoReferenceRequestBody updateGitRepoReferenceRequestBody =
+        new UpdateGitRepoReferenceRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description)
+            .gitRepoUrl(updateParams.gitRepoUrl);
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateGitRepoReference(updateGitRepoReferenceRequestBody, workspaceId, resourceId),
+        "Error updating referenced Git repo in the workspace.");
   }
 
   /**
@@ -972,10 +1010,10 @@ public class WorkspaceManagerService {
     UpdateBigQueryDataTableReferenceRequestBody updateRequest =
         new UpdateBigQueryDataTableReferenceRequestBody()
             .name(updateParams.resourceParams.name)
-            .description(updateParams.resourceParams.description);
-    updateRequest.projectId(updateParams.projectId);
-    updateRequest.datasetId(updateParams.datasetId);
-    updateRequest.dataTableId(updateParams.tableId);
+            .description(updateParams.resourceParams.description)
+            .projectId(updateParams.projectId)
+            .datasetId(updateParams.datasetId)
+            .dataTableId(updateParams.tableId);
 
     callWithRetries(
         () ->
@@ -999,9 +1037,9 @@ public class WorkspaceManagerService {
     UpdateBigQueryDatasetReferenceRequestBody updateRequest =
         new UpdateBigQueryDatasetReferenceRequestBody()
             .name(updateParams.resourceParams.name)
-            .description(updateParams.resourceParams.description);
-    updateRequest.projectId(updateParams.projectId);
-    updateRequest.datasetId(updateParams.datasetId);
+            .description(updateParams.resourceParams.description)
+            .projectId(updateParams.projectId)
+            .datasetId(updateParams.datasetId);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -1100,6 +1138,20 @@ public class WorkspaceManagerService {
         "Error deleting referenced BigQuery dataset in the workspace.");
   }
 
+  /**
+   * Call the Workspace Manager DELETE
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gitrepos/{resourceId}" endpoint to
+   * delete a git repository as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   */
+  public void deleteReferencedGitRepo(UUID workspaceId, UUID resourceId) {
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient).deleteGitRepoReference(workspaceId, resourceId),
+        "Error deleting referenced git repo in the workspace.");
+  }
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
