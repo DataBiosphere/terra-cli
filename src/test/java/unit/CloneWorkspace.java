@@ -13,6 +13,7 @@ import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,6 +41,13 @@ import org.slf4j.LoggerFactory;
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
+
+  private static final String GIT_REPO_HTTPS_URL =
+      "https://github.com/DataBiosphere/terra-workspace-manager.git";
+  private static final String GIT_REPO_REF_NAME = "gitrepo_ref";
+  private static final int SOURCE_RESOURCE_NUM = 5;
+  private static final int DESTINATION_RESOURCE_NUM = 4;
+
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
   private UFWorkspace destinationWorkspace;
@@ -149,6 +157,16 @@ public class CloneWorkspace extends ClearContextUnit {
             "--dataset-id=" + externalDataset.getDatasetId(),
             "--cloning=COPY_REFERENCE");
 
+    UFGitRepo gitRepositoryReference =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGitRepo.class,
+            "resource",
+            "add-ref",
+            "git-repo",
+            "--name=" + GIT_REPO_REF_NAME,
+            "--repo-url=" + GIT_REPO_HTTPS_URL,
+            "--cloning=COPY_REFERENCE");
+
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -163,7 +181,8 @@ public class CloneWorkspace extends ClearContextUnit {
         clonedWorkspace.sourceWorkspace.id,
         "Correct source workspace ID for clone.");
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
-    assertThat("There are 4 cloned resources", clonedWorkspace.resources, hasSize(4));
+    assertThat(
+        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
 
     UFClonedResource bucketClonedResource =
         getOrFail(
@@ -214,6 +233,18 @@ public class CloneWorkspace extends ClearContextUnit {
         datasetClonedResource.destinationResource.description,
         "Dataset description matches.");
 
+    UFClonedResource gitRepoClonedResource =
+        getOrFail(
+            clonedWorkspace.resources.stream()
+                .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
+                .findFirst());
+    assertEquals(
+        CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
+    assertEquals(
+        GIT_REPO_REF_NAME,
+        gitRepoClonedResource.destinationResource.name,
+        "Resource type matches GIT_REPO");
+
     // Switch to the new workspace from the clone
     TestCommand.runCommandExpectSuccess(
         "workspace", "set", "--id=" + clonedWorkspace.destinationWorkspace.id);
@@ -221,7 +252,8 @@ public class CloneWorkspace extends ClearContextUnit {
     // Validate resources
     List<UFResource> resources =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
-    assertThat("Destination workspace has three resources.", resources, hasSize(3));
+    assertThat(
+        "Destination workspace has three resources.", resources, hasSize(DESTINATION_RESOURCE_NUM));
   }
 
   /**

@@ -387,10 +387,16 @@ For example, a bucket within the workspace Google project. You can create these 
 
 A referenced resource is a cloud resource that is NOT managed by Terra. It exists outside the current workspace
 context. For example, a BigQuery dataset hosted outside of Terra or in another workspace. You can add these with the
-`add-ref` command.
+`add-ref` command. The workspace currently supports the following referenced resource: 
+- `gcs-bucket`
+- `gcs-object`
+- `bq-dataset`
+- `bq-table`
+- `git-repo`
 
 The `check-access` command lets you see whether you have access to a particular resource. This is useful when a
-different user created or added the resource and subsequently shared the workspace with you.
+different user created or added the resource and subsequently shared the workspace with you. `check-access` currently always 
+returns true for `git-repo` reference type because workspace doesn't support authentication to external git services yet.
 
 The list of resources in a workspace is maintained on the Terra Workspace Manager server. The CLI caches this list
 of resources locally. Third-party tools can access resource details via environment variables (e.g. $TERRA_mybucket
