@@ -109,6 +109,15 @@ public class Config {
   }
 
   public void setCommandRunnerOption(CommandRunnerOption commandRunnerOption) {
+    if (CommandRunnerOption.DOCKER_CONTAINER == commandRunnerOption) {
+      if (new DockerClientWrapper().checkImageExists(getDockerImageId())) {
+        throw new UserActionableException(
+            String.format(
+                "Docker image %s was not found on the local machine. "
+                    + "Do `docker pull %s` to obtain it.",
+                getDockerImageId(), getDockerImageId()));
+      }
+    }
     this.commandRunnerOption = commandRunnerOption;
     Context.synchronizeToDisk();
   }
@@ -123,7 +132,7 @@ public class Config {
       logger.warn("image not found: {}", dockerImageId);
       throw new UserActionableException(
           String.format(
-              "Either Docker is not available or docker image %s was not found on the local machine. "
+              "Docker image %s was not found on the local machine. "
                   + "Do `docker pull %s` to obtain it.",
               dockerImageId, dockerImageId));
     }
