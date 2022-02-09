@@ -1,5 +1,6 @@
 package harness.utils;
 
+import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
@@ -76,7 +77,7 @@ public class ExternalGCSBuckets {
             + " with storage class "
             + bucketInfo.getStorageClass()
             + " in project "
-            + TestExternalResources.getProjectId());
+            + TestConfig.get().getProjectForExternalResources());
     return bucketInfo;
   }
 
@@ -162,9 +163,9 @@ public class ExternalGCSBuckets {
     StorageOptions options =
         StorageOptions.newBuilder()
             .setCredentials(TestExternalResources.getSACredentials())
-            .setProjectId(TestExternalResources.getProjectId())
+            .setProjectId(TestConfig.get().getProjectForExternalResources())
             .build();
-    return new StorageCow(CRLJanitor.DEFAULT_CLIENT_CONFIG, options);
+    return new StorageCow(CRLJanitor.getClientConfig(), options);
   }
 
   /**
@@ -173,7 +174,7 @@ public class ExternalGCSBuckets {
    */
   public static Storage getStorageClient(GoogleCredentials credentials) {
     return StorageOptions.newBuilder()
-        .setProjectId(TestExternalResources.getProjectId())
+        .setProjectId(TestConfig.get().getProjectForExternalResources())
         .setCredentials(credentials)
         .build()
         .getService();

@@ -182,6 +182,10 @@ task runTestsWithTag(type: Test) {
         environment "TERRA_DOCKER_IMAGE", terraDockerImage
 
         if (testTag == "unit") {
+            // set which test config file in src/main/resources/tests to use
+            String terraTestConfigFileName = terraServer.contains("broad") ? "broad.json" : "verily.json"
+            environment "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
+
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.

@@ -392,10 +392,10 @@ There are 4 types of objects.
 - Internal state and business logic
   - `businessobject` package
   - May be a part of the state (e.g. `Workspace`, `User`) or just contain business logic (e.g. `WorkspaceUser`)
-- Serialization format for writing to disk
+- Serialization format for writing to disk (`.terra/context.json`)
   - `serialization.persisted` package
   - Prefixed with "PD" (e.g. `PDWorkspace`, `PDUser`)
-- Serialization format for command input/ouput
+- Serialization format for command input/ouput (json format)
   - `serialization.userfacing` package
   - Prefixed with "UF" (e.g. `UFWorkspace`, `UFUser`)
 - Create/update parameters

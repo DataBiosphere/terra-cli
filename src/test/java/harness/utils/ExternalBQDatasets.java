@@ -1,5 +1,6 @@
 package harness.utils;
 
+import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import com.google.api.services.bigquery.model.Binding;
@@ -51,7 +52,7 @@ public class ExternalBQDatasets {
    * project.
    */
   public static DatasetReference createDataset() throws IOException {
-    String projectId = TestExternalResources.getProjectId();
+    String projectId = TestConfig.get().getProjectForExternalResources();
     String datasetId = randomDatasetId();
     String location = "us-east4";
 
@@ -207,7 +208,7 @@ public class ExternalBQDatasets {
   private static BigQueryCow getBQCow() {
     try {
       return BigQueryCow.create(
-          CRLJanitor.DEFAULT_CLIENT_CONFIG, TestExternalResources.getSACredentials());
+          CRLJanitor.getClientConfig(), TestExternalResources.getSACredentials());
     } catch (GeneralSecurityException | IOException ex) {
       throw new RuntimeException("Error getting Janitor client SA credentials.", ex);
     }
@@ -220,7 +221,7 @@ public class ExternalBQDatasets {
    */
   public static BigQuery getBQClient(GoogleCredentials credentials) {
     return BigQueryOptions.newBuilder()
-        .setProjectId(TestExternalResources.getProjectId())
+        .setProjectId(TestConfig.get().getProjectForExternalResources())
         .setCredentials(credentials)
         .build()
         .getService();

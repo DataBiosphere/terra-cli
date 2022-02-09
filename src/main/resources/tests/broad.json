@@ -1,0 +1,4 @@
+{
+  "projectForExternalResources": "terra-cli-test",
+  "useJanitorForExternalResourcesCreatedByTests": true
+}
