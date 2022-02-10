@@ -209,8 +209,9 @@ Note that the current testing setup uses pre-defined users in the `test.fireclou
 some refactoring involved in varying this domain.
 
 Note that the script takes an ADMIN groupemail as a required argument. This should be the email address of a
-SAM group that contains several admin emails [developer-admins-devel|developer-admins-autopush|developer-admins-staging|developer-admins-preprod|developer-admins].
-This is to prevent the team from losing access if the person who originally ran this script is not available.
+SAM group that contains several admin emails (e.g. developer-admins group on the dev SAM deployment at the
+Broad contains the corporate emails of all PF team developers as of Sept 23, 2021). This is to prevent the
+team from losing access if the person who originally ran this script is not available.
 
 If the current server requires users to be invited before they can register, then the user who runs this
 script must be an admin user (i.e. a member of the `fc-admins` Google group in the SAM Gsuite). The script
