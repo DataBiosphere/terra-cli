@@ -1,4 +1,4 @@
-package bio.terra.cli.businessobject;
+package harness;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.FileUtils;
@@ -10,7 +10,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Test config. */
+/** Test config that can vary between Terra deployments. */
 public class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
@@ -20,8 +20,6 @@ public class TestConfig {
   // Whether to use janitor to clean up external resources. For more about terra-cli and Janitor,
   // see PF-886.
   private boolean useJanitorForExternalResourcesCreatedByTests;
-
-  public static final String TESTS_RESOURCE_DIRECTORY = "tests";
 
   public static TestConfig get() {
     String testConfigFileName = System.getenv("TERRA_TEST_CONFIG_FILE_NAME");
@@ -33,6 +31,8 @@ public class TestConfig {
     return testConfig;
   }
 
+  private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
+
   /**
    * Reads test config from a file in src/main/resources/tests.
    *
@@ -42,10 +42,9 @@ public class TestConfig {
   private static TestConfig fromJsonFile(String fileName) {
     TestConfig testConfig;
     try {
-      String filePath = TESTS_RESOURCE_DIRECTORY + "/" + fileName;
+      String filePath = TESTCONFIGS_RESOURCE_DIRECTORY + "/" + fileName;
       logger.debug("Reading test config from {}", filePath);
-      InputStream inputStream =
-          FileUtils.getResourceFileHandle(TESTS_RESOURCE_DIRECTORY + "/" + fileName);
+      InputStream inputStream = FileUtils.getResourceFileHandle(filePath);
       testConfig = JacksonMapper.getMapper().readValue(inputStream, TestConfig.class);
     } catch (FileNotFoundException fnfEx) {
       throw new SystemException(

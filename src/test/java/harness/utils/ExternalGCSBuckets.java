@@ -1,6 +1,5 @@
 package harness.utils;
 
-import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
@@ -21,6 +20,7 @@ import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import harness.CRLJanitor;
+import harness.TestConfig;
 import harness.TestExternalResources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
