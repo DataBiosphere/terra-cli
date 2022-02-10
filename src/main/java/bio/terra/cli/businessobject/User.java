@@ -161,14 +161,18 @@ public class User {
   }
 
   private void checkForAppDefaultCredentials() {
-    googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
+    if (googleCredentials == null) {
+      googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
+    }
   }
 
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
     deletePetSaCredentials();
-    GoogleOauth.revokeToken(googleCredentials);
+    if (googleCredentials != null) {
+      GoogleOauth.revokeToken(googleCredentials);
+    }
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -372,6 +376,7 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
+    checkForAppDefaultCredentials();
     if (googleCredentials == null) {
       return true;
     }
