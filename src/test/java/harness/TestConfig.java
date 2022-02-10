@@ -56,7 +56,8 @@ public final class TestConfig {
     } catch (FileNotFoundException fnfEx) {
       throw new SystemException(
           String.format(
-              "Test config file %s not found in src/main/resources/tests. You may need to run render-verily-config.sh.",
+              "Test config file %s not found in src/main/resources/tests. Please populate it (as" +
+                      " well a directory under rendered/ for your deployment).",
               fileName),
           fnfEx);
     } catch (IOException ioEx) {

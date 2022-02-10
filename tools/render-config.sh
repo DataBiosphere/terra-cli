@@ -64,8 +64,3 @@ readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json" "base64"
 # used for granting break-glass access to a workspace in the verilycli deployment
 echo "Reading the WSM app service account key file for the verilycli deployment from Vault"
 readFromVault "$VERILYCLI_WSM_SA_VAULT_PATH" "verilycli-wsm-sa.json" "base64"
-
-# If it exists, remove verily test config. If someone tries to run tests with -Pserver=verily-devel and
-# they haven't run render-verily-config.sh, the test will fail because verily.json doesn't exist. This forces them to
-# run render-verily-config.sh.
-rm -f terra-cli/src/main/resources/tests/verily.json
