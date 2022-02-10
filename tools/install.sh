@@ -16,7 +16,7 @@ else
   exit 1
 fi
 
-echo "-- Docker availability mode is $terraCliDockerMode"
+echo "--  Docker availability mode is $terraCliDockerMode"
 
 echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
@@ -51,18 +51,18 @@ if [ "$terraCliDockerMode" == "DOCKER_NOT_AVAILABLE" ]; then
   echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
   ./terra config set app-launch LOCAL_PROCESS
 else
-  echo "Setting the Docker image id to the default"
+  echo "--   Setting the Docker image id to the default"
   ./terra config set image --default
   ./terra config set app-launch DOCKER_CONTAINER
-  echo "Pulling the default Docker image"
+  echo "--   Pulling the default Docker image"
   defaultDockerImage=$(./terra config get image)
   docker pull "$defaultDockerImage"
 fi
 
-echo "-- Setting the server to its current value, to pull any changes"
+echo "--   Setting the server to its current value, to pull any changes"
 currentServer=$(./terra config get server)
 ./terra config set server --name="$currentServer"
 
-echo "--  Install complete"
+echo "--   Install complete"
 echo "You can add the ./terra executable to your \$PATH"
 echo "Run \"./terra\" to see usage"

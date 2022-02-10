@@ -33,8 +33,10 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   mkdir -p $(pwd)/build/test-install/
   cd build/test-install/
 
+  export TERRA_CLI_VERSION=jaycarlton_test5
+  export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE
   echo "Downloading the install script from GitHub and running it"
-  curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+  curl -L https://github.com/DataBiosphere/terra-cli/releases/download/jaycarlton_test5/download-install.sh | bash
 
 else
   echo "Usage: tools/install-for-testing.sh [installMode]"
