@@ -99,7 +99,7 @@ public class TestUser {
   /** Get domain-wide delegated Google credentials for this user. */
   private GoogleCredentials getCredentials(List<String> scopes) throws IOException {
     // get a credential for the test-user SA
-    Path jsonKey = Path.of("rendered", "test-user-account.json");
+    Path jsonKey = Path.of("rendered", TestConfig.getTestConfigName(), "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
       throw new FileNotFoundException(
           "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("

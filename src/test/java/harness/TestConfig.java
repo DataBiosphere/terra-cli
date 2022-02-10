@@ -24,9 +24,15 @@ public final class TestConfig {
   // see PF-886.
   private boolean useJanitorForExternalResourcesCreatedByTests;
 
+  // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
+  // directory under `rendered` where credentials are stored.
+  public static String getTestConfigName() {
+    return System.getProperty("TERRA_TEST_CONFIG_NAME");
+  }
+
   public static TestConfig get() {
     if (INSTANCE == null) {
-      String testConfigFileName = System.getProperty("TERRA_TEST_CONFIG_FILE_NAME");
+      String testConfigFileName = getTestConfigName() + ".json";
       if (testConfigFileName == null || testConfigFileName.isEmpty()) {
         throw new SystemException("TERRA_TEST_CONFIG_FILE_NAME must be set");
       }

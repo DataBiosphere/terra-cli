@@ -65,6 +65,12 @@ jobs:
           echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
           echo "$EXT_PROJECT_SA_KEY" > rendered/external-project-account.json
           echo "$JANITOR_CLIENT_SA_KEY" > rendered/janitor-client.json
+          # keys to be stored in rendered/broad/
+          mkdir -p rendered/broad
+          echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
+          echo "$DEV_CI_SA_KEY" > rendered/broad/ci-account.json
+          echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
+          echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
         env:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}

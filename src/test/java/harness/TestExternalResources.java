@@ -11,7 +11,8 @@ import java.util.List;
 /** This class holds pointers to the SA that tests can use to create external resources. */
 public class TestExternalResources {
   // SA with permission to create/delete/query resources in the project
-  private static final String SA_KEY_FILE = "./rendered/external-project-account.json";
+  private static final String SA_KEY_FILE =
+      "./rendered/" + TestConfig.getTestConfigName() + "/external-project-account.json";
 
   // default scope to request for the SA
   private static final List<String> CLOUD_PLATFORM_SCOPE =
