@@ -177,17 +177,17 @@ task runTestsWithTag(type: Test) {
         String terraServer = project.hasProperty("server") ? project.findProperty("server") : "broad-dev"
         environment "TERRA_SERVER", terraServer
 
+        // set which file in src/test/resources/testconfigs to use
+        // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
+        // user only needs to set -PtestConfig, no -Pserver.
+        String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") + ".json" : "broad.json"
+        systemProperty "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
+
         // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
         String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
         environment "TERRA_DOCKER_IMAGE", terraDockerImage
 
         if (testTag == "unit") {
-            // set which file in src/test/resources/testconfigs to use
-            // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
-            // user only needs to set -PtestConfig, no -Pserver.
-            String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") + ".json" : "broad.json"
-            systemProperty "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
-
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.
