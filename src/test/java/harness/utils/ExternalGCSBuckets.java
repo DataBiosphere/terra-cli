@@ -1,6 +1,5 @@
 package harness.utils;
 
-import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;

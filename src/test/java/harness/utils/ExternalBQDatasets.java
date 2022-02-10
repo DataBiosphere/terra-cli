@@ -1,6 +1,5 @@
 package harness.utils;
 
-import bio.terra.cli.businessobject.TestConfig;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import com.google.api.services.bigquery.model.Binding;
