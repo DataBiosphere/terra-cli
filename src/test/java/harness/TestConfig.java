@@ -7,12 +7,15 @@ import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Test config that can vary between Terra deployments. */
 public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
+
+  private List<TestUser> testUsers;
 
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
   private String projectForExternalResources;
@@ -78,6 +81,10 @@ public final class TestConfig {
 
   // ====================================================
   // Property getters.
+  public List<TestUser> getTestUsers() {
+    return testUsers;
+  }
+
   public String getProjectForExternalResources() {
     return projectForExternalResources;
   }

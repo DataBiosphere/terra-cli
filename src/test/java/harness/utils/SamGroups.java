@@ -1,7 +1,7 @@
 package harness.utils;
 
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,13 +14,13 @@ import java.util.Random;
 public class SamGroups {
   // keep a map of groups created by tests, so we can try to clean them up
   // group name -> test user that created it
-  private Map<String, TestUsers> trackedGroups = new HashMap<>();
+  private Map<String, TestUser> trackedGroups = new HashMap<>();
 
   private static final Random RANDOM = new Random();
 
   /** Try to delete each group that was tracked here. */
   public void deleteAllTrackedGroups() throws IOException {
-    for (Map.Entry<String, TestUsers> groupCreated : trackedGroups.entrySet()) {
+    for (Map.Entry<String, TestUser> groupCreated : trackedGroups.entrySet()) {
       groupCreated.getValue().login();
       TestCommand.Result cmd =
           TestCommand.runCommand("group", "delete", "--name=" + groupCreated.getKey(), "--quiet");
@@ -32,7 +32,7 @@ public class SamGroups {
   }
 
   /** Add a group to be tracked. */
-  public void trackGroup(String name, TestUsers admin) {
+  public void trackGroup(String name, TestUser admin) {
     trackedGroups.put(name, admin);
   }
 
@@ -41,7 +41,7 @@ public class SamGroups {
     return "terraCLI_" + RANDOM.nextInt(Integer.MAX_VALUE);
   }
 
-  public Map<String, TestUsers> getTrackedGroups() {
+  public Map<String, TestUser> getTrackedGroups() {
     return trackedGroups;
   }
 }

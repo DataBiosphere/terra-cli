@@ -4,7 +4,7 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.SamGroups;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
   @DisplayName(
       "try to create a group twice, check that the output includes the CLI and SAM error messages")
   void samDuplicateGroup() throws IOException {
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // `terra group create --name=$name`

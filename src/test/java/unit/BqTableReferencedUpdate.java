@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -24,7 +24,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
   private String privateExternalTable = "testTable";
   private String sharedExternalTable = "testTable2";
 
-  private TestUsers shareeUser;
+  private TestUser shareeUser;
 
   @BeforeAll
   @Override
@@ -55,7 +55,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 
-    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
     ExternalBQDatasets.grantReadAccessToTable(
         externalDataset.getProjectId(),

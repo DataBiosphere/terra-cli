@@ -199,7 +199,7 @@ interacting with a browser. Before running tests against a Terra server, the tes
 Setup happens exclusively in SAM, so if there are multiple Terra servers that all talk to the same SAM instance,
 then you only need to do this setup once.
 
-The CLI only uses the test users defined in the `TestUsers` enum class. The list includes a mix of users that:
+The CLI uses the test users defined in test config (eg `testconfig/broad.json`). This includes:
 - Have permission to use the default WSM spend profile via the `cli-test-users` SAM group.
 - Have permission to use the default WSM spend profile directly on the SAM resource.
 - Do not have permission to use the default WSM spend profile.

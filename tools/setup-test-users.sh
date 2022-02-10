@@ -2,7 +2,7 @@
 
 set -e
 ## This script sets up users for running CLI tests. It only needs to be run once per SAM instance.
-## Keep this script in sync with the harness.TestUsers class in the src/test/java directory.
+## Keep this script in sync with test users in your testconfig file (eg `testconfig/broad.json`).
 ##
 ## If the current server requires users to be invited before they can register, then the user who runs this
 ## script must be an admin user (i.e. a member of the fc-admins Google group in the SAM Gsuite). The script
