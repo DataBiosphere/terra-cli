@@ -3,18 +3,6 @@
     "includes": [
       {
         "pattern": "servers/broad-dev-cli-testing.json$"
-      },
-      {
-        "pattern": ".*/.*.json$"
-      },
-      {
-        "pattern": "src/main/resources/.*json$"
-      },
-      {
-        "pattern": "src/main/resources/servers/.*json"
-      },
-      {
-        "pattern": "/Users/jaycarlton/repos/terra-cli/src/main/resources/servers/.*"
       }
     ]
   }
