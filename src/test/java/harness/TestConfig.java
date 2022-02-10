@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Test config that can vary between Terra deployments. */
-public class TestConfig {
+public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
@@ -22,16 +22,23 @@ public class TestConfig {
   private boolean useJanitorForExternalResourcesCreatedByTests;
 
   public static TestConfig get() {
-    String testConfigFileName = System.getenv("TERRA_TEST_CONFIG_FILE_NAME");
-    if (testConfigFileName == null || testConfigFileName.isEmpty()) {
-      throw new SystemException("TERRA_TEST_CONFIG_FILE_NAME must be set");
+    if (INSTANCE == null) {
+      String testConfigFileName = System.getProperty("TERRA_TEST_CONFIG_FILE_NAME");
+      if (testConfigFileName == null || testConfigFileName.isEmpty()) {
+        throw new SystemException("TERRA_TEST_CONFIG_FILE_NAME must be set");
+      }
+      TestConfig testConfig = fromJsonFile(testConfigFileName);
+      validateTestConfig(testConfig, testConfigFileName);
+      INSTANCE = testConfig;
     }
-    TestConfig testConfig = fromJsonFile(testConfigFileName);
-    validateTestConfig(testConfig, testConfigFileName);
-    return testConfig;
+    return INSTANCE;
   }
 
   private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
+
+  private static TestConfig INSTANCE;
+
+  private TestConfig() {}
 
   /**
    * Reads test config from a file in src/main/resources/tests.

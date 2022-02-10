@@ -33,6 +33,7 @@ public class CRLJanitor {
               .setTimeToLive(Duration.ofHours(2))
               .setCleanupId("cli-test-" + System.getProperty("TEST_RUN_ID"))
               .setCredentials(CRLJanitor.getSACredentials())
+              // TODO(PF-963): As part of setting up janitor for Verily, move to test config
               .setJanitorTopicName("crljanitor-tools-pubsub-topic")
               .setJanitorProjectId("terra-kernel-k8s")
               .build());

@@ -236,6 +236,17 @@ Some tests may start failing once the number of leaked resources gets too high. 
 resilient, but it's been a useful reminder to kick off the cleanup GitHub action, so we haven't done that yet. If
 you see unexpected failures around listing workspaces, try kicking off the cleanup action and re-running.
 
+#### Test config per deployment
+
+By default, tests run against Broad deployment. To run against a different deployment:
+
+- Create a new file under [Test config](https://github.com/DataBiosphere/terra-cli/tree/main/src/test/resources/testconfigs)
+- Create a new `render-config.sh` which renders config for your deployment.
+- Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
+
+For example, consider the project that external resources are created in. The Broad deployment uses a project in Broad
+GCP org; Verily deployment uses a project in Verily GCP org.
+
 ### Docker
 The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
