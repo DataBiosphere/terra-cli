@@ -1,6 +1,8 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
@@ -57,6 +59,8 @@ public class User {
   // Google credentials for the user
   private UserCredentials userCredentials;
 
+  private GoogleCredentials applicationDefaultServiceAccount;
+
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
@@ -67,7 +71,6 @@ public class User {
   private static final List<String> PET_SA_SCOPES =
       ImmutableList.of(
           "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
-
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
@@ -119,6 +122,10 @@ public class User {
     }
   }
 
+  private void fetchApplicationDefaultCredential() {
+    applicationDefaultServiceAccount = AppDefaultCredentialUtils.getADC();
+  }
+
   /**
    * Load any existing credentials for this user. Prompt for login if they are expired or do not
    * exist.
@@ -130,9 +137,14 @@ public class User {
     // populate the current user object or build a new one
     User user = currentUser.orElseGet(() -> new User());
 
-    // do the login flow if the current user is undefined or has expired credentials
-    if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
-      user.doOauthLoginFlow();
+    try {
+      user.fetchApplicationDefaultCredential();
+    } catch (UserActionableException e) {
+      logger.debug("app default credentials does not exist");
+      // do the login flow if the current user is undefined or has expired credentials
+      if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
+        user.doOauthLoginFlow();
+      }
     }
 
     // if this is a new login...
@@ -157,8 +169,13 @@ public class User {
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
-    deletePetSaCredentials();
-    GoogleOauth.revokeToken(userCredentials);
+    // deletePetSaCredentials();
+    if (userCredentials != null) {
+      GoogleOauth.revokeToken(userCredentials);
+    }
+    if (applicationDefaultServiceAccount != null) {
+      GoogleOauth.revokeToken(applicationDefaultServiceAccount);
+    }
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -376,7 +393,11 @@ public class User {
 
   /** Get the access token for the user credentials. */
   public AccessToken getUserAccessToken() {
-    return GoogleOauth.getAccessToken(userCredentials);
+    if (userCredentials != null) {
+      return GoogleOauth.getAccessToken(userCredentials);
+    }
+    applicationDefaultServiceAccount = applicationDefaultServiceAccount.createScoped(PET_SA_SCOPES);
+    return GoogleOauth.getAccessToken(applicationDefaultServiceAccount);
   }
 
   /** Get the access token for the pet SA credentials. */

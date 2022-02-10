@@ -16,6 +16,7 @@ public class Login extends BaseCommand {
   protected void execute() {
     // if the user is already logged in, log them out first
     if (Context.getUser().isPresent()) {
+      OUT.println("yuhuyoyo requires log out " + Context.getUser().get().getEmail());
       Context.requireUser().logout();
     }
 

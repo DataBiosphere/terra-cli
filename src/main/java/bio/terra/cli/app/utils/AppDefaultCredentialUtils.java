@@ -91,7 +91,7 @@ public class AppDefaultCredentialUtils {
   }
 
   /** Get the application default credentials. Throw an exception if they are not defined. */
-  private static GoogleCredentials getADC() {
+  public static GoogleCredentials getADC() {
     try {
       return GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
