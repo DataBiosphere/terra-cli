@@ -2,6 +2,9 @@
   "resources": {
     "includes": [
       {
+        "pattern": ".*\\.json$"
+      },
+      {
         "pattern": "servers/.*\\.json$"
       }
     ]

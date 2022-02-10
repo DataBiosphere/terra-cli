@@ -20,7 +20,8 @@
     * [Build a new image](#build-a-new-image)
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
-5. [Code structure](#code-structure)
+5. [Native Image](#native-image)
+6. [Code structure](#code-structure)
     * [Top-level package](#top-level-package)
     * [Supported tools](#supported-tools)
         * [Adding a new supported tool](#add-a-new-supported-tool)
@@ -28,7 +29,7 @@
     * [Serialization](#serialization)
     * [Terra and cloud services](#terra-and-cloud-services)
     * [Servers](#servers)
-6. [Command style guide](#command-style-guide)
+7. [Command style guide](#command-style-guide)
     * [Options instead of parameters](#options-instead-of-parameters)
     * [Always specify a description](#always-specify-a-description)
     * [Alphabetize command lists](#alphabetize-command-lists)
@@ -309,6 +310,21 @@ look like for someone who did not build the image.
 It's best to do this as part of a release, but if it's necessary to update the default image manually:
 1. Publish the image (see above).
 2. Update the `DockerAppsRunner.defaultImageId` method in the Java code to return a hard-coded string.
+
+### Native Image
+We use GraalVM `native-image` to create platform-specific executable images. To build the image,
+simply run the gradle task `nativeImage`. The binary will be at `build/native-image/bin/terra`.
+
+#### Resource Config File
+The file `META-INF/native-image/resource-config.json` instructs the native image compiler to include the required
+resources in the executable image. See
+[documentation](https://www.graalvm.org/22.0/reference-manual/native-image/Resources/) for examples.
+
+#### Reflection Config File
+Some classes are instantiated via reflective calls, such as `loadClass()`. It's necessary
+to let `native-image` know at compile time that these classes are in use so that they aren't
+compiled out. `META-INF/native-image/reflection-config.json` instructs NativeImage that certain classes (such as Jackson POJOs) are
+built via reflection.
 
 
 ### Code structure
