@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- http://spotbugs.readthedocs.io/en/latest/filter.html -->
+<FindBugsFilter>
+
+    <Match>
+        <!-- spotbugs thinks email/spendEnabled are "Unwritten public or
+         protected field". They are written when JacksonMapper reads from JSON
+         file. -->
+        <Bug pattern="UWF_UNWRITTEN_FIELD" />
+        <Class name="harness.TestUser" />
+    </Match>
+
+</FindBugsFilter>
