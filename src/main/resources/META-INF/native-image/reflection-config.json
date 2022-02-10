@@ -1,14 +1,5 @@
 [
   {
-    "name" : "bio.terra.cli.serialization.persisted.PDServer$Builder",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
-  },
-  {
     "name": "ch.qos.logback.classic.pattern.DateConverter",
     "allDeclaredConstructors": true
   },
@@ -167,5 +158,114 @@
   {
     "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
     "allDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDBqDataset$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDBqTable$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcpNotebook$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcsBucket$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcsObject$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGitRepo$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDConfig$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDContext$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDResource$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDServer$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDUser$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+
+  {
+    "name" : "bio.terra.cli.serialization.persisted.PDWorkspace$Builder",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
   }
 ]
