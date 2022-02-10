@@ -6,7 +6,6 @@ import bio.terra.cli.app.LocalProcessCommandRunner;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.Format.FormatOptions;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDConfig;
 import bio.terra.cli.utils.Logger;
 import org.slf4j.LoggerFactory;
