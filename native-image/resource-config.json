@@ -2,7 +2,7 @@
   "resources": {
     "includes": [
       {
-        "pattern": "servers/broad-dev-cli-testing.json$"
+        "pattern": "servers/.*\\.json$"
       }
     ]
   }
