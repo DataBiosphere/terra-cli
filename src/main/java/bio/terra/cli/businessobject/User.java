@@ -1,6 +1,8 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
@@ -11,7 +13,6 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.auth.oauth2.UserCredentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -55,7 +56,7 @@ public class User {
   private String petSAEmail;
 
   // Google credentials for the user
-  private UserCredentials userCredentials;
+  private GoogleCredentials googleCredentials;
 
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
@@ -98,7 +99,7 @@ public class User {
     // load existing user credentials from disk
     try (InputStream inputStream =
         User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-      userCredentials =
+      googleCredentials =
           GoogleOauth.getExistingUserCredential(
               USER_SCOPES, inputStream, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
@@ -130,9 +131,14 @@ public class User {
     // populate the current user object or build a new one
     User user = currentUser.orElseGet(() -> new User());
 
-    // do the login flow if the current user is undefined or has expired credentials
-    if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
-      user.doOauthLoginFlow();
+    try {
+      user.checkForAppDefaultCredentials();
+    } catch (UserActionableException e) {
+      logger.debug("Failed to get app default credentials, do oauth login flow instead");
+      // do the login flow if the current user is undefined or has expired credentials
+      if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
+        user.doOauthLoginFlow();
+      }
     }
 
     // if this is a new login...
@@ -154,11 +160,15 @@ public class User {
     }
   }
 
+  private void checkForAppDefaultCredentials() {
+    googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
+  }
+
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
     deletePetSaCredentials();
-    GoogleOauth.revokeToken(userCredentials);
+    GoogleOauth.revokeToken(googleCredentials);
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -280,7 +290,7 @@ public class User {
       // log the user in and get their consent to the requested scopes
       boolean launchBrowserAutomatically =
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
-      userCredentials =
+      googleCredentials =
           GoogleOauth.doLoginAndConsent(
               USER_SCOPES,
               inputStream,
@@ -352,8 +362,8 @@ public class User {
     return petSAEmail;
   }
 
-  public UserCredentials getUserCredentials() {
-    return userCredentials;
+  public GoogleCredentials getGoogleCredentials() {
+    return googleCredentials;
   }
 
   public GoogleCredentials getPetSACredentials() {
@@ -362,7 +372,7 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    if (userCredentials == null) {
+    if (googleCredentials == null) {
       return true;
     }
 
@@ -376,7 +386,7 @@ public class User {
 
   /** Get the access token for the user credentials. */
   public AccessToken getUserAccessToken() {
-    return GoogleOauth.getAccessToken(userCredentials);
+    return GoogleOauth.getAccessToken(googleCredentials);
   }
 
   /** Get the access token for the pet SA credentials. */
