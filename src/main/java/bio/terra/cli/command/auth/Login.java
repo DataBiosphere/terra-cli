@@ -9,12 +9,14 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra auth login" command. */
 @Command(
     name = "login",
-    description = "Authorize the CLI to access Terra APIs and data with user credentials.")
+    description = "Authorize the CLI to access Terra APIs and data with user credentials.",
+    showDefaultValues = true)
 public class Login extends BaseCommand {
 
   @CommandLine.Option(
       names = "--use-app-default-credentials",
-      description = "Use application default credentials to log into terra CLI instead of browser.")
+      description = "Use application default credentials to log into terra CLI instead of browser.",
+      defaultValue = "false")
   private boolean useAppDefaultCreds;
 
   /** Login the user and print out a success message. */

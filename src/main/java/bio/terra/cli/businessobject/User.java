@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
@@ -55,9 +54,16 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user. This can be either the end-user google credentials or pet
-  // service account google credentials pulled from app-default-credentials.
+  // Google credentials for the user. This can be either 1) end-user google credentials from an
+  // oauth browser flow, or 2) end-user or pet sa google credentials pulled from the application
+  // default credentials.
   private GoogleCredentials googleCredentials;
+
+  /**
+   * User specified to use app-default-credentials when logging in. In the follow-on command, we
+   * check for ADC instead of user credentials that are stored on disk.
+   */
+  private boolean useApplicationDefaultCredentials;
 
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
@@ -100,9 +106,13 @@ public class User {
     // load existing user credentials from disk
     try (InputStream inputStream =
         User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-      googleCredentials =
-          GoogleOauth.getExistingUserCredential(
-              USER_SCOPES, inputStream, Context.getContextDir().toFile());
+      if (useApplicationDefaultCredentials) {
+        loadAppDefaultCredentials();
+      } else {
+        googleCredentials =
+            GoogleOauth.getExistingUserCredential(
+                USER_SCOPES, inputStream, Context.getContextDir().toFile());
+      }
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -143,15 +153,7 @@ public class User {
     User user = currentUser.orElseGet(() -> new User());
 
     if (useAdc) {
-      try {
-        user.loadAppDefaultCredentials();
-      } catch (UserActionableException e) {
-        logger.debug("Failed to get app default credentials, do oauth login flow instead");
-        // do the login flow if the current user is undefined or has expired credentials
-        if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
-          user.doOauthLoginFlow();
-        }
-      }
+      user.loadAppDefaultCredentials();
     } else {
       if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
         user.doOauthLoginFlow();
@@ -177,8 +179,13 @@ public class User {
     }
   }
 
+  /**
+   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and set to {@code
+   * googleCredentials}.
+   */
   private void loadAppDefaultCredentials() {
     if (googleCredentials == null) {
+      useApplicationDefaultCredentials = true;
       googleCredentials =
           AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
     }
@@ -394,7 +401,6 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    loadAppDefaultCredentials();
     if (googleCredentials == null) {
       return true;
     }
