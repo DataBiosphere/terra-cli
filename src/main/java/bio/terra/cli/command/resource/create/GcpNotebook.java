@@ -227,6 +227,9 @@ public class GcpNotebook extends BaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
+    if (metadata != null) {
+      metadata.putAll(defaultMetadata(Context.requireWorkspace().getId()));
+    }
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
