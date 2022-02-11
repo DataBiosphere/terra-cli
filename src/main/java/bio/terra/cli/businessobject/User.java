@@ -55,8 +55,11 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user
+  // Google credentials for the user. This can be either the end-user google credentials or pet
+  // service account google credentials pulled from app-default-credentials.
   private GoogleCredentials googleCredentials;
+
+  private boolean useAppDefaultCredentials;
 
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
@@ -121,21 +124,37 @@ public class User {
   }
 
   /**
-   * Load any existing credentials for this user. Prompt for login if they are expired or do not
-   * exist.
+   * Load any existing credneitals for the user. Prompt for login if they are expired or do not
+   * exist. Do not use application default credentials for logging in.
    */
   public static void login() {
+    login(false);
+  }
+
+  /**
+   * Load any existing credentials for this user. Prompt for login if they are expired or do not
+   * exist.
+   *
+   * @param useAdc whether to use application default credentials to log in.
+   */
+  public static void login(boolean useAdc) {
     Optional<User> currentUser = Context.getUser();
     currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
     User user = currentUser.orElseGet(() -> new User());
 
-    try {
-      user.checkForAppDefaultCredentials();
-    } catch (UserActionableException e) {
-      logger.debug("Failed to get app default credentials, do oauth login flow instead");
-      // do the login flow if the current user is undefined or has expired credentials
+    if (useAdc) {
+      try {
+        user.checkForAppDefaultCredentials();
+      } catch (UserActionableException e) {
+        logger.debug("Failed to get app default credentials, do oauth login flow instead");
+        // do the login flow if the current user is undefined or has expired credentials
+        if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
+          user.doOauthLoginFlow();
+        }
+      }
+    } else {
       if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
         user.doOauthLoginFlow();
       }
@@ -162,6 +181,7 @@ public class User {
 
   private void checkForAppDefaultCredentials() {
     if (googleCredentials == null) {
+      useAppDefaultCredentials = true;
       googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
     }
   }
