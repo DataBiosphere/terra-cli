@@ -349,7 +349,7 @@ nativeImage {
     arguments(
             "--verbose",
             '-H:ResourceConfigurationFiles=src/main/resources/META-INF/native-image/resource-config.json',
-            '-H:ReflectionConfigurationFiles=src/main/resources/META-INF/native-image/reflection-config.json',
+            '-H:ReflectionConfigurationFiles=src/main/resources/META-INF/native-image/reflect-config.json',
             '--no-fallback',
             '--allow-incomplete-classpath',
             '--report-unsupported-elements-at-runtime',

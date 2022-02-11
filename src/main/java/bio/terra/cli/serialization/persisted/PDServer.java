@@ -42,7 +42,6 @@ public class PDServer {
     this.dataRepoUri = builder.dataRepoUri;
   }
 
-  // Trying fix for https://github.com/quarkusio/quarkus/issues/3652
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String name;
