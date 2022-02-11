@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -187,12 +188,19 @@ public class Main implements Runnable {
         printPointerToLogFile = false;
       } else {
         errorMessage =
-            "An unexpected error occurred in "
+            "An unexpected error occurred: "
                 + ex.getClass().getCanonicalName()
                 + ": "
-                + ex.getMessage();
+                + ex.getMessage()
+                + "\n";
         formattedErrorMessage =
-            systemAndUnexpectedErrorStyle.errorText("[ERROR] ").concat(errorMessage);
+            systemAndUnexpectedErrorStyle
+                .errorText("[ERROR] ")
+                .concat(errorMessage)
+                .concat(
+                    Arrays.stream(ex.getStackTrace())
+                        .map(e -> "        " + e.toString())
+                        .collect(Collectors.joining("\n")));
         exitCode = UNEXPECTED_EXIT_CODE;
         printPointerToLogFile = true;
       }
