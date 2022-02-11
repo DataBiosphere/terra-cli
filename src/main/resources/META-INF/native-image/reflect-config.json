@@ -1,2510 +1,4859 @@
 [
-{
-  "name":"[B"
-},
-{
-  "name":"[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
-},
-{
-  "name":"[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
-},
-{
-  "name":"[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
-},
-{
-  "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
-},
-{
-  "name":"[Lcom.google.cloud.storage.Storage$BlobListOption;"
-},
-{
-  "name":"[Ljava.lang.Class;"
-},
-{
-  "name":"[Ljava.lang.Object;"
-},
-{
-  "name":"[Ljava.lang.String;"
-},
-{
-  "name":"[Lsun.security.pkcs.SignerInfo;"
-},
-{
-  "name":"apple.security.AppleProvider",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.businessobject.Config$BrowserLaunchOption",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.businessobject.Config$CommandRunnerOption",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.businessobject.Resource$Type",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.App",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Auth",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.Config",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Group",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Main",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Notebook",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Resolve",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.Resource",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.Server",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Spend",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Status",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.User",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.Version",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.Workspace",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.Execute",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.passthrough.Bq",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.passthrough.Gcloud",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.passthrough.Gsutil",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.app.passthrough.Nextflow",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.auth.Login",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.auth.Revoke",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.auth.Status",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.Get",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.Set",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.get.AppLaunch",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Browser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Format",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Image",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Logging",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.ResourceLimit",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Server",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.get.Workspace",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.set.AppLaunch",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.Browser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.Format",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.Image",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.set.Image$ImageIdArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.Logging",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.set.Logging$LogLevelArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.ResourceLimit",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.set.ResourceLimit$ResourceLimitArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.config.set.Server",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.config.set.Workspace",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.AddUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.Create",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.Delete",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.Describe",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.ListUsers",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.group.RemoveUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.notebook.Start",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.notebook.Stop",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.AddRef",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.CheckAccess",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.Create",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.Delete",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.Describe",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.Resolve",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.Update",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.addref.BqDataset",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.addref.BqTable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.addref.GcsBucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.addref.GcsObject",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.addref.GitRepo",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.create.BqDataset",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$AcceleratorConfig",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$BootDiskConfiguration",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$ContainerImage",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$DataDiskConfiguration",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$GpuDriverConfiguration",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$VmImage",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$VmImage$ImageConfig",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcpNotebook$VmOrContainerImage",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.resource.create.GcsBucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.update.BqDataset",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.update.BqTable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.update.GcsBucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.update.GcsObject",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.resource.update.GitRepo",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.server.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.server.Set",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.server.Status",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.BaseCommand",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.shared.options.BqDatasetLifetime",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.BqDatasetNewIds",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.BqDatasetsIds",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ConfirmationPrompt",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ControlledResourceCreation",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.DeletePrompt",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.Format",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.Format$FormatOptions",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GcsBucketLifecycle",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GcsBucketLifecycle$LifecycleArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GcsBucketName",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GcsBucketNewName",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GcsBucketStorageClass",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GroupMember",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.GroupName",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.NotebookInstance",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.NotebookInstance$ArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ResourceCreation",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ResourceDescription",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ResourceName",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.ResourceUpdate",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.SpendProfileUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.WorkspaceNameAndDescription",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.shared.options.WorkspaceOverride",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.spend.CreateProfile",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.spend.DeleteProfile",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.spend.Disable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.spend.Enable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.spend.ListUsers",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.user.Invite",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.command.user.Status",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.AddUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.BreakGlass",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Clone",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Create",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Delete",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Describe",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.ListUsers",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.RemoveUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Set",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Update",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.cli.command.workspace.Update$UpdateArgGroup",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDConfig",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDConfig$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"browserLaunchOption","parameterTypes":["bio.terra.cli.businessobject.Config$BrowserLaunchOption"] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"commandRunnerOption","parameterTypes":["bio.terra.cli.businessobject.Config$CommandRunnerOption"] }, 
-    {"name":"consoleLoggingLevel","parameterTypes":["bio.terra.cli.utils.Logger$LogLevel"] }, 
-    {"name":"dockerImageId","parameterTypes":["java.lang.String"] }, 
-    {"name":"fileLoggingLevel","parameterTypes":["bio.terra.cli.utils.Logger$LogLevel"] }, 
-    {"name":"format","parameterTypes":["bio.terra.cli.command.shared.options.Format$FormatOptions"] }, 
-    {"name":"resourcesCacheSize","parameterTypes":["int"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDContext",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDContext$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"config","parameterTypes":["bio.terra.cli.serialization.persisted.PDConfig"] }, 
-    {"name":"server","parameterTypes":["bio.terra.cli.serialization.persisted.PDServer"] }, 
-    {"name":"user","parameterTypes":["bio.terra.cli.serialization.persisted.PDUser"] }, 
-    {"name":"workspace","parameterTypes":["bio.terra.cli.serialization.persisted.PDWorkspace"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDResource",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDResource$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"accessScope","parameterTypes":["bio.terra.workspace.model.AccessScope"] }, 
-    {"name":"cloningInstructions","parameterTypes":["bio.terra.workspace.model.CloningInstructionsEnum"] }, 
-    {"name":"description","parameterTypes":["java.lang.String"] }, 
-    {"name":"id","parameterTypes":["java.util.UUID"] }, 
-    {"name":"managedBy","parameterTypes":["bio.terra.workspace.model.ManagedBy"] }, 
-    {"name":"name","parameterTypes":["java.lang.String"] }, 
-    {"name":"privateUserName","parameterTypes":["java.lang.String"] }, 
-    {"name":"privateUserRoles","parameterTypes":["java.util.List"] }, 
-    {"name":"resourceType","parameterTypes":["bio.terra.cli.businessobject.Resource$Type"] }, 
-    {"name":"stewardshipType","parameterTypes":["bio.terra.workspace.model.StewardshipType"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDServer",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDServer$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"dataRepoUri","parameterTypes":["java.lang.String"] }, 
-    {"name":"description","parameterTypes":["java.lang.String"] }, 
-    {"name":"name","parameterTypes":["java.lang.String"] }, 
-    {"name":"samInviteRequiresAdmin","parameterTypes":["boolean"] }, 
-    {"name":"samUri","parameterTypes":["java.lang.String"] }, 
-    {"name":"workspaceManagerUri","parameterTypes":["java.lang.String"] }, 
-    {"name":"wsmDefaultSpendProfile","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDUser$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"email","parameterTypes":["java.lang.String"] }, 
-    {"name":"id","parameterTypes":["java.lang.String"] }, 
-    {"name":"petSAEmail","parameterTypes":["java.lang.String"] }, 
-    {"name":"proxyGroupEmail","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDWorkspace",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.PDWorkspace$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"description","parameterTypes":["java.lang.String"] }, 
-    {"name":"googleProjectId","parameterTypes":["java.lang.String"] }, 
-    {"name":"id","parameterTypes":["java.util.UUID"] }, 
-    {"name":"isLoaded","parameterTypes":["boolean"] }, 
-    {"name":"name","parameterTypes":["java.lang.String"] }, 
-    {"name":"resources","parameterTypes":["java.util.List"] }, 
-    {"name":"serverName","parameterTypes":["java.lang.String"] }, 
-    {"name":"userEmail","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDBqDataset",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDBqDataset$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"datasetId","parameterTypes":["java.lang.String"] }, 
-    {"name":"projectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDGcpNotebook",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDGcpNotebook$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"build","parameterTypes":[] }, 
-    {"name":"instanceId","parameterTypes":["java.lang.String"] }, 
-    {"name":"location","parameterTypes":["java.lang.String"] }, 
-    {"name":"projectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDGcsBucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.cli.serialization.persisted.resource.PDGcsBucket$Builder",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"bucketName","parameterTypes":["java.lang.String"] }, 
-    {"name":"build","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.cli.utils.Logger$LogLevel",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.workspace.model.AccessScope",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"fromValue","parameterTypes":["java.lang.String"] }, 
-    {"name":"getValue","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.AzureContext",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.AzureDiskAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.AzureIpAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.AzureNetworkAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.AzureStorageAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.AzureVmAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.CloningInstructionsEnum",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"fromValue","parameterTypes":["java.lang.String"] }, 
-    {"name":"getValue","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.CloudPlatform",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"fromValue","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"bio.terra.workspace.model.ControlledResourceCommonFields",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getAccessScope","parameterTypes":[] }, 
-    {"name":"getCloningInstructions","parameterTypes":[] }, 
-    {"name":"getDescription","parameterTypes":[] }, 
-    {"name":"getManagedBy","parameterTypes":[] }, 
-    {"name":"getName","parameterTypes":[] }, 
-    {"name":"getPrivateResourceUser","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.ControlledResourceIamRole",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.workspace.model.ControlledResourceMetadata",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAccessScope","parameterTypes":["bio.terra.workspace.model.AccessScope"] }, 
-    {"name":"setManagedBy","parameterTypes":["bio.terra.workspace.model.ManagedBy"] }, 
-    {"name":"setPrivateResourceState","parameterTypes":["bio.terra.workspace.model.PrivateResourceState"] }, 
-    {"name":"setPrivateResourceUser","parameterTypes":["bio.terra.workspace.model.PrivateResourceUser"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getCommon","parameterTypes":[] }, 
-    {"name":"getGcsBucket","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.CreatedControlledGcpGcsBucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setGcpBucket","parameterTypes":["bio.terra.workspace.model.GcpGcsBucketResource"] }, 
-    {"name":"setResourceId","parameterTypes":["java.util.UUID"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.DataRepoSnapshotAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.GcpAiNotebookInstanceAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setInstanceId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLocation","parameterTypes":["java.lang.String"] }, 
-    {"name":"setProjectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpBigQueryDataTableAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.GcpBigQueryDatasetAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setDatasetId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setProjectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpContext",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setProjectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setBucketName","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketCreationParameters",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getDefaultStorageClass","parameterTypes":[] }, 
-    {"name":"getLifecycle","parameterTypes":[] }, 
-    {"name":"getLocation","parameterTypes":[] }, 
-    {"name":"getName","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketLifecycle",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"getRules","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setBucketName","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsBucketResource",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAttributes","parameterTypes":["bio.terra.workspace.model.GcpGcsBucketAttributes"] }, 
-    {"name":"setMetadata","parameterTypes":["bio.terra.workspace.model.ResourceMetadata"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpGcsObjectAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.GitRepoAttributes",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.ManagedBy",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"fromValue","parameterTypes":["java.lang.String"] }, 
-    {"name":"getValue","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.PrivateResourceIamRoles",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.PrivateResourceState",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"fromValue","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"bio.terra.workspace.model.PrivateResourceUser",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setUserName","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.Properties",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.workspace.model.Property",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"bio.terra.workspace.model.ResourceAttributesUnion",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setGcpAiNotebookInstance","parameterTypes":["bio.terra.workspace.model.GcpAiNotebookInstanceAttributes"] }, 
-    {"name":"setGcpBqDataset","parameterTypes":["bio.terra.workspace.model.GcpBigQueryDatasetAttributes"] }, 
-    {"name":"setGcpGcsBucket","parameterTypes":["bio.terra.workspace.model.GcpGcsBucketAttributes"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.ResourceDescription",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setMetadata","parameterTypes":["bio.terra.workspace.model.ResourceMetadata"] }, 
-    {"name":"setResourceAttributes","parameterTypes":["bio.terra.workspace.model.ResourceAttributesUnion"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.ResourceList",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setResources","parameterTypes":["java.util.List"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.ResourceMetadata",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setCloningInstructions","parameterTypes":["bio.terra.workspace.model.CloningInstructionsEnum"] }, 
-    {"name":"setCloudPlatform","parameterTypes":["bio.terra.workspace.model.CloudPlatform"] }, 
-    {"name":"setControlledResourceMetadata","parameterTypes":["bio.terra.workspace.model.ControlledResourceMetadata"] }, 
-    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
-    {"name":"setName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setResourceId","parameterTypes":["java.util.UUID"] }, 
-    {"name":"setResourceType","parameterTypes":["bio.terra.workspace.model.ResourceType"] }, 
-    {"name":"setStewardshipType","parameterTypes":["bio.terra.workspace.model.StewardshipType"] }, 
-    {"name":"setWorkspaceId","parameterTypes":["java.util.UUID"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.ResourceType",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"fromValue","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"bio.terra.workspace.model.StewardshipType",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"fromValue","parameterTypes":["java.lang.String"] }, 
-    {"name":"getValue","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.WorkspaceDescription",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
-    {"name":"setDisplayName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setGcpContext","parameterTypes":["bio.terra.workspace.model.GcpContext"] }, 
-    {"name":"setId","parameterTypes":["java.util.UUID"] }, 
-    {"name":"setProperties","parameterTypes":["bio.terra.workspace.model.Properties"] }, 
-    {"name":"setSpendProfile","parameterTypes":["java.lang.String"] }, 
-    {"name":"setStage","parameterTypes":["bio.terra.workspace.model.WorkspaceStageModel"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.WorkspaceDescriptionList",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setWorkspaces","parameterTypes":["java.util.List"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.WorkspaceStageModel",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"fromValue","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"ch.qos.logback.classic.encoder.PatternLayoutEncoder",
-  "queryAllPublicMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.DateConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.LevelConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.LineSeparatorConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.LoggerConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.MessageConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.classic.pattern.ThreadConverter",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.core.ConsoleAppender",
-  "queryAllPublicMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"ch.qos.logback.core.OutputStreamAppender",
-  "methods":[{"name":"setEncoder","parameterTypes":["ch.qos.logback.core.encoder.Encoder"] }]
-},
-{
-  "name":"ch.qos.logback.core.encoder.LayoutWrappingEncoder",
-  "methods":[{"name":"setParent","parameterTypes":["ch.qos.logback.core.Appender"] }]
-},
-{
-  "name":"ch.qos.logback.core.pattern.PatternLayoutEncoderBase",
-  "methods":[{"name":"setPattern","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7SupportImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.module.jaxb.deser.DataHandlerJsonDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.module.jaxb.ser.DataHandlerJsonSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.module.jaxb.deser.DataHandlerJsonDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.client.auth.oauth2.AuthorizationRequestUrl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.client.auth.oauth2.TokenRequest",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.client.auth.oauth2.TokenResponse",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"setAccessToken","parameterTypes":["java.lang.String"] }, 
-    {"name":"setExpiresInSeconds","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setRefreshToken","parameterTypes":["java.lang.String"] }, 
-    {"name":"setScope","parameterTypes":["java.lang.String"] }, 
-    {"name":"setTokenType","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.fasterxml.jackson.module.jaxb.ser.DataHandlerJsonSerializer",
-   "methods":[{"name":"<init>","parameterTypes":[] }]	
-},
-{
-  "name":"com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setInstalled","parameterTypes":["com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets$Details"] }
-  ]
-},
-{
-  "name":"com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets$Details",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAuthUri","parameterTypes":["java.lang.String"] }, 
-    {"name":"setClientId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setClientSecret","parameterTypes":["java.lang.String"] }, 
-    {"name":"setRedirectUris","parameterTypes":["java.util.List"] }, 
-    {"name":"setTokenUri","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setIdToken","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.client.googleapis.services.AbstractGoogleClientRequest",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.api.client.http.GenericUrl",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.api.client.http.HttpHeaders",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"setAccept","parameterTypes":["java.lang.String"] }, 
-    {"name":"setAcceptEncoding","parameterTypes":["java.lang.String"] }, 
-    {"name":"setAge","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setAuthenticate","parameterTypes":["java.lang.String"] }, 
-    {"name":"setAuthorization","parameterTypes":["java.util.List"] }, 
-    {"name":"setAuthorization","parameterTypes":["java.lang.String"] }, 
-    {"name":"setCacheControl","parameterTypes":["java.lang.String"] }, 
-    {"name":"setContentEncoding","parameterTypes":["java.lang.String"] }, 
-    {"name":"setContentLength","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setContentMD5","parameterTypes":["java.lang.String"] }, 
-    {"name":"setContentRange","parameterTypes":["java.lang.String"] }, 
-    {"name":"setContentType","parameterTypes":["java.lang.String"] }, 
-    {"name":"setCookie","parameterTypes":["java.lang.String"] }, 
-    {"name":"setDate","parameterTypes":["java.lang.String"] }, 
-    {"name":"setETag","parameterTypes":["java.lang.String"] }, 
-    {"name":"setExpires","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIfMatch","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIfModifiedSince","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIfNoneMatch","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIfRange","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIfUnmodifiedSince","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLastModified","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLocation","parameterTypes":["java.lang.String"] }, 
-    {"name":"setMimeVersion","parameterTypes":["java.lang.String"] }, 
-    {"name":"setRange","parameterTypes":["java.lang.String"] }, 
-    {"name":"setRetryAfter","parameterTypes":["java.lang.String"] }, 
-    {"name":"setUserAgent","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.client.json.GenericJson",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.api.client.util.GenericData",
-  "allDeclaredFields":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.google.api.services.storage.Storage$Buckets$Get",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.services.storage.Storage$Objects$List",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.services.storage.StorageRequest",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.services.storage.model.Bucket",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setEtag","parameterTypes":["java.lang.String"] }, 
-    {"name":"setIamConfiguration","parameterTypes":["com.google.api.services.storage.model.Bucket$IamConfiguration"] }, 
-    {"name":"setId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setKind","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLocation","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLocationType","parameterTypes":["java.lang.String"] }, 
-    {"name":"setMetageneration","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setProjectNumber","parameterTypes":["java.math.BigInteger"] }, 
-    {"name":"setSelfLink","parameterTypes":["java.lang.String"] }, 
-    {"name":"setStorageClass","parameterTypes":["java.lang.String"] }, 
-    {"name":"setTimeCreated","parameterTypes":["com.google.api.client.util.DateTime"] }, 
-    {"name":"setUpdated","parameterTypes":["com.google.api.client.util.DateTime"] }
-  ]
-},
-{
-  "name":"com.google.api.services.storage.model.Bucket$Cors",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.google.api.services.storage.model.Bucket$IamConfiguration",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setBucketPolicyOnly","parameterTypes":["com.google.api.services.storage.model.Bucket$IamConfiguration$BucketPolicyOnly"] }, 
-    {"name":"setPublicAccessPrevention","parameterTypes":["java.lang.String"] }, 
-    {"name":"setUniformBucketLevelAccess","parameterTypes":["com.google.api.services.storage.model.Bucket$IamConfiguration$UniformBucketLevelAccess"] }
-  ]
-},
-{
-  "name":"com.google.api.services.storage.model.Bucket$IamConfiguration$BucketPolicyOnly",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setEnabled","parameterTypes":["java.lang.Boolean"] }, 
-    {"name":"setLockedTime","parameterTypes":["com.google.api.client.util.DateTime"] }
-  ]
-},
-{
-  "name":"com.google.api.services.storage.model.Bucket$IamConfiguration$UniformBucketLevelAccess",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setEnabled","parameterTypes":["java.lang.Boolean"] }, 
-    {"name":"setLockedTime","parameterTypes":["com.google.api.client.util.DateTime"] }
-  ]
-},
-{
-  "name":"com.google.api.services.storage.model.Objects",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setKind","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.cloud.storage.Option",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.cloud.storage.Storage$BlobListOption",
-  "allDeclaredFields":true
-},
-{
-  "name":"com.google.cloud.storage.spi.v1.StorageRpc$Option",
-  "fields":[
-    {"name":"CUSTOMER_SUPPLIED_KEY"}, 
-    {"name":"DELIMITER"}, 
-    {"name":"DETECT_CONTENT_TYPE"}, 
-    {"name":"END_OFF_SET"}, 
-    {"name":"FIELDS"}, 
-    {"name":"IF_DISABLE_GZIP_CONTENT"}, 
-    {"name":"IF_GENERATION_MATCH"}, 
-    {"name":"IF_GENERATION_NOT_MATCH"}, 
-    {"name":"IF_METAGENERATION_MATCH"}, 
-    {"name":"IF_METAGENERATION_NOT_MATCH"}, 
-    {"name":"IF_SOURCE_GENERATION_MATCH"}, 
-    {"name":"IF_SOURCE_GENERATION_NOT_MATCH"}, 
-    {"name":"IF_SOURCE_METAGENERATION_MATCH"}, 
-    {"name":"IF_SOURCE_METAGENERATION_NOT_MATCH"}, 
-    {"name":"KMS_KEY_NAME"}, 
-    {"name":"MAX_RESULTS"}, 
-    {"name":"PAGE_TOKEN"}, 
-    {"name":"PREDEFINED_ACL"}, 
-    {"name":"PREDEFINED_DEFAULT_OBJECT_ACL"}, 
-    {"name":"PREFIX"}, 
-    {"name":"PROJECTION"}, 
-    {"name":"PROJECT_ID"}, 
-    {"name":"REQUESTED_POLICY_VERSION"}, 
-    {"name":"RETURN_RAW_INPUT_STREAM"}, 
-    {"name":"SERVICE_ACCOUNT_EMAIL"}, 
-    {"name":"SHOW_DELETED_KEYS"}, 
-    {"name":"START_OFF_SET"}, 
-    {"name":"USER_PROJECT"}, 
-    {"name":"VERSIONS"}
-  ]
-},
-{
-  "name":"com.google.common.util.concurrent.AbstractFuture",
-  "fields":[
-    {"name":"listeners"}, 
-    {"name":"value"}, 
-    {"name":"waiters"}
-  ]
-},
-{
-  "name":"com.google.common.util.concurrent.AbstractFuture$Waiter",
-  "fields":[
-    {"name":"next"}, 
-    {"name":"thread"}
-  ]
-},
-{
-  "name":"com.lmax.disruptor.Value",
-  "fields":[{"name":"value"}]
-},
-{
-  "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.HmacCore$HmacSHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.HmacPKCS12PBECore$HmacPKCS12PBE_SHA1",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.PBEKeyFactory$PBEWithMD5AndDES",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.PBEParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndRC2_40",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.opencensus.impl.metrics.MetricsComponentImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.opencensus.impl.stats.StatsComponentImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.opencensus.impl.tags.TagsComponentImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.opencensus.impl.trace.TraceComponentImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"java.awt.image.RenderedImage"
-},
-{
-  "name":"java.io.File",
-  "methods":[{"name":"toPath","parameterTypes":[] }]
-},
-{
-  "name":"java.io.FilePermission"
-},
-{
-  "name":"java.io.Serializable",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Cloneable",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Comparable",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Iterable",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Number",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Object",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.RuntimePermission"
-},
-{
-  "name":"java.lang.String"
-},
-{
-  "name":"java.lang.Throwable",
-  "queriedMethods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
-},
-{
-  "name":"java.lang.reflect.AccessibleObject",
-  "fields":[{"name":"override"}]
-},
-{
-  "name":"java.net.NetPermission"
-},
-{
-  "name":"java.net.SocketPermission"
-},
-{
-  "name":"java.net.URLPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
-},
-{
-  "name":"java.nio.file.Files",
-  "methods":[{"name":"isSymbolicLink","parameterTypes":["java.nio.file.Path"] }]
-},
-{
-  "name":"java.nio.file.Path"
-},
-{
-  "name":"java.nio.file.Paths",
-  "queriedMethods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
-},
-{
-  "name":"java.security.AlgorithmParametersSpi"
-},
-{
-  "name":"java.security.AllPermission"
-},
-{
-  "name":"java.security.KeyStoreSpi"
-},
-{
-  "name":"java.security.MessageDigestSpi"
-},
-{
-  "name":"java.security.SecureRandomParameters"
-},
-{
-  "name":"java.security.SecurityPermission"
-},
-{
-  "name":"java.security.cert.CertStoreParameters"
-},
-{
-  "name":"java.security.interfaces.ECPrivateKey"
-},
-{
-  "name":"java.security.interfaces.ECPublicKey"
-},
-{
-  "name":"java.security.interfaces.RSAPrivateKey"
-},
-{
-  "name":"java.security.interfaces.RSAPublicKey"
-},
-{
-  "name":"java.sql.Connection"
-},
-{
-  "name":"java.sql.Driver"
-},
-{
-  "name":"java.sql.DriverManager",
-  "queriedMethods":[
-    {"name":"getConnection","parameterTypes":["java.lang.String"] }, 
-    {"name":"getDriver","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"java.sql.Time",
-  "queriedMethods":[{"name":"<init>","parameterTypes":["long"] }]
-},
-{
-  "name":"java.sql.Timestamp",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.Duration",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Instant",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalDate",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.MonthDay",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.OffsetDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.OffsetTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Period",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Year",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.YearMonth",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.ZoneId",
-  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.ZoneOffset",
-  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.ZonedDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.util.AbstractCollection",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.AbstractList",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.AbstractMap",
-  "allDeclaredFields":true
-},
-{
-  "name":"java.util.ArrayList",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.Collection",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.Date"
-},
-{
-  "name":"java.util.List",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.Locale",
-  "queriedMethods":[{"name":"getUnicodeLocaleType","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.util.PropertyPermission"
-},
-{
-  "name":"java.util.RandomAccess",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.util.UUID",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"javax.inject.Named",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"value","parameterTypes":[] }]
-},
-{
-  "name":"javax.inject.Singleton",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"javax.management.ObjectName"
-},
-{
-  "name":"javax.naming.InitialContext",
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"lookup","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"javax.net.ssl.SSLParameters",
-  "methods":[{"name":"setApplicationProtocols","parameterTypes":["java.lang.String[]"] }]
-},
-{
-  "name":"javax.net.ssl.SSLSocket",
-  "methods":[{"name":"getApplicationProtocol","parameterTypes":[] }]
-},
-{
-  "name":"javax.security.auth.x500.X500Principal",
-  "fields":[{"name":"thisX500Name"}],
-  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
-},
-{
-  "name":"org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo",
-  "allDeclaredFields":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"javax.xml.transform.Source"
-},
-{
-  "name":"javax.xml.transform.dom.DOMSource"
-},
-{
-  "name":"javax.xml.transform.sax.SAXSource"
-},
-{
-  "name":"javax.xml.transform.stream.StreamSource"
-},
-{
-  "name":"org.glassfish.hk2.internal.PerThreadContext",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"org.glassfish.jersey.client.ChunkedInputReader",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.client.ClientAsyncExecutor",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.client.ClientBackgroundScheduler",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.client.DefaultClientAsyncExecutorProvider",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.client.DefaultClientBackgroundSchedulerProvider",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.client.JerseyClientBuilder",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.ContextInjectionResolverImpl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.lwawt.macosx.LWCToolkit",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.Hk2InjectionManagerFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.Hk2RequestScope",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.InstanceSupplierFactoryBridge",
-  "queriedMethods":[{"name":"provide","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.JerseyErrorService",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.inject.hk2.RequestContext",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["org.glassfish.jersey.process.internal.RequestScope"] }]
-},
-{
-  "name":"org.glassfish.jersey.internal.JaxrsProviders",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.internal.RuntimeDelegateImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.internal.config.ExternalPropertiesAutoDiscoverable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.internal.config.ExternalPropertiesConfigurationFeature",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.internal.inject.Custom",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.jackson.JacksonFeature",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.jackson.internal.DefaultJacksonJaxbJsonProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.jackson.internal.JacksonAutoDiscoverable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.jackson.internal.jackson.jaxrs.base.ProviderBase",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.logging.LoggingFeatureAutoDiscoverable",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.media.multipart.MultiPartFeature",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.media.multipart.internal.MultiPartReaderClientSide",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["javax.ws.rs.ext.Providers"] }]
-},
-{
-  "name":"org.glassfish.jersey.media.multipart.internal.MultiPartWriter",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["javax.ws.rs.ext.Providers"] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.AbstractFormProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.message.internal.AbstractMessageReaderWriterProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.message.internal.BasicTypesMessageProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.ByteArrayProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.DataSourceProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.FileProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.FormMultivaluedMapProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.FormProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.InputStreamProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.ReaderProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.RenderedImageProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.SourceProvider$DomSourceReader",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["javax.inject.Provider"] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.SourceProvider$SaxSourceReader",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["javax.inject.Provider"] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.SourceProvider$SourceWriter",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["javax.inject.Provider","javax.inject.Provider"] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.SourceProvider$StreamSourceReader",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.StreamingOutputProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.message.internal.StringMessageProvider",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.process.internal.RequestScope",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.spi.AbstractThreadPoolProvider",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.glassfish.jersey.spi.ScheduledThreadPoolExecutorProvider",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"preDestroy","parameterTypes":[] }]
-},
-{
-  "name":"org.glassfish.jersey.spi.ThreadPoolExecutorProvider",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"preDestroy","parameterTypes":[] }]
-},
-{
-  "name":"org.jvnet.hk2.internal.DynamicConfigurationServiceImpl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["org.glassfish.hk2.api.ServiceLocator"] }]
-},
-{
-  "name":"org.jvnet.hk2.internal.ServiceLocatorRuntimeImpl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["org.glassfish.hk2.api.ServiceLocator"] }]
-},
-{
-  "name":"sun.misc.Unsafe",
-  "allDeclaredFields":true,
-  "methods":[
-    {"name":"objectFieldOffset","parameterTypes":["java.lang.reflect.Field"] }, 
-    {"name":"putBoolean","parameterTypes":["java.lang.Object","long","boolean"] }
-  ],
-  "queriedMethods":[{"name":"allocateInstance","parameterTypes":["java.lang.Class"] }]
-},
-{
-  "name":"sun.security.pkcs12.PKCS12KeyStore",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA224withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA256withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.JavaKeyStore$JKS",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.NativePRNG",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.X509Factory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.certpath.CollectionCertStore",
-  "methods":[{"name":"<init>","parameterTypes":["java.security.cert.CertStoreParameters"] }]
-},
-{
-  "name":"sun.security.provider.certpath.PKIXCertPathValidator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.certpath.SunCertPathBuilder",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.PSSParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSAKeyFactory$Legacy",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.KeyManagerFactoryImpl$SunX509",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.SSLContextImpl$DefaultSSLContext",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.SSLContextImpl$TLSContext",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.util.ObjectIdentifier"
-},
-{
-  "name":"sun.security.x509.AuthorityInfoAccessExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.BasicConstraintsExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.CRLDistributionPointsExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.CertificateExtensions"
-},
-{
-  "name":"sun.security.x509.CertificatePoliciesExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.ExtendedKeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.IssuerAlternativeNameExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.KeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.NetscapeCertTypeExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.PrivateKeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.SubjectAlternativeNameExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.SubjectKeyIdentifierExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-}
+  {
+    "name": "[B"
+  },
+  {
+    "name": "[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
+  },
+  {
+    "name": "[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
+  },
+  {
+    "name": "[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
+  },
+  {
+    "name": "[Lcom.fasterxml.jackson.databind.ser.Serializers;"
+  },
+  {
+    "name": "[Lcom.google.cloud.storage.Storage$BlobListOption;"
+  },
+  {
+    "name": "[Ljava.lang.Class;"
+  },
+  {
+    "name": "[Ljava.lang.Object;"
+  },
+  {
+    "name": "[Ljava.lang.String;"
+  },
+  {
+    "name": "[Lsun.security.pkcs.SignerInfo;"
+  },
+  {
+    "name": "apple.security.AppleProvider",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.businessobject.Config$BrowserLaunchOption",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.businessobject.Config$CommandRunnerOption",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.businessobject.Resource$Type",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.App",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Auth",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.Config",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Group",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Main",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Notebook",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Resolve",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.Resource",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.Server",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Spend",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Status",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.User",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.Version",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.Workspace",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.Execute",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.passthrough.Bq",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.passthrough.Gcloud",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.passthrough.Gsutil",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.app.passthrough.Nextflow",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.auth.Login",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.auth.Revoke",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.auth.Status",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.Get",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.Set",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.AppLaunch",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Browser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Format",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Image",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Logging",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.ResourceLimit",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Server",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.get.Workspace",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.AppLaunch",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Browser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Format",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Image",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Image$ImageIdArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Logging",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Logging$LogLevelArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.ResourceLimit",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.ResourceLimit$ResourceLimitArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Server",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.config.set.Workspace",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.AddUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.Create",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.Delete",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.Describe",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.ListUsers",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.group.RemoveUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.notebook.Start",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.notebook.Stop",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.AddRef",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.CheckAccess",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.Create",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.Delete",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.Describe",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.Resolve",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.Update",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.addref.BqDataset",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.addref.BqTable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.addref.GcsBucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.addref.GcsObject",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.addref.GitRepo",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.BqDataset",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$AcceleratorConfig",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$BootDiskConfiguration",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$ContainerImage",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$DataDiskConfiguration",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$GpuDriverConfiguration",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$VmImage",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$VmImage$ImageConfig",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcpNotebook$VmOrContainerImage",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.resource.create.GcsBucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.update.BqDataset",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.update.BqTable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.update.GcsBucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.update.GcsObject",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.resource.update.GitRepo",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.server.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.server.Set",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.server.Status",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.BaseCommand",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.BqDatasetLifetime",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.BqDatasetNewIds",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.BqDatasetsIds",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ConfirmationPrompt",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ControlledResourceCreation",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.DeletePrompt",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.Format",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.Format$FormatOptions",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GcsBucketLifecycle",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GcsBucketLifecycle$LifecycleArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GcsBucketName",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GcsBucketNewName",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GcsBucketStorageClass",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GroupMember",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.GroupName",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.NotebookInstance",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.NotebookInstance$ArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ResourceCreation",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ResourceDescription",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ResourceName",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.ResourceUpdate",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.SpendProfileUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.WorkspaceNameAndDescription",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.shared.options.WorkspaceOverride",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.spend.CreateProfile",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.spend.DeleteProfile",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.spend.Disable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.spend.Enable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.spend.ListUsers",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.user.Invite",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.command.user.Status",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.AddUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.BreakGlass",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Clone",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Create",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Delete",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Describe",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.ListUsers",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.RemoveUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Set",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Update",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.command.workspace.Update$UpdateArgGroup",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDConfig",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDConfig$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "browserLaunchOption",
+        "parameterTypes": [
+          "bio.terra.cli.businessobject.Config$BrowserLaunchOption"
+        ]
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "commandRunnerOption",
+        "parameterTypes": [
+          "bio.terra.cli.businessobject.Config$CommandRunnerOption"
+        ]
+      },
+      {
+        "name": "consoleLoggingLevel",
+        "parameterTypes": [
+          "bio.terra.cli.utils.Logger$LogLevel"
+        ]
+      },
+      {
+        "name": "dockerImageId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "fileLoggingLevel",
+        "parameterTypes": [
+          "bio.terra.cli.utils.Logger$LogLevel"
+        ]
+      },
+      {
+        "name": "format",
+        "parameterTypes": [
+          "bio.terra.cli.command.shared.options.Format$FormatOptions"
+        ]
+      },
+      {
+        "name": "resourcesCacheSize",
+        "parameterTypes": [
+          "int"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDContext",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDContext$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "config",
+        "parameterTypes": [
+          "bio.terra.cli.serialization.persisted.PDConfig"
+        ]
+      },
+      {
+        "name": "server",
+        "parameterTypes": [
+          "bio.terra.cli.serialization.persisted.PDServer"
+        ]
+      },
+      {
+        "name": "user",
+        "parameterTypes": [
+          "bio.terra.cli.serialization.persisted.PDUser"
+        ]
+      },
+      {
+        "name": "workspace",
+        "parameterTypes": [
+          "bio.terra.cli.serialization.persisted.PDWorkspace"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDResource",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDResource$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "accessScope",
+        "parameterTypes": [
+          "bio.terra.workspace.model.AccessScope"
+        ]
+      },
+      {
+        "name": "cloningInstructions",
+        "parameterTypes": [
+          "bio.terra.workspace.model.CloningInstructionsEnum"
+        ]
+      },
+      {
+        "name": "description",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "id",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      },
+      {
+        "name": "managedBy",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ManagedBy"
+        ]
+      },
+      {
+        "name": "name",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "privateUserName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "privateUserRoles",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      },
+      {
+        "name": "resourceType",
+        "parameterTypes": [
+          "bio.terra.cli.businessobject.Resource$Type"
+        ]
+      },
+      {
+        "name": "stewardshipType",
+        "parameterTypes": [
+          "bio.terra.workspace.model.StewardshipType"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDServer",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDServer$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "dataRepoUri",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "description",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "name",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "samInviteRequiresAdmin",
+        "parameterTypes": [
+          "boolean"
+        ]
+      },
+      {
+        "name": "samUri",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "workspaceManagerUri",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "wsmDefaultSpendProfile",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDUser$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "email",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "id",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "petSAEmail",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "proxyGroupEmail",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDWorkspace",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.PDWorkspace$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "description",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "googleProjectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "id",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      },
+      {
+        "name": "isLoaded",
+        "parameterTypes": [
+          "boolean"
+        ]
+      },
+      {
+        "name": "name",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "resources",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      },
+      {
+        "name": "serverName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "userEmail",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDBqDataset",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDBqDataset$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "datasetId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "projectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcpNotebook",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcpNotebook$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      },
+      {
+        "name": "instanceId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "location",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "projectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcsBucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.cli.serialization.persisted.resource.PDGcsBucket$Builder",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "bucketName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "build",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.cli.utils.Logger$LogLevel",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AccessScope",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "getValue",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureContext",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureDiskAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureIpAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureNetworkAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureStorageAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.AzureVmAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.CloningInstructionsEnum",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "getValue",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.CloudPlatform",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ControlledResourceCommonFields",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getAccessScope",
+        "parameterTypes": []
+      },
+      {
+        "name": "getCloningInstructions",
+        "parameterTypes": []
+      },
+      {
+        "name": "getDescription",
+        "parameterTypes": []
+      },
+      {
+        "name": "getManagedBy",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getPrivateResourceUser",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ControlledResourceIamRole",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.workspace.model.ControlledResourceMetadata",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setAccessScope",
+        "parameterTypes": [
+          "bio.terra.workspace.model.AccessScope"
+        ]
+      },
+      {
+        "name": "setManagedBy",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ManagedBy"
+        ]
+      },
+      {
+        "name": "setPrivateResourceState",
+        "parameterTypes": [
+          "bio.terra.workspace.model.PrivateResourceState"
+        ]
+      },
+      {
+        "name": "setPrivateResourceUser",
+        "parameterTypes": [
+          "bio.terra.workspace.model.PrivateResourceUser"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getCommon",
+        "parameterTypes": []
+      },
+      {
+        "name": "getGcsBucket",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.CreatedControlledGcpGcsBucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setGcpBucket",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpGcsBucketResource"
+        ]
+      },
+      {
+        "name": "setResourceId",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.DataRepoSnapshotAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpAiNotebookInstanceAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setInstanceId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setLocation",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setProjectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpBigQueryDataTableAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpBigQueryDatasetAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setDatasetId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setProjectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpContext",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setProjectId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setBucketName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketCreationParameters",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getDefaultStorageClass",
+        "parameterTypes": []
+      },
+      {
+        "name": "getLifecycle",
+        "parameterTypes": []
+      },
+      {
+        "name": "getLocation",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketLifecycle",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "getRules",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setBucketName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsBucketResource",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setAttributes",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpGcsBucketAttributes"
+        ]
+      },
+      {
+        "name": "setMetadata",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ResourceMetadata"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.GcpGcsObjectAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.GitRepoAttributes",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.ManagedBy",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "getValue",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.PrivateResourceIamRoles",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.PrivateResourceState",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.PrivateResourceUser",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setUserName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.Properties",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.Property",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "bio.terra.workspace.model.ResourceAttributesUnion",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setGcpAiNotebookInstance",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpAiNotebookInstanceAttributes"
+        ]
+      },
+      {
+        "name": "setGcpBqDataset",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpBigQueryDatasetAttributes"
+        ]
+      },
+      {
+        "name": "setGcpGcsBucket",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpGcsBucketAttributes"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ResourceDescription",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setMetadata",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ResourceMetadata"
+        ]
+      },
+      {
+        "name": "setResourceAttributes",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ResourceAttributesUnion"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ResourceList",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setResources",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ResourceMetadata",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setCloningInstructions",
+        "parameterTypes": [
+          "bio.terra.workspace.model.CloningInstructionsEnum"
+        ]
+      },
+      {
+        "name": "setCloudPlatform",
+        "parameterTypes": [
+          "bio.terra.workspace.model.CloudPlatform"
+        ]
+      },
+      {
+        "name": "setControlledResourceMetadata",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ControlledResourceMetadata"
+        ]
+      },
+      {
+        "name": "setDescription",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setResourceId",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      },
+      {
+        "name": "setResourceType",
+        "parameterTypes": [
+          "bio.terra.workspace.model.ResourceType"
+        ]
+      },
+      {
+        "name": "setStewardshipType",
+        "parameterTypes": [
+          "bio.terra.workspace.model.StewardshipType"
+        ]
+      },
+      {
+        "name": "setWorkspaceId",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.ResourceType",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.StewardshipType",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "getValue",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.WorkspaceDescription",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setDescription",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setDisplayName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setGcpContext",
+        "parameterTypes": [
+          "bio.terra.workspace.model.GcpContext"
+        ]
+      },
+      {
+        "name": "setId",
+        "parameterTypes": [
+          "java.util.UUID"
+        ]
+      },
+      {
+        "name": "setProperties",
+        "parameterTypes": [
+          "bio.terra.workspace.model.Properties"
+        ]
+      },
+      {
+        "name": "setSpendProfile",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setStage",
+        "parameterTypes": [
+          "bio.terra.workspace.model.WorkspaceStageModel"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.WorkspaceDescriptionList",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setWorkspaces",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bio.terra.workspace.model.WorkspaceStageModel",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "fromValue",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+    "queryAllPublicMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.DateConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LevelConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LoggerConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.MessageConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.ThreadConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.ConsoleAppender",
+    "queryAllPublicMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.OutputStreamAppender",
+    "methods": [
+      {
+        "name": "setEncoder",
+        "parameterTypes": [
+          "ch.qos.logback.core.encoder.Encoder"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.encoder.LayoutWrappingEncoder",
+    "methods": [
+      {
+        "name": "setParent",
+        "parameterTypes": [
+          "ch.qos.logback.core.Appender"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.pattern.PatternLayoutEncoderBase",
+    "methods": [
+      {
+        "name": "setPattern",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.module.jaxb.deser.DataHandlerJsonDeserializer",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.module.jaxb.ser.DataHandlerJsonSerializer",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.module.jaxb.deser.DataHandlerJsonDeserializer",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.client.auth.oauth2.AuthorizationRequestUrl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.client.auth.oauth2.TokenRequest",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.client.auth.oauth2.TokenResponse",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "setAccessToken",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setExpiresInSeconds",
+        "parameterTypes": [
+          "java.lang.Long"
+        ]
+      },
+      {
+        "name": "setRefreshToken",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setScope",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setTokenType",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.module.jaxb.ser.DataHandlerJsonSerializer",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setInstalled",
+        "parameterTypes": [
+          "com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets$Details"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets$Details",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setAuthUri",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setClientId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setClientSecret",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setRedirectUris",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      },
+      {
+        "name": "setTokenUri",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setIdToken",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.googleapis.services.AbstractGoogleClientRequest",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.api.client.http.GenericUrl",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.api.client.http.HttpHeaders",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "setAccept",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setAcceptEncoding",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setAge",
+        "parameterTypes": [
+          "java.lang.Long"
+        ]
+      },
+      {
+        "name": "setAuthenticate",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setAuthorization",
+        "parameterTypes": [
+          "java.util.List"
+        ]
+      },
+      {
+        "name": "setAuthorization",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setCacheControl",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setContentEncoding",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setContentLength",
+        "parameterTypes": [
+          "java.lang.Long"
+        ]
+      },
+      {
+        "name": "setContentMD5",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setContentRange",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setContentType",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setCookie",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setDate",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setETag",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setExpires",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIfMatch",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIfModifiedSince",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIfNoneMatch",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIfRange",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIfUnmodifiedSince",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setLastModified",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setLocation",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setMimeVersion",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setRange",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setRetryAfter",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setUserAgent",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.client.json.GenericJson",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.api.client.util.GenericData",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.Storage$Buckets$Get",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.services.storage.Storage$Objects$List",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.services.storage.StorageRequest",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "com.google.api.services.storage.model.Bucket",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setEtag",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setIamConfiguration",
+        "parameterTypes": [
+          "com.google.api.services.storage.model.Bucket$IamConfiguration"
+        ]
+      },
+      {
+        "name": "setId",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setKind",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setLocation",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setLocationType",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setMetageneration",
+        "parameterTypes": [
+          "java.lang.Long"
+        ]
+      },
+      {
+        "name": "setName",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setProjectNumber",
+        "parameterTypes": [
+          "java.math.BigInteger"
+        ]
+      },
+      {
+        "name": "setSelfLink",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setStorageClass",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setTimeCreated",
+        "parameterTypes": [
+          "com.google.api.client.util.DateTime"
+        ]
+      },
+      {
+        "name": "setUpdated",
+        "parameterTypes": [
+          "com.google.api.client.util.DateTime"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.model.Bucket$Cors",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.model.Bucket$IamConfiguration",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setBucketPolicyOnly",
+        "parameterTypes": [
+          "com.google.api.services.storage.model.Bucket$IamConfiguration$BucketPolicyOnly"
+        ]
+      },
+      {
+        "name": "setPublicAccessPrevention",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "setUniformBucketLevelAccess",
+        "parameterTypes": [
+          "com.google.api.services.storage.model.Bucket$IamConfiguration$UniformBucketLevelAccess"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.model.Bucket$IamConfiguration$BucketPolicyOnly",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setEnabled",
+        "parameterTypes": [
+          "java.lang.Boolean"
+        ]
+      },
+      {
+        "name": "setLockedTime",
+        "parameterTypes": [
+          "com.google.api.client.util.DateTime"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.model.Bucket$IamConfiguration$UniformBucketLevelAccess",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setEnabled",
+        "parameterTypes": [
+          "java.lang.Boolean"
+        ]
+      },
+      {
+        "name": "setLockedTime",
+        "parameterTypes": [
+          "com.google.api.client.util.DateTime"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.api.services.storage.model.Objects",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "setKind",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "com.google.cloud.storage.Option",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.cloud.storage.Storage$BlobListOption",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.google.cloud.storage.spi.v1.StorageRpc$Option",
+    "fields": [
+      {
+        "name": "CUSTOMER_SUPPLIED_KEY"
+      },
+      {
+        "name": "DELIMITER"
+      },
+      {
+        "name": "DETECT_CONTENT_TYPE"
+      },
+      {
+        "name": "END_OFF_SET"
+      },
+      {
+        "name": "FIELDS"
+      },
+      {
+        "name": "IF_DISABLE_GZIP_CONTENT"
+      },
+      {
+        "name": "IF_GENERATION_MATCH"
+      },
+      {
+        "name": "IF_GENERATION_NOT_MATCH"
+      },
+      {
+        "name": "IF_METAGENERATION_MATCH"
+      },
+      {
+        "name": "IF_METAGENERATION_NOT_MATCH"
+      },
+      {
+        "name": "IF_SOURCE_GENERATION_MATCH"
+      },
+      {
+        "name": "IF_SOURCE_GENERATION_NOT_MATCH"
+      },
+      {
+        "name": "IF_SOURCE_METAGENERATION_MATCH"
+      },
+      {
+        "name": "IF_SOURCE_METAGENERATION_NOT_MATCH"
+      },
+      {
+        "name": "KMS_KEY_NAME"
+      },
+      {
+        "name": "MAX_RESULTS"
+      },
+      {
+        "name": "PAGE_TOKEN"
+      },
+      {
+        "name": "PREDEFINED_ACL"
+      },
+      {
+        "name": "PREDEFINED_DEFAULT_OBJECT_ACL"
+      },
+      {
+        "name": "PREFIX"
+      },
+      {
+        "name": "PROJECTION"
+      },
+      {
+        "name": "PROJECT_ID"
+      },
+      {
+        "name": "REQUESTED_POLICY_VERSION"
+      },
+      {
+        "name": "RETURN_RAW_INPUT_STREAM"
+      },
+      {
+        "name": "SERVICE_ACCOUNT_EMAIL"
+      },
+      {
+        "name": "SHOW_DELETED_KEYS"
+      },
+      {
+        "name": "START_OFF_SET"
+      },
+      {
+        "name": "USER_PROJECT"
+      },
+      {
+        "name": "VERSIONS"
+      }
+    ]
+  },
+  {
+    "name": "com.google.common.util.concurrent.AbstractFuture",
+    "fields": [
+      {
+        "name": "listeners"
+      },
+      {
+        "name": "value"
+      },
+      {
+        "name": "waiters"
+      }
+    ]
+  },
+  {
+    "name": "com.google.common.util.concurrent.AbstractFuture$Waiter",
+    "fields": [
+      {
+        "name": "next"
+      },
+      {
+        "name": "thread"
+      }
+    ]
+  },
+  {
+    "name": "com.lmax.disruptor.Value",
+    "fields": [
+      {
+        "name": "value"
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.AESCipher$General",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.DHParameters",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.HmacCore$HmacSHA384",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.HmacPKCS12PBECore$HmacPKCS12PBE_SHA1",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.PBEKeyFactory$PBEWithMD5AndDES",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.PBEParameters",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndRC2_40",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.crypto.provider.TlsMasterSecretGenerator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.opencensus.impl.metrics.MetricsComponentImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.opencensus.impl.stats.StatsComponentImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.opencensus.impl.tags.TagsComponentImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.opencensus.impl.trace.TraceComponentImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.awt.image.RenderedImage"
+  },
+  {
+    "name": "java.io.File",
+    "methods": [
+      {
+        "name": "toPath",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.io.FilePermission"
+  },
+  {
+    "name": "java.io.Serializable",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.Cloneable",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.Comparable",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.Iterable",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.Number",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.Object",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.lang.RuntimePermission"
+  },
+  {
+    "name": "java.lang.String"
+  },
+  {
+    "name": "java.lang.Throwable",
+    "queriedMethods": [
+      {
+        "name": "addSuppressed",
+        "parameterTypes": [
+          "java.lang.Throwable"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.reflect.AccessibleObject",
+    "fields": [
+      {
+        "name": "override"
+      }
+    ]
+  },
+  {
+    "name": "java.net.NetPermission"
+  },
+  {
+    "name": "java.net.SocketPermission"
+  },
+  {
+    "name": "java.net.URLPermission",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String",
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.nio.file.Files",
+    "methods": [
+      {
+        "name": "isSymbolicLink",
+        "parameterTypes": [
+          "java.nio.file.Path"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.nio.file.Path"
+  },
+  {
+    "name": "java.nio.file.Paths",
+    "queriedMethods": [
+      {
+        "name": "get",
+        "parameterTypes": [
+          "java.lang.String",
+          "java.lang.String[]"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.security.AlgorithmParametersSpi"
+  },
+  {
+    "name": "java.security.AllPermission"
+  },
+  {
+    "name": "java.security.KeyStoreSpi"
+  },
+  {
+    "name": "java.security.MessageDigestSpi"
+  },
+  {
+    "name": "java.security.SecureRandomParameters"
+  },
+  {
+    "name": "java.security.SecurityPermission"
+  },
+  {
+    "name": "java.security.cert.CertStoreParameters"
+  },
+  {
+    "name": "java.security.interfaces.ECPrivateKey"
+  },
+  {
+    "name": "java.security.interfaces.ECPublicKey"
+  },
+  {
+    "name": "java.security.interfaces.RSAPrivateKey"
+  },
+  {
+    "name": "java.security.interfaces.RSAPublicKey"
+  },
+  {
+    "name": "java.sql.Connection"
+  },
+  {
+    "name": "java.sql.Driver"
+  },
+  {
+    "name": "java.sql.DriverManager",
+    "queriedMethods": [
+      {
+        "name": "getConnection",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "getDriver",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.sql.Time",
+    "queriedMethods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "long"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.sql.Timestamp",
+    "queriedMethods": [
+      {
+        "name": "valueOf",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.Duration",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.Instant",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.LocalDate",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.LocalDateTime",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.LocalTime",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.MonthDay",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.OffsetDateTime",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.OffsetTime",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.Period",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.Year",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.YearMonth",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.ZoneId",
+    "queriedMethods": [
+      {
+        "name": "of",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.ZoneOffset",
+    "queriedMethods": [
+      {
+        "name": "of",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.time.ZonedDateTime",
+    "queriedMethods": [
+      {
+        "name": "parse",
+        "parameterTypes": [
+          "java.lang.CharSequence"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.AbstractCollection",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.AbstractList",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.AbstractMap",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.util.ArrayList",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.Collection",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.Date"
+  },
+  {
+    "name": "java.util.List",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.Locale",
+    "queriedMethods": [
+      {
+        "name": "getUnicodeLocaleType",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.PropertyPermission"
+  },
+  {
+    "name": "java.util.RandomAccess",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "java.util.UUID",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "javax.inject.Named",
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "value",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "javax.inject.Singleton",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "javax.management.ObjectName"
+  },
+  {
+    "name": "javax.naming.InitialContext",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "lookup",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "javax.net.ssl.SSLParameters",
+    "methods": [
+      {
+        "name": "setApplicationProtocols",
+        "parameterTypes": [
+          "java.lang.String[]"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "javax.net.ssl.SSLSocket",
+    "methods": [
+      {
+        "name": "getApplicationProtocol",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "javax.security.auth.x500.X500Principal",
+    "fields": [
+      {
+        "name": "thisX500Name"
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "sun.security.x509.X500Name"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "javax.xml.transform.Source"
+  },
+  {
+    "name": "javax.xml.transform.dom.DOMSource"
+  },
+  {
+    "name": "javax.xml.transform.sax.SAXSource"
+  },
+  {
+    "name": "javax.xml.transform.stream.StreamSource"
+  },
+  {
+    "name": "org.glassfish.hk2.internal.PerThreadContext",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "org.glassfish.jersey.client.ChunkedInputReader",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.client.ClientAsyncExecutor",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.client.ClientBackgroundScheduler",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.client.DefaultClientAsyncExecutorProvider",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.client.DefaultClientBackgroundSchedulerProvider",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.client.JerseyClientBuilder",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.ContextInjectionResolverImpl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.lwawt.macosx.LWCToolkit",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.Hk2InjectionManagerFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.Hk2RequestScope",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.InstanceSupplierFactoryBridge",
+    "queriedMethods": [
+      {
+        "name": "provide",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.JerseyErrorService",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.inject.hk2.RequestContext",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.glassfish.jersey.process.internal.RequestScope"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.internal.JaxrsProviders",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.internal.RuntimeDelegateImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.internal.config.ExternalPropertiesAutoDiscoverable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.internal.config.ExternalPropertiesConfigurationFeature",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.internal.inject.Custom",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.JacksonFeature",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.internal.DefaultJacksonJaxbJsonProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.internal.JacksonAutoDiscoverable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.internal.jackson.jaxrs.base.ProviderBase",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.logging.LoggingFeatureAutoDiscoverable",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.media.multipart.MultiPartFeature",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.media.multipart.internal.MultiPartReaderClientSide",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "javax.ws.rs.ext.Providers"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.media.multipart.internal.MultiPartWriter",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "javax.ws.rs.ext.Providers"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.AbstractFormProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.AbstractMessageReaderWriterProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.BasicTypesMessageProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.ByteArrayProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.DataSourceProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.FileProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.FormMultivaluedMapProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.FormProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.InputStreamProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.ReaderProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.RenderedImageProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.SourceProvider$DomSourceReader",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "javax.inject.Provider"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.SourceProvider$SaxSourceReader",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "javax.inject.Provider"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.SourceProvider$SourceWriter",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "javax.inject.Provider",
+          "javax.inject.Provider"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.SourceProvider$StreamSourceReader",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.StreamingOutputProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.message.internal.StringMessageProvider",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.process.internal.RequestScope",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.spi.AbstractThreadPoolProvider",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "org.glassfish.jersey.spi.ScheduledThreadPoolExecutorProvider",
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "preDestroy",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.glassfish.jersey.spi.ThreadPoolExecutorProvider",
+    "queryAllDeclaredMethods": true,
+    "methods": [
+      {
+        "name": "preDestroy",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.jvnet.hk2.internal.DynamicConfigurationServiceImpl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.glassfish.hk2.api.ServiceLocator"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.jvnet.hk2.internal.ServiceLocatorRuntimeImpl",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.glassfish.hk2.api.ServiceLocator"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.misc.Unsafe",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "objectFieldOffset",
+        "parameterTypes": [
+          "java.lang.reflect.Field"
+        ]
+      },
+      {
+        "name": "putBoolean",
+        "parameterTypes": [
+          "java.lang.Object",
+          "long",
+          "boolean"
+        ]
+      }
+    ],
+    "queriedMethods": [
+      {
+        "name": "allocateInstance",
+        "parameterTypes": [
+          "java.lang.Class"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.pkcs12.PKCS12KeyStore",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.DSA$SHA224withDSA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.DSA$SHA256withDSA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.JavaKeyStore$DualFormatJKS",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.JavaKeyStore$JKS",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.NativePRNG",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA2$SHA224",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA2$SHA256",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA5$SHA384",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA5$SHA512",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.X509Factory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.certpath.CollectionCertStore",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.security.cert.CertStoreParameters"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.certpath.PKIXCertPathValidator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.certpath.SunCertPathBuilder",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.PSSParameters",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.RSAKeyFactory$Legacy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.RSAPSSSignature",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.RSASignature$SHA224withRSA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.RSASignature$SHA256withRSA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.rsa.RSASignature$SHA384withRSA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.ssl.KeyManagerFactoryImpl$SunX509",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.ssl.SSLContextImpl$DefaultSSLContext",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.ssl.SSLContextImpl$TLSContext",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.util.ObjectIdentifier"
+  },
+  {
+    "name": "sun.security.x509.AuthorityInfoAccessExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.AuthorityKeyIdentifierExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.BasicConstraintsExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.CRLDistributionPointsExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.CertificateExtensions"
+  },
+  {
+    "name": "sun.security.x509.CertificatePoliciesExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.ExtendedKeyUsageExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.IssuerAlternativeNameExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.KeyUsageExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.NetscapeCertTypeExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.PrivateKeyUsageExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.SubjectAlternativeNameExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.security.x509.SubjectKeyIdentifierExtension",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.Boolean",
+          "java.lang.Object"
+        ]
+      }
+    ]
+  }
 ]
