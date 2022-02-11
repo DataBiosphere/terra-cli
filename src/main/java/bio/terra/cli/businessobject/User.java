@@ -179,7 +179,7 @@ public class User {
 
   private void checkForAppDefaultCredentials() {
     if (googleCredentials == null) {
-      googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
+      googleCredentials = AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
     }
   }
 

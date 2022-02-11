@@ -72,7 +72,7 @@ public class AppDefaultCredentialUtils {
    * exception if they are not defined.
    */
   private static boolean doADCMatchContext() {
-    GoogleCredentials appDefaultCreds = getADC();
+    GoogleCredentials appDefaultCreds = getApplicationDefaultCredentials();
 
     if (appDefaultCreds instanceof UserCredentials) {
       logger.info("ADC are end-user credentials. Skipping account/email validation.");
@@ -91,7 +91,7 @@ public class AppDefaultCredentialUtils {
   }
 
   /** Get the application default credentials. Throw an exception if they are not defined. */
-  public static GoogleCredentials getADC() {
+  public static GoogleCredentials getApplicationDefaultCredentials() {
     try {
       return GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
