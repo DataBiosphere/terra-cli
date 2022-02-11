@@ -59,8 +59,6 @@ public class User {
   // service account google credentials pulled from app-default-credentials.
   private GoogleCredentials googleCredentials;
 
-  private boolean useAppDefaultCredentials;
-
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
@@ -181,7 +179,6 @@ public class User {
 
   private void checkForAppDefaultCredentials() {
     if (googleCredentials == null) {
-      useAppDefaultCredentials = true;
       googleCredentials = AppDefaultCredentialUtils.getADC().createScoped(PET_SA_SCOPES);
     }
   }
