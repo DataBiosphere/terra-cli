@@ -46,8 +46,8 @@ public class Context {
    * Server, User, Workspace).
    *
    * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
-   * the logging levels specified in the context, the loggers have not been setup when we
-   * first call this function.
+   * the logging levels specified in the context, the loggers have not been setup when we first call
+   * this function.
    */
   public static void initializeFromDisk() {
     try {
