@@ -6,7 +6,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.util.FileSize;
-import ch.qos.logback.core.util.StatusPrinter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +34,10 @@ public class Logger {
   public static void setupLogging(LogLevel consoleLoggingLevel, LogLevel fileLoggingLevel) {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     loggerContext.reset();
-    System.err.println(loggerContext); // debug
-    StatusPrinter.print(loggerContext);
-    // turn on logging for the logger for errors only
-    StatusPrinter.printIfErrorsOccured(loggerContext);
+    //    System.err.println(loggerContext); // debug
+    //    StatusPrinter.print(loggerContext);
+    //    // turn on logging for the logger for errors only
+    //    StatusPrinter.printIfErrorsOccured(loggerContext);
 
     // build the rolling file appender
     //    RollingFileAppender rollingFileAppender = new RollingFileAppender();
