@@ -93,6 +93,7 @@ public class User {
     this.email = configFromDisk.email;
     this.proxyGroupEmail = configFromDisk.proxyGroupEmail;
     this.petSAEmail = configFromDisk.petSAEmail;
+    this.useApplicationDefaultCredentials = configFromDisk.useApplicationDefaultCredentials;
   }
 
   /** Build an empty instance of this class. */
@@ -397,6 +398,10 @@ public class User {
 
   public GoogleCredentials getPetSACredentials() {
     return GoogleCredentials.create(getPetSaAccessToken());
+  }
+
+  public boolean isUseApplicationDefaultCredentials() {
+    return useApplicationDefaultCredentials;
   }
 
   /** Return true if the user credentials are expired or do not exist on disk. */
