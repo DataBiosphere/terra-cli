@@ -24,7 +24,7 @@ public class AppLaunch extends BaseCommand {
       String imageId = Context.getConfig().getDockerImageId();
       if (!new DockerClientWrapper().checkImageExists(Config.getDefaultImageId())) {
         OUT.printf(
-            "WARNING: Either the Docker daemon isn't running or image %s was not found on the local machine. "
+            "WARNING: Image %s was not found on the local machine. "
                 + "Do `docker pull %s` to obtain it.%n",
             imageId, imageId);
       }

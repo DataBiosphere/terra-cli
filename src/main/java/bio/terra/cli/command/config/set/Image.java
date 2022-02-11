@@ -30,7 +30,7 @@ public class Image extends BaseCommand {
     String newImageId = argGroup.useDefault ? Config.getDefaultImageId() : argGroup.imageId;
     if (!new DockerClientWrapper().checkImageExists(newImageId)) {
       OUT.printf(
-          "WARNING: Either the Docker daemon isn't running or image %s was not found on the local machine. "
+          "WARNING: Image %s was not found on the local machine. "
               + "Do `docker pull %s` to obtain it.%n",
           newImageId, newImageId);
     }

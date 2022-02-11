@@ -38,10 +38,13 @@
 -----
 
 ### Setup development environment
-From the top-level directory:
+The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it to
+   DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image
+   or DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
+Then, from the top-level directory, run:
 ```
 source tools/local-dev.sh
-terra
+build/install/terra-cli/bin/terra
 ```
 
 #### Logging
@@ -157,6 +160,9 @@ CLI installation on the same machine.
 
 - Run a single test by specifying the `--tests` option:
 `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
+
+#### Docker and Tests
+The tests require the Docker daemon to be running (install mode DOCKER_AVAILABLE).
 
 #### Override default server
 The tests run against the `broad-dev` server by default. You can run them against a different server
