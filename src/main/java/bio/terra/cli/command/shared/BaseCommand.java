@@ -3,7 +3,6 @@ package bio.terra.cli.command.shared;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.Main;
-import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
@@ -47,8 +46,9 @@ public abstract class BaseCommand implements Callable<Integer> {
 
     // read in the global context and setup logging
     Context.initializeFromDisk();
-    Logger.setupLogging(
-        Context.getConfig().getConsoleLoggingLevel(), Context.getConfig().getFileLoggingLevel());
+    //    Logger.setupLogging(
+    //        Context.getConfig().getConsoleLoggingLevel(),
+    // Context.getConfig().getFileLoggingLevel());
 
     if (requiresLogin()) {
       // load existing credentials, prompt for login if they don't exist or are expired

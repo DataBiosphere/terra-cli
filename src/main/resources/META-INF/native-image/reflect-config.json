@@ -4855,5 +4855,10 @@
         ]
       }
     ]
+  },
+  {
+    "name": "ch.qos.logback.classic.filter.ThresholdFilter",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true
   }
 ]

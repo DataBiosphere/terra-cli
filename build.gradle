@@ -348,13 +348,10 @@ nativeImage {
     executableName = 'terra'
     arguments(
             "--verbose",
-            '-H:ResourceConfigurationFiles=src/main/resources/META-INF/native-image/resource-config.json',
-            '-H:ReflectionConfigurationFiles=src/main/resources/META-INF/native-image/reflect-config.json',
             '--no-fallback',
             '--allow-incomplete-classpath',
             '--report-unsupported-elements-at-runtime',
-            '-Dgraal.LogFile=/Users/jaycarlton/scratch/graalvm.log'
+            '--enable-url-protocols=https',
+            '-Dgraal.LogFile=~/logs/graalvm.log'
     )
 }
-//            "-g",
-//             "-H:Log=registerResource:",
