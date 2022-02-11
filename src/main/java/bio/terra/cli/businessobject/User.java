@@ -122,7 +122,7 @@ public class User {
   }
 
   /**
-   * Load any existing credneitals for the user. Prompt for login if they are expired or do not
+   * Load any existing credentials for the user. Prompt for login if they are expired or do not
    * exist. Do not use application default credentials for logging in.
    */
   public static void login() {
@@ -144,7 +144,7 @@ public class User {
 
     if (useAdc) {
       try {
-        user.checkForAppDefaultCredentials();
+        user.loadAppDefaultCredentials();
       } catch (UserActionableException e) {
         logger.debug("Failed to get app default credentials, do oauth login flow instead");
         // do the login flow if the current user is undefined or has expired credentials
@@ -177,7 +177,7 @@ public class User {
     }
   }
 
-  private void checkForAppDefaultCredentials() {
+  private void loadAppDefaultCredentials() {
     if (googleCredentials == null) {
       googleCredentials =
           AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
@@ -394,7 +394,7 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    checkForAppDefaultCredentials();
+    loadAppDefaultCredentials();
     if (googleCredentials == null) {
       return true;
     }
