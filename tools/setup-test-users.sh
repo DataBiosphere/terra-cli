@@ -18,6 +18,8 @@ set -e
 ## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org
 #     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
 
+# TODO(PF-1339): Rename to setup-broad-test-users.sh, add testconfig flag, and get test users from testconfig.
+
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
   echo "Script must be run from top-level directory 'terra-cli/'"

@@ -3,9 +3,7 @@
 <FindBugsFilter>
 
     <Match>
-        <!-- spotbugs thinks email/spendEnabled are "Unwritten public or
-         protected field". They are written when JacksonMapper reads from JSON
-         file. -->
+        <!-- This POJO class is used for easy serialization to JSON using Jackson. -->
         <Bug pattern="UWF_UNWRITTEN_FIELD" />
         <Class name="harness.TestUser" />
     </Match>
