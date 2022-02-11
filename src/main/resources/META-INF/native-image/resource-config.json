@@ -4,22 +4,45 @@
       {
         "pattern": ".*\\.json$"
       },
+          {
+      "pattern":"\\Qclient_secret.json\\E"
+    }, 
       {
         "pattern": "servers/.*\\.json$"
       },
       {
-        "pattern":"\\Qlogback.xml\\E"
+        "pattern": "\\QMETA-INF/services/com.fasterxml.jackson.databind.Module\\E"
       },
       {
-        "pattern":"\\Qmozilla/public-suffix-list.txt\\E"
+        "pattern": "\\Qcom/google/api/client/googleapis/google-api-client.properties\\E"
       },
       {
-        "pattern":"\\Qorg/apache/hc/client5/version.properties\\E"
+        "pattern": "\\Qcom/google/api/client/googleapis/google.p12\\E"
+      },
+    {
+      "pattern":"\\Qcom/google/api/client/http/google-http-client.properties\\E"
+    }, 
+      {
+        "pattern": "\\Qlogback.xml\\E"
       },
       {
-        "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+        "pattern": "\\Qmozilla/public-suffix-list.txt\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/hc/client5/version.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
       }
-    ]
-  },
-  "bundles":[]
+  ]},
+  "bundles":[
+    {
+      "name":"sun.awt.resources.awt",
+      "classNames":["sun.awt.resources.awt"]
+    }, 
+    {
+      "name":"sun.awt.resources.awtosx",
+      "classNames":["sun.awt.resources.awtosx"]
+    }
+  ]
 }

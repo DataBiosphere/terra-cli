@@ -1,2 +1,35 @@
 [
+  {
+    "name":"byte[]"
+  },
+  {
+    "name":"com.google.api.client.auth.oauth2.StoredCredential"
+  },
+  {
+    "name":"java.lang.Long"
+  },
+  {
+    "name":"java.lang.Number"
+  },
+  {
+    "name":"java.lang.String"
+  },
+  {
+    "name":"java.util.HashMap"
+  },
+  {
+    "name":"java.util.concurrent.locks.AbstractOwnableSynchronizer"
+  },
+  {
+    "name":"java.util.concurrent.locks.AbstractQueuedSynchronizer"
+  },
+  {
+    "name":"java.util.concurrent.locks.ReentrantLock"
+  },
+  {
+    "name":"java.util.concurrent.locks.ReentrantLock$NonfairSync"
+  },
+  {
+    "name":"java.util.concurrent.locks.ReentrantLock$Sync"
+  }
 ]
