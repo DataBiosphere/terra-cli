@@ -183,8 +183,8 @@ task runTestsWithTag(type: Test) {
 
         if (testTag == "unit") {
             // set which file in src/test/resources/testconfigs to use
-            // TODO(PF-1289): After tests running against Verily deployment are using Verily testconfig and not Broad,
-            // delete testConfig property and base on terraServer instead.
+            // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
+            // user only needs to set -PtestConfig, no -Pserver.
             String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") + ".json" : "broad.json"
             systemProperty "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
 
