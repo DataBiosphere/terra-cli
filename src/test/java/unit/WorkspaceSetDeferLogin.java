@@ -10,7 +10,7 @@ import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.UserIO;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  */
 @Tag("unit")
 public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
-  TestUsers workspaceSharee;
+  TestUser workspaceSharee;
   UUID sharedWorkspaceId;
 
   @BeforeAll
@@ -42,7 +42,7 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
     sharedWorkspaceId = createWorkspace.id;
 
-    workspaceSharee = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    workspaceSharee = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace add-user --email=$sharee --role=READER`
     TestCommand.runCommandExpectSuccess(

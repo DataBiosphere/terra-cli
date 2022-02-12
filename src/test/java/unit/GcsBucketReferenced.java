@@ -10,7 +10,7 @@ import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
@@ -31,7 +31,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
   private BucketInfo externalSharedBucket;
   private BucketInfo externalPrivateBucket;
 
-  private TestUsers shareeUser;
+  private TestUser shareeUser;
 
   @BeforeAll
   @Override
@@ -48,7 +48,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         externalPrivateBucket, Identity.group(Auth.getProxyGroupEmail()));
 
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
     shareeUser.login();

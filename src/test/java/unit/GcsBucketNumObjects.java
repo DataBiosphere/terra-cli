@@ -9,7 +9,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
@@ -146,7 +146,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
         "--bucket-name=" + externalBucket.getName());
 
     // `terra workspace add-user --email=$email --role=READER`
-    TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
 
