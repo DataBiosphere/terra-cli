@@ -232,11 +232,11 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
     systemProperty "TERRA_SERVER", project.findProperty("server")
 
-    // [required] set which file in src/test/resources/testconfigs to use
+    // set which file in src/test/resources/testconfigs to use
     // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
     // user only needs to set -PtestConfig, no -Pserver.
-    String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") + ".json" : "broad.json"
-    systemProperty "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
+    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
+    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
 
     // [optional] specify that this is a dry run (e.g. -PdryRun)
     systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
