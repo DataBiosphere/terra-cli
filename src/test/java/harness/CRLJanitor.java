@@ -25,21 +25,21 @@ public class CRLJanitor {
 
   private static final String DEFAULT_CLIENT_NAME = "cli-test";
 
-  private static final CleanupConfig DEFAULT_CLEANUP_CONFIG =
-      CleanupConfig.builder()
-          .setTimeToLive(Duration.ofHours(2))
-          .setCleanupId("cli-test-" + System.getProperty("TEST_RUN_ID"))
-          .setCredentials(CRLJanitor.getSACredentials())
-          .setJanitorTopicName("crljanitor-tools-pubsub-topic")
-          .setJanitorProjectId("terra-kernel-k8s")
-          .build();
-
-  // default client configuration for CRL Janitor (cleanup mode)
-  public static final ClientConfig DEFAULT_CLIENT_CONFIG =
-      ClientConfig.Builder.newBuilder()
-          .setClient(DEFAULT_CLIENT_NAME)
-          .setCleanupConfig(DEFAULT_CLEANUP_CONFIG)
-          .build();
+  public static final ClientConfig getClientConfig() {
+    ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
+    if (TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
+      builder.setCleanupConfig(
+          CleanupConfig.builder()
+              .setTimeToLive(Duration.ofHours(2))
+              .setCleanupId("cli-test-" + System.getProperty("TEST_RUN_ID"))
+              .setCredentials(CRLJanitor.getSACredentials())
+              // TODO(PF-963): As part of setting up janitor for Verily, move to test config
+              .setJanitorTopicName("crljanitor-tools-pubsub-topic")
+              .setJanitorProjectId("terra-kernel-k8s")
+              .build());
+    }
+    return builder.build();
+  }
 
   /** Get credentials for the Janitor client SA. */
   private static GoogleCredentials getSACredentials() {
