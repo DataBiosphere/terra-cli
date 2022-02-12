@@ -104,4 +104,4 @@ jobs:
           name: logs-and-context-${{ matrix.testTag }}
           path: |
             build/test-context/.terra/logs/
-            build/test-context/.terra/global-context.json
+            build/test-context/.terra/context.json

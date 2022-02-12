@@ -46,8 +46,8 @@ public class Context {
    * Server, User, Workspace).
    *
    * <p>Note: DO NOT put any logger statements in this function. Because we setup the loggers using
-   * the logging levels specified in the global context, the loggers have not been setup when we
-   * first call this function.
+   * the logging levels specified in the context, the loggers have not been setup when we first call
+   * this function.
    */
   public static void initializeFromDisk() {
     try {
@@ -61,7 +61,7 @@ public class Context {
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
     } catch (IOException ioEx) {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
-      // pre-existing global context file). we handle this by returning an object populated with
+      // pre-existing context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
       currentConfig = new Config();
       currentServer = new Server();
@@ -90,7 +90,7 @@ public class Context {
   // Directory and file names for persisting on disk
   //   - context directory parent: $HOME/ or $TERRA_CONTEXT_PARENT_DIR/
   //       - context directory: .terra/
-  //           - persisted context file: global-context.json
+  //           - persisted context file: context.json
   //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
   //               - pet SA key filename: [workspace id]
   //           - sub-directory for log files: logs/
@@ -145,7 +145,7 @@ public class Context {
 
   /**
    * Get the pet SA key file for the current user and workspace. This is stored in a sub-directory
-   * of the global context directory.
+   * of the context directory.
    *
    * @return absolute path to the pet SA key file for the current user and workspace
    * @throws UserActionableException if the current user or workspace is not defined
@@ -156,7 +156,7 @@ public class Context {
 
   /**
    * Get the pet SA key file for a user and the current workspace. This is stored in a sub-directory
-   * of the global context directory.
+   * of the context directory.
    *
    * @param user
    * @return absolute path to the pet SA key file for the given user and current workspace

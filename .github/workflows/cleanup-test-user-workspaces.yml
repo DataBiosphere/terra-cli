@@ -70,4 +70,4 @@ jobs:
           name: logs-and-context
           path: |
             build/test-context/.terra/logs/
-            build/test-context/.terra/global-context.json
+            build/test-context/.terra/context.json
