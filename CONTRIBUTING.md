@@ -241,7 +241,7 @@ you see unexpected failures around listing workspaces, try kicking off the clean
 By default, tests run against Broad deployment. To run against a different deployment:
 
 - Create a new file under [Test config](https://github.com/DataBiosphere/terra-cli/tree/main/src/test/resources/testconfigs)
-- Create a new `render-config.sh` which renders config for your deployment.
+- Create a new `render-config.sh` which renders config for your deployment. Put the configs in a new directory under `rendered`, eg `rendered/<mydeployment>`. The name of this directory must match the name of the testConfig in the next step.
 - Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
 
 For example, consider the project that external resources are created in. The Broad deployment uses a project in Broad

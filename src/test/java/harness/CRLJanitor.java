@@ -17,7 +17,8 @@ import java.util.List;
  */
 public class CRLJanitor {
   // CRL janitor client SA
-  private static final String SA_KEY_FILE = "./rendered/janitor-client.json";
+  private static final String SA_KEY_FILE =
+      "./rendered/" + TestConfig.getTestConfigName() + "/janitor-client.json";
 
   // default scope to request for the SA
   private static final List<String> CLOUD_PLATFORM_SCOPE =

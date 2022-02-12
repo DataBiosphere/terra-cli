@@ -19,7 +19,7 @@ EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-adm
 JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 VERILYCLI_WSM_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/verilycli/workspace/app-sa
 
-# Helper function to read a secret from Vault and write it to a local file in the rendered/ directory.
+# Helper function to read a secret from Vault and write it to a local file in the rendered/broad/ directory.
 # Inputs: vault path, file name, [optional] decode from base 64
 # Usage: readFromVault $CI_SA_VAULT_PATH ci-account.json
 #        readFromValue $JANITOR_CLIENT_SA_VAULT_PATH janitor-client.json base64
@@ -34,16 +34,16 @@ readFromVault () {
   if [ -z "$decodeBase64" ]; then
     docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
               vault read -format json $vaultPath \
-              | jq -r .data > "rendered/$fileName"
+              | jq -r .data > "rendered/broad/$fileName"
   else
     docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
               vault read -format json $vaultPath \
-              | jq -r .data.key | base64 -d > "rendered/$fileName"
+              | jq -r .data.key | base64 -d > "rendered/broad/$fileName"
   fi
   return 0
 }
 
-mkdir -p rendered
+mkdir -p rendered/broad
 
 # used for publishing Docker images to GCR in the terra-cli-dev project
 echo "Reading the CI service account key file from Vault"

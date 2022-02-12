@@ -180,8 +180,8 @@ task runTestsWithTag(type: Test) {
         // set which file in src/test/resources/testconfigs to use
         // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
         // user only needs to set -PtestConfig, no -Pserver.
-        String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") + ".json" : "broad.json"
-        systemProperty "TERRA_TEST_CONFIG_FILE_NAME", terraTestConfigFileName
+        String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
+        systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigFileName
 
         // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
         String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
