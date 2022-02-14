@@ -20,6 +20,8 @@ if [ "$(basename "$PWD")" != 'terra-cli' ]; then
   exit 1
 fi
 
+# Set jenv to GraalVM (change as necessary). Alternatively, set $JAVA_HOME and possibly other things.
+# e.g. `jenv global graalvm64-11.0.14`
 if [[ "$JAVA_VERSION" != *"GraalVM"* ]]; then
   echo "GraalVM should be the active JVM."
   exit 1
@@ -35,14 +37,12 @@ fi
 # The expectation is that this directory is in source control.
 MERGE_DIR=./src/main/resources/META-INF/native-image
 
-# Set jenv to GraalVM (change as necessary). Alternatively, set $JAVA_HOME and possibly other things.
-# jenv shell graalvm64-11.0.14
-
 # Run build classes in GraalVM with the native agent collecting config info.
 java \
   -agentlib:native-image-agent=config-merge-dir=$MERGE_DIR \
   --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED \
   --add-opens java.base/java.net=ALL-UNNAMED \
   -classpath "./build/install/terra-cli/lib/*:" \
-  bio.terra.cli.command.Main "$@"
+  bio.terra.cli.command.Main \
+  "$@"
 

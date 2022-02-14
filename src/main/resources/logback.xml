@@ -1,7 +1,7 @@
 <configuration>
 
   <appender name="RollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>~/.terra/terra.log</file>
+    <file>$HOME/.terra/logs/terra.log</file>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <maxFileSize>5MB</maxFileSize>
     </triggeringPolicy>
