@@ -18,9 +18,6 @@
   "name":"[Lcom.google.cloud.storage.Storage$BlobListOption;"
 },
 {
-  "name":"[Lcom.google.common.collect.ImmutableMapEntry;"
-},
-{
   "name":"[Ljava.lang.Class;"
 },
 {
@@ -28,9 +25,6 @@
 },
 {
   "name":"[Ljava.lang.String;"
-},
-{
-  "name":"[Ljava.util.Map$Entry;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
@@ -956,12 +950,6 @@
   ]
 },
 {
-  "name":"bio.terra.cli.serialization.persisted.resource.PDGcpNotebook",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
   "name":"bio.terra.cli.serialization.persisted.resource.PDGcsBucket",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -1060,8 +1048,7 @@
 {
   "name":"bio.terra.workspace.model.ControlledResourceIamRole",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"getValue","parameterTypes":[] }]
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"bio.terra.workspace.model.ControlledResourceMetadata",
@@ -1077,17 +1064,6 @@
   ]
 },
 {
-  "name":"bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getAiNotebookInstance","parameterTypes":[] }, 
-    {"name":"getCommon","parameterTypes":[] }, 
-    {"name":"getJobControl","parameterTypes":[] }
-  ]
-},
-{
   "name":"bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -1095,17 +1071,6 @@
   "methods":[
     {"name":"getCommon","parameterTypes":[] }, 
     {"name":"getGcsBucket","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAiNotebookInstance","parameterTypes":["bio.terra.workspace.model.GcpAiNotebookInstanceResource"] }, 
-    {"name":"setJobReport","parameterTypes":["bio.terra.workspace.model.JobReport"] }
   ]
 },
 {
@@ -1126,66 +1091,10 @@
   "queryAllDeclaredConstructors":true
 },
 {
-  "name":"bio.terra.workspace.model.ErrorReport",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
   "name":"bio.terra.workspace.model.GcpAiNotebookInstanceAttributes",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setInstanceId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLocation","parameterTypes":["java.lang.String"] }, 
-    {"name":"setProjectId","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getAcceleratorConfig","parameterTypes":[] }, 
-    {"name":"getBootDiskSizeGb","parameterTypes":[] }, 
-    {"name":"getBootDiskType","parameterTypes":[] }, 
-    {"name":"getContainerImage","parameterTypes":[] }, 
-    {"name":"getCustomGpuDriverPath","parameterTypes":[] }, 
-    {"name":"getDataDiskSizeGb","parameterTypes":[] }, 
-    {"name":"getDataDiskType","parameterTypes":[] }, 
-    {"name":"getInstanceId","parameterTypes":[] }, 
-    {"name":"getLocation","parameterTypes":[] }, 
-    {"name":"getMachineType","parameterTypes":[] }, 
-    {"name":"getMetadata","parameterTypes":[] }, 
-    {"name":"getPostStartupScript","parameterTypes":[] }, 
-    {"name":"getVmImage","parameterTypes":[] }, 
-    {"name":"isInstallGpuDriver","parameterTypes":[] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpAiNotebookInstanceResource",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAttributes","parameterTypes":["bio.terra.workspace.model.GcpAiNotebookInstanceAttributes"] }, 
-    {"name":"setMetadata","parameterTypes":["bio.terra.workspace.model.ResourceMetadata"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.GcpAiNotebookInstanceVmImage",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"getImageFamily","parameterTypes":[] }, 
-    {"name":"getImageName","parameterTypes":[] }, 
-    {"name":"getProjectId","parameterTypes":[] }
-  ]
+  "queryAllDeclaredConstructors":true
 },
 {
   "name":"bio.terra.workspace.model.GcpBigQueryDataTableAttributes",
@@ -1272,35 +1181,6 @@
   "queryAllDeclaredConstructors":true
 },
 {
-  "name":"bio.terra.workspace.model.JobControl",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"getId","parameterTypes":[] }]
-},
-{
-  "name":"bio.terra.workspace.model.JobReport",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setCompleted","parameterTypes":["java.lang.String"] }, 
-    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
-    {"name":"setId","parameterTypes":["java.lang.String"] }, 
-    {"name":"setResultURL","parameterTypes":["java.lang.String"] }, 
-    {"name":"setStatus","parameterTypes":["bio.terra.workspace.model.JobReport$StatusEnum"] }, 
-    {"name":"setStatusCode","parameterTypes":["java.lang.Integer"] }, 
-    {"name":"setSubmitted","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"bio.terra.workspace.model.JobReport$StatusEnum",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"fromValue","parameterTypes":["java.lang.String"] }]
-},
-{
   "name":"bio.terra.workspace.model.ManagedBy",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -1326,12 +1206,7 @@
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"getPrivateResourceIamRoles","parameterTypes":[] }, 
-    {"name":"getUserName","parameterTypes":[] }, 
-    {"name":"setUserName","parameterTypes":["java.lang.String"] }
-  ]
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"bio.terra.workspace.model.Properties",
@@ -1353,7 +1228,6 @@
   "queryAllDeclaredConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setGcpAiNotebookInstance","parameterTypes":["bio.terra.workspace.model.GcpAiNotebookInstanceAttributes"] }, 
     {"name":"setGcpBqDataset","parameterTypes":["bio.terra.workspace.model.GcpBigQueryDatasetAttributes"] }, 
     {"name":"setGcpGcsBucket","parameterTypes":["bio.terra.workspace.model.GcpGcsBucketAttributes"] }
   ]
@@ -1687,10 +1561,6 @@
   "allDeclaredFields":true
 },
 {
-  "name":"com.google.api.client.util.ArrayMap",
-  "allDeclaredFields":true
-},
-{
   "name":"com.google.api.client.util.GenericData",
   "allDeclaredFields":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
@@ -1755,62 +1625,6 @@
     {"name":"setEtag","parameterTypes":["java.lang.String"] }, 
     {"name":"setKind","parameterTypes":["java.lang.String"] }, 
     {"name":"setTotalItems","parameterTypes":["java.lang.Integer"] }
-  ]
-},
-{
-  "name":"com.google.api.services.notebooks.v1.AIPlatformNotebooks$Projects$Locations$Instances$Get",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.services.notebooks.v1.AIPlatformNotebooksRequest",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.api.services.notebooks.v1.model.Disk",
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setAutoDelete","parameterTypes":["java.lang.Boolean"] }, 
-    {"name":"setBoot","parameterTypes":["java.lang.Boolean"] }, 
-    {"name":"setDeviceName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setDiskSizeGb","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setGuestOsFeatures","parameterTypes":["java.util.List"] }, 
-    {"name":"setIndex","parameterTypes":["java.lang.Long"] }, 
-    {"name":"setKind","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLicenses","parameterTypes":["java.util.List"] }, 
-    {"name":"setMode","parameterTypes":["java.lang.String"] }, 
-    {"name":"setSource","parameterTypes":["java.lang.String"] }, 
-    {"name":"setType","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.services.notebooks.v1.model.GuestOsFeature",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setType","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"com.google.api.services.notebooks.v1.model.Instance",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setCreateTime","parameterTypes":["java.lang.String"] }, 
-    {"name":"setDisks","parameterTypes":["java.util.List"] }, 
-    {"name":"setLabels","parameterTypes":["java.util.Map"] }, 
-    {"name":"setMachineType","parameterTypes":["java.lang.String"] }, 
-    {"name":"setMetadata","parameterTypes":["java.util.Map"] }, 
-    {"name":"setName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setNetwork","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPostStartupScript","parameterTypes":["java.lang.String"] }, 
-    {"name":"setServiceAccount","parameterTypes":["java.lang.String"] }, 
-    {"name":"setState","parameterTypes":["java.lang.String"] }, 
-    {"name":"setSubnet","parameterTypes":["java.lang.String"] }, 
-    {"name":"setUpdateTime","parameterTypes":["java.lang.String"] }
   ]
 },
 {
@@ -1936,17 +1750,6 @@
     {"name":"USER_PROJECT"}, 
     {"name":"VERSIONS"}
   ]
-},
-{
-  "name":"com.google.common.collect.ImmutableMap",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.google.common.collect.RegularImmutableMap",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
 },
 {
   "name":"com.google.common.util.concurrent.AbstractFuture",
@@ -2238,11 +2041,6 @@
 {
   "name":"java.util.Locale",
   "queriedMethods":[{"name":"getUnicodeLocaleType","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.util.Map",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
 },
 {
   "name":"java.util.PropertyPermission"
