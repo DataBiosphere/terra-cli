@@ -86,11 +86,17 @@
   "bundles":[
     {
       "name":"org.glassfish.jersey.client.internal.localization",
-      "locales":["und"]
+      "locales":[
+        "", 
+        "und"
+      ]
     }, 
     {
       "name":"org.glassfish.jersey.internal.localization",
-      "locales":["und"]
+      "locales":[
+        "", 
+        "und"
+      ]
     }, 
     {
       "name":"sun.awt.resources.awt",

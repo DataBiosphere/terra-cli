@@ -350,8 +350,8 @@ nativeImage {
             "--verbose",
             '--no-fallback', // build native image or die trying
             '--allow-incomplete-classpath', // don't bail on missing classes at build time
-            '--report-unsupported-elements-at-runtime',
-            '--enable-url-protocols=https',
+            '--report-unsupported-elements-at-runtime', // report on classes that can't be loaded, etc
+            '--enable-url-protocols=https,http', // explicitly allow these url protocols
             '-H:+AddAllCharsets' // work around bug in okhttp https://github.com/oracle/graal/issues/1294
     )
 }
