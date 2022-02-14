@@ -217,9 +217,9 @@ task runTestsWithTag(type: Test) {
 
 // cleanup workspaces owned by test users.
 // 1) do a dry run (i.e. don't actually try to delete anything)
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PdryRun
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad -PdryRun
 // 2) try to delete each workspace owned by a test user
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev
+//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
     main = "harness.utils.CleanupTestUserWorkspaces"
@@ -231,6 +231,12 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
 
     // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
     systemProperty "TERRA_SERVER", project.findProperty("server")
+
+    // set which file in src/test/resources/testconfigs to use
+    // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
+    // user only needs to set -PtestConfig, no -Pserver.
+    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
+    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
 
     // [optional] specify that this is a dry run (e.g. -PdryRun)
     systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
