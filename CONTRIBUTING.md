@@ -10,6 +10,7 @@
 3. [Testing](#testing)
     * [Two types of tests](#two-types-of-tests)
     * [Run tests](#run-tests)
+    * [Docker and Tests](#docker-and-tests)
     * [Override default server](#override-default-server)
     * [Override default Docker image](#override-default-docker-image)
     * [Override context directory](#override-context-directory)
@@ -44,7 +45,7 @@ The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it t
 Then, from the top-level directory, run:
 ```
 source tools/local-dev.sh
-build/install/terra-cli/bin/terra
+terra
 ```
 
 #### Logging

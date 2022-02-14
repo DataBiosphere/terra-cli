@@ -150,7 +150,9 @@ gcloud auth login
 gcloud auth application-default login
 ```
 
-Run a Nextflow hello world example.
+#### Nextflow Examples
+Run a Nextflow hello world example (requires Docker image set and container running, or Nextflow to
+be installed locally. For Docker support, `export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE` before installing `terra`):
 ```
 terra nextflow run hello
 ```
@@ -208,18 +210,23 @@ access token. Then specify the `-with-tower` flag when kicking off the workflow.
 - Call the Gcloud CLI tools in the current workspace context.
 This means that Gcloud is configured with the backing Google project and environment variables are defined that
 contain workspace and resource properties (e.g. bucket names, pet service account email).
-```
-terra gcloud config get-value project
-terra gsutil ls
-terra bq version
-```
+    ```
+    terra gcloud config get-value project
+    terra gsutil ls
+    terra bq version
+    ```
 
 - See the list of supported third-party tools.
-The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
-```
-terra app list
-terra config get image
-```
+The CLI runs these tools in a Docker image, if `app-launch` mode is `DOCKER_CONTAINER`. If the
+`app-launch` mode is `LOCAL_PROCESS`, the CLI will assume the tools are available in the current
+shell environment and launch them there.
+    ```
+    terra app list
+    ```
+- Print the image tag that the CLI is currently using.
+    ```
+    terra config get image
+    ```
 
 ### Commands description
 ```
