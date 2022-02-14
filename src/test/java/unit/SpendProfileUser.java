@@ -9,7 +9,7 @@ import bio.terra.cli.service.SpendProfileManagerService.SpendProfilePolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.SamGroups;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class SpendProfileUser extends ClearContextUnit {
   // only an owner on the spend profile can disable emails
-  TestUsers spendProfileOwner = TestUsers.chooseTestUserWithOwnerAccess();
+  TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
 
   SamGroups trackedGroups = new SamGroups();
 
@@ -36,7 +36,7 @@ public class SpendProfileUser extends ClearContextUnit {
     spendProfileOwner.login();
 
     // try to disable spend for each group that was created by a method in this class
-    for (Map.Entry<String, TestUsers> groupNameToCreator :
+    for (Map.Entry<String, TestUser> groupNameToCreator :
         trackedGroups.getTrackedGroups().entrySet()) {
       UFGroup groupInfo =
           TestCommand.runAndParseCommandExpectSuccess(
@@ -56,7 +56,7 @@ public class SpendProfileUser extends ClearContextUnit {
     String testEmail = generateSamGroupForEmail();
 
     // use a test user that is an owner to grant spend access to the test email
-    TestUsers spendProfileOwner = TestUsers.chooseTestUserWithOwnerAccess();
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();
 
     // `terra spend enable --email=$testEmail --policy=USER`
@@ -83,8 +83,8 @@ public class SpendProfileUser extends ClearContextUnit {
     String testEmail = generateSamGroupForEmail();
 
     // check that none of the test users can enable this email
-    for (TestUsers testUser : TestUsers.values()) {
-      if (testUser.spendEnabled.equals(TestUsers.SpendEnabled.OWNER)) {
+    for (TestUser testUser : TestUser.getTestUsers()) {
+      if (testUser.spendEnabled.equals(TestUser.SpendEnabled.OWNER)) {
         continue;
       }
       testUser.login();
@@ -95,13 +95,13 @@ public class SpendProfileUser extends ClearContextUnit {
     }
 
     // use a test user that is an owner to grant spend access to the test email
-    TestUsers spendProfileOwner = TestUsers.chooseTestUserWithOwnerAccess();
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();
     TestCommand.runCommandExpectSuccess("spend", "enable", "--email=" + testEmail, "--policy=USER");
 
     // check that none of the test users can disable this email
-    for (TestUsers testUser : TestUsers.values()) {
-      if (testUser.spendEnabled.equals(TestUsers.SpendEnabled.OWNER)) {
+    for (TestUser testUser : TestUser.getTestUsers()) {
+      if (testUser.spendEnabled.equals(TestUser.SpendEnabled.OWNER)) {
         continue;
       }
       testUser.login();
@@ -119,26 +119,26 @@ public class SpendProfileUser extends ClearContextUnit {
 
   @Test
   @DisplayName("spend profile includes cli-testers group and the appropriate test users")
-  void testUsersSpendProfileMembership() throws IOException {
+  void testUserSpendProfileMembership() throws IOException {
     // NOTE: this test is checking that test users and spend access are setup as expected for CLI
     // testing. it's not really testing CLI functionality specifically.
     // only an owner on the spend profile can list enabled users
-    TestUsers spendProfileOwner = TestUsers.chooseTestUserWithOwnerAccess();
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();
 
     // check that the cli-testers group is included in the list-users output
     UFGroup cliTestersGroup =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "group", "describe", "--name=" + TestUsers.CLI_TEST_USERS_GROUP_NAME);
+            UFGroup.class, "group", "describe", "--name=" + TestUser.CLI_TEST_USERS_GROUP_NAME);
     expectListedUserWithPolicies(cliTestersGroup.email, SpendProfilePolicy.USER);
 
     // check that each test user who is enabled on the spend profile directly, is included in the
     // list-users output
-    List<TestUsers> expectedSpendUsers =
-        Arrays.asList(TestUsers.values()).stream()
-            .filter(testUser -> testUser.spendEnabled.equals(TestUsers.SpendEnabled.DIRECTLY))
+    List<TestUser> expectedSpendUsers =
+        TestUser.getTestUsers().stream()
+            .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY))
             .collect(Collectors.toList());
-    for (TestUsers expectedSpendUser : expectedSpendUsers) {
+    for (TestUser expectedSpendUser : expectedSpendUsers) {
       expectListedUserWithPolicies(expectedSpendUser.email, SpendProfilePolicy.USER);
     }
   }

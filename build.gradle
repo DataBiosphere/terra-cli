@@ -25,7 +25,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.143.0'
+version = '0.147.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -177,6 +177,12 @@ task runTestsWithTag(type: Test) {
         String terraServer = project.hasProperty("server") ? project.findProperty("server") : "broad-dev"
         environment "TERRA_SERVER", terraServer
 
+        // set which file in src/test/resources/testconfigs to use
+        // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
+        // user only needs to set -PtestConfig, no -Pserver.
+        String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
+        systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigFileName
+
         // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
         String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
         environment "TERRA_DOCKER_IMAGE", terraDockerImage
@@ -244,6 +250,7 @@ compileJava.dependsOn tasks.spotlessApply
 spotbugs {
     effort = 'max'
     extraArgs = [ '-emacs']
+    includeFilter = file("gradle/config/spotbugs/exclude.xml")
 }
 spotbugsMain {
     reports {

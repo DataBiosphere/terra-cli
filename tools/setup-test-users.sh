@@ -2,7 +2,7 @@
 
 set -e
 ## This script sets up users for running CLI tests. It only needs to be run once per SAM instance.
-## Keep this script in sync with the harness.TestUsers class in the src/test/java directory.
+## Keep this script in sync with test users in your testconfig file (eg `testconfig/broad.json`).
 ##
 ## If the current server requires users to be invited before they can register, then the user who runs this
 ## script must be an admin user (i.e. a member of the fc-admins Google group in the SAM Gsuite). The script
@@ -17,6 +17,8 @@ set -e
 ## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
 ## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org
 #     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
+
+# TODO(PF-1339): Rename to setup-broad-test-users.sh, add testconfig flag, and get test users from testconfig.
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then

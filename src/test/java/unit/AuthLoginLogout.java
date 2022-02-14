@@ -14,10 +14,9 @@ import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.hamcrest.CoreMatchers;
@@ -35,11 +34,11 @@ public class AuthLoginLogout extends ClearContextUnit {
   @DisplayName("test user login updates global context")
   void loginTestUser() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // check that the credential exists in the store on disk
-    DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
+    DataStore<StoredCredential> dataStore = TestUser.getCredentialStore();
     assertEquals(1, dataStore.keySet().size(), "credential store only contains one entry");
     assertTrue(
         dataStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
@@ -60,14 +59,14 @@ public class AuthLoginLogout extends ClearContextUnit {
   @DisplayName("test user logout updates global context")
   void logoutTestUser() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // `terra auth revoke`
     TestCommand.runCommandExpectSuccess("auth", "revoke");
 
     // check that the credential store on disk is empty
-    DataStore<StoredCredential> dataStore = TestUsers.getCredentialStore();
+    DataStore<StoredCredential> dataStore = TestUser.getCredentialStore();
     assertEquals(0, dataStore.keySet().size(), "credential store is empty");
 
     // read the global context in from disk again to check what got persisted
@@ -80,7 +79,7 @@ public class AuthLoginLogout extends ClearContextUnit {
   @DisplayName("all test users enabled in SAM")
   void checkEnabled() throws IOException {
     // check that each test user is enabled in SAM
-    for (TestUsers testUser : Arrays.asList(TestUsers.values())) {
+    for (TestUser testUser : TestUser.getTestUsers()) {
       // login the user, so we have their credentials
       testUser.login();
 

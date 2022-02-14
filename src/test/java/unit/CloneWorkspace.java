@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 @Tag("unit")
 public class CloneWorkspace extends ClearContextUnit {
-  private static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
+  private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
 
   private static final String GIT_REPO_HTTPS_URL =
