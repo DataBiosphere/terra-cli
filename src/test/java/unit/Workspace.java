@@ -12,7 +12,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +30,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreate() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create --format=json`
@@ -88,7 +88,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("status, describe, workspace list reflect workspace delete")
   void statusDescribeListReflectDelete() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create --format=json`
@@ -116,7 +116,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("status, describe, workspace list reflect workspace update")
   void statusDescribeListReflectUpdate() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create --format=json --name=$name --description=$description`
@@ -184,7 +184,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("status, describe reflect workspace set")
   void statusDescribeReflectsSet() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create --format=json` (workspace 1)
@@ -249,7 +249,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("workspace create fails without spend profile access")
   void createFailsWithoutSpendAccess() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithoutSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithoutSpendAccess();
     testUser.login();
     final String workspaceName = "bad-profile-6789";
     // `terra workspace create`
@@ -272,7 +272,7 @@ public class Workspace extends ClearContextUnit {
   @DisplayName("workspace describe reflects the number of resources")
   void describeReflectsNumResources() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // `terra workspace create`

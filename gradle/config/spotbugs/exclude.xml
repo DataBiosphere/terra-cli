@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- http://spotbugs.readthedocs.io/en/latest/filter.html -->
+<FindBugsFilter>
+
+    <Match>
+        <!-- This POJO class is used for easy serialization to JSON using Jackson. -->
+        <Bug pattern="UWF_UNWRITTEN_FIELD" />
+        <Class name="harness.TestUser" />
+    </Match>
+
+</FindBugsFilter>

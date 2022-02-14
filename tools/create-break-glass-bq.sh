@@ -5,7 +5,7 @@
 ##
 ## This script assumes that `bq` is authenticated with an account that has BigQuery admin permissions on
 ## the specified project. e.g.
-##   gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/ci-account.json
+##   gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/broad/ci-account.json
 ##   ./tools/create-break-glass-bq.sh terra-cli-dev
 ##
 ## Dependencies: bq

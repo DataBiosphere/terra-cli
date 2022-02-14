@@ -38,3 +38,7 @@ out/
 
 ### Mac directory metadata
 .DS_Store
+
+### Nextflow
+.nextflow
+.nextflow.log

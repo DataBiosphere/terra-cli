@@ -1,5 +1,6 @@
 package bio.terra.cli.utils;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -25,7 +26,7 @@ public class JacksonMapper {
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   public static ObjectMapper getMapper() {
-    return objectMapper;
+    return objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
   }
 
   /**
