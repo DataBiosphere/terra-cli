@@ -55,9 +55,9 @@ jobs:
           echo "dryrun: $DRY_RUN"
           echo "terraserver: $TERRA_SERVER"
           if [ "$DRY_RUN" == "true" ]; then
-            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER -PdryRun
+            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER -PtestConfig=broad -PdryRun
           else
-            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER
+            ./gradlew cleanupTestUserWorkspaces -Pserver=$TERRA_SERVER -PtestConfig=broad
           fi
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
