@@ -61,7 +61,8 @@ public class User {
 
   /**
    * User specified to use app-default-credentials when logging in. In the follow-on command, we
-   * check for ADC instead of user credentials that are stored on disk.
+   * check for ADC instead of user credentials that are stored on disk in the Terra CLI credential
+   * store ($home/.terra).
    */
   private boolean useApplicationDefaultCredentials;
 
@@ -133,27 +134,29 @@ public class User {
   }
 
   /**
-   * Load any existing credentials for the user. Prompt for login if they are expired or do not
-   * exist. Do not use application default credentials for logging in.
+   * Load any existing credentials for this user. Prompt for browser login if they are expired or do
+   * not exist.
    */
   public static void login() {
-    login(false);
+    login(/*useApplicationDefaultCredentials=*/ false);
   }
 
   /**
    * Load any existing credentials for this user. Prompt for login if they are expired or do not
    * exist.
    *
-   * @param useAdc whether to use application default credentials to log in.
+   * @param useApplicationDefaultCredentials when true, use the application default credentials to
+   *     log-in instead of oauth flow in the browser.
    */
-  public static void login(boolean useAdc) {
+  public static void login(boolean useApplicationDefaultCredentials) {
     Optional<User> currentUser = Context.getUser();
     currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
     User user = currentUser.orElseGet(() -> new User());
+    user.useApplicationDefaultCredentials = useApplicationDefaultCredentials;
 
-    if (useAdc) {
+    if (user.useApplicationDefaultCredentials) {
       user.loadAppDefaultCredentials();
     } else {
       if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
@@ -186,7 +189,6 @@ public class User {
    */
   private void loadAppDefaultCredentials() {
     if (googleCredentials == null) {
-      useApplicationDefaultCredentials = true;
       googleCredentials =
           AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
     }
