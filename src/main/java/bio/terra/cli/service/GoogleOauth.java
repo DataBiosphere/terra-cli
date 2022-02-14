@@ -31,6 +31,7 @@ import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,13 +275,13 @@ public final class GoogleOauth {
    *
    * @param credential credentials object
    */
-  public static void revokeToken(GoogleCredentials credential) {
-    if (credential.getAccessToken() != null) {
+  public static void revokeToken(Optional<GoogleCredentials> credential) {
+    if (credential.isPresent() && credential.get().getAccessToken() != null) {
       String endpoint = "https://oauth2.googleapis.com/revoke";
       Map<String, String> headers =
           ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
       Map<String, String> params =
-          ImmutableMap.of("token", credential.getAccessToken().getTokenValue());
+          ImmutableMap.of("token", credential.get().getAccessToken().getTokenValue());
 
       try {
         HttpUtils.sendHttpRequest(endpoint, "POST", headers, params);

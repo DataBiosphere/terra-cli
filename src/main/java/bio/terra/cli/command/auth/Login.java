@@ -13,11 +13,16 @@ import picocli.CommandLine.Command;
     showDefaultValues = true)
 public class Login extends BaseCommand {
 
+  public enum LogInMode {
+    BROWSER,
+    APP_DEFAULT_CREDENTIALS
+  }
+
   @CommandLine.Option(
-      names = "--use-app-default-credentials",
-      description = "Use application default credentials to log into terra CLI instead of browser.",
-      defaultValue = "false")
-  private boolean useAppDefaultCreds;
+      names = "--mode",
+      description = "Set the log in mode: ${COMPLETION-CANDIDATES}. Default to BROWSER",
+      defaultValue = "BROWSER")
+  private LogInMode mode;
 
   /** Login the user and print out a success message. */
   @Override
@@ -27,7 +32,7 @@ public class Login extends BaseCommand {
       Context.requireUser().logout();
     }
 
-    User.login(useAppDefaultCreds);
+    User.login(mode);
     OUT.println("Login successful: " + Context.requireUser().getEmail());
   }
 

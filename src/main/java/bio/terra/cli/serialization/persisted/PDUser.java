@@ -1,6 +1,7 @@
 package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.User;
+import bio.terra.cli.command.auth.Login.LogInMode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -17,7 +18,7 @@ public class PDUser {
   public final String email;
   public final String proxyGroupEmail;
   public final String petSAEmail;
-  public final boolean useApplicationDefaultCredentials;
+  public final LogInMode useApplicationDefaultCredentials;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDUser(User internalObj) {
@@ -25,7 +26,7 @@ public class PDUser {
     this.email = internalObj.getEmail();
     this.proxyGroupEmail = internalObj.getProxyGroupEmail();
     this.petSAEmail = internalObj.getPetSaEmail();
-    this.useApplicationDefaultCredentials = internalObj.isUseApplicationDefaultCredentials();
+    this.useApplicationDefaultCredentials = internalObj.getLogInMode();
   }
 
   private PDUser(PDUser.Builder builder) {
@@ -42,7 +43,7 @@ public class PDUser {
     private String email;
     private String proxyGroupEmail;
     private String petSAEmail;
-    private boolean useApplicationDefaultCredentials;
+    private LogInMode useApplicationDefaultCredentials;
 
     public Builder id(String id) {
       this.id = id;
@@ -64,7 +65,7 @@ public class PDUser {
       return this;
     }
 
-    public Builder useApplicationDefaultCredentials(boolean useApplicationDefaultCredentials) {
+    public Builder useApplicationDefaultCredentials(LogInMode useApplicationDefaultCredentials) {
       this.useApplicationDefaultCredentials = useApplicationDefaultCredentials;
       return this;
     }
