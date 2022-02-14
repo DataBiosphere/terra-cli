@@ -6,7 +6,7 @@
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
     * [Troubleshooting](#troubleshooting)
-      * [Clear global context](#clear-global-context)
+      * [Clear context](#clear-context)
       * [Manual Install](#manual-install)
       * [Manual Uninstall](#manual-uninstall)
 2. [Example usage](#example-usage)
@@ -85,11 +85,11 @@ In order to read or write external data from Terra, you should grant data access
 `terra auth status` shows the email of your proxy group.
 
 #### Troubleshooting
-##### Clear global context
-Clear the global context file and all credentials. This will require you to login and select a workspace again.
+##### Clear context
+Clear the context file and all credentials. This will require you to login and select a workspace again.
 ```
 cd $HOME/.terra
-rm global-context.json
+rm context.json
 rm StoredCredential
 rm -R pet-keys
 ```

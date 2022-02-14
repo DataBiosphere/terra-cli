@@ -35,7 +35,7 @@ if [ -z "$localImageName" ]
 fi
 
 echo "Logging in to docker using the CI service account key file"
-cat rendered/ci-account.json | docker login -u _json_key --password-stdin https://gcr.io
+cat rendered/broad/ci-account.json | docker login -u _json_key --password-stdin https://gcr.io
 
 echo "Tagging the local docker image with the name to use in GCR"
 dockerRepoPath=$(./gradlew --quiet getDockerRepoPath) # e.g. gcr.io/terra-cli-dev
@@ -46,7 +46,7 @@ docker tag $localImageNameAndTag $remoteImageNameAndTag
 echo "Logging into to gcloud and configuring docker with the CI service account"
 # reference: https://cloud.google.com/container-registry/docs/advanced-authentication#gcloud-helper
 currentGcloudUser=$(gcloud config get-value account)
-gcloud auth activate-service-account --key-file=rendered/ci-account.json
+gcloud auth activate-service-account --key-file=rendered/broad/ci-account.json
 gcloud auth configure-docker
 
 echo "Pushing the image to GCR"

@@ -7,10 +7,9 @@ import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUsers;
+import harness.TestUser;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public class CleanupTestUserWorkspaces {
    * List all workspaces the test user has access to and try to delete each one that the test user
    * owns. Deletes up to 100 workspaces at a time.
    */
-  private static void deleteWorkspaces(TestUsers testUser, boolean isDryRun) throws IOException {
+  private static void deleteWorkspaces(TestUser testUser, boolean isDryRun) throws IOException {
     System.out.println("Deleting workspaces for testuser " + testUser.email);
     TestContext.clearGlobalContextDir();
     testUser.login();
@@ -112,8 +111,8 @@ public class CleanupTestUserWorkspaces {
     System.out.println("TERRA_SERVER: " + server);
     System.out.println("DRY_RUN: " + isDryRun);
 
-    Arrays.stream(TestUsers.values())
-        .filter(TestUsers::hasSpendAccess)
+    TestUser.getTestUsers().stream()
+        .filter(TestUser::hasSpendAccess)
         .forEach(
             testUser -> {
               try {

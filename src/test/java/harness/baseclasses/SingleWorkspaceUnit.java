@@ -3,7 +3,7 @@ package harness.baseclasses;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUsers;
+import harness.TestUser;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
+  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static UUID workspaceId;
 
   protected static UUID getWorkspaceId() {

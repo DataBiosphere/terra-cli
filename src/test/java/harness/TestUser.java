@@ -13,16 +13,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This enum lists the test users available for CLI tests. They have varying permissions on the WSM
- * spend profile. These permissions were configured manually, and are not part of the CLI test
- * harness. See CONTRIBUTING.md for more details about the manual setup.
+ * Test users are defined in testconfig, eg `testconfig/broad.json`. They have varying permissions
+ * on the WSM spend profile. These permissions were configured manually, and are not part of the CLI
+ * test harness. See CONTRIBUTING.md for more details about the manual setup.
  *
  * <p>This class also includes a {@link #login()} method specifically for testing. Most CLI tests
  * will start with a call to this method to login a test user.
@@ -31,17 +30,7 @@ import java.util.stream.Collectors;
  * static, so this can help catch errors that are due to some leftover state on a particular test
  * user (e.g. they have some permission that should've been deleted).
  */
-public enum TestUsers {
-  PENELOPE_TWILIGHTSHAMMER("Penelope.TwilightsHammer@test.firecloud.org", SpendEnabled.OWNER),
-  JOHN_WHITECLAW("John.Whiteclaw@test.firecloud.org", SpendEnabled.CLI_TEST_USERS_GROUP),
-  LILY_SHADOWMOON("Lily.Shadowmoon@test.firecloud.org", SpendEnabled.CLI_TEST_USERS_GROUP),
-  BROOKLYN_THUNDERLORD("Brooklyn.Thunderlord@test.firecloud.org", SpendEnabled.DIRECTLY),
-  NOAH_FROSTWOLF("Noah.Frostwolf@test.firecloud.org", SpendEnabled.DIRECTLY),
-  ETHAN_BONECHEWER("Ethan.Bonechewer@test.firecloud.org", SpendEnabled.NO);
-
-  public final String email;
-  public final SpendEnabled spendEnabled;
-
+public class TestUser {
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
 
@@ -50,10 +39,12 @@ public enum TestUsers {
   public static final String CLOUD_PLATFORM_SCOPE =
       "https://www.googleapis.com/auth/cloud-platform";
 
-  TestUsers(String email, SpendEnabled spendEnabled) {
-    this.email = email;
-    this.spendEnabled = spendEnabled;
+  public static List<TestUser> getTestUsers() {
+    return TestConfig.get().getTestUsers();
   }
+
+  public String email;
+  public SpendEnabled spendEnabled;
 
   /** This enum lists the different ways a user can be enabled on the WSM default spend profile. */
   public enum SpendEnabled {
@@ -108,7 +99,7 @@ public enum TestUsers {
   /** Get domain-wide delegated Google credentials for this user. */
   private GoogleCredentials getCredentials(List<String> scopes) throws IOException {
     // get a credential for the test-user SA
-    Path jsonKey = Path.of("rendered", "test-user-account.json");
+    Path jsonKey = Path.of("rendered", TestConfig.getTestConfigName(), "test-user-account.json");
     if (!jsonKey.toFile().exists()) {
       throw new FileNotFoundException(
           "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
@@ -143,10 +134,10 @@ public enum TestUsers {
    * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
    * choosing a user that is not the workspace creator.
    */
-  public static TestUsers chooseTestUserWhoIsNot(TestUsers testUser) {
+  public static TestUser chooseTestUserWhoIsNot(TestUser testUser) {
     final int maxNumTries = 50;
     for (int ctr = 0; ctr < maxNumTries; ctr++) {
-      TestUsers chosen = chooseTestUser(Set.of(SpendEnabled.values()));
+      TestUser chosen = chooseTestUser(Set.of(SpendEnabled.values()));
       if (!chosen.equals(testUser)) {
         return chosen;
       }
@@ -155,12 +146,12 @@ public enum TestUsers {
   }
 
   /** Randomly chooses a test user. */
-  public static TestUsers chooseTestUser() {
+  public static TestUser chooseTestUser() {
     return chooseTestUser(Set.of(SpendEnabled.values()));
   }
 
   /** Randomly chooses a test user with spend profile access, but without owner privileges. */
-  public static TestUsers chooseTestUserWithSpendAccess() {
+  public static TestUser chooseTestUserWithSpendAccess() {
     return chooseTestUser(
         Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
   }
@@ -169,21 +160,21 @@ public enum TestUsers {
    * Randomly chooses a test user who is a spend profile admin and an admin of the SAM cli-testers
    * group.
    */
-  public static TestUsers chooseTestUserWithOwnerAccess() {
+  public static TestUser chooseTestUserWithOwnerAccess() {
     return chooseTestUser(Set.of(SpendEnabled.OWNER));
   }
 
   /** Randomly chooses a test user without spend profile access. */
-  public static TestUsers chooseTestUserWithoutSpendAccess() {
+  public static TestUser chooseTestUserWithoutSpendAccess() {
     return chooseTestUser(Set.of(SpendEnabled.NO));
   }
 
   /** Randomly chooses a test user that matches one of the specified spend enabled values. */
-  public static TestUsers chooseTestUser(Set<SpendEnabled> spendEnabledFilter) {
+  public static TestUser chooseTestUser(Set<SpendEnabled> spendEnabledFilter) {
     // filter the list of all test users to include only those that match one of the specified spend
     // enabled values
-    List<TestUsers> testUsers =
-        Arrays.asList(TestUsers.values()).stream()
+    List<TestUser> testUsers =
+        TestUser.getTestUsers().stream()
             .filter(testUser -> spendEnabledFilter.contains(testUser.spendEnabled))
             .collect(Collectors.toList());
     if (testUsers.isEmpty()) {

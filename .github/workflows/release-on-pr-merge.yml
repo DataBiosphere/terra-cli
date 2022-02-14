@@ -38,12 +38,12 @@ jobs:
           # on local machines, the script fetches a SA from Vault.
           # in GH actions, the SA key is stored in a GH repo secret.
           # regardless of how it was fetched, tests and scripts expect these
-          # keys to be stored in rendered/
-          mkdir -p rendered
-          echo "$TEST_USER_SA_KEY" > rendered/test-user-account.json
-          echo "$DEV_CI_SA_KEY" > rendered/ci-account.json
-          echo "$EXT_PROJECT_SA_KEY" > rendered/external-project-account.json
-          echo "$JANITOR_CLIENT_SA_KEY" > rendered/janitor-client.json
+          # keys to be stored in rendered/broad
+          mkdir -p rendered/broad
+          echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
+          echo "$DEV_CI_SA_KEY" > rendered/broad/ci-account.json
+          echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
+          echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
         env:
           TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
           DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
