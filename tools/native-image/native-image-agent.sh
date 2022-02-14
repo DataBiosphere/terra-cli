@@ -7,6 +7,10 @@
 # The salient part is -agentlib:native-image-agent=config-output-dir=./build/config_out
 # Prerequisite: GraalVM
 # The application should be built, and we need something in ~/.terra (e.g. from local_dev.sh).
+# This script is only semi-automatic: changes to the application will require updating
+# the CLASSPATH below.
+
+# Requirements: GraalVM, jenv (recommended)
 
 # Any terra arguments should be passed to this script. Not all terra sessions will use all reflected
 # classes. For example, in order to instrument the Google OAuth code, do something like `workspace list`
@@ -15,6 +19,9 @@
 
 OUTPUT_DIR=./build/agent_out
 mkdir -p $OUTPUT_DIR
+
+# Set jenv to GraalVM (change as necessary). Alternatively, set $JAVA_HOME and possibly other things.
+jenv shell graalvm64-11.0.14
 
 # On my machine the path looks like /Users/jaycarlton/.jenv/versions/graalvm64-11.0.14/bin/java
 # To obtain the full set of arguments for the classpath, etc, add the following to the end of the
