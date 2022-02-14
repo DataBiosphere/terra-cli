@@ -1,122 +1,104 @@
 {
-  "resources": {
-    "includes": [
-      {
-        "pattern": ".*\\.json$"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/com.fasterxml.jackson.databind.Module\\E"
-      },
-      {
-        "pattern": "servers/.*\\.json$"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/com.fasterxml.jackson.databind.Module\\E"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/com.fasterxml.jackson.databind.Module\\E"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/org.glassfish.hk2.extension.ServiceLocatorGenerator\\E"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/org.glassfish.jersey.internal.inject.InjectionManagerFactory\\E"
-      },
-      {
-        "pattern": "\\QMETA-INF/services/org.glassfish.jersey.internal.spi.AutoDiscoverable\\E"
-      },
-      {
-        "pattern": "\\Qclient_secret.json\\E"
-      },
-      {
-        "pattern": "\\Qcom/google/api/client/googleapis/google-api-client.properties\\E"
-      },
-      {
-        "pattern": "\\Qcom/google/api/client/googleapis/google.p12\\E"
-      },
-      {
-        "pattern": "\\Qcom/google/api/client/http/google-http-client.properties\\E"
-      },
-      {
-        "pattern": "\\Qlogback.xml\\E"
-      },
-      {
-        "pattern": "\\Qmozilla/public-suffix-list.txt\\E"
-      },
-      {
-        "pattern": "\\Qorg/apache/hc/client5/version.properties\\E"
-      },
-      {
-        "pattern": "\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
-      },
-      {
-        "pattern": "\\Qservers/all-servers.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-cli-testing.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-jcarlton.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-local-sam.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-local-wsm.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-mmedlock.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-wchamber.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev-zloery.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/broad-dev.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/verily-autopush.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/verily-devel.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/verily-preprod.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/verily-staging.json\\E"
-      },
-      {
-        "pattern": "\\Qservers/verily.json\\E"
-      }
-    ]
-  },
-  "bundles": [
+  "resources":{
+  "includes":[
     {
-      "name": "org.glassfish.jersey.client.internal.localization",
-      "locales": [
-        ""
-      ]
-    },
+      "pattern":"\\QMETA-INF/services/com.fasterxml.jackson.databind.Module\\E"
+    }, 
     {
-      "name": "org.glassfish.jersey.internal.localization",
-      "locales": [
-        ""
-      ]
-    },
+      "pattern":"\\QMETA-INF/services/org.glassfish.hk2.extension.ServiceLocatorGenerator\\E"
+    }, 
     {
-      "name": "sun.awt.resources.awt",
-      "classNames": [
-        "sun.awt.resources.awt"
-      ]
-    },
+      "pattern":"\\QMETA-INF/services/org.glassfish.jersey.internal.inject.InjectionManagerFactory\\E"
+    }, 
     {
-      "name": "sun.awt.resources.awtosx",
-      "classNames": [
-        "sun.awt.resources.awtosx"
-      ]
+      "pattern":"\\QMETA-INF/services/org.glassfish.jersey.internal.spi.AutoDiscoverable\\E"
+    }, 
+    {
+      "pattern":"\\Qclient_secret.json\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/google/api/client/googleapis/google-api-client.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/google/api/client/googleapis/google.p12\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/google/api/client/http/google-http-client.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qdependencies.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qlogback.xml\\E"
+    }, 
+    {
+      "pattern":"\\Qmozilla/public-suffix-list.txt\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/apache/hc/client5/version.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/all-servers.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-cli-testing.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-jcarlton.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-local-sam.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-local-wsm.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-mmedlock.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-wchamber.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev-zloery.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/broad-dev.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/verily-autopush.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/verily-devel.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/verily-preprod.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/verily-staging.json\\E"
+    }, 
+    {
+      "pattern":"\\Qservers/verily.json\\E"
+    }
+  ]},
+  "bundles":[
+    {
+      "name":"org.glassfish.jersey.client.internal.localization",
+      "locales":["und"]
+    }, 
+    {
+      "name":"org.glassfish.jersey.internal.localization",
+      "locales":["und"]
+    }, 
+    {
+      "name":"sun.awt.resources.awt",
+      "classNames":["sun.awt.resources.awt"]
+    }, 
+    {
+      "name":"sun.awt.resources.awtosx",
+      "classNames":["sun.awt.resources.awtosx"]
     }
   ]
 }

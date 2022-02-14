@@ -17,8 +17,13 @@
 # or `auth login`. It's expected that the config files we need will ultimately be the union of
 # generated configs from several terra invocations.
 
-OUTPUT_DIR=./build/agent_out
-mkdir -p $OUTPUT_DIR
+#OUTPUT_DIR=./build/agent_out
+#mkdir -p $OUTPUT_DIR
+
+# Directory for merging generated configs across many runs with different inputs.
+# See https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/Agent/
+MERGE_DIR=./build/agent_merge
+mkdir -p $MERGE_DIR
 
 # Set jenv to GraalVM (change as necessary). Alternatively, set $JAVA_HOME and possibly other things.
 # jenv shell graalvm64-11.0.14
@@ -158,7 +163,7 @@ CLASSPATH=\
 
 # Run build classes in GraalVM with the native agent collecting config info.
 java \
-  -agentlib:native-image-agent=config-output-dir=$OUTPUT_DIR \
+  -agentlib:native-image-agent=config-merge-dir=$MERGE_DIR \
   --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED \
   --add-opens java.base/java.net=ALL-UNNAMED \
   -classpath $CLASSPATH \
