@@ -29,7 +29,7 @@ import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `--workspace` option to override the current workspace just for this command. */
 @Tag("unit")
 public class WorkspaceOverride extends ClearContextUnit {
-  protected static final TestUsers workspaceCreator = TestUsers.chooseTestUserWithSpendAccess();
+  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static UFWorkspace workspace1;
   private static UFWorkspace workspace2;
 
@@ -333,7 +333,7 @@ public class WorkspaceOverride extends ClearContextUnit {
   void workspaceUser() throws IOException {
     // login as the workspace creator and select a test user to share the workspace with
     workspaceCreator.login();
-    TestUsers testUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser testUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);

@@ -21,6 +21,7 @@ import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableInfo;
 import com.google.common.collect.ImmutableList;
 import harness.CRLJanitor;
+import harness.TestConfig;
 import harness.TestExternalResources;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -51,7 +52,7 @@ public class ExternalBQDatasets {
    * project.
    */
   public static DatasetReference createDataset() throws IOException {
-    String projectId = TestExternalResources.getProjectId();
+    String projectId = TestConfig.get().getProjectForExternalResources();
     String datasetId = randomDatasetId();
     String location = "us-east4";
 
@@ -207,7 +208,7 @@ public class ExternalBQDatasets {
   private static BigQueryCow getBQCow() {
     try {
       return BigQueryCow.create(
-          CRLJanitor.DEFAULT_CLIENT_CONFIG, TestExternalResources.getSACredentials());
+          CRLJanitor.getClientConfig(), TestExternalResources.getSACredentials());
     } catch (GeneralSecurityException | IOException ex) {
       throw new RuntimeException("Error getting Janitor client SA credentials.", ex);
     }
@@ -220,7 +221,7 @@ public class ExternalBQDatasets {
    */
   public static BigQuery getBQClient(GoogleCredentials credentials) {
     return BigQueryOptions.newBuilder()
-        .setProjectId(TestExternalResources.getProjectId())
+        .setProjectId(TestConfig.get().getProjectForExternalResources())
         .setCredentials(credentials)
         .build()
         .getService();

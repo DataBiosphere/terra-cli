@@ -24,7 +24,7 @@ public class ClearContextIntegration {
     int exitCode = TestBashScript.runScript("SetupContext.sh");
     assertEquals(0, exitCode, "SetupContext script completed without errors");
 
-    // initialize the Context from disk, so we can login with TestUsers
+    // initialize the Context from disk, so we can login with TestUser
     Context.initializeFromDisk();
   }
 
