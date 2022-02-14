@@ -1750,7 +1750,37 @@
     "allPublicClasses": true
   },
   {
+    "name": "bio.terra.workspace.model.CreateCloudContextRequest",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.CreateCloudContextResult",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
     "name": "bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.CreateWorkspaceRequestBody",
     "queryAllDeclaredConstructors": true,
     "queryAllPublicConstructors": true,
     "allDeclaredFields": true,
@@ -1770,7 +1800,27 @@
     "allPublicClasses": true
   },
   {
+    "name": "bio.terra.workspace.model.CreatedWorkspace",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
     "name": "bio.terra.workspace.model.DataRepoSnapshotAttributes",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.ErrorReport",
     "queryAllDeclaredConstructors": true,
     "queryAllPublicConstructors": true,
     "allDeclaredFields": true,
@@ -1881,6 +1931,36 @@
   },
   {
     "name": "bio.terra.workspace.model.GitRepoAttributes",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.JobControl",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.JobReport",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "bio.terra.workspace.model.JobReport$StatusEnum",
     "queryAllDeclaredConstructors": true,
     "queryAllPublicConstructors": true,
     "allDeclaredFields": true,

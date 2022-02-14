@@ -21,7 +21,7 @@ OUTPUT_DIR=./build/agent_out
 mkdir -p $OUTPUT_DIR
 
 # Set jenv to GraalVM (change as necessary). Alternatively, set $JAVA_HOME and possibly other things.
-jenv shell graalvm64-11.0.14
+# jenv shell graalvm64-11.0.14
 
 # On my machine the path looks like /Users/jaycarlton/.jenv/versions/graalvm64-11.0.14/bin/java
 # To obtain the full set of arguments for the classpath, etc, add the following to the end of the
