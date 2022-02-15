@@ -48,9 +48,7 @@ public class LocalProcessLauncher {
     }
     if (envVars != null) {
       Map<String, String> procEnvVars = procBuilder.environment();
-      for (Map.Entry<String, String> envVar : envVars.entrySet()) {
-        procEnvVars.put(envVar.getKey(), envVar.getValue());
-      }
+      procEnvVars.putAll(envVars);
     }
     procBuilder.inheritIO();
 
