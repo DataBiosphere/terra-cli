@@ -191,6 +191,8 @@ public class User {
   private void loadAppDefaultCredentials() {
     googleCredentials =
         AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
+    logger.debug(
+        "App default credentials token is " + googleCredentials.getAccessToken().getTokenValue());
   }
 
   /** Delete all credentials associated with this user. */
