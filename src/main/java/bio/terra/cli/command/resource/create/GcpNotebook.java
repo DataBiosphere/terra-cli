@@ -228,9 +228,9 @@ public class GcpNotebook extends BaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
-    Map<String, String> metadatas = defaultMetadata(Context.requireWorkspace().getId());
+    Map<String, String> allMetadata = defaultMetadata(Context.requireWorkspace().getId());
     if (metadata != null) {
-      metadatas.putAll(metadata);
+      allMetadata.putAll(metadata);
     }
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
@@ -239,7 +239,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(metadatas);
+            .metadata(allMetadata);
 
     if (acceleratorConfig != null) {
       createParams
