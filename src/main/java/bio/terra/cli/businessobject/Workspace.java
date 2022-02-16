@@ -203,8 +203,8 @@ public class Workspace {
    *
    * @return Email identifier of the pet SA the current user can now actAs.
    */
-  public String enablePet() {
-    return WorkspaceManagerService.fromContext().enablePet(id);
+  public void enablePet() {
+    WorkspaceManagerService.fromContext().enablePet(id);
   }
 
   /**

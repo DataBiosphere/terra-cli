@@ -351,8 +351,8 @@ public class WorkspaceManagerService {
    * @param workspaceId the id of the workspace to enable pet impersonation in
    * @return the email identifier of the pet SA which the user can now impersonate
    */
-  public String enablePet(UUID workspaceId) {
-    return callWithRetries(
+  public void enablePet(UUID workspaceId) {
+    callWithRetries(
         () -> new WorkspaceApi(apiClient).enablePet(workspaceId), "Error enabling user's pet SA");
   }
 
