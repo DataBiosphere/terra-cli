@@ -65,9 +65,11 @@ public class GcpNotebook extends BaseCommand {
   private String postStartupScript;
 
   @CommandLine.Option(
-      names = "--metadata",
+      names = "-M, --metadata",
       description =
-          "Custom metadata to apply to this instance.\nBy default sets some jupyterlab extensions "
+          "Custom metadata to apply to this instance.\n"
+              + "specify multiple metadata in the format of --metadata=key1=value1 --Mkey2=value2.\n"
+              + "By default sets some jupyterlab extensions "
               + "(installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz) "
               + "and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).")
   private Map<String, String> metadata;
