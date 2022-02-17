@@ -11,9 +11,12 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 public abstract class ToolCommand extends BaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(ToolCommand.class);
   /** Return the name used to invoke this command in the shell. */
   public abstract String getExecutableName();
 
@@ -33,8 +36,7 @@ public abstract class ToolCommand extends BaseCommand {
         && !toolIsInstalled()) {
       throw new UserActionableException(
           String.format(
-              "The third-party tool %s is not installed. "
-                  + "Please install it or set app-launch config mode to DOCKER_CONTAINER.",
+              "Unable to launch %s. Please verify it is installed and included in the PATH.",
               getExecutableName()));
     }
     executeImpl();
@@ -67,7 +69,9 @@ public abstract class ToolCommand extends BaseCommand {
       int exitCode = localProcessLauncher.waitForTerminate();
       return 0 == exitCode;
     } catch (SystemException e) {
-      // Likely the process failed to start
+      logger.debug(
+          "Failed to launch local process to check tool version for {}: ", getExecutableName(), e);
+      // Likely the process failed to start, so we assume it isn't installed.
       return false;
     }
   }
