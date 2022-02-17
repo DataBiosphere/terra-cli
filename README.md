@@ -79,6 +79,23 @@ Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMI
 In order to read or write external data from Terra, you should grant data access to your proxy group.
 `terra auth status` shows the email of your proxy group.
 
+#### Local Tools Installation
+When running `terra app` commands in `LOCAL_PROCESS` `app-launch` mode (the default),
+it's necessary to install the various tools locally. The following instructions are
+for MacOS or Linux.
+- `gcloud` - Make sure you have Python installed, then download the tarball from the [installation page](https://cloud.google.com/sdk/docs/install). Run `gcloud version` to verify the installation.
+- `gsutil` - included in the `gcloud` CLI, or available separately [here](https://cloud.google.com/storage/docs/gsutil_install).
+Verify the installation with `gsutil version` (also printed as part of `gcloud version`)
+- `bq` - included with `gcloud`. More details are available [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
+Similarly, verify the installation with `bq version`.
+- `nextflow` - Install   by downloading a `bash` script and running it locally. Create a `nextflow` directory
+somewhere convenient (e.g. $HOME/nextflow) and switch to it. Then do `curl -s https://get.nextflow.io | bash`.
+Finally, move the `nextflow` executable script to a location on the `$PATH`: `sudo mv nextflow /usr/local/bin/`.
+Verify the installation with `nextflow -version`.
+
+Now, these applications are available in `terra` by doing, for example, `terra gsutil ls`. When
+run in `terra`, environment variables are set based on resources in the active workspace, and
+context such as the active GCP project is set up automatically. 
 #### Troubleshooting
 ##### Clear context
 Clear the context file and all credentials. This will require you to login and select a workspace again.
