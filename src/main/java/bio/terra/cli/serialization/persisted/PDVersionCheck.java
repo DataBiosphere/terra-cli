@@ -14,8 +14,11 @@ import java.time.OffsetDateTime;
 public class PDVersionCheck {
   public final OffsetDateTime lastVersionCheckTime;
 
+  /**
+   * Default constructor for Jackson. Not sure why this class needs one and other PD classes don't.
+   */
   public PDVersionCheck() {
-    lastVersionCheckTime = null; // boo
+    lastVersionCheckTime = null;
   }
 
   public PDVersionCheck(VersionCheck internalObj) {

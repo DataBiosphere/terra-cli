@@ -56,7 +56,6 @@ public class Context {
       // try to read in an instance of the context file
       PDContext diskContext =
           JacksonMapper.readFileIntoJavaObject(getContextFile().toFile(), PDContext.class);
-      logger.debug("Loaded context from disk.");
       currentConfig = new Config(diskContext.config);
       currentServer = new Server(diskContext.server);
       currentUser = diskContext.user == null ? null : new User(diskContext.user);

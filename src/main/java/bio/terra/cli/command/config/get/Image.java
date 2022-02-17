@@ -15,7 +15,6 @@ public class Image extends BaseCommand {
   /** Return the docker image id property of the global context. */
   @Override
   protected void execute() {
-    formatOption.printReturnValue("getting docker image");
     formatOption.printReturnValue(Context.getConfig().getDockerImageId());
   }
 
