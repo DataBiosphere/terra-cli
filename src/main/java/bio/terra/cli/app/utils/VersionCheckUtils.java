@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class VersionCheckUtils {
   private static final Logger logger = LoggerFactory.getLogger(VersionCheckUtils.class);
-  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofMinutes(1);
+  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofMinutes(30);
 
   /** Query Workspace Manager for the oldest supported */
   public static boolean isObsolete() {

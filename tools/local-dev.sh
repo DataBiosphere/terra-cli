@@ -17,24 +17,12 @@ echo "Building Java code"
 echo "Aliasing JAR file"
 alias terra=$(pwd)/build/install/terra-cli/bin/terra
 
-echo "The config according to terra:"
-terra config list
-
-echo "The context file:"
-jq < ~/.terra/context.json
-
 echo "Setting the Docker image id to the default"
 terra config set image --default
 
-echo "image according to terra config:"
-terra config get image
-
 echo "Pulling the default Docker image"
 defaultDockerImage=$(terra config get image)
-echo "defaultDockerImage = $defaultDockerImage"
-
-echo "docker pull $defaultDockerImage"
-docker pull "$defaultDockerImage"
+docker pull $defaultDockerImage
 
 echo "Setting the server to its current value, to pull any changes"
 currentServer=$(terra config get server)
