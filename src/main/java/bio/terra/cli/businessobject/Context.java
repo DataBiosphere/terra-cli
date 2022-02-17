@@ -53,11 +53,10 @@ public class Context {
    */
   public static void initializeFromDisk() {
     try {
-      logger.info("initializeFromDisk()");
       // try to read in an instance of the context file
       PDContext diskContext =
           JacksonMapper.readFileIntoJavaObject(getContextFile().toFile(), PDContext.class);
-      logger.info("Loaded context from disk: \n{}", diskContext);
+      logger.debug("Loaded context from disk.");
       currentConfig = new Config(diskContext.config);
       currentServer = new Server(diskContext.server);
       currentUser = diskContext.user == null ? null : new User(diskContext.user);
@@ -70,17 +69,17 @@ public class Context {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
-      logger.debug("Context file not found. Re-initializing with default values", fnfEx);
-      initializeDefauts();
+      logger.debug("Context file not found. Re-initializing with default values");
+      initializeDefaults();
     } catch (IOException ioEx) {
       logger.error("Error reading context file. Re-initializing with default values", ioEx);
-      initializeDefauts();
+      initializeDefaults();
     }
     overrideWorkspace = null;
     useOverrideWorkspace = false;
   }
 
-  private static void initializeDefauts() {
+  private static void initializeDefaults() {
     currentConfig = new Config();
     currentServer = new Server();
     currentUser = null;

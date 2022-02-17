@@ -3,18 +3,12 @@ package bio.terra.cli.command.shared;
 import bio.terra.cli.app.utils.VersionCheckUtils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.businessobject.VersionCheck;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
-import java.lang.module.ModuleDescriptor.Version;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.Optional;
 import java.util.concurrent.Callable;
-import javax.annotation.Nullable;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -100,5 +94,4 @@ public abstract class BaseCommand implements Callable<Integer> {
   protected boolean requiresLogin() {
     return true;
   }
-
 }

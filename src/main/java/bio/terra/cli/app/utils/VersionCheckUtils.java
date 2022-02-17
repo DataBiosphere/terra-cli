@@ -2,7 +2,6 @@ package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.VersionCheck;
-import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.SystemVersion;
 import java.lang.module.ModuleDescriptor.Version;
@@ -17,9 +16,7 @@ public class VersionCheckUtils {
   private static final Logger logger = LoggerFactory.getLogger(VersionCheckUtils.class);
   private static final Duration VERSION_CHECK_INTERVAL = Duration.ofMinutes(1);
 
-  /**
-   * Query Workspace Manager for the oldest supported
-   */
+  /** Query Workspace Manager for the oldest supported */
   public static boolean isObsolete() {
     if (doVersionCheck()) {
       // update last checked time in the context file

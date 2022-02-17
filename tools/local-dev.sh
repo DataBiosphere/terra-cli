@@ -17,6 +17,9 @@ echo "Building Java code"
 echo "Aliasing JAR file"
 alias terra=$(pwd)/build/install/terra-cli/bin/terra
 
+terra config list
+terra config get image
+
 echo "Setting the Docker image id to the default"
 terra config set image --default
 
