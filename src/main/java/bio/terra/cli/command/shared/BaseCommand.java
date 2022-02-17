@@ -1,13 +1,12 @@
 package bio.terra.cli.command.shared;
 
+import bio.terra.cli.app.utils.VersionCheckUtils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.businessobject.VersionCheck;
 import bio.terra.cli.command.Main;
-import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.SystemVersion;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.lang.module.ModuleDescriptor.Version;
@@ -42,7 +41,6 @@ import picocli.CommandLine;
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BaseCommand.class);
-  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofMinutes(1);
   // output streams for commands to write to
   protected static PrintStream OUT;
   protected static PrintStream ERR;
@@ -71,7 +69,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     execute();
 
     //     optionally check if this version of the CLI is out of date
-    if (isObsolete()) {
+    if (VersionCheckUtils.isObsolete()) {
       ERR.printf(
           "Warning: Version %s of the CLI has expired. Functionality may not work as expected. To install the latest version: curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash ./terra\n"
               + "If you have added the CLI to your $PATH, this step will need to be repeated after the installation is complete.%n",
@@ -103,72 +101,4 @@ public abstract class BaseCommand implements Callable<Integer> {
     return true;
   }
 
-  /**
-   * Query Workspace Manager for the oldest supported
-   *
-   * @return
-   */
-  private boolean isObsolete() {
-    if (doVersionCheck()) {
-      // update last checked time in the context file
-      VersionCheck updatedVersionCheck = new VersionCheck(OffsetDateTime.now());
-      Context.setVersionCheck(updatedVersionCheck);
-
-      // The oldest supported version is exposed on the main WSM /version endpoint
-      SystemVersion wsmVersion =
-          WorkspaceManagerService.unauthenticated(Context.getServer()).getVersion();
-      String oldestSupportedVersion = wsmVersion.getOldestSupportedCliVersion();
-      String currentCliVersion = bio.terra.cli.utils.Version.getVersion();
-      boolean result = isOlder(currentCliVersion, oldestSupportedVersion);
-      logger.info(
-          "Current CLI version {} is {} than the oldest supported version {}",
-          currentCliVersion,
-          result ? "older" : "newer",
-          oldestSupportedVersion);
-      return result;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * We don't want to hit the version endpoint on the server with every command invocation, so check
-   * if a certain amount of time has passed since the last time we checked (or the last time is
-   * null/never).
-   *
-   * @return true if we should do the version check again
-   */
-  private boolean doVersionCheck() {
-    Optional<OffsetDateTime> lastCheckTime =
-        Context.getVersionCheck().map(VersionCheck::getLastVersionCheckTime);
-    boolean result =
-        (lastCheckTime.isEmpty()
-            || Duration.between(lastCheckTime.get(), OffsetDateTime.now())
-                    .compareTo(VERSION_CHECK_INTERVAL)
-                > 0);
-    logger.info(
-        "Last version check occurred at {}, which was {} the check interval {} ago.",
-        lastCheckTime.map(OffsetDateTime::toString).orElse("never"),
-        result ? "greater than" : "less than or equal to",
-        VERSION_CHECK_INTERVAL);
-    return result;
-  }
-
-  /**
-   * Look at the semantic version strings and compare them to determine if the current version is
-   * older.
-   */
-  private boolean isOlder(
-      String currentVersionString, @Nullable String oldestSupportedVersionString) {
-    if (null == oldestSupportedVersionString) {
-      logger.info(
-          "Unable to obtain the oldest supported CLI version from WSM. "
-              + "This is OK, as not all deployments expose this value.");
-      return false;
-    }
-
-    var currentVersion = Version.parse(currentVersionString);
-    var oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
-    return currentVersion.compareTo(oldestSupportedVersion) < 0;
-  }
 }

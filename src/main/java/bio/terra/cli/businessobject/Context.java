@@ -70,10 +70,10 @@ public class Context {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
-      logger.info("Context file not found. Re-initializing with default values", fnfEx);
+      logger.debug("Context file not found. Re-initializing with default values", fnfEx);
       initializeDefauts();
     } catch (IOException ioEx) {
-      logger.info("IOException -- Re-initializing with default values", ioEx);
+      logger.error("Error reading context file. Re-initializing with default values", ioEx);
       initializeDefauts();
     }
     overrideWorkspace = null;
