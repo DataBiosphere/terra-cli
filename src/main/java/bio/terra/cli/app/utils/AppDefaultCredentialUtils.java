@@ -60,7 +60,7 @@ public class AppDefaultCredentialUtils {
    * current user or their pet SA
    */
   public static void throwIfADCDontMatchContext() {
-    if (!doADCMatchContext()) {
+    if (!doAdcMatchContext()) {
       throw new UserActionableException(
           "Application default credentials do not match the user or pet SA emails.");
     }
@@ -71,8 +71,8 @@ public class AppDefaultCredentialUtils {
    * user+workspace, or if they are end-user credentials, which we can't validate directly. Throw an
    * exception if they are not defined.
    */
-  private static boolean doADCMatchContext() {
-    GoogleCredentials appDefaultCreds = getADC();
+  private static boolean doAdcMatchContext() {
+    GoogleCredentials appDefaultCreds = getApplicationDefaultCredentials();
 
     if (appDefaultCreds instanceof UserCredentials) {
       logger.info("ADC are end-user credentials. Skipping account/email validation.");
@@ -91,7 +91,7 @@ public class AppDefaultCredentialUtils {
   }
 
   /** Get the application default credentials. Throw an exception if they are not defined. */
-  private static GoogleCredentials getADC() {
+  public static GoogleCredentials getApplicationDefaultCredentials() {
     try {
       return GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
