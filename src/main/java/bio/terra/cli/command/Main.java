@@ -214,7 +214,5 @@ public class Main implements Runnable {
     }
   }
 
-  void checkForObsoleteVersion() {
-
-  }
+  void checkForObsoleteVersion() {}
 }

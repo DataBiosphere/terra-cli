@@ -43,6 +43,7 @@ public class PDServer {
     this.workspaceManagerUri = builder.workspaceManagerUri;
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
+    this.lastVersionCheckTime = builder.lastVersionCheckTime;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -54,6 +55,7 @@ public class PDServer {
     private String workspaceManagerUri;
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
+    private OffsetDateTime lastVersionCheckTime;
 
     public Builder name(String name) {
       this.name = name;
@@ -87,6 +89,11 @@ public class PDServer {
 
     public Builder dataRepoUri(String dataRepoUri) {
       this.dataRepoUri = dataRepoUri;
+      return this;
+    }
+
+    public Builder lastVersionCheckTime(OffsetDateTime lastVersionCheckTime) {
+      this.lastVersionCheckTime = lastVersionCheckTime;
       return this;
     }
 

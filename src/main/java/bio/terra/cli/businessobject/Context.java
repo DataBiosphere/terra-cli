@@ -44,7 +44,6 @@ public class Context {
   private static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
-
   /**
    * Reads the context file from disk and initializes the singleton internal state classes (Config,
    * Server, User, Workspace).

@@ -1,6 +1,7 @@
 package bio.terra.cli.command.shared;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -9,9 +10,11 @@ import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.SystemVersion;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
+import java.lang.module.ModuleDescriptor.Version;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -66,6 +69,13 @@ public abstract class BaseCommand implements Callable<Integer> {
     logger.debug("[COMMAND RUN] terra " + String.join(" ", Main.getArgList()));
     execute();
 
+    // optionally check if this version of the CLI is out of date
+    if (isObsolete()) {
+      ERR.printf(
+          "The current version of the CLI is out of date. Please upgrade by invoking "
+              + "FIXME.%n");
+    }
+
     // set the command exit code
     return 0;
   }
@@ -93,38 +103,64 @@ public abstract class BaseCommand implements Callable<Integer> {
 
   /**
    * Query Workspace Manager for the oldest supported
+   *
    * @return
    */
   private boolean isObsolete() {
     if (doVersionCheck()) {
-      SystemVersion systemVersion = WorkspaceManagerService.fromContext().getVersion();
+      Server server = Context.getServer();
+
+      SystemVersion systemVersion =
+          WorkspaceManagerService.unauthenticated(Context.getServer()).getVersion();
       String oldestSupportedVersion = systemVersion.getOldestSupportedCliVersion();
       String currentCliVersion = bio.terra.cli.utils.Version.getVersion();
       return isOlder(currentCliVersion, oldestSupportedVersion);
+    } else {
+      return false;
     }
   }
 
   /**
-   * We don't want to hit the version endpoint on the server with every command invocation,
-   * so check if a certain amount of time has passed since the last time we checked (or the
-   * last time is null/never).
+   * We don't want to hit the version endpoint on the server with every command invocation, so check
+   * if a certain amount of time has passed since the last time we checked (or the last time is
+   * null/never).
+   *
    * @return true if we should do the version check again
    */
   private boolean doVersionCheck() {
     OffsetDateTime lastCheckTime = Context.getServer().getLastVersionCheckTime();
-    return null == lastCheckTime
-        || Duration.between(lastCheckTime, OffsetDateTime.now())
-        .compareTo(VERSION_CHECK_INTERVAL) > 0;
+    boolean result =
+        (null == lastCheckTime
+            || Duration.between(lastCheckTime, OffsetDateTime.now())
+                    .compareTo(VERSION_CHECK_INTERVAL)
+                > 0);
+    logger.debug(
+        "Last version check occurred at {}, which was {} the check interval {} ago.",
+        lastCheckTime,
+        result ? "greater than" : "less than or equal to",
+        VERSION_CHECK_INTERVAL);
+    return result;
   }
 
   /**
-   * Look at the semantic version strings and compare them to determine if the current version
-   * is older
-   * @param currentVersion
-   * @param oldestSupportedVersion
+   * Look at the semantic version strings and compare them to determine if the current version is
+   * older
+   *
+   * @param currentVersionString
+   * @param oldestSupportedVersionString
    * @return
    */
-  private boolean isOlder(String currentVersion, String oldestSupportedVersion) {
-    
+  private boolean isOlder(
+      String currentVersionString, @Nullable String oldestSupportedVersionString) {
+    if (null == oldestSupportedVersionString) {
+      logger.debug(
+          "Unable to obtain the oldest supported CLI version from WSM. "
+              + "This is potentially benign, as not all deployments expose this value.");
+      return false;
+    }
+
+    Version currentVersion = Version.parse(currentVersionString);
+    Version oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
+    return currentVersion.compareTo(oldestSupportedVersion) < 0;
   }
 }

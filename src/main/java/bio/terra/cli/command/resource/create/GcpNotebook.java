@@ -69,8 +69,7 @@ public class GcpNotebook extends BaseCommand {
       description =
           "Custom metadata to apply to this instance.\n"
               + "specify multiple metadata in the format of --metadata=key1=value1 --Mkey2=value2.\n"
-              + "By default sets some jupyterlab extensions "
-              + "(installed-extensions=jupyterlab_bigquery-latest.tar.gz,jupyterlab_gcsfilebrowser-latest.tar.gz,jupyterlab_gcpscheduler-latest.tar.gz) "
+              + "By default set Terra CLI server terra-cli-server=[CLI_SERVER_ID]\n"
               + "and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).")
   private Map<String, String> metadata;
 
@@ -229,6 +228,10 @@ public class GcpNotebook extends BaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
+    Map<String, String> allMetadata = defaultMetadata(Context.requireWorkspace().getId());
+    if (metadata != null) {
+      allMetadata.putAll(metadata);
+    }
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
@@ -236,8 +239,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(
-                metadata == null ? defaultMetadata(Context.requireWorkspace().getId()) : metadata);
+            .metadata(allMetadata);
 
     if (acceleratorConfig != null) {
       createParams
