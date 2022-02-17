@@ -14,6 +14,10 @@ import java.time.OffsetDateTime;
 public class PDVersionCheck {
   public final OffsetDateTime lastVersionCheckTime;
 
+  public PDVersionCheck() {
+    lastVersionCheckTime = null; // boo
+  }
+
   public PDVersionCheck(VersionCheck internalObj) {
     this.lastVersionCheckTime = internalObj.getLastVersionCheckTime();
   }

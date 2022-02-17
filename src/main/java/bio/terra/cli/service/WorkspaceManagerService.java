@@ -1432,10 +1432,4 @@ public class WorkspaceManagerService {
         ? apiExMsg
         : apiEx.getCode() + " " + apiEx.getMessage());
   }
-
-  //  public String getWsmVersion() {
-  //    callWithRetries(
-  //        () -> new WorkspaceApi(apiClient).getVersion(), "Error enabling user's pet SA");
-  //
-  //  }
 }

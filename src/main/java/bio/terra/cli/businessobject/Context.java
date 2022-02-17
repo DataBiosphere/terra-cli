@@ -4,6 +4,7 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDContext;
 import bio.terra.cli.utils.JacksonMapper;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,9 +53,11 @@ public class Context {
    */
   public static void initializeFromDisk() {
     try {
+      logger.info("initializeFromDisk()");
       // try to read in an instance of the context file
       PDContext diskContext =
           JacksonMapper.readFileIntoJavaObject(getContextFile().toFile(), PDContext.class);
+      logger.info("Loaded context from disk: \n{}", diskContext);
       currentConfig = new Config(diskContext.config);
       currentServer = new Server(diskContext.server);
       currentUser = diskContext.user == null ? null : new User(diskContext.user);
@@ -62,17 +65,27 @@ public class Context {
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
       currentVersionCheck =
           diskContext.versionCheck == null ? null : new VersionCheck(diskContext.versionCheck);
-    } catch (IOException ioEx) {
+
+    } catch (FileNotFoundException fnfEx) {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing context file). we handle this by returning an object populated with
       // default values below. so, no need to log or throw the exception returned here.
-      currentConfig = new Config();
-      currentServer = new Server();
-      currentUser = null;
-      currentWorkspace = null;
+      logger.info("Context file not found. Re-initializing with default values", fnfEx);
+      initializeDefauts();
+    } catch (IOException ioEx) {
+      logger.info("IOException -- Re-initializing with default values", ioEx);
+      initializeDefauts();
     }
     overrideWorkspace = null;
     useOverrideWorkspace = false;
+  }
+
+  private static void initializeDefauts() {
+    currentConfig = new Config();
+    currentServer = new Server();
+    currentUser = null;
+    currentWorkspace = null;
+    currentVersionCheck = null;
   }
 
   /**
@@ -85,6 +98,7 @@ public class Context {
           new PDContext(
               currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
+      logger.info("Wrote context to disk: \n{}", diskContext);
     } catch (IOException ioEx) {
       logger.error("Error persisting context to disk.", ioEx);
     }

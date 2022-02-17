@@ -42,7 +42,7 @@ import picocli.CommandLine;
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BaseCommand.class);
-  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofHours(1);
+  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofMinutes(1);
   // output streams for commands to write to
   protected static PrintStream OUT;
   protected static PrintStream ERR;
@@ -70,11 +70,12 @@ public abstract class BaseCommand implements Callable<Integer> {
     logger.debug("[COMMAND RUN] terra " + String.join(" ", Main.getArgList()));
     execute();
 
-    // optionally check if this version of the CLI is out of date
+    //     optionally check if this version of the CLI is out of date
     if (isObsolete()) {
       ERR.printf(
-          "The current version of the CLI is out of date. Please upgrade by invoking "
-              + "FIXME.%n");
+          "Warning: Version %s of the CLI has expired. Functionality may not work as expected. To install the latest version: curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash ./terra\n"
+              + "If you have added the CLI to your $PATH, this step will need to be repeated after the installation is complete.%n",
+          bio.terra.cli.utils.Version.getVersion());
     }
 
     // set the command exit code
@@ -119,7 +120,7 @@ public abstract class BaseCommand implements Callable<Integer> {
       String oldestSupportedVersion = wsmVersion.getOldestSupportedCliVersion();
       String currentCliVersion = bio.terra.cli.utils.Version.getVersion();
       boolean result = isOlder(currentCliVersion, oldestSupportedVersion);
-      logger.debug(
+      logger.info(
           "Current CLI version {} is {} than the oldest supported version {}",
           currentCliVersion,
           result ? "older" : "newer",
@@ -145,9 +146,9 @@ public abstract class BaseCommand implements Callable<Integer> {
             || Duration.between(lastCheckTime.get(), OffsetDateTime.now())
                     .compareTo(VERSION_CHECK_INTERVAL)
                 > 0);
-    logger.debug(
+    logger.info(
         "Last version check occurred at {}, which was {} the check interval {} ago.",
-        lastCheckTime.orElse(null),
+        lastCheckTime.map(OffsetDateTime::toString).orElse("never"),
         result ? "greater than" : "less than or equal to",
         VERSION_CHECK_INTERVAL);
     return result;
@@ -160,9 +161,9 @@ public abstract class BaseCommand implements Callable<Integer> {
   private boolean isOlder(
       String currentVersionString, @Nullable String oldestSupportedVersionString) {
     if (null == oldestSupportedVersionString) {
-      logger.debug(
+      logger.info(
           "Unable to obtain the oldest supported CLI version from WSM. "
-              + "This is potentially benign, as not all deployments expose this value.");
+              + "This is OK, as not all deployments expose this value.");
       return false;
     }
 

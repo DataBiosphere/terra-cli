@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,10 @@ public class JacksonMapper {
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   public static ObjectMapper getMapper() {
-    return objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+    return objectMapper
+        .enable(JsonParser.Feature.ALLOW_COMMENTS)
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
   }
 
   /**
