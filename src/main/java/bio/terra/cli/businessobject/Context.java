@@ -7,7 +7,6 @@ import bio.terra.cli.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -25,14 +24,13 @@ public class Context {
   private static Server currentServer;
   private static User currentUser;
   private static Workspace currentWorkspace;
+  private static VersionCheck currentVersionCheck;
 
   // functions as the current workspace for this command execution only
   // unlike the other parts of the current context, this property is not persisted to disk
   private static Workspace overrideWorkspace;
   // true if the current command is using an override workspace
   private static boolean useOverrideWorkspace;
-
-  private static OffsetDateTime lastVersionCheckTime;
 
   // env var name to optionally override where the context is persisted on disk
   private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
@@ -62,6 +60,8 @@ public class Context {
       currentUser = diskContext.user == null ? null : new User(diskContext.user);
       currentWorkspace =
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
+      currentVersionCheck =
+          diskContext.versionCheck == null ? null : new VersionCheck(diskContext.versionCheck);
     } catch (IOException ioEx) {
       // file not found is a common error here (e.g. first time running the CLI, there will be no
       // pre-existing context file). we handle this by returning an object populated with
@@ -82,7 +82,8 @@ public class Context {
   public static void synchronizeToDisk() {
     try {
       PDContext diskContext =
-          new PDContext(currentConfig, currentServer, currentUser, currentWorkspace);
+          new PDContext(
+              currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
     } catch (IOException ioEx) {
       logger.error("Error persisting context to disk.", ioEx);
@@ -235,6 +236,15 @@ public class Context {
       currentWorkspace = workspace;
       synchronizeToDisk();
     }
+  }
+
+  public static Optional<VersionCheck> getVersionCheck() {
+    return Optional.ofNullable(currentVersionCheck);
+  }
+
+  public static void setVersionCheck(VersionCheck versionCheck) {
+    currentVersionCheck = versionCheck;
+    synchronizeToDisk();
   }
 
   public static void useOverrideWorkspace(UUID id) {
