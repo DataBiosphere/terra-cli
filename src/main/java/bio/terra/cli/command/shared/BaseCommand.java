@@ -3,10 +3,14 @@ package bio.terra.cli.command.shared;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.Main;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.SystemVersion;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.concurrent.Callable;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -34,6 +38,7 @@ import picocli.CommandLine;
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BaseCommand.class);
+  private static final Duration VERSION_CHECK_INTERVAL = Duration.ofHours(1);
   // output streams for commands to write to
   protected static PrintStream OUT;
   protected static PrintStream ERR;
@@ -84,5 +89,42 @@ public abstract class BaseCommand implements Callable<Integer> {
    */
   protected boolean requiresLogin() {
     return true;
+  }
+
+  /**
+   * Query Workspace Manager for the oldest supported
+   * @return
+   */
+  private boolean isObsolete() {
+    if (doVersionCheck()) {
+      SystemVersion systemVersion = WorkspaceManagerService.fromContext().getVersion();
+      String oldestSupportedVersion = systemVersion.getOldestSupportedCliVersion();
+      String currentCliVersion = bio.terra.cli.utils.Version.getVersion();
+      return isOlder(currentCliVersion, oldestSupportedVersion);
+    }
+  }
+
+  /**
+   * We don't want to hit the version endpoint on the server with every command invocation,
+   * so check if a certain amount of time has passed since the last time we checked (or the
+   * last time is null/never).
+   * @return true if we should do the version check again
+   */
+  private boolean doVersionCheck() {
+    OffsetDateTime lastCheckTime = Context.getServer().getLastVersionCheckTime();
+    return null == lastCheckTime
+        || Duration.between(lastCheckTime, OffsetDateTime.now())
+        .compareTo(VERSION_CHECK_INTERVAL) > 0;
+  }
+
+  /**
+   * Look at the semantic version strings and compare them to determine if the current version
+   * is older
+   * @param currentVersion
+   * @param oldestSupportedVersion
+   * @return
+   */
+  private boolean isOlder(String currentVersion, String oldestSupportedVersion) {
+    
   }
 }

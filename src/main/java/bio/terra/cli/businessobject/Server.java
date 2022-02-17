@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
@@ -41,6 +42,7 @@ public class Server {
   private String workspaceManagerUri;
   private String wsmDefaultSpendProfile;
   private String dataRepoUri;
+  private OffsetDateTime lastVersionCheckTime;
 
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
@@ -55,6 +57,7 @@ public class Server {
     this.workspaceManagerUri = configFromDisk.workspaceManagerUri;
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
+    this.lastVersionCheckTime = configFromDisk.lastVersionCheckTime;
   }
 
   /** Return an instance of this class with default values. */
@@ -194,5 +197,9 @@ public class Server {
 
   public String getDataRepoUri() {
     return dataRepoUri;
+  }
+
+  public OffsetDateTime getLastVersionCheckTime() {
+    return lastVersionCheckTime;
   }
 }

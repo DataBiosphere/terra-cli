@@ -7,6 +7,7 @@ import bio.terra.cli.utils.JacksonMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ public class Context {
   // true if the current command is using an override workspace
   private static boolean useOverrideWorkspace;
 
+  private static OffsetDateTime lastVersionCheckTime;
+
   // env var name to optionally override where the context is persisted on disk
   private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
 
@@ -40,6 +43,7 @@ public class Context {
   private static final String PET_KEYS_DIRNAME = "pet-keys";
   private static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
+
 
   /**
    * Reads the context file from disk and initializes the singleton internal state classes (Config,

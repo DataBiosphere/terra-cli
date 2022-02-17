@@ -213,4 +213,8 @@ public class Main implements Runnable {
       return exitCode;
     }
   }
+
+  void checkForObsoleteVersion() {
+
+  }
 }

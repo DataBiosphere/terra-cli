@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.persisted;
 import bio.terra.cli.businessobject.Server;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.time.OffsetDateTime;
 
 /**
  * External representation of a server for writing to disk.
@@ -20,6 +21,7 @@ public class PDServer {
   public final String workspaceManagerUri;
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
+  public final OffsetDateTime lastVersionCheckTime;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -30,6 +32,7 @@ public class PDServer {
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
+    this.lastVersionCheckTime = internalObj.getLastVersionCheckTime();
   }
 
   private PDServer(PDServer.Builder builder) {
