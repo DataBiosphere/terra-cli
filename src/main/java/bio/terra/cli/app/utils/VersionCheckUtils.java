@@ -50,17 +50,10 @@ public class VersionCheckUtils {
   public static boolean checkIntervalElapsed() {
     Optional<OffsetDateTime> lastCheckTime =
         Context.getVersionCheck().map(VersionCheck::getLastVersionCheckTime);
-    boolean result =
-        (lastCheckTime.isEmpty()
-            || Duration.between(lastCheckTime.get(), OffsetDateTime.now())
-                    .compareTo(VERSION_CHECK_INTERVAL)
-                > 0);
-    logger.debug(
-        "Last version check occurred at {}, which was {} the check interval {} ago.",
-        lastCheckTime.map(OffsetDateTime::toString).orElse("never"),
-        result ? "greater than" : "less than or equal to",
-        VERSION_CHECK_INTERVAL);
-    return result;
+    return (lastCheckTime.isEmpty()
+        || Duration.between(lastCheckTime.get(), OffsetDateTime.now())
+                .compareTo(VERSION_CHECK_INTERVAL)
+            > 0);
   }
 
   /**
