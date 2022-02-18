@@ -5,6 +5,7 @@
     * [Login](#login)
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
+    * [Local Tools Installation](#local-tools-installation)
     * [Troubleshooting](#troubleshooting)
       * [Clear context](#clear-context)
       * [Manual Install](#manual-install)
@@ -83,12 +84,12 @@ In order to read or write external data from Terra, you should grant data access
 When running `terra app` commands in `LOCAL_PROCESS` `app-launch` mode (the default),
 it's necessary to install the various tools locally. The following instructions are
 for MacOS or Linux.
-- `gcloud` - Make sure you have Python installed, then download the tarball from the [installation page](https://cloud.google.com/sdk/docs/install). Run `gcloud version` to verify the installation.
-- `gsutil` - included in the `gcloud` CLI, or available separately [here](https://cloud.google.com/storage/docs/gsutil_install).
+- `gcloud` - Make sure you have Python installed, then download the .tar.gz archive file from the [installation page](https://cloud.google.com/sdk/docs/install). Run `gcloud version` to verify the installation.
+- `gsutil` - included in the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install), or available separately [here](https://cloud.google.com/storage/docs/gsutil_install).
 Verify the installation with `gsutil version` (also printed as part of `gcloud version`)
 - `bq` - included with `gcloud`. More details are available [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
 Similarly, verify the installation with `bq version`.
-- `nextflow` - Install   by downloading a `bash` script and running it locally. Create a `nextflow` directory
+- `nextflow` - Install by downloading a `bash` script and running it locally. Create a `nextflow` directory
 somewhere convenient (e.g. $HOME/nextflow) and switch to it. Then do `curl -s https://get.nextflow.io | bash`.
 Finally, move the `nextflow` executable script to a location on the `$PATH`: `sudo mv nextflow /usr/local/bin/`.
 Verify the installation with `nextflow -version`.
