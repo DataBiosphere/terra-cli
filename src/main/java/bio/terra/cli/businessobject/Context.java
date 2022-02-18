@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,9 @@ public class Context {
   // singleton objects that define the current context or state
   private static Config currentConfig;
   private static Server currentServer;
-  private static User currentUser;
-  private static Workspace currentWorkspace;
-  private static VersionCheck currentVersionCheck;
+  @Nullable private static User currentUser;
+  @Nullable private static Workspace currentWorkspace;
+  @Nullable private static VersionCheck currentVersionCheck;
 
   // functions as the current workspace for this command execution only
   // unlike the other parts of the current context, this property is not persisted to disk
@@ -71,8 +72,7 @@ public class Context {
       logger.debug("Context file not found. Re-initializing with default values");
       initializeDefaults();
     } catch (IOException ioEx) {
-      logger.error("Error reading context file. Re-initializing with default values", ioEx);
-      initializeDefaults();
+      throw new SystemException("Error reading context file from disk.", ioEx);
     }
     overrideWorkspace = null;
     useOverrideWorkspace = false;

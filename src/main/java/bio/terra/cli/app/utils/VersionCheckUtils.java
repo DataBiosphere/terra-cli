@@ -18,7 +18,7 @@ public class VersionCheckUtils {
 
   /** Query Workspace Manager for the oldest supported */
   public static boolean isObsolete() {
-    if (doVersionCheck()) {
+    if (checkIntervalElapsed()) {
       // update last checked time in the context file
       VersionCheck updatedVersionCheck = new VersionCheck(OffsetDateTime.now());
       Context.setVersionCheck(updatedVersionCheck);
@@ -47,7 +47,7 @@ public class VersionCheckUtils {
    *
    * @return true if we should do the version check again
    */
-  public static boolean doVersionCheck() {
+  public static boolean checkIntervalElapsed() {
     Optional<OffsetDateTime> lastCheckTime =
         Context.getVersionCheck().map(VersionCheck::getLastVersionCheckTime);
     boolean result =
