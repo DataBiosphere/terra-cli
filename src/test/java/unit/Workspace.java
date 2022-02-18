@@ -318,12 +318,14 @@ public class Workspace extends ClearContextUnit {
 
   /**
    * Helper method to call `terra workspace list` and filter the results on the specified workspace
-   * id.
+   * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
+   * about to page out.
    */
   static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId) throws JsonProcessingException {
-    // `terra workspace list --format=json`
+    // `terra workspace list --format=json --limit=500`
     List<UFWorkspace> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "workspace", "list");
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "workspace", "list", "--limit=500");
 
     return listWorkspaces.stream()
         .filter(workspace -> workspace.id.equals(workspaceId))
