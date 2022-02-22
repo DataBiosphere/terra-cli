@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
+import bio.terra.cli.businessobject.VersionCheck;
 import bio.terra.cli.businessobject.Workspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -22,17 +23,20 @@ public class PDContext {
   public final PDServer server;
   public final PDUser user;
   public final PDWorkspace workspace;
+  public final PDVersionCheck versionCheck;
 
   /** Serialize an instance of the internal classes to the disk format. */
   public PDContext(
       Config internalConfig,
       Server internalServer,
       @Nullable User internalUser,
-      @Nullable Workspace internalWorkspace) {
+      @Nullable Workspace internalWorkspace,
+      @Nullable VersionCheck versionCheck) {
     this.config = new PDConfig(internalConfig);
     this.server = new PDServer(internalServer);
     this.user = internalUser == null ? null : new PDUser(internalUser);
     this.workspace = internalWorkspace == null ? null : new PDWorkspace(internalWorkspace);
+    this.versionCheck = versionCheck == null ? null : new PDVersionCheck(versionCheck);
   }
 
   private PDContext(PDContext.Builder builder) {
@@ -40,6 +44,7 @@ public class PDContext {
     this.server = builder.server;
     this.user = builder.user;
     this.workspace = builder.workspace;
+    this.versionCheck = builder.versionCheck;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -48,6 +53,7 @@ public class PDContext {
     private PDServer server;
     private PDUser user;
     private PDWorkspace workspace;
+    private PDVersionCheck versionCheck;
 
     public Builder config(PDConfig config) {
       this.config = config;
@@ -66,6 +72,11 @@ public class PDContext {
 
     public Builder workspace(PDWorkspace workspace) {
       this.workspace = workspace;
+      return this;
+    }
+
+    public Builder versionCheck(PDVersionCheck versionCheck) {
+      this.versionCheck = versionCheck;
       return this;
     }
 
