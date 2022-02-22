@@ -10,4 +10,9 @@ public class Gcloud extends ToolCommand {
   public String getExecutableName() {
     return "gcloud";
   }
+
+  @Override
+  public String getInstallationUrl() {
+    return "https://cloud.google.com/sdk/docs/install";
+  }
 }

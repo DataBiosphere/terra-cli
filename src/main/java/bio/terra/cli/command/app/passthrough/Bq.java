@@ -10,4 +10,9 @@ public class Bq extends ToolCommand {
   public String getExecutableName() {
     return "bq";
   }
+
+  @Override
+  public String getInstallationUrl() {
+    return "https://cloud.google.com/sdk/docs/install";
+  }
 }

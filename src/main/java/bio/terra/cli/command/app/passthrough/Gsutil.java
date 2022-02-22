@@ -10,4 +10,9 @@ public class Gsutil extends ToolCommand {
   public String getExecutableName() {
     return "gsutil";
   }
+
+  @Override
+  public String getInstallationUrl() {
+    return "https://cloud.google.com/sdk/docs/install";
+  }
 }

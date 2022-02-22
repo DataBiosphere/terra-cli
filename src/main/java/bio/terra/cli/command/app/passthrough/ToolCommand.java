@@ -25,6 +25,8 @@ public abstract class ToolCommand extends BaseCommand {
     return "version";
   }
 
+  abstract public String getInstallationUrl();
+
   @CommandLine.Mixin protected WorkspaceOverride workspaceOption;
 
   @CommandLine.Unmatched protected final List<String> command = new ArrayList<>();
@@ -36,7 +38,11 @@ public abstract class ToolCommand extends BaseCommand {
         && !toolIsInstalled()) {
       throw new UserActionableException(
           String.format(
-              "Unable to launch %s. Please verify it is installed and included in the PATH.",
+              "Unable to launch %s. Please verify it is installed and included in the PATH. " +
+              "For installation instructions, see %s. Alternatively, run `terra config set " +
+                  "app-launch DOCKER_CONTAINER` to run %s via Docker.",
+              getExecutableName(),
+              getInstallationUrl(),
               getExecutableName()));
     }
     executeImpl();

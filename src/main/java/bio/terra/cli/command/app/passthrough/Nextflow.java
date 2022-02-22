@@ -19,6 +19,11 @@ public class Nextflow extends ToolCommand {
     return "-version";
   }
 
+  @Override
+  public String getInstallationUrl() {
+    return "https://nextflow.io/";
+  }
+
   /** Pass the command through to the CLI Docker image. */
   @Override
   protected void executeImpl() {
