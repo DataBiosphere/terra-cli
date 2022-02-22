@@ -1,12 +1,13 @@
 package bio.terra.cli.command.resource;
 
+import bio.terra.cli.app.utils.tables.TablePrinter;
+import bio.terra.cli.app.utils.tables.UFResourceColumns;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -47,21 +48,9 @@ public class List extends BaseCommand {
     formatOption.printReturnValue(resources, List::printText);
   }
 
-  /** Print this command's output in text format. */
+  /** Print this command's output in tabular text format. */
   private static void printText(java.util.List<UFResource> returnValue) {
-    for (UFResource resource : returnValue) {
-      OUT.println(
-          resource.name
-              + " ("
-              + resource.resourceType
-              + ", "
-              + resource.stewardshipType
-              + (resource.stewardshipType.equals(StewardshipType.CONTROLLED)
-                      && resource.accessScope.equals(AccessScope.PRIVATE_ACCESS)
-                  ? ", " + resource.accessScope + " " + resource.privateUserName
-                  : "")
-              + ")"
-              + (resource.description == null ? "" : ": " + resource.description));
-    }
+    TablePrinter<UFResource> printer = UFResourceColumns::values;
+    OUT.println(printer.print(returnValue));
   }
 }
