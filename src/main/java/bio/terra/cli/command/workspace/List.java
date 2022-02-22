@@ -1,13 +1,13 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.app.utils.tables.TablePrinter;
+import bio.terra.cli.app.utils.tables.UFWorkspaceColumns;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
-import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -46,33 +46,10 @@ public class List extends BaseCommand {
         this::printText);
   }
 
-  /** Print this command's output in text format. */
+  /** Print this command's output in tabular text format. */
   private void printText(java.util.List<UFWorkspace> returnValue) {
-    Optional<Workspace> currentWorkspace = Context.getWorkspace();
-    for (UFWorkspace workspace : returnValue) {
-      String prefix =
-          (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
-              ? " * "
-              : "   ";
-      OUT.println(prefix + workspace.id);
-
-      String propertyDescription = "%16s: %s";
-      String displayName = workspace.name;
-      if (!(displayName == null || displayName.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Name", displayName));
-      }
-      String description = workspace.description;
-      if (!(description == null || description.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Description", description));
-      }
-      String googleProjectId = workspace.googleProjectId;
-      OUT.println(
-          String.format(
-              propertyDescription,
-              "Google project ID",
-              (googleProjectId == null || googleProjectId.isBlank())
-                  ? "(UNSET)"
-                  : googleProjectId));
-    }
+    TablePrinter<UFWorkspace> printer = UFWorkspaceColumns::values;
+    String text = printer.print(returnValue);
+    OUT.println(text);
   }
 }

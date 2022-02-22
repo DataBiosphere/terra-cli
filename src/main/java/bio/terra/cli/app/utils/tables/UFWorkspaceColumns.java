@@ -3,7 +3,7 @@ package bio.terra.cli.app.utils.tables;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import java.util.function.Function;
 
-public enum UFWorkspaceColumns implements TablePrintable<UFWorkspace> {
+public enum UFWorkspaceColumns implements PrintableColumn<UFWorkspace> {
   NAME("NAME", w -> w.name),
   DESCRIPTION("DESCRIPTION", w -> w.description),
   GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId),
