@@ -4,10 +4,11 @@ FROM openjdk:11.0-jre-slim
 # working directory when the docker is run
 WORKDIR /usr
 
-# install curl (to download install packages) and python (for gcloud sdk)
+# install curl (to download install packages), python (for gcloud sdk) and git
 RUN apt-get update \
     && apt-get install -y curl \
-    && apt-get install -y python
+    && apt-get install -y python \
+    && apt-get install git
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
 # these commands come from https://cloud.google.com/sdk/docs/downloads-versioned-archives
