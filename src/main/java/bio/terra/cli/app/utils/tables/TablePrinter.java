@@ -2,7 +2,6 @@ package bio.terra.cli.app.utils.tables;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +38,7 @@ public interface TablePrinter<T> {
   /** Fetch the column labels for each column and join them into a header row. */
   default String printHeaderRow() {
     return Arrays.stream(getColumnEnumValues())
-        .map(PrintableColumn::getColumnLabel)
+        .map(PrintableColumn::formatLabel)
         .collect(Collectors.joining(FIELD_DELIMITER));
   }
 
@@ -51,10 +50,7 @@ public interface TablePrinter<T> {
    */
   default String printRow(T rowObject) {
     return Arrays.stream(getColumnEnumValues())
-        .map(
-            r ->
-                Optional.ofNullable(r.getValueExtractor().apply(rowObject))
-                    .orElse(EMPTY_FIELD_PLACEHOLDER))
+        .map(c -> c.formatCell(rowObject))
         .collect(Collectors.joining(FIELD_DELIMITER));
   }
 }

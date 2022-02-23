@@ -1,13 +1,14 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
-import bio.terra.cli.app.utils.tables.UFWorkspaceColumns;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
+import java.util.function.Function;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -48,8 +49,41 @@ public class List extends BaseCommand {
 
   /** Print this command's output in tabular text format. */
   private void printText(java.util.List<UFWorkspace> returnValue) {
-    TablePrinter<UFWorkspace> printer = UFWorkspaceColumns::values;
+    TablePrinter<UFWorkspace> printer = Columns::values;
     String text = printer.print(returnValue);
     OUT.println(text);
+  }
+
+  /** Column information for table output with `terra workspace list` */
+  private enum Columns implements PrintableColumn<UFWorkspace> {
+    NAME("NAME", w -> w.name, 30),
+    DESCRIPTION("DESCRIPTION", w -> w.description, 60),
+    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30),
+    ID("ID", w -> w.id.toString(), 40);
+
+    private final String columnLabel;
+    private final Function<UFWorkspace, String> valueExtractor;
+    private final int width;
+
+    Columns(String columnLabel, Function<UFWorkspace, String> valueExtractor, int width) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<UFWorkspace, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
   }
 }

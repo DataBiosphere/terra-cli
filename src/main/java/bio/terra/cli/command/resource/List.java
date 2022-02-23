@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resource;
 
+import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
-import bio.terra.cli.app.utils.tables.UFResourceColumns;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -10,6 +10,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Comparator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -52,5 +53,38 @@ public class List extends BaseCommand {
   private static void printText(java.util.List<UFResource> returnValue) {
     TablePrinter<UFResource> printer = UFResourceColumns::values;
     OUT.println(printer.print(returnValue));
+  }
+
+  /** Column information for fields in `resource list` output */
+  private enum UFResourceColumns implements PrintableColumn<UFResource> {
+    NAME("NAME", r -> r.name, 20),
+    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 10),
+    STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 10),
+    DESCRIPTION("DESCRIPTION", r -> r.description, 40);
+
+    private final String columnLabel;
+    private final Function<UFResource, String> valueExtractor;
+    private final int width;
+
+    UFResourceColumns(String columnLabel, Function<UFResource, String> valueExtractor, int width) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<UFResource, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
   }
 }
