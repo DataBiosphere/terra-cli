@@ -34,7 +34,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "app", "list");
 
     // check that all pass-through apps are returned
-    assertTrue(appList.containsAll(Arrays.asList("gcloud", "gsutil", "bq", "nextflow")));
+    assertTrue(appList.containsAll(Arrays.asList("gcloud", "gsutil", "bq", "nextflow", "git")));
   }
 
   @Test
