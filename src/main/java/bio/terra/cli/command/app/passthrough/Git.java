@@ -16,11 +16,13 @@ public class Git extends ToolCommand {
   @CommandLine.Option(
       names = "--resource",
       description =
-          "name of the git-repo resources to be cloned. \n"
+          "name of the git-repo resources in the current workspace to be cloned. \n"
               + "Example usage: git clone --resource=repo1 --resource=repo2")
   public String[] names;
 
-  @CommandLine.Option(names = "-a", description = "clone all the git repo resources")
+  @CommandLine.Option(
+      names = "-a",
+      description = "clone all the git repo resources in the current workspace")
   public boolean cloneAll;
 
   @Override
@@ -40,7 +42,7 @@ public class Git extends ToolCommand {
     if (cloneAll && names != null && names.length > 0) {
       throw new UserActionableException(
           "Conflicted input argument. Only specify one depending on "
-              + "whether you'd like to clone all or some of the git repo resources");
+              + "whether you'd like to clone all or some of the git repo resources in this workspace");
     }
     if (cloneAll) {
       validateCloneCommand();
