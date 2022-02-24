@@ -154,7 +154,7 @@ public class User {
     currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
-    User user = currentUser.orElseGet(() -> new User());
+    User user = currentUser.orElseGet(User::new);
     user.logInMode = logInMode;
 
     if (user.logInMode == LogInMode.APP_DEFAULT_CREDENTIALS) {

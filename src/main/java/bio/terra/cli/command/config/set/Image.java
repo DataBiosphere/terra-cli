@@ -1,5 +1,6 @@
 package bio.terra.cli.command.config.set;
 
+import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Config;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -27,6 +28,12 @@ public class Image extends BaseCommand {
     Config config = Context.getConfig();
     String prevImageId = config.getDockerImageId();
     String newImageId = argGroup.useDefault ? Config.getDefaultImageId() : argGroup.imageId;
+    if (!new DockerClientWrapper().checkImageExists(newImageId)) {
+      OUT.printf(
+          "WARNING: Image %s was not found on the local machine. "
+              + "Do `docker pull %s` to obtain it.%n",
+          newImageId, newImageId);
+    }
     config.setDockerImageId(newImageId);
 
     if (config.getDockerImageId().equals(prevImageId)) {
