@@ -219,7 +219,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("git clone")
+  @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
     workspaceCreator.login();
 
