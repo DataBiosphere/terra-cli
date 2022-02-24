@@ -196,8 +196,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("git clone")
-  void gitClone() throws IOException {
+  @DisplayName("git clone --all")
+  void gitCloneAll() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -207,12 +207,30 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "git-repo",
         "--name=repo1",
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo2",
+        "--repo-url=https://github.com/DataBiosphere/terra.git");
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo3",
+        "--repo-url=https://github.com/DataBiosphere/terra.git");
 
-    // `terra git clone -a`
-    TestCommand.runCommandExpectSuccess("git", "clone", "-a");
+    // `terra git clone --all`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--all");
 
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks")));
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo2", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo3", "--quiet");
   }
 
   @Test
@@ -225,14 +243,16 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource",
         "add-ref",
         "git-repo",
-        "--name=repo2",
-        "--repo-url=https://github.com/isb-cgc/Community-Notebooks.git");
+        "--name=repo1",
+        "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
 
     // `terra git clone --resource=repo2`
-    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo2");
+    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo1");
 
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "Community-Notebooks")));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/Community-Notebooks"));
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
   }
 
   @Test

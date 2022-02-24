@@ -6,9 +6,10 @@ WORKDIR /usr
 
 # install curl (to download install packages), python (for gcloud sdk) and git
 RUN apt-get update \
-    && apt-get install -y curl \
-    && apt-get install -y python \
-    && apt-get install -y git
+    && apt-get install -y \
+    curl \
+    python \
+    git
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
 # these commands come from https://cloud.google.com/sdk/docs/downloads-versioned-archives

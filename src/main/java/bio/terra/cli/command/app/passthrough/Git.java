@@ -21,7 +21,7 @@ public class Git extends ToolCommand {
   public String[] names;
 
   @CommandLine.Option(
-      names = "-a",
+      names = "--all",
       description = "clone all the git repo resources in the current workspace")
   public boolean cloneAll;
 
@@ -62,7 +62,7 @@ public class Git extends ToolCommand {
   }
 
   private void validateCloneCommand() {
-    if (command.size() != 2 || !command.get(0).equals("git") || !command.get(1).equals("clone")) {
+    if (command.size() != 2 || !command.get(1).equals("clone")) {
       throw new UserActionableException(
           "Did you mean to clone git repo resources in the workspace? If so, please use terra git clone");
     }
@@ -70,7 +70,6 @@ public class Git extends ToolCommand {
 
   private void cloneGitRepoResource(Resource resource) {
     List<String> cloneCommands = Stream.of("git", "clone").collect(Collectors.toList());
-    ;
     String gitRepoUrl = resource.resolve();
     cloneCommands.add(gitRepoUrl);
     try {
@@ -78,10 +77,5 @@ public class Git extends ToolCommand {
     } catch (PassthroughException e) {
       OUT.println("Git clone for " + gitRepoUrl + " failed");
     }
-  }
-
-  @Override
-  protected boolean requiresLogin() {
-    return false;
   }
 }
