@@ -9,10 +9,10 @@ import javax.annotation.Nullable;
 /**
  * Simple generic printer for object fields in rows separated by newlines and delimited by tabs.
  *
- * @param <T> User-facing type to be tabularized
+ * @param <UF_TYPE> User-facing type to be tabularized
  */
 @FunctionalInterface
-public interface TablePrinter<T> {
+public interface TablePrinter<UF_TYPE> {
 
   /** Whitespace between columns. */
   String FIELD_DELIMITER = "  ";
@@ -27,7 +27,7 @@ public interface TablePrinter<T> {
    * workspaceTablePrinter = UFWorkspaceColumns::values;}. This creates an instance of an anonymous
    * class implementing TablePrinter.
    */
-  ColumnDefinition<T>[] getColumnEnumValues();
+  ColumnDefinition<UF_TYPE>[] getColumnEnumValues();
 
   /**
    * Print a table from a list of row objects of type T. Do not leave space for a highlight column.
@@ -35,7 +35,7 @@ public interface TablePrinter<T> {
    * @param rowObjects - list of user-facing objects to print to rows of the table.
    * @return string representation of table suitable for printing to console
    */
-  default String print(List<T> rowObjects) {
+  default String print(List<UF_TYPE> rowObjects) {
     return print(rowObjects, null);
   }
 
@@ -47,7 +47,7 @@ public interface TablePrinter<T> {
    * @param isHighlighted - boolean-valued function to tell if a row should be highlighted (starred)
    * @return table string suitable for printing to console
    */
-  default String print(List<T> rowObjects, @Nullable Predicate<T> isHighlighted) {
+  default String print(List<UF_TYPE> rowObjects, @Nullable Predicate<UF_TYPE> isHighlighted) {
     boolean includeHighlightColumn = null != isHighlighted;
     String header = (includeHighlightColumn ? "   " : "") + printHeaderRow();
     return header
@@ -72,7 +72,7 @@ public interface TablePrinter<T> {
    *     (starred). null if this table type does not highlight any rows
    * @return string for single row of the table
    */
-  private String printRow(T rowObject, @Nullable Predicate<T> isHighlighted) {
+  private String printRow(UF_TYPE rowObject, @Nullable Predicate<UF_TYPE> isHighlighted) {
     final String highlightColumn;
     if (null == isHighlighted) {
       highlightColumn = "";

@@ -46,8 +46,8 @@ public class List extends BaseCommand {
 
   /** Column information for table output with `terra server list` */
   private enum Columns implements ColumnDefinition<UFServer> {
-    NAME("NAME", s -> s.name, 30, LEFT),
-    DESCRIPTION("DESCRIPTION", s -> s.description, 90, LEFT);
+    NAME("NAME", s -> s.name, 21, LEFT), // longest is "broad-dev-cli-testing"
+    DESCRIPTION("DESCRIPTION", s -> s.description, 120, LEFT);
 
     private final String columnLabel;
     private final Function<UFServer, String> valueExtractor;

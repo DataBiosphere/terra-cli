@@ -6,10 +6,11 @@ import java.util.function.Function;
 /**
  * Methods to allow table-formatting of a list of objects of type T
  *
- * @param <T> class of user-facing object
+ * @param <UF_TYPE> class of user-facing object
  */
-public interface ColumnDefinition<T> {
+public interface ColumnDefinition<UF_TYPE> {
   String EMPTY_FIELD_PLACEHOLDER = "(unset)";
+  String TRUNCATION_MARK = "...";
 
   enum Alignment {
     LEFT("-"),
@@ -34,7 +35,7 @@ public interface ColumnDefinition<T> {
   String getLabel();
 
   /** Get a method to pull a string value for this column out of the object of type T */
-  Function<T, String> getValueExtractor();
+  Function<UF_TYPE, String> getValueExtractor();
 
   /** Get column width, in characters. */
   int getWidth();
@@ -49,10 +50,19 @@ public interface ColumnDefinition<T> {
   }
 
   /** Apply padding and alignment to a cell's string value. */
-  default String formatCell(T rowObject) {
+  default String formatCell(UF_TYPE rowObject) {
     String rawText = getValueExtractor().apply(rowObject);
     String field = Strings.isNullOrEmpty(rawText) ? EMPTY_FIELD_PLACEHOLDER : rawText;
     String format = "%" + getAlignment().getFormat() + getWidth() + "." + getWidth() + "s";
-    return String.format(format, field);
+    return String.format(format, truncate(field));
+  }
+
+  private String truncate(String original) {
+
+    if (original.length() <= getWidth() || getWidth() < TRUNCATION_MARK.length()) {
+      // no need to truncate, or can't without completely erasing it
+      return original;
+    }
+    return original.substring(0, getWidth() - TRUNCATION_MARK.length()) + TRUNCATION_MARK;
   }
 }
