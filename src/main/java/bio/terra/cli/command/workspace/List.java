@@ -62,7 +62,7 @@ public class List extends BaseCommand {
     NAME("NAME", w -> w.name, 30, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
-    ID("ID", w -> w.id.toString(), 40, RIGHT);
+    ID("ID", w -> w.id.toString(), 36, RIGHT);
 
     private final String columnLabel;
     private final Function<UFWorkspace, String> valueExtractor;

@@ -1,5 +1,6 @@
 package bio.terra.cli.app.utils.tables;
 
+import com.google.api.client.util.Strings;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -40,8 +41,8 @@ public interface PrintableColumn<T> {
   }
 
   default String formatCell(T rowObject) {
-    String field =
-        Optional.ofNullable(getValueExtractor().apply(rowObject)).orElse(EMPTY_FIELD_PLACEHOLDER);
+    String rawText = getValueExtractor().apply(rowObject);
+    String field = Strings.isNullOrEmpty(rawText) ? EMPTY_FIELD_PLACEHOLDER : rawText;
     String format = "%" + getAlignment().getFormat() + getWidth() + "." + getWidth() + "s";
     return String.format(format, field);
   }
