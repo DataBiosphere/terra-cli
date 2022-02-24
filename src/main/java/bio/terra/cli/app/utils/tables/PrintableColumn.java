@@ -35,7 +35,7 @@ public interface PrintableColumn<T> {
   Alignment getAlignment();
 
   default String formatLabel() {
-    String format = "%" + getWidth() + "." + getWidth() + "s";
+    String format = "%" + Alignment.LEFT.getFormat() + getWidth() + "." + getWidth() + "s";
     return String.format(format, getLabel());
   }
 
