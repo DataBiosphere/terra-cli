@@ -232,7 +232,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo2");
 
     assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "Community-Notebooks")));
-    System.out.println("current directory is " + Paths.get(System.getProperty("user.dir")));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/Community-Notebooks"));
   }
 
