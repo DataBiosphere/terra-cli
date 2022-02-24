@@ -11,14 +11,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -213,9 +211,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra git clone -a`
     TestCommand.runCommandExpectSuccess("git", "clone", "-a");
     assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks")));
-
-    FileUtils.deleteDirectory(
-        new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
   }
 
   @Test
@@ -231,14 +226,11 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "add-ref",
         "git-repo",
         "--name=repo2",
-        "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+        "--repo-url=https://github.com/isb-cgc/Community-Notebooks.git");
 
     // `terra git clone --resource=repo1`
     TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo2");
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks")));
-
-    FileUtils.deleteDirectory(
-        new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "Community-Notebooks")));
   }
 
   @Test
