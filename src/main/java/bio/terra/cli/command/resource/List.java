@@ -1,5 +1,7 @@
 package bio.terra.cli.command.resource;
 
+import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.*;
+
 import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
@@ -57,19 +59,25 @@ public class List extends BaseCommand {
 
   /** Column information for fields in `resource list` output */
   private enum UFResourceColumns implements PrintableColumn<UFResource> {
-    NAME("NAME", r -> r.name, 20),
-    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 10),
-    STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 10),
-    DESCRIPTION("DESCRIPTION", r -> r.description, 40);
+    NAME("NAME", r -> r.name, 30, LEFT),
+    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 20, LEFT),
+    STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 20, LEFT),
+    DESCRIPTION("DESCRIPTION", r -> r.description, 40, LEFT);
 
     private final String columnLabel;
     private final Function<UFResource, String> valueExtractor;
     private final int width;
+    private final Alignment alignment;
 
-    UFResourceColumns(String columnLabel, Function<UFResource, String> valueExtractor, int width) {
+    UFResourceColumns(
+        String columnLabel,
+        Function<UFResource, String> valueExtractor,
+        int width,
+        Alignment alignment) {
       this.columnLabel = columnLabel;
       this.valueExtractor = valueExtractor;
       this.width = width;
+      this.alignment = alignment;
     }
 
     @Override
@@ -85,6 +93,11 @@ public class List extends BaseCommand {
     @Override
     public int getWidth() {
       return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
     }
   }
 }

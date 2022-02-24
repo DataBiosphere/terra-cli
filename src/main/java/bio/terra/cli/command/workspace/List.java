@@ -1,5 +1,8 @@
 package bio.terra.cli.command.workspace;
 
+import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.LEFT;
+import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.RIGHT;
+
 import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Workspace;
@@ -56,19 +59,25 @@ public class List extends BaseCommand {
 
   /** Column information for table output with `terra workspace list` */
   private enum Columns implements PrintableColumn<UFWorkspace> {
-    NAME("NAME", w -> w.name, 30),
-    DESCRIPTION("DESCRIPTION", w -> w.description, 60),
-    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30),
-    ID("ID", w -> w.id.toString(), 40);
+    NAME("NAME", w -> w.name, 30, LEFT),
+    DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT),
+    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
+    ID("ID", w -> w.id.toString(), 40, RIGHT);
 
     private final String columnLabel;
     private final Function<UFWorkspace, String> valueExtractor;
     private final int width;
+    private final Alignment alignment;
 
-    Columns(String columnLabel, Function<UFWorkspace, String> valueExtractor, int width) {
+    Columns(
+        String columnLabel,
+        Function<UFWorkspace, String> valueExtractor,
+        int width,
+        Alignment alignment) {
       this.columnLabel = columnLabel;
       this.valueExtractor = valueExtractor;
       this.width = width;
+      this.alignment = alignment;
     }
 
     @Override
@@ -84,6 +93,11 @@ public class List extends BaseCommand {
     @Override
     public int getWidth() {
       return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
     }
   }
 }

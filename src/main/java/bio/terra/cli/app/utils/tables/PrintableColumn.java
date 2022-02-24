@@ -11,11 +11,28 @@ import java.util.function.Function;
 public interface PrintableColumn<T> {
   String EMPTY_FIELD_PLACEHOLDER = "(unset)";
 
+  enum Alignment {
+    LEFT("-"),
+    RIGHT("");
+
+    private final String format;
+
+    Alignment(String format) {
+      this.format = format;
+    }
+
+    String getFormat() {
+      return format;
+    }
+  }
+
   String getLabel();
 
   Function<T, String> getValueExtractor();
 
   int getWidth();
+
+  Alignment getAlignment();
 
   default String formatLabel() {
     String format = "%" + getWidth() + "." + getWidth() + "s";
@@ -25,7 +42,7 @@ public interface PrintableColumn<T> {
   default String formatCell(T rowObject) {
     String field =
         Optional.ofNullable(getValueExtractor().apply(rowObject)).orElse(EMPTY_FIELD_PLACEHOLDER);
-    String format = "%" + getWidth() + "." + getWidth() + "s";
+    String format = "%" + getAlignment().getFormat() + getWidth() + "." + getWidth() + "s";
     return String.format(format, field);
   }
 }

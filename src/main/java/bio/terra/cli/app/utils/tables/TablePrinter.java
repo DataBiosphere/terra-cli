@@ -14,7 +14,6 @@ public interface TablePrinter<T> {
 
   String FIELD_DELIMITER = "\t";
   String ROW_DELIMITER = "\n";
-  String EMPTY_FIELD_PLACEHOLDER = "(unset)";
   // To instantiate a TablePrinter, supply an array of `TablePrintable`s. If an Enum type implements
   // this array, the object may be instantiated simply by
   // TablePrinter<UFWorkspace> workspaceTablePrinter = UFWorkspaceColumns::values;

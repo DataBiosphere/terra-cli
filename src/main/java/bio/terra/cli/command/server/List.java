@@ -1,12 +1,16 @@
 package bio.terra.cli.command.server;
 
-import bio.terra.cli.businessobject.Context;
+import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.LEFT;
+
+import bio.terra.cli.app.utils.tables.PrintableColumn;
+import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFServer;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
+import java.util.function.Function;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -26,15 +30,56 @@ public class List extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(java.util.List<UFServer> returnValue) {
-    for (UFServer server : returnValue) {
-      String prefix = (Context.getServer().getName().equals(server.name)) ? " * " : "   ";
-      OUT.println(prefix + server.name + ": " + server.description);
-    }
+    TablePrinter<UFServer> printer = Columns::values;
+    String text = printer.print(returnValue);
+    OUT.println(text);
   }
 
   /** This command never requires login. */
   @Override
   protected boolean requiresLogin() {
     return false;
+  }
+
+  /** Column information for table output with `terra server list` */
+  private enum Columns implements PrintableColumn<UFServer> {
+    NAME("NAME", s -> s.name, 30, LEFT),
+    DESCRIPTION("DESCRIPTION", s -> s.description, 50, LEFT);
+
+    private final String columnLabel;
+    private final Function<UFServer, String> valueExtractor;
+    private final int width;
+    private final Alignment alignment;
+
+    Columns(
+        String columnLabel,
+        Function<UFServer, String> valueExtractor,
+        int width,
+        Alignment alignment) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+      this.alignment = alignment;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<UFServer, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
+    }
   }
 }
