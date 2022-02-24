@@ -1,8 +1,8 @@
 package bio.terra.cli.command.server;
 
-import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.LEFT;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
 
-import bio.terra.cli.app.utils.tables.PrintableColumn;
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
@@ -45,7 +45,7 @@ public class List extends BaseCommand {
   }
 
   /** Column information for table output with `terra server list` */
-  private enum Columns implements PrintableColumn<UFServer> {
+  private enum Columns implements ColumnDefinition<UFServer> {
     NAME("NAME", s -> s.name, 30, LEFT),
     DESCRIPTION("DESCRIPTION", s -> s.description, 90, LEFT);
 

@@ -14,14 +14,27 @@ import javax.annotation.Nullable;
 @FunctionalInterface
 public interface TablePrinter<T> {
 
-  String FIELD_DELIMITER = "\t";
+  /** Whitespace between columns. */
+  String FIELD_DELIMITER = "  ";
+
+  /** Separation between rows. */
   String ROW_DELIMITER = "\n";
-  // To instantiate a TablePrinter, supply an array of `TablePrintable`s. If an Enum type implements
-  // this array, the object may be instantiated simply by
-  // TablePrinter<UFWorkspace> workspaceTablePrinter = UFWorkspaceColumns::values;
 
-  PrintableColumn<T>[] getColumnEnumValues();
+  /**
+   * Functional interface caller-supplied method. Returns an array of PrintableColumns. To
+   * instantiate a TablePrinter, supply an array of `TablePrintable`s. If an Enum type implements
+   * this array, the object may be instantiated simply by {@code TablePrinter<UFWorkspace>
+   * workspaceTablePrinter = UFWorkspaceColumns::values;}. This creates an instance of an anonymous
+   * class implementing TablePrinter.
+   */
+  ColumnDefinition<T>[] getColumnEnumValues();
 
+  /**
+   * Print a table from a list of row objects of type T. Do not leave space for a highlight column.
+   *
+   * @param rowObjects - list of user-facing objects to print to rows of the table.
+   * @return string representation of table suitable for printing to console
+   */
   default String print(List<T> rowObjects) {
     return print(rowObjects, null);
   }
@@ -32,7 +45,7 @@ public interface TablePrinter<T> {
    *
    * @param rowObjects - list of user-facing objects to print to rows of the table.
    * @param isHighlighted - boolean-valued function to tell if a row should be highlighted (starred)
-   * @return table string
+   * @return table string suitable for printing to console
    */
   default String print(List<T> rowObjects, @Nullable Predicate<T> isHighlighted) {
     boolean includeHighlightColumn = null != isHighlighted;
@@ -45,9 +58,9 @@ public interface TablePrinter<T> {
   }
 
   /** Fetch the column labels for each column and join them into a header row. */
-  default String printHeaderRow() {
+  private String printHeaderRow() {
     return Arrays.stream(getColumnEnumValues())
-        .map(PrintableColumn::formatLabel)
+        .map(ColumnDefinition::formatLabel)
         .collect(Collectors.joining(FIELD_DELIMITER));
   }
 
@@ -57,14 +70,14 @@ public interface TablePrinter<T> {
    * @param rowObject - object corresponding to this row
    * @param isHighlighted - boolean-valued function to tell if a row should be highlighted
    *     (starred). null if this table type does not highlight any rows
-   * @return
+   * @return string for single row of the table
    */
-  default String printRow(T rowObject, @Nullable Predicate<T> isHighlighted) {
+  private String printRow(T rowObject, @Nullable Predicate<T> isHighlighted) {
     final String highlightColumn;
     if (null == isHighlighted) {
       highlightColumn = "";
     } else if (isHighlighted.test(rowObject)) {
-      highlightColumn = " * ";
+      highlightColumn = " ✓ ";
     } else {
       highlightColumn = "   ";
     }

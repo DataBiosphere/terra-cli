@@ -1,8 +1,8 @@
 package bio.terra.cli.command.resource;
 
-import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.*;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.*;
 
-import bio.terra.cli.app.utils.tables.PrintableColumn;
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
@@ -58,7 +58,7 @@ public class List extends BaseCommand {
   }
 
   /** Column information for fields in `resource list` output */
-  private enum UFResourceColumns implements PrintableColumn<UFResource> {
+  private enum UFResourceColumns implements ColumnDefinition<UFResource> {
     NAME("NAME", r -> r.name, 30, LEFT),
     RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 20, LEFT),
     STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 20, LEFT),

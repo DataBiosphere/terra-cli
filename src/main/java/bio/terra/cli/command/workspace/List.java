@@ -1,9 +1,9 @@
 package bio.terra.cli.command.workspace;
 
-import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.LEFT;
-import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.RIGHT;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
 
-import bio.terra.cli.app.utils.tables.PrintableColumn;
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
@@ -67,11 +67,11 @@ public class List extends BaseCommand {
   }
 
   /** Column information for table output with `terra workspace list` */
-  private enum Columns implements PrintableColumn<UFWorkspace> {
+  private enum Columns implements ColumnDefinition<UFWorkspace> {
     NAME("NAME", w -> w.name, 30, LEFT),
-    DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
-    ID("ID", w -> w.id.toString(), 36, RIGHT);
+    ID("ID", w -> w.id.toString(), 36, RIGHT),
+    DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;
     private final Function<UFWorkspace, String> valueExtractor;
