@@ -4,6 +4,7 @@ import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.LEFT;
 
 import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -30,8 +31,10 @@ public class List extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(java.util.List<UFServer> returnValue) {
+    Server currentServer = Context.getServer();
     TablePrinter<UFServer> printer = Columns::values;
-    String text = printer.print(returnValue);
+    // print the UFServers, and highlight the current one
+    String text = printer.print(returnValue, s -> currentServer.getName().equals(s.name));
     OUT.println(text);
   }
 

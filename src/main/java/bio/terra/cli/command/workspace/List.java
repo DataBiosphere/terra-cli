@@ -5,6 +5,7 @@ import static bio.terra.cli.app.utils.tables.PrintableColumn.Alignment.RIGHT;
 
 import bio.terra.cli.app.utils.tables.PrintableColumn;
 import bio.terra.cli.app.utils.tables.TablePrinter;
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -12,6 +13,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -52,8 +54,15 @@ public class List extends BaseCommand {
 
   /** Print this command's output in tabular text format. */
   private void printText(java.util.List<UFWorkspace> returnValue) {
+    // Guard against the current workspace being empty, but keep the highlight column so the
+    // table is formatted the same with or without the workspace being set (i.e. pass always-false
+    // instead of a null predicate).
+    Predicate<UFWorkspace> isHighlighted =
+        Context.getWorkspace()
+            .map(current -> (Predicate<UFWorkspace>) (ufw -> current.getId().equals(ufw.id)))
+            .orElse(ufw -> false);
     TablePrinter<UFWorkspace> printer = Columns::values;
-    String text = printer.print(returnValue);
+    String text = printer.print(returnValue, isHighlighted);
     OUT.println(text);
   }
 

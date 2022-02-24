@@ -1,7 +1,6 @@
 package bio.terra.cli.app.utils.tables;
 
 import com.google.api.client.util.Strings;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
