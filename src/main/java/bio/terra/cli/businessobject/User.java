@@ -90,7 +90,7 @@ public class User {
       "https://github.com/DataBiosphere/terra-cli/blob/main/README.md";
 
   /** Build an instance of this class from the serialized format on disk. */
-  public User(PDUser configFromDisk) {
+  User(PDUser configFromDisk) {
     this.id = configFromDisk.id;
     this.email = configFromDisk.email;
     this.proxyGroupEmail = configFromDisk.proxyGroupEmail;
@@ -99,7 +99,7 @@ public class User {
   }
 
   /** Build an empty instance of this class. */
-  private User() {}
+  public User() {}
 
   /**
    * Load any existing credentials for this user. Return silently, do not prompt for login, if they
@@ -139,7 +139,7 @@ public class User {
    * not exist.
    */
   public static void login() {
-    login(/*logInMode=*/ LogInMode.BROWSER);
+    login(Context.getUser().orElseGet(User::new).logInMode);
   }
 
   /**
