@@ -134,9 +134,7 @@ public class User {
     }
   }
 
-  /**
-   * Load any existing credentials for this user. Use the {@code user.logInMode} if it's set.
-   */
+  /** Load any existing credentials for this user. Use the {@code user.logInMode} if it's set. */
   public static void login() {
     login(Context.getUser().orElseGet(User::new).logInMode);
   }
