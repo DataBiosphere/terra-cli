@@ -25,7 +25,7 @@ public class UFWorkspace {
   public final String userEmail;
 
   // only expose the number of resources in the text output mode
-  @JsonIgnore public final Integer numResources;
+  @JsonIgnore public final long numResources;
 
   /** Serialize an instance of the internal class to the disk format. */
   public UFWorkspace(Workspace internalObj) {
@@ -35,8 +35,8 @@ public class UFWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
-    // This may slow down workspace list...
-    internalObj.populateResources();
+    // This number may be zero for Workspace objects loaded from `WorkspaceDescription`s,
+    // as those don't have any resources associated with them.
     this.numResources = internalObj.getResources().size();
   }
 
@@ -48,7 +48,7 @@ public class UFWorkspace {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
-    this.numResources = 99;
+    this.numResources = builder.numResources;
   }
 
   /** Print out a workspace object in text format. */
@@ -61,11 +61,13 @@ public class UFWorkspace {
     OUT.println(
         "Cloud console: https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
-    // Handle the case where this UFWorkspace was built from a Workspace built from a
-    // WorkspaceDescription, which does not provide the resources or their count.
+    // Unfortunately, this UFWorkspace may have been built from a Workspace object built from a
+    // WorkspaceDescription, which does not provide the resources or their count. In that
+    // situation, the number of resources will be zero, which may be false.
     // Currently, this only happens in `terra workspace list`, which prints separately,
-    // so the user should not see "unknown" here.
-    OUT.println("# Resources: " + (null == numResources ? "unknown" : numResources.toString()));
+    // so the user should not see it. `numResources` was removed from JSON output for
+    // this reason (as we use the same JSON structure for list and describe).
+    OUT.println("# Resources: " + numResources);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
