@@ -35,7 +35,7 @@ public class Status extends BaseCommand {
 
     if (returnValue.workspace != null
         && !returnValue.server.name.equals(returnValue.workspace.serverName)) {
-      OUT.println(
+      ERR.println(
           "WARNING: The current workspace exists on a different server ("
               + returnValue.workspace.serverName
               + ") than the current one ("
