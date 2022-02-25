@@ -98,6 +98,7 @@ Similarly, verify the installation with `bq version`.
 somewhere convenient (e.g. $HOME/nextflow) and switch to it. Then do `curl -s https://get.nextflow.io | bash`.
 Finally, move the `nextflow` executable script to a location on the `$PATH`: `sudo mv nextflow /usr/local/bin/`.
 Verify the installation with `nextflow -version`.
+- `git` - Follow [instruction](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) here for installing Git on different platform. 
 
 Now, these applications are available in `terra` by doing, for example, `terra gsutil ls`. When
 run in `terra`, environment variables are set based on resources in the active workspace, and
@@ -256,6 +257,7 @@ Commands:
   bq         Call bq in the Terra workspace.
   config     Configure the CLI.
   gcloud     Call gcloud in the Terra workspace.
+  git        Call git in the Tera workspace
   group      Manage groups of users.
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
@@ -274,7 +276,7 @@ The `status` command prints details about the current workspace and server.
 
 The `version` command prints the installed version string.
 
-The `gcloud`, `gsutil`, `bq`, and `nextflow` commands call third-party applications in the context of a Terra workspace.
+The `gcloud`, `git`, `gsutil`, `bq`, and `nextflow` commands call third-party applications in the context of a Terra workspace.
 
 The `resolve` command is an alias for the `terra resource resolve` command.
 
@@ -282,6 +284,7 @@ The other commands are groupings of sub-commands, described in the sections belo
 * `app` [Applications](#applications)
 * `auth` [Authentication](#authentication)
 * `config` [Config](#config)
+* `git` [Git](#Git)
 * `group` [Groups](#groups)
 * `notebook` [Notebooks](#notebooks)
 * `resource` [Resources](#resources)
@@ -364,7 +367,14 @@ configuration properties are:
 [workspace] workspace = (unset)
 [format] output format = TEXT
 ```
-
+### Git
+```
+Usage: terrag git [COMMAND]
+Call git command in the terra workspace. Besides calling normal Git operation, this command allow cloning git-repo resources in the workspace.
+Commands:
+  all        Clone all the git-repo resources in the workspace. Usage: terra git clone --all
+  resource   Clone specified git-repo resources in the workspace. Usage: terra git clone --resource=<repoResource1Name> --resource=<repoResource2Name>
+```
 #### Groups
 ```
 Usage: terra group [COMMAND]

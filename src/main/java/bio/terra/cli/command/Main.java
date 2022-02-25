@@ -3,6 +3,7 @@ package bio.terra.cli.command;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
+import bio.terra.cli.command.app.passthrough.Git;
 import bio.terra.cli.command.app.passthrough.Gsutil;
 import bio.terra.cli.command.app.passthrough.Nextflow;
 import bio.terra.cli.exception.PassthroughException;
@@ -32,6 +33,7 @@ import picocli.CommandLine.ParseResult;
       Bq.class,
       Config.class,
       Gcloud.class,
+      Git.class,
       Group.class,
       Gsutil.class,
       Nextflow.class,
