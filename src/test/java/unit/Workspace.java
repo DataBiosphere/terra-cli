@@ -1,6 +1,10 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,6 +16,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
@@ -269,8 +274,8 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("workspace describe reflects the number of resources")
-  void describeReflectsNumResources() throws IOException {
+  @DisplayName("workspace describe in TEXT format reflects the number of resources")
+  void describeInTextFormatReflectsNumResources() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -291,10 +296,17 @@ public class Workspace extends ClearContextUnit {
         "--bucket-name=" + bucketName);
 
     // `terra workspace describe`
-    UFWorkspace describeWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(
-        1, describeWorkspace.numResources, "worksapce has 1 resource after creating bucket");
+    // Only the text output supports the number of resources
+    Result describeResult = TestCommand.runCommand("workspace", "describe");
+    assertEquals(0, describeResult.exitCode, "Successfully ran workspace describe.");
+    assertThat(
+        "Workspace has 1 resource after creating bucket.",
+        describeResult.stdOut,
+        containsString("# Resources: 1"));
+    assertThat(
+        "No error message is displayed on first describe.",
+        describeResult.stdErr,
+        is(emptyString()));
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
     String datasetResourceName = "describeReflectsNumResourcesBQ";
@@ -307,10 +319,28 @@ public class Workspace extends ClearContextUnit {
         "--dataset-id=" + datasetId);
 
     // `terra workspace describe`
-    describeWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(
-        2, describeWorkspace.numResources, "worksapce has 2 resources after creating dataset");
+    Result describeResult2 = TestCommand.runCommand("workspace", "describe");
+    assertEquals(0, describeResult2.exitCode, "Describe was successful.");
+    assertThat(
+        "workspace has 2 resources after creating dataset",
+        describeResult2.stdOut,
+        containsString("# Resources: 2"));
+    assertThat(
+        "No error message is displayed on second describe.",
+        describeResult2.stdErr,
+        is(emptyString()));
+
+    // `terra workspace describe --format=JSON`
+    Result describeResultJson = TestCommand.runCommand("workspace", "describe", "--format=JSON");
+    assertEquals(0, describeResultJson.exitCode, "Describe JSON mode was successful.");
+    assertThat(
+        "numResources field is not output in JSON.",
+        describeResultJson.stdOut,
+        not(containsString("numResources")));
+    assertThat(
+        "No error message is displayed on first describe.",
+        describeResultJson.stdErr,
+        is(emptyString()));
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
