@@ -234,11 +234,7 @@ public class Context {
   }
 
   public static Workspace requireWorkspace() {
-    return getWorkspace()
-        .orElseThrow(
-            () -> {
-              throw new UserActionableException("No workspace set.");
-            });
+    return getWorkspace().orElseThrow(() -> new UserActionableException("No workspace set."));
   }
 
   public static void setWorkspace(Workspace workspace) {

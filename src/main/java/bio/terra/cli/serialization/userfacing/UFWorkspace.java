@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -22,7 +23,9 @@ public class UFWorkspace {
   public final String googleProjectId;
   public final String serverName;
   public final String userEmail;
-  public final long numResources;
+
+  // only expose the number of resources in the text output mode
+  @JsonIgnore public final Integer numResources;
 
   /** Serialize an instance of the internal class to the disk format. */
   public UFWorkspace(Workspace internalObj) {
@@ -32,6 +35,8 @@ public class UFWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
+    // This may slow down workspace list...
+    internalObj.populateResources();
     this.numResources = internalObj.getResources().size();
   }
 
@@ -43,7 +48,7 @@ public class UFWorkspace {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
-    this.numResources = builder.numResources;
+    this.numResources = 99;
   }
 
   /** Print out a workspace object in text format. */
@@ -56,7 +61,11 @@ public class UFWorkspace {
     OUT.println(
         "Cloud console: https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
-    OUT.println("# Resources: " + numResources);
+    // Handle the case where this UFWorkspace was built from a Workspace built from a
+    // WorkspaceDescription, which does not provide the resources or their count.
+    // Currently, this only happens in `terra workspace list`, which prints separately,
+    // so the user should not see "unknown" here.
+    OUT.println("# Resources: " + (null == numResources ? "unknown" : numResources.toString()));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

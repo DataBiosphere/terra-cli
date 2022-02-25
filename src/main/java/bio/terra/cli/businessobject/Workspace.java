@@ -36,13 +36,13 @@ import org.slf4j.LoggerFactory;
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
 
-  private UUID id;
+  private final UUID id;
   private String name; // not unique
   private String description;
   private String googleProjectId;
 
   // name of the server where this workspace exists
-  private String serverName;
+  private final String serverName;
 
   // email of the user that loaded the workspace to this machine
   private String userEmail;
@@ -50,9 +50,14 @@ public class Workspace {
   // list of resources (controlled & referenced)
   private List<Resource> resources;
 
+  // true if we've populated the resources. It may still be an empty array, if the workspace
+  // actually has no resources. false if we haven't populated the array (even if the workspace
+  // actually does have resources). This is necessary because the WorkspaceDefinition
+  private final boolean resourcesPopulated;
+
   // true if the workspace metadata was fetched. false when a user sets the workspace without being
   // logged in; in that case, we can't request the metadata from WSM without valid credentials.
-  private boolean isLoaded;
+  private final boolean isLoaded;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
@@ -65,6 +70,7 @@ public class Workspace {
     this.userEmail = Context.requireUser().getEmail();
     this.resources = new ArrayList<>();
     this.isLoaded = true;
+    this.resourcesPopulated = false;
   }
 
   /** Build an instance of this class from the serialized format on disk. */
@@ -80,6 +86,7 @@ public class Workspace {
             .map(PDResource::deserializeToInternal)
             .collect(Collectors.toList());
     this.isLoaded = configFromDisk.isLoaded;
+    this.resourcesPopulated = true;
   }
 
   /**
@@ -91,6 +98,7 @@ public class Workspace {
     this.serverName = serverName;
     this.resources = new ArrayList<>();
     this.isLoaded = false;
+    this.resourcesPopulated = false;
   }
 
   /**
@@ -248,8 +256,20 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
+  /**
+   * If the resources array was populated (even if empty) when this workspace was created, return
+   * its size.
+   */
+  public Optional<Integer> getNumResourcesIfKnown() {
+    if (resourcesPopulated) {
+      return Optional.of(resources.size());
+    } else {
+      return Optional.empty();
+    }
+  }
+
   /** Populate the list of resources for this workspace. Does not sync to disk. */
-  private void populateResources() {
+  public void populateResources() {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
