@@ -59,7 +59,7 @@ public interface ColumnDefinition<UF_TYPE> {
 
   private String truncate(String original) {
 
-    if (original.length() <= getWidth() || getWidth() < TRUNCATION_MARK.length()) {
+    if (original.length() <= getWidth() || original.length() < TRUNCATION_MARK.length()) {
       // no need to truncate, or can't without completely erasing it
       return original;
     }
