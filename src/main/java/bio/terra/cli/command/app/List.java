@@ -51,6 +51,7 @@ public class List extends BaseCommand {
     nextflow,
     gcloud,
     gsutil,
-    bq
+    bq,
+    git
   }
 }
