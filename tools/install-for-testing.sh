@@ -29,17 +29,26 @@ if [ "$installMode" = "SOURCE_CODE" ]; then
   docker pull $($terra config get image)
 
 elif [ "$installMode" = "GITHUB_RELEASE" ]; then
+
+  if [ -z "$2" ]; then
+    versionPath="latest/download"
+  else
+    # We want to download the specificed version of the install script AND
+    # set this environment variable for when we run it.
+    export TERRA_CLI_VERSION="$2"
+    versionPath="download/$2"
+  fi
+
   echo "Creating a new build/test-install directory"
   mkdir -p $(pwd)/build/test-install/
   cd build/test-install/
 
   export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE
   echo "Downloading the install script from GitHub and running it"
-  curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+  curl -L https://github.com/DataBiosphere/terra-cli/releases/$versionPath/download-install.sh | bash
 
 else
   echo "Usage: tools/install-for-testing.sh [installMode]"
   echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
   exit 1
 fi
-
