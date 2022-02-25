@@ -11,10 +11,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -34,7 +38,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "app", "list");
 
     // check that all pass-through apps are returned
-    assertTrue(appList.containsAll(Arrays.asList("gcloud", "gsutil", "bq", "nextflow")));
+    assertTrue(appList.containsAll(Arrays.asList("gcloud", "gsutil", "bq", "nextflow", "git")));
   }
 
   @Test
@@ -189,6 +193,66 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "nextflow version ran successfully",
         cmd.stdOut,
         CoreMatchers.containsString("http://nextflow.io"));
+  }
+
+  @Test
+  @DisplayName("git clone --all")
+  void gitCloneAll() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo1",
+        "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo2",
+        "--repo-url=https://github.com/DataBiosphere/terra.git");
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo3",
+        "--repo-url=https://github.com/DataBiosphere/terra.git");
+
+    // `terra git clone --all`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--all");
+
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo2", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo3", "--quiet");
+  }
+
+  @Test
+  @DisplayName("git clone resource")
+  void gitCloneResource() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo1",
+        "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+
+    // `terra git clone --resource=repo2`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo1");
+
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
   }
 
   @Test
