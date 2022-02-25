@@ -5,8 +5,9 @@
     * [Login](#login)
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
+    * [Local Tools Installation](#local-tools-installation)
     * [Troubleshooting](#troubleshooting)
-      * [Clear global context](#clear-global-context)
+      * [Clear context](#clear-context)
       * [Manual Install](#manual-install)
       * [Manual Uninstall](#manual-uninstall)
 2. [Example usage](#example-usage)
@@ -48,6 +49,11 @@ curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/down
 ./terra
 ```
 
+By default, the CLI will be installed without support for Docker (i.e. it won't pull the Docker image).
+The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it to
+* DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image
+* DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
+
 This will install the Terra CLI in the current directory. Afterwards, you may want to add it to your `$PATH` directly
 or move it to a place that is already on your `$PATH` (e.g. `/usr/local/bin`).
 
@@ -56,7 +62,7 @@ modify the `$PATH`. So if you have added it to your `$PATH`, that step needs to 
 
 #### Requirements
 1. Java 11
-2. Docker 20.10.2 (Must be running)
+2. Docker 20.10.2 (Must be running if installing in DOCKER_AVAILABLE mode)
 3. `curl`, `tar`, `gcloud` (For install only)
 
 Note: The CLI doesn't use `gcloud` directly either during install or normal operation.
@@ -79,12 +85,30 @@ Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMI
 In order to read or write external data from Terra, you should grant data access to your proxy group.
 `terra auth status` shows the email of your proxy group.
 
+#### Local Tools Installation
+When running `terra app` commands in `LOCAL_PROCESS` `app-launch` mode (the default),
+it's necessary to install the various tools locally. The following instructions are
+for MacOS or Linux.
+- `gcloud` - Make sure you have Python installed, then download the .tar.gz archive file from the [installation page](https://cloud.google.com/sdk/docs/install). Run `gcloud version` to verify the installation.
+- `gsutil` - included in the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install), or available separately [here](https://cloud.google.com/storage/docs/gsutil_install).
+Verify the installation with `gsutil version` (also printed as part of `gcloud version`)
+- `bq` - included with `gcloud`. More details are available [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
+Similarly, verify the installation with `bq version`.
+- `nextflow` - Install by downloading a `bash` script and running it locally. Create a `nextflow` directory
+somewhere convenient (e.g. $HOME/nextflow) and switch to it. Then do `curl -s https://get.nextflow.io | bash`.
+Finally, move the `nextflow` executable script to a location on the `$PATH`: `sudo mv nextflow /usr/local/bin/`.
+Verify the installation with `nextflow -version`.
+- `git` - Follow [instruction](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) here for installing Git on different platform. 
+
+Now, these applications are available in `terra` by doing, for example, `terra gsutil ls`. When
+run in `terra`, environment variables are set based on resources in the active workspace, and
+context such as the active GCP project is set up automatically. 
 #### Troubleshooting
-##### Clear global context
-Clear the global context file and all credentials. This will require you to login and select a workspace again.
+##### Clear context
+Clear the context file and all credentials. This will require you to login and select a workspace again.
 ```
 cd $HOME/.terra
-rm global-context.json
+rm context.json
 rm StoredCredential
 rm -R pet-keys
 ```
@@ -145,7 +169,9 @@ gcloud auth login
 gcloud auth application-default login
 ```
 
-Run a Nextflow hello world example.
+#### Nextflow Examples
+Run a Nextflow hello world example (requires Docker image set and container running, or Nextflow to
+be installed locally. For Docker support, `export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE` before installing `terra`):
 ```
 terra nextflow run hello
 ```
@@ -203,18 +229,23 @@ access token. Then specify the `-with-tower` flag when kicking off the workflow.
 - Call the Gcloud CLI tools in the current workspace context.
 This means that Gcloud is configured with the backing Google project and environment variables are defined that
 contain workspace and resource properties (e.g. bucket names, pet service account email).
-```
-terra gcloud config get-value project
-terra gsutil ls
-terra bq version
-```
+    ```
+    terra gcloud config get-value project
+    terra gsutil ls
+    terra bq version
+    ```
 
 - See the list of supported third-party tools.
-The CLI runs these tools in a Docker image. Print the image tag that the CLI is currently using.
-```
-terra app list
-terra config get image
-```
+The CLI runs these tools in a Docker image, if `app-launch` mode is `DOCKER_CONTAINER`. If the
+`app-launch` mode is `LOCAL_PROCESS`, the CLI will assume the tools are available in the current
+shell environment and launch them there.
+    ```
+    terra app list
+    ```
+- Print the image tag that the CLI is currently using.
+    ```
+    terra config get image
+    ```
 
 ### Commands description
 ```
@@ -226,6 +257,7 @@ Commands:
   bq         Call bq in the Terra workspace.
   config     Configure the CLI.
   gcloud     Call gcloud in the Terra workspace.
+  git        Call git in the Tera workspace
   group      Manage groups of users.
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
@@ -244,7 +276,7 @@ The `status` command prints details about the current workspace and server.
 
 The `version` command prints the installed version string.
 
-The `gcloud`, `gsutil`, `bq`, and `nextflow` commands call third-party applications in the context of a Terra workspace.
+The `gcloud`, `git`, `gsutil`, `bq`, and `nextflow` commands call third-party applications in the context of a Terra workspace.
 
 The `resolve` command is an alias for the `terra resource resolve` command.
 
@@ -252,6 +284,7 @@ The other commands are groupings of sub-commands, described in the sections belo
 * `app` [Applications](#applications)
 * `auth` [Authentication](#authentication)
 * `config` [Config](#config)
+* `git` [Git](#Git)
 * `group` [Groups](#groups)
 * `notebook` [Notebooks](#notebooks)
 * `resource` [Resources](#resources)
@@ -334,7 +367,14 @@ configuration properties are:
 [workspace] workspace = (unset)
 [format] output format = TEXT
 ```
-
+### Git
+```
+Usage: terrag git [COMMAND]
+Call git command in the terra workspace. Besides calling normal Git operation, this command allow cloning git-repo resources in the workspace.
+Commands:
+  all        Clone all the git-repo resources in the workspace. Usage: terra git clone --all
+  resource   Clone specified git-repo resources in the workspace. Usage: terra git clone --resource=<repoResource1Name> --resource=<repoResource2Name>
+```
 #### Groups
 ```
 Usage: terra group [COMMAND]

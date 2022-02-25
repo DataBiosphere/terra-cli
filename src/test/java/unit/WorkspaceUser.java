@@ -10,7 +10,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
   void listReflectAdd() throws IOException {
     // login as the workspace creator and select a test user to share the workspace with
     workspaceCreator.login();
-    TestUsers testUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser testUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -112,7 +112,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
   void listReflectRemove() throws IOException {
     // login as the workspace creator and select a test user to share the workspace with
     workspaceCreator.login();
-    TestUsers testUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser testUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());

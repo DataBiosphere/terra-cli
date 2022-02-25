@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFAuthStatus;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ public class AuthStatus extends SingleWorkspaceUnit {
   @DisplayName("auth status includes user email and says logged in")
   void authStatusWhenLoggedIn() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // `terra auth status --format=json`
@@ -112,7 +112,7 @@ public class AuthStatus extends SingleWorkspaceUnit {
   @DisplayName("auth status changes after logout")
   void authRevokeChanges() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // `terra auth status --format=json`

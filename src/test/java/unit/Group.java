@@ -10,7 +10,7 @@ import bio.terra.cli.service.SamService.GroupPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.SamGroups;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class Group extends ClearContextUnit {
   @Test
   @DisplayName("list, describe, list-users reflect creating and deleting a group")
   void listDescribeUsersReflectCreateDelete() throws IOException {
-    TestUsers testUser = TestUsers.chooseTestUser();
+    TestUser testUser = TestUser.chooseTestUser();
     testUser.login();
 
     // `terra group create --name=$name`
@@ -111,7 +111,7 @@ public class Group extends ClearContextUnit {
   @Test
   @DisplayName("describe, delete, list-users, add-user, remove-user all fail with invalid group")
   void invalidGroup() throws IOException {
-    TestUsers.chooseTestUser().login();
+    TestUser.chooseTestUser().login();
     String badName = "terraCLI_nonexistentGroup";
 
     // `terra group describe --name=$name`
@@ -132,7 +132,7 @@ public class Group extends ClearContextUnit {
             "group",
             "add-user",
             "--name=" + badName,
-            "--email=" + TestUsers.chooseTestUser().email,
+            "--email=" + TestUser.chooseTestUser().email,
             "--policy=MEMBER");
     expectGroupNotFound(cmd);
 
@@ -142,7 +142,7 @@ public class Group extends ClearContextUnit {
             "group",
             "remove-user",
             "--name=" + badName,
-            "--email=" + TestUsers.chooseTestUser().email,
+            "--email=" + TestUser.chooseTestUser().email,
             "--policy=MEMBER");
     expectGroupNotFound(cmd);
   }
@@ -150,7 +150,7 @@ public class Group extends ClearContextUnit {
   @Test
   @DisplayName("only an admin, not a member, can modify a group")
   void onlyAdminCanModifyGroup() throws IOException {
-    TestUsers groupCreator = TestUsers.chooseTestUser();
+    TestUser groupCreator = TestUser.chooseTestUser();
     groupCreator.login();
 
     // `terra group create --name=$name`
@@ -161,7 +161,7 @@ public class Group extends ClearContextUnit {
     trackedGroups.trackGroup(name, groupCreator);
 
     // `terra group add-user --name=$name`
-    TestUsers groupMember = TestUsers.chooseTestUserWhoIsNot(groupCreator);
+    TestUser groupMember = TestUser.chooseTestUserWhoIsNot(groupCreator);
     TestCommand.runCommandExpectSuccess(
         "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
 
@@ -190,7 +190,7 @@ public class Group extends ClearContextUnit {
   @Test
   @DisplayName("list-users reflects adding and removing a user")
   void listUsersReflectsAddRemove() throws IOException {
-    TestUsers groupCreator = TestUsers.chooseTestUser();
+    TestUser groupCreator = TestUser.chooseTestUser();
     groupCreator.login();
 
     // `terra group create --name=$name`
@@ -201,7 +201,7 @@ public class Group extends ClearContextUnit {
     trackedGroups.trackGroup(name, groupCreator);
 
     // `terra group add-user --name=$name --email=$email --policy=MEMBER`
-    TestUsers groupMember = TestUsers.chooseTestUserWhoIsNot(groupCreator);
+    TestUser groupMember = TestUser.chooseTestUserWhoIsNot(groupCreator);
     TestCommand.runCommandExpectSuccess(
         "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=MEMBER");
 
@@ -252,19 +252,19 @@ public class Group extends ClearContextUnit {
   void cliTestersGroupMembership() throws IOException {
     // NOTE: this test is checking that test users and spend access are setup as expected for CLI
     // testing. it's not really testing CLI functionality specifically.
-    TestUsers groupAdmin = TestUsers.chooseTestUserWithOwnerAccess();
+    TestUser groupAdmin = TestUser.chooseTestUserWithOwnerAccess();
     groupAdmin.login();
 
-    List<TestUsers> expectedGroupMembers =
-        Arrays.asList(TestUsers.values()).stream()
+    List<TestUser> expectedGroupMembers =
+        TestUser.getTestUsers().stream()
             .filter(
                 testUser ->
-                    testUser.spendEnabled.equals(TestUsers.SpendEnabled.CLI_TEST_USERS_GROUP))
+                    testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP))
             .collect(Collectors.toList());
-    for (TestUsers expectedGroupMember : expectedGroupMembers) {
+    for (TestUser expectedGroupMember : expectedGroupMembers) {
       // check that the test user is included in the list-users output
       expectListedMemberWithPolicies(
-          TestUsers.CLI_TEST_USERS_GROUP_NAME, expectedGroupMember.email, GroupPolicy.MEMBER);
+          TestUser.CLI_TEST_USERS_GROUP_NAME, expectedGroupMember.email, GroupPolicy.MEMBER);
     }
   }
 

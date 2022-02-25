@@ -23,8 +23,9 @@ if [ "$terraCliVersion" == "latest" ]; then
 else
   releaseTarUrl="$ghRepoReleasesUrl/download/$terraCliVersion/$installPackageFileName"
 fi
+
 archiveFileName="terra-cli.tar"
-curl -L $releaseTarUrl > $archiveFileName
+curl -L "$releaseTarUrl" > $archiveFileName
 if [ ! -f "${archiveFileName}" ]; then
     echo "Error downloading release: ${archiveFileName}"
     exit 1
@@ -32,8 +33,8 @@ fi
 
 echo "--  Unarchiving release"
 archiveDir=$PWD/terra-cli
-mkdir -p $archiveDir
-tar -C $archiveDir --strip-components=1 -xf $archiveFileName
+mkdir -p "$archiveDir"
+tar -C "$archiveDir" --strip-components=1 -xf $archiveFileName
 if [ ! -f "$archiveDir/install.sh" ]; then
     echo "Error unarchiving release: ${archiveFileName}"
     exit 1
@@ -41,9 +42,9 @@ fi
 
 echo "--  Running the install script inside the release directory"
 currentDir=$PWD
-cd $archiveDir
+cd "$archiveDir"
 ./install.sh
-cd $currentDir
+cd "$currentDir"
 
 echo "-- Deleting the release archive"
 rm $archiveFileName

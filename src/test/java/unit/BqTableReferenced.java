@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -545,7 +545,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "referenced dataset with access and has zero row.");
 
     // `terra workspace add-user --email=$email --role=READER`
-    TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
 

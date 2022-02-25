@@ -15,6 +15,7 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
   exit 1
 fi
 
+# Tests currently assume Docker is available and running.
 installMode=$1
 echo "installMode: $installMode"
 if [ "$installMode" = "SOURCE_CODE" ]; then
@@ -32,6 +33,7 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   mkdir -p $(pwd)/build/test-install/
   cd build/test-install/
 
+  export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE
   echo "Downloading the install script from GitHub and running it"
   curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
 

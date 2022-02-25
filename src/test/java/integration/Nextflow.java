@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import harness.TestBashScript;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.ClearContextIntegration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +20,7 @@ public class Nextflow extends ClearContextIntegration {
   @DisplayName("nextflow run hello")
   void helloWorld() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // create a workspace
@@ -48,7 +48,7 @@ public class Nextflow extends ClearContextIntegration {
   @DisplayName("nextflow config and run with GLS tutorial")
   void nextflowFromGLSTutorial() throws IOException {
     // select a test user and login
-    TestUsers testUser = TestUsers.chooseTestUserWithSpendAccess();
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
     // create a workspace

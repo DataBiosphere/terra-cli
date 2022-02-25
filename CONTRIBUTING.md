@@ -10,6 +10,7 @@
 3. [Testing](#testing)
     * [Two types of tests](#two-types-of-tests)
     * [Run tests](#run-tests)
+    * [Docker and Tests](#docker-and-tests)
     * [Override default server](#override-default-server)
     * [Override default Docker image](#override-default-docker-image)
     * [Override context directory](#override-context-directory)
@@ -38,7 +39,10 @@
 -----
 
 ### Setup development environment
-From the top-level directory:
+The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it to
+   DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image
+   or DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
+Then, from the top-level directory, run:
 ```
 source tools/local-dev.sh
 terra
@@ -158,6 +162,9 @@ CLI installation on the same machine.
 - Run a single test by specifying the `--tests` option:
 `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
 
+#### Docker and Tests
+The tests require the Docker daemon to be running (install mode DOCKER_AVAILABLE).
+
 #### Override default server
 The tests run against the `broad-dev` server by default. You can run them against a different server
 by specifying the Gradle `server` property. e.g.:
@@ -199,7 +206,7 @@ interacting with a browser. Before running tests against a Terra server, the tes
 Setup happens exclusively in SAM, so if there are multiple Terra servers that all talk to the same SAM instance,
 then you only need to do this setup once.
 
-The CLI only uses the test users defined in the `TestUsers` enum class. The list includes a mix of users that:
+The CLI uses the test users defined in test config (eg `testconfig/broad.json`). This includes:
 - Have permission to use the default WSM spend profile via the `cli-test-users` SAM group.
 - Have permission to use the default WSM spend profile directly on the SAM resource.
 - Do not have permission to use the default WSM spend profile.
@@ -235,6 +242,17 @@ Some tests may start failing once the number of leaked resources gets too high. 
 `terra workspace list` test that does not page through more than ~30 workspaces. We could fix this test to be more
 resilient, but it's been a useful reminder to kick off the cleanup GitHub action, so we haven't done that yet. If
 you see unexpected failures around listing workspaces, try kicking off the cleanup action and re-running.
+
+#### Test config per deployment
+
+By default, tests run against Broad deployment. To run against a different deployment:
+
+- Create a new file under [Test config](https://github.com/DataBiosphere/terra-cli/tree/main/src/test/resources/testconfigs)
+- Create a new `render-config.sh` which renders config for your deployment. Put the configs in a new directory under `rendered`, eg `rendered/<mydeployment>`. The name of this directory must match the name of the testConfig in the next step.
+- Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
+
+For example, consider the project that external resources are created in. The Broad deployment uses a project in Broad
+GCP org; Verily deployment uses a project in Verily GCP org.
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.
@@ -392,10 +410,10 @@ There are 4 types of objects.
 - Internal state and business logic
   - `businessobject` package
   - May be a part of the state (e.g. `Workspace`, `User`) or just contain business logic (e.g. `WorkspaceUser`)
-- Serialization format for writing to disk
+- Serialization format for writing to disk (`.terra/context.json`)
   - `serialization.persisted` package
   - Prefixed with "PD" (e.g. `PDWorkspace`, `PDUser`)
-- Serialization format for command input/ouput
+- Serialization format for command input/ouput (json format)
   - `serialization.userfacing` package
   - Prefixed with "UF" (e.g. `UFWorkspace`, `UFUser`)
 - Create/update parameters

@@ -106,14 +106,14 @@ Example commands for granting break-glass access for a workspace in the `broad-d
 ```
 ./tools/render-config.sh
 terra auth login # login as yourself, the break-glass granter
-terra workspace break-glass --email=breakglassrequester@gmail.com --big-query-project=terra-cli-dev --big-query-sa=rendered/ci-account.json --user-project-admin-sa=rendered/verilycli-wsm-sa.json --notes="Testing break-glass command."
+terra workspace break-glass --email=breakglassrequester@gmail.com --big-query-project=terra-cli-dev --big-query-sa=rendered/broad/ci-account.json --user-project-admin-sa=rendered/broad/verilycli-wsm-sa.json --notes="Testing break-glass command."
 ```
 
 #### Requests catalog
 The `terra workspace break-glass` command updates a central BigQuery dataset to track break-glass requests.
 This dataset was setup by a script:
 ```
-gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/ci-account.json
+gcloud auth activate-service-account dev-ci-sa@broad-dsde-dev.iam.gserviceaccount.com --key-file=./rendered/broad/ci-account.json
 ./tools/create-break-glass-bq.sh terra-cli-dev
 ```
 

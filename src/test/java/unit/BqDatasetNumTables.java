@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
@@ -143,7 +143,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         "--dataset-id=" + externalDataset.getDatasetId());
 
     // `terra workspace add-user --email=$email --role=READER`
-    TestUsers shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    TestUser shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
 

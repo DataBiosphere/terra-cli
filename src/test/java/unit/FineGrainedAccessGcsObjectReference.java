@@ -14,7 +14,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
-import harness.TestUsers;
+import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
@@ -38,7 +38,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   private String sharedExternalBlobName = "foo/text.txt";
   private String privateExternalBlobName = "foo/";
 
-  private TestUsers shareeUser;
+  private TestUser shareeUser;
   private Blob sharedBlob;
 
   @BeforeAll
@@ -59,7 +59,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
             externalBucket.getName(),
             sharedExternalBlobName);
 
-    shareeUser = TestUsers.chooseTestUserWhoIsNot(workspaceCreator);
+    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     shareeUser.login();
 
     ExternalGCSBuckets.grantAccess(
