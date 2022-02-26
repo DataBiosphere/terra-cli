@@ -48,7 +48,8 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   curl -L https://github.com/DataBiosphere/terra-cli/releases/$versionPath/download-install.sh | bash
 
 else
-  echo "Usage: tools/install-for-testing.sh [installMode]"
+  echo "Usage: tools/install-for-testing.sh installMode [version]"
   echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
+  echo "           version = version to  install (latest if none passed)"
   exit 1
 fi
