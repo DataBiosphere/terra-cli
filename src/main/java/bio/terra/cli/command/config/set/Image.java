@@ -29,7 +29,7 @@ public class Image extends BaseCommand {
     String prevImageId = config.getDockerImageId();
     String newImageId = argGroup.useDefault ? Config.getDefaultImageId() : argGroup.imageId;
     if (!new DockerClientWrapper().checkImageExists(newImageId)) {
-      OUT.printf(
+      ERR.printf(
           "WARNING: Image %s was not found on the local machine. "
               + "Do `docker pull %s` to obtain it.%n",
           newImageId, newImageId);

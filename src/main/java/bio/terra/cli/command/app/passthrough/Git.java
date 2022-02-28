@@ -75,7 +75,7 @@ public class Git extends ToolCommand {
     try {
       Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);
     } catch (PassthroughException e) {
-      OUT.println("Git clone for " + gitRepoUrl + " failed");
+      ERR.println("Git clone for " + gitRepoUrl + " failed");
     }
   }
 }

@@ -134,12 +134,9 @@ public class User {
     }
   }
 
-  /**
-   * Load any existing credentials for this user. Prompt for browser login if they are expired or do
-   * not exist.
-   */
+  /** Load any existing credentials for this user. Use the {@code user.logInMode} if it's set. */
   public static void login() {
-    login(/*logInMode=*/ LogInMode.BROWSER);
+    login(Context.getUser().orElseGet(User::new).logInMode);
   }
 
   /**
