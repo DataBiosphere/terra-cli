@@ -43,7 +43,7 @@ public class Status extends BaseCommand {
   private void printText(UFAuthStatus returnValue) {
     // check if current user is defined
     if (returnValue.userEmail == null) {
-      OUT.println("NO USER LOGGED IN");
+      ERR.println("NO USER LOGGED IN");
     } else {
       OUT.println("User email: " + returnValue.userEmail);
       OUT.println("Proxy group email: " + returnValue.proxyGroupEmail);
