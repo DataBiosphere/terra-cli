@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.Optional;
@@ -42,14 +42,14 @@ public class List extends BaseCommand {
         UserIO.sortAndMap(
             Workspace.list(offset, limit),
             Comparator.comparing(Workspace::getName),
-            UFWorkspace::new),
+            UFWorkspaceLight::new),
         this::printText);
   }
 
   /** Print this command's output in text format. */
-  private void printText(java.util.List<UFWorkspace> returnValue) {
+  private void printText(java.util.List<UFWorkspaceLight> returnValue) {
     Optional<Workspace> currentWorkspace = Context.getWorkspace();
-    for (UFWorkspace workspace : returnValue) {
+    for (UFWorkspaceLight workspace : returnValue) {
       String prefix =
           (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
               ? " * "
@@ -59,20 +59,17 @@ public class List extends BaseCommand {
       String propertyDescription = "%16s: %s";
       String displayName = workspace.name;
       if (!(displayName == null || displayName.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Name", displayName));
+        OUT.printf(propertyDescription + "%n", "Name", displayName);
       }
       String description = workspace.description;
       if (!(description == null || description.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Description", description));
+        OUT.printf(propertyDescription + "%n", "Description", description);
       }
       String googleProjectId = workspace.googleProjectId;
-      OUT.println(
-          String.format(
-              propertyDescription,
-              "Google project ID",
-              (googleProjectId == null || googleProjectId.isBlank())
-                  ? "(UNSET)"
-                  : googleProjectId));
+      OUT.printf(
+          propertyDescription + "%n",
+          "Google project ID",
+          (googleProjectId == null || googleProjectId.isBlank()) ? "(UNSET)" : googleProjectId);
     }
   }
 }

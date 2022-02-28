@@ -2,7 +2,6 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -16,27 +15,15 @@ import java.util.UUID;
  * <p>See the {@link Workspace} class for a workspace's internal representation.
  */
 @JsonDeserialize(builder = UFWorkspace.Builder.class)
-public class UFWorkspace {
-  public final UUID id;
-  public final String name;
-  public final String description;
-  public final String googleProjectId;
-  public final String serverName;
-  public final String userEmail;
+public class UFWorkspace extends UFWorkspaceLight {
+  public final long numResources;
 
-  // only expose the number of resources in the text output mode
-  @JsonIgnore public final long numResources;
-
-  /** Serialize an instance of the internal class to the disk format. */
+  /**
+   * Serialize an instance of the internal class to the disk format. Note that the Workspace object
+   * should have its resources populated in order for numResources to be correctly determined.
+   */
   public UFWorkspace(Workspace internalObj) {
-    this.id = internalObj.getId();
-    this.name = internalObj.getName();
-    this.description = internalObj.getDescription();
-    this.googleProjectId = internalObj.getGoogleProjectId();
-    this.serverName = internalObj.getServerName();
-    this.userEmail = internalObj.getUserEmail();
-    // This number may be zero for Workspace objects loaded from `WorkspaceDescription`s,
-    // as those don't have any resources associated with them.
+    super(internalObj);
     this.numResources = internalObj.getResources().size();
   }
 
@@ -52,21 +39,10 @@ public class UFWorkspace {
   }
 
   /** Print out a workspace object in text format. */
+  @Override
   public void print() {
+    super.print();
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Terra workspace id: " + id);
-    OUT.println("Display name: " + name);
-    OUT.println("Description: " + description);
-    OUT.println("Google project: " + googleProjectId);
-    OUT.println(
-        "Cloud console: https://console.cloud.google.com/home/dashboard?project="
-            + googleProjectId);
-    // Unfortunately, this UFWorkspace may have been built from a Workspace object built from a
-    // WorkspaceDescription, which does not provide the resources or their count. In that
-    // situation, the number of resources will be zero, which may be false.
-    // Currently, this only happens in `terra workspace list`, which prints separately,
-    // so the user should not see it. `numResources` was removed from JSON output for
-    // this reason (as we use the same JSON structure for list and describe).
     OUT.println("# Resources: " + numResources);
   }
 

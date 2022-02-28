@@ -20,6 +20,7 @@ import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 import bio.terra.cli.businessobject.WorkspaceUser;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
@@ -417,7 +418,7 @@ public class WorkspaceOverride extends ClearContextUnit {
         "workspace", "delete", "--workspace=" + workspace3.id, "--quiet");
 
     // `terra workspace list`
-    List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(workspace3.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(workspace3.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace 3 is not included in list");
 
     // `terra workspace list`
