@@ -2,6 +2,7 @@ package unit;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -28,6 +29,8 @@ public class Config extends SingleWorkspaceUnit {
   @Test
   @DisplayName("app-launch config affects how apps are launched")
   void appLaunch() throws IOException {
+    String badImageError = "No such image: badimageid";
+
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -41,11 +44,16 @@ public class Config extends SingleWorkspaceUnit {
 
     // apps launched via local process should not be affected
     Result cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-    // cmd exit code can either be 0=success or 127=command not found if gcloud is not installed on
-    // this machine
+    // cmd exit code can either be 0=success or 1 because gcloud fails with
+    // `(gcloud.config.get-value) Failed to create the default configuration. Ensure your have the
+    // correct permissions on`.
     assertThat(
-        "app execute with local process did not throw system exception",
-        cmd.exitCode == 0 || cmd.exitCode == 127);
+        "Expected to return exit code 0 or 1, instead got " + cmd.exitCode,
+        cmd.exitCode == 0 || cmd.exitCode == 1);
+    assertThat(
+        "bad docker image should not affect local mode",
+        cmd.stdErr,
+        not(containsString(badImageError)));
 
     // `terra config set app-launch DOCKER_CONTAINER`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
@@ -53,10 +61,7 @@ public class Config extends SingleWorkspaceUnit {
     // apps launched via docker container should error out
     String stdErr =
         TestCommand.runCommandExpectExitCode(3, "app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-    assertThat(
-        "docker image not found error returned",
-        stdErr,
-        containsString("No such image: badimageid"));
+    assertThat("docker image not found error returned", stdErr, containsString(badImageError));
   }
 
   @Test

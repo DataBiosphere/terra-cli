@@ -15,6 +15,7 @@ VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
 CI_SA_VAULT_PATH=secret/dsde/terra/kernel/dev/common/ci/ci-account.json
 TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
+TEST_USERS_VAULT_PATH=secret/dsde/terra/cli-test/test-users
 EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
 JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 VERILYCLI_WSM_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/verilycli/workspace/app-sa
@@ -64,3 +65,10 @@ readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json" "base64"
 # used for granting break-glass access to a workspace in the verilycli deployment
 echo "Reading the WSM app service account key file for the verilycli deployment from Vault"
 readFromVault "$VERILYCLI_WSM_SA_VAULT_PATH" "verilycli-wsm-sa.json" "base64"
+
+# Read test user refresh tokens
+echo "Reading test user refresh tokens from Vault"
+testUsers=$(cat src/test/resources/testconfigs/broad.json | jq -r '.testUsers[] | {email} | join (" ")')
+while IFS= read -r line; do
+  readFromVault "$TEST_USERS_VAULT_PATH/${line}" "${line}.json"
+done <<< "$testUsers"

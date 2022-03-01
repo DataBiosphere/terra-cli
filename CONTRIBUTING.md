@@ -35,6 +35,7 @@
     * [Alphabetize command lists](#alphabetize-command-lists)
     * [User readable exception messages](#user-readable-exception-messages)
     * [Singular command group names](#singular-command-group-names)
+7. [Auth overview](#auth-overview)
 
 -----
 
@@ -47,6 +48,7 @@ Then, from the top-level directory, run:
 source tools/local-dev.sh
 terra
 ```
+To rebuild after changing code: `./gradlew installDist`
 
 #### Logging
 Logging is turned off by default. Modify the level with the `terra config set logging` command. Available levels are
@@ -168,7 +170,7 @@ The tests require the Docker daemon to be running (install mode DOCKER_AVAILABLE
 #### Override default server
 The tests run against the `broad-dev` server by default. You can run them against a different server
 by specifying the Gradle `server` property. e.g.:
-`./gradlew runTestsWithTag -PtestTag=unit -Pserver=verily-devel`
+`./gradlew runTestsWithTag -PtestTag=unit -Pserver=broad-dev-cli-testing -PtestConfig=broad`
 
 #### Override default Docker image
 The tests use the default Docker image by default. This is the image in GCR that corresponds the current version in
@@ -211,6 +213,9 @@ The CLI uses the test users defined in test config (eg `testconfig/broad.json`).
 - Have permission to use the default WSM spend profile directly on the SAM resource.
 - Do not have permission to use the default WSM spend profile.
 
+You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
+`test.firecloud.org` GSuite account.
+
 The script to setup the initial set of test users on the SAM dev instance is in `tools/setup-test-users.sh`.
 Note that the current testing setup uses pre-defined users in the `test.firecloud.org` domain. There would be
 some refactoring involved in varying this domain.
@@ -224,8 +229,11 @@ If the current server requires users to be invited before they can register, the
 script must be an admin user (i.e. a member of the `fc-admins` Google group in the SAM Gsuite). The script
 invites all the test users if they do not already exist in SAM, and this requires admin permissions.
 
-You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
-`test.firecloud.org` GSuite account.
+For each test user, store refresh token in vault:
+- Run `gcloud auth login` for test user. For password, see Test Horde spreadsheet in Broad Google Drive.
+- Look for file `~/.config/gcloud/legacy_credentials/<TEST_USER_EMAIL>/adc.json`, line `refresh_token`.
+- `docker run -it --rm -v ${HOME}/.vault-token:/root/.vault-token broadinstitute/dsde-toolbox:consul-0.20.0 vault write secret/dsde/terra/cli-test/test-users/<TEST_USER_EMAIL> refresh_token=<REFRESH_TOKEN>`
+- Create GHA secret. Update workflows `Render config` jobs to read secrets.
 
 #### Automated tests
 All unit and integration tests are run nightly via GitHub action against two environments: `broad-dev` and
@@ -474,3 +482,126 @@ that should be reported, so there's no need to make these messages readable to t
 
 #### Singular command group names
 Use singular command group names instead of plural. e.g. `terra resource` instead of `terra resources`.
+
+
+### Auth overview
+
+When running on local computer, you should authenticate as user and not pet service account (SA). This way, you don't need to export pet SA keys, which is a security risk.
+
+<table>
+<tr>
+<td></td>
+<td>
+
+Regular command (eg `terra workspace`)
+</td>
+<td>Tool command (Docker and local process mode)</td>
+</tr>
+<tr>
+<td>Local computer</td>
+<td valign="top">
+
+**User Terra OAuth**
+
+`terra auth login` CLI goes through oauth flow and saves credentials in `.terra/StoredCredential`. No `gcloud` involved. Requests to services such as WorkspaceManager use an access token obtained from `.terra/StoredCredential`.
+</td>
+<td>
+
+**gcloud user credentials or user ADC, depending on tool**
+
+Most tools accept both (user credentials or ADC). Even though we don't need ADC for most tools, [we currently require ADC for all tools](https://github.com/DataBiosphere/terra-cli/blob/79a938e56f2d95111aeec54175b6d38d9e5deb79/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L98).
+
+Normally ADC is used with SA. When running Terra on a local
+computer, you are using ADC with your user credentials. This is unusual. (And as mentioned earlier,
+this is because we currently require ADC for all tools.) Please ignore this warning:
+`WARNING: Your application has authenticated using end user credentials from Google Cloud SDK. We recommend that most server applications use service accounts instead`.
+
+[Nextflow only works with ADC.](https://www.nextflow.io/docs/latest/google.html#credentials) User is asked to run `gcloud auth application-default login`, which writes  `.config/gcloud/application_default_credentials.json`.
+
+In Docker mode, [we mount `.config/gcloud`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80).
+
+</td>
+</tr>
+<tr>
+<td>GCP notebook</td>
+<td>
+
+**Pet ADC** (if you use `--use-app-default-credentials`)
+
+Notebooks can run terra CLI with  [`--use-app-default-credentials`](https://github.com/DataBiosphere/terra-cli/pull/197/files).
+terra will pick up creds from ADC instead of OAuth (which involves interacting with a browser).
+</td>
+<td valign="top">
+
+**Pet ADC**
+
+ADC is automatically configured for GCE VMs.
+</td>
+</tr>
+<tr>
+<td>Unit test</td>
+<td valign="top">
+
+**Test user Terra OAuth**
+
+At the beginning of each test, before running terra CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30).
+
+`TestUser.login()` [writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76), using domain-wide delegation to avoid browser flow.
+</td>
+<td>
+
+**Test user**
+
+Auth is complicated because we are not using Pet SA key.
+
+*Access token*
+
+TestCommand.runCommand(): Set `TEST_USER_ACCESS_TOKEN` system property
+
+DockerCommand: If `TEST_USER_ACCESS_TOKEN` system property is set, set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token in container.
+(Tests only run in docker mode.)
+
+*bq*
+
+Here's what makes `cloudsdk/component_build/wrapper_scripts/bq.py` happy:
+- Set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token
+- Populate `.config/gcloud/legacy_credentials/default/adc.json`. This file has refresh token.
+
+In general for gcloud, you only need `--access_token_file`/`CLOUDSDK_AUTH_ACCESS_TOKEN`, not `adc.json`.
+However, [implementation of `CLOUDSDK_AUTH_ACCESS_TOKEN`](https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2) did not include `bq.py`, so we also need `adc.json`.
+
+*gsutil*
+
+There are 3 versions of `gsutil`:
+
+1. Standalone `gsutil`. This is the oldest, and predates `gcloud`.
+2. `gsutil` as part of gcloud
+3. `gcloud alpha storage`. This is the newest. [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
+
+This repo uses 2. To get auth to work for 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto` that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects. This file has refresh token.
+See PF-1395 for switching this repo to 3.)
+
+*docker configuration*
+
+[Mount `.config/gcloud`.](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80)
+</td>
+</tr>
+<tr>
+<td>Integration test</td>
+<td>
+
+**Test user Terra OAuth**
+
+At the beginning of each test, before running terra CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30).
+
+[`TestUser.login()` writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76), using domain-wide delegation to avoid browser flow.
+
+</td>
+<td valign="top">
+
+**Pet ADC**
+
+[`GOOGLE_APPLICATION_CREDENTIALS` set to pet SA key file](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestBashScript.java#L56)
+</td>
+</tr>
+</table>

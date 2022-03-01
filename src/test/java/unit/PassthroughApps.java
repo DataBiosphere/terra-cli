@@ -4,7 +4,6 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,7 +41,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("env vars include workspace cloud project and pet SA key file")
+  @DisplayName("env vars include workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login();
 
@@ -51,18 +50,9 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
 
-    // `terra app execute echo \$GOOGLE_APPLICATION_CREDENTIALS`
-    TestCommand.Result cmd =
-        TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_APPLICATION_CREDENTIALS");
-
-    // check that GOOGLE_APPLICATION_CREDENTIALS = path to pet SA key file
-    assertThat(
-        "GOOGLE_APPLICATION_CREDENTIALS set to pet SA key file",
-        cmd.stdOut,
-        CoreMatchers.containsString("application_default_credentials.json"));
-
     // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
-    cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
+    TestCommand.Result cmd =
+        TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
 
     // check that GOOGLE_CLOUD_PROJECT = workspace project
     assertThat(
@@ -99,7 +89,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("gcloud is configured with the workspace project and pet SA key")
+  @DisplayName("gcloud is configured with the workspace project and user")
   void gcloudConfigured() throws IOException {
     workspaceCreator.login();
 
@@ -116,11 +106,26 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         CoreMatchers.containsString(workspace.googleProjectId));
 
     // `terra gcloud config get-value account`
-    cmd = TestCommand.runCommand("gcloud", "config", "get-value", "account");
-    assertThat(
-        "gcloud account = pet SA email",
-        cmd.stdOut,
-        CoreMatchers.containsString(Context.requireUser().getPetSaEmail()));
+    // Normally, when a human is involved, `gcloud auth login` or `gcloud auth
+    // activate-service-account` writes `account` to properties file at
+    // ~/.config/gcloud/configurations/config_default.
+    //
+    // However, there is no programmatic way to simulate this. `gcloud auth login` only supports
+    // interactive mode. `gcloud auth activate-service-account` requires --key-file param. Even if
+    // CLOUDSDK_AUTH_ACCESS_TOKEN is set, it wants --key-file param.
+    //
+    // When a human is involved, `account` in ~/.config/gcloud/configurations/config_default is
+    // used. During unit tests, that is not used. Authentication is done through other means, such
+    // as via CLOUDSDK_AUTH_ACCESS_TOKEN. So having test manually construct
+    // ~/.config/gcloud/configurations/config_default and then assert its contents, is not useful.
+    //
+    // If `gcloud auth login` or `gcloud auth activate-service-account` can ever be done
+    // programmatically (without key file), uncomment this test.
+    //    cmd = TestCommand.runCommand("gcloud", "config", "get-value", "account");
+    //    assertThat(
+    //        "gcloud account = test user email",
+    //        cmd.stdOut,
+    //        CoreMatchers.containsString(Context.requireUser().getEmail()));
   }
 
   @Test
@@ -297,13 +302,14 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // terminal)
     TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "exit", "123");
 
-    // check that the exit code is either 123 from the `exit 123` command, or 127 because gcloud is
-    // not installed on this machine.
-    // this is running in a local process, not a docker container so we don't have control over
+    // Check that the exit code is either 123 from the `exit 123` command, or 1 because gcloud
+    // fails with `(gcloud.config.get-value) Failed to create the default configuration. Ensure your
+    // have the correct permissions on`.
+    // This is running in a local process, not a docker container so we don't have control over
     // what's installed.
-    // both 123 and 127 indicate that the CLI is not swallowing error codes.
+    // Both 123 and 1 indicate that the CLI is not swallowing error codes.
     assertTrue(
-        cmd.exitCode == 123 || cmd.exitCode == 127,
-        "app execute via local process returned an error code");
+        cmd.exitCode == 123 || cmd.exitCode == 1,
+        "Expected to return exit code 123 or 1, instead got " + cmd.exitCode);
   }
 }

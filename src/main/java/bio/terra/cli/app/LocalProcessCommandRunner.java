@@ -56,16 +56,11 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
-    // check if the system property for testing credentials is populated
-    Optional<Path> credentialsFileForTest = getOverrideCredentialsFileForTesting();
-    if (credentialsFileForTest.isPresent()) { // this is a unit test
-      // set the env var and gcloud auth credentials using the pet SA key file
-      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", credentialsFileForTest.get().toString());
-      command =
-          "echo \"Setting the gcloud credentials to match the application default credentials\"; "
-              + "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}; "
-              + command;
-    } else { // this is normal operation
+
+    // Don't enforce ADC for tests. (`gcloud auth activate-service-account` requires a key file,
+    // which we don't want for security reasons.)
+    if (!getTestUserAccessToken().isPresent()) {
+
       // check that the ADC match the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();
 
