@@ -1,6 +1,9 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,9 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import java.io.IOException;
@@ -71,7 +76,7 @@ public class Workspace extends ClearContextUnit {
         "workspace gcp project matches that in describe");
 
     // check the new workspace is included in the list
-    List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
     assertEquals(
         createWorkspace.id, matchingWorkspaces.get(0).id, "workspace id matches that in list");
@@ -108,7 +113,7 @@ public class Workspace extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "workspace", "describe");
 
     // check the deleted workspace is not included in the list
-    List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace is not included in list");
   }
 
@@ -166,7 +171,7 @@ public class Workspace extends ClearContextUnit {
         "describe matches updated workspace description");
 
     // check the workspace list reflects the update
-    List<UFWorkspace> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createWorkspace.id);
     assertEquals(
         1, matchingWorkspaces.size(), "updated workspace is included exactly once in list");
     assertEquals(
@@ -307,10 +312,21 @@ public class Workspace extends ClearContextUnit {
         "--dataset-id=" + datasetId);
 
     // `terra workspace describe`
-    describeWorkspace =
+    Result describeResult2 = TestCommand.runCommand("workspace", "describe");
+    assertEquals(0, describeResult2.exitCode, "Describe was successful.");
+    assertThat(
+        "workspace has 2 resources after creating dataset",
+        describeResult2.stdOut,
+        containsString("# Resources: 2"));
+    assertThat(
+        "No error message is displayed on second describe.",
+        describeResult2.stdErr,
+        is(emptyString()));
+
+    UFWorkspace describeWorkspace3 =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        2, describeWorkspace.numResources, "worksapce has 2 resources after creating dataset");
+        2, describeWorkspace3.numResources, "worksapce has 2 resources after creating dataset");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -321,9 +337,10 @@ public class Workspace extends ClearContextUnit {
    * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
    * about to page out.
    */
-  static List<UFWorkspace> listWorkspacesWithId(UUID workspaceId) throws JsonProcessingException {
+  static List<UFWorkspaceLight> listWorkspacesWithId(UUID workspaceId)
+      throws JsonProcessingException {
     // `terra workspace list --format=json --limit=500`
-    List<UFWorkspace> listWorkspaces =
+    List<UFWorkspaceLight> listWorkspaces =
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list", "--limit=500");
 
