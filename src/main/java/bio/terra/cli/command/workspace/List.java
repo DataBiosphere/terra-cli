@@ -53,7 +53,7 @@ public class List extends BaseCommand {
   }
 
   /** Print this command's output in tabular text format. */
-  private void printText(java.util.List<UFWorkspace> returnValue) {
+  private void printText(java.util.List<UFWorkspaceLight> returnValue) {
     // Guard against the current workspace being empty, but keep the highlight column so the
     // table is formatted the same with or without the workspace being set (i.e. pass always-false
     // instead of a null predicate).
@@ -74,13 +74,13 @@ public class List extends BaseCommand {
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;
-    private final Function<UFWorkspace, String> valueExtractor;
+    private final Function<UFWorkspaceLight, String> valueExtractor;
     private final int width;
     private final Alignment alignment;
 
     Columns(
         String columnLabel,
-        Function<UFWorkspace, String> valueExtractor,
+        Function<UFWorkspaceLight, String> valueExtractor,
         int width,
         Alignment alignment) {
       this.columnLabel = columnLabel;
@@ -95,7 +95,7 @@ public class List extends BaseCommand {
     }
 
     @Override
-    public Function<UFWorkspace, String> getValueExtractor() {
+    public Function<UFWorkspaceLight, String> getValueExtractor() {
       return valueExtractor;
     }
 
