@@ -50,7 +50,7 @@ public class TestCommand {
 
     if (Context.getUser().isPresent()) {
       System.setProperty(
-          CommandRunner.TEST_USER_ACCESS_TOKEN_PROPERTY,
+          CommandRunner.TEST_USER_ACCESS_TOKEN,
           Context.requireUser().getUserAccessToken().getTokenValue());
     }
 

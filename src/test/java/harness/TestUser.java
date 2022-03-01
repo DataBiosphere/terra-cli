@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HEAD;
+
 /**
  * Test users are defined in testconfig, eg `testconfig/broad.json`. They have varying permissions
  * on the WSM spend profile. These permissions were configured manually, and are not part of the CLI
@@ -87,7 +89,7 @@ public class TestUser {
     writeTerraOAuthCredentialFile(googleCredentials);
 
     // We're not using pet SA key file (for security reasons), so auth is more complicated.
-    writeBqCredentialFile();
+    writeAdcCredentialFiles();
     writeGsUtilCredentialFile();
 
     // unset the current user in the global context if already specified
@@ -112,38 +114,40 @@ public class TestUser {
     dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
   }
 
-  /**
-   * Writes ~/.config/gcloud/legacy_credentials/default/adc.json that
-   * cloudsdk/component_build/wrapper_scripts/bq.py expects.
-   *
-   * <p>Two things are needed for `bq` auth:
-   *
-   * <ol>
-   *   <li>CLOUDSDK_AUTH_ACCESS_TOKEN (set in DockerCommandRunner.java)
-   *   <li>adc.json
-   * </ol>
-   *
-   * <p>In theory, only CLOUDSDK_AUTH_ACCESS_TOKEN should be needed. However, when support for
-   * CLOUDSDK_AUTH_ACCESS_TOKEN was added
-   * (https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2), it did not include `bq.py`. So
-   * `bq.py` still expects `adc.json`.
-   */
-  private void writeBqCredentialFile() throws IOException {
+  /** Writes ADC credential files. */
+  private void writeAdcCredentialFiles() throws IOException {
     JsonObject json = new JsonObject();
     json.addProperty("client_id", GCLOUD_CLIENT_ID);
     json.addProperty("client_secret", GCLOUD_CLIENT_SECRET);
     json.addProperty("refresh_token", getRefreshToken());
     json.addProperty("type", "authorized_user");
-    Path path =
+
+    Path pathForBq =
         Path.of(
             System.getProperty("user.home"), ".config/gcloud/legacy_credentials/default/adc.json");
-    Files.createDirectories(path.getParent());
-    Files.write(path, json.toString().getBytes(), StandardOpenOption.CREATE);
+    Path pathForNextflow =
+        Path.of(
+            System.getProperty("user.home"), ".config/gcloud/application_default_credentials.json");
+
+    Files.createDirectories(pathForBq.getParent());
+    Files.write(pathForBq, json.toString().getBytes(), StandardOpenOption.CREATE);
+    Files.write(pathForNextflow, json.toString().getBytes(), StandardOpenOption.CREATE);
   }
 
   /**
    * Writes ~/.config/gcloud/legacy_credentials/default/.boto that
    * google-cloud-sdk/bin/bootstrapping/gsutil.py expects.
+   *
+   * <p>One thing is needed for `gsutil` auth:
+   *
+   * <ol>
+   *   <li>.boto
+   * </ol>
+   *
+   * <p>Note: Authentication with `gcloud alpha storage` is simpler. You only need to set
+   * CLOUDSDK_AUTH_ACCESS_TOKEN; you don't need .boto. But the rest of this repo uses `gsutil`, so
+   * set up for `gsutil` here. >>>>>>> 2f8efe2 ([PF-1289] Stop using pet SA key in integration
+   * tests)
    */
   private void writeGsUtilCredentialFile() throws IOException {
     String fileContent =

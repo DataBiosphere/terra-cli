@@ -162,17 +162,20 @@ CLI installation on the same machine.
 `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
 
 - Run a single test by specifying the `--tests` option:
-`./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
+  `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
 
 #### Docker and Tests
+
 The tests require the Docker daemon to be running (install mode DOCKER_AVAILABLE).
 
 #### Override default server
-The tests run against the `broad-dev` server by default. You can run them against a different server
-by specifying the Gradle `server` property. e.g.:
+
+The tests run against the `broad-dev` server by default. You can run them against a different server by specifying the
+Gradle `server` property. e.g.:
 `./gradlew runTestsWithTag -PtestTag=unit -Pserver=broad-dev-cli-testing -PtestConfig=broad`
 
 #### Override default Docker image
+
 The tests use the default Docker image by default. This is the image in GCR that corresponds the current version in
 `build.gradle`. This default image does not include any changes to the `docker/` directory that have not yet been
 released. You can run the tests with a different Docker image by specifying the Gradle `dockerImage` property. e.g.:
@@ -216,29 +219,31 @@ The CLI uses the test users defined in test config (eg `testconfig/broad.json`).
 You can see the available test users on the users admin [page](https://admin.google.com/ac/users) with a
 `test.firecloud.org` GSuite account.
 
-The script to setup the initial set of test users on the SAM dev instance is in `tools/setup-test-users.sh`.
-Note that the current testing setup uses pre-defined users in the `test.firecloud.org` domain. There would be
-some refactoring involved in varying this domain.
+The script to setup the initial set of test users on the SAM dev instance is in `tools/setup-test-users.sh`. Note that
+the current testing setup uses pre-defined users in the `test.firecloud.org` domain. There would be some refactoring
+involved in varying this domain.
 
-Note that the script takes an ADMIN groupemail as a required argument. This should be the email address of a
-SAM group that contains several admin emails (e.g. developer-admins group on the dev SAM deployment at the
-Broad contains the corporate emails of all PF team developers as of Sept 23, 2021). This is to prevent the
-team from losing access if the person who originally ran this script is not available.
+Note that the script takes an ADMIN groupemail as a required argument. This should be the email address of a SAM group
+that contains several admin emails (e.g. developer-admins group on the dev SAM deployment at the Broad contains the
+corporate emails of all PF team developers as of Sept 23, 2021). This is to prevent the team from losing access if the
+person who originally ran this script is not available.
 
-If the current server requires users to be invited before they can register, then the user who runs this
-script must be an admin user (i.e. a member of the `fc-admins` Google group in the SAM Gsuite). The script
-invites all the test users if they do not already exist in SAM, and this requires admin permissions.
+If the current server requires users to be invited before they can register, then the user who runs this script must be
+an admin user (i.e. a member of the `fc-admins` Google group in the SAM Gsuite). The script invites all the test users
+if they do not already exist in SAM, and this requires admin permissions.
 
 For each test user, store refresh token in vault:
-- Run `gcloud auth login` for test user. For password, see Test Horde spreadsheet in Broad Google Drive.
+
+- Run `gcloud auth login` for test user. For password, see Test Horde spreadsheet in Broad Google Drive. =======
 - Look for file `~/.config/gcloud/legacy_credentials/<TEST_USER_EMAIL>/adc.json`, line `refresh_token`.
 - `docker run -it --rm -v ${HOME}/.vault-token:/root/.vault-token broadinstitute/dsde-toolbox:consul-0.20.0 vault write secret/dsde/terra/cli-test/test-users/<TEST_USER_EMAIL> refresh_token=<REFRESH_TOKEN>`
 - Create GHA secret. Update workflows `Render config` jobs to read secrets.
 
 #### Automated tests
+
 All unit and integration tests are run nightly via GitHub action against two environments: `broad-dev` and
-`verily-devel`. On test completion, a Slack notification is sent to the Broad `#platform-foundation-alerts` channel.
-If you kick off a full test run manually, it will not send a notification.
+`verily-devel`. On test completion, a Slack notification is sent to the Broad `#platform-foundation-alerts` channel. If
+you kick off a full test run manually, it will not send a notification.
 
 Running the tests locally on your machine and via GitHub actions uses the same set of test users. While the nightly CLI
 tests should not leak resources (e.g. workspaces, SAM groups), this often happens when debugging something locally.
@@ -380,29 +385,26 @@ To add a new supported tool:
    1. Install the app in the `docker/Dockerfile`
    2. Build the new image (see instructions in section above).
    3. Test that the install worked by calling the app through the `terra app execute` command.
-   (e.g. `terra app execute dsub --version`). This command just runs the Docker container and 
-   executes the command, without requiring any new Java code. This `terra app execute` command
-   is intended for debugging only; this won't be how users call the tool.
-   4. Add a new command class in the `src/main/java/bio/terra/cli/command/app/passthrough` package.
-   Copy/paste an existing class in that same package as a starting point.
-   5. Add it to the list of tools shown by `terra app list` by adding the new command class to
-   the list of sub-commands in the `@Command` annotation of the `Main.class`. This means you can
-   invoke the command by prefixing it with terra (e.g. `terra dsub -version`).
+      (e.g. `terra app execute dsub --version`). This command just runs the Docker container and executes the command,
+      without requiring any new Java code. This `terra app execute` command is intended for debugging only; this won't
+      be how users call the tool.
+   4. Add a new command class in the `src/main/java/bio/terra/cli/command/app/passthrough` package. Copy/paste an
+      existing class in that same package as a starting point.
+   5. Add it to the list of tools shown by `terra app list` by adding the new command class to the list of sub-commands
+      in the `@Command` annotation of the `Main.class`. This means you can invoke the command by prefixing it with
+      terra (e.g. `terra dsub -version`).
    6. When you run e.g. `terra dsub -version`, the CLI:
-      - Launches a Docker container
-      - Runs the `terra_init.sh` script in the `docker/scripts` directory, which activates the user’s
-      pet service account and sets the workspace project
-      - Runs the `dsub` command
-   7. You can pass environment variables through to the Docker container by populating a `Map` and
-   passing it to the `DockerAppsRunner.runToolCommand` method. Two environment variables are always
-   passed:
+       - Launches a Docker container
+       - Runs the `terra_init.sh` script in the `docker/scripts` directory, which sets the workspace project
+       - Runs the `dsub` command
+   7. You can pass environment variables through to the Docker container by populating a `Map` and passing it to
+      the `DockerAppsRunner.runToolCommand` method. Two environment variables are always passed:
        - `GOOGLE_CLOUD_PROJECT` = the workspace project id
-       - `GOOGLE_APPLICATION_CREDENTIALS` = the pet service account key file
-   8.  You can mount directories on the host machine to the Docker container by populating a second
-   `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current working
-   directory is always mounted to the Docker container.
+   8. You can mount directories on the host machine to the Docker container by populating a second
+      `Map` and passing it to the same `DockerAppsRunner.runToolCommand` method. The current working directory is always
+      mounted to the Docker container.
    9. Publish the new Docker image and update the default image that the CLI uses to the new version
-   (see instructions in section above).
+      (see instructions in section above).
 
 #### Commands
 The `command` package contains the hierarchy of the commands as they appear to the user.
@@ -576,10 +578,12 @@ There are 3 versions of `gsutil`:
 
 1. Standalone `gsutil`. This is the oldest, and predates `gcloud`.
 2. `gsutil` as part of gcloud
-3. `gcloud alpha storage`. This is the newest. [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
+3. `gcloud alpha storage`. This is the
+   newest. [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
 
-This repo uses 2. To get auth to work for 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto` that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects. This file has refresh token.
-See PF-1395 for switching this repo to 3.)
+This repo uses 2. To get auth to work for 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto`
+that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects. This file has refresh token.
+(See PF-1395 for switching this repo to 3.)
 
 *docker configuration*
 
@@ -592,16 +596,22 @@ See PF-1395 for switching this repo to 3.)
 
 **Test user Terra OAuth**
 
-At the beginning of each test, before running terra CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30).
+At the beginning of each test, before running terra
+CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30)
+.
 
-[`TestUser.login()` writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76), using domain-wide delegation to avoid browser flow.
+[`TestUser.login()` writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76)
+, using domain-wide delegation to avoid browser flow.
 
 </td>
 <td valign="top">
 
-**Pet ADC**
+**Test user ADC**
 
-[`GOOGLE_APPLICATION_CREDENTIALS` set to pet SA key file](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestBashScript.java#L56)
+*Nextflow*
+
+Populate `.config/gcloud/application_default_credentials.json`.
+> > > > > > > 2f8efe2 ([PF-1289] Stop using pet SA key in integration tests)
 </td>
 </tr>
 </table>
