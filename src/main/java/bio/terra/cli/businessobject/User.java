@@ -6,20 +6,14 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
-import bio.terra.cli.service.utils.HttpUtils;
-import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.UserIO;
-import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -119,19 +113,6 @@ public class User {
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
-
-    // load existing pet SA credentials from disk
-    if (Context.getWorkspace().isEmpty() || !Context.requireWorkspace().getIsLoaded()) {
-      logger.debug(
-          "Current workspace is either not defined or not loaded, so there are no pet SA credentials.");
-      return;
-    }
-    Path jsonKeyPath = Context.getPetSaKeyFile(this);
-    logger.debug("Looking for pet SA key file at: {}", jsonKeyPath);
-    if (!jsonKeyPath.toFile().exists()) {
-      logger.debug("Pet SA key file not found for current user + workspace");
-      return;
-    }
   }
 
   /** Load any existing credentials for this user. Use the {@code user.logInMode} if it's set. */
@@ -174,7 +155,7 @@ public class User {
       // update the global context on disk
       Context.setUser(user);
 
-      // load the workspace metadata (if not already loaded), and the pet SA credentials
+      // load the workspace metadata (if not already loaded)
       if (Context.getWorkspace().isPresent()) {
         user.fetchWorkspaceInfo();
       }
@@ -193,7 +174,7 @@ public class User {
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
-    deletePetSaCredentials();
+    deletePetSaEmail();
     GoogleOauth.revokeToken(getGoogleCredentials());
 
     // unset the current user in the global context
@@ -206,7 +187,7 @@ public class User {
    * Grant both the user and the pet SA permission to impersonate the pet SA. This method assumes
    * that this user is the current user, and that there is a current workspace specified.
    */
-  public void fetchPetSaCredentials() {
+  public void fetchPetSaEmail() {
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
@@ -229,45 +210,6 @@ public class User {
     logger.debug("Enabled pet SA impersonation");
   }
 
-  /**
-   * Fetch the pet SA key file for this user + current workspace from SAM and persist it in the
-   * global context directory. This method assumes that this user is the current user, and that
-   * there is a current workspace specified.
-   *
-   * <p>This method should only used for testing, because the relevant SAM endpoint may not be
-   * implemented in prod environments.
-   *
-   * @return the absolute path to the pet SA key file
-   */
-  @VisibleForTesting
-  public Path fetchPetSaKeyFile() {
-    // if the key file already exists on disk, just return it
-    Path jsonKeyPath = Context.getPetSaKeyFile(this);
-    if (jsonKeyPath.toFile().exists()) {
-      return jsonKeyPath;
-    }
-
-    // ask SAM for the project-specific pet SA key
-    HttpUtils.HttpResponse petSaKeySamResponse =
-        SamService.forUser(this)
-            .getPetSaKeyForProject(Context.requireWorkspace().getGoogleProjectId());
-    logger.debug("SAM response to pet SA key request: {})", petSaKeySamResponse);
-    if (!HttpStatusCodes.isSuccess(petSaKeySamResponse.statusCode)) {
-      throw new SystemException(
-          "Error fetching pet SA key from SAM (status code = "
-              + petSaKeySamResponse.statusCode
-              + ").");
-    }
-    try {
-      // persist the key file in the global context directory
-      FileUtils.writeStringToFile(jsonKeyPath.toFile(), petSaKeySamResponse.responseBody);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error writing pet SA key to the global context directory.", ioEx);
-    }
-    logger.debug("Stored pet SA key file for this user and workspace: {}", jsonKeyPath);
-    return jsonKeyPath;
-  }
-
   /** Delete this user's OAuth credentials. */
   private void deleteOauthCredentials() {
     try (InputStream inputStream =
@@ -281,27 +223,8 @@ public class User {
     }
   }
 
-  /** Delete all pet SA credentials for this user. */
-  public void deletePetSaCredentials() {
-    File jsonKeysDir = Context.getPetSaKeyDir(this).toFile();
-
-    // delete all key files
-    File[] keyFiles = jsonKeysDir.listFiles();
-    if (keyFiles != null) {
-      for (File keyFile : keyFiles) {
-        if (!keyFile.delete() && keyFile.exists()) {
-          throw new SystemException(
-              "Failed to delete pet SA key file: " + keyFile.getAbsolutePath());
-        }
-      }
-    }
-
-    // delete the key file directory
-    if (!jsonKeysDir.delete() && jsonKeysDir.exists()) {
-      throw new SystemException(
-          "Failed to delete pet SA key file sub-directory: " + jsonKeysDir.getAbsolutePath());
-    }
-
+  /** Delete pet SA email. */
+  public void deletePetSaEmail() {
     this.petSAEmail = null;
   }
 
@@ -338,35 +261,26 @@ public class User {
   }
 
   /**
-   * Fetch the workspace metadata (if it's not already loaded) and the pet SA credentials. Don't
-   * throw an exception if it fails, because that shouldn't block a successful login, but do log the
-   * error to the console.
+   * Fetch the workspace metadata (if it's not already loaded) and pet SA email. Don't throw an
+   * exception if it fails, because that shouldn't block a successful login, but do log the error to
+   * the console.
    */
   private void fetchWorkspaceInfo() {
     try {
       if (!Context.requireWorkspace().getIsLoaded()) {
-        // if the workspace was set without credentials, load the workspace metadata and pet SA
+        // if the workspace was set without credentials, load the workspace metadata
         Workspace.load(Context.requireWorkspace().getId());
       } else {
         // otherwise, just load the pet SA
-        fetchPetSaCredentials();
+        fetchPetSaEmail();
       }
     } catch (Exception ex) {
-      logger.error("Error loading workspace or pet SA credentials during login", ex);
+      logger.error("Error loading workspace or pet SA email during login", ex);
       UserIO.getErr()
           .println(
               "Error loading workspace information for the logged in user (workspace id: "
                   + Context.requireWorkspace().getId()
                   + ").");
-    }
-  }
-
-  /** Create a credentials object for a service account from a key file. */
-  private static ServiceAccountCredentials createSaCredentials(Path jsonKeyPath) {
-    try {
-      return GoogleOauth.getServiceAccountCredential(jsonKeyPath.toFile(), PET_SA_SCOPES);
-    } catch (IOException ioEx) {
-      throw new SystemException("Error reading SA key file.", ioEx);
     }
   }
 

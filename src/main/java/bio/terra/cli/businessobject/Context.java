@@ -40,7 +40,6 @@ public class Context {
   // file paths related to persisting the context on disk
   private static final String CONTEXT_DIRNAME = ".terra";
   private static final String CONTEXT_FILENAME = "context.json";
-  private static final String PET_KEYS_DIRNAME = "pet-keys";
   private static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
@@ -107,8 +106,6 @@ public class Context {
   //   - context directory parent: $HOME/ or $TERRA_CONTEXT_PARENT_DIR/
   //       - context directory: .terra/
   //           - persisted context file: context.json
-  //           - sub-directory for persisting pet SA keys: pet-keys/[terra user id]/
-  //               - pet SA key filename: [workspace id]
   //           - sub-directory for log files: logs/
   //               -*.terra.log
   //           - sub-directory for Java library dependencies: lib/
@@ -146,40 +143,6 @@ public class Context {
    */
   public static Path getContextFile() {
     return getContextDir().resolve(CONTEXT_FILENAME);
-  }
-
-  /**
-   * Get the directory that contains the pet SA key files for the given user. This is a
-   * sub-directory of the context directory.
-   *
-   * @param user user whose key files we want
-   * @return absolute path to the key file directory for the given user
-   */
-  public static Path getPetSaKeyDir(User user) {
-    return getContextDir().resolve(PET_KEYS_DIRNAME).resolve(user.getId());
-  }
-
-  /**
-   * Get the pet SA key file for the current user and workspace. This is stored in a sub-directory
-   * of the context directory.
-   *
-   * @return absolute path to the pet SA key file for the current user and workspace
-   * @throws UserActionableException if the current user or workspace is not defined
-   */
-  public static Path getPetSaKeyFile() {
-    return getPetSaKeyFile(requireUser());
-  }
-
-  /**
-   * Get the pet SA key file for a user and the current workspace. This is stored in a sub-directory
-   * of the context directory.
-   *
-   * @param user
-   * @return absolute path to the pet SA key file for the given user and current workspace
-   * @throws UserActionableException if the current workspace is not defined
-   */
-  public static Path getPetSaKeyFile(User user) {
-    return Context.getPetSaKeyDir(user).resolve(requireWorkspace().getId().toString());
   }
 
   /**

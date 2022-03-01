@@ -66,13 +66,9 @@ public class LocalProcessCommandRunner extends CommandRunner {
 
       // if the ADC are set by a file, then make sure the env var points to it if needed
       Optional<Path> adcCredentialsFile = AppDefaultCredentialUtils.getADCBackingFile();
-      if (adcCredentialsFile.isPresent()) {
-        if (adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
-          logger.info("ADC backing file is in the default location");
-        } else {
-          // set the env var to point to the file, since it's not in the default gcloud location
-          envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcCredentialsFile.toString());
-        }
+      if (adcCredentialsFile.isPresent()
+          && adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
+        logger.info("ADC backing file is in the default location");
       } else {
         logger.info("ADC set by metadata server.");
       }
