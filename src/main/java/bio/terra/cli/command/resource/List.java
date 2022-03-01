@@ -1,14 +1,18 @@
 package bio.terra.cli.command.resource;
 
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.*;
+
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
+import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Comparator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -47,21 +51,53 @@ public class List extends BaseCommand {
     formatOption.printReturnValue(resources, List::printText);
   }
 
-  /** Print this command's output in text format. */
+  /** Print this command's output in tabular text format. */
   private static void printText(java.util.List<UFResource> returnValue) {
-    for (UFResource resource : returnValue) {
-      OUT.println(
-          resource.name
-              + " ("
-              + resource.resourceType
-              + ", "
-              + resource.stewardshipType
-              + (resource.stewardshipType.equals(StewardshipType.CONTROLLED)
-                      && resource.accessScope.equals(AccessScope.PRIVATE_ACCESS)
-                  ? ", " + resource.accessScope + " " + resource.privateUserName
-                  : "")
-              + ")"
-              + (resource.description == null ? "" : ": " + resource.description));
+    TablePrinter<UFResource> printer = UFResourceColumns::values;
+    OUT.println(printer.print(returnValue));
+  }
+
+  /** Column information for fields in `resource list` output */
+  private enum UFResourceColumns implements ColumnDefinition<UFResource> {
+    NAME("NAME", r -> r.name, 30, LEFT),
+    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 20, LEFT),
+    STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 20, LEFT),
+    DESCRIPTION("DESCRIPTION", r -> r.description, 40, LEFT);
+
+    private final String columnLabel;
+    private final Function<UFResource, String> valueExtractor;
+    private final int width;
+    private final Alignment alignment;
+
+    UFResourceColumns(
+        String columnLabel,
+        Function<UFResource, String> valueExtractor,
+        int width,
+        Alignment alignment) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+      this.alignment = alignment;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<UFResource, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
     }
   }
 }
