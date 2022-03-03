@@ -1,13 +1,19 @@
 package bio.terra.cli.command.workspace;
 
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
+
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
+import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -42,37 +48,65 @@ public class List extends BaseCommand {
         UserIO.sortAndMap(
             Workspace.list(offset, limit),
             Comparator.comparing(Workspace::getName),
-            UFWorkspace::new),
+            UFWorkspaceLight::new),
         this::printText);
   }
 
-  /** Print this command's output in text format. */
-  private void printText(java.util.List<UFWorkspace> returnValue) {
-    Optional<Workspace> currentWorkspace = Context.getWorkspace();
-    for (UFWorkspace workspace : returnValue) {
-      String prefix =
-          (currentWorkspace.isPresent() && currentWorkspace.get().getId().equals(workspace.id))
-              ? " * "
-              : "   ";
-      OUT.println(prefix + workspace.id);
+  /** Print this command's output in tabular text format. */
+  private void printText(java.util.List<UFWorkspaceLight> returnValue) {
+    // Guard against the current workspace being empty, but keep the highlight column so the
+    // table is formatted the same with or without the workspace being set (i.e. pass always-false
+    // instead of a null predicate).
+    Predicate<UFWorkspaceLight> isHighlighted =
+        Context.getWorkspace()
+            .map(current -> (Predicate<UFWorkspaceLight>) (ufw -> current.getId().equals(ufw.id)))
+            .orElse(ufw -> false);
+    TablePrinter<UFWorkspaceLight> printer = Columns::values;
+    String text = printer.print(returnValue, isHighlighted);
+    OUT.println(text);
+  }
 
-      String propertyDescription = "%16s: %s";
-      String displayName = workspace.name;
-      if (!(displayName == null || displayName.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Name", displayName));
-      }
-      String description = workspace.description;
-      if (!(description == null || description.isBlank())) {
-        OUT.println(String.format(propertyDescription, "Description", description));
-      }
-      String googleProjectId = workspace.googleProjectId;
-      OUT.println(
-          String.format(
-              propertyDescription,
-              "Google project ID",
-              (googleProjectId == null || googleProjectId.isBlank())
-                  ? "(UNSET)"
-                  : googleProjectId));
+  /** Column information for table output with `terra workspace list` */
+  private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
+    NAME("NAME", w -> w.name, 30, LEFT),
+    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
+    ID("ID", w -> w.id.toString(), 36, RIGHT),
+    DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
+
+    private final String columnLabel;
+    private final Function<UFWorkspaceLight, String> valueExtractor;
+    private final int width;
+    private final Alignment alignment;
+
+    Columns(
+        String columnLabel,
+        Function<UFWorkspaceLight, String> valueExtractor,
+        int width,
+        Alignment alignment) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+      this.alignment = alignment;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<UFWorkspaceLight, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
     }
   }
 }

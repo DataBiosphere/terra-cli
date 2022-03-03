@@ -58,9 +58,9 @@ public class Server extends SingleWorkspaceUnit {
     assertEquals(0, cmd.exitCode, "server list returned successfully");
     // the regex below matches the starred server, which indicates it's the current one (e.g. " *
     // broad-dev")
-    String asteriskAtStartOfLine = "(?s).*\\*\\s+";
+    String checkAtStartOfLine = "(?s).*✓\\s+";
     assertTrue(
-        cmd.stdOut.matches(asteriskAtStartOfLine + serverName1 + ".*"),
+        cmd.stdOut.matches(checkAtStartOfLine + serverName1 + ".*"),
         "server list flags correct current server (1)");
 
     // `terra server set --name=$serverName2`
@@ -75,7 +75,7 @@ public class Server extends SingleWorkspaceUnit {
     cmd = TestCommand.runCommand("server", "list");
     assertEquals(0, cmd.exitCode, "server list returned successfully");
     assertTrue(
-        cmd.stdOut.matches(asteriskAtStartOfLine + serverName2 + ".*"),
+        cmd.stdOut.matches(checkAtStartOfLine + serverName2 + ".*"),
         "server list flags correct current server (2)");
   }
 

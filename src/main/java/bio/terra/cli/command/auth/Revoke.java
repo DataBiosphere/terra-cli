@@ -13,9 +13,9 @@ public class Revoke extends BaseCommand {
   protected void execute() {
     if (Context.getUser().isPresent()) {
       Context.requireUser().logout();
-      OUT.println("Logout successful.");
+      ERR.println("Logout successful.");
     } else {
-      OUT.println("No user logged in.");
+      ERR.println("No user logged in.");
     }
   }
 
