@@ -57,11 +57,11 @@ public class GcpNotebook extends BaseCommand {
 
   @CommandLine.Option(
       names = "--post-startup-script",
-      defaultValue =
-          "https://raw.githubusercontent.com/DataBiosphere/terra-cli/main/notebooks/post-startup.sh",
       description =
           "Path to a Bash script that automatically runs after a notebook instance fully boots up. "
-              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'.")
+              + "The path must be a URL or Cloud Storage path, e.g. 'gs://path-to-file/file-name'.",
+      defaultValue =
+          "https://raw.githubusercontent.com/DataBiosphere/terra-workspace-manager/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh")
   private String postStartupScript;
 
   @CommandLine.Option(
