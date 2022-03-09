@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.HEAD;
-
 /**
  * Test users are defined in testconfig, eg `testconfig/broad.json`. They have varying permissions
  * on the WSM spend profile. These permissions were configured manually, and are not part of the CLI
