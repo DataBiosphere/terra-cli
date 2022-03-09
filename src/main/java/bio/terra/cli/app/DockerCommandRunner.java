@@ -80,19 +80,11 @@ public class DockerCommandRunner extends CommandRunner {
       bindMounts.put(gcloudConfigDirOnContainer, gcloudConfigDir);
     }
 
-    // check if the system property for testing credentials is populated
-    Optional<Path> credentialsFileForTest = getOverrideCredentialsFileForTesting();
-    if (credentialsFileForTest.isPresent()) { // this is a unit test
-      // mount the file to the container
-      Path adcFileOnContainer = getADCFileOnContainer();
-      bindMounts.put(adcFileOnContainer, credentialsFileForTest.get());
-
-      // set the env var and gcloud auth credentials using the pet SA key file
-      envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcFileOnContainer.toString());
-      command =
-          "echo \"Setting the gcloud credentials to match the application default credentials\"; "
-              + "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}; "
-              + command;
+    // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically authenticate
+    // as test user, without SA key file
+    // (https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2).
+    if (getTestUserAccessToken().isPresent()) {
+      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestUserAccessToken().get());
     } else { // this is normal operation
       // check that the ADC match the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();

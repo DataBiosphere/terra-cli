@@ -4,7 +4,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import com.google.common.annotations.VisibleForTesting;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +20,9 @@ import org.slf4j.LoggerFactory;
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
-  // the Java system property that allows tests to specify a SA key file for the ADC and gcloud
-  // credentials
+  // Only unit tests set this.
   @VisibleForTesting
-  public static final String CREDENTIALS_OVERRIDE_SYSTEM_PROPERTY = "TERRA_GOOGLE_CREDENTIALS";
+  public static final String TEST_USER_ACCESS_TOKEN_PROPERTY = "TEST_USER_ACCESS_TOKEN";
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -128,18 +126,14 @@ public abstract class CommandRunner {
   }
 
   /**
-   * Tests can set a Java system property to point to a SA key file. Then we can use this to set
-   * ADC, without requiring a metadata server or a gcloud auth application-default login.
+   * If this is a test and there is a user, returns test user access token. If this is not a test,
+   * returns empty Optional.
    */
-  public static Optional<Path> getOverrideCredentialsFileForTesting() {
-    String appDefaultKeyFile = System.getProperty(CREDENTIALS_OVERRIDE_SYSTEM_PROPERTY);
-    if (appDefaultKeyFile == null || appDefaultKeyFile.isEmpty()) {
+  public static Optional<String> getTestUserAccessToken() {
+    String testUserAccessToken = System.getProperty(TEST_USER_ACCESS_TOKEN_PROPERTY);
+    if (testUserAccessToken == null || testUserAccessToken.isEmpty()) {
       return Optional.empty();
     }
-    logger.warn(
-        "Application default credentials file set by system property. This is expected when testing, not during normal operation.");
-    Path adcBackingFile = Path.of(appDefaultKeyFile).toAbsolutePath();
-    logger.info("adcBackingFile: {}", adcBackingFile);
-    return Optional.of(adcBackingFile);
+    return Optional.of(testUserAccessToken);
   }
 }

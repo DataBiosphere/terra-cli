@@ -2,21 +2,32 @@ package harness;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.GoogleOauth;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test users are defined in testconfig, eg `testconfig/broad.json`. They have varying permissions
@@ -31,6 +42,8 @@ import java.util.stream.Collectors;
  * user (e.g. they have some permission that should've been deleted).
  */
 public class TestUser {
+  private static final Logger logger = LoggerFactory.getLogger(TestUser.class);
+
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
 
@@ -38,6 +51,10 @@ public class TestUser {
   // lifecycle property of a GCS bucket, which is not stored as WSM metadata)
   public static final String CLOUD_PLATFORM_SCOPE =
       "https://www.googleapis.com/auth/cloud-platform";
+
+  // See https://medium.com/datamindedbe/mastering-the-google-cloud-platform-sdk-tools-ddcb16b62886
+  private static final String GCLOUD_CLIENT_ID = "32555940559.apps.googleusercontent.com";
+  private static final String GCLOUD_CLIENT_SECRET = "ZmssLNjJy2998hD4CTg2ejr2";
 
   public static List<TestUser> getTestUsers() {
     return TestConfig.get().getTestUsers();
@@ -62,27 +79,86 @@ public class TestUser {
    * @return global context object, populated with the user's credentials
    */
   public void login() throws IOException {
+    System.out.println("Logging in test user: " + email);
+
     // get domain-wide delegated credentials for this user. use the same scopes that are requested
     // of CLI users when they login.
-    System.out.println("Logging in test user: " + email);
-    GoogleCredentials delegatedUserCredential = getCredentials(User.USER_SCOPES);
+    GoogleCredentials googleCredentials = getCredentials(User.USER_SCOPES);
+    writeTerraOAuthCredentialFile(googleCredentials);
 
-    // use the domain-wide delegated credential to build a stored credential for the test user
-    StoredCredential dwdStoredCredential = new StoredCredential();
-    dwdStoredCredential.setAccessToken(delegatedUserCredential.getAccessToken().getTokenValue());
-    dwdStoredCredential.setExpirationTimeMilliseconds(
-        delegatedUserCredential.getAccessToken().getExpirationTime().getTime());
-
-    // update the credential store on disk
-    // set the single entry to the stored credential for the test user
-    DataStore<StoredCredential> dataStore = getCredentialStore();
-    dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+    // We're not using pet SA key file (for security reasons), so auth is more complicated.
+    writeBqCredentialFile();
+    writeGsUtilCredentialFile();
 
     // unset the current user in the global context if already specified
     Context.setUser(null);
 
     // do the login flow to populate the global context with the current user
     User.login();
+  }
+
+  /** Writes .terra/StoredCredential. */
+  private void writeTerraOAuthCredentialFile(GoogleCredentials googleCredentials)
+      throws IOException {
+    // use the domain-wide delegated credential to build a stored credential for the test user
+    StoredCredential dwdStoredCredential = new StoredCredential();
+    dwdStoredCredential.setAccessToken(googleCredentials.getAccessToken().getTokenValue());
+    dwdStoredCredential.setExpirationTimeMilliseconds(
+        googleCredentials.getAccessToken().getExpirationTime().getTime());
+
+    // update the credential store on disk
+    // set the single entry to the stored credential for the test user
+    DataStore<StoredCredential> dataStore = getCredentialStore();
+    dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+  }
+
+  /**
+   * Writes ~/.config/gcloud/legacy_credentials/default/adc.json that
+   * cloudsdk/component_build/wrapper_scripts/bq.py expects.
+   *
+   * <p>Two things are needed for `bq` auth:
+   *
+   * <ol>
+   *   <li>CLOUDSDK_AUTH_ACCESS_TOKEN (set in DockerCommandRunner.java)
+   *   <li>adc.json
+   * </ol>
+   *
+   * <p>In theory, only CLOUDSDK_AUTH_ACCESS_TOKEN should be needed. However, when support for
+   * CLOUDSDK_AUTH_ACCESS_TOKEN was added
+   * (https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2), it did not include `bq.py`. So
+   * `bq.py` still expects `adc.json`.
+   */
+  private void writeBqCredentialFile() throws IOException {
+    JsonObject json = new JsonObject();
+    json.addProperty("client_id", GCLOUD_CLIENT_ID);
+    json.addProperty("client_secret", GCLOUD_CLIENT_SECRET);
+    json.addProperty("refresh_token", getRefreshToken());
+    json.addProperty("type", "authorized_user");
+    Path path =
+        Path.of(
+            System.getProperty("user.home"), ".config/gcloud/legacy_credentials/default/adc.json");
+    Files.createDirectories(path.getParent());
+    Files.write(path, json.toString().getBytes(), StandardOpenOption.CREATE);
+  }
+
+  /**
+   * Writes ~/.config/gcloud/legacy_credentials/default/.boto that
+   * google-cloud-sdk/bin/bootstrapping/gsutil.py expects.
+   */
+  private void writeGsUtilCredentialFile() throws IOException {
+    String fileContent =
+        String.format(
+            "[OAuth2]\n"
+                + "client_id = %s\n"
+                + "client_secret = %s\n"
+                + "\n"
+                + "[Credentials]\n"
+                + "gs_oauth2_refresh_token = %s",
+            GCLOUD_CLIENT_ID, GCLOUD_CLIENT_SECRET, getRefreshToken());
+    Path path =
+        Path.of(System.getProperty("user.home"), ".config/gcloud/legacy_credentials/default/.boto");
+    Files.createDirectories(path.getParent());
+    Files.write(path, fileContent.getBytes(), StandardOpenOption.CREATE);
   }
 
   /**
@@ -121,6 +197,29 @@ public class TestUser {
     Path globalContextDir = Context.getContextDir();
     FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
+  }
+
+  /** Read refresh_token from testconfig. */
+  public String getRefreshToken() {
+    Path testUserFilePath =
+        Paths.get(
+            System.getProperty("user.dir"),
+            "rendered",
+            TestConfig.getTestConfigName(),
+            email + ".json");
+    logger.debug("Reading test user refresh token from {}", testUserFilePath.toString());
+
+    Gson gson = new Gson();
+    Map<String, String> testUserMap = new HashMap<>();
+    try {
+      Reader reader = Files.newBufferedReader(testUserFilePath);
+      testUserMap = gson.fromJson(reader, Map.class);
+      reader.close();
+    } catch (IOException e) {
+      throw new SystemException("Error reading test user file " + testUserFilePath.toString(), e);
+    }
+
+    return testUserMap.get("refresh_token");
   }
 
   /** Returns true if the test user has access to the default WSM spend profile. */
