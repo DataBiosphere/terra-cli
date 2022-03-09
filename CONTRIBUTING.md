@@ -611,7 +611,7 @@ CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8a
 *Nextflow*
 
 Populate `.config/gcloud/application_default_credentials.json`.
-> > > > > > > 2f8efe2 ([PF-1289] Stop using pet SA key in integration tests)
+
 </td>
 </tr>
 </table>
