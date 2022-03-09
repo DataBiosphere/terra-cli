@@ -33,7 +33,7 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   if [ -z "$2" ]; then
     versionPath="latest/download"
   else
-    # We want to download the specificed version of the install script AND
+    # We want to download the specified version of the install script AND
     # set this environment variable for when we run it.
     export TERRA_CLI_VERSION="$2"
     versionPath="download/$2"

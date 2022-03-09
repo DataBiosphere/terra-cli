@@ -75,8 +75,6 @@ public class TestUser {
    * This method mimics the typical CLI login flow, in a way that is more useful for testing. It
    * uses domain-wide delegation to populate test user credentials, instead of the usual Google
    * Oauth login flow, which requires manual interaction with a browser.
-   *
-   * @return global context object, populated with the user's credentials
    */
   public void login() throws IOException {
     System.out.println("Logging in test user: " + email);

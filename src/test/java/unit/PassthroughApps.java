@@ -2,12 +2,14 @@ package unit;
 
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import java.io.File;
@@ -26,6 +28,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for the `terra app` commands and the pass-through apps: `terra gcloud`, `terra gsutil`,
  * `terra bq`, `terra nextflow`.
+ *
+ * <p>The test installer uses the Docker Available option, which sets DOCKER_CONTAINER as the
+ * default app-launch. Note that the user installation path now defaults to LOCAL_PROCESS. In order
+ * to change as few tests as possible and still get coverage of local mode apps, I've left the test
+ * installer alone and simply set the app-launch mode to LOCAL_PROCESS for the appropriate tests.
  */
 @Tag("unit")
 public class PassthroughApps extends SingleWorkspaceUnit {
@@ -44,7 +51,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("env vars include workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login();
-
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -62,8 +69,34 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("env vars include a resolved workspace resource")
-  void resourceEnvVars() throws IOException {
+  @DisplayName("env vars include a resolved workspace resource - Docker container")
+  void resourceEnvVars_dockerContainer() throws IOException {
+    resourceEnvVarsImpl();
+  }
+
+  @Test
+  @DisplayName("env vars include a resolved workspace resource - local process")
+  void resourceEnvVars_localProcess() throws IOException {
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+    // for some reason, running `terra app execute echo \$TERRA_<envVarName> doesn't work in
+    // local-process mode. However, the env command correctly displays the Terra-created variables.
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    String name = "resourceEnvVars";
+    String bucketName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+
+    Result cmd = TestCommand.runCommand("app", "execute", "env");
+    assertThat(cmd.stdOut, containsString("$TERRA_" + name + "=" + bucketName));
+  }
+
+  private void resourceEnvVarsImpl() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -76,7 +109,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra app execute echo \$TERRA_$name`
-    TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + name);
+    Result cmd = TestCommand.runCommand("app", "execute", "echo", "\\$TERRA_" + name);
 
     // check that TERRA_$name = resolved bucket name
     assertThat(
@@ -89,8 +122,20 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("gcloud is configured with the workspace project and user")
-  void gcloudConfigured() throws IOException {
+  @DisplayName("gcloud is configured in Docker with the workspace project and user")
+  void gcloudConfigured_dockerContainer() throws IOException {
+    gcloudConfiguredImpl();
+  }
+
+  @Test
+  @DisplayName("gcloud is configured locally with the workspace project and user")
+  void gcloudConfigured_localProcess() throws IOException {
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+    gcloudConfiguredImpl();
+  }
+
+  private void gcloudConfiguredImpl() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -99,7 +144,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
             UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra gcloud config get-value project`
-    TestCommand.Result cmd = TestCommand.runCommand("gcloud", "config", "get-value", "project");
+    Result cmd = TestCommand.runCommand("gcloud", "config", "get-value", "project");
     assertThat(
         "gcloud project = workspace project",
         cmd.stdOut,
@@ -201,6 +246,38 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName("running app not found on system gives warning")
+  void runAppNotFound() throws IOException {
+    workspaceCreator.login();
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
+    // Nextflow is not installed on the test machine itself, only in the Dockerfile.
+    Result result = TestCommand.runCommand("nextflow", "run", "hello");
+    assertTrue(result.stdOut.isEmpty(), "No output to std out");
+    assertTrue(
+        result.stdErr.contains("Please verify it is installed and included in the PATH."),
+        "Error message is displayed.");
+  }
+
+  @Test
+  @DisplayName("did you mean nextflow?")
+  void suggestNameForMisspelling() throws IOException {
+    // `terra nextphlow run hello`
+    Result result = TestCommand.runCommand("nextphlow", "run", "hello");
+    // Sometimes it says "Did you mean nextflow?" and sometimes it says "Did you mean: nextflow or
+    // gcloud?"
+    assertThat(
+        "Error message asks question", result.stdErr, CoreMatchers.containsString("Did you mean"));
+    assertThat(
+        "Error message contains correct spelling",
+        result.stdErr,
+        CoreMatchers.containsString("nextflow"));
+
+    assertThat("No output to stdout", result.stdOut, CoreMatchers.is(emptyString()));
+  }
+
+  @Test
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
     workspaceCreator.login();
@@ -240,7 +317,29 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("git clone resource")
-  void gitCloneResource() throws IOException {
+  void gitCloneResource_dockerContainer() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=repo1",
+        "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+
+    // `terra git clone --resource=repo2`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo1");
+
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
+  }
+
+  @Test
+  @DisplayName("git clone resource")
+  void gitCloneResource_localProcess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
@@ -274,7 +373,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra gcloud --version`
     // this is the correct version of the command
-    TestCommand.Result cmd = TestCommand.runCommand("gcloud", "--version");
+    Result cmd = TestCommand.runCommand("gcloud", "--version");
     assertThat(
         "gcloud version ran successfully",
         cmd.stdOut,
