@@ -120,7 +120,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     Result cmd = TestCommand.runCommand("app", "execute", "env");
-    assertThat(cmd.stdOut, containsString("TERRA_" + name + "=" + bucketName));
+    assertThat(cmd.stdErr, is(emptyString()));
+    assertThat(cmd.stdOut, containsString("TERRA_" + name + "=gs://" + bucketName));
   }
 
   @Test
@@ -285,6 +286,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
     workspaceCreator.login();
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
     TestCommand.runCommandExpectSuccess(
@@ -323,6 +326,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone resource")
   void gitCloneResource_dockerContainer() throws IOException {
     workspaceCreator.login();
+    // `terra config set app-launch DOCKER_CONTAINER`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
     TestCommand.runCommandExpectSuccess(
@@ -345,6 +350,9 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone resource")
   void gitCloneResource_localProcess() throws IOException {
     workspaceCreator.login();
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
     TestCommand.runCommandExpectSuccess(
@@ -367,6 +375,9 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("exit code is passed through to CLI caller in docker container")
   void exitCodePassedThroughDockerContainer() throws IOException {
     workspaceCreator.login();
+
+    // `terra config set app-launch DOCKER_CONTAINER`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
