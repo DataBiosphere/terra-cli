@@ -236,8 +236,7 @@ For each test user, store refresh token in vault:
 - Create GHA secret. Update workflows `Render config` jobs to read secrets.
 
 #### Automated tests
-All unit and integration tests are run nightly via GitHub action against two environments: `broad-dev` and
-`verily-devel`. On test completion, a Slack notification is sent to the Broad `#platform-foundation-alerts` channel.
+All unit and integration tests are run nightly via GitHub action against `broad-dev`. On test completion, a Slack notification is sent to the Broad `#platform-foundation-alerts` channel.
 If you kick off a full test run manually, it will not send a notification.
 
 Running the tests locally on your machine and via GitHub actions uses the same set of test users. While the nightly CLI

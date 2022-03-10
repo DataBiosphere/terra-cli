@@ -100,6 +100,9 @@ public class Config extends SingleWorkspaceUnit {
   @Test
   @DisplayName("config server set and server set are equivalent")
   void server() throws IOException {
+    // It's fine that this test hard-codes server names. We're just testing server configuration is
+    // saved correctly; we're not actually making calls to the server.
+
     // `terra server set --name=verily-devel`
     TestCommand.runCommandExpectSuccess("server", "set", "--name=verily-devel", "--quiet");
 
