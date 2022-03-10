@@ -39,6 +39,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("app list returns all pass-through apps")
   void appList() throws IOException {
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     // `terra app list --format=json`
     List<String> appList =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "app", "list");
@@ -51,6 +53,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("env vars include workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login();
+    // `terra config set app-launch LOCAL_PROCESS`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
@@ -71,7 +74,31 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("env vars include a resolved workspace resource - Docker container")
   void resourceEnvVars_dockerContainer() throws IOException {
-    resourceEnvVarsImpl();
+    // `terra config set app-launch DOCKER_CONTAINER`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+
+    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    String name = "resourceEnvVarsDockerContainer";
+    String bucketName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+
+    // `terra app execute echo \$TERRA_$name`
+    // (We don't need the backslash when passing the command this way, as interpolation is delayed.
+    Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + name);
+
+    // check that TERRA_$name = resolved bucket name
+    assertThat(
+        "TERRA_$resourceName set to resolved bucket path",
+        cmd.stdOut,
+        CoreMatchers.containsString(ExternalGCSBuckets.getGsPath(bucketName)));
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -87,43 +114,20 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name = "resourceEnvVars";
+    String name = "resourceEnvVarsLocalProcess";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     Result cmd = TestCommand.runCommand("app", "execute", "env");
-    assertThat(cmd.stdOut, containsString("$TERRA_" + name + "=" + bucketName));
-  }
-
-  private void resourceEnvVarsImpl() throws IOException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name = "resourceEnvVars";
-    String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
-
-    // `terra app execute echo \$TERRA_$name`
-    Result cmd = TestCommand.runCommand("app", "execute", "echo", "\\$TERRA_" + name);
-
-    // check that TERRA_$name = resolved bucket name
-    assertThat(
-        "TERRA_$resourceName set to resolved bucket path",
-        cmd.stdOut,
-        CoreMatchers.containsString(ExternalGCSBuckets.getGsPath(bucketName)));
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    assertThat(cmd.stdOut, containsString("TERRA_" + name + "=" + bucketName));
   }
 
   @Test
   @DisplayName("gcloud is configured in Docker with the workspace project and user")
   void gcloudConfigured_dockerContainer() throws IOException {
+    // `terra config set app-launch DOCKER_CONTAINER`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
     gcloudConfiguredImpl();
   }
 
