@@ -545,7 +545,7 @@ ADC is automatically configured for GCE VMs.
 
 At the beginning of each test, before running terra CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30).
 
-`TestUser.login()` [writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76), using domain-wide delegation to avoid browser flow.
+`TestUser.login()` [writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76), using [domain-wide delegation](https://developers.google.com/admin-sdk/directory/v1/guides/delegation) to avoid browser flow.
 </td>
 <td>
 
@@ -558,7 +558,7 @@ Auth is complicated because we are not using Pet SA key.
 TestCommand.runCommand(): Set `TEST_USER_ACCESS_TOKEN` system property
 
 DockerCommand: If `TEST_USER_ACCESS_TOKEN` system property is set, set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token in container.
-(Tests only run in docker mode.)
+([Tests run in docker mode by default.](https://github.com/DataBiosphere/terra-cli/blob/main/src/main/java/bio/terra/cli/businessobject/Config.java#L24))
 
 *bq*
 
@@ -598,7 +598,7 @@ CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8a
 .
 
 [`TestUser.login()` writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76)
-, using domain-wide delegation to avoid browser flow.
+, using [domain-wide delegation](https://developers.google.com/admin-sdk/directory/v1/guides/delegation) to avoid browser flow.
 
 </td>
 <td valign="top">
