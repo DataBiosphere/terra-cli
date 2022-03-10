@@ -103,17 +103,17 @@ public class Config extends SingleWorkspaceUnit {
     // It's fine that this test hard-codes server names. We're just testing server configuration is
     // saved correctly; we're not actually making calls to the server.
 
-    // `terra server set --name=broad-autopush`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=broad-autopush", "--quiet");
+    // `terra server set --name=verily-devel`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=verily-devel", "--quiet");
 
     // `terra config get server`
     UFServer getValue =
         TestCommand.runAndParseCommandExpectSuccess(UFServer.class, "config", "get", "server");
-    assertEquals("broad-autopush", getValue.name, "server set affects config get");
+    assertEquals("verily-devel", getValue.name, "server set affects config get");
 
     // `terra config list`
     UFConfig config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals("broad-autopush", config.serverName, "server set affects config list");
+    assertEquals("verily-devel", config.serverName, "server set affects config list");
 
     // `terra config set server --name=broad-dev`
     TestCommand.runCommandExpectSuccess("server", "set", "--name=broad-dev", "--quiet");

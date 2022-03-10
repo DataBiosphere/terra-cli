@@ -48,7 +48,7 @@ public class Server extends SingleWorkspaceUnit {
   @DisplayName("status, server list reflect server set")
   void statusListReflectSet() throws JsonProcessingException {
     // `terra server set --name=$serverName1`
-    String serverName1 = "broad-autopush";
+    String serverName1 = "verily-devel";
     TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName1, "--quiet");
 
     // `terra status`
