@@ -27,7 +27,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra server` commands. */
+/**
+ * Tests for the `terra server` commands.
+ *
+ * <p>It's fine that these tests hard-code server names. We're just testing server configuration is
+ * saved correctly; we're not actually making calls to the server.
+ */
 @Tag("unit")
 public class Server extends SingleWorkspaceUnit {
   @Test
@@ -43,7 +48,7 @@ public class Server extends SingleWorkspaceUnit {
   @DisplayName("status, server list reflect server set")
   void statusListReflectSet() throws JsonProcessingException {
     // `terra server set --name=$serverName1`
-    String serverName1 = "verily-devel";
+    String serverName1 = "broad-autopush";
     TestCommand.runCommandExpectSuccess("server", "set", "--name=" + serverName1, "--quiet");
 
     // `terra status`
