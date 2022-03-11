@@ -110,7 +110,6 @@ Clear the context file and all credentials. This will require you to login and s
 cd $HOME/.terra
 rm context.json
 rm StoredCredential
-rm -R pet-keys
 ```
 
 ##### Manual install

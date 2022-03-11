@@ -21,8 +21,7 @@ public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
   // Only unit tests set this.
-  @VisibleForTesting
-  public static final String TEST_USER_ACCESS_TOKEN_PROPERTY = "TEST_USER_ACCESS_TOKEN";
+  @VisibleForTesting public static final String TEST_USER_ACCESS_TOKEN = "TEST_USER_ACCESS_TOKEN";
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -40,7 +39,7 @@ public abstract class CommandRunner {
 
   /**
    * Run a tool command. Passes global and workspace context information as environment variables:
-   * pet SA key file, workspace GCP project, resolved workspace resources.
+   * pet SA email, workspace GCP project, resolved workspace resources.
    *
    * @param command the command and arguments to execute
    */
@@ -50,7 +49,7 @@ public abstract class CommandRunner {
 
   /**
    * Run a tool command. Passes global and workspace context information as environment variables:
-   * pet SA key file, workspace GCP project, resolved workspace resources. Allows adding environment
+   * pet SA email, workspace GCP project, resolved workspace resources. Allows adding environment
    * variables beyond this, as long as the names don't conflict.
    *
    * @param command the command and arguments to execute
@@ -66,7 +65,6 @@ public abstract class CommandRunner {
 
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
-    terraEnvVars.put("GOOGLE_APPLICATION_CREDENTIALS", "");
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
     terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
@@ -130,7 +128,7 @@ public abstract class CommandRunner {
    * returns empty Optional.
    */
   public static Optional<String> getTestUserAccessToken() {
-    String testUserAccessToken = System.getProperty(TEST_USER_ACCESS_TOKEN_PROPERTY);
+    String testUserAccessToken = System.getProperty(TEST_USER_ACCESS_TOKEN);
     if (testUserAccessToken == null || testUserAccessToken.isEmpty()) {
       return Optional.empty();
     }

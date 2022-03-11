@@ -4,7 +4,6 @@ import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +34,7 @@ public class DockerCommandRunner extends CommandRunner {
   /**
    * This method builds a command string that:
    *
-   * <p>- calls the terra_init.sh script, which configures gcloud with the workspace project and pet
-   * SA
+   * <p>- calls the terra_init.sh script, which configures gcloud with the workspace project
    *
    * <p>- runs the given command
    *
@@ -53,10 +51,6 @@ public class DockerCommandRunner extends CommandRunner {
    *
    * <p>The terra_init.sh script that was copied into the Docker image will be run before the given
    * command.
-   *
-   * <p>This method sets the GOOGLE_APPLICATION_CREDENTIALS env var = path to the pet SA key file on
-   * the container. This will overwrite any previous version, because the path will likely be
-   * different on the container.
    *
    * @param command the full string of command and arguments to execute
    * @param envVars a mapping of environment variable names to values
@@ -92,20 +86,10 @@ public class DockerCommandRunner extends CommandRunner {
       // if the ADC are set by a file, then make sure that file is mounted to the container and the
       // env var points to it if needed
       Optional<Path> adcCredentialsFile = AppDefaultCredentialUtils.getADCBackingFile();
-      if (adcCredentialsFile.isPresent()) {
-        if (adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
-          logger.info(
-              "ADC backing file is in the default location and is already mounted in the gcloud config directory");
-        } else {
-          // mount the pet SA key file to the container in the .terra directory
-          // e.g. ADC file (host) $HOME/pet-sa-key.json -> (container)
-          // CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/application_default_credentials.json
-          Path adcFileOnContainer = getADCFileOnContainer();
-          bindMounts.put(adcFileOnContainer, adcCredentialsFile.get());
-
-          // set the env var to point to the file, since it's not in the default gcloud location
-          envVars.put("GOOGLE_APPLICATION_CREDENTIALS", adcFileOnContainer.toString());
-        }
+      if (adcCredentialsFile.isPresent()
+          && adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
+        logger.info(
+            "ADC backing file is in the default location and is already mounted in the gcloud config directory");
       } else {
         logger.info("ADC set by metadata server.");
       }
@@ -146,48 +130,5 @@ public class DockerCommandRunner extends CommandRunner {
   private static Path getGlobalContextDirOnContainer() {
     Path globalContextDirName = Context.getContextDir().getFileName();
     return Path.of(CONTAINER_HOME_DIR).resolve(globalContextDirName);
-  }
-
-  /**
-   * Get the pet SA key file for the given user and workspace on the container.
-   *
-   * <p>e.g. (host) $HOME/.terra/pet-keys/[user id]/[workspace id] -> (container)
-   * CONTAINER_HOME_DIR/.terra/pet-keys/[user id]/[workspace id]
-   *
-   * @return absolute path to the pet SA key file for the given user and workspace on the container
-   */
-  private static Path getPetSaKeyFileOnContainer() {
-    // get the full path of the key file and global context directory on the host
-    Path keyFileOnHost = Context.getPetSaKeyFile();
-    Path globalContextDirOnHost = Context.getContextDir();
-
-    // remove the global context directory part of the key file path
-    // e.g. keyFileOnHost = $HOME/.terra/pet-keys/[user id]/[workspace id]
-    //      globalContextDirOnHost = $HOME/.terra/
-    //      relativePathToKeyFile = pet-keys/[user id]/[workspace id]
-    Path relativePathToKeyFile = globalContextDirOnHost.relativize(keyFileOnHost);
-
-    // key file path on container = global context dir on container + relative path to key file
-    return getGlobalContextDirOnContainer().resolve(relativePathToKeyFile);
-  }
-
-  /**
-   * Get the application default credentials file for the given user on the container.
-   *
-   * <p>e.g. (host) $HOME/.config/gcloud/application_default_credentials.json -> (container)
-   * CONTAINER_HOME_DIR/.terra/pet-keys/application_default_credentials.json
-   *
-   * @return absolute path to the application default credentials file for the given user on the
-   *     container
-   */
-  @SuppressFBWarnings(
-      value = "NP_NULL_ON_SOME_PATH",
-      justification =
-          "Pet SA key files are stored in a sub-directory of the .terra context directory, so the file path will always have a parent.")
-  private static Path getADCFileOnContainer() {
-    // store the ADC credentials in the same directory as the user's pet SA key files
-    return getPetSaKeyFileOnContainer()
-        .getParent()
-        .resolve(APPLICATION_DEFAULT_CREDENTIALS_FILE_NAME);
   }
 }

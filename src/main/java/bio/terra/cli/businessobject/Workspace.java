@@ -111,11 +111,11 @@ public class Workspace {
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
 
-    // fetch the pet SA credentials for the user + this workspace
+    // fetch the pet SA email for the user + this workspace
     // do this here so we have them stored locally before the user tries to run an app in the
     // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
     // down an app call
-    Context.requireUser().fetchPetSaCredentials();
+    Context.requireUser().fetchPetSaEmail();
 
     return workspace;
   }
@@ -139,11 +139,11 @@ public class Workspace {
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
 
-    // fetch the pet SA credentials for the user + this workspace
+    // fetch the pet SA email for the user + this workspace
     // do this here so we have them stored locally before the user tries to run an app in the
     // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
     // down an app call
-    Context.requireUser().fetchPetSaCredentials();
+    Context.requireUser().fetchPetSaEmail();
 
     return workspace;
   }
@@ -191,8 +191,8 @@ public class Workspace {
     WorkspaceManagerService.fromContext().deleteWorkspace(id);
     logger.info("Deleted workspace: {}", this);
 
-    // delete the pet SA credentials for the user
-    Context.requireUser().deletePetSaCredentials();
+    // delete the pet SA email for the user
+    Context.requireUser().deletePetSaEmail();
 
     // unset the workspace in the current context
     Context.setWorkspace(null);

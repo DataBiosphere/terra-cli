@@ -10,7 +10,6 @@ import bio.terra.cli.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
@@ -442,57 +441,6 @@ public class SamService {
     return callWithRetries(
         () -> new GoogleApi(apiClient).getPetServiceAccountToken(googleProjectId, scopes),
         "Error getting pet SA access token for project from SAM.");
-  }
-
-  /**
-   * Call the SAM "/api/google/v1/user/petServiceAccount/{project}/key" endpoint to get a
-   * project-specific pet SA key for the current user (i.e. the one whose credentials were supplied
-   * to the apiClient object).
-   *
-   * @param googleProjectId
-   * @return the HTTP response to the SAM request
-   */
-  public HttpUtils.HttpResponse getPetSaKeyForProject(String googleProjectId) {
-    return callWithRetries(
-        () -> getPetSaKeyForProjectApiClientWrapper(googleProjectId),
-        "Error fetching the pet SA key file from SAM.");
-  }
-
-  /**
-   * Helper method for getting the pet SA key for the current user. This method wraps a raw HTTP
-   * request and throws an ApiException on error, mimicing the behavior of the client library.
-   *
-   * @param googleProjectId
-   * @return the HTTP response to the SAM request
-   * @throws ApiException if the HTTP status code is not successful
-   */
-  private HttpUtils.HttpResponse getPetSaKeyForProjectApiClientWrapper(String googleProjectId)
-      throws ApiException {
-    // The code below should be changed to use the SAM client library. For example:
-    //  ApiClient apiClient = getClientForTerraUser(Context.requireUser(), Context.getServer());
-    //  GoogleApi samGoogleApi = new GoogleApi(apiClient);
-    //  samGoogleApi.getPetServiceAccount(workspaceContext.getGoogleProject());
-    // But I couldn't get this to work. The ApiClient throws an exception, I think in parsing the
-    // response. So for now, this is making a direct (i.e. without the client library) HTTP request
-    // to get the key file contents.
-    String apiEndpoint =
-        server.getSamUri() + "/api/google/v1/user/petServiceAccount/" + googleProjectId + "/key";
-    String userAccessToken = accessToken.getTokenValue();
-    int statusCode;
-    try {
-      HttpUtils.HttpResponse response =
-          HttpUtils.sendHttpRequest(apiEndpoint, "GET", userAccessToken, null);
-      if (HttpStatusCodes.isSuccess(response.statusCode)) {
-        return response;
-      }
-      statusCode = response.statusCode;
-    } catch (IOException ioEx) {
-      statusCode = HttpStatusCodes.STATUS_CODE_SERVICE_UNAVAILABLE;
-    }
-
-    // mimic the SAM client library and throw an ApiException if the status code was not successful
-    throw new ApiException(
-        statusCode, "Error calling /api/google/v1/user/petServiceAccount/{project}/key endpoint");
   }
 
   /**
