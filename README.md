@@ -17,6 +17,7 @@
     * [Config](#config)
     * [Git](#git)
     * [Groups](#groups)
+    * [gsutil](#gsutil)
     * [Notebooks](#notebooks)
     * [Resources](#resources)
     * [Server](#server)
@@ -287,6 +288,7 @@ The other commands are groupings of sub-commands, described in the sections belo
 * `config` [Config](#config)
 * `git` [Git](#Git)
 * `group` [Groups](#groups)
+* `gsutil` [gsutil](#gsutil)
 * `notebook` [Notebooks](#notebooks)
 * `resource` [Resources](#resources)
 * `server` [Server](#server)
@@ -422,6 +424,12 @@ Say a Terra group's email is `mygroup@mydomain.com`. `name` is `mygroup`, not `m
 ```
 > terra group list-users --name=mygroup
 ```
+
+#### gsutil
+
+You can run `terra gsutil` or `terra gcloud alpha storage`. `gcloud alpha storage`
+is a newer version of `gsutil`. It doesn't support everything, but what it does
+support [may be significantly faster](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line).
 
 #### Notebooks
 ```

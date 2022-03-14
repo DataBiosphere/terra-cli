@@ -16,6 +16,7 @@
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
     * [Automated tests](#automated-tests)
+    * [Debugging tips](#debugging-tips)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
     * [Build a new image](#build-a-new-image)
@@ -265,6 +266,19 @@ By default, tests run against Broad deployment. To run against a different deplo
 For example, consider the project that external resources are created in. The Broad deployment uses a project in Broad
 GCP org; Verily deployment uses a project in Verily GCP org.
 
+#### Debugging tips
+
+ssh into Docker container where you can run `terra`:
+- Put in your test: `TestCommand.runCommand("app", "execute", "sleep 10000000000");`
+- Run test
+- After `sleep` runs, go to Docker Desktop and click on `cli` icon. Then you'll have a shell in the Docker container.
+
+Skip creating workspace, since it's slow:
+- Comment out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L50).
+- Run test
+- Replace [creating workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
+  with `workspaceId = UUID.fromString("<workspace-id>");`
+
 ### Docker
 The `docker/` directory contains files required to build the Docker image.
 All files in the `scripts/` sub-directory are copied to the image, into a sub-directory that is on the `$PATH`, 
@@ -485,7 +499,16 @@ Use singular command group names instead of plural. e.g. `terra resource` instea
 
 ### Auth overview
 
-When running on local computer, you should authenticate as user and not pet service account (SA). This way, you don't need to export pet SA keys, which is a security risk.
+`terra` commands (`terra workspace`) run as user or pet SA, depending on where they run.
+Tool commands (`terra bq`) [always run as pet SA](https://github.com/DataBiosphere/terra-cli/search?q=getPetSACredentials),
+for two reasons:
+
+- `terra` cli should not have access to *all* of a user's cloud resources -- just the ones they use with `terra`.
+- Some organizations prohibit their employees from granting
+  `https://www.googleapis.com/auth/cloud-platform` scope to arbitrary tools. So `terra` cli OAuth does *not* grant
+  `https://www.googleapis.com/auth/cloud-platform` scope. So user account cannot call GCP APIs. Instead, we use a pet
+  SA access token which does have `https://www.googleapis.com/auth/cloud-platform` scope. (SAM stores pet SA keys, so
+  SAM is able to generate an access token with that scope.)
 
 <table>
 <tr>
@@ -506,7 +529,7 @@ Regular command (eg `terra workspace`)
 </td>
 <td>
 
-**gcloud user credentials or user ADC, depending on tool**
+**Pet user credentials or ADC, depending on tool**
 
 Most tools accept both (user credentials or ADC). Even though we don't need ADC for most tools, [we currently require ADC for all tools](https://github.com/DataBiosphere/terra-cli/blob/79a938e56f2d95111aeec54175b6d38d9e5deb79/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L98).
 
@@ -549,22 +572,23 @@ At the beginning of each test, before running terra CLI, [test user is logged in
 </td>
 <td>
 
-**Test user**
+**Pet**
 
 Auth is complicated because we are not using Pet SA key.
 
 *Access token*
 
-TestCommand.runCommand(): Set `TEST_USER_ACCESS_TOKEN` system property
+TestCommand.runCommand(): Set `IS_TEST` system property.
 
-DockerCommand: If `TEST_USER_ACCESS_TOKEN` system property is set, set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token in container.
-([Tests run in docker mode by default.](https://github.com/DataBiosphere/terra-cli/blob/main/src/main/java/bio/terra/cli/businessobject/Config.java#L24))
+DockerCommand: If `IS_TEST` system property is set and there's a user and workspace,
+set `CLOUDSDK_AUTH_ACCESS_TOKEN` to pet SA access token in container.
+(Tests run in docker mode by default, so don't need this in LocalProcessCommandrunner.)
 
 *bq*
 
 Here's what makes `cloudsdk/component_build/wrapper_scripts/bq.py` happy:
 - Set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token
-- Populate `.config/gcloud/legacy_credentials/default/adc.json`. This file has refresh token.
+- Populate `.config/gcloud/legacy_credentials/default/adc.json`.
 
 In general for gcloud, you only need `--access_token_file`/`CLOUDSDK_AUTH_ACCESS_TOKEN`, not `adc.json`.
 However, [implementation of `CLOUDSDK_AUTH_ACCESS_TOKEN`](https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2) did not include `bq.py`, so we also need `adc.json`.
@@ -578,9 +602,10 @@ There are 3 versions of `gsutil`:
 3. `gcloud alpha storage`. This is the
    newest. [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
 
-This repo uses 2. To get auth to work for 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto`
-that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects. This file has refresh token.
-(See PF-1395 for switching this repo to 3.)
+For 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto`
+that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects.
+
+For 3, we set `CLOUDSDK_AUTH_ACCESS_TOKEN`.
 
 *docker configuration*
 
@@ -603,7 +628,7 @@ CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8a
 </td>
 <td valign="top">
 
-**Test user ADC**
+**Pet ADC**
 
 *Nextflow*
 

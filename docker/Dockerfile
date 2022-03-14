@@ -8,7 +8,7 @@ WORKDIR /usr
 RUN apt-get update \
     && apt-get install -y \
     curl \
-    python \
+    python3 \
     git
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
@@ -22,7 +22,9 @@ RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     mv google-cloud-sdk/ /usr/local/ && \
-    gcloud config set component_manager/disable_update_check true
+    gcloud config set component_manager/disable_update_check true && \
+    # For gcloud alpha storage \
+    gcloud components install alpha --quiet
 
 # install Nextflow
 ENV NXF_VER 21.10.6
