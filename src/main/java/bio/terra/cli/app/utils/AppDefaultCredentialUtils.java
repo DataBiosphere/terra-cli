@@ -83,7 +83,9 @@ public class AppDefaultCredentialUtils {
     try {
       return GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
-      throw new UserActionableException("Application default credentials are not defined.", ioEx);
+      throw new UserActionableException(
+          "Application default credentials are not defined. Run `gcloud auth application-default login`",
+          ioEx);
     }
   }
 }

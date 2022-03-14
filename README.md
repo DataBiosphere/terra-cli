@@ -12,8 +12,16 @@
       * [Manual Uninstall](#manual-uninstall)
 2. [Example usage](#example-usage)
 3. [Commands description](#commands-description)
+    * [Applications](#applications)
     * [Authentication](#authentication)
+    * [Config](#config)
+    * [Git](#git)
+    * [Groups](#groups)
+    * [Notebooks](#notebooks)
+    * [Resources](#resources)
     * [Server](#server)
+    * [Spend](#spend)
+    * [User](#user)
     * [Workspace](#workspace)
     * [Resources](#resources)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
@@ -21,12 +29,6 @@
           * [Reference to a file or folder](#reference-to-a-file-or-folder)
           * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
         * [Update A Reference resource](#update-a-reference-resource)
-    * [Data References](#data-references)
-    * [Applications](#applications)
-    * [Notebooks](#notebooks)
-    * [Groups](#groups)
-    * [Spend](#spend)
-    * [Config](#config)
 4. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
@@ -303,10 +305,31 @@ Commands:
 ```
 
 The Terra CLI allows running supported third-party tools within the context of a workspace.
+To see supported tools, run `terra app list`.
+
 The `app-launch` configuration property controls how tools are run: in a Docker container,
 or a local child process.
 
-Nextflow and the Gcloud SDK are the first examples of supported tools.
+If you pass `--workspace` flag, it must come immediately after the tool:
+
+```
+# Works
+> terra bq --workspace=<workpspace-id> ls
+
+# Doesn't work, --workspace is passed to bq instead of terra
+> terra bq ls --workspace=<workpspace-id>
+```
+
+For creating resources such as BigQuery dataset or GCS bucket, you must create through terra rather
+than through tool. This is because terra configures permissions for you.
+
+```
+# Works
+> terra resource create gcs-bucket --name=<resource-name>
+
+# Doesn't work
+> terra gsutil mb gs://<bucket-name>
+```
 
 #### Authentication
 ```
@@ -366,13 +389,17 @@ configuration properties are:
 [workspace] workspace = (unset)
 [format] output format = TEXT
 ```
-### Git
+#### Git
 ```
-Usage: terrag git [COMMAND]
+Usage: terra git [COMMAND]
 Call git command in the terra workspace. Besides calling normal Git operation, this command allow cloning git-repo resources in the workspace.
 Commands:
   all        Clone all the git-repo resources in the workspace. Usage: terra git clone --all
   resource   Clone specified git-repo resources in the workspace. Usage: terra git clone --resource=<repoResource1Name> --resource=<repoResource2Name>
+```
+To add a git repo:
+```
+> terra resource add-ref git-repo --name=<resource_name> --repo-url=<repo_url>
 ```
 #### Groups
 ```
@@ -390,7 +417,11 @@ Commands:
 
 Terra groups are managed by SAM. These commands are utility wrappers around the group endpoints.
 
-The `enterprise-pilot-testers` group is used for managing access to the default WSM spend profile.
+Say a Terra group's email is `mygroup@mydomain.com`. `name` is `mygroup`, not `mygroup@mydomain.com`: 
+
+```
+> terra group list-users --name=mygroup
+```
 
 #### Notebooks
 ```
