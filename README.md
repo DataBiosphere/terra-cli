@@ -40,7 +40,7 @@
 ### Install and run
 To install the latest version:
 ```
-curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
+curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash && export SUPPRESS_GCLOUD_CREDS_WARNING=true
 ./terra
 ```
 
