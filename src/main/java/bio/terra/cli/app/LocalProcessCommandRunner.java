@@ -59,7 +59,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
 
     // Don't enforce ADC for tests. (`gcloud auth activate-service-account` requires a key file,
     // which we don't want for security reasons.)
-    if (!getTestUserAccessToken().isPresent()) {
+    if (System.getProperty(CommandRunner.IS_TEST) != null) {
 
       // check that the ADC match the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();

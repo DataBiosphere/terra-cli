@@ -3,7 +3,6 @@ package harness;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.app.CommandRunner;
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,11 +47,7 @@ public class TestCommand {
         new PrintStream(stdErr, true, StandardCharsets.UTF_8),
         stdIn);
 
-    if (Context.getUser().isPresent()) {
-      System.setProperty(
-          CommandRunner.TEST_USER_ACCESS_TOKEN,
-          Context.requireUser().getUserAccessToken().getTokenValue());
-    }
+    System.setProperty(CommandRunner.IS_TEST, "true");
 
     // execute the command from the top-level Main class
     System.out.println("COMMAND: " + String.join(" ", args));

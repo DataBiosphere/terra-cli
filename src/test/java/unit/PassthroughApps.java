@@ -129,24 +129,30 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("gsutil bucket size = 0")
-  void gsutilBucketSize() throws IOException {
+  @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
+  void gsutilGcloudAlphaStorageLs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name = "gsutilBucketSize";
+    String name = "resourceName";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
-    // `terra gsutil du -s \$TERRA_$name`
-    TestCommand.Result cmd = TestCommand.runCommand("gsutil", "du", "-s", "$TERRA_" + name);
+    // `terra gsutil ls`
+    TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");
     assertTrue(
-        cmd.stdOut.matches("(?s).*0\\s+" + ExternalGCSBuckets.getGsPath(bucketName) + ".*"),
-        "gsutil says bucket size = 0");
+        cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
+        "`gsutil ls` returns bucket");
+
+    // `terra gcloud alpha storage ls`
+    cmd = TestCommand.runCommand("gcloud", "alpha", "storage", "ls");
+    assertTrue(
+        cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
+        "`gcloud alpha storage ls` returns bucket");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");

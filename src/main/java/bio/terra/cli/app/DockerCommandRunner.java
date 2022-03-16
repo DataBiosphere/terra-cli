@@ -77,8 +77,8 @@ public class DockerCommandRunner extends CommandRunner {
     // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically authenticate
     // as test user, without SA key file
     // (https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2).
-    if (getTestUserAccessToken().isPresent()) {
-      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestUserAccessToken().get());
+    if (getTestPetSaAccessToken().isPresent()) {
+      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().get());
     } else { // this is normal operation
       // check that the ADC match the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();

@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 public abstract class CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
-  // Only unit tests set this.
-  @VisibleForTesting public static final String TEST_USER_ACCESS_TOKEN = "TEST_USER_ACCESS_TOKEN";
+  // Only tests set this.
+  @VisibleForTesting public static final String IS_TEST = "IS_TEST";
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -124,14 +124,15 @@ public abstract class CommandRunner {
   }
 
   /**
-   * If this is a test and there is a user, returns test user access token. If this is not a test,
-   * returns empty Optional.
+   * If this is a test and there is a user and workspace, returns pet SA access token. Else, returns
+   * empty.
    */
-  public static Optional<String> getTestUserAccessToken() {
-    String testUserAccessToken = System.getProperty(TEST_USER_ACCESS_TOKEN);
-    if (testUserAccessToken == null || testUserAccessToken.isEmpty()) {
-      return Optional.empty();
+  public static Optional<String> getTestPetSaAccessToken() {
+    if (System.getProperty(IS_TEST) != null
+        && Context.getUser().isPresent()
+        && Context.getWorkspace().isPresent()) {
+      return Optional.of(Context.getUser().get().getPetSaAccessToken().getTokenValue());
     }
-    return Optional.of(testUserAccessToken);
+    return Optional.empty();
   }
 }
