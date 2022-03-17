@@ -12,6 +12,7 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import picocli.CommandLine;
 
@@ -228,10 +229,6 @@ public class GcpNotebook extends BaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
-    Map<String, String> allMetadata = defaultMetadata(Context.requireWorkspace().getId());
-    if (metadata != null) {
-      allMetadata.putAll(metadata);
-    }
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
@@ -239,7 +236,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(allMetadata);
+            .metadata(Optional.ofNullable(metadata).orElse(ImmutableMap.of()));
 
     if (acceleratorConfig != null) {
       createParams
