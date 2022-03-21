@@ -198,7 +198,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // `terra resource create gcp-notebook --name=$name`
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
-    assertNotebookState(name, "PROVISIONING");
     pollDescribeForNotebookState(name, "ACTIVE");
 
     // `terra notebook stop --name=$name`
@@ -271,8 +270,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resource describe` and assert that the notebook state matches that
    * given. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
-      throws JsonProcessingException {
+  private static void assertNotebookState(
+      String resourceName, String notebookState, UUID workspaceId) throws JsonProcessingException {
     UFGcpNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
