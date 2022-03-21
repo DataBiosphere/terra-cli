@@ -11,7 +11,6 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.base.Preconditions;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
@@ -271,8 +270,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resource describe` and assert that the notebook state matches that
    * given. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  private static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
-      throws JsonProcessingException {
+  private static void assertNotebookState(
+      String resourceName, String notebookState, UUID workspaceId) throws JsonProcessingException {
     UFGcpNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
