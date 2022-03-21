@@ -11,6 +11,7 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Preconditions;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
@@ -198,7 +199,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // `terra resource create gcp-notebook --name=$name`
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
-    assertNotebookState(name, "PROVISIONING");
     pollDescribeForNotebookState(name, "ACTIVE");
 
     // `terra notebook stop --name=$name`
@@ -273,6 +273,10 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    */
   static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
       throws JsonProcessingException {
+    Preconditions.checkState(
+        !notebookState.equals("PROVISIONING"),
+        "Don't assert that state is PROVISIONING. This leads to flaky tests, because by the time you assert PROVISIONING, state might already be ACTIVE.");
+
     UFGcpNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
@@ -284,9 +288,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                 "--name=" + resourceName,
                 "--workspace=" + workspaceId);
     assertEquals(notebookState, describeNotebook.state, "notebook state matches");
-    if (!notebookState.equals("PROVISIONING")) {
-      assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
-    }
+    assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
   }
 
   /**
