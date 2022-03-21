@@ -283,7 +283,9 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                 "--name=" + resourceName,
                 "--workspace=" + workspaceId);
     assertEquals(notebookState, describeNotebook.state, "notebook state matches");
-    assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
+    if (!notebookState.equals("PROVISIONING")) {
+      assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
+    }
   }
 
   /**
