@@ -271,12 +271,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resource describe` and assert that the notebook state matches that
    * given. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
+  private static void assertNotebookState(String resourceName, String notebookState, UUID workspaceId)
       throws JsonProcessingException {
-    Preconditions.checkState(
-        !notebookState.equals("PROVISIONING"),
-        "Don't assert that state is PROVISIONING. This leads to flaky tests, because by the time you assert PROVISIONING, state might already be ACTIVE.");
-
     UFGcpNotebook describeNotebook =
         workspaceId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
