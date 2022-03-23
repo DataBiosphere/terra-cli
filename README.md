@@ -43,7 +43,7 @@ To install the latest version:
 ```
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash && export SUPPRESS_GCLOUD_CREDS_WARNING=true
 
-# Optional: Move to /usr/local/bin
+# Optional: Move to somewhere in PATH
 sudo mv terra /usr/local/bin
 
 # Talk to Verily production environment (as opposed to a test environment):
