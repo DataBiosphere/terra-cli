@@ -54,12 +54,19 @@ public class ExternalCredentialsManagerService {
   public SshKeyPair getSshKeyPair(SshKeyPairType keyPairType) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     try {
-      return sshKeyPairApi.getSshKeyPair(keyPairType);
-    } catch (HttpStatusCodeException e) {
-      if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-        return sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType);
+      return HttpUtils.callWithRetries(
+          () -> sshKeyPairApi.getSshKeyPair(keyPairType),
+          ExternalCredentialsManagerService::isRetryable);
+    } catch (HttpStatusCodeException | InterruptedException e) {
+      if (e instanceof HttpStatusCodeException) {
+        if (((HttpStatusCodeException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
+          return callWithRetries(
+              () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType),
+              "failed to regenerate an ssh key");
+        }
+        throw (HttpStatusCodeException) e;
       }
-      throw e;
+      throw new SystemException("Failed to get ssh key", e);
     }
   }
 
@@ -86,25 +93,6 @@ public class ExternalCredentialsManagerService {
     return handleClientExceptions(
         () ->
             HttpUtils.callWithRetries(makeRequest, ExternalCredentialsManagerService::isRetryable),
-        errorMsg);
-  }
-
-  /**
-   * Execute a function that includes hitting ECM endpoints. If an exception is thrown by the ECM
-   * client or the retries, make sure the HTTP status code and error message are logged.
-   *
-   * @param makeRequest function with no return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the WSM client or the retries
-   */
-  private void handleClientExceptions(
-      HttpUtils.RunnableWithCheckedException<HttpStatusCodeException> makeRequest,
-      String errorMsg) {
-    handleClientExceptions(
-        () -> {
-          makeRequest.run();
-          return null;
-        },
         errorMsg);
   }
 
