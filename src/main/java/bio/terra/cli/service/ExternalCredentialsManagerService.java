@@ -59,12 +59,14 @@ public class ExternalCredentialsManagerService {
           ExternalCredentialsManagerService::isRetryable);
     } catch (HttpStatusCodeException | InterruptedException e) {
       if (e instanceof HttpStatusCodeException) {
-        if (((HttpStatusCodeException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
+        var httpStatusException = (HttpStatusCodeException) e;
+        logErrorMessage(httpStatusException);
+        if (httpStatusException.getStatusCode() == HttpStatus.NOT_FOUND) {
           return callWithRetries(
               () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType),
               "failed to regenerate an ssh key");
         }
-        throw (HttpStatusCodeException) e;
+        throw httpStatusException;
       }
       throw new SystemException("Failed to get ssh key", e);
     }
@@ -79,13 +81,13 @@ public class ExternalCredentialsManagerService {
   }
 
   /**
-   * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
-   * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
+   * Execute a function that includes hitting ECM endpoints. Retry if the function throws an {@link
+   * #isRetryable} exception. If an exception is thrown by the ECM client or the retries, make sure
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the WSM client or the retries
+   *     thrown by the ECM client or the retries
    */
   private <T> T callWithRetries(
       HttpUtils.SupplierWithCheckedException<T, HttpStatusCodeException> makeRequest,
@@ -97,12 +99,12 @@ public class ExternalCredentialsManagerService {
   }
 
   /**
-   * Execute a function that includes hitting ECM endpoints. If an exception is thrown by the WSM
+   * Execute a function that includes hitting ECM endpoints. If an exception is thrown by the ECM
    * client or the retries, make sure the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the WSM client or the retries
+   *     thrown by the ECM client or the retries
    */
   private <T> T handleClientExceptions(
       HttpUtils.SupplierWithCheckedException<T, HttpStatusCodeException> makeRequest,
@@ -123,7 +125,7 @@ public class ExternalCredentialsManagerService {
   }
 
   /**
-   * Utility method that checks if an exception thrown by the WSM client is retryable.
+   * Utility method that checks if an exception thrown by the ECM client is retryable.
    *
    * @param ex exception to test
    * @return true if the exception is retryable
