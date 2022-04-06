@@ -68,6 +68,7 @@ dependencies {
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
         workspaceManagerClient = "0.254.182-SNAPSHOT"
+        externalCredsClient = "0.80.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library
@@ -109,6 +110,7 @@ dependencies {
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.13:${samClient}"
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
     implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
+    implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
 
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
     compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"

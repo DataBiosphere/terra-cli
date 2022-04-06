@@ -20,6 +20,7 @@ public class PDServer {
   public final String workspaceManagerUri;
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
+  public final String externalCredsUri;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -30,6 +31,7 @@ public class PDServer {
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
+    this.externalCredsUri = internalObj.getExternalCredsUri();
   }
 
   private PDServer(PDServer.Builder builder) {
@@ -40,6 +42,7 @@ public class PDServer {
     this.workspaceManagerUri = builder.workspaceManagerUri;
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
+    this.externalCredsUri = builder.externalCredsUri;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -51,6 +54,7 @@ public class PDServer {
     private String workspaceManagerUri;
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
+    private String externalCredsUri;
 
     public Builder name(String name) {
       this.name = name;
@@ -84,6 +88,11 @@ public class PDServer {
 
     public Builder dataRepoUri(String dataRepoUri) {
       this.dataRepoUri = dataRepoUri;
+      return this;
+    }
+
+    public Builder externalCredsUri(String externalCredsUri) {
+      this.externalCredsUri = externalCredsUri;
       return this;
     }
 

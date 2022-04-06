@@ -28,19 +28,20 @@ public class Server {
 
   // unique identifier that matches the JSON file name under resources/servers.
   // (e.g. broad-dev)
-  private String name;
+  private final String name;
 
   // free-form text field that indicates what the server is used for
   // (e.g. Terra for development purposes)
-  private String description;
+  private final String description;
 
   // Terra services: information required to hit service endpoints
   // (e.g. URLs, WSM single spend profile)
-  private String samUri;
-  private boolean samInviteRequiresAdmin;
-  private String workspaceManagerUri;
-  private String wsmDefaultSpendProfile;
-  private String dataRepoUri;
+  private final String samUri;
+  private final boolean samInviteRequiresAdmin;
+  private final String workspaceManagerUri;
+  private final String wsmDefaultSpendProfile;
+  private final String dataRepoUri;
+  private final String externalCredsUri;
 
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
@@ -55,6 +56,7 @@ public class Server {
     this.workspaceManagerUri = configFromDisk.workspaceManagerUri;
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
+    this.externalCredsUri = configFromDisk.externalCredsUri;
   }
 
   /** Return an instance of this class with default values. */
@@ -194,5 +196,9 @@ public class Server {
 
   public String getDataRepoUri() {
     return dataRepoUri;
+  }
+
+  public String getExternalCredsUri() {
+    return externalCredsUri;
   }
 }

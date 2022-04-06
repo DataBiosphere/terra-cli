@@ -11,5 +11,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "user",
     description = "Manage users.",
-    subcommands = {Invite.class, Status.class})
+    subcommands = {Invite.class, SshKey.class, Status.class})
 public class User {}
