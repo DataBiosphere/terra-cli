@@ -5,5 +5,6 @@
   "samUri": "https://terra-autopush-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-autopush-wsm.api.verily.com",
-  "wsmDefaultSpendProfile": "wm-default-spend-profile"
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://terra-autopush-ecm.api.verily.com"
 }

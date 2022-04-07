@@ -1,11 +1,11 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.user.sshkey.Generate;
 import bio.terra.cli.command.user.sshkey.Get;
-import bio.terra.cli.command.user.sshkey.Regenerate;
 import picocli.CommandLine.Command;
 
 @Command(
-    name = "sshkey",
+    name = "ssh-key",
     description = "Manage an terra managed ssh key pair.",
-    subcommands = {Get.class, Regenerate.class})
+    subcommands = {Get.class, Generate.class})
 public class SshKey {}

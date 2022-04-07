@@ -20,16 +20,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 public class ExternalCredentialsManagerService {
-  private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(ExternalCredentialsManagerService.class);
 
-  // the Terra environment where the WSM service lives
-  private final Server server;
-
-  // the client object used for talking to WSM
+  // the client object used for talking to ECM
   private final ApiClient apiClient;
 
   private ExternalCredentialsManagerService(@Nullable AccessToken accessToken, Server server) {
-    this.server = server;
     this.apiClient =
         new ApiClient(new RestTemplate(List.of(new MappingJackson2HttpMessageConverter())));
 
@@ -41,7 +38,7 @@ public class ExternalCredentialsManagerService {
     }
   }
 
-  public static ExternalCredentialsManagerService returnFromContext() {
+  public static ExternalCredentialsManagerService fromContext() {
     return new ExternalCredentialsManagerService(
         Context.requireUser().getUserAccessToken(), Context.getServer());
   }
@@ -53,27 +50,15 @@ public class ExternalCredentialsManagerService {
    */
   public SshKeyPair getSshKeyPair(SshKeyPairType keyPairType) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
-    try {
-      return HttpUtils.callWithRetries(
-          () -> sshKeyPairApi.getSshKeyPair(keyPairType),
-          ExternalCredentialsManagerService::isRetryable);
-    } catch (HttpStatusCodeException | InterruptedException e) {
-      if (e instanceof HttpStatusCodeException) {
-        var httpStatusException = (HttpStatusCodeException) e;
-        logErrorMessage(httpStatusException);
-        if (httpStatusException.getStatusCode() == HttpStatus.NOT_FOUND) {
-          return callWithRetries(
-              () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType),
-              "failed to regenerate an ssh key");
-        }
-        throw httpStatusException;
-      }
-      throw new SystemException("Failed to get ssh key", e);
-    }
+    return callWithRetries(
+        () -> sshKeyPairApi.getSshKeyPair(keyPairType), "Failed to get an ssh key pair");
   }
 
-  /** Regenerate an SshKey for the user. */
-  public SshKeyPair regenerateSshKeyPair(SshKeyPairType keyPairType) {
+  /**
+   * Generate an SshKey for the user. If the user already has a terra ssh key, the old one will be
+   * replaced.
+   */
+  public SshKeyPair generateSshKeyPair(SshKeyPairType keyPairType) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     return callWithRetries(
         () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType),
@@ -112,7 +97,7 @@ public class ExternalCredentialsManagerService {
     try {
       return makeRequest.makeRequest();
     } catch (HttpStatusCodeException | InterruptedException ex) {
-      // if this is an ECN client exception, check for a message in the response body
+      // if this is an ECM client exception, check for a message in the response body
       if (ex instanceof HttpStatusCodeException) {
         String exceptionErrorMessage = logErrorMessage((HttpStatusCodeException) ex);
 
@@ -153,7 +138,7 @@ public class ExternalCredentialsManagerService {
     // try to deserialize the response body into an ErrorReport
     var responseBody = ex.getResponseBodyAsString();
 
-    // if we found a SAM error message, then return it
+    // if we found a ECM error message, then return it
     // otherwise return a string with the http code
     return !TextUtils.isEmpty(responseBody)
         ? responseBody
