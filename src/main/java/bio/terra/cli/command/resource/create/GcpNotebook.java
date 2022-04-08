@@ -1,6 +1,5 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
@@ -10,9 +9,9 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
@@ -228,10 +227,6 @@ public class GcpNotebook extends BaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
-    Map<String, String> allMetadata = defaultMetadata(Context.requireWorkspace().getId());
-    if (metadata != null) {
-      allMetadata.putAll(metadata);
-    }
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
@@ -239,7 +234,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(allMetadata);
+            .metadata(Optional.ofNullable(metadata).orElse(Collections.EMPTY_MAP));
 
     if (acceleratorConfig != null) {
       createParams
@@ -277,15 +272,6 @@ public class GcpNotebook extends BaseCommand {
     bio.terra.cli.businessobject.resource.GcpNotebook createdResource =
         bio.terra.cli.businessobject.resource.GcpNotebook.createControlled(createParams.build());
     formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
-  }
-
-  /** Create the metadata to put on the GCP Notebook instance. */
-  private Map<String, String> defaultMetadata(UUID workspaceID) {
-    return ImmutableMap.<String, String>builder()
-        // Set additional Terra context as metadata on the VM instance.
-        .put("terra-workspace-id", workspaceID.toString())
-        .put("terra-cli-server", Context.getServer().getName())
-        .build();
   }
 
   /** Print this command's output in text format. */
