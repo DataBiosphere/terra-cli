@@ -42,23 +42,20 @@
 To install the latest version:
 ```
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash && export SUPPRESS_GCLOUD_CREDS_WARNING=true
-./terra
+
+# Optional: Move to somewhere in PATH
+sudo mv terra /usr/local/bin
+
+# Talk to Verily production environment (as opposed to a test environment):
+terra server set --name=verily --quiet
 ```
 
-To install a specific version:
-```
-export TERRA_CLI_VERSION=0.106.0
-curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash
-./terra
-```
+To install a specific version, run before above commands: `export TERRA_CLI_VERSION=0.106.0`
 
 By default, the CLI will be installed without support for Docker (i.e. it won't pull the Docker image).
 The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it to
 * DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image
 * DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
-
-This will install the Terra CLI in the current directory. Afterwards, you may want to add it to your `$PATH` directly
-or move it to a place that is already on your `$PATH` (e.g. `/usr/local/bin`).
 
 Re-installing will overwrite any existing installation (i.e. all JARs and scripts will be overwritten), but will not
 modify the `$PATH`. So if you have added it to your `$PATH`, that step needs to be repeated after each install.

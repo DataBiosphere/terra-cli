@@ -2,7 +2,6 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static unit.GcsObjectReferenced.listObjectResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
@@ -19,7 +18,6 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
-import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -185,7 +183,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
-  void attemptToUpdatePrivateBucketObject() throws IOException {
+  void updatePrivateBucketObject() throws IOException {
     workspaceCreator.login();
     UFWorkspace createWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
@@ -240,7 +238,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName(
-      "user with partial access try to update reference to a private object - fails, update reference's name and description - succeeds")
+      "user with partial access updates reference to a private object, updates reference's name and description")
   void userWithPartialAccessUpdateSharedBucketObject() throws IOException {
     workspaceCreator.login();
     UFWorkspace createWorkspace =
@@ -269,8 +267,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     String newName = RandomStringUtils.random(6, /*letters=*/ true, /*numbers=*/ true);
     String newDescription = "yetAnotherDescription";
-    TestCommand.runCommandExpectExitCode(
-        2,
+    TestCommand.runCommandExpectSuccess(
         "resource",
         "update",
         "gcs-object",
@@ -280,14 +277,6 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "--new-bucket-name=" + externalBucket.getName(),
         "--new-object-name=" + privateExternalBlobName);
 
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "update",
-        "gcs-object",
-        "--name=" + name,
-        "--new-name=" + newName,
-        "--description=" + newDescription);
-
     // `terra resource describe --name=$name --format=json`
     UFGcsObject describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -295,7 +284,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     assertEquals(newName, describeResource.name);
     assertEquals(newDescription, describeResource.description);
     assertEquals(externalBucket.getName(), describeResource.bucketName);
-    assertEquals(sharedExternalBlobName, describeResource.objectName);
+    assertEquals(privateExternalBlobName, describeResource.objectName);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
@@ -407,67 +396,5 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "describe resource output matches object content type");
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
-  }
-
-  @Test
-  @DisplayName("user with partial access attempt to add reference to bucket objects")
-  void addRefWithPartialAccess() throws IOException {
-    workspaceCreator.login();
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-
-    // shareeUser needs WRITER level access to add reference resources.
-    // `terra workspace add-user --email=$email --role=WRITER`
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
-
-    shareeUser.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
-    // --object-name=$objectName`
-    String noAccessBlobName = "addRefToBucketBlobNoAccess";
-    TestCommand.runCommandExpectExitCode(
-        2,
-        "resource",
-        "add-ref",
-        "gcs-object",
-        "--name=" + noAccessBlobName,
-        "--bucket-name=" + externalBucket.getName(),
-        "--object-name=" + privateExternalBlobName);
-
-    String withAccessBlobName = "addRefToBucketBlobWithAccess";
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "add-ref",
-        "gcs-object",
-        "--name=" + withAccessBlobName,
-        "--bucket-name=" + externalBucket.getName(),
-        "--object-name=" + sharedExternalBlobName);
-
-    String bucketRefName = "addRefToBucketWithoutAccess";
-    TestCommand.runCommandExpectExitCode(
-        2,
-        "resource",
-        "add-ref",
-        "gcs-bucket",
-        "--name=" + bucketRefName,
-        "--bucket-name=" + externalBucket.getName());
-
-    // check that the object is in the list
-    List<UFGcsObject> matchedResourceList = listObjectResourceWithName(withAccessBlobName);
-    assertEquals(1, matchedResourceList.size());
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + withAccessBlobName, "--quiet");
-    workspaceCreator.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

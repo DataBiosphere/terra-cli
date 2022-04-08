@@ -435,35 +435,4 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // clean up
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
   }
-
-  @Test
-  @DisplayName(
-      "Attempt to add reference to buckets while the user only have access to externalSharedbucket")
-  void addBucketRefWithPartialAccess() throws IOException {
-    workspaceCreator.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
-    shareeUser.login();
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
-
-    String succeedName = "addBucketRefWithPartialAccess_withAccess";
-    // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "add-ref",
-        "gcs-bucket",
-        "--name=" + succeedName,
-        "--bucket-name=" + externalSharedBucket.getName());
-
-    String failureName = "addBucketRefWithPartialAccess_withNoAccess";
-    TestCommand.runCommandExpectExitCode(
-        2,
-        "resource",
-        "add-ref",
-        "gcs-bucket",
-        "--name=" + failureName,
-        "--bucket-name=" + externalPrivateBucket.getName());
-  }
 }

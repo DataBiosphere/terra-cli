@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
-import static unit.GcpNotebookControlled.assertNotebookState;
 import static unit.GcpNotebookControlled.listNotebookResourcesWithName;
 import static unit.GcpNotebookControlled.listOneNotebookResourceWithName;
 import static unit.GcpNotebookControlled.pollDescribeForNotebookState;
@@ -474,7 +473,6 @@ public class WorkspaceOverride extends ClearContextUnit {
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
-    assertNotebookState(name, "PROVISIONING", workspace2.id);
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
