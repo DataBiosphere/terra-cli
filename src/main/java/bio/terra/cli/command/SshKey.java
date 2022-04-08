@@ -6,6 +6,6 @@ import picocli.CommandLine.Command;
 
 @Command(
     name = "ssh-key",
-    description = "Manage an terra managed ssh key pair.",
+    description = "Get and generate an terra managed ssh key pair.",
     subcommands = {Get.class, Generate.class})
 public class SshKey {}
