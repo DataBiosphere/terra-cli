@@ -9,7 +9,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import picocli.CommandLine;
@@ -234,7 +234,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(Optional.ofNullable(metadata).orElse(ImmutableMap.of()));
+            .metadata(Optional.ofNullable(metadata).orElse(Collections.EMPTY_MAP));
 
     if (acceleratorConfig != null) {
       createParams
