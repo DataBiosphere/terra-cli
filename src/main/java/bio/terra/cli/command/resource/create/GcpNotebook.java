@@ -1,6 +1,5 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
@@ -13,7 +12,6 @@ import bio.terra.workspace.model.StewardshipType;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
