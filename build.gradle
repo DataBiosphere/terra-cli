@@ -68,7 +68,7 @@ dependencies {
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
         workspaceManagerClient = "0.254.182-SNAPSHOT"
-        externalCredsClient = "0.80.0-SNAPSHOT"
+        externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
 
         // needed for WSM client library

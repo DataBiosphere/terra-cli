@@ -28,12 +28,12 @@ public class Generate extends BaseCommand {
     var sshKeyPair = ecmService.generateSshKeyPair(SshKeyPairType.GITHUB);
     if (saveToFile) {
       try {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("terra_id_rsa"));
-        writer.write(sshKeyPair.getPrivateKey());
-        writer.close();
-        BufferedWriter writerPub = new BufferedWriter(new FileWriter("terra_id_rsa.pub"));
-        writerPub.write(sshKeyPair.getPublicKey());
-        writerPub.close();
+        BufferedWriter privateWriter = new BufferedWriter(new FileWriter("terra_id_rsa"));
+        privateWriter.write(sshKeyPair.getPrivateKey());
+        privateWriter.close();
+        BufferedWriter publicWriter = new BufferedWriter(new FileWriter("terra_id_rsa.pub"));
+        publicWriter.write(sshKeyPair.getPublicKey());
+        publicWriter.close();
         OUT.println(
             "Ssh private key is saved in terra_id_rsa and Ssh public key is saved in terra_id_rsa.pub. You can move them under ~/.ssh/.");
       } catch (IOException e) {
