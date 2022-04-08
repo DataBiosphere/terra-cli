@@ -276,15 +276,6 @@ public class GcpNotebook extends BaseCommand {
     formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
   }
 
-  /** Create the metadata to put on the GCP Notebook instance. */
-  private Map<String, String> defaultMetadata(UUID workspaceID) {
-    return ImmutableMap.<String, String>builder()
-        // Set additional Terra context as metadata on the VM instance.
-        .put("terra-workspace-id", workspaceID.toString())
-        .put("terra-cli-server", Context.getServer().getName())
-        .build();
-  }
-
   /** Print this command's output in text format. */
   private static void printText(UFGcpNotebook returnValue) {
     OUT.println("Successfully added controlled GCP Notebook instance.");
