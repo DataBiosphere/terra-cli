@@ -131,10 +131,13 @@ Manage users.
 Commands:
   invite  Invite a new user.
   status  Check the registration status of a user.
+  ssh-key Get or create a Terra ssh key for user's GitHub account.
 ```
 
-Note that these commands are intended for admin users. In the context of user management, admin means a user
+Note that `invite` and `status` commands are intended for admin users. In the context of user management, admin means a user
 who is a member of the `fc-admins` Google group in the GSuite domain that SAM manages.
+
+The terra user can only get the ssh-key for themselves.
 
 #### Invite user
 In Broad deployments, registration is open to anyone with a Google account. In Verily deployments, registration is
