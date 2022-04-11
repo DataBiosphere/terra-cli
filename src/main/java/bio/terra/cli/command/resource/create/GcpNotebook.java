@@ -234,7 +234,7 @@ public class GcpNotebook extends BaseCommand {
             .location(location)
             .machineType(machineType)
             .postStartupScript(postStartupScript)
-            .metadata(Optional.ofNullable(metadata).orElse(Collections.EMPTY_MAP));
+            .metadata(Optional.ofNullable(metadata).orElse(Collections.emptyMap()));
 
     if (acceleratorConfig != null) {
       createParams
