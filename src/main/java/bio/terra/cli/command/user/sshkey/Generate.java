@@ -28,8 +28,8 @@ public class Generate extends BaseCommand {
   @Override
   protected void execute() {
     confirmationPromptOption.confirmOrThrow(
-        "Generating a new Terra Ssh key will replace the old Terra Ssh key if existed. "
-            + "You must un-associate the old SSH public key from your GitHub account through here https://github.com/settings/keys. "
+        "Generating a new Terra Ssh key will replace the old Terra SSH key if it exists. "
+            + "You must disassociate the old SSH public key from your GitHub account using https://github.com/settings/keys. "
             + "Are you sure you want to proceed (y/N)?",
         "Generating new SSH key proceeded");
     var ecmService = ExternalCredentialsManagerService.fromContext();
