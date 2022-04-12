@@ -31,7 +31,7 @@ public class Generate extends BaseCommand {
         "Generating a new Terra Ssh key will replace the old Terra SSH key if it exists. "
             + "You must disassociate the old SSH public key from your GitHub account using https://github.com/settings/keys. "
             + "Are you sure you want to proceed (y/N)?",
-        "Generating new SSH key proceeded");
+        "Generating new SSH key is aborted");
     var ecmService = ExternalCredentialsManagerService.fromContext();
     var sshKeyPair = ecmService.generateSshKeyPair(SshKeyPairType.GITHUB);
     if (saveToFile) {
