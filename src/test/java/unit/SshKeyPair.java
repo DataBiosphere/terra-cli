@@ -24,7 +24,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     testUser.login();
     var sshKeyPair =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFSshKeyPair.class, "user", "ssh-key", "generate");
+            UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
     assertNotNull(sshKeyPair.privateSshKey);
     assertNotNull(sshKeyPair.publicSshKey);
@@ -43,11 +43,11 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     testUser.login();
     var sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFSshKeyPair.class, "user", "ssh-key", "generate");
+            UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
     var sshkey2 =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFSshKeyPair.class, "user", "ssh-key", "generate");
+            UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
     assertNotEquals(sshkey.privateSshKey, sshkey2.privateSshKey);
     assertNotEquals(sshkey.publicSshKey, sshkey2.publicSshKey);
@@ -60,13 +60,13 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     testUser.login();
     var sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFSshKeyPair.class, "user", "ssh-key", "generate");
+            UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
     assertEquals(testUser.email.toLowerCase(Locale.ROOT), sshkey.userEmail);
 
     testUser2.login();
     var sshkey2 =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFSshKeyPair.class, "user", "ssh-key", "generate");
+            UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
     assertEquals(testUser2.email.toLowerCase(Locale.ROOT), sshkey2.userEmail);
   }
 }
