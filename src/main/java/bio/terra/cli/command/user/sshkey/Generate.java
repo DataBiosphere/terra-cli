@@ -23,17 +23,15 @@ public class Generate extends BaseCommand {
       description = "Save the terra ssh key pair as file, skip printing out the key")
   boolean saveToFile;
 
-  @CommandLine.Mixin
-  ConfirmationPrompt confirmationPromptOption;
+  @CommandLine.Mixin ConfirmationPrompt confirmationPromptOption;
 
   @Override
   protected void execute() {
     confirmationPromptOption.confirmOrThrow(
         "Generating a new Terra Ssh key will replace the old Terra Ssh key if existed. "
-            + "You must un-associate the old SSH public key from your GitHub account. "
+            + "You must un-associate the old SSH public key from your GitHub account through here https://github.com/settings/keys. "
             + "Are you sure you want to proceed (y/N)?",
-        "Generating new SSH key proceeded"
-    );
+        "Generating new SSH key proceeded");
     var ecmService = ExternalCredentialsManagerService.fromContext();
     var sshKeyPair = ecmService.generateSshKeyPair(SshKeyPairType.GITHUB);
     if (saveToFile) {
