@@ -16,7 +16,7 @@
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
     * [Automated tests](#automated-tests)
-    * [Troubleshooting](#troubleshooting)
+    * [Troubleshooting](#troubleshooting-1)
     * [Debugging tips](#debugging-tips)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
