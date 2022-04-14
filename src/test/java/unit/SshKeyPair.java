@@ -9,7 +9,6 @@ import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
-import java.util.Locale;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -28,14 +27,14 @@ public class SshKeyPair extends SingleWorkspaceUnit {
 
     assertNotNull(sshKeyPair.privateSshKey);
     assertNotNull(sshKeyPair.publicSshKey);
-    assertEquals(testUser.email.toLowerCase(Locale.ROOT), sshKeyPair.userEmail);
+    assertEquals(testUser.email.toLowerCase(), sshKeyPair.userEmail.toLowerCase());
 
     var sshKeyPair2 =
         TestCommand.runAndParseCommandExpectSuccess(UFSshKeyPair.class, "user", "ssh-key", "get");
 
     assertEquals(sshKeyPair.privateSshKey, sshKeyPair2.privateSshKey);
     assertEquals(sshKeyPair.publicSshKey, sshKeyPair2.publicSshKey);
-    assertEquals(testUser.email.toLowerCase(Locale.ROOT), sshKeyPair2.userEmail);
+    assertEquals(testUser.email.toLowerCase(), sshKeyPair2.userEmail.toLowerCase());
   }
 
   @Test
@@ -61,12 +60,12 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     var sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
-    assertEquals(testUser.email.toLowerCase(Locale.ROOT), sshkey.userEmail);
+    assertEquals(testUser.email.toLowerCase(), sshkey.userEmail.toLowerCase());
 
     testUser2.login();
     var sshkey2 =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
-    assertEquals(testUser2.email.toLowerCase(Locale.ROOT), sshkey2.userEmail);
+    assertEquals(testUser2.email.toLowerCase(), sshkey2.userEmail.toLowerCase());
   }
 }
