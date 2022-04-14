@@ -269,7 +269,7 @@ GCP org; Verily deployment uses a project in Verily GCP org.
 
 #### Troubleshooting
 
-If you see `Connecting to Docker daemon failed. Check that Docker is installed and running.`
+If you see `Connecting to Docker daemon failed. Check that Docker is installed and running.` on Linux
 and this is the first time you're running tests on your machine, try `sudo chmod 666 /var/run/docker.sock`.
 
 #### Debugging tips
