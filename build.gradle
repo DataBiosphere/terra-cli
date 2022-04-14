@@ -217,6 +217,12 @@ task runTestsWithTag(type: Test) {
 
         // generate a unique id for each test run
         systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
+
+        // Gradle Enterprise Test Distribution
+        distribution {
+            enabled = true
+            maxRemoteExecutors = 0
+        }
     }
 
     dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
