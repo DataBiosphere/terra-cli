@@ -60,8 +60,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     var sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate");
-    assertEquals(
-        testUser.email.toLowerCase(), sshkey.userEmail.toLowerCase());
+    assertEquals(testUser.email.toLowerCase(), sshkey.userEmail.toLowerCase());
 
     testUser2.login();
     var sshkey2 =
