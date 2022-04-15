@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
-import bio.terra.cli.serialization.userfacing.UFStatus;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import harness.TestCommand;
 import harness.TestUser;
