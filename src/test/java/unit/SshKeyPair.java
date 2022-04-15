@@ -82,11 +82,4 @@ public class SshKeyPair extends SingleWorkspaceUnit {
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
     assertEquals(testUser2.email.toLowerCase(), sshkey2.userEmail.toLowerCase());
   }
-
-  private boolean ecmServerIsAvailable() throws JsonProcessingException {
-    // `terra status`
-    UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
-    return status.server.name.startsWith("broad")
-        || AVAILABLE_VERILY_ECM_SERVER.contains(status.server.name);
-  }
 }
