@@ -4,12 +4,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferenceCreation;
-import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
-import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref bq-dataset" command. */

@@ -3,12 +3,10 @@ package bio.terra.cli.command.resource.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferenceCreation;
-import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
-import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref git-repo" command. */
@@ -34,8 +32,7 @@ public class GitRepo extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
-        referenceCreationOptions
-            .populateMetadataFields();
+        referenceCreationOptions.populateMetadataFields();
     AddGitRepoParams.Builder createParams =
         new AddGitRepoParams.Builder()
             .resourceFields(createResourceParams.build())

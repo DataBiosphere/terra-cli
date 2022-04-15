@@ -32,7 +32,8 @@ public class ControlledResourceCreation {
    * metadata fields populated.
    */
   public CreateResourceParams.Builder populateMetadataFields() {
-    return resourceCreationOption.populateMetadataFields()
+    return resourceCreationOption
+        .populateMetadataFields()
         .accessScope(access)
         .cloningInstructions(cloning);
   }

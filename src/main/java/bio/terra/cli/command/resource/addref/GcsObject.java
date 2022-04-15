@@ -4,12 +4,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ReferenceCreation;
-import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
-import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref gcs-object" command. */
@@ -37,8 +35,7 @@ public class GcsObject extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
-        referenceCreationOptions
-            .populateMetadataFields();
+        referenceCreationOptions.populateMetadataFields();
     AddGcsObjectParams.Builder createParams =
         new AddGcsObjectParams.Builder()
             .resourceFields(createResourceParams.build())

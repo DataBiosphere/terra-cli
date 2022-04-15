@@ -6,8 +6,8 @@ import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
 /**
- * Command helper class that defines the relevant options for creating a new referenced
- * Terra resource.
+ * Command helper class that defines the relevant options for creating a new referenced Terra
+ * resource.
  *
  * <p>This class is meant to be used as a {@link CommandLine.Mixin}
  */
