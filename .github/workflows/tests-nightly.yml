@@ -5,7 +5,7 @@ on:
     - cron: '0 5 * * *' # 5AM UTC = 12AM EST
 
 jobs:
-  tests-against-source-code-and-latest-install:
+  test-source-and-install:
     strategy:
       matrix:
         testServer: [ "broad-dev" ]
