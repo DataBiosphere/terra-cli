@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ReferenceCreation;
+import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -15,7 +15,8 @@ import picocli.CommandLine;
     description = "Add a referenced git repository.",
     showDefaultValues = true)
 public class GitRepo extends BaseCommand {
-  @CommandLine.Mixin ReferenceCreation referenceCreationOptions;
+  @CommandLine.Mixin
+  ReferencedResourceCreation referencedResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--repo-url",
@@ -32,7 +33,7 @@ public class GitRepo extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
-        referenceCreationOptions.populateMetadataFields();
+        referencedResourceCreationOptions.populateMetadataFields();
     AddGitRepoParams.Builder createParams =
         new AddGitRepoParams.Builder()
             .resourceFields(createResourceParams.build())

@@ -11,7 +11,7 @@ import picocli.CommandLine;
  *
  * <p>This class is meant to be used as a {@link CommandLine.Mixin}
  */
-public class ReferenceCreation {
+public class ReferencedResourceCreation {
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   // Cloning option must have a different default for referenced resources (REFERENCE) than

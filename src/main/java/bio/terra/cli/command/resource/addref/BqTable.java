@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ReferenceCreation;
+import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -16,7 +16,8 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery Data Table.",
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
-  @CommandLine.Mixin ReferenceCreation referenceCreationOptions;
+  @CommandLine.Mixin
+  ReferencedResourceCreation referencedResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--table-id",
@@ -34,7 +35,7 @@ public class BqTable extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParamsBuilder =
-        referenceCreationOptions.populateMetadataFields();
+        referencedResourceCreationOptions.populateMetadataFields();
     AddBqTableParams.Builder createParamsBuilder =
         new AddBqTableParams.Builder()
             .resourceFields(createResourceParamsBuilder.build())

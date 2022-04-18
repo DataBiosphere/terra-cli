@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.addref;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ReferenceCreation;
+import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -16,7 +16,8 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin ReferenceCreation referenceCreationOptions;
+  @CommandLine.Mixin
+  ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -27,7 +28,7 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
-        referenceCreationOptions.populateMetadataFields();
+        referencedResourceCreationOptions.populateMetadataFields();
     CreateBqDatasetParams.Builder createParams =
         new CreateBqDatasetParams.Builder()
             .resourceFields(createResourceParams.build())
