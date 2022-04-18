@@ -16,8 +16,7 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery Data Table.",
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
-  @CommandLine.Mixin
-  ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--table-id",

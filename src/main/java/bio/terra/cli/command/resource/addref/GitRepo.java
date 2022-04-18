@@ -15,8 +15,7 @@ import picocli.CommandLine;
     description = "Add a referenced git repository.",
     showDefaultValues = true)
 public class GitRepo extends BaseCommand {
-  @CommandLine.Mixin
-  ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--repo-url",

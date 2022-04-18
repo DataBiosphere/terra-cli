@@ -16,8 +16,7 @@ import picocli.CommandLine;
     description = "Add a referenced GCS bucket object.",
     showDefaultValues = true)
 public class GcsObject extends BaseCommand {
-  @CommandLine.Mixin
-  ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin GcsBucketName bucketNameOption;
 
   @CommandLine.Option(

@@ -16,8 +16,7 @@ import picocli.CommandLine;
     description = "Add a referenced BigQuery dataset.",
     showDefaultValues = true)
 public class BqDataset extends BaseCommand {
-  @CommandLine.Mixin
-  ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
