@@ -16,6 +16,7 @@
     * [Override context directory](#override-context-directory)
     * [Setup test users](#setup-test-users)
     * [Automated tests](#automated-tests)
+    * [Troubleshooting](#troubleshooting-1)
     * [Debugging tips](#debugging-tips)
 4. [Docker](#docker)
     * [Pull an existing image](#pull-an-existing-image)
@@ -265,6 +266,11 @@ By default, tests run against Broad deployment. To run against a different deplo
 
 For example, consider the project that external resources are created in. The Broad deployment uses a project in Broad
 GCP org; Verily deployment uses a project in Verily GCP org.
+
+#### Troubleshooting
+
+If you see `Connecting to Docker daemon failed. Check that Docker is installed and running.` on Linux
+and this is the first time you're running tests on your machine, try `sudo chmod 666 /var/run/docker.sock`.
 
 #### Debugging tips
 
