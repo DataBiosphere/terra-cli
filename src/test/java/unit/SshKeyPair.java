@@ -21,9 +21,6 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   private TestUser testUser = TestUser.chooseTestUser();
   private TestUser testUser2 = TestUser.chooseTestUserWhoIsNot(testUser);
 
-  // TODO(PF-1497): Remove this once ECM is deployed to all environment in verily.
-  private static final List<String> AVAILABLE_VERILY_ECM_SERVER = ImmutableList.of("verily-devel");
-
   @Test
   // TODO(PF-1497): Remove this once ECM is deployed to all environment in verily.
   @DisabledIfEnvironmentVariable(named = "TERRA_SERVER", matches = "(verily-preprod|verily)")
