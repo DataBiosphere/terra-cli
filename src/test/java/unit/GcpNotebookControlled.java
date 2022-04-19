@@ -251,7 +251,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                     "--workspace=" + workspaceId),
         (result) -> notebookState.equals(result.state),
         (ex) -> false, // no retries
-        2 * 30, // up to 30 minutes
+        2 * 20, // up to 20 minutes
         Duration.ofSeconds(30)); // every 30 seconds
 
     assertNotebookState(resourceName, notebookState, workspaceId);
