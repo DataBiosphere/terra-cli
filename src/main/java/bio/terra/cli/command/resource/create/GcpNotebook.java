@@ -1,8 +1,8 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -29,7 +29,7 @@ public class GcpNotebook extends BaseCommand {
 
   // Use CreateResource instead of createControlledResource because only private notebooks are
   // supported and we don't want to provide options that are not useful.
-  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
+  @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
   @CommandLine.Option(
       names = "--instance-id",
@@ -223,7 +223,7 @@ public class GcpNotebook extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     // build the resource object to create. force the resource to be private
     CreateResourceParams.Builder createResourceParams =
-        resourceCreationOptions
+        controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS);
