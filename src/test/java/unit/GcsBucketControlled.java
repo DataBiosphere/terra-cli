@@ -205,7 +205,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String name = "createWithAllOptionsExceptLifecycle";
     String bucketName = UUID.randomUUID().toString();
     AccessScope access = AccessScope.PRIVATE_ACCESS;
-    CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
+    CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"create with all options except lifecycle\"";
     String location = "US";
     GcsStorageClass storage = GcsStorageClass.NEARLINE;

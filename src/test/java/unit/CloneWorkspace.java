@@ -120,8 +120,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "create",
             "gcs-bucket",
             "--name=" + "bucket_1",
-            "--bucket-name=" + UUID.randomUUID(),
-            "--cloning=COPY_RESOURCE");
+            "--bucket-name=" + UUID.randomUUID()); // cloning defaults  to COPY_RESOURCE
 
     // Add another bucket resource with COPY_NOTHING
     UFGcsBucket copyNothingBucket =

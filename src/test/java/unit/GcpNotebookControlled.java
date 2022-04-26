@@ -134,7 +134,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // --cloning=$cloning --description=$description
     // --location=$location --instance-id=$instanceId`
     String name = "overrideLocationAndInstanceId";
-    CloningInstructionsEnum cloning = CloningInstructionsEnum.REFERENCE;
+    CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-central1-b";
     String instanceId = "a" + UUID.randomUUID().toString(); // instance id must start with a letter
