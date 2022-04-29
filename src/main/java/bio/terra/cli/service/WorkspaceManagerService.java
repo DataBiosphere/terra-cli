@@ -987,7 +987,8 @@ public class WorkspaceManagerService {
             .updateParameters(
                 new GcpGcsBucketUpdateParameters()
                     .defaultStorageClass(updateParams.defaultStorageClass)
-                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules)));
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
+                    .cloningInstructions(updateParams.cloningInstruction));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)

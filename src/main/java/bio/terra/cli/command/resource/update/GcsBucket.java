@@ -3,6 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.CloningInstructions;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
@@ -12,8 +13,10 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-bucket" command. */
 @CommandLine.Command(
@@ -25,6 +28,7 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
+  @CommandLine.Mixin CloningInstructions cloningInstructionsOption;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -38,7 +42,9 @@ public class GcsBucket extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
         && !lifecycleOptions.isDefined()
-        && newBucketName.getNewBucketName() == null) {
+        && newBucketName.getNewBucketName() == null
+        && cloningInstructionsOption.getCloning() == null)
+    {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -65,6 +71,7 @@ public class GcsBucket extends BaseCommand {
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultStorageClass(storageClassOption.storageClass)
               .lifecycle(lifecycleOptions.buildLifecycleObject())
+              .cloningInstruction(cloningInstructionsOption.getCloning())
               .build());
     }
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
