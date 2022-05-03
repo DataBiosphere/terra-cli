@@ -6,6 +6,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.NewCloningInstructions;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
@@ -24,6 +25,7 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
+  @CommandLine.Mixin NewCloningInstructions newCloningInstructionsOption;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -36,7 +38,8 @@ public class BqDataset extends BaseCommand {
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
-        && !bqDatasetNewIds.isDefined()) {
+        && !bqDatasetNewIds.isDefined()
+        && newCloningInstructionsOption.getCloning() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -65,6 +68,7 @@ public class BqDataset extends BaseCommand {
                   bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())
               .defaultTableLifetimeSeconds(
                   bqDatasetLifetimeOptions.getDefaultTableLifetimeSeconds())
+              .cloningInstruction(newCloningInstructionsOption.getCloning())
               .build());
     }
 

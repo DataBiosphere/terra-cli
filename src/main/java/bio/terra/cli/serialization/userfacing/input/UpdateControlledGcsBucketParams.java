@@ -1,6 +1,5 @@
 package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.cli.command.shared.options.CloningInstructions;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -50,7 +49,8 @@ public class UpdateControlledGcsBucketParams {
       return this;
     }
 
-    public UpdateControlledGcsBucketParams.Builder cloningInstruction(CloningInstructionsEnum cloningInstructions) {
+    public UpdateControlledGcsBucketParams.Builder cloningInstruction(
+        CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;
       return this;
     }

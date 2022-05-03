@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -14,11 +15,13 @@ public class UpdateControlledBqDatasetParams {
   public final UpdateResourceParams resourceFields;
   public final Integer defaultPartitionLifetimeSeconds;
   public final Integer defaultTableLifetimeSeconds;
+  public final CloningInstructionsEnum cloningInstruction;
 
   protected UpdateControlledBqDatasetParams(UpdateControlledBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.defaultPartitionLifetimeSeconds = builder.defaultPartitionLifetimeSeconds;
     this.defaultTableLifetimeSeconds = builder.defaultTableLifetimeSeconds;
+    this.cloningInstruction = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -26,6 +29,7 @@ public class UpdateControlledBqDatasetParams {
     private UpdateResourceParams resourceFields;
     private Integer defaultPartitionLifetimeSeconds;
     private Integer defaultTableLifetimeSeconds;
+    private CloningInstructionsEnum cloningInstructions;
 
     public UpdateControlledBqDatasetParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -40,6 +44,12 @@ public class UpdateControlledBqDatasetParams {
 
     public Builder defaultTableLifetimeSeconds(Integer defaultTableLifetimeSeconds) {
       this.defaultTableLifetimeSeconds = defaultTableLifetimeSeconds;
+      return this;
+    }
+
+    public UpdateControlledBqDatasetParams.Builder cloningInstruction(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

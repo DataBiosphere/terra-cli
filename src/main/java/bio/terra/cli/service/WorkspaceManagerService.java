@@ -1068,7 +1068,8 @@ public class WorkspaceManagerService {
             .updateParameters(
                 new GcpBigQueryDatasetUpdateParameters()
                     .defaultPartitionLifetime(updateParams.defaultPartitionLifetimeSeconds)
-                    .defaultTableLifetime(updateParams.defaultTableLifetimeSeconds));
+                    .defaultTableLifetime(updateParams.defaultTableLifetimeSeconds)
+                    .cloningInstructions(updateParams.cloningInstruction));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
