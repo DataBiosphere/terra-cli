@@ -84,7 +84,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
@@ -159,7 +159,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
@@ -188,7 +188,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
@@ -249,7 +249,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
@@ -277,7 +277,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --cloning=$cloning
@@ -345,7 +345,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
@@ -432,7 +432,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String controlledDataset = "controlledDataset";
@@ -520,7 +520,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`

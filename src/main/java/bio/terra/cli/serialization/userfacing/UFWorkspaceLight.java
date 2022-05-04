@@ -4,10 +4,11 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.UUID;
 
 public class UFWorkspaceLight {
-  public UUID id;
+  // "id" instead of "userFacingId" because user sees this with "terra workspace describe
+  // --format=json"
+  public String id;
   public String name;
   public String description;
   public String googleProjectId;
@@ -21,7 +22,7 @@ public class UFWorkspaceLight {
    * @param internalObj
    */
   public UFWorkspaceLight(Workspace internalObj) {
-    this.id = internalObj.getId();
+    this.id = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
@@ -52,8 +53,10 @@ public class UFWorkspaceLight {
   /** Print out a workspace object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Terra workspace id: " + id);
-    OUT.println("Display name: " + name);
+    // "id" instead of "userFacingId" because user sees this with "terra workspace describe
+    // --format=json"
+    OUT.println("ID: " + id);
+    OUT.println("Name: " + name);
     OUT.println("Description: " + description);
     OUT.println("Google project: " + googleProjectId);
     OUT.println(
@@ -63,14 +66,16 @@ public class UFWorkspaceLight {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UUID id;
+    // "id" instead of "userFacingId" because user sees this with "terra workspace describe
+    // --format=json"
+    private String id;
     private String name;
     private String description;
     private String googleProjectId;
     private String serverName;
     private String userEmail;
 
-    public UFWorkspaceLight.Builder id(UUID id) {
+    public UFWorkspaceLight.Builder id(String id) {
       this.id = id;
       return this;
     }

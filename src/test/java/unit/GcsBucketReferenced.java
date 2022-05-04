@@ -47,7 +47,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     ExternalGCSBuckets.grantReadAccess(
         externalPrivateBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
@@ -72,7 +72,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "listDescribeReflectAdd";
@@ -127,7 +127,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listReflectsDelete";
@@ -152,7 +152,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "resolve";
@@ -191,7 +191,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "checkAccess";
@@ -215,7 +215,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref gcs-bucket --name=$name --bucket-name=$bucketName --cloning=$cloning
     // --description=$description --format=json`
@@ -266,7 +266,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref gcs-bucket --name=$name --description=$description
     // --bucket-name=$bucketName`
@@ -342,7 +342,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref gcs-bucket --name=$name --description=$description
     // --bucket-name=$bucketName`
@@ -399,7 +399,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     String name = "updateGcsBucketWithPartialAccess";
     TestCommand.runCommandExpectSuccess(
@@ -411,7 +411,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     String newName = "updateGcsBucketWithPartialAccess_NEW";
     UFGcsBucket updateBucket =

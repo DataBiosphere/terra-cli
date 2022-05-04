@@ -95,7 +95,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
@@ -159,7 +159,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
@@ -263,7 +263,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
@@ -305,7 +305,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
@@ -333,7 +333,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
@@ -360,7 +360,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName --cloning=$cloning --description=$description --format=json`
@@ -422,7 +422,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName --description=$description`
@@ -523,7 +523,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref gcs-object --name=$name --description=$description
     // --bucket-name=$bucketName --object-name=$objectName`

@@ -81,7 +81,8 @@ public class GcpNotebook extends Resource {
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
         WorkspaceManagerService.fromContext()
-            .createControlledGcpNotebookInstance(Context.requireWorkspace().getId(), createParams);
+            .createControlledGcpNotebookInstance(
+                Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCP notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
@@ -98,7 +99,7 @@ public class GcpNotebook extends Resource {
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
-        .deleteControlledGcpNotebookInstance(Context.requireWorkspace().getId(), id);
+        .deleteControlledGcpNotebookInstance(Context.requireWorkspace().getUuid(), id);
   }
 
   /**

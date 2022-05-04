@@ -5,7 +5,6 @@ import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
 import harness.utils.WorkspaceUtils;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -17,10 +16,10 @@ import org.junit.jupiter.api.BeforeAll;
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
   protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
-  private static UUID workspaceId;
+  private static String userFacingId;
 
-  protected static UUID getWorkspaceId() {
-    return workspaceId;
+  protected static String getUserFacingId() {
+    return userFacingId;
   }
 
   @BeforeAll
@@ -31,7 +30,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
-    workspaceId = createdWorkspace.id;
+    userFacingId = createdWorkspace.id;
   }
 
   @AfterAll
@@ -43,7 +42,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspaceId);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + userFacingId);
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

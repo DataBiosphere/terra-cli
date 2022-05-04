@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = PDWorkspace.Builder.class)
 public class PDWorkspace {
-  public final UUID id;
+  public final UUID uuid;
+  public final String userFacingId;
   public final String name;
   public final String description;
   public final String googleProjectId;
@@ -27,7 +28,8 @@ public class PDWorkspace {
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
-    this.id = internalObj.getId();
+    this.uuid = internalObj.getUuid();
+    this.userFacingId = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
@@ -40,7 +42,8 @@ public class PDWorkspace {
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
-    this.id = builder.id;
+    this.uuid = builder.uuid;
+    this.userFacingId = builder.userFacingId;
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
@@ -51,7 +54,8 @@ public class PDWorkspace {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UUID id;
+    private UUID uuid;
+    private String userFacingId;
     private String name;
     private String description;
     private String googleProjectId;
@@ -59,8 +63,13 @@ public class PDWorkspace {
     private String userEmail;
     private List<PDResource> resources;
 
-    public Builder id(UUID id) {
-      this.id = id;
+    public Builder uuid(UUID uuid) {
+      this.uuid = uuid;
+      return this;
+    }
+
+    public Builder userFacingId(String userFacingId) {
+      this.userFacingId = userFacingId;
       return this;
     }
 

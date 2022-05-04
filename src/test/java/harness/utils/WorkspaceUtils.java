@@ -1,10 +1,12 @@
 package harness.utils;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
+import java.util.UUID;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
@@ -22,7 +24,7 @@ public class WorkspaceUtils {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-    CRLJanitor.registerWorkspaceForCleanup(workspace, workspaceCreator);
+    CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
 
@@ -43,7 +45,15 @@ public class WorkspaceUtils {
             "create",
             "--name=" + name,
             "--description=" + description);
-    CRLJanitor.registerWorkspaceForCleanup(workspace, workspaceCreator);
+    CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
+  }
+
+  /**
+   * UFWorkspace doesn't have UUID because user only sees userFacingId. Get UUID from context.json
+   * instead. This assumes there is a current workspace.
+   */
+  private static UUID getUuidFromCurrentWorkspace() {
+    return Context.requireWorkspace().getUuid();
   }
 }

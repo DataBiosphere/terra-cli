@@ -298,21 +298,39 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
-   *
-   * @param workspaceId the id of the workspace to fetch
-   * @return the Workspace Manager workspace description object
    */
-  public WorkspaceDescription getWorkspace(UUID workspaceId) {
+  public WorkspaceDescription getWorkspace(UUID uuid) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+            () -> new WorkspaceApi(apiClient).getWorkspace(uuid), "Error fetching workspace");
+    String googleProjectId =
+        (workspaceWithContext.getGcpContext() == null)
+            ? null
+            : workspaceWithContext.getGcpContext().getProjectId();
+    logger.info(
+        "Workspace context: userFacingId {}, project id: {}",
+        workspaceWithContext.getUserFacingId(),
+        googleProjectId);
+    return workspaceWithContext;
+  }
+
+  /**
+   * Call the Workspace Manager GET "/api/workspaces/v1/workspaceByUserFacingId/{userFacingId}"
+   * endpoint to fetch an existing workspace.
+   */
+  public WorkspaceDescription getWorkspaceByUserFacingId(String userFacingId) {
+    WorkspaceDescription workspaceWithContext =
+        callWithRetries(
+            () -> new WorkspaceApi(apiClient).getWorkspaceByUserFacingId(userFacingId),
             "Error fetching workspace");
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
             ? null
             : workspaceWithContext.getGcpContext().getProjectId();
     logger.info(
-        "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
+        "Workspace context: {}, project id: {}",
+        workspaceWithContext.getUserFacingId(),
+        googleProjectId);
     return workspaceWithContext;
   }
 

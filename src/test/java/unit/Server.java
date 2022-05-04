@@ -137,7 +137,7 @@ public class Server extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra server set --name=broad-dev-cli-testing --quiet`
     TestCommand.runCommandExpectSuccess("server", "set", "--name=broad-dev-cli-testing", "--quiet");
@@ -164,7 +164,7 @@ public class Server extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra server set --name=broad-dev-cli-testing --quiet`
     ByteArrayInputStream stdIn = new ByteArrayInputStream("NO".getBytes(StandardCharsets.UTF_8));
