@@ -130,7 +130,7 @@ public class Workspace extends ClearContextUnit {
     assertNotNull(createdWorkspace.name, "create workspace name is defined");
     assertNotNull(createdWorkspace.description, "create workspace description is defined");
 
-    // `terra workspace create --format=json --name=$newName --description=$newDescription`
+    // `terra workspace update --format=json --name=$newName --description=$newDescription`
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
@@ -243,9 +243,10 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithoutSpendAccess();
     testUser.login();
     final String workspaceName = "bad-profile-6789";
-    // `terra workspace create`
+    // `terra workspace create --id=<user-facing-id>`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(1, "workspace", "create", "--name=" + workspaceName);
+        TestCommand.runCommandExpectExitCode(
+            1, "workspace", "create", "--id=" + WorkspaceUtils.createUserFacingId());
     assertThat(
         "error message includes spend profile unauthorized",
         stdErr,
@@ -257,6 +258,19 @@ public class Workspace extends ClearContextUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "workspace", "list", "--limit=100");
     assertFalse(listWorkspaces.stream().anyMatch(w -> workspaceName.equals(w.name)));
+  }
+
+  @Test
+  void createFailsWithoutUserFacingId() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    // `terra workspace create`
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "create");
+    assertThat(
+        "error message indicate user must set ID",
+        stdErr,
+        CoreMatchers.containsString("Missing required option: '--id=<id>'"));
   }
 
   @Test

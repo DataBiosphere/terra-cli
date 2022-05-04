@@ -148,7 +148,7 @@ terra server status
 Create a new Terra workspace and backing Google project.
 Check the current context to confirm it was created successfully.
 ```
-terra workspace create
+terra workspace create --id=<my-workspace-id>
 terra status
 ```
 

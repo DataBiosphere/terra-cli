@@ -11,6 +11,10 @@ import java.util.UUID;
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
 
+  public static String createUserFacingId() {
+    return "a-" + UUID.randomUUID().toString();
+  }
+
   /**
    * Create a new workspace and register it with Janitor if this test is running in an environment
    * where Janitor is enabled. Tests must use this method in order to register workspaces with
@@ -23,7 +27,8 @@ public class WorkspaceUtils {
       throws JsonProcessingException {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "create", "--id=" + createUserFacingId());
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
@@ -43,6 +48,7 @@ public class WorkspaceUtils {
             UFWorkspace.class,
             "workspace",
             "create",
+            "--id=" + createUserFacingId(),
             "--name=" + name,
             "--description=" + description);
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);

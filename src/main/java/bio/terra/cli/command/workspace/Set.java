@@ -11,7 +11,8 @@ import picocli.CommandLine.Command;
 @Command(name = "set", description = "Set the workspace to an existing one.")
 public class Set extends BaseCommand {
   @CommandLine.Option(names = "--id", required = true, description = "Workspace id.")
-  private String userFacingId;
+  // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace set`
+  private String id;
 
   @CommandLine.Mixin Format formatOption;
 

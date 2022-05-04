@@ -207,6 +207,7 @@ public class WorkspaceManagerService {
    * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
    * endpoint to wait for the job to finish.
    *
+   * @param userFacingId required user-facing ID
    * @param displayName optional display name
    * @param description optional description
    * @return the Workspace Manager workspace description object
@@ -214,13 +215,14 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
-      @Nullable String displayName, @Nullable String description) {
+      String userFacingId, @Nullable String displayName, @Nullable String description) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
           UUID workspaceId = UUID.randomUUID();
           CreateWorkspaceRequestBody workspaceRequestBody = new CreateWorkspaceRequestBody();
           workspaceRequestBody.setId(workspaceId);
+          workspaceRequestBody.setUserFacingId(userFacingId);
           workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(displayName);
