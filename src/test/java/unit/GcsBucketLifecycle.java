@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
@@ -333,12 +335,23 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "empty.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
-    TestCommand.runCommandExpectSuccess(
-        "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
+    var updatedBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resource",
+            "update",
+            "gcs-bucket",
+            "--name=" + resourceName,
+            "--lifecycle=" + lifecycle2,
+            "--cloning=" + CloningInstructionsEnum.DEFINITION);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
     assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
+    assertEquals(
+        CloningInstructionsEnum.DEFINITION,
+        updatedBucket.cloningInstructions,
+        "bucket cloningInstructions updated");
   }
 
   /**
