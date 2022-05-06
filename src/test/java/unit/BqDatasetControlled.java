@@ -315,7 +315,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update bq-dataset --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFBqDataset updateDataset =
+    UFBqDataset updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
             "resource",
@@ -323,8 +323,8 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(description, updateDataset.description);
+    assertEquals(newName, updatedDataset.name);
+    assertEquals(description, updatedDataset.description);
 
     // `terra resources describe --name=$newName`
     UFBqDataset describeDataset =
@@ -335,7 +335,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // update just the description
     // `terra resources update bq-dataset --name=$newName --description=$newDescription`
     String newDescription = "updateDescription_NEW";
-    updateDataset =
+    updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
             "resource",
@@ -343,25 +343,26 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + newName,
             "--description=" + newDescription);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(newDescription, updateDataset.description);
+    assertEquals(newName, updatedDataset.name);
+    assertEquals(newDescription, updatedDataset.description);
 
     // update just the cloningInstructions
     // `terra resources update bq-dataset --cloning=$CloningInstructionsEnum.DEFINITION`
-    updateDataset =
+    updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
             "resource",
             "update",
             "bq-dataset",
             "--cloning=" + CloningInstructionsEnum.DEFINITION);
-    assertEquals(CloningInstructionsEnum.DEFINITION, updateDataset.cloningInstructions);
+    assertEquals(CloningInstructionsEnum.DEFINITION, updatedDataset.cloningInstructions);
 
     // `terra resources describe --name=$newName`
     describeDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
+    assertEquals(CloningInstructionsEnum.DEFINITION, describeDataset.cloningInstructions);
   }
 
   @Test

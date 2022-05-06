@@ -3,16 +3,16 @@ package bio.terra.cli.command.shared.options;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 
-public class NewCloningInstructions {
+public class ControlledCloningInstructionsForUpdate {
   /**
-   * Command helper class that defines the project id and dataset id when updating a BigQuery
-   * datasets or BigQuery data table.
+   * Use this --cloning flog for controlled resources.
    *
    * <p>This class is meant to be used as a @CommandLine.Mixin.
    */
 
-  // Cloning option must have a different default for referenced resources (REFERENCE) than
-  // for controlled resources (RESOURCE).
+  // Can't have a default. This is used for update. Need `null` in case user does not want to
+  // update cloning instructions.
+
   @CommandLine.Option(
       names = "--cloning",
       description =

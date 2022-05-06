@@ -16,13 +16,13 @@ public class UpdateControlledGcsBucketParams {
   public final UpdateResourceParams resourceFields;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
-  public final CloningInstructionsEnum cloningInstruction;
+  public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateControlledGcsBucketParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.lifecycle = builder.lifecycle;
     this.defaultStorageClass = builder.defaultStorageClass;
-    this.cloningInstruction = builder.cloningInstructions;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -49,7 +49,7 @@ public class UpdateControlledGcsBucketParams {
       return this;
     }
 
-    public UpdateControlledGcsBucketParams.Builder cloningInstruction(
+    public UpdateControlledGcsBucketParams.Builder cloningInstructions(
         CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;
       return this;

@@ -6,7 +6,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
-import bio.terra.cli.command.shared.options.NewCloningInstructions;
+import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
@@ -26,7 +26,8 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
-  @CommandLine.Mixin NewCloningInstructions newCloningInstructionsOption;
+  @CommandLine.Mixin
+  ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -68,7 +69,7 @@ public class GcsBucket extends BaseCommand {
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultStorageClass(storageClassOption.storageClass)
               .lifecycle(lifecycleOptions.buildLifecycleObject())
-              .cloningInstruction(newCloningInstructionsOption.getCloning())
+              .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);

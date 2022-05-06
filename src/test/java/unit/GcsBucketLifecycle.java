@@ -288,18 +288,21 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
-    // --lifecycle=$lifecycle1`
+    // --lifecycle=$lifecycle1 --cloning=$CloningInstructionsEnum.DEFINITION`
     String resourceName = "update";
     String bucketName = UUID.randomUUID().toString();
     String lifecycleFilename1 = "delete_age.json";
     Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
-    TestCommand.runCommandExpectSuccess(
+    var updatedBucket =
+      TestCommand.runAndParseCommandExpectSuccess(
+          UFGcsBucket.class,
         "resource",
         "create",
         "gcs-bucket",
         "--name=" + resourceName,
         "--bucket-name=" + bucketName,
-        "--lifecycle=" + lifecycle1);
+        "--lifecycle=" + lifecycle1,
+        "--cloning=" + CloningInstructionsEnum.DEFINITION);
 
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
@@ -313,6 +316,8 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
     assertEquals(
         124, lifecycleRulesFromGCS.get(0).getCondition().getAge(), "condition age matches");
+    assertEquals(CloningInstructionsEnum.DEFINITION, updatedBucket.cloningInstructions,
+        "bucket cloningInstructions updated");
   }
 
   @Test
@@ -335,23 +340,12 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "empty.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
-    var updatedBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "update",
-            "gcs-bucket",
-            "--name=" + resourceName,
-            "--lifecycle=" + lifecycle2,
-            "--cloning=" + CloningInstructionsEnum.DEFINITION);
+    TestCommand.runCommandExpectSuccess(
+        "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
     assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
-    assertEquals(
-        CloningInstructionsEnum.DEFINITION,
-        updatedBucket.cloningInstructions,
-        "bucket cloningInstructions updated");
   }
 
   /**
