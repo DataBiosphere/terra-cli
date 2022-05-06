@@ -39,7 +39,7 @@ public class BqDataset extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
-        && newCloningInstructionsOption.getCloning() == null) {
+        && newCloningInstructionsOption.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -68,7 +68,7 @@ public class BqDataset extends BaseCommand {
                   bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())
               .defaultTableLifetimeSeconds(
                   bqDatasetLifetimeOptions.getDefaultTableLifetimeSeconds())
-              .cloningInstruction(newCloningInstructionsOption.getCloning())
+              .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
 

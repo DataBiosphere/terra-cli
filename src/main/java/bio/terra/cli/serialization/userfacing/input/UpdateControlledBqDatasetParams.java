@@ -15,13 +15,13 @@ public class UpdateControlledBqDatasetParams {
   public final UpdateResourceParams resourceFields;
   public final Integer defaultPartitionLifetimeSeconds;
   public final Integer defaultTableLifetimeSeconds;
-  public final CloningInstructionsEnum cloningInstruction;
+  public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateControlledBqDatasetParams(UpdateControlledBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.defaultPartitionLifetimeSeconds = builder.defaultPartitionLifetimeSeconds;
     this.defaultTableLifetimeSeconds = builder.defaultTableLifetimeSeconds;
-    this.cloningInstruction = builder.cloningInstructions;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -47,7 +47,7 @@ public class UpdateControlledBqDatasetParams {
       return this;
     }
 
-    public UpdateControlledBqDatasetParams.Builder cloningInstruction(
+    public UpdateControlledBqDatasetParams.Builder cloningInstructions(
         CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;
       return this;

@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 public class ControlledCloningInstructionsForUpdate {
   /**
-   * Use this --cloning flog for controlled resources.
+   * Use this --new-cloning flag when updating controlled resources.
    *
    * <p>This class is meant to be used as a @CommandLine.Mixin.
    */
@@ -14,12 +14,16 @@ public class ControlledCloningInstructionsForUpdate {
   // update cloning instructions.
 
   @CommandLine.Option(
-      names = "--cloning",
+      names = "--new-cloning",
       description =
-          "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
+          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE.")
   private CloningInstructionsEnum cloning;
 
   public CloningInstructionsEnum getCloning() {
     return cloning;
+  }
+
+  public boolean isDefined() {
+    return cloning != null;
   }
 }

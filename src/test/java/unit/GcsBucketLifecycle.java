@@ -288,7 +288,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
-    // --lifecycle=$lifecycle1 --cloning=$CloningInstructionsEnum.DEFINITION`
+    // --lifecycle=$lifecycle1 --new-cloning=COPY_DEFINITION`
     String resourceName = "update";
     String bucketName = UUID.randomUUID().toString();
     String lifecycleFilename1 = "delete_age.json";
@@ -302,7 +302,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
             "--name=" + resourceName,
             "--bucket-name=" + bucketName,
             "--lifecycle=" + lifecycle1,
-            "--cloning=" + CloningInstructionsEnum.DEFINITION);
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
 
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
