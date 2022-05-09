@@ -229,7 +229,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "--description=" + newDescription);
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectExitCode(2, "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectExitCode(2, "resource", "delete", "--name=" + name, "--quiet");
 
     workspaceCreator.login();
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
