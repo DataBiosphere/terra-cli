@@ -328,9 +328,9 @@ public class User {
 
     // check if the token is expired
     logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
-    Date toCheck = new Date();
-    toCheck.setTime(toCheck.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
-    return accessToken.getExpirationTime().compareTo(toCheck) <= 0;
+    Date cutOffDate = new Date();
+    cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
+    return accessToken.getExpirationTime().compareTo(cutOffDate) <= 0;
   }
 
   /** Get the access token for the user credentials. */
