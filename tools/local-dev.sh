@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 ## This script sets up the environment for local development.
 ## Dependencies: docker, chmod
 ## Usage: source tools/local-dev.sh
@@ -33,7 +32,3 @@ chmod a+x tools/*
 
 # pull credentials needed for development
 ./tools/render-config.sh
-
-# restore the bash setting to exit on a failing command
-# (this script is typically called with `source`, and so we don't want to modify the calling shell)
-set +e
