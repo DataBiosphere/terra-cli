@@ -12,7 +12,7 @@ if [ $(basename $PWD) != 'terra-cli' ]; then
 fi
 
 VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
-DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
+DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:dev
 CI_SA_VAULT_PATH=secret/dsde/terra/kernel/dev/common/ci/ci-account.json
 TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
 TEST_USERS_VAULT_PATH=secret/dsde/terra/cli-test/test-users
