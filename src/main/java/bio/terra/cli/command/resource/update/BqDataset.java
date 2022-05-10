@@ -71,7 +71,8 @@ public class BqDataset extends BaseCommand {
               .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
-
+    // Ensure the updated resource is displayed.
+    Context.requireWorkspace().listResourcesAndSync();
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 
