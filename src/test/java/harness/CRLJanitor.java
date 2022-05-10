@@ -53,6 +53,10 @@ public class CRLJanitor {
   public static final Map<String, String> serverToWsmInstanceIdentifier =
       ImmutableMap.of("broad-dev", "dev");
 
+  // Publisher objects are heavyweight and we use the same credentials for all publishing, so
+  // it's better to re-use a single Publisher instance.
+  private static final Publisher publisher = initializeJanitorPubsubPublisher();
+
   public static final ClientConfig getClientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
     if (TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
@@ -78,7 +82,7 @@ public class CRLJanitor {
     }
   }
 
-  private static Publisher getJanitorPubsubPublisher() {
+  private static Publisher initializeJanitorPubsubPublisher() {
     TopicName topicName =
         TopicName.of(
             TestConfig.get().getJanitorPubSubProjectId(), TestConfig.get().getJanitorPubSubTopic());
@@ -140,7 +144,9 @@ public class CRLJanitor {
       throw new JanitorException(
           String.format("Failed to serialize CreateResourceRequestBody: [%s]", janitorRequest), e);
     }
-    Publisher publisher = getJanitorPubsubPublisher();
+    if (publisher == null) {
+      initializeJanitorPubsubPublisher();
+    }
     PubsubMessage janitorMessage = PubsubMessage.newBuilder().setData(data).build();
     ApiFuture<String> messageIdFuture = publisher.publish(janitorMessage);
     try {
