@@ -59,6 +59,7 @@ listed in the command usage.
 #### Troubleshooting
 - Wipe the global context directory. `rm -R $HOME/.terra`.
 - Re-run the setup script. `source tools/local-dev.sh`.
+- Do not use GoogleGuest wifi in the google office.
 
 
 ### Publish a release
