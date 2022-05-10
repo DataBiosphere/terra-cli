@@ -348,13 +348,23 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     assertEquals(newName, updatedDataset.name);
     assertEquals(newDescription, updatedDataset.description);
 
-    // Apparently the cloning instructions only appear after a call to describe.
-    // Workaround for PF-1637 is to check cloning instructions after describe.
+    // update just the cloningInstructions
+    // `terra resources update bq-dataset --cloning=$CloningInstructionsEnum.DEFINITION`
+    updatedDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "update",
+            "bq-dataset",
+            "--name=" + newName,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    assertEquals(CloningInstructionsEnum.DEFINITION, updatedDataset.cloningInstructions);
+
     // `terra resources describe --name=$newName`
     describedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(CloningInstructionsEnum.DEFINITION, describedDataset.cloningInstructions);
+    assertEquals(newDescription, describedDataset.description);
   }
 
   @Test
