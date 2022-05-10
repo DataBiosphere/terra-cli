@@ -39,7 +39,7 @@ public class BqDataset extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
-        && newCloningInstructionsOption.isDefined()) {
+        && !newCloningInstructionsOption.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 

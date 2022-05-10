@@ -288,28 +288,31 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
-    // --lifecycle=$lifecycle1 --new-cloning=COPY_DEFINITION`
-    String resourceName = "update";
+    // --lifecycle=$lifecycle1 --cloning=COPY_DEFINITION`
+    String resourceName = "bucketToUpdate";
     String bucketName = UUID.randomUUID().toString();
     String lifecycleFilename1 = "delete_age.json";
     Path lifecycle1 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename1);
-    var updatedBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "create",
-            "gcs-bucket",
-            "--name=" + resourceName,
-            "--bucket-name=" + bucketName,
-            "--lifecycle=" + lifecycle1,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName,
+        "--lifecycle=" + lifecycle1);
 
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
-    TestCommand.runCommandExpectSuccess(
-        "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
-
+    var updatedBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class,
+            "resource",
+            "update",
+            "gcs-bucket",
+            "--name=" + resourceName,
+            "--lifecycle=" + lifecycle2,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");

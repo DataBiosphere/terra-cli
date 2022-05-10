@@ -12,7 +12,6 @@ public class ControlledCloningInstructionsForUpdate {
 
   // Can't have a default. This is used for update. Need `null` in case user does not want to
   // update cloning instructions.
-
   @CommandLine.Option(
       names = "--new-cloning",
       description =
