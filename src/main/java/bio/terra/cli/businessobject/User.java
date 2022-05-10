@@ -76,6 +76,9 @@ public class User {
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
+  // Number of milliseconds early to consider auth credentials as expired.
+  private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
+
   // URL of the landing page shown in the browser after completing the OAuth part of login
   // ideally this should point to product documentation or perhaps the UI, but for now the CLI
   // README seems like the best option. in the future, if we want to make this server-specific, then
@@ -155,10 +158,7 @@ public class User {
       // update the global context on disk
       Context.setUser(user);
 
-      // load the workspace metadata (if not already loaded)
-      if (Context.getWorkspace().isPresent()) {
-        user.fetchWorkspaceInfo();
-      }
+      user.fetchPetSaEmailForLogin();
     }
   }
 
@@ -182,12 +182,36 @@ public class User {
   }
 
   /**
+   * Fetch pet SA email. Don't throw an exception if it fails, because that shouldn't block a
+   * successful login, but do log the error to the console.
+   */
+  private void fetchPetSaEmailForLogin() {
+    try {
+      fetchPetSaEmail();
+    } catch (Exception ex) {
+      logger.error("Error fetching pet SA email during login", ex);
+      UserIO.getErr()
+          .println(
+              "Error loading workspace information for the logged in user (workspace id: "
+                  + Context.requireWorkspace().getId()
+                  + ").");
+    }
+  }
+
+  /**
    * Fetch the pet SA email for this user + current workspace from SAM and persist it in the global
    * context directory. If the pet SA does not yet exist for the user, then SAM will create it.
    * Grant both the user and the pet SA permission to impersonate the pet SA. This method assumes
    * that this user is the current user, and that there is a current workspace specified.
    */
   public void fetchPetSaEmail() {
+    // pet SAs are workspace-specific. if the current workspace is not defined, there is no pet SA
+    // to fetch
+    if (Context.getWorkspace().isEmpty()) {
+      logger.debug("No current workspace defined. Skipping fetch of pet SA credentials.");
+      return;
+    }
+
     // if the cloud context is undefined, then something went wrong during workspace creation
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
@@ -260,30 +284,6 @@ public class User {
     proxyGroupEmail = samService.getProxyGroupEmail(email);
   }
 
-  /**
-   * Fetch the workspace metadata (if it's not already loaded) and pet SA email. Don't throw an
-   * exception if it fails, because that shouldn't block a successful login, but do log the error to
-   * the console.
-   */
-  private void fetchWorkspaceInfo() {
-    try {
-      if (!Context.requireWorkspace().getIsLoaded()) {
-        // if the workspace was set without credentials, load the workspace metadata
-        Workspace.load(Context.requireWorkspace().getId());
-      } else {
-        // otherwise, just load the pet SA
-        fetchPetSaEmail();
-      }
-    } catch (Exception ex) {
-      logger.error("Error loading workspace or pet SA email during login", ex);
-      UserIO.getErr()
-          .println(
-              "Error loading workspace information for the logged in user (workspace id: "
-                  + Context.requireWorkspace().getId()
-                  + ").");
-    }
-  }
-
   // ====================================================
   // Property getters.
   public String getId() {
@@ -325,7 +325,9 @@ public class User {
 
     // check if the token is expired
     logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
-    return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
+    Date cutOffDate = new Date();
+    cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
+    return accessToken.getExpirationTime().compareTo(cutOffDate) <= 0;
   }
 
   /** Get the access token for the user credentials. */
