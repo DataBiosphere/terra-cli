@@ -24,6 +24,7 @@ import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -108,9 +109,7 @@ public class CloneWorkspace extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    // `terra workspace create --format=json`
-    sourceWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    sourceWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =

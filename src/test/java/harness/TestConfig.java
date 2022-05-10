@@ -24,6 +24,12 @@ public final class TestConfig {
   // see PF-886.
   private boolean useJanitorForExternalResourcesCreatedByTests;
 
+  // The PubSub topic to use for publishing Janitor cleanup requests
+  private String janitorPubSubTopic;
+
+  // The project ID of the Janitor PubSub topic
+  private String janitorPubSubProjectId;
+
   // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
   // directory under `rendered` where credentials are stored.
   public static String getTestConfigName() {
@@ -83,6 +89,12 @@ public final class TestConfig {
             && !testConfig.getProjectForExternalResources().isEmpty(),
         "In %s, projectForExternalResources must be set",
         testConfigFileName);
+    if (testConfig.useJanitorForExternalResourcesCreatedByTests) {
+      Preconditions.checkState(
+          testConfig.janitorPubSubProjectId != null && testConfig.janitorPubSubTopic != null,
+          "In %s, if useJanitorForExternalResourcesCreatedByTests is set, janitorPubSubProjectId and janitorPubSubTopic must also be set.",
+          testConfigFileName);
+    }
   }
 
   // ====================================================
@@ -97,5 +109,13 @@ public final class TestConfig {
 
   public boolean getUseJanitorForExternalResourcesCreatedByTests() {
     return useJanitorForExternalResourcesCreatedByTests;
+  }
+
+  public String getJanitorPubSubTopic() {
+    return janitorPubSubTopic;
+  }
+
+  public String getJanitorPubSubProjectId() {
+    return janitorPubSubProjectId;
   }
 }

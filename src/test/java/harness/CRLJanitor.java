@@ -1,15 +1,34 @@
 package harness;
 
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.cloudres.common.ClientConfig;
+import bio.terra.cloudres.common.JanitorException;
 import bio.terra.cloudres.common.cleanup.CleanupConfig;
+import bio.terra.janitor.model.CloudResourceUid;
+import bio.terra.janitor.model.CreateResourceRequestBody;
+import bio.terra.janitor.model.ResourceMetadata;
+import bio.terra.janitor.model.TerraWorkspaceUid;
+import com.google.api.core.ApiFuture;
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This class holds pointers to the hard-coded configuration for CRL Janitor that tests can use to
@@ -26,6 +45,14 @@ public class CRLJanitor {
 
   private static final String DEFAULT_CLIENT_NAME = "cli-test";
 
+  // How long Janitor should wait before cleaning test workspaces. It might be useful
+  // to keep these workspaces around long enough to debug, this should be lowered if not.
+  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(48);
+
+  // Map from CLI server to Janitor's identifier for WSM instance.
+  public static final Map<String, String> serverToWsmInstanceIdentifier =
+      ImmutableMap.of("broad-dev", "dev");
+
   public static final ClientConfig getClientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
     if (TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
@@ -34,9 +61,8 @@ public class CRLJanitor {
               .setTimeToLive(Duration.ofHours(2))
               .setCleanupId("cli-test-" + System.getProperty("TEST_RUN_ID"))
               .setCredentials(CRLJanitor.getSACredentials())
-              // TODO(PF-963): As part of setting up janitor for Verily, move to test config
-              .setJanitorTopicName("crljanitor-tools-pubsub-topic")
-              .setJanitorProjectId("terra-kernel-k8s")
+              .setJanitorTopicName(TestConfig.get().getJanitorPubSubTopic())
+              .setJanitorProjectId(TestConfig.get().getJanitorPubSubProjectId())
               .build());
     }
     return builder.build();
@@ -49,6 +75,80 @@ public class CRLJanitor {
           .createScoped(CLOUD_PLATFORM_SCOPE);
     } catch (IOException ioEx) {
       throw new RuntimeException("Error reading SA credentials for Janitor client.", ioEx);
+    }
+  }
+
+  private static Publisher getJanitorPubsubPublisher() {
+    TopicName topicName =
+        TopicName.of(
+            TestConfig.get().getJanitorPubSubProjectId(), TestConfig.get().getJanitorPubSubTopic());
+    try {
+      return Publisher.newBuilder(topicName)
+          .setCredentialsProvider(FixedCredentialsProvider.create(getSACredentials()))
+          .build();
+    } catch (IOException e) {
+      throw new JanitorException("Failed to initialize Janitor pubsub publisher.", e);
+    }
+  }
+
+  /**
+   * If Janitor is enabled, register the given workspace to be cleaned up. Otherwise return
+   * immediately.
+   */
+  public static void registerWorkspaceForCleanupIfEnabled(
+      UFWorkspace workspace, TestUser testUser) {
+    if (!TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
+      return;
+    }
+    registerWorkspaceForCleanup(workspace, testUser);
+  }
+
+  /**
+   * Register a given workspace to be cleaned up. Wrapper around {@link
+   * #registerWorkspaceForCleanup(UUID, String, String)}
+   */
+  public static void registerWorkspaceForCleanup(UFWorkspace workspace, TestUser testUser) {
+    String server = System.getenv("TERRA_SERVER");
+    String wsmInstance =
+        Optional.ofNullable(CRLJanitor.serverToWsmInstanceIdentifier.get(server))
+            .orElseThrow(
+                () -> new IllegalArgumentException("No WSM instance defined for server " + server));
+    registerWorkspaceForCleanup(workspace.id, wsmInstance, testUser.email);
+  }
+
+  public static void registerWorkspaceForCleanup(
+      UUID workspaceId, String instanceId, String testUserEmail) {
+    if (!TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
+      throw new IllegalStateException(
+          "Cannot cleanup workspace if UseJanitorForExternalResourcesCreatedByTests is false in TestConfig");
+    }
+    CreateResourceRequestBody janitorRequest =
+        new CreateResourceRequestBody()
+            .resourceUid(
+                new CloudResourceUid()
+                    .terraWorkspace(
+                        new TerraWorkspaceUid()
+                            .workspaceId(workspaceId)
+                            .workspaceManagerInstance(instanceId)))
+            .resourceMetadata(new ResourceMetadata().workspaceOwner(testUserEmail))
+            .creation(OffsetDateTime.now())
+            .expiration(OffsetDateTime.now().plus(WORKSPACE_TIME_TO_LIVE));
+    ByteString data;
+    try {
+      data = ByteString.copyFromUtf8(JacksonMapper.getMapper().writeValueAsString(janitorRequest));
+    } catch (IOException e) {
+      throw new JanitorException(
+          String.format("Failed to serialize CreateResourceRequestBody: [%s]", janitorRequest), e);
+    }
+    Publisher publisher = getJanitorPubsubPublisher();
+    PubsubMessage janitorMessage = PubsubMessage.newBuilder().setData(data).build();
+    ApiFuture<String> messageIdFuture = publisher.publish(janitorMessage);
+    try {
+      // Wait for the Future to complete
+      messageIdFuture.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new JanitorException(
+          String.format("Failed to publish message: [%s] ", data.toString()), e);
     }
   }
 }

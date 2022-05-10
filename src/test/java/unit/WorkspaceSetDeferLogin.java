@@ -12,6 +12,7 @@ import bio.terra.cli.utils.UserIO;
 import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.WorkspaceUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,8 +39,7 @@ public class WorkspaceSetDeferLogin extends SingleWorkspaceUnit {
     super.setupOnce();
 
     // `terra workspace create --format=json`
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
     sharedWorkspaceId = createWorkspace.id;
 
     workspaceSharee = TestUser.chooseTestUserWhoIsNot(workspaceCreator);

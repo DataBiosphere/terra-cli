@@ -4,6 +4,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
+import harness.utils.WorkspaceUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,9 +30,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     workspaceCreator.login();
 
-    // `terra workspace create --format=json`
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
     workspaceId = createWorkspace.id;
   }
 

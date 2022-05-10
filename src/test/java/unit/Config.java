@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -134,8 +135,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
 
     // `terra config get workspace`
     UFWorkspace getValue =

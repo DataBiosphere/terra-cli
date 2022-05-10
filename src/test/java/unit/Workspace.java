@@ -19,6 +19,7 @@ import harness.TestCommand;
 import harness.TestCommand.Result;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -38,9 +39,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    // `terra workspace create --format=json`
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
 
     // check the created workspace has an id and a google project
     assertNotNull(createWorkspace.id, "create workspace returned a workspace id");
@@ -96,9 +95,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    // `terra workspace create --format=json`
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
 
     // `terra workspace delete --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -124,16 +121,9 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    // `terra workspace create --format=json --name=$name --description=$description`
     String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class,
-            "workspace",
-            "create",
-            "--name=" + name,
-            "--description=" + description);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser, name, description);
 
     // check the created workspace name and description are set
     assertNotNull(createWorkspace.name, "create workspace name is defined");
@@ -192,13 +182,8 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    // `terra workspace create --format=json` (workspace 1)
-    UFWorkspace createWorkspace1 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-
-    // `terra workspace create --format=json` (workspace 2)
-    UFWorkspace createWorkspace2 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createWorkspace1 = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
+    UFWorkspace createWorkspace2 = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =
@@ -280,9 +265,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    // `terra workspace create`
-    UFWorkspace createdWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
