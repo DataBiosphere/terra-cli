@@ -13,14 +13,15 @@ public class WorkspaceUtils {
    * Create a new workspace and register it with Janitor if this test is running in an environment
    * where Janitor is enabled.
    *
-   * @param workspaceCreator The user who owns the workspace and should be used to clean it up.
+   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
+   *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(TestUser workspaceCreator)
       throws JsonProcessingException {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-    CRLJanitor.registerWorkspaceForCleanupIfEnabled(workspace, workspaceCreator);
+    CRLJanitor.registerWorkspaceForCleanup(workspace, workspaceCreator);
     return workspace;
   }
 
@@ -28,9 +29,8 @@ public class WorkspaceUtils {
    * Create a new workspace and register it with Janitor if this test is running in an environment
    * where Janitor is enabled.
    *
-   * @param workspaceCreator The user who owns the workspace and should be used to clean it up.
-   * @param name The name of the workspace
-   * @param description Description of the workspace
+   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
+   *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description) throws JsonProcessingException {
@@ -42,7 +42,7 @@ public class WorkspaceUtils {
             "create",
             "--name=" + name,
             "--description=" + description);
-    CRLJanitor.registerWorkspaceForCleanupIfEnabled(workspace, workspaceCreator);
+    CRLJanitor.registerWorkspaceForCleanup(workspace, workspaceCreator);
     return workspace;
   }
 }

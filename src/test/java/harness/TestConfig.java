@@ -22,7 +22,7 @@ public final class TestConfig {
 
   // Whether to use janitor to clean up external resources. For more about terra-cli and Janitor,
   // see PF-886.
-  private boolean useJanitorForExternalResourcesCreatedByTests;
+  private boolean useJanitor;
 
   // The PubSub topic to use for publishing Janitor cleanup requests
   private String janitorPubSubTopic;
@@ -89,7 +89,7 @@ public final class TestConfig {
             && !testConfig.getProjectForExternalResources().isEmpty(),
         "In %s, projectForExternalResources must be set",
         testConfigFileName);
-    if (testConfig.useJanitorForExternalResourcesCreatedByTests) {
+    if (testConfig.useJanitor) {
       Preconditions.checkState(
           testConfig.janitorPubSubProjectId != null && testConfig.janitorPubSubTopic != null,
           "In %s, if useJanitorForExternalResourcesCreatedByTests is set, janitorPubSubProjectId and janitorPubSubTopic must also be set.",
@@ -107,8 +107,8 @@ public final class TestConfig {
     return projectForExternalResources;
   }
 
-  public boolean getUseJanitorForExternalResourcesCreatedByTests() {
-    return useJanitorForExternalResourcesCreatedByTests;
+  public boolean useJanitor() {
+    return useJanitor;
   }
 
   public String getJanitorPubSubTopic() {

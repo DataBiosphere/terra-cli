@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -59,7 +58,7 @@ public class CRLJanitor {
 
   public static final ClientConfig getClientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
-    if (TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
+    if (TestConfig.get().useJanitor()) {
       builder.setCleanupConfig(
           CleanupConfig.builder()
               .setTimeToLive(Duration.ofHours(2))
@@ -99,42 +98,24 @@ public class CRLJanitor {
    * If Janitor is enabled, register the given workspace to be cleaned up. Otherwise return
    * immediately.
    */
-  public static void registerWorkspaceForCleanupIfEnabled(
-      UFWorkspace workspace, TestUser testUser) {
-    if (!TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
+  public static void registerWorkspaceForCleanup(UFWorkspace workspace, TestUser testUser) {
+    if (!TestConfig.get().useJanitor()) {
       return;
     }
-    registerWorkspaceForCleanup(workspace, testUser);
-  }
-
-  /**
-   * Register a given workspace to be cleaned up. Wrapper around {@link
-   * #registerWorkspaceForCleanup(UUID, String, String)}
-   */
-  public static void registerWorkspaceForCleanup(UFWorkspace workspace, TestUser testUser) {
     String server = System.getenv("TERRA_SERVER");
     String wsmInstance =
         Optional.ofNullable(CRLJanitor.serverToWsmInstanceIdentifier.get(server))
             .orElseThrow(
                 () -> new IllegalArgumentException("No WSM instance defined for server " + server));
-    registerWorkspaceForCleanup(workspace.id, wsmInstance, testUser.email);
-  }
-
-  public static void registerWorkspaceForCleanup(
-      UUID workspaceId, String instanceId, String testUserEmail) {
-    if (!TestConfig.get().getUseJanitorForExternalResourcesCreatedByTests()) {
-      throw new IllegalStateException(
-          "Cannot cleanup workspace if UseJanitorForExternalResourcesCreatedByTests is false in TestConfig");
-    }
     CreateResourceRequestBody janitorRequest =
         new CreateResourceRequestBody()
             .resourceUid(
                 new CloudResourceUid()
                     .terraWorkspace(
                         new TerraWorkspaceUid()
-                            .workspaceId(workspaceId)
-                            .workspaceManagerInstance(instanceId)))
-            .resourceMetadata(new ResourceMetadata().workspaceOwner(testUserEmail))
+                            .workspaceId(workspace.id)
+                            .workspaceManagerInstance(wsmInstance)))
+            .resourceMetadata(new ResourceMetadata().workspaceOwner(testUser.email))
             .creation(OffsetDateTime.now())
             .expiration(OffsetDateTime.now().plus(WORKSPACE_TIME_TO_LIVE));
     ByteString data;
@@ -143,9 +124,6 @@ public class CRLJanitor {
     } catch (IOException e) {
       throw new JanitorException(
           String.format("Failed to serialize CreateResourceRequestBody: [%s]", janitorRequest), e);
-    }
-    if (publisher == null) {
-      initializeJanitorPubsubPublisher();
     }
     PubsubMessage janitorMessage = PubsubMessage.newBuilder().setData(data).build();
     ApiFuture<String> messageIdFuture = publisher.publish(janitorMessage);
