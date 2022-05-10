@@ -123,8 +123,7 @@ public class Workspace extends ClearContextUnit {
 
     String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
-    UFWorkspace createWorkspace =
-        WorkspaceUtils.createWorkspace(testUser, name, description);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(testUser, name, description);
 
     // check the created workspace name and description are set
     assertNotNull(createWorkspace.name, "create workspace name is defined");
