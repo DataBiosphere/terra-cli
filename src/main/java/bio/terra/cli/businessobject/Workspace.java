@@ -50,10 +50,6 @@ public class Workspace {
   // list of resources (controlled & referenced)
   private List<Resource> resources;
 
-  // true if the workspace metadata was fetched. false when a user sets the workspace without being
-  // logged in; in that case, we can't request the metadata from WSM without valid credentials.
-  private boolean isLoaded;
-
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.id = wsmObject.getId();
@@ -64,7 +60,6 @@ public class Workspace {
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
     this.resources = new ArrayList<>();
-    this.isLoaded = true;
   }
 
   /** Build an instance of this class from the serialized format on disk. */
@@ -79,18 +74,6 @@ public class Workspace {
         configFromDisk.resources.stream()
             .map(PDResource::deserializeToInternal)
             .collect(Collectors.toList());
-    this.isLoaded = configFromDisk.isLoaded;
-  }
-
-  /**
-   * Build an instance of this class from just the workspace id and server name. This is used when a
-   * user sets the workspace without being logged in.
-   */
-  private Workspace(UUID id, String serverName) {
-    this.id = id;
-    this.serverName = serverName;
-    this.resources = new ArrayList<>();
-    this.isLoaded = false;
   }
 
   /**
@@ -126,14 +109,6 @@ public class Workspace {
    * @param id workspace id
    */
   public static Workspace load(UUID id) {
-    // a user can set the workspace without being logged in. in that case, we can't request the
-    // metadata from WSM without valid credentials. so just save the workspace id for loading later.
-    if (Context.getUser().isEmpty()) {
-      Workspace loadedWorkspace = new Workspace(id, Context.getServer().getName());
-      Context.setWorkspace(loadedWorkspace);
-      return loadedWorkspace;
-    }
-
     Workspace workspace = Workspace.get(id);
 
     // update the global context with the current workspace
@@ -357,9 +332,5 @@ public class Workspace {
 
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
-  }
-
-  public boolean getIsLoaded() {
-    return isLoaded;
   }
 }
