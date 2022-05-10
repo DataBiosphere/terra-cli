@@ -15,7 +15,7 @@ public class WorkspaceUtils {
    *
    * @param workspaceCreator The user who owns the workspace and should be used to clean it up.
    */
-  public static UFWorkspace createWorkspaceWithCleanup(TestUser workspaceCreator)
+  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
       throws JsonProcessingException {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
@@ -32,7 +32,7 @@ public class WorkspaceUtils {
    * @param name The name of the workspace
    * @param description Description of the workspace
    */
-  public static UFWorkspace createWorkspaceWithCleanup(
+  public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description) throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
     UFWorkspace workspace =

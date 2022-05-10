@@ -135,7 +135,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // `terra config get workspace`
     UFWorkspace getValue =

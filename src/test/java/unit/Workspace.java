@@ -39,7 +39,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(testUser);
 
     // check the created workspace has an id and a google project
     assertNotNull(createWorkspace.id, "create workspace returned a workspace id");
@@ -95,7 +95,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(testUser);
 
     // `terra workspace delete --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -124,7 +124,7 @@ public class Workspace extends ClearContextUnit {
     String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
     UFWorkspace createWorkspace =
-        WorkspaceUtils.createWorkspaceWithCleanup(testUser, name, description);
+        WorkspaceUtils.createWorkspace(testUser, name, description);
 
     // check the created workspace name and description are set
     assertNotNull(createWorkspace.name, "create workspace name is defined");
@@ -183,8 +183,8 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createWorkspace1 = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
-    UFWorkspace createWorkspace2 = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
+    UFWorkspace createWorkspace1 = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createWorkspace2 = WorkspaceUtils.createWorkspace(testUser);
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =
@@ -266,7 +266,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(testUser);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`

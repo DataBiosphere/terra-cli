@@ -109,7 +109,7 @@ public class CloneWorkspace extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    sourceWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =

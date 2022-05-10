@@ -30,7 +30,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     workspaceCreator.login();
 
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     workspaceId = createWorkspace.id;
   }
 

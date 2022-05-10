@@ -186,7 +186,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
   void updatePrivateBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     TestCommand.runCommandExpectSuccess(
@@ -241,7 +241,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
       "user with partial access updates reference to a private object, updates reference's name and description")
   void userWithPartialAccessUpdateSharedBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -298,7 +298,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   @DisplayName("describe the reference to a bucket object that the user has no access to")
   void describeObjectReferenceWhenUserHasNoAccess() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspaceWithCleanup(workspaceCreator);
+    UFWorkspace createWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
     TestCommand.runCommandExpectSuccess(
