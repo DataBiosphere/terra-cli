@@ -76,6 +76,9 @@ public class User {
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
+  // Number of milliseconds early to consider auth credentials as expired.
+  private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
+
   // URL of the landing page shown in the browser after completing the OAuth part of login
   // ideally this should point to product documentation or perhaps the UI, but for now the CLI
   // README seems like the best option. in the future, if we want to make this server-specific, then
@@ -325,7 +328,9 @@ public class User {
 
     // check if the token is expired
     logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
-    return accessToken.getExpirationTime().compareTo(new Date()) <= 0;
+    Date cutOffDate = new Date();
+    cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
+    return accessToken.getExpirationTime().compareTo(cutOffDate) <= 0;
   }
 
   /** Get the access token for the user credentials. */
