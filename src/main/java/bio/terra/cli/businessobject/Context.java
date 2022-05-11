@@ -95,7 +95,7 @@ public class Context {
           new PDContext(
               currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
-      logger.info("Wrote context to disk: \n{}", diskContext);
+      logger.debug("Wrote context to disk: \n{}", diskContext);
     } catch (IOException ioEx) {
       logger.error("Error persisting context to disk.", ioEx);
     }
