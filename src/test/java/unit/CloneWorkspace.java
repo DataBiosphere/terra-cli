@@ -166,6 +166,10 @@ public class CloneWorkspace extends ClearContextUnit {
             "--repo-url=" + GIT_REPO_HTTPS_URL,
             "--cloning=COPY_REFERENCE");
 
+    // Update workspace name. This is for testing PF-1623.
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFWorkspace.class, "workspace", "update", "--name=update_Name");
+
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(
