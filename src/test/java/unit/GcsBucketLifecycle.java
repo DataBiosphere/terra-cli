@@ -320,7 +320,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         124, lifecycleRulesFromGCS.get(0).getCondition().getAge(), "condition age matches");
     var describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class, "resource", "describe", "gcs-bucket", "--name=" + resourceName);
+            UFGcsBucket.class, "resource", "describe", "--name=" + resourceName);
     assertEquals(
         CloningInstructionsEnum.DEFINITION,
         describedBucket.cloningInstructions,
