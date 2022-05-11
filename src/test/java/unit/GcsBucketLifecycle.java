@@ -304,24 +304,26 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     // `terra resource update gcs-bucket --name=$resourceName --lifecycle=$lifecycle2"
     String lifecycleFilename2 = "setStorageClass_age.json";
     Path lifecycle2 = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename2);
-    var updatedBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "update",
-            "gcs-bucket",
-            "--name=" + resourceName,
-            "--lifecycle=" + lifecycle2,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucket.class,
+        "resource",
+        "update",
+        "gcs-bucket",
+        "--name=" + resourceName,
+        "--lifecycle=" + lifecycle2,
+        "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         getLifecycleRulesFromCloud(bucketName);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
     expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
     assertEquals(
         124, lifecycleRulesFromGCS.get(0).getCondition().getAge(), "condition age matches");
+    var describedBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "describe", "gcs-bucket", "--name=" + resourceName);
     assertEquals(
         CloningInstructionsEnum.DEFINITION,
-        updatedBucket.cloningInstructions,
+        describedBucket.cloningInstructions,
         "bucket cloningInstructions updated");
   }
 
