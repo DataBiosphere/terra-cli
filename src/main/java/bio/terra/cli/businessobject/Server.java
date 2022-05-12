@@ -42,6 +42,7 @@ public class Server {
   private final String wsmDefaultSpendProfile;
   private final String dataRepoUri;
   private final String externalCredsUri;
+  private final boolean idTokenAuthentication;
 
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
@@ -57,6 +58,7 @@ public class Server {
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
+    this.idTokenAuthentication = configFromDisk.idTokenAuthentication;
   }
 
   /** Return an instance of this class with default values. */
@@ -200,5 +202,9 @@ public class Server {
 
   public String getExternalCredsUri() {
     return externalCredsUri;
+  }
+
+  public boolean getIdTokenAuthentication() {
+    return idTokenAuthentication;
   }
 }

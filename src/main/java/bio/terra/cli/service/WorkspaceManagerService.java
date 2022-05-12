@@ -2,6 +2,7 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
@@ -153,8 +154,11 @@ public class WorkspaceManagerService {
    * Factory method for class that talks to WSM. Pulls the current server and user from the context.
    */
   public static WorkspaceManagerService fromContext() {
-    return new WorkspaceManagerService(
-        Context.requireUser().getUserAccessToken(), Context.getServer());
+    Server server = Context.getServer();
+    User user = Context.requireUser();
+    AccessToken token =
+        server.getIdTokenAuthentication() ? user.getUserIdToken() : user.getUserAccessToken();
+    return new WorkspaceManagerService(token, server);
   }
 
   /**

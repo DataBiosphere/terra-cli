@@ -1,14 +1,20 @@
 package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
+import com.google.auth.oauth2.IdTokenCredentials;
+import com.google.auth.oauth2.IdTokenProvider;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,5 +93,33 @@ public class AppDefaultCredentialUtils {
           "Application default credentials are not defined. Run `gcloud auth application-default login`",
           ioEx);
     }
+  }
+
+  /**
+   * Get an ID token from an Application Default Credential and Client Secrets. Note that the passed
+   * ADC must be properly scoped, passing improperly scoped credentials will result in a {@code
+   * SystemException}. Any other failure to obtain the token will result in an {@code IoException}.
+   */
+  public static IdToken getIdTokenFromApplicationDefaultCredentials(
+      GoogleCredentials applicationDefaultCredentials, GoogleClientSecrets clientSecrets)
+      throws IOException {
+    if (!(applicationDefaultCredentials instanceof IdTokenProvider)) {
+      throw new SystemException(
+          "Passed credential is not an IdTokenProvider, please ensure only scoped ADC are passed.");
+    }
+
+    // To obtain an ID token from ADC, the ADC must be properly scoped and the OAuth2 Client ID must
+    // be passed as the target audience
+
+    IdTokenCredentials idTokenCredentials =
+        IdTokenCredentials.newBuilder()
+            .setIdTokenProvider((IdTokenProvider) applicationDefaultCredentials)
+            .setTargetAudience(clientSecrets.getDetails().getClientId())
+            .setOptions(List.of(IdTokenProvider.Option.FORMAT_FULL))
+            .build();
+
+    // Must call refresh() to obtain the token.
+    idTokenCredentials.refresh();
+    return idTokenCredentials.getIdToken();
   }
 }

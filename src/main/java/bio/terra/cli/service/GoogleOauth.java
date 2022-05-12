@@ -2,9 +2,14 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.CredentialRefreshListener;
 import com.google.api.client.auth.oauth2.StoredCredential;
+import com.google.api.client.auth.oauth2.TokenErrorResponse;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -16,17 +21,15 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -39,10 +42,11 @@ import org.slf4j.LoggerFactory;
 public final class GoogleOauth {
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
 
-  // key name for the single credential persisted in the file data store.
-  // the CLI only stores a single credential at a time, so this key is hard-coded here instead of
-  // setting it to a generated id per user
+  // key names for the credentials persisted in the file data store.
+  // the CLI only stores a single set of credentials at a time, so this key is hard-coded here
+  // instead of setting to generated ids per user
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
+  public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
 
   private GoogleOauth() {}
 
@@ -55,7 +59,7 @@ public final class GoogleOauth {
    * printed to stdout, depending on the boolean flag.
    *
    * @param scopes list of scopes to request from the user
-   * @param clientSecretFile stream to the client secret file
+   * @param clientSecrets client secrets object
    * @param dataStoreDir directory in which to persist the local credential store
    * @param launchBrowserAutomatically true to launch a browser automatically and listen on a local
    *     server for the token response, false to print the url to stdout and ask the user to
@@ -63,20 +67,18 @@ public final class GoogleOauth {
    * @param loginLandingPage URL of the page to load in the browser upon completion of login
    * @return credentials object for the user
    */
-  public static UserCredentials doLoginAndConsent(
+  public static TerraCredentials doLoginAndConsent(
       List<String> scopes,
-      InputStream clientSecretFile,
+      GoogleClientSecrets clientSecrets,
       File dataStoreDir,
       boolean launchBrowserAutomatically,
       String loginLandingPage)
       throws IOException, GeneralSecurityException {
-    // load client_secret.json file
-    GoogleClientSecrets clientSecrets =
-        GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // setup the Google OAuth2 flow
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
+    TerraAuthenticationHelper helper =
+        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+    GoogleAuthorizationCodeFlow flow = helper.getGoogleAuthorizationCodeFlow();
 
     // exchange an authorization code for a refresh token
     Credential credential;
@@ -95,6 +97,13 @@ public final class GoogleOauth {
               .authorize(CREDENTIAL_STORE_KEY);
     }
 
+    if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
+      logger.info(
+          "Refresh token is not set. This is expected when testing, not during normal operation.");
+    } else {
+      credential.refreshToken();
+    }
+
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
@@ -107,15 +116,7 @@ public final class GoogleOauth {
                     new Date(credential.getExpirationTimeMilliseconds())))
             .build();
 
-    // only try to refresh if the refresh token is set
-    if (credentials.getRefreshToken() == null || credentials.getRefreshToken().isEmpty()) {
-      logger.info(
-          "Refresh token is not set. This is expected when testing, not during normal operation.");
-    } else {
-      credentials.refresh();
-    }
-
-    return credentials;
+    return new TerraCredentials(credentials, helper.getStoredIdToken());
   }
 
   /**
@@ -142,98 +143,246 @@ public final class GoogleOauth {
     }
   }
 
+  /** DRY helper for deleting from DataStore objects parameterized for different types. */
+  private static <T extends Serializable> void deleteFromDataStore(
+      DataStore<T> dataStore, String key) throws IOException {
+    if (!dataStore.containsKey(key)) {
+      logger.debug("Credential for {} not found.", key);
+    }
+    dataStore.delete(key);
+  }
+
   /**
    * Delete the credential associated with the specified userId.
    *
    * @param scopes list of scopes requested of the user
-   * @param clientSecretFile stream to the client secret file
+   * @param clientSecrets client secrets object
    * @param dataStoreDir directory where the local credential store is persisted
    */
   public static void deleteExistingCredential(
-      List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
+      List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
       throws IOException, GeneralSecurityException {
-    // load client_secret.json file
-    GoogleClientSecrets clientSecrets =
-        GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
-
     // get a pointer to the credential datastore
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
-    DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
-
-    // check that the specified credential exists
-    if (!dataStore.containsKey(CREDENTIAL_STORE_KEY)) {
-      logger.debug("Credential for {} not found.", CREDENTIAL_STORE_KEY);
-      return;
-    }
-
-    // remove the specified credential
-    dataStore.delete(CREDENTIAL_STORE_KEY);
+    TerraAuthenticationHelper helper =
+        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+    helper.deleteStoredCredential();
+    helper.deleteStoredIdToken();
   }
 
   /**
    * Get the existing credential for the given user.
    *
    * @param scopes list of scopes requested of the user
-   * @param clientSecretFile stream to the client secret file
+   * @param clientSecrets client secrets object
    * @param dataStoreDir directory where the local credential store is persisted
    * @return credentials object for the user
    */
-  public static UserCredentials getExistingUserCredential(
-      List<String> scopes, InputStream clientSecretFile, File dataStoreDir)
-      throws IOException, GeneralSecurityException {
-    // load client_secret.json file
-    GoogleClientSecrets clientSecrets =
-        GoogleClientSecrets.load(
-            JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
-
-    // get a pointer to the credential datastore
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
-    DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
-
-    // fetch the stored credential for the specified userId
-    StoredCredential storedCredential = dataStore.get(CREDENTIAL_STORE_KEY);
-    if (storedCredential == null) {
-      return null; // there is no credential, return here
-    }
-
-    // now turn the stored credential into a regular OAuth2 Credentials representing a user's
-    // identity and consent
-    UserCredentials credentials =
-        UserCredentials.newBuilder()
-            .setClientId(clientSecrets.getDetails().getClientId())
-            .setClientSecret(clientSecrets.getDetails().getClientSecret())
-            .setRefreshToken(storedCredential.getRefreshToken())
-            .setAccessToken(
-                new AccessToken(
-                    storedCredential.getAccessToken(),
-                    new Date(storedCredential.getExpirationTimeMilliseconds())))
-            .build();
-
-    return credentials;
-  }
-
-  /**
-   * Build the GoogleAuthorizationCodeFlow object for the given scopes, client secret and data store
-   * directory.
-   *
-   * @param scopes list of scopes to request from the user
-   * @param clientSecrets wrapper object for the client secret file
-   * @param dataStoreDir directory in which to persist the local credential store
-   * @return oauth flow object
-   */
-  private static GoogleAuthorizationCodeFlow getOAuth2Flow(
+  public static TerraCredentials getExistingUserCredential(
       List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
       throws IOException, GeneralSecurityException {
     // get a pointer to the credential datastore
-    GoogleAuthorizationCodeFlow flow =
-        new GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
-            .setDataStoreFactory(new FileDataStoreFactory(dataStoreDir))
-            .setAccessType("offline")
-            .setApprovalPrompt("force")
-            .build();
-    return flow;
+    TerraAuthenticationHelper helper =
+        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+
+    // fetch the stored credential for the specified userId
+    UserCredentials credentials;
+    StoredCredential storedCredential = helper.getStoredCredential();
+    if (storedCredential == null) {
+      return null; // there is no credential, return here
+    } else {
+
+      // now turn the stored credential into a regular OAuth2 Credentials representing a user's
+      // identity and consent
+      credentials =
+          UserCredentials.newBuilder()
+              .setClientId(clientSecrets.getDetails().getClientId())
+              .setClientSecret(clientSecrets.getDetails().getClientSecret())
+              .setRefreshToken(storedCredential.getRefreshToken())
+              .setAccessToken(
+                  new AccessToken(
+                      storedCredential.getAccessToken(),
+                      new Date(storedCredential.getExpirationTimeMilliseconds())))
+              .build();
+    }
+
+    IdToken idToken = helper.getStoredIdToken();
+
+    if (idToken == null) {
+      // We have existing credentials, but do not have an ID token.  Return null in order to force a
+      // credential refresh which will capture and store an ID token with the new credentials.
+      logger.info("Credentials present, but no ID token present.");
+      return null;
+    }
+
+    // Since we can't refresh ID tokens later, check expiration and only use the token if within a
+    // clock skew tolerance, otherwise return a null credential to force a refresh cycle on both
+    // tokens.
+    long expiration = idToken.getExpirationTime().getTime();
+    long skew = 60000; // 60K msec = 1 minute
+    long now = System.currentTimeMillis();
+
+    if ((now + skew) > expiration) {
+      logger.info(
+          "ID Token expiration ({}) within {} seconds of now ({}), forcing a refresh.",
+          idToken.getExpirationTime(),
+          skew / 1000,
+          new Date(now));
+      return null;
+    }
+
+    return new TerraCredentials(credentials, idToken);
+  }
+
+  /**
+   * Helper class to register with a {@code GoogleAuthorizationCodeFlow} instance to listen for
+   * callbacks on creation and refresh of credentials by the flow, and get/store the ID token (which
+   * is always returned, but otherwise discarded).
+   */
+  private static class IdCredentialListener
+      implements AuthorizationCodeFlow.CredentialCreatedListener, CredentialRefreshListener {
+    final FileDataStoreFactory fileDataStoreFactory;
+    final String storeName;
+    final String storeKey;
+
+    /**
+     * ctor, only called by {@code TerraAuthenticationHelper}
+     *
+     * @param fileDataStoreFactory factory used to obtain the Data Store used for cred storage
+     * @param storeName name of the Data Store used for cred storage
+     * @param storeKey key used within the cred Data Store to store/retrieve ID token
+     */
+    public IdCredentialListener(
+        FileDataStoreFactory fileDataStoreFactory, String storeName, String storeKey) {
+      this.fileDataStoreFactory = fileDataStoreFactory;
+      this.storeName = storeName;
+      this.storeKey = storeKey;
+    }
+
+    /** Get the stored cred used for storing the ID Token */
+    public DataStore<IdToken> getDataStore() throws IOException {
+      return fileDataStoreFactory.getDataStore(storeName);
+    }
+
+    /**
+     * Parse an ID token from a token request's response and upsert into the ID token cred store;
+     * called on token create and refresh
+     */
+    private void storeIdToken(TokenResponse tokenResponse) throws IOException {
+      IdToken idToken = IdToken.create(tokenResponse.get("id_token").toString());
+      getDataStore().set(storeKey, idToken);
+    }
+
+    @Override
+    /** Callback called on token creation */
+    public void onCredentialCreated(Credential credential, TokenResponse tokenResponse)
+        throws IOException {
+      storeIdToken(tokenResponse);
+    }
+
+    @Override
+    /** Callback called on token refresh */
+    public void onTokenResponse(Credential credential, TokenResponse tokenResponse)
+        throws IOException {
+      storeIdToken(tokenResponse);
+    }
+
+    @Override
+    /** Callback called on token refresh failure */
+    public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) {
+      throw new SystemException("Error obtaining token: " + tokenErrorResponse);
+    }
+  }
+
+  /**
+   * Helper class that creates and binds together several objects required for the OAuth token flow
+   * across different authentication modalities: the {@code GoogleAuthorizationCodeFlow}, the {@code
+   * IdCredentialListener} instance required to obtain an ID Token from the flow, and the Credential
+   * store used for both storing and retrieving credentials.
+   */
+  private static class TerraAuthenticationHelper {
+
+    private IdCredentialListener idCredentialListener;
+    private GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
+
+    /**
+     * Private ctor called by create() method to create and associate idCredentialListener and
+     * googleAuthorizationCodeFlow members.
+     */
+    private TerraAuthenticationHelper(
+        List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
+        throws IOException, GeneralSecurityException {
+
+      // get a pointer to the credential datastore
+      FileDataStoreFactory fileDataStoreFactory = new FileDataStoreFactory(dataStoreDir);
+
+      // create an IdCredentialListener pointing at the credential datastore in order to store and
+      // retrieve ID tokens
+      idCredentialListener =
+          new IdCredentialListener(
+              fileDataStoreFactory, StoredCredential.DEFAULT_DATA_STORE_ID, ID_TOKEN_STORE_KEY);
+
+      // create the code flow object, pointing at the credential datastore in order to store and
+      // retrieve ID tokens, and registering our IdCredentialListener for callbacks on token
+      // creation/refresh
+      googleAuthorizationCodeFlow =
+          new GoogleAuthorizationCodeFlow.Builder(
+                  GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
+              .setDataStoreFactory(fileDataStoreFactory)
+              .setAccessType("offline")
+              .setApprovalPrompt("force")
+              .setCredentialCreatedListener(idCredentialListener)
+              .addRefreshListener(idCredentialListener)
+              .build();
+    }
+
+    /**
+     * Create an instance of {@code TerraAuthenticationHelper}, which is used both for initiating an
+     * OAuth browser flow, as well as storing and retrieving credentials in a DataStore.
+     *
+     * @param scopes OAuth scopes to request when launching an OAuth authentication flow
+     * @param clientSecrets Application Client Secrets used to obtain credentials on behalf of CLI
+     * @param dataStoreDir Directory where credentials store lives, used for cred storage/retrieval
+     * @return
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public static TerraAuthenticationHelper create(
+        List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
+        throws IOException, GeneralSecurityException {
+      return new TerraAuthenticationHelper(scopes, clientSecrets, dataStoreDir);
+    }
+
+    public GoogleAuthorizationCodeFlow getGoogleAuthorizationCodeFlow() {
+      return googleAuthorizationCodeFlow;
+    }
+
+    private static <T extends Serializable> void deleteFromDataStore(
+        DataStore<T> dataStore, String key) throws IOException {
+      if (!dataStore.containsKey(key)) {}
+
+      dataStore.delete(key);
+    }
+
+    /** Delete stored ID token from the credential store */
+    public void deleteStoredIdToken() throws IOException {
+      deleteFromDataStore(idCredentialListener.getDataStore(), ID_TOKEN_STORE_KEY);
+    }
+
+    /** Delete stored GoogleCredential (access and refresh tokens) from the credential store */
+    public void deleteStoredCredential() throws IOException {
+      GoogleOauth.deleteFromDataStore(
+          googleAuthorizationCodeFlow.getCredentialDataStore(), CREDENTIAL_STORE_KEY);
+    }
+
+    /** Get ID token from credential store. */
+    public IdToken getStoredIdToken() throws IOException {
+      return idCredentialListener.getDataStore().get(ID_TOKEN_STORE_KEY);
+    }
+
+    /** Get GoogleCrendential (access and refresh tokens) from the credential store */
+    public StoredCredential getStoredCredential() throws IOException {
+      return googleAuthorizationCodeFlow.getCredentialDataStore().get(CREDENTIAL_STORE_KEY);
+    }
   }
 
   /**
@@ -252,19 +401,39 @@ public final class GoogleOauth {
   /**
    * Refresh the credential if expired and then return its access token.
    *
-   * @param credential credentials object
+   * @param credential Terra credentials object
    * @return access token
    */
-  public static AccessToken getAccessToken(GoogleCredentials credential) {
+  public static AccessToken getAccessToken(TerraCredentials credential) {
     try {
-      credential.refreshIfExpired();
+      credential.getGoogleCredentials().refreshIfExpired();
     } catch (IOException ioEx) {
       logger.warn("Error refreshing access token", ioEx);
       // don't throw an exception here because the token may not be expired, in which case it's fine
       // to use it without refreshing first. if the token is expired, then we'll get a permission
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
-    return credential.getAccessToken();
+    return credential.getGoogleCredentials().getAccessToken();
+  }
+
+  /**
+   * @param credentials Terra credentials object
+   * @return id token
+   */
+  public static IdToken getIdToken(TerraCredentials credentials) {
+    IdToken idToken = credentials.getIdToken();
+    long expiration = idToken.getExpirationTime().getTime();
+    long now = System.currentTimeMillis();
+    if (now > expiration) {
+      // If we get here, there is no action we can take since we can't refresh an ID token, and no
+      // action the user can take (next run should get new creds and succeed).  Just log a warning
+      // to help in debugging.
+      logger.warn(
+          "ID token expiration ({}) before current time ({}).",
+          idToken.getExpirationTime(),
+          new Date(now));
+    }
+    return idToken;
   }
 
   /**
@@ -275,13 +444,15 @@ public final class GoogleOauth {
    *
    * @param credential credentials object
    */
-  public static void revokeToken(Optional<GoogleCredentials> credential) {
-    if (credential.isPresent() && credential.get().getAccessToken() != null) {
+  public static void revokeToken(Optional<TerraCredentials> credential) {
+    if (credential.isPresent()
+        && credential.get().getGoogleCredentials().getAccessToken() != null) {
       String endpoint = "https://oauth2.googleapis.com/revoke";
       Map<String, String> headers =
           ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
       Map<String, String> params =
-          ImmutableMap.of("token", credential.get().getAccessToken().getTokenValue());
+          ImmutableMap.of(
+              "token", credential.get().getGoogleCredentials().getAccessToken().getTokenValue());
 
       try {
         HttpUtils.sendHttpRequest(endpoint, "POST", headers, params);

@@ -8,6 +8,7 @@ import bio.terra.datarepo.client.ApiClient;
 import bio.terra.datarepo.client.ApiException;
 import bio.terra.datarepo.model.RepositoryConfigurationModel;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import com.google.auth.oauth2.AccessToken;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,9 @@ public class DataRepoService {
     if (user != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(user.getUserAccessToken().getTokenValue());
+      AccessToken token =
+          server.getIdTokenAuthentication() ? user.getUserIdToken() : user.getUserAccessToken();
+      this.apiClient.setAccessToken(token.getTokenValue());
     }
   }
 

@@ -6,14 +6,20 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
+import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -49,10 +55,10 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user. This can be either 1) end-user google credentials from an
-  // oauth browser flow, or 2) end-user or pet sa google credentials pulled from the application
-  // default credentials.
-  private GoogleCredentials googleCredentials;
+  // User credentials to be used in calls to Terra API's. This can be either 1) end-user google
+  // credentials from an oauth browser flow, or 2) end-user or pet sa google credentials pulled from
+  // the application default credentials.
+  private TerraCredentials terraCredentials;
 
   /**
    * User specified what mode to log-in. When log-in mode is {@code APP_DEFAULT_CREDENTIALS}, check
@@ -108,11 +114,10 @@ public class User {
       loadAppDefaultCredentials();
       return;
     }
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-      googleCredentials =
+    try {
+      terraCredentials =
           GoogleOauth.getExistingUserCredential(
-              USER_SCOPES, inputStream, Context.getContextDir().toFile());
+              USER_SCOPES, getClientSecrets(), Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -163,19 +168,32 @@ public class User {
   }
 
   /**
-   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and set to {@code
-   * googleCredentials}.
+   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and stores in {@code
+   * terraCredentials}.
    */
   private void loadAppDefaultCredentials() {
-    googleCredentials =
-        AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
+
+    try {
+      GoogleCredentials applicationDefaultCredentials =
+          AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
+
+      terraCredentials =
+          new TerraCredentials(
+              applicationDefaultCredentials,
+              AppDefaultCredentialUtils.getIdTokenFromApplicationDefaultCredentials(
+                  applicationDefaultCredentials, getClientSecrets()));
+
+    } catch (IOException ioException) {
+      throw new SystemException(
+          "Could not obtain ID Token from Application Default Credentials.", ioException);
+    }
   }
 
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
     deletePetSaEmail();
-    GoogleOauth.revokeToken(getGoogleCredentials());
+    GoogleOauth.revokeToken(getTerraCredentials());
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -236,12 +254,11 @@ public class User {
 
   /** Delete this user's OAuth credentials. */
   private void deleteOauthCredentials() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+    try {
 
       // delete the user credentials
       GoogleOauth.deleteExistingCredential(
-          USER_SCOPES, inputStream, Context.getContextDir().toFile());
+          USER_SCOPES, getClientSecrets(), Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
@@ -257,16 +274,15 @@ public class User {
    * load that. If not, then we prompt the user for the requested user scopes.
    */
   private void doOauthLoginFlow() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+    try {
 
       // log the user in and get their consent to the requested scopes
       boolean launchBrowserAutomatically =
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
-      googleCredentials =
+      terraCredentials =
           GoogleOauth.doLoginAndConsent(
               USER_SCOPES,
-              inputStream,
+              getClientSecrets(),
               Context.getContextDir().toFile(),
               launchBrowserAutomatically,
               LOGIN_LANDING_PAGE);
@@ -282,6 +298,24 @@ public class User {
     id = userInfo.getUserSubjectId();
     email = userInfo.getUserEmail();
     proxyGroupEmail = samService.getProxyGroupEmail(email);
+  }
+
+  /** Load the client secrets file to pass to oauth API's. */
+  private GoogleClientSecrets getClientSecrets() {
+    try (InputStream inputStream =
+        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+
+      GoogleClientSecrets clientSecrets =
+          GoogleClientSecrets.load(
+              JacksonFactory.getDefaultInstance(),
+              new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+      return clientSecrets;
+    } catch (IOException ioException) {
+      throw new SystemException(
+          String.format("Could not open client secret file '%s'.", CLIENT_SECRET_FILENAME),
+          ioException);
+    }
   }
 
   // ====================================================
@@ -302,8 +336,8 @@ public class User {
     return petSAEmail;
   }
 
-  public Optional<GoogleCredentials> getGoogleCredentials() {
-    return Optional.ofNullable(googleCredentials);
+  public Optional<TerraCredentials> getTerraCredentials() {
+    return Optional.ofNullable(terraCredentials);
   }
 
   public GoogleCredentials getPetSACredentials() {
@@ -316,7 +350,7 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    if (googleCredentials == null) {
+    if (terraCredentials == null) {
       return true;
     }
 
@@ -330,9 +364,14 @@ public class User {
     return accessToken.getExpirationTime().compareTo(cutOffDate) <= 0;
   }
 
-  /** Get the access token for the user credentials. */
+  /** Get the access token from the user's credentials. */
   public AccessToken getUserAccessToken() {
-    return GoogleOauth.getAccessToken(googleCredentials);
+    return GoogleOauth.getAccessToken(terraCredentials);
+  }
+
+  /** Get the ID token from the user's credentials. */
+  public IdToken getUserIdToken() {
+    return GoogleOauth.getIdToken(terraCredentials);
   }
 
   /** Get the access token for the pet SA credentials. */

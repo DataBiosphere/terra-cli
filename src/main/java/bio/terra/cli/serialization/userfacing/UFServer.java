@@ -22,6 +22,7 @@ public class UFServer {
   public final String workspaceManagerUri;
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
+  public final boolean idTokenAuthentication;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {
@@ -32,6 +33,7 @@ public class UFServer {
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
+    this.idTokenAuthentication = internalObj.getIdTokenAuthentication();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -43,6 +45,7 @@ public class UFServer {
     this.workspaceManagerUri = builder.workspaceManagerUri;
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
+    this.idTokenAuthentication = builder.idTokenAuthentication;
   }
 
   /** Print out this object in text format. */
@@ -60,6 +63,7 @@ public class UFServer {
     private String workspaceManagerUri;
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
+    private boolean idTokenAuthentication;
 
     public Builder name(String name) {
       this.name = name;
@@ -93,6 +97,11 @@ public class UFServer {
 
     public Builder dataRepoUri(String dataRepoUri) {
       this.dataRepoUri = dataRepoUri;
+      return this;
+    }
+
+    public Builder idTokenAuthentication(boolean idTokenAuthentication) {
+      this.idTokenAuthentication = idTokenAuthentication;
       return this;
     }
 
