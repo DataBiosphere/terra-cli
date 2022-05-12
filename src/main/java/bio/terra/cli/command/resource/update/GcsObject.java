@@ -2,6 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
@@ -56,7 +57,10 @@ public class GcsObject extends BaseCommand {
             .objectName(newObjectName)
             .build();
     resource.updateReferenced(gcsObjectParams);
-
+    // re-load the resource so we display all properties with up-to-date values
+    resource = Context.requireWorkspace()
+        .getResource(resource.getName())
+        .castToType(Type.GCS_OBJECT);
     formatOption.printReturnValue(new UFGcsObject(resource), GcsObject::printText);
   }
 

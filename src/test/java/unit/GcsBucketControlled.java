@@ -318,9 +318,12 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
+    // see if the returned structure is up-to-date for cloning instructions
+    assertEquals(CloningInstructionsEnum.NOTHING, updateBucket.cloningInstructions);
 
     // `terra resources describe --name=$newName`
     describeBucket =
@@ -393,6 +396,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
+    assertEquals(newCloningInstructions, updatedBucket.cloningInstructions);
 
     // check the storage class from GCS directly
     Bucket bucketOnCloud =
