@@ -164,13 +164,10 @@ task runTestsWithTag(type: Test) {
             includeTags testTag
         }
 
-        // by default, tests override the global context directory with a sub-directory of the gradle build directory
-        // this makes it easier to clean up after tests and makes sure the tests don't overwrite any context that
-        // exists on this same machine. you can override this default behavior by specifying -PcontextDir=/path/to/dir.
-        // this will cause context to be written to the specified directory.
+        // Don't overwrite context in ~/.terra.
         if (!contextDir) {
-            environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
-            mkdir "${project.buildDir}/test-context/"
+            environment "TERRA_CONTEXT_PARENT_DIR", "/tmp/test-context/"
+            mkdir "/tmp/test-context/"
         } else {
             environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
         }
@@ -226,10 +223,9 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
     main = "harness.utils.CleanupTestUserWorkspaces"
 
-    // override the default global context directory with a sub-directory of the gradle build directory
-    // this is so that the tests don't overwrite any context that exists on this same machine.
-    environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
-    mkdir "${project.buildDir}/test-context/"
+    // Don't overwrite context in ~/.terra.
+    environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/cleanup"
+    mkdir "${project.buildDir}/cleanup/"
 
     // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
     systemProperty "TERRA_SERVER", project.findProperty("server")

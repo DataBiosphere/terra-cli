@@ -152,7 +152,7 @@ as the test, and the installed code in a separate process from the test). This c
 
 Both types of tests:
 - Use the same code to authenticate a test user without requiring browser interaction.
-- Override the context directory to `build/test-context/`, so that tests don't overwrite the context for an existing
+- Override the context directory to `/tmp/test-context/`, so that tests don't overwrite the context for an existing
 CLI installation on the same machine.
 
 #### Run tests

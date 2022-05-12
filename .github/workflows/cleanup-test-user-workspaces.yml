@@ -81,6 +81,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: logs-and-context
+          # We don't want .terra/StoredCredential, so list logs and context.json separately.
           path: |
-            build/test-context/.terra/logs/
-            build/test-context/.terra/context.json
+            /tmp/test-context/.terra/logs/
+            /tmp/test-context/.terra/context.json
