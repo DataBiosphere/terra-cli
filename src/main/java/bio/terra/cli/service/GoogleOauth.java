@@ -3,8 +3,7 @@ package bio.terra.cli.service;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.UserIO;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.StoredCredential;
+import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.extensions.java6.auth.oauth2.AbstractPromptReceiver;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -14,11 +13,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStore;
+import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.auth.oauth2.UserCredentials;
+import com.google.auth.oauth2.*;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,7 +73,9 @@ public final class GoogleOauth {
             JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // setup the Google OAuth2 flow
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
+    IdCredentialCreatedListener idCredentialCreatedListener = new IdCredentialCreatedListener();
+    IdCredentialRefreshListener idCredentialRefreshListener = new IdCredentialRefreshListener();
+    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir, idCredentialCreatedListener, idCredentialRefreshListener);
 
     // exchange an authorization code for a refresh token
     Credential credential;
@@ -95,6 +94,10 @@ public final class GoogleOauth {
               .authorize(CREDENTIAL_STORE_KEY);
     }
 
+    IdTokenCredentials idTokenCredentials = IdTokenCredentials.newBuilder()
+            .setIdTokenProvider()
+            .build();
+
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
@@ -106,6 +109,8 @@ public final class GoogleOauth {
                     credential.getAccessToken(),
                     new Date(credential.getExpirationTimeMilliseconds())))
             .build();
+
+    credentials.idTokenWithAudience("");
 
     // only try to refresh if the refresh token is set
     if (credentials.getRefreshToken() == null || credentials.getRefreshToken().isEmpty()) {
@@ -158,7 +163,9 @@ public final class GoogleOauth {
             JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // get a pointer to the credential datastore
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
+    IdCredentialCreatedListener idCredentialCreatedListener = new IdCredentialCreatedListener();
+    IdCredentialRefreshListener idCredentialRefreshListener = new IdCredentialRefreshListener();
+    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir, idCredentialCreatedListener, idCredentialRefreshListener);
     DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
 
     // check that the specified credential exists
@@ -188,7 +195,9 @@ public final class GoogleOauth {
             JSON_FACTORY, new InputStreamReader(clientSecretFile, StandardCharsets.UTF_8));
 
     // get a pointer to the credential datastore
-    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir);
+    IdCredentialCreatedListener idCredentialCreatedListener = new IdCredentialCreatedListener();
+    IdCredentialRefreshListener idCredentialRefreshListener = new IdCredentialRefreshListener();
+    GoogleAuthorizationCodeFlow flow = getOAuth2Flow(scopes, clientSecrets, dataStoreDir, idCredentialCreatedListener, idCredentialRefreshListener);
     DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
 
     // fetch the stored credential for the specified userId
@@ -213,6 +222,43 @@ public final class GoogleOauth {
     return credentials;
   }
 
+  static class IdCredentialCreatedListener
+      implements AuthorizationCodeFlow.CredentialCreatedListener {
+
+    String idToken;
+
+    public IdCredentialCreatedListener() {
+    }
+
+    @Override
+    public void onCredentialCreated(Credential credential, TokenResponse tokenResponse)
+        throws IOException {
+      logger.info("In onCredentialCreated, token='{}'", tokenResponse.get("id_token").toString());
+      idToken = tokenResponse.get("id_token").toString();
+
+    }
+  }
+
+  static class IdCredentialRefreshListener implements CredentialRefreshListener {
+    private String idToken;
+
+    public IdCredentialRefreshListener() {
+    }
+
+    @Override
+    public void onTokenResponse(Credential credential, TokenResponse tokenResponse)
+        throws IOException {
+      logger.info("In onTokenResponse, token='{}'", tokenResponse.get("id_token").toString());
+      idToken = tokenResponse.get("id_token").toString();
+    }
+
+    @Override
+    public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse)
+        throws IOException {
+      // TODO: Handle error.
+    }
+  }
+
   /**
    * Build the GoogleAuthorizationCodeFlow object for the given scopes, client secret and data store
    * directory.
@@ -223,8 +269,10 @@ public final class GoogleOauth {
    * @return oauth flow object
    */
   private static GoogleAuthorizationCodeFlow getOAuth2Flow(
-      List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)
+      List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir,
+      IdCredentialCreatedListener idCredentialCreatedListener, IdCredentialRefreshListener idCredentialRefreshListener)
       throws IOException, GeneralSecurityException {
+
     // get a pointer to the credential datastore
     GoogleAuthorizationCodeFlow flow =
         new GoogleAuthorizationCodeFlow.Builder(
@@ -232,7 +280,11 @@ public final class GoogleOauth {
             .setDataStoreFactory(new FileDataStoreFactory(dataStoreDir))
             .setAccessType("offline")
             .setApprovalPrompt("force")
+            .setCredentialCreatedListener(idCredentialCreatedListener)
+            .addRefreshListener(idCredentialRefreshListener)
             .build();
+
+    DataStore<StoredCredential> dataStore = flow.getCredentialDataStore();
     return flow;
   }
 
@@ -265,6 +317,33 @@ public final class GoogleOauth {
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getAccessToken();
+  }
+
+  /**
+   * Refresh the credential if expired and then return its ID token.
+   *
+   * @param credential credentials object
+   * @return access token
+   */
+  public static IdToken getIdToken(GoogleCredentials credential) {
+    try {
+      credential.refreshIfExpired();
+    } catch (IOException ioEx) {
+      logger.warn("Error refreshing access token", ioEx);
+      // don't throw an exception here because the token may not be expired, in which case it's fine
+      // to use it without refreshing first. if the token is expired, then we'll get a permission
+      // error when we try to re-use it anyway, and this log statement may help with debugging.
+    }
+
+    IdToken idToken =
+        IdTokenCredentials.newBuilder()
+            .setIdTokenProvider((IdTokenProvider) credential)
+            .build()
+            .getIdToken();
+
+    logger.info("in IdToken, got {}", idToken.getTokenValue());
+
+    return idToken;
   }
 
   /**

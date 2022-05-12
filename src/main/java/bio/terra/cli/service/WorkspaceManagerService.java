@@ -101,7 +101,7 @@ import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
-import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.IdToken;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -149,23 +149,23 @@ public class WorkspaceManagerService {
    * Factory method for class that talks to WSM. Pulls the current server and user from the context.
    */
   public static WorkspaceManagerService fromContext() {
-    return new WorkspaceManagerService(
-        Context.requireUser().getUserAccessToken(), Context.getServer());
+    return new WorkspaceManagerService(Context.requireUser().getUserIdToken(), Context.getServer());
   }
 
   /**
    * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
    * endpoints can be called.
    */
-  private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+  private WorkspaceManagerService(@Nullable IdToken idToken, Server server) {
     this.server = server;
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
-    if (accessToken != null) {
+    if (idToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(accessToken.getTokenValue());
+      logger.info("Setting WSM Service Token to {}", idToken.getTokenValue());
+      this.apiClient.setAccessToken(idToken.getTokenValue());
     }
   }
 

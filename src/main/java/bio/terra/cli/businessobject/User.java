@@ -7,8 +7,7 @@ import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.utils.UserIO;
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -333,6 +332,10 @@ public class User {
   /** Get the access token for the user credentials. */
   public AccessToken getUserAccessToken() {
     return GoogleOauth.getAccessToken(googleCredentials);
+  }
+
+  public IdToken getUserIdToken() {
+    return GoogleOauth.getIdToken(googleCredentials);
   }
 
   /** Get the access token for the pet SA credentials. */
