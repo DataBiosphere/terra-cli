@@ -3,6 +3,7 @@ package harness;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,19 +16,19 @@ import org.slf4j.LoggerFactory;
 public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
-  private List<TestUser> testUsers;
+  @JsonProperty private List<TestUser> testUsers;
 
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
-  private String projectForExternalResources;
+  @JsonProperty private String projectForExternalResources;
 
   // Whether to use janitor to clean up external resources and workspaces.
-  private boolean useJanitor;
+  @JsonProperty private boolean useJanitor;
 
   // The PubSub topic to use for publishing Janitor cleanup requests
-  private String janitorPubSubTopic;
+  @JsonProperty private String janitorPubSubTopic;
 
   // The project ID of the Janitor PubSub topic
-  private String janitorPubSubProjectId;
+  @JsonProperty private String janitorPubSubProjectId;
 
   // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
   // directory under `rendered` where credentials are stored.
