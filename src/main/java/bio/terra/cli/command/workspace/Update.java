@@ -42,6 +42,7 @@ public class Update extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
+    updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
 

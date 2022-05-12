@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -15,11 +16,13 @@ public class UpdateControlledGcsBucketParams {
   public final UpdateResourceParams resourceFields;
   public final GcsBucketLifecycle lifecycle;
   public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
+  public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateControlledGcsBucketParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.lifecycle = builder.lifecycle;
     this.defaultStorageClass = builder.defaultStorageClass;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -27,6 +30,7 @@ public class UpdateControlledGcsBucketParams {
     private UpdateResourceParams resourceFields;
     private GcsBucketLifecycle lifecycle;
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
+    private CloningInstructionsEnum cloningInstructions;
 
     public UpdateControlledGcsBucketParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -42,6 +46,12 @@ public class UpdateControlledGcsBucketParams {
     public UpdateControlledGcsBucketParams.Builder defaultStorageClass(
         GcpGcsBucketDefaultStorageClass defaultStorageClass) {
       this.defaultStorageClass = defaultStorageClass;
+      return this;
+    }
+
+    public UpdateControlledGcsBucketParams.Builder cloningInstructions(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

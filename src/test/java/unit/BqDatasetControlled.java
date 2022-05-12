@@ -315,7 +315,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update bq-dataset --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFBqDataset updateDataset =
+    UFBqDataset updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
             "resource",
@@ -323,34 +323,38 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(description, updateDataset.description);
+    assertEquals(newName, updatedDataset.name);
+    assertEquals(description, updatedDataset.description);
 
     // `terra resources describe --name=$newName`
-    UFBqDataset describeDataset =
+    UFBqDataset describedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeDataset.description);
+    assertEquals(description, describedDataset.description);
 
     // update just the description
     // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    // --new-cloning=$CloningInstructionsEnum.DEFINITION`
     String newDescription = "updateDescription_NEW";
-    updateDataset =
+    updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
             "resource",
             "update",
             "bq-dataset",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateDataset.name);
-    assertEquals(newDescription, updateDataset.description);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    assertEquals(newName, updatedDataset.name);
+    assertEquals(newDescription, updatedDataset.description);
 
+    // Apparently the cloning instructions only appear after a call to describe.
+    // Workaround for PF-1637 is to check cloning instructions after describe.
     // `terra resources describe --name=$newName`
-    describeDataset =
+    describedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeDataset.description);
+    assertEquals(CloningInstructionsEnum.DEFINITION, describedDataset.cloningInstructions);
   }
 
   @Test
