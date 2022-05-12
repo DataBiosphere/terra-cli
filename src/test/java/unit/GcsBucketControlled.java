@@ -375,7 +375,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     GcsStorageClass newStorage = GcsStorageClass.NEARLINE;
-    CloningInstructionsEnum newCloningInstructions = CloningInstructionsEnum.DEFINITION;
     UFGcsBucket updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
@@ -385,18 +384,15 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "--name=" + name,
             "--new-name=" + newName,
             "--description=" + newDescription,
-            "--storage=" + newStorage,
-            "--new-cloning=" + newCloningInstructions);
+            "--storage=" + newStorage);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);
-    assertEquals(newCloningInstructions, updatedBucket.cloningInstructions);
 
     // `terra resources describe --name=$newName`
     UFGcsBucket describeBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeBucket.description);
-    assertEquals(newCloningInstructions, updatedBucket.cloningInstructions);
 
     // check the storage class from GCS directly
     Bucket bucketOnCloud =
