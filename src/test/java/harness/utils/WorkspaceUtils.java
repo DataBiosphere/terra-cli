@@ -11,7 +11,8 @@ public class WorkspaceUtils {
 
   /**
    * Create a new workspace and register it with Janitor if this test is running in an environment
-   * where Janitor is enabled.
+   * where Janitor is enabled. Tests must use this method in order to register workspaces with
+   * Janitor, direct calls to `terra workspace create` will potentially leak workspaces.
    *
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.

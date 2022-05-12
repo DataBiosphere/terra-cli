@@ -1,5 +1,6 @@
 package harness;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.cloudres.common.ClientConfig;
@@ -26,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -46,7 +46,7 @@ public class CRLJanitor {
 
   // How long Janitor should wait before cleaning test workspaces. It might be useful
   // to keep these workspaces around long enough to debug, this should be lowered if not.
-  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(48);
+  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(120);
 
   // Map from CLI server to Janitor's identifier for WSM instance.
   public static final Map<String, String> serverToWsmInstanceIdentifier =
@@ -54,7 +54,7 @@ public class CRLJanitor {
 
   // Publisher objects are heavyweight and we use the same credentials for all publishing, so
   // it's better to re-use a single Publisher instance.
-  private static final Publisher publisher = initializeJanitorPubsubPublisher();
+  private static final Publisher publisher = initializeJanitorPubSubPublisher();
 
   public static final ClientConfig getClientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
@@ -81,7 +81,7 @@ public class CRLJanitor {
     }
   }
 
-  private static Publisher initializeJanitorPubsubPublisher() {
+  private static Publisher initializeJanitorPubSubPublisher() {
     TopicName topicName =
         TopicName.of(
             TestConfig.get().getJanitorPubSubProjectId(), TestConfig.get().getJanitorPubSubTopic());
@@ -102,11 +102,7 @@ public class CRLJanitor {
     if (!TestConfig.get().useJanitor()) {
       return;
     }
-    String server = System.getenv("TERRA_SERVER");
-    String wsmInstance =
-        Optional.ofNullable(CRLJanitor.serverToWsmInstanceIdentifier.get(server))
-            .orElseThrow(
-                () -> new IllegalArgumentException("No WSM instance defined for server " + server));
+    String wsmInstance = Context.getServer().getWorkspaceManagerUri();
     CreateResourceRequestBody janitorRequest =
         new CreateResourceRequestBody()
             .resourceUid(

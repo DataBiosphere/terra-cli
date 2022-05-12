@@ -72,7 +72,7 @@ dependencies {
         workspaceManagerClient = "0.254.182-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
-        janitor = "0.113.4-SNAPSHOT"
+        janitor = "0.113.5-SNAPSHOT"
 
         // needed for WSM client library
         swaggerAnnotations = "2.1.5"

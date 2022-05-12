@@ -20,8 +20,7 @@ public final class TestConfig {
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
   private String projectForExternalResources;
 
-  // Whether to use janitor to clean up external resources. For more about terra-cli and Janitor,
-  // see PF-886.
+  // Whether to use janitor to clean up external resources and workspaces.
   private boolean useJanitor;
 
   // The PubSub topic to use for publishing Janitor cleanup requests
@@ -92,7 +91,7 @@ public final class TestConfig {
     if (testConfig.useJanitor) {
       Preconditions.checkState(
           testConfig.janitorPubSubProjectId != null && testConfig.janitorPubSubTopic != null,
-          "In %s, if useJanitorForExternalResourcesCreatedByTests is set, janitorPubSubProjectId and janitorPubSubTopic must also be set.",
+          "In %s, if useJanitor is set, janitorPubSubProjectId and janitorPubSubTopic must also be set.",
           testConfigFileName);
     }
   }
