@@ -26,5 +26,7 @@
     }
   ],
   "projectForExternalResources": "terra-cli-test",
-  "useJanitorForExternalResourcesCreatedByTests": true
+  "useJanitor": true,
+  "janitorPubSubTopic": "crljanitor-tools-pubsub-topic",
+  "janitorPubSubProjectId": "terra-kernel-k8s"
 }

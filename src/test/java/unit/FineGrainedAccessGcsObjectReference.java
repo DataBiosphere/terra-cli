@@ -17,6 +17,7 @@ import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -185,10 +186,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
   void updatePrivateBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -204,7 +204,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
 
     String newName = RandomStringUtils.random(6, /*letters=*/ true, /*numbers=*/ true);
     String newDescription = "yetAnotherDescription";
@@ -232,7 +232,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectExitCode(2, "resource", "delete", "--name=" + name, "--quiet");
 
     workspaceCreator.login();
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
@@ -241,10 +241,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
       "user with partial access updates reference to a private object, updates reference's name and description")
   void userWithPartialAccessUpdateSharedBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
     String name = "userWithPartialAccessUpdateSharedBucketObject";
@@ -263,7 +262,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
 
     String newName = RandomStringUtils.random(6, /*letters=*/ true, /*numbers=*/ true);
     String newDescription = "yetAnotherDescription";
@@ -290,7 +289,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + newName, "--quiet");
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
@@ -299,10 +298,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   @DisplayName("describe the reference to a bucket object that the user has no access to")
   void describeObjectReferenceWhenUserHasNoAccess() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=READER");
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -319,7 +317,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     UFGcsObject describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + name);
@@ -340,7 +338,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
 
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createWorkspace.id);
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }

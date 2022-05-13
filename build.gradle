@@ -57,6 +57,8 @@ dependencies {
         googleClient = '1.31.1'
         bigQuery = '1.116.6'
         cloudStorage = '1.117.0'
+        // Only used for testing
+        pubsub = '1.116.4'
 
         // Docker
         docker = '3.2.7'
@@ -70,6 +72,7 @@ dependencies {
         workspaceManagerClient = "0.254.238-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
+        janitor = "0.113.5-SNAPSHOT"
 
         // needed for WSM client library
         swaggerAnnotations = "2.1.5"
@@ -94,6 +97,9 @@ dependencies {
     implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
     implementation "com.google.cloud:google-cloud-bigquery:${bigQuery}"
     implementation "com.google.cloud:google-cloud-storage:${cloudStorage}"
+    // PubSub is used in tests to communicate with Janitor, but is not required
+    // for the CLI itself.
+    testImplementation "com.google.cloud:google-cloud-pubsub:${pubsub}"
 
     implementation "com.github.docker-java:docker-java-core:${docker}"
     implementation "com.github.docker-java:docker-java-transport-httpclient5:${docker}"
@@ -111,6 +117,7 @@ dependencies {
     implementation "bio.terra:datarepo-client:${dataRepoClient}"
     implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
     implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
+    testImplementation "bio.terra:terra-resource-janitor-client:${janitor}"
 
     compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
     compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
