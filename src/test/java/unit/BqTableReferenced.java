@@ -359,7 +359,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "--description=" + description,
         "--project-id=" + externalDataset.getProjectId(),
         "--dataset-id=" + externalDataset.getDatasetId(),
-        "--table-id=" + externalDataTableName);
+        "--table-id=" + externalDataTableName,
+        "--cloning=" + CloningInstructionsEnum.REFERENCE);
 
     // update just the name
     // `terra resources update bq-table --name=$name --new-name=$newName`
@@ -424,6 +425,16 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(externalDataTableName2, updateDataTable.dataTableId);
     assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
     assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
+
+    updateDataTable =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqTable.class,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + newName,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(CloningInstructionsEnum.NOTHING, updateDataTable.cloningInstructions);
   }
 
   @Test

@@ -196,7 +196,8 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         "git-repo",
         "--name=" + name,
         "--description=" + description,
-        "--repo-url=" + GIT_REPO_SSH_URL);
+        "--repo-url=" + GIT_REPO_SSH_URL,
+        "--cloning=" + CloningInstructionsEnum.REFERENCE);
 
     // update just the name
     // `terra resources update git-repo --name=$name --new-name=$newName`
@@ -252,6 +253,16 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + newName);
     assertEquals(GIT_REPO_HTTPS_URL, resolved, "resolve matches https Git url");
+
+    updateGitRepo =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGitRepo.class,
+            "resource",
+            "update",
+            "git-repo",
+            "--name=" + newName,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(CloningInstructionsEnum.NOTHING, updateGitRepo.cloningInstructions);
   }
 
   @Test

@@ -436,7 +436,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         "--name=" + name,
         "--description=" + description,
         "--bucket-name=" + externalBucket.getName(),
-        "--object-name=" + externalBucketBlobName);
+        "--object-name=" + externalBucketBlobName,
+        "--cloning=" + CloningInstructionsEnum.REFERENCE);
 
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
@@ -515,6 +516,16 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
         resolved2,
         "resolve matches bucket2 bucket name");
+
+    updateBucketObject =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsObject.class,
+            "resource",
+            "update",
+            "gcs-object",
+            "--name=" + newName,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(CloningInstructionsEnum.NOTHING, updateBucketObject.cloningInstructions);
   }
 
   @Test
