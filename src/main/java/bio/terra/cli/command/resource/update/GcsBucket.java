@@ -73,9 +73,8 @@ public class GcsBucket extends BaseCommand {
               .build());
     }
     // re-load the resource so we display all properties with up-to-date values
-    resource = Context.requireWorkspace()
-        .getResource(resource.getName())
-        .castToType(Type.GCS_BUCKET);
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_BUCKET);
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
   }
 

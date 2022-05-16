@@ -58,9 +58,8 @@ public class GcsObject extends BaseCommand {
             .build();
     resource.updateReferenced(gcsObjectParams);
     // re-load the resource so we display all properties with up-to-date values
-    resource = Context.requireWorkspace()
-        .getResource(resource.getName())
-        .castToType(Type.GCS_OBJECT);
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_OBJECT);
     formatOption.printReturnValue(new UFGcsObject(resource), GcsObject::printText);
   }
 

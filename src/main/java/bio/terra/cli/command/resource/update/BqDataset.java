@@ -73,9 +73,8 @@ public class BqDataset extends BaseCommand {
               .build());
     }
     // re-load the resource so we display all properties with up-to-date values
-    resource = Context.requireWorkspace()
-        .getResource(resource.getName())
-        .castToType(Type.BQ_DATASET);
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_DATASET);
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 
