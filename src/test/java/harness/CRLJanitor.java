@@ -82,6 +82,9 @@ public class CRLJanitor {
   }
 
   private static Publisher initializeJanitorPubSubPublisher() {
+    if (!TestConfig.get().useJanitor()) {
+      return null;
+    }
     TopicName topicName =
         TopicName.of(
             TestConfig.get().getJanitorPubSubProjectId(), TestConfig.get().getJanitorPubSubTopic());
