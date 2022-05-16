@@ -16,7 +16,7 @@ RUN apt-get update \
 # other examples of installing gcloud in a docker image:
 #   - AoU (https://github.com/all-of-us/workbench/blob/master/api/src/dev/server/Dockerfile#L34)
 #   - Terra Jupyter (https://github.com/DataBiosphere/terra-docker/blob/master/terra-jupyter-base/Dockerfile#L74)
-ENV CLOUD_SDK_VERSION 371.0.0
+ENV CLOUD_SDK_VERSION 385.0.0
 ENV PATH /usr/local/google-cloud-sdk/bin:$PATH
 RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
