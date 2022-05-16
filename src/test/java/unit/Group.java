@@ -2,10 +2,12 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFGroup;
 import bio.terra.cli.serialization.userfacing.UFGroupMember;
+import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.service.SamService.GroupPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -60,6 +62,17 @@ public class Group extends ClearContextUnit {
     // `terra group list-users --name=$name`
     // check that the group creator is included in the list and is an admin
     expectListedMemberWithPolicies(name, testUser.email, GroupPolicy.ADMIN);
+
+    // create another group
+    String name1 = SamGroups.randomGroupName();
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGroup.class, "group", "create", "--name=" + name1);
+
+    List<UFWorkspace> listWorkspaces =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "workspace", "list", "--limit=100");
+    assertFalse(listWorkspaces.stream().anyMatch(g -> name.equals(g.name)));
+    assertFalse(listWorkspaces.stream().anyMatch(g -> name1.equals(g.name)));
 
     // `terra group list`
     List<UFGroup> groupList =
