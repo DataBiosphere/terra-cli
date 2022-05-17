@@ -2,6 +2,7 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFGroup;
@@ -42,24 +43,24 @@ public class Group extends ClearContextUnit {
     testUser.login();
 
     // `terra group create --name=$name`
-    String name = SamGroups.randomGroupName();
+    String name1 = SamGroups.randomGroupName();
     UFGroup groupCreated =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "group", "create", "--name=" + name);
+            UFGroup.class, "group", "create", "--name=" + name1);
 
     // track the group so we can clean it up in case this test method fails
-    trackedGroups.trackGroup(name, testUser);
+    trackedGroups.trackGroup(name1, testUser);
 
     // check that the name and email match
-    assertEquals(name, groupCreated.name, "group name matches after create");
+    assertEquals(name1, groupCreated.name, "group name matches after create");
     assertThat(
-        "group email contains the name", groupCreated.email, CoreMatchers.containsString(name));
+        "group email contains the name", groupCreated.email, CoreMatchers.containsString(name1));
     assertThat(
         "group creator is an admin", groupCreated.currentUserPolicies.contains(GroupPolicy.ADMIN));
 
     // `terra group list-users --name=$name`
     // check that the group creator is included in the list and is an admin
-    expectListedMemberWithPolicies(name, testUser.email, GroupPolicy.ADMIN);
+    expectListedMemberWithPolicies(name1, testUser.email, GroupPolicy.ADMIN);
 
     // `terra group list`
     List<UFGroup> groupList =
@@ -67,9 +68,9 @@ public class Group extends ClearContextUnit {
 
     // check that the listed group matches the created one
     Optional<UFGroup> matchedGroup =
-        groupList.stream().filter(listedGroup -> listedGroup.name.equals(name)).findAny();
+        groupList.stream().filter(listedGroup -> listedGroup.name.equals(name1)).findAny();
     assertTrue(matchedGroup.isPresent(), "group appears in list after create");
-    assertEquals(name, matchedGroup.get().name, "group name matches list output after create");
+    assertEquals(name1, matchedGroup.get().name, "group name matches list output after create");
     assertEquals(
         groupCreated.email,
         matchedGroup.get().email,
@@ -81,10 +82,10 @@ public class Group extends ClearContextUnit {
     // `terra group describe --name=$name`
     UFGroup groupDescribed =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGroup.class, "group", "describe", "--name=" + name);
+            UFGroup.class, "group", "describe", "--name=" + name1);
 
     // check that the described group matches the created one
-    assertEquals(name, groupDescribed.name, "group name matches describe output after create");
+    assertEquals(name1, groupDescribed.name, "group name matches describe output after create");
     assertEquals(
         groupCreated.email,
         groupDescribed.email,
@@ -96,7 +97,7 @@ public class Group extends ClearContextUnit {
         1, groupDescribed.numMembers, "group # members matches describe output after create");
 
     // `terra group delete --name=$name`
-    TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccess("group", "delete", "--name=" + name1, "--quiet");
 
     // `terra group list`
     groupList =
@@ -104,23 +105,24 @@ public class Group extends ClearContextUnit {
 
     // check that the group is not included in the list output
     matchedGroup =
-        groupList.stream().filter(listedGroup -> listedGroup.name.equals(name)).findAny();
+        groupList.stream().filter(listedGroup -> listedGroup.name.equals(name1)).findAny();
     assertTrue(matchedGroup.isEmpty(), "group does not appear in list after delete");
 
     // create another group
-    String name1 = SamGroups.randomGroupName();
+    String name2 = SamGroups.randomGroupName();
     TestCommand.runAndParseCommandExpectSuccess(
-        UFGroup.class, "group", "create", "--name=" + name1);
+        UFGroup.class, "group", "create", "--name=" + name2);
 
     TestCommand.Result cmd = TestCommand.runCommand("group", "list");
 
     // use regular expression testing the table format and content inside
+    assertNull(cmd.stdErr);
     assertEquals(0, cmd.exitCode, "group list returned successfully");
     String[] rows = cmd.stdOut.split("\\r?\\n");
     String[] rowHead = rows[0].split("\\s+");
-    assertEquals(rowHead[0].trim().replace("\r", ""), "EMAIL");
-    assertEquals(rowHead[1].trim().replace("\r", ""), "MEMBERS");
-    assertEquals(rowHead[2].trim().replace("\r", ""), "POLICIES");
+    assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
+    assertEquals("MEMBERS", rowHead[1].trim().replace("\r", ""));
+    assertEquals("POLICIES", rowHead[2].trim().replace("\r", ""));
 
     for (int i = 1; i < rows.length; i = i + 1) {
       String[] rowi = rows[i].split("\\s+");
