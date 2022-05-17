@@ -1,6 +1,7 @@
 package bio.terra.cli.command.group;
 
 import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
 
 import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
@@ -36,7 +37,7 @@ public class List extends BaseCommand {
   /** Column information for fields in `resource list` output */
   private enum UFGroupColumns implements ColumnDefinition<UFGroup> {
     EMAIL("EMAIL", g -> g.email, 42, LEFT),
-    MEMBERS("MEMBERS", g -> g.numMembers.toString(), 7, LEFT),
+    MEMBERS("MEMBERS", g -> g.numMembers.toString(), 7, RIGHT),
     POLICIES("POLICIES", g -> g.currentUserPolicies.toString(), 10, LEFT);
 
     private final String columnLabel;
