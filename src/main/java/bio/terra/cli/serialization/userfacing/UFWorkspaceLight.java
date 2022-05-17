@@ -52,12 +52,12 @@ public class UFWorkspaceLight {
   /** Print out a workspace object in text format. */
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("Terra workspace id: " + id);
-    OUT.println("Display name: " + name);
-    OUT.println("Description: " + description);
-    OUT.println("Google project: " + googleProjectId);
+    OUT.println("Terra workspace id:  " + id);
+    OUT.println("Display name:        " + name);
+    OUT.println("Description:         " + description);
+    OUT.println("Google project:      " + googleProjectId);
     OUT.println(
-        "Cloud console: https://console.cloud.google.com/home/dashboard?project="
+        "Cloud console:       https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
   }
 
