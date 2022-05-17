@@ -146,7 +146,7 @@ public class BreakGlass extends BaseCommand {
     rowContent.put("granteeProxyGroupEmail", granteeProxyGroupEmail);
     rowContent.put("serverName", Context.getServer().getName());
     rowContent.put("serverWsmUri", Context.getServer().getWorkspaceManagerUri());
-    rowContent.put("workspaceId", Context.requireWorkspace().getId().toString());
+    rowContent.put("workspaceId", Context.requireWorkspace().getUuid().toString());
     rowContent.put("googleProjectId", Context.requireWorkspace().getGoogleProjectId());
     rowContent.put("workspaceName", Context.requireWorkspace().getName());
     rowContent.put("workspaceDescription", Context.requireWorkspace().getDescription());

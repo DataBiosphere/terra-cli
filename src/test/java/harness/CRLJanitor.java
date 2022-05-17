@@ -1,7 +1,6 @@
 package harness;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.common.JanitorException;
@@ -23,10 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -101,7 +97,7 @@ public class CRLJanitor {
    * If Janitor is enabled, register the given workspace to be cleaned up. Otherwise return
    * immediately.
    */
-  public static void registerWorkspaceForCleanup(UFWorkspace workspace, TestUser testUser) {
+  public static void registerWorkspaceForCleanup(UUID uuid, TestUser testUser) {
     if (!TestConfig.get().useJanitor()) {
       return;
     }
@@ -112,7 +108,7 @@ public class CRLJanitor {
                 new CloudResourceUid()
                     .terraWorkspace(
                         new TerraWorkspaceUid()
-                            .workspaceId(workspace.id)
+                            .workspaceId(uuid)
                             .workspaceManagerInstance(wsmInstance)))
             .resourceMetadata(new ResourceMetadata().workspaceOwner(testUser.email))
             .creation(OffsetDateTime.now())

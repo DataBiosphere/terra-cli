@@ -64,7 +64,7 @@ public class GitRepo extends Resource {
     // call WSM to add the reference.
     GitRepoResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedGitRepo(Context.requireWorkspace().getId(), addGitRepoParams);
+            .createReferencedGitRepo(Context.requireWorkspace().getUuid(), addGitRepoParams);
     logger.info("Created Git repo reference: {}", addedResource);
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
@@ -80,7 +80,7 @@ public class GitRepo extends Resource {
       this.gitRepoUrl = updateParams.gitRepoUrl;
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedGitRepo(Context.requireWorkspace().getId(), id, updateParams);
+        .updateReferencedGitRepo(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
@@ -88,7 +88,7 @@ public class GitRepo extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedGitRepo(Context.requireWorkspace().getId(), id);
+        .deleteReferencedGitRepo(Context.requireWorkspace().getUuid(), id);
   }
 
   @Override

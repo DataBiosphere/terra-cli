@@ -61,7 +61,7 @@ public class ClientExceptionHandling extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listDescribeReflectCreate";

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,14 +217,14 @@ public class Context {
     synchronizeToDisk();
   }
 
-  public static void useOverrideWorkspace(UUID id) {
-    if (currentWorkspace != null && id.equals(currentWorkspace.getId())) {
+  public static void useOverrideWorkspace(String userFacingId) {
+    if (currentWorkspace != null && userFacingId.equals(currentWorkspace.getUserFacingId())) {
       // If the user provides the --workspace argument with the same ID as their current workspace,
       // ignore it. We should still update the current context so that the user does not see out
       // of date workspace information.
       return;
     }
     useOverrideWorkspace = true;
-    Workspace.load(id);
+    Workspace.load(userFacingId);
   }
 }

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * External representation of a configuration for command input/output.
@@ -29,7 +28,8 @@ public class UFConfig {
   public final Logger.LogLevel fileLoggingLevel;
   public final Logger.LogLevel consoleLoggingLevel;
   public final String serverName;
-  public final UUID workspaceId;
+  // "id" instead of "userFacingId" because user sees this with "terra config list"
+  public final String workspaceId;
   public final Format.FormatOptions format;
 
   /** Serialize an instance of the internal class to the command format. */
@@ -42,7 +42,7 @@ public class UFConfig {
     this.fileLoggingLevel = internalConfig.getFileLoggingLevel();
     this.consoleLoggingLevel = internalConfig.getConsoleLoggingLevel();
     this.serverName = internalServer.getName();
-    this.workspaceId = internalWorkspace.map(Workspace::getId).orElse(null);
+    this.workspaceId = internalWorkspace.map(Workspace::getUserFacingId).orElse(null);
     this.format = internalConfig.getFormat();
   }
 
@@ -91,7 +91,8 @@ public class UFConfig {
     private Logger.LogLevel fileLoggingLevel;
     private Logger.LogLevel consoleLoggingLevel;
     private String serverName;
-    private UUID workspaceId;
+    // "id" instead of "userFacingId" because user sees this with "terra config list"
+    private String workspaceId;
     private Format.FormatOptions format;
 
     public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
@@ -129,7 +130,7 @@ public class UFConfig {
       return this;
     }
 
-    public Builder workspaceId(UUID workspaceId) {
+    public Builder workspaceId(String workspaceId) {
       this.workspaceId = workspaceId;
       return this;
     }

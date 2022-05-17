@@ -48,7 +48,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
     TestCommand.Result cmd =
@@ -67,7 +67,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceEnvVars";
@@ -96,7 +96,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra gcloud config get-value project`
     TestCommand.Result cmd = TestCommand.runCommand("gcloud", "config", "get-value", "project");
@@ -134,7 +134,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceName";
@@ -164,7 +164,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "bqShow";
@@ -196,7 +196,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra nextflow -version`
     TestCommand.Result cmd = TestCommand.runCommand("nextflow", "-version");
@@ -211,7 +211,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gitCloneAll() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
@@ -249,7 +249,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gitCloneResource() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
@@ -272,7 +272,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra gcloud -version`
     // this is a malformed command, should be --version
@@ -298,7 +298,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra config set app-launch LOCAL_PROCESS`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");

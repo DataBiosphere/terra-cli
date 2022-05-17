@@ -321,7 +321,7 @@ public class Workspace extends ClearContextUnit {
    * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
    * about to page out.
    */
-  static List<UFWorkspaceLight> listWorkspacesWithId(UUID workspaceId)
+  static List<UFWorkspaceLight> listWorkspacesWithId(String userFacingId)
       throws JsonProcessingException {
     // `terra workspace list --format=json --limit=500`
     List<UFWorkspaceLight> listWorkspaces =
@@ -329,7 +329,7 @@ public class Workspace extends ClearContextUnit {
             new TypeReference<>() {}, "workspace", "list", "--limit=500");
 
     return listWorkspaces.stream()
-        .filter(workspace -> workspace.id.equals(workspaceId))
+        .filter(workspace -> workspace.id.equals(userFacingId))
         .collect(Collectors.toList());
   }
 }
