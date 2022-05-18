@@ -25,7 +25,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.183.0'
+version = '0.185.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -69,7 +69,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
-        workspaceManagerClient = "0.254.238-SNAPSHOT"
+        workspaceManagerClient = "0.254.242-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
         janitor = "0.113.5-SNAPSHOT"

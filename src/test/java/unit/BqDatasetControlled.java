@@ -18,7 +18,6 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +35,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listDescribeReflectCreate";
@@ -87,7 +86,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "createDatasetWithoutSpecifyingDatasetId";
@@ -130,7 +129,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "listReflectsDelete";
@@ -154,7 +153,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "resolve";
@@ -199,7 +198,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
     String name = "checkAccess";
@@ -227,7 +226,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getWorkspaceId());
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId --access=$access
     // --cloning=$cloning --description=$description --location=$location --format=json`
@@ -297,7 +296,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId
     // --description=$description`
@@ -356,7 +355,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create bq-dataset --name=$name --dataset-id=$datasetId
     // --description=$description`
@@ -407,9 +406,10 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFBqDataset listOneDatasetResourceWithName(String resourceName, UUID workspaceId)
-      throws JsonProcessingException {
-    List<UFBqDataset> matchedResources = listDatasetResourcesWithName(resourceName, workspaceId);
+  static UFBqDataset listOneDatasetResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFBqDataset> matchedResources =
+        listDatasetResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -427,11 +427,11 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  static List<UFBqDataset> listDatasetResourcesWithName(String resourceName, UUID workspaceId)
-      throws JsonProcessingException {
+  static List<UFBqDataset> listDatasetResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=BQ_DATASET --format=json`
     List<UFBqDataset> listedResources =
-        workspaceId == null
+        workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {}, "resource", "list", "--type=BQ_DATASET")
             : TestCommand.runAndParseCommandExpectSuccess(
@@ -439,7 +439,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
                 "resource",
                 "list",
                 "--type=BQ_DATASET",
-                "--workspace=" + workspaceId);
+                "--workspace=" + workspaceUserFacingId);
 
     // find the matching dataset in the list
     return listedResources.stream()

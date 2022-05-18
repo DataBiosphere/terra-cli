@@ -33,7 +33,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcp-notebook --name=$name`
     String name = "listDescribeReflectCreateDelete";
@@ -99,7 +99,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcp-notebook --name=$name`
     String name = "resolveAndCheckAccess";
@@ -128,7 +128,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcp-notebook --name=$name
     // --cloning=$cloning --description=$description
@@ -193,7 +193,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcp-notebook --name=$name`
     String name = "startStop";
@@ -236,11 +236,11 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * specified. Filters on the specified workspace id; Uses the current workspace if null.
    */
   static void pollDescribeForNotebookState(
-      String resourceName, String notebookState, UUID workspaceId)
+      String resourceName, String notebookState, String workspaceUserFacingId)
       throws InterruptedException, JsonProcessingException {
     HttpUtils.pollWithRetries(
         () ->
-            workspaceId == null
+            workspaceUserFacingId == null
                 ? TestCommand.runAndParseCommandExpectSuccess(
                     UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
                 : TestCommand.runAndParseCommandExpectSuccess(
@@ -248,13 +248,13 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                     "resource",
                     "describe",
                     "--name=" + resourceName,
-                    "--workspace=" + workspaceId),
+                    "--workspace=" + workspaceUserFacingId),
         (result) -> notebookState.equals(result.state),
         (ex) -> false, // no retries
         2 * 20, // up to 20 minutes
         Duration.ofSeconds(30)); // every 30 seconds
 
-    assertNotebookState(resourceName, notebookState, workspaceId);
+    assertNotebookState(resourceName, notebookState, workspaceUserFacingId);
   }
 
   /**
@@ -271,9 +271,10 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * given. Filters on the specified workspace id; Uses the current workspace if null.
    */
   private static void assertNotebookState(
-      String resourceName, String notebookState, UUID workspaceId) throws JsonProcessingException {
+      String resourceName, String notebookState, String workspaceUserFacingId)
+      throws JsonProcessingException {
     UFGcpNotebook describeNotebook =
-        workspaceId == null
+        workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
             : TestCommand.runAndParseCommandExpectSuccess(
@@ -281,7 +282,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                 "resource",
                 "describe",
                 "--name=" + resourceName,
-                "--workspace=" + workspaceId);
+                "--workspace=" + workspaceUserFacingId);
     assertEquals(notebookState, describeNotebook.state, "notebook state matches");
     if (!notebookState.equals("PROVISIONING")) {
       assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
@@ -301,9 +302,10 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFGcpNotebook listOneNotebookResourceWithName(String resourceName, UUID workspaceId)
-      throws JsonProcessingException {
-    List<UFGcpNotebook> matchedResources = listNotebookResourcesWithName(resourceName, workspaceId);
+  static UFGcpNotebook listOneNotebookResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFGcpNotebook> matchedResources =
+        listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -322,11 +324,11 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Filters on the specified workspace id; Uses the current workspace if null.
    */
-  static List<UFGcpNotebook> listNotebookResourcesWithName(String resourceName, UUID workspaceId)
-      throws JsonProcessingException {
+  static List<UFGcpNotebook> listNotebookResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=AI_NOTEBOOK --format=json`
     List<UFGcpNotebook> listedResources =
-        workspaceId == null
+        workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {}, "resource", "list", "--type=AI_NOTEBOOK")
             : TestCommand.runAndParseCommandExpectSuccess(
@@ -334,7 +336,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
                 "resource",
                 "list",
                 "--type=AI_NOTEBOOK",
-                "--workspace=" + workspaceId);
+                "--workspace=" + workspaceUserFacingId);
 
     // find the matching notebook in the list
     return listedResources.stream()

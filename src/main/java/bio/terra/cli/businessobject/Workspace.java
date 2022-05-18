@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
 
-  private UUID id;
+  private UUID uuid;
+  private String userFacingId;
   private String name; // not unique
   private String description;
   private String googleProjectId;
@@ -52,7 +53,8 @@ public class Workspace {
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
-    this.id = wsmObject.getId();
+    this.uuid = wsmObject.getId();
+    this.userFacingId = wsmObject.getUserFacingId();
     this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
     this.googleProjectId =
@@ -64,7 +66,8 @@ public class Workspace {
 
   /** Build an instance of this class from the serialized format on disk. */
   public Workspace(PDWorkspace configFromDisk) {
-    this.id = configFromDisk.id;
+    this.uuid = configFromDisk.uuid;
+    this.userFacingId = configFromDisk.userFacingId;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.googleProjectId = configFromDisk.googleProjectId;
@@ -76,16 +79,11 @@ public class Workspace {
             .collect(Collectors.toList());
   }
 
-  /**
-   * Create a new workspace and set it as the current workspace.
-   *
-   * @param name optional display name
-   * @param description optional description
-   */
-  public static Workspace create(String name, String description) {
+  /** Create a new workspace and set it as the current workspace. */
+  public static Workspace create(String userFacingId, String name, String description) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        WorkspaceManagerService.fromContext().createWorkspace(name, description);
+        WorkspaceManagerService.fromContext().createWorkspace(userFacingId, name, description);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -103,13 +101,9 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Load an existing workspace and set it as the current workspace.
-   *
-   * @param id workspace id
-   */
-  public static Workspace load(UUID id) {
-    Workspace workspace = Workspace.get(id);
+  /** Load an existing workspace and set it as the current workspace. */
+  public static Workspace load(String userFacingId) {
+    Workspace workspace = Workspace.get(userFacingId);
 
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
@@ -123,18 +117,27 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Fetch an existing workspace, with resources populated
-   *
-   * @param id workspace id
-   */
+  /** Fetch an existing workspace by uuid, with resources populated */
   public static Workspace get(UUID id) {
     // call WSM to fetch the existing workspace object and backing Google context
     WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
     logger.info("Loaded workspace: {}", loadedWorkspace);
+    return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
+  }
 
-    // convert the WSM object to a CLI object
-    Workspace workspace = new Workspace(loadedWorkspace);
+  /** Fetch an existing workspace by userFacingId, with resources populated */
+  public static Workspace get(String userFacingId) {
+    // call WSM to fetch the existing workspace object and backing Google context
+    WorkspaceDescription loadedWorkspace =
+        WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(userFacingId);
+    logger.info("Loaded workspace: {}", loadedWorkspace);
+    return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
+  }
+
+  /** Convert what's returned from WSM API to CLI object. */
+  private static Workspace convertWorkspaceDescriptionToWorkspace(
+      WorkspaceDescription workspaceDescription) {
+    Workspace workspace = new Workspace(workspaceDescription);
     workspace.populateResources();
     return workspace;
   }
@@ -149,7 +152,7 @@ public class Workspace {
   public Workspace update(@Nullable String name, @Nullable String description) {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspace =
-        WorkspaceManagerService.fromContext().updateWorkspace(id, name, description);
+        WorkspaceManagerService.fromContext().updateWorkspace(uuid, name, description);
     logger.info("Updated workspace: {}", updatedWorkspace);
 
     // convert the WSM object to a CLI object
@@ -163,7 +166,7 @@ public class Workspace {
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object
-    WorkspaceManagerService.fromContext().deleteWorkspace(id);
+    WorkspaceManagerService.fromContext().deleteWorkspace(uuid);
     logger.info("Deleted workspace: {}", this);
 
     // delete the pet SA email for the user
@@ -179,7 +182,7 @@ public class Workspace {
    * @return Email identifier of the pet SA the current user can now actAs.
    */
   public void enablePet() {
-    WorkspaceManagerService.fromContext().enablePet(id);
+    WorkspaceManagerService.fromContext().enablePet(uuid);
   }
 
   /**
@@ -227,7 +230,7 @@ public class Workspace {
   private void populateResources() {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
-            .enumerateAllResources(id, Context.getConfig().getResourcesCacheSize());
+            .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
     List<Resource> resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
 
@@ -253,7 +256,7 @@ public class Workspace {
    */
   public ClonedWorkspace clone(@Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContext().cloneWorkspace(id, name, description);
+        WorkspaceManagerService.fromContext().cloneWorkspace(uuid, name, description);
     return result.getWorkspace();
   }
 
@@ -304,10 +307,12 @@ public class Workspace {
     return granteeProxyGroupEmail;
   }
 
-  // ====================================================
-  // Property get/setters.
-  public UUID getId() {
-    return id;
+  public UUID getUuid() {
+    return uuid;
+  }
+
+  public String getUserFacingId() {
+    return userFacingId;
   }
 
   public String getName() {

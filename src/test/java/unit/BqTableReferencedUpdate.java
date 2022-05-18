@@ -50,7 +50,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
         sharedExternalTable);
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra workspace add-user --email=$email --role=WRITER`
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
@@ -77,7 +77,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
   void updateTableReferenceWithNoAccess() throws IOException {
     workspaceCreator.login();
 
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`
     String name = "updateTableReferenceWithNoAccess";
@@ -92,7 +92,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     String newName = "updateTableReferenceWithNoAccess_NEW";
     TestCommand.runCommandExpectExitCode(
@@ -101,7 +101,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
     // Clean up.
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
@@ -111,7 +111,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
   void updateTableReferenceWithPartialAccess() throws IOException {
     workspaceCreator.login();
 
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
     // --dataset-id=$datasetId`
@@ -127,7 +127,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
 
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     String newName = "updateTableReferenceWithPartialAccess_NEW";
     UFBqTable updateTable =
@@ -158,7 +158,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
   void addTableReferenceWithPartialAccess() throws IOException {
     shareeUser.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     String succeedName = "addTableReferenceWithPartialAccess_withAccess";
     // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId

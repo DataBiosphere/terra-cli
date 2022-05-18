@@ -35,7 +35,7 @@ public class Clone extends BaseCommand {
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
-            workspaceNameAndDescription.displayName, workspaceNameAndDescription.description);
+            workspaceNameAndDescription.name, workspaceNameAndDescription.description);
     Workspace destinationWorkspaceHydrated =
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 

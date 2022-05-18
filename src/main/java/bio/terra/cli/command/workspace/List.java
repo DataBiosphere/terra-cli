@@ -1,7 +1,6 @@
 package bio.terra.cli.command.workspace;
 
 import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
-import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
 
 import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
@@ -59,7 +58,9 @@ public class List extends BaseCommand {
     // instead of a null predicate).
     Predicate<UFWorkspaceLight> isHighlighted =
         Context.getWorkspace()
-            .map(current -> (Predicate<UFWorkspaceLight>) (ufw -> current.getId().equals(ufw.id)))
+            .map(
+                current ->
+                    (Predicate<UFWorkspaceLight>) (ufw -> current.getUserFacingId().equals(ufw.id)))
             .orElse(ufw -> false);
     TablePrinter<UFWorkspaceLight> printer = Columns::values;
     String text = printer.print(returnValue, isHighlighted);
@@ -68,9 +69,9 @@ public class List extends BaseCommand {
 
   /** Column information for table output with `terra workspace list` */
   private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
+    ID("ID", w -> w.id, 36, LEFT),
     NAME("NAME", w -> w.name, 30, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
-    ID("ID", w -> w.id.toString(), 36, RIGHT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;
