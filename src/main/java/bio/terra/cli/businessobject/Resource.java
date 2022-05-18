@@ -192,7 +192,7 @@ public abstract class Resource {
     }
     // call WSM to check access to the resource
     return WorkspaceManagerService.fromContext()
-        .checkAccess(Context.requireWorkspace().getId(), id);
+        .checkAccess(Context.requireWorkspace().getUuid(), id);
   }
 
   /**

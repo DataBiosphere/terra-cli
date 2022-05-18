@@ -193,7 +193,7 @@ public class User {
       UserIO.getErr()
           .println(
               "Error loading workspace information for the logged in user (workspace id: "
-                  + Context.requireWorkspace().getId()
+                  + Context.requireWorkspace().getUserFacingId()
                   + ").");
     }
   }

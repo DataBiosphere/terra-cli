@@ -70,7 +70,7 @@ public class GcsObject extends Resource {
 
     GcpGcsObjectResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedGcsObject(Context.requireWorkspace().getId(), createParams);
+            .createReferencedGcsObject(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket object: {}", addedResource);
 
     // convert the WSM object to a CLI object
@@ -85,7 +85,7 @@ public class GcsObject extends Resource {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedGcsObject(Context.requireWorkspace().getId(), id, updateParams);
+        .updateReferencedGcsObject(Context.requireWorkspace().getUuid(), id, updateParams);
     if (updateParams.bucketName != null) {
       this.bucketName = updateParams.bucketName;
     }
@@ -99,7 +99,7 @@ public class GcsObject extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedGcsObject(Context.requireWorkspace().getId(), id);
+        .deleteReferencedGcsObject(Context.requireWorkspace().getUuid(), id);
   }
 
   protected void deleteControlled() {

@@ -74,7 +74,7 @@ public class BqTable extends Resource {
 
     GcpBigQueryDataTableResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedBigQueryDataTable(Context.requireWorkspace().getId(), createParams);
+            .createReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ data table: {}", addedResource);
 
     // convert the WSM object to a CLI object
@@ -97,7 +97,7 @@ public class BqTable extends Resource {
       this.dataTableId = updateParams.tableId;
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedBigQueryDataTable(Context.requireWorkspace().getId(), id, updateParams);
+        .updateReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
@@ -105,7 +105,7 @@ public class BqTable extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedBigQueryDataTable(Context.requireWorkspace().getId(), id);
+        .deleteReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Delete a BigQuery data table controlled resource in the workspace. */

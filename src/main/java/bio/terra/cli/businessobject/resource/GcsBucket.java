@@ -71,7 +71,7 @@ public class GcsBucket extends Resource {
 
     GcpGcsBucketResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedGcsBucket(Context.requireWorkspace().getId(), createParams);
+            .createReferencedGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", addedResource);
 
     // convert the WSM object to a CLI object
@@ -90,7 +90,7 @@ public class GcsBucket extends Resource {
     // call WSM to create the resource
     GcpGcsBucketResource createdResource =
         WorkspaceManagerService.fromContext()
-            .createControlledGcsBucket(Context.requireWorkspace().getId(), createParams);
+            .createControlledGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", createdResource);
 
     // convert the WSM object to a CLI object
@@ -107,7 +107,7 @@ public class GcsBucket extends Resource {
       this.bucketName = updateParams.bucketName;
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+        .updateReferencedGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
@@ -117,7 +117,7 @@ public class GcsBucket extends Resource {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
-        .updateControlledGcsBucket(Context.requireWorkspace().getId(), id, updateParams);
+        .updateControlledGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
@@ -125,14 +125,14 @@ public class GcsBucket extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedGcsBucket(Context.requireWorkspace().getId(), id);
+        .deleteReferencedGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Delete a GCS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
-        .deleteControlledGcsBucket(Context.requireWorkspace().getId(), id);
+        .deleteControlledGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Resolve a GCS bucket resource to its cloud identifier. */

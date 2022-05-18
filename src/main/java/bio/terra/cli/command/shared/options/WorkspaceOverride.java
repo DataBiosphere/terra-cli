@@ -1,7 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
 import bio.terra.cli.businessobject.Context;
-import java.util.UUID;
 import picocli.CommandLine;
 
 /**
@@ -18,12 +17,12 @@ public class WorkspaceOverride {
   @CommandLine.Option(
       names = "--workspace",
       description = "Workspace id to use for this command only.")
-  private UUID id;
+  private String userFacingId;
 
   /** Helper method to override the current workspace if the `--workspace` flag specifies an id. */
   public void overrideIfSpecified() {
-    if (id != null) {
-      Context.useOverrideWorkspace(id);
+    if (userFacingId != null && !userFacingId.isEmpty()) {
+      Context.useOverrideWorkspace(userFacingId);
     }
   }
 }

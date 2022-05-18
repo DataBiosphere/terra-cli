@@ -80,7 +80,7 @@ public class BqDataset extends Resource {
 
     GcpBigQueryDatasetResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedBigQueryDataset(Context.requireWorkspace().getId(), createParams);
+            .createReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", addedResource);
 
     // convert the WSM object to a CLI object
@@ -99,7 +99,7 @@ public class BqDataset extends Resource {
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
         WorkspaceManagerService.fromContext()
-            .createControlledBigQueryDataset(Context.requireWorkspace().getId(), createParams);
+            .createControlledBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", createdResource);
 
     // convert the WSM object to a CLI object
@@ -119,7 +119,7 @@ public class BqDataset extends Resource {
       this.datasetId = updateParams.datasetId;
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        .updateReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
@@ -129,7 +129,7 @@ public class BqDataset extends Resource {
       validateEnvironmentVariableName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
-        .updateControlledBigQueryDataset(Context.requireWorkspace().getId(), id, updateParams);
+        .updateControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
@@ -137,14 +137,14 @@ public class BqDataset extends Resource {
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedBigQueryDataset(Context.requireWorkspace().getId(), id);
+        .deleteReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Delete a BigQuery dataset controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
-        .deleteControlledBigQueryDataset(Context.requireWorkspace().getId(), id);
+        .deleteControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id);
   }
 
   /**

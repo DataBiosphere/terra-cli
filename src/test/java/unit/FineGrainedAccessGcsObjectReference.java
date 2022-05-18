@@ -96,7 +96,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   void addObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
     String name = "addObjectReferenceWithAccess";
@@ -146,7 +146,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   void updateObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
     String name = "updateObjectReferenceWithBucketLevelAccess";
@@ -348,7 +348,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
   void describeObjectReferenceWhenUserHasBucketLevelAccess() throws IOException {
     workspaceCreator.login();
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
     // --object-name=$objectName`
     String name = "describeObjectReferenceWithAccess";
