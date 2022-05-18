@@ -1,7 +1,6 @@
 package bio.terra.cli.command.workspace;
 
 import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
-import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
 
 import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
@@ -70,7 +69,7 @@ public class List extends BaseCommand {
 
   /** Column information for table output with `terra workspace list` */
   private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
-    ID("ID", w -> w.id, 36, RIGHT),
+    ID("ID", w -> w.id, 36, LEFT),
     NAME("NAME", w -> w.name, 30, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);

@@ -7,8 +7,8 @@ public class WorkspaceNameAndDescription {
   @CommandLine.Option(
       names = "--name",
       required = false,
-      description = "Workspace display name (not unique).")
-  public String displayName;
+      description = "Workspace name (not unique).")
+  public String name;
 
   @CommandLine.Option(
       names = "--description",

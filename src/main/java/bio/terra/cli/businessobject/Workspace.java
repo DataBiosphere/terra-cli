@@ -79,16 +79,11 @@ public class Workspace {
             .collect(Collectors.toList());
   }
 
-  /**
-   * Create a new workspace and set it as the current workspace.
-   *
-   * @param name optional display name
-   * @param description optional description
-   */
-  public static Workspace create(String name, String description) {
+  /** Create a new workspace and set it as the current workspace. */
+  public static Workspace create(String userFacingId, String name, String description) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        WorkspaceManagerService.fromContext().createWorkspace(name, description);
+        WorkspaceManagerService.fromContext().createWorkspace(userFacingId, name, description);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object

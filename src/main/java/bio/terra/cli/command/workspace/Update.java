@@ -23,7 +23,7 @@ public class Update extends BaseCommand {
     @CommandLine.Option(
         names = "--name",
         required = false,
-        description = "Workspace display name (not unique).")
+        description = "Workspace name (not unique).")
     private String displayName;
 
     @CommandLine.Option(
