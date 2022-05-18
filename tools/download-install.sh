@@ -32,7 +32,8 @@ if [ ! -f "${archiveFileName}" ]; then
 fi
 
 echo "--  Unarchiving release"
-archiveDir=$PWD/terra-cli
+archiveDir=$PWD/terra-cli-install
+rm -rf "$archiveDir"
 mkdir -p "$archiveDir"
 tar -C "$archiveDir" --strip-components=1 -xf $archiveFileName
 if [ ! -f "$archiveDir/install.sh" ]; then
