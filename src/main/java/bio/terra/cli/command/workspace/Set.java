@@ -19,7 +19,7 @@ public class Set extends BaseCommand {
   /** Load an existing workspace. */
   @Override
   protected void execute() {
-    Workspace workspace = Workspace.load(userFacingId);
+    Workspace workspace = Workspace.load(id);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
