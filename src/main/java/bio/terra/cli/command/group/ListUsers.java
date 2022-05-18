@@ -1,7 +1,6 @@
 package bio.terra.cli.command.group;
 
 import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
-import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.RIGHT;
 
 import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
