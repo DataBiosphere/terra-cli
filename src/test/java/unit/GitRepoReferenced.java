@@ -31,7 +31,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl
     String name = "listDescribeReflectAdd";
@@ -81,7 +81,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl
     String name = "resolve";
@@ -109,7 +109,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl
     String name = "listReflectsDelete";
@@ -135,7 +135,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref git-repo --name=$name --repo-url=$repoUrl
     // --cloning=$cloning --description=$description --format=json`
@@ -184,7 +184,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl --description=$description`
     String name = "updateIndividualProperties";
@@ -196,8 +196,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         "git-repo",
         "--name=" + name,
         "--description=" + description,
-        "--repo-url=" + GIT_REPO_SSH_URL,
-        "--cloning=" + CloningInstructionsEnum.REFERENCE);
+        "--repo-url=" + GIT_REPO_SSH_URL);
 
     // update just the name
     // `terra resources update git-repo --name=$name --new-name=$newName`
@@ -253,16 +252,6 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             String.class, "resource", "resolve", "--name=" + newName);
     assertEquals(GIT_REPO_HTTPS_URL, resolved, "resolve matches https Git url");
-
-    updateGitRepo =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGitRepo.class,
-            "resource",
-            "update",
-            "git-repo",
-            "--name=" + newName,
-            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
-    assertEquals(CloningInstructionsEnum.NOTHING, updateGitRepo.cloningInstructions);
   }
 
   @Test
@@ -271,7 +260,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources add-ref git-repo --name=$name --description=$description
     // --repo-url=$gitUrl
