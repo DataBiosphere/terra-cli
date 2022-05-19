@@ -42,8 +42,8 @@ public class ListUsers extends BaseCommand {
 
   /** Column information for fields in `resource list` output */
   private enum UFGroupListColumns implements ColumnDefinition<UFGroupMember> {
-    EMAIL("EMAIL", g -> g.email, 42, LEFT),
-    MEMBERS("MEMBERS", g -> g.policies.toString(), 10, LEFT);
+    EMAIL("EMAIL", g -> g.email, 45, LEFT),
+    POLICIES("POLICIES", g -> g.policies.toString(), 15, LEFT);
 
     private final String columnLabel;
     private final Function<UFGroupMember, String> valueExtractor;
