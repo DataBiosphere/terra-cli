@@ -2,6 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
@@ -71,7 +72,9 @@ public class BqDataset extends BaseCommand {
               .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
-
+    // re-load the resource so we display all properties with up-to-date values
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_DATASET);
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 
