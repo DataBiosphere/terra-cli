@@ -2,6 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
 import bio.terra.cli.command.shared.options.Format;
@@ -52,7 +53,8 @@ public class BqTable extends BaseCommand {
             .projectId(bqDatasetNewIds.getNewGcpProjectId());
 
     resource.updateReferenced(bqTableParams.build());
-
+    // re-load the resource so we display all properties with up-to-date values
+    resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_TABLE);
     formatOption.printReturnValue(new UFBqTable(resource), BqTable::printText);
   }
 

@@ -42,7 +42,8 @@ public class UFWorkspace extends UFWorkspaceLight {
   public void print() {
     super.print();
     PrintStream OUT = UserIO.getOut();
-    OUT.println("# Resources: " + numResources);
+    // The space add for readable format because only used with terra workspace describe
+    OUT.println("# Resources:       " + numResources);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
