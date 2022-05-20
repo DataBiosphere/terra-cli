@@ -55,12 +55,12 @@ public class UFWorkspaceLight {
     PrintStream OUT = UserIO.getOut();
     // "id" instead of "userFacingId" because user sees this with "terra workspace describe
     // --format=json"
-    OUT.println("ID: " + id);
-    OUT.println("Name: " + name);
-    OUT.println("Description: " + description);
-    OUT.println("Google project: " + googleProjectId);
+    OUT.println("ID:                " + id);
+    OUT.println("Name:              " + name);
+    OUT.println("Description:       " + description);
+    OUT.println("Google project:    " + googleProjectId);
     OUT.println(
-        "Cloud console: https://console.cloud.google.com/home/dashboard?project="
+        "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
   }
 

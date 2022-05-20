@@ -31,6 +31,7 @@ public class Status extends BaseCommand {
     }
 
     OUT.println();
+    // No space add for readable format because used in many commands
     OUT.println("Terra server: " + returnValue.server.name);
 
     if (returnValue.workspace != null
