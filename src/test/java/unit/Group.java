@@ -2,7 +2,6 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFGroup;
@@ -116,9 +115,9 @@ public class Group extends ClearContextUnit {
     TestCommand.Result cmd = TestCommand.runCommand("group", "list");
 
     // use regular expression testing the table format and content inside
-    assertNull(cmd.stdErr);
+    assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
     assertEquals(0, cmd.exitCode, "group list returned successfully");
-    String[] rows = cmd.stdOut.split("\\r?\\n");
+    String[] rows = cmd.stdOut.split("\\n");
     String[] rowHead = rows[0].split("\\s+");
     assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
     assertEquals("MEMBERS", rowHead[1].trim().replace("\r", ""));
@@ -126,9 +125,13 @@ public class Group extends ClearContextUnit {
 
     for (int i = 1; i < rows.length; i = i + 1) {
       String[] rowi = rows[i].split("\\s+");
-      assertTrue(rowi[0].matches("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$"));
+      assertTrue(
+          rowi[0].matches(
+              "^[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+@[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+$"));
       assertTrue(rowi[1].matches("[0-9]+"));
-      assertTrue(Arrays.asList("[ADMIN]", "[MEMBER]").contains(rowi[2]));
+      assertTrue(
+          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]")
+              .contains(rowi[2]));
     }
   }
 
