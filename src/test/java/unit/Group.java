@@ -227,7 +227,7 @@ public class Group extends ClearContextUnit {
     // use regular expression testing the table format and content inside
     assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
     assertEquals(0, cmd.exitCode, "group list-user returned successfully");
-    String[] rows = cmd.stdOut.split("\\r?\\n");
+    String[] rows = cmd.stdOut.split("\\n");
     String[] rowHead = rows[0].split("\\s+");
     assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
     assertEquals("POLICIES", rowHead[1].trim().replace("\r", ""));
