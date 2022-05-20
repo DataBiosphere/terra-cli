@@ -130,15 +130,15 @@ public class Workspace extends ClearContextUnit {
     assertNotNull(createdWorkspace.name, "create workspace name is defined");
     assertNotNull(createdWorkspace.description, "create workspace description is defined");
 
-    // `terra workspace update --format=json --name=$newName --description=$newDescription`
+    // `terra workspace update --format=json --new-name=$newName --new-description=$newDescription`
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
         "--format=json",
-        "--name=" + newName,
-        "--description=" + newDescription);
+        "--new-name=" + newName,
+        "--new-description=" + newDescription);
 
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
