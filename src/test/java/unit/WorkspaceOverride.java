@@ -435,8 +435,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
-        "--name=" + newName,
-        "--description=" + newDescription,
+        "--new-name=" + newName,
+        "--new-description=" + newDescription,
         "--workspace=" + workspace3.id);
 
     // Check that current workspace status is updated, despite the --workspace flag.

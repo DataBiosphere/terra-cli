@@ -167,7 +167,7 @@ public class CloneWorkspace extends ClearContextUnit {
 
     // Update workspace name. This is for testing PF-1623.
     TestCommand.runAndParseCommandExpectSuccess(
-        UFWorkspace.class, "workspace", "update", "--name=update_Name");
+        UFWorkspace.class, "workspace", "update", "--new-name=update_Name");
 
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
