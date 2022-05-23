@@ -355,9 +355,15 @@ public class WorkspaceManagerService {
    * @return the Workspace Manager workspace description object
    */
   public WorkspaceDescription updateWorkspace(
-      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
+      UUID workspaceId,
+      @Nullable String userFacingId,
+      @Nullable String displayName,
+      @Nullable String description) {
     UpdateWorkspaceRequestBody updateRequest =
-        new UpdateWorkspaceRequestBody().displayName(displayName).description(description);
+        new UpdateWorkspaceRequestBody()
+            .userFacingId(userFacingId)
+            .displayName(displayName)
+            .description(description);
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
         "Error updating workspace");
@@ -381,15 +387,20 @@ public class WorkspaceManagerService {
    * workspace.
    *
    * @param workspaceId - workspace ID to clone
+   * @param userFacingId - optional userFacingId of new cloned workspace
    * @param displayName - optional name of new cloned workspace
    * @param description - optional description for new workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
+      UUID workspaceId,
+      @Nullable String userFacingId,
+      @Nullable String displayName,
+      @Nullable String description) {
     var request =
         new CloneWorkspaceRequest()
             .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
+            .userFacingId(userFacingId)
             .displayName(displayName)
             .description(description)
             // force location to null until we have an implementation of a workspace-wide location

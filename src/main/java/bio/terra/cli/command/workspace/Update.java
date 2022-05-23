@@ -20,6 +20,9 @@ public class Update extends BaseCommand {
   Update.UpdateArgGroup argGroup;
 
   static class UpdateArgGroup {
+    @CommandLine.Option(names = "--new-id", required = false, description = "Workspace ID.")
+    private String displayId;
+
     @CommandLine.Option(
         names = "--new-name",
         required = false,
@@ -41,7 +44,8 @@ public class Update extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
-        Context.requireWorkspace().update(argGroup.displayName, argGroup.description);
+        Context.requireWorkspace()
+            .update(argGroup.displayId, argGroup.displayName, argGroup.description);
     updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -175,6 +176,7 @@ public class CloneWorkspace extends ClearContextUnit {
             UFClonedWorkspace.class,
             "workspace",
             "clone",
+            "--id=cloned_workspace_id",
             "--name=cloned_workspace",
             "--description=A clone.");
 
@@ -256,6 +258,18 @@ public class CloneWorkspace extends ClearContextUnit {
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
     assertThat(
         "Destination workspace has three resources.", resources, hasSize(DESTINATION_RESOURCE_NUM));
+  }
+
+  @Test
+  public void cloneFailsWithoutUserFacingId() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace clone`
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "clone");
+    assertThat(
+        "error message indicate user must set ID",
+        stdErr,
+        CoreMatchers.containsString("Missing required option: '--id=<id>'"));
   }
 
   /**
