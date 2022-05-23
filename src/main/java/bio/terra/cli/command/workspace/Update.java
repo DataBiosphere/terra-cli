@@ -21,13 +21,13 @@ public class Update extends BaseCommand {
 
   static class UpdateArgGroup {
     @CommandLine.Option(
-        names = "--name",
+        names = "--new-name",
         required = false,
         description = "Workspace name (not unique).")
     private String displayName;
 
     @CommandLine.Option(
-        names = "--description",
+        names = "--new-description",
         required = false,
         description = "Workspace description.")
     private String description;
