@@ -132,7 +132,7 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`
-    String newId = "NEW_statusIdListReflectUpdate";
+    String newId = "newid";
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
@@ -166,7 +166,7 @@ public class Workspace extends ClearContextUnit {
         "describe matches updated workspace description");
 
     // check the workspace list reflects the update
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createdWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
     assertEquals(
         1, matchingWorkspaces.size(), "updated workspace is included exactly once in list");
     assertEquals(
