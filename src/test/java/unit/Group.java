@@ -237,6 +237,7 @@ public class Group extends ClearContextUnit {
       assertTrue(
           rowi[0].matches(
               "^[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+@[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+$"));
+      assertTrue(listMembersWithEmail(name, rowi[0]).isPresent());
       assertTrue(
           Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]")
               .contains(rowi[1].trim().replace("\r", "")));
