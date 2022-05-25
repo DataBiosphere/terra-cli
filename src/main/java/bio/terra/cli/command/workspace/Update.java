@@ -21,7 +21,7 @@ public class Update extends BaseCommand {
 
   static class UpdateArgGroup {
     @CommandLine.Option(names = "--new-id", required = false, description = "Workspace ID.")
-    private String displayId;
+    private String userFacingId;
 
     @CommandLine.Option(
         names = "--new-name",
@@ -45,7 +45,7 @@ public class Update extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace()
-            .update(argGroup.displayId, argGroup.displayName, argGroup.description);
+            .update(argGroup.userFacingId, argGroup.displayName, argGroup.description);
     updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }

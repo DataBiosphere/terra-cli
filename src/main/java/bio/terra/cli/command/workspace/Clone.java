@@ -21,7 +21,7 @@ import picocli.CommandLine.Command;
 /** This corresponds to the third-level "terra workspace clone" command. */
 @Command(name = "clone", description = "Clone an existing workspace.")
 public class Clone extends BaseCommand {
-  @CommandLine.Option(names = "--id", required = true, description = "Workspace ID")
+  @CommandLine.Option(names = "--id", required = true, description = "Source workspace ID")
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace clone`
   private String id;
 
