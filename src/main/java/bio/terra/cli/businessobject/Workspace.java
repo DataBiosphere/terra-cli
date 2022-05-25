@@ -145,16 +145,17 @@ public class Workspace {
   /**
    * Update the mutable properties of the current workspace.
    *
-   * @param ufid optional display id
+   * @param userFacingId optional user-facing ID
    * @param name optional display name
    * @param description optional description
    * @throws UserActionableException if there is no current workspace
    */
   public Workspace update(
-      @Nullable String ufid, @Nullable String name, @Nullable String description) {
+      @Nullable String userFacingId, @Nullable String name, @Nullable String description) {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspace =
-        WorkspaceManagerService.fromContext().updateWorkspace(uuid, ufid, name, description);
+        WorkspaceManagerService.fromContext()
+            .updateWorkspace(uuid, userFacingId, name, description);
     logger.info("Updated workspace: {}", updatedWorkspace);
 
     // convert the WSM object to a CLI object
@@ -252,15 +253,15 @@ public class Workspace {
   /**
    * Clone the current workspace into a new one
    *
-   * @param ufid - id of the new workspace
+   * @param userFacingId - user-facing ID of the new workspace
    * @param name - name of the new workspace
    * @param description - description of the new workspace
    * @return - ClonedWorkspace structure with details on each resource
    */
   public ClonedWorkspace clone(
-      @Nullable String ufid, @Nullable String name, @Nullable String description) {
+      @Nullable String userFacingId, @Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContext().cloneWorkspace(uuid, ufid, name, description);
+        WorkspaceManagerService.fromContext().cloneWorkspace(uuid, userFacingId, name, description);
     return result.getWorkspace();
   }
 

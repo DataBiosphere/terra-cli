@@ -208,14 +208,14 @@ public class WorkspaceManagerService {
    * endpoint to wait for the job to finish.
    *
    * @param userFacingId required user-facing ID
-   * @param displayName optional display name
+   * @param name optional display name
    * @param description optional description
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
-      String userFacingId, @Nullable String displayName, @Nullable String description) {
+      String userFacingId, @Nullable String name, @Nullable String description) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -225,7 +225,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setUserFacingId(userFacingId);
           workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
-          workspaceRequestBody.setDisplayName(displayName);
+          workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
 
           // make the create workspace request
@@ -357,12 +357,12 @@ public class WorkspaceManagerService {
   public WorkspaceDescription updateWorkspace(
       UUID workspaceId,
       @Nullable String userFacingId,
-      @Nullable String displayName,
+      @Nullable String name,
       @Nullable String description) {
     UpdateWorkspaceRequestBody updateRequest =
         new UpdateWorkspaceRequestBody()
             .userFacingId(userFacingId)
-            .displayName(displayName)
+            .displayName(name)
             .description(description);
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
@@ -388,20 +388,17 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId - workspace ID to clone
    * @param userFacingId - optional userFacingId of new cloned workspace
-   * @param displayName - optional name of new cloned workspace
+   * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId,
-      @Nullable String userFacingId,
-      @Nullable String displayName,
-      @Nullable String description) {
+      UUID workspaceId, String userFacingId, @Nullable String name, @Nullable String description) {
     var request =
         new CloneWorkspaceRequest()
             .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
             .userFacingId(userFacingId)
-            .displayName(displayName)
+            .displayName(name)
             .description(description)
             // force location to null until we have an implementation of a workspace-wide location
             .location(null);

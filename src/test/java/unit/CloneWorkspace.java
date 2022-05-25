@@ -261,7 +261,7 @@ public class CloneWorkspace extends ClearContextUnit {
   }
 
   @Test
-  public void cloneFailsWithoutUserFacingId() throws IOException {
+  public void cloneFailsWithoutNewUserFacingId() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace clone`

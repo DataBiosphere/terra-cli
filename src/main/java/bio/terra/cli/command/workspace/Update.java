@@ -21,13 +21,14 @@ public class Update extends BaseCommand {
 
   static class UpdateArgGroup {
     @CommandLine.Option(names = "--new-id", required = false, description = "Workspace ID.")
-    private String userFacingId;
+    // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace update`
+    private String id;
 
     @CommandLine.Option(
         names = "--new-name",
         required = false,
         description = "Workspace name (not unique).")
-    private String displayName;
+    private String name;
 
     @CommandLine.Option(
         names = "--new-description",
@@ -44,8 +45,7 @@ public class Update extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
-        Context.requireWorkspace()
-            .update(argGroup.userFacingId, argGroup.displayName, argGroup.description);
+        Context.requireWorkspace().update(argGroup.id, argGroup.name, argGroup.description);
     updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
