@@ -36,13 +36,13 @@ public class ListUsers extends BaseCommand {
 
   /** Print this command's output in text format. */
   private static void printText(List<UFGroupMember> returnValue) {
-    TablePrinter<UFGroupMember> printer = ListUsers.UFGroupMemberColumns::values;
+    TablePrinter<UFGroupMember> printer = UFGroupMemberColumns::values;
     OUT.println(printer.print(returnValue));
   }
 
   /** Column information for fields in `resource list` output */
   private enum UFGroupMemberColumns implements ColumnDefinition<UFGroupMember> {
-    EMAIL("EMAIL", g -> g.email, 45, LEFT),
+    EMAIL("EMAIL", g -> g.email, 85, LEFT),
     POLICIES("POLICIES", g -> g.policies.toString(), 15, LEFT);
 
     private final String columnLabel;
