@@ -119,8 +119,8 @@ dependencies {
     implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
     testImplementation "bio.terra:terra-resource-janitor-client:${janitor}"
 
-    compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
-    compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
+    implementation "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
 
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
