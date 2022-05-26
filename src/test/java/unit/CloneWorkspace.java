@@ -176,7 +176,7 @@ public class CloneWorkspace extends ClearContextUnit {
             UFClonedWorkspace.class,
             "workspace",
             "clone",
-            "--id=cloned_workspace_id",
+            "--new-id=cloned_workspace_id",
             "--name=cloned_workspace",
             "--description=A clone.");
 
@@ -269,7 +269,7 @@ public class CloneWorkspace extends ClearContextUnit {
     assertThat(
         "error message indicate user must set ID",
         stdErr,
-        CoreMatchers.containsString("Missing required option: '--id=<id>'"));
+        CoreMatchers.containsString("Missing required option: '--new-id=<id>'"));
   }
 
   /**
