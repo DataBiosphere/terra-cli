@@ -259,7 +259,7 @@ public class Workspace {
    * @return - ClonedWorkspace structure with details on each resource
    */
   public ClonedWorkspace clone(
-      @Nullable String userFacingId, @Nullable String name, @Nullable String description) {
+      String userFacingId, @Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext().cloneWorkspace(uuid, userFacingId, name, description);
     return result.getWorkspace();

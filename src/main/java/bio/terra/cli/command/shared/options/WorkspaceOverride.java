@@ -17,6 +17,8 @@ public class WorkspaceOverride {
   @CommandLine.Option(
       names = "--workspace",
       description = "Workspace id to use for this command only.")
+  // Variable is `id` instead of `userFacingId` because user sees it when they run a command with
+  // missing required arguments
   private String id;
 
   /** Helper method to override the current workspace if the `--workspace` flag specifies an id. */

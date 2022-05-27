@@ -387,7 +387,7 @@ public class WorkspaceManagerService {
    * workspace.
    *
    * @param workspaceId - workspace ID to clone
-   * @param userFacingId - optional userFacingId of new cloned workspace
+   * @param userFacingId - required userFacingId of new cloned workspace
    * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
    * @return object with information about the clone job success and destination workspace
