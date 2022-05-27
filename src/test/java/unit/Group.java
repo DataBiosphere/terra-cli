@@ -221,6 +221,28 @@ public class Group extends ClearContextUnit {
             UFGroup.class, "group", "describe", "--name=" + name);
     assertEquals(2, groupDescribed.numMembers, "group describe shows two members");
 
+    // test the group list-user as a table format
+    TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
+
+    // use regular expression testing the table format and content inside
+    assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
+    assertEquals(0, cmd.exitCode, "group list-user returned successfully");
+    String[] rows = cmd.stdOut.split("\\n");
+    String[] rowHead = rows[0].split("\\s+");
+    assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
+    assertEquals("POLICIES", rowHead[1].trim().replace("\r", ""));
+
+    for (int i = 1; i < rows.length; i = i + 1) {
+      String[] rowi = rows[i].split("\\s+", 2);
+      assertTrue(listMembersWithEmail(name, rowi[0]).isPresent());
+      assertTrue(
+          rowi[0].matches(
+              "^[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+@[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+$"));
+      assertTrue(
+          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]")
+              .contains(rowi[1].trim().replace("\r", "")));
+    }
+
     // `terra group remove-user --name=$name --email=$email --policy=MEMBER`
     TestCommand.runCommandExpectSuccess(
         "group",
