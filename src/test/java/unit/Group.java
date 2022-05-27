@@ -1,6 +1,8 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -119,19 +121,21 @@ public class Group extends ClearContextUnit {
     assertEquals(0, cmd.exitCode, "group list returned successfully");
     String[] rows = cmd.stdOut.split("\\n");
     String[] rowHead = rows[0].split("\\s+");
-    assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
-    assertEquals("MEMBERS", rowHead[1].trim().replace("\r", ""));
-    assertEquals("POLICIES", rowHead[2].trim().replace("\r", ""));
+    assertEquals("NAME", rowHead[0].trim().replace("\r", ""));
+    assertEquals("EMAIL", rowHead[1].trim().replace("\r", ""));
+    assertEquals("MEMBERS", rowHead[2].trim().replace("\r", ""));
+    assertEquals("POLICIES", rowHead[3].trim().replace("\r", ""));
 
     for (int i = 1; i < rows.length; i = i + 1) {
       String[] rowi = rows[i].split("\\s+");
-      assertTrue(
-          rowi[0].matches(
+      assertThat(
+          rowi[1],
+          matchesPattern(
               "^[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+@[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+$"));
-      assertTrue(rowi[1].matches("[0-9]+"));
-      assertTrue(
-          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]")
-              .contains(rowi[2]));
+      assertThat(rowi[2], matchesPattern("[0-9]+"));
+      assertThat(
+          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]"),
+          hasItems(rowi[3]));
     }
   }
 
