@@ -21,6 +21,9 @@ import picocli.CommandLine.Command;
 /** This corresponds to the third-level "terra workspace clone" command. */
 @Command(name = "clone", description = "Clone an existing workspace.")
 public class Clone extends BaseCommand {
+  @CommandLine.Option(names = "--new-id", required = true, description = "ID for new workspace")
+  // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace clone`
+  private String id;
 
   @CommandLine.Mixin private WorkspaceNameAndDescription workspaceNameAndDescription;
 
@@ -35,7 +38,7 @@ public class Clone extends BaseCommand {
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
-            workspaceNameAndDescription.name, workspaceNameAndDescription.description);
+            id, workspaceNameAndDescription.name, workspaceNameAndDescription.description);
     Workspace destinationWorkspaceHydrated =
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 

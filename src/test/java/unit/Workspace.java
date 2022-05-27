@@ -130,13 +130,16 @@ public class Workspace extends ClearContextUnit {
     assertNotNull(createdWorkspace.name, "create workspace name is defined");
     assertNotNull(createdWorkspace.description, "create workspace description is defined");
 
-    // `terra workspace update --format=json --new-name=$newName --new-description=$newDescription`
+    // `terra workspace update --format=json --new-id=$newId --new-name=$newName
+    // --new-description=$newDescription`
+    String newId = "newid";
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
         "--format=json",
+        "--new-id=" + newId,
         "--new-name=" + newName,
         "--new-description=" + newDescription);
 
@@ -144,6 +147,7 @@ public class Workspace extends ClearContextUnit {
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
     // check the current status reflects the update
+    assertEquals(newId, status.workspace.id, "status matches updated workspace id");
     assertEquals(newName, status.workspace.name, "status matches updated workspace name");
     assertEquals(
         newDescription,
@@ -162,7 +166,7 @@ public class Workspace extends ClearContextUnit {
         "describe matches updated workspace description");
 
     // check the workspace list reflects the update
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createdWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
     assertEquals(
         1, matchingWorkspaces.size(), "updated workspace is included exactly once in list");
     assertEquals(
