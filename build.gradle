@@ -119,8 +119,8 @@ dependencies {
     implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
     testImplementation "bio.terra:terra-resource-janitor-client:${janitor}"
 
-    implementation "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
-    implementation "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
+    compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
+    compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
 
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
@@ -231,7 +231,7 @@ task runTestsWithTag(type: Test) {
 //    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
-    mainClass = "harness.utils.CleanupTestUserWorkspaces"
+    main = "harness.utils.CleanupTestUserWorkspaces"
 
     // override the default global context directory with a sub-directory of the gradle build directory
     // this is so that the tests don't overwrite any context that exists on this same machine.

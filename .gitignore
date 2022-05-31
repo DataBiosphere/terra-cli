@@ -42,6 +42,3 @@ out/
 ### Nextflow
 .nextflow
 .nextflow.log
-
-### JEnv
-.java-version
