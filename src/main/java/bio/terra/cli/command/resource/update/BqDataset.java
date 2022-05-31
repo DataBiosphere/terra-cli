@@ -59,7 +59,8 @@ public class BqDataset extends BaseCommand {
           new UpdateReferencedBqDatasetParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
               .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-              .projectId(bqDatasetNewIds.getNewGcpProjectId());
+              .projectId(bqDatasetNewIds.getNewGcpProjectId())
+              .cloningInstructions(newCloningInstructionsOption.getCloning());
       resource.updateReferenced(updateParams.build());
     } else {
       resource.updateControlled(

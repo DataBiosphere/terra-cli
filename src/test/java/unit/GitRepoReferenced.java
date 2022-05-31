@@ -201,7 +201,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update git-repo --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFGitRepo updateGitRepo =
+    UFGitRepo updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
@@ -209,36 +209,39 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateGitRepo.name);
-    assertEquals(description, updateGitRepo.description);
+    assertEquals(newName, updatedGitRepo.name);
+    assertEquals(description, updatedGitRepo.description);
 
     // `terra resources describe --name=$newName`
-    UFGitRepo describeGitRepo =
+    UFGitRepo describedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeGitRepo.description);
+    assertEquals(description, describedGitRepo.description);
 
     // update just the description
-    // `terra resources update git-repo --name=$newName --description=$newDescription`
+    // `terra resources update git-repo --name=$newName --description=$newDescription
+    // --new-cloning=COPY_DEFINITION`
     String newDescription = "updateDescription_NEW";
-    updateGitRepo =
+    updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
             "update",
             "git-repo",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateGitRepo.name);
-    assertEquals(newDescription, updateGitRepo.description);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    assertEquals(newName, updatedGitRepo.name);
+    assertEquals(newDescription, updatedGitRepo.description);
 
     // `terra resources describe --name=$newName`
-    describeGitRepo =
+    describedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeGitRepo.description);
+    assertEquals(newDescription, describedGitRepo.description);
+    assertEquals(CloningInstructionsEnum.DEFINITION, describedGitRepo.cloningInstructions);
 
-    updateGitRepo =
+    updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
@@ -246,7 +249,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + newName,
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
-    assertEquals(GIT_REPO_HTTPS_URL, updateGitRepo.gitRepoUrl);
+    assertEquals(GIT_REPO_HTTPS_URL, updatedGitRepo.gitRepoUrl);
 
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(

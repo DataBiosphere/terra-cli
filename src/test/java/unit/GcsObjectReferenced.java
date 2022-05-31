@@ -441,7 +441,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFGcsObject updateBucketObject =
+    UFGcsObject updatedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,
             "resource",
@@ -449,36 +449,39 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "gcs-object",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateBucketObject.name);
-    assertEquals(description, updateBucketObject.description);
+    assertEquals(newName, updatedBucketObject.name);
+    assertEquals(description, updatedBucketObject.description);
 
     // `terra resources describe --name=$newName`
-    UFGcsObject describeBucketObject =
+    UFGcsObject describedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeBucketObject.description);
+    assertEquals(description, describedBucketObject.description);
 
     // update just the description
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription`
+    // `terra resources update gcs-bucket --name=$newName --description=$newDescription
+    // --new-cloning=COPY_DEFINITION`
     String newDescription = "updateDescription_NEW";
-    updateBucketObject =
+    updatedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,
             "resource",
             "update",
             "gcs-object",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateBucketObject.name);
-    assertEquals(newDescription, updateBucketObject.description);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+    assertEquals(newName, updatedBucketObject.name);
+    assertEquals(newDescription, updatedBucketObject.description);
 
     // `terra resources describe --name=$newName`
-    describeBucketObject =
+    describedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeBucketObject.description);
+    assertEquals(newDescription, describedBucketObject.description);
+    assertEquals(CloningInstructionsEnum.DEFINITION, describedBucketObject.cloningInstructions);
 
-    updateBucketObject =
+    updatedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,
             "resource",
@@ -486,8 +489,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "gcs-object",
             "--name=" + newName,
             "--new-object-name=" + externalBucketBlobName2);
-    assertEquals(externalBucketBlobName2, updateBucketObject.objectName);
-    assertEquals(externalBucket.getName(), updateBucketObject.bucketName);
+    assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
+    assertEquals(externalBucket.getName(), updatedBucketObject.bucketName);
 
     String resolved =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -497,7 +500,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         resolved,
         "resolve matches bucket object blob2 name");
 
-    updateBucketObject =
+    updatedBucketObject =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsObject.class,
             "resource",
@@ -505,8 +508,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "gcs-object",
             "--name=" + newName,
             "--new-bucket-name=" + externalBucket2.getName());
-    assertEquals(externalBucketBlobName2, updateBucketObject.objectName);
-    assertEquals(externalBucket2.getName(), updateBucketObject.bucketName);
+    assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
+    assertEquals(externalBucket2.getName(), updatedBucketObject.bucketName);
 
     String resolved2 =
         TestCommand.runAndParseCommandExpectSuccess(

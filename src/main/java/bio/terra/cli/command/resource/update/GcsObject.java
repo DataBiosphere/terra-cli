@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -20,6 +21,7 @@ import picocli.CommandLine;
     description = "Update a GCS bucket object.",
     showDefaultValues = true)
 public class GcsObject extends BaseCommand {
+  @CommandLine.Mixin ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketNewName newBucketName;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -55,6 +57,7 @@ public class GcsObject extends BaseCommand {
             .resourceFields(updateResourceParams)
             .bucketName(newBucketName.getNewBucketName())
             .objectName(newObjectName)
+            .cloningInstructions(newCloningInstructionsOption.getCloning())
             .build();
     resource.updateReferenced(gcsObjectParams);
     // re-load the resource so we display all properties with up-to-date values

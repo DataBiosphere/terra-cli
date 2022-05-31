@@ -96,6 +96,9 @@ public class BqTable extends Resource {
     if (updateParams.tableId != null) {
       this.dataTableId = updateParams.tableId;
     }
+    if (updateParams.cloningInstructions != null) {
+      this.cloningInstructions = updateParams.cloningInstructions;
+    }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);

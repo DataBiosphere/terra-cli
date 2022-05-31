@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -10,16 +11,19 @@ import javax.annotation.Nullable;
 public class UpdateReferencedGitRepoParams {
   public final UpdateResourceParams resourceFields;
   public final @Nullable String gitRepoUrl;
+  public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedGitRepoParams(UpdateReferencedGitRepoParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.gitRepoUrl = builder.gitRepoUrl;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private UpdateResourceParams resourceFields;
     private @Nullable String gitRepoUrl;
+    private CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedGitRepoParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -29,6 +33,12 @@ public class UpdateReferencedGitRepoParams {
 
     public UpdateReferencedGitRepoParams.Builder gitRepoUrl(@Nullable String gitRepoUrl) {
       this.gitRepoUrl = gitRepoUrl;
+      return this;
+    }
+
+    public UpdateReferencedGitRepoParams.Builder cloningInstructions(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

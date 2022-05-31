@@ -61,7 +61,8 @@ public class GcsBucket extends BaseCommand {
       UpdateReferencedGcsBucketParams.Builder gcsBucketParams =
           new UpdateReferencedGcsBucketParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-              .bucketName(newBucketName.getNewBucketName());
+              .bucketName(newBucketName.getNewBucketName())
+              .cloningInstructions(newCloningInstructionsOption.getCloning());
       resource.updateReferenced(gcsBucketParams.build());
     } else {
       resource.updateControlled(

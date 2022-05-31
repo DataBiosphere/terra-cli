@@ -79,6 +79,9 @@ public class GitRepo extends Resource {
     if (updateParams.gitRepoUrl != null) {
       this.gitRepoUrl = updateParams.gitRepoUrl;
     }
+    if (updateParams.cloningInstructions != null) {
+      this.cloningInstructions = updateParams.cloningInstructions;
+    }
     WorkspaceManagerService.fromContext()
         .updateReferencedGitRepo(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
