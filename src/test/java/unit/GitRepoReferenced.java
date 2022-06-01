@@ -218,7 +218,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describedGitRepo.description);
 
-    // update just the description
+    // update description and cloning instructions
     // `terra resources update git-repo --name=$newName --description=$newDescription
     // --new-cloning=COPY_REFERENCE`
     String newDescription = "updateDescription_NEW";
@@ -230,7 +230,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + newName,
             "--description=" + newDescription,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+            "--new-cloning=" + CloningInstructionsEnum.REFERENCE);
     assertEquals(newName, updatedGitRepo.name);
     assertEquals(newDescription, updatedGitRepo.description);
 

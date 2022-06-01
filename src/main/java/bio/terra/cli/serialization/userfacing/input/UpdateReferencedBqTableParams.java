@@ -37,7 +37,7 @@ public class UpdateReferencedBqTableParams {
    */
   public final @Nullable String tableId;
 
-  public final CloningInstructionsEnum cloningInstructions;
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedBqTableParams(UpdateReferencedBqTableParams.Builder builder) {
     this.resourceParams = builder.resourceParams;

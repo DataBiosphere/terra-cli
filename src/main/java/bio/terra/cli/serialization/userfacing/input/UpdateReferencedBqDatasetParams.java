@@ -30,7 +30,7 @@ public class UpdateReferencedBqDatasetParams {
    */
   public final @Nullable String projectId;
 
-  public final CloningInstructionsEnum cloningInstructions;
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedBqDatasetParams(UpdateReferencedBqDatasetParams.Builder builder) {
     this.resourceParams = builder.resourceFields;

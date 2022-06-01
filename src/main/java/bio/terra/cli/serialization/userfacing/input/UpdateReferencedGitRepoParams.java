@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 public class UpdateReferencedGitRepoParams {
   public final UpdateResourceParams resourceFields;
   public final @Nullable String gitRepoUrl;
-  public final CloningInstructionsEnum cloningInstructions;
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedGitRepoParams(UpdateReferencedGitRepoParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -23,7 +23,7 @@ public class UpdateReferencedGitRepoParams {
   public static class Builder {
     private UpdateResourceParams resourceFields;
     private @Nullable String gitRepoUrl;
-    private CloningInstructionsEnum cloningInstructions;
+    private @Nullable CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedGitRepoParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {

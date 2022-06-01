@@ -300,7 +300,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describedBucket.description);
 
-    // update just the description
+    // update description and cloning instructions
     // `terra resources update gcs-bucket --name=$newName --description=$newDescription
     // --new-cloning=COPY_REFERENCE`
     String newDescription = "updateDescription_NEW";
@@ -312,7 +312,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + newName,
             "--description=" + newDescription,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+            "--new-cloning=" + CloningInstructionsEnum.REFERENCE);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);
 

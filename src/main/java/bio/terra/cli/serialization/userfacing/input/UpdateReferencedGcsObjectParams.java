@@ -25,7 +25,7 @@ public class UpdateReferencedGcsObjectParams {
    */
   public final @Nullable String objectName;
 
-  public final CloningInstructionsEnum cloningInstructions;
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedGcsObjectParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -39,7 +39,7 @@ public class UpdateReferencedGcsObjectParams {
     private UpdateResourceParams resourceFields;
     private @Nullable String bucketName;
     private @Nullable String objectName;
-    private CloningInstructionsEnum cloningInstructions;
+    private @Nullable CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {

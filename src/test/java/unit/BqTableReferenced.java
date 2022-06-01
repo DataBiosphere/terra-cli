@@ -381,7 +381,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             UFBqTable.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describedDataTable.description);
 
-    // update just the description
+    // update description and cloning instructions
     // `terra resources update bq-table --name=$newName --description=$newDescription
     // --new-cloning=COPY_REFERENCE`
     String newDescription = "updateDescription_NEW";
@@ -393,7 +393,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--description=" + newDescription,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+            "--new-cloning=" + CloningInstructionsEnum.REFERENCE);
     assertEquals(newName, updatedDataTable.name);
     assertEquals(newDescription, updatedDataTable.description);
 

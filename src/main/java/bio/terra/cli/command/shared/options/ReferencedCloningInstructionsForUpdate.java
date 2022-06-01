@@ -14,8 +14,10 @@ public class ReferencedCloningInstructionsForUpdate {
   // update cloning instructions.
   @CommandLine.Option(
       names = "--new-cloning",
+      // Only COPY_NOTHING and COPY_REFERENCE are allowed for referenced resources
+      // https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/ResourceValidationUtils.java#L452
       description =
-          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE.")
+          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_REFERENCE.")
   private CloningInstructionsEnum cloning;
 
   public CloningInstructionsEnum getCloning() {
