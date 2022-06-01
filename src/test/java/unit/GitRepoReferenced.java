@@ -220,7 +220,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // update just the description
     // `terra resources update git-repo --name=$newName --description=$newDescription
-    // --new-cloning=COPY_DEFINITION`
+    // --new-cloning=COPY_REFERENCE`
     String newDescription = "updateDescription_NEW";
     updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -239,7 +239,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describedGitRepo.description);
-    assertEquals(CloningInstructionsEnum.DEFINITION, describedGitRepo.cloningInstructions);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedGitRepo.cloningInstructions);
 
     updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(

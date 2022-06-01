@@ -290,8 +290,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + name,
-            "--new-name=" + newName,
-            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
+            "--new-name=" + newName);
     assertEquals(newName, updatedBucket.name);
     assertEquals(description, updatedBucket.description);
 
@@ -300,11 +299,10 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describedBucket.description);
-    assertEquals(CloningInstructionsEnum.DEFINITION, describedBucket.cloningInstructions);
 
     // update just the description
     // `terra resources update gcs-bucket --name=$newName --description=$newDescription
-    // --new-cloning=COPY_DEFINITION`
+    // --new-cloning=COPY_REFERENCE`
     String newDescription = "updateDescription_NEW";
     updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -313,7 +311,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);
 
@@ -322,6 +321,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describedBucket.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedBucket.cloningInstructions);
 
     updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
