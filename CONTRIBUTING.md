@@ -524,6 +524,12 @@ for two reasons:
   SA access token which does have `https://www.googleapis.com/auth/cloud-platform` scope. (SAM stores pet SA keys, so
   SAM is able to generate an access token with that scope.)
 
+Some tests use test user refresh tokens ([example](https://github.com/DataBiosphere/terra-cli/blob/1f6e18eb7922cbc6c1ea6e7e80048ae79a8e3892/src/test/java/harness/TestUser.java#L120)).
+These refresh tokens are stored in vault. Most places uses service account keys
+to bypass OAuth in tests. However, our employer prohibits the use of service
+account keys for security reasons, so we use refresh tokens instead. Note that
+[refresh tokens never expire](https://developers.google.com/identity/protocols/oauth2#expiration).
+
 <table>
 <tr>
 <td></td>
@@ -562,10 +568,11 @@ In Docker mode, [we mount `.config/gcloud`](https://github.com/DataBiosphere/ter
 <td>GCP notebook</td>
 <td>
 
-**Pet ADC** (if you use `--use-app-default-credentials`)
+**Pet ADC**
 
-Notebooks can run terra CLI with  [`--use-app-default-credentials`](https://github.com/DataBiosphere/terra-cli/pull/197/files).
-terra will pick up creds from ADC instead of OAuth (which involves interacting with a browser).
+[Notebook startup script runs `terra auth login --mode=APP_DEFAULT_CREDENTIALS`.](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L71)
+So notebook `terra` commands will use ADC, which is automatically configured for
+GCE VMs, rather than OAuth (which involves interacting with a browser).
 </td>
 <td valign="top">
 
