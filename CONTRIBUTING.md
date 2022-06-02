@@ -526,7 +526,7 @@ for two reasons:
 
 Some tests use test user refresh tokens ([example](https://github.com/DataBiosphere/terra-cli/blob/1f6e18eb7922cbc6c1ea6e7e80048ae79a8e3892/src/test/java/harness/TestUser.java#L120)).
 These refresh tokens are stored in vault. Most places uses service account keys
-to bypass OAuth in tests. However, our employer prohibits the use of service
+to bypass manual OAuth in tests. However, our employer prohibits the use of service
 account keys for security reasons, so we use refresh tokens instead. Note that
 [refresh tokens never expire](https://developers.google.com/identity/protocols/oauth2#expiration).
 
