@@ -296,10 +296,10 @@ public class Group extends ClearContextUnit {
 
   private void expectListedMemberWithPoliciesTableFormat(
       String name, String email, GroupPolicy... policies) throws JsonProcessingException {
-    // test the group list-user as a table format
+    // call `terra group list-users` in table format
     TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
 
-    // use regular expression testing the table format and content inside
+    // assert header is correct
     assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
     assertEquals(0, cmd.exitCode, "group list-user returned successfully");
     String[] rows = cmd.stdOut.split("\\n");
@@ -307,13 +307,14 @@ public class Group extends ClearContextUnit {
     assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
     assertEquals("POLICIES", rowHead[1].trim().replace("\r", ""));
 
-    // test the email exsit in the table and the policy correct
-    Boolean emailExist = false;
+    // test the email exist in the table and the policy correct
+    boolean emailExist = false;
     for (int i = 1; i < rows.length; i = i + 1) {
-      String[] rowi = rows[i].split("\\s+", 2);
-      if (email.equalsIgnoreCase(rowi[0])) {
-        assertEquals("[MEMBER, ADMIN]", rowi[1].trim().replace("\r", ""));
+      if (rows[i].contains(email.toLowerCase())) {
         emailExist = true;
+        for (var policy : policies) {
+          assertTrue(rows[i].contains(policy.toString()));
+        }
       }
     }
     assertTrue(emailExist);
