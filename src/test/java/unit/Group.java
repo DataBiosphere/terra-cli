@@ -307,17 +307,17 @@ public class Group extends ClearContextUnit {
     assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
     assertEquals("POLICIES", rowHead[1].trim().replace("\r", ""));
 
-    // test the email exist in the table and the policy correct
-    boolean emailExist = false;
-    for (int i = 1; i < rows.length; i = i + 1) {
+    // assert email and policies are correct
+    boolean emailExists = false;
+    for (int i = 1; i < rows.length; i++) {
       if (rows[i].contains(email.toLowerCase())) {
-        emailExist = true;
+        emailExists = true;
         for (var policy : policies) {
           assertTrue(rows[i].contains(policy.toString()));
         }
       }
     }
-    assertTrue(emailExist);
+    assertTrue(emailExists);
   }
 
   /**
