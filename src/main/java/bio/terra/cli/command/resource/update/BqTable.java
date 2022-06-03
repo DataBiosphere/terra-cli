@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
-import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
+import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -20,7 +20,7 @@ import picocli.CommandLine;
     description = "Update a BigQuery data table.",
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
-  @CommandLine.Mixin ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
+  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

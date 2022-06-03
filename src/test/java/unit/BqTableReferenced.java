@@ -383,7 +383,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
 
     // update description and cloning instructions
     // `terra resources update bq-table --name=$newName --description=$newDescription
-    // --new-cloning=COPY_REFERENCE`
+    // --new-cloning=COPY_NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -393,7 +393,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--description=" + newDescription,
-            "--new-cloning=" + CloningInstructionsEnum.REFERENCE);
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedDataTable.name);
     assertEquals(newDescription, updatedDataTable.description);
 
@@ -402,7 +402,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describedDataTable.description);
-    assertEquals(CloningInstructionsEnum.REFERENCE, describedDataTable.cloningInstructions);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedDataTable.cloningInstructions);
 
     updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(

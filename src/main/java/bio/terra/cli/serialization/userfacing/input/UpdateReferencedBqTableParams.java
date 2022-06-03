@@ -59,7 +59,7 @@ public class UpdateReferencedBqTableParams {
     private @Nullable String datasetId;
     private @Nullable String projectId;
     private @Nullable String tableId;
-    private CloningInstructionsEnum cloningInstructions;
+    private @Nullable CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedBqTableParams.Builder resourceParams(
         UpdateResourceParams resourceParams) {
@@ -83,7 +83,7 @@ public class UpdateReferencedBqTableParams {
     }
 
     public UpdateReferencedBqTableParams.Builder cloningInstructions(
-        CloningInstructionsEnum cloningInstructions) {
+        @Nullable CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;
       return this;
     }

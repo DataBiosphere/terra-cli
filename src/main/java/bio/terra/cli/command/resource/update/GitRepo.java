@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
+import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -25,7 +25,7 @@ public class GitRepo extends BaseCommand {
   private String newRepoUrl;
 
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
+  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

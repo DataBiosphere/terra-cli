@@ -37,7 +37,7 @@ public class UpdateReferencedGitRepoParams {
     }
 
     public UpdateReferencedGitRepoParams.Builder cloningInstructions(
-        CloningInstructionsEnum cloningInstructions) {
+        @Nullable CloningInstructionsEnum cloningInstructions) {
       this.cloningInstructions = cloningInstructions;
       return this;
     }

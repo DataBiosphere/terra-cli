@@ -929,7 +929,8 @@ public class WorkspaceManagerService {
         .name(updateParams.resourceFields.name)
         .description(updateParams.resourceFields.description)
         .bucketName(updateParams.bucketName)
-        .objectName(updateParams.objectName);
+        .objectName(updateParams.objectName)
+        .cloningInstructions(updateParams.cloningInstructions);
 
     callWithRetries(
         () ->
@@ -954,7 +955,8 @@ public class WorkspaceManagerService {
         new UpdateGcsBucketReferenceRequestBody()
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description)
-            .bucketName(updateParams.bucketName);
+            .bucketName(updateParams.bucketName)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -977,7 +979,8 @@ public class WorkspaceManagerService {
         new UpdateGitRepoReferenceRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description)
-            .gitRepoUrl(updateParams.gitRepoUrl);
+            .gitRepoUrl(updateParams.gitRepoUrl)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -1034,7 +1037,8 @@ public class WorkspaceManagerService {
             .description(updateParams.resourceParams.description)
             .projectId(updateParams.projectId)
             .datasetId(updateParams.datasetId)
-            .dataTableId(updateParams.tableId);
+            .dataTableId(updateParams.tableId)
+            .cloningInstructions(updateParams.cloningInstructions);
 
     callWithRetries(
         () ->
@@ -1060,7 +1064,8 @@ public class WorkspaceManagerService {
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description)
             .projectId(updateParams.projectId)
-            .datasetId(updateParams.datasetId);
+            .datasetId(updateParams.datasetId)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)

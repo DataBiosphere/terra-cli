@@ -328,7 +328,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // update description and cloning instructions
     // `terra resources update bq-dataset --name=$newName --description=$newDescription
-    // --new-cloning=COPY_REFERENCE`
+    // --new-cloning=COPY_NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -338,7 +338,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + newName,
             "--description=" + newDescription,
-            "--new-cloning=" + CloningInstructionsEnum.REFERENCE);
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedDataset.name);
     assertEquals(newDescription, updatedDataset.description);
 
@@ -347,7 +347,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describedDataset.description);
-    assertEquals(CloningInstructionsEnum.REFERENCE, describedDataset.cloningInstructions);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedDataset.cloningInstructions);
 
     updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
