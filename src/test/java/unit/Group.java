@@ -316,8 +316,8 @@ public class Group extends ClearContextUnit {
         }
       }
     }
-    assertTrue(emailExists);
     // email address for group member should be included in table output.
+    assertTrue(emailExists, "Email address for group member should be included in table output.");
     return cmd;
   }
 
