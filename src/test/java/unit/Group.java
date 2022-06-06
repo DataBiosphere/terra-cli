@@ -312,10 +312,7 @@ public class Group extends ClearContextUnit {
     // assert name, email and policies are correct
     boolean nameAndEmailExists = false;
 
-    System.out.println(name);
-    System.out.println(email);
     for (int i = 1; i < rows.length; i++) {
-      System.out.println(rows[i]);
       // Convert to lower-case because email in broad.json is mixed case
       if (rows[i].contains(email) && rows[i].contains(name)) {
         nameAndEmailExists = true;
@@ -324,8 +321,7 @@ public class Group extends ClearContextUnit {
         }
       }
     }
-    // name and email address for group member should be included in table output.
-    assertTrue(nameAndEmailExists);
+    assertTrue(nameAndEmailExists, "Name and email address for group member should be included in table output.");
     return cmd;
   }
 
