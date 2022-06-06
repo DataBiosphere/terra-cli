@@ -1,7 +1,6 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -79,31 +78,8 @@ public class Group extends ClearContextUnit {
         matchedGroup.get().currentUserPolicies.contains(GroupPolicy.ADMIN),
         "group policies for current user matches list output after create");
 
-    List<String> groupName =
-        groupList.stream().map(group -> group.name).collect(Collectors.toList());
-    List<String> groupEmail =
-        groupList.stream().map(group -> group.email).collect(Collectors.toList());
-
-    TestCommand.Result cmd = TestCommand.runCommand("group", "list");
-
-    // use regular expression testing the table format and content inside
-    assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
-    assertEquals(0, cmd.exitCode, "group list returned successfully");
-    String[] rows = cmd.stdOut.split("\\n");
-    String[] rowHead = rows[0].split("\\s+");
-    assertEquals("NAME", rowHead[0].trim().replace("\r", ""));
-    assertEquals("EMAIL", rowHead[1].trim().replace("\r", ""));
-    assertEquals("MEMBERS", rowHead[2].trim().replace("\r", ""));
-    assertEquals("POLICIES", rowHead[3].trim().replace("\r", ""));
-
-    for (int i = 1; i < rows.length; i = i + 1) {
-      String[] rowi = rows[i].split("\\s+");
-      assertThat(groupName, hasItems(rowi[0]));
-      assertThat(groupEmail, hasItems(rowi[1]));
-      assertThat(
-          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]"),
-          hasItems(rowi[3]));
-    }
+    // call `terra group list` with table format
+    expectGroupListedMemberWithPoliciesTableFormat(name, groupCreated.email, GroupPolicy.ADMIN);
 
     // `terra group describe --name=$name`
     UFGroup groupDescribed =
@@ -318,6 +294,39 @@ public class Group extends ClearContextUnit {
     assertTrue(
         groupMember.get().policies.containsAll(Arrays.asList(policies)),
         "test user has the right policies");
+  }
+
+  private TestCommand.Result expectGroupListedMemberWithPoliciesTableFormat(
+      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+    // call `terra group list` in table format
+    TestCommand.Result cmd = TestCommand.runCommand("group", "list");
+
+    // assert header is correct
+    String[] rows = cmd.stdOut.split("\\n");
+    String[] rowHead = rows[0].split("\\s+");
+    assertEquals("NAME", rowHead[0]);
+    assertEquals("EMAIL", rowHead[1]);
+    assertEquals("MEMBERS", rowHead[2]);
+    assertEquals("POLICIES", rowHead[3]);
+
+    // assert name, email and policies are correct
+    boolean nameAndEmailExists = false;
+
+    System.out.println(name);
+    System.out.println(email);
+    for (int i = 1; i < rows.length; i++) {
+      System.out.println(rows[i]);
+      // Convert to lower-case because email in broad.json is mixed case
+      if (rows[i].contains(email) && rows[i].contains(name)) {
+        nameAndEmailExists = true;
+        for (var policy : policies) {
+          assertThat("Row has all policies.", rows[i].contains(policy.toString()));
+        }
+      }
+    }
+    // name and email address for group member should be included in table output.
+    assertTrue(nameAndEmailExists);
+    return cmd;
   }
 
   /**

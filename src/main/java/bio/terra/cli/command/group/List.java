@@ -38,7 +38,8 @@ public class List extends BaseCommand {
   private enum UFGroupColumns implements ColumnDefinition<UFGroup> {
     NAME("NAME", g -> g.name, 30, LEFT),
     EMAIL("EMAIL", g -> g.email, 45, LEFT),
-    MEMBERS("MEMBERS", g -> g.numMembers.toString(), 7, RIGHT),
+    // numMembers will be null if we do not have permission to list the members
+    MEMBERS("MEMBERS", g -> g.numMembers == null ? "unknown" : g.numMembers.toString(), 7, RIGHT),
     POLICIES("POLICIES", g -> g.currentUserPolicies.toString(), 15, LEFT);
 
     private final String columnLabel;
