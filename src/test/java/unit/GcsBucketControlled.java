@@ -33,7 +33,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listDescribeReflectCreate";
@@ -76,7 +76,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listDescribeReflectCreate";
@@ -115,7 +115,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "listReflectsDelete";
@@ -137,7 +137,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "resolve";
@@ -171,7 +171,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName`
     String name = "checkAccess";
@@ -197,7 +197,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create gcs-bucket --name=$name --bucket-name=$bucketName --access=$access
     // --cloning=$cloning --description=$description --location=$location --storage=$storage
@@ -272,7 +272,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create gcs-bucket --name=$name --description=$description
     // --bucket-name=$bucketName`
@@ -285,7 +285,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         "gcs-bucket",
         "--name=" + name,
         "--description=" + description,
-        "--bucket-name=" + bucketName);
+        "--bucket-name=" + bucketName,
+        "--cloning=" + CloningInstructionsEnum.RESOURCE);
 
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
@@ -317,9 +318,12 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
+    // see if the returned structure is up-to-date for cloning instructions
+    assertEquals(CloningInstructionsEnum.NOTHING, updateBucket.cloningInstructions);
 
     // `terra resources describe --name=$newName`
     describeBucket =
@@ -350,7 +354,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resources create gcs-bucket --name=$name --description=$description
     // --bucket-name=$bucketName`
@@ -371,7 +375,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     GcsStorageClass newStorage = GcsStorageClass.NEARLINE;
-    UFGcsBucket updateBucket =
+    UFGcsBucket updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
@@ -381,8 +385,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "--new-name=" + newName,
             "--description=" + newDescription,
             "--storage=" + newStorage);
-    assertEquals(newName, updateBucket.name);
-    assertEquals(newDescription, updateBucket.description);
+    assertEquals(newName, updatedBucket.name);
+    assertEquals(newDescription, updatedBucket.description);
 
     // `terra resources describe --name=$newName`
     UFGcsBucket describeBucket =
@@ -414,9 +418,9 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFGcsBucket listOneBucketResourceWithName(String resourceName, UUID workspaceId)
+  static UFGcsBucket listOneBucketResourceWithName(String resourceName, String userFacingId)
       throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, workspaceId);
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, userFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -435,11 +439,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  static List<UFGcsBucket> listBucketResourcesWithName(String resourceName, UUID workspaceId)
-      throws JsonProcessingException {
+  static List<UFGcsBucket> listBucketResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=GCS_BUCKET --format=json`
     List<UFGcsBucket> listedResources =
-        workspaceId == null
+        workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {}, "resource", "list", "--type=GCS_BUCKET")
             : TestCommand.runAndParseCommandExpectSuccess(
@@ -447,7 +451,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
                 "resource",
                 "list",
                 "--type=GCS_BUCKET",
-                "--workspace=" + workspaceId);
+                "--workspace=" + workspaceUserFacingId);
 
     // find the matching bucket in the list
     return listedResources.stream()

@@ -24,10 +24,13 @@ import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -108,9 +111,10 @@ public class CloneWorkspace extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    // `terra workspace create --format=json`
-    sourceWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+
+    // create a radom workspace clone
+    Random RANDOM = new Random();
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =
@@ -168,7 +172,7 @@ public class CloneWorkspace extends ClearContextUnit {
 
     // Update workspace name. This is for testing PF-1623.
     TestCommand.runAndParseCommandExpectSuccess(
-        UFWorkspace.class, "workspace", "update", "--name=update_Name");
+        UFWorkspace.class, "workspace", "update", "--new-name=update_name");
 
     // Clone the workspace
     UFClonedWorkspace clonedWorkspace =
@@ -176,6 +180,7 @@ public class CloneWorkspace extends ClearContextUnit {
             UFClonedWorkspace.class,
             "workspace",
             "clone",
+            "--new-id=cloned_id" + RANDOM.nextInt(Integer.MAX_VALUE),
             "--name=cloned_workspace",
             "--description=A clone.");
 
@@ -257,6 +262,18 @@ public class CloneWorkspace extends ClearContextUnit {
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
     assertThat(
         "Destination workspace has three resources.", resources, hasSize(DESTINATION_RESOURCE_NUM));
+  }
+
+  @Test
+  public void cloneFailsWithoutNewUserFacingId() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace clone`
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "clone");
+    assertThat(
+        "error message indicate user must set ID",
+        stdErr,
+        CoreMatchers.containsString("Missing required option: '--new-id=<id>'"));
   }
 
   /**

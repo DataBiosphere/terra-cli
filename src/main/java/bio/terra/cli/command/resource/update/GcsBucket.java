@@ -2,7 +2,9 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
@@ -25,6 +27,7 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
+  @CommandLine.Mixin ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -38,7 +41,8 @@ public class GcsBucket extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
         && !lifecycleOptions.isDefined()
-        && newBucketName.getNewBucketName() == null) {
+        && newBucketName.getNewBucketName() == null
+        && newCloningInstructionsOption.getCloning() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -65,8 +69,12 @@ public class GcsBucket extends BaseCommand {
               .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
               .defaultStorageClass(storageClassOption.storageClass)
               .lifecycle(lifecycleOptions.buildLifecycleObject())
+              .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
+    // re-load the resource so we display all properties with up-to-date values
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_BUCKET);
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
   }
 

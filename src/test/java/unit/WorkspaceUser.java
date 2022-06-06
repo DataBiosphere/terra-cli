@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +30,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
@@ -58,7 +57,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // check that the workspace creator is in the list as an owner
     expectListedUserWithRoles(workspaceCreator.email, OWNER);
@@ -72,7 +71,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     TestUser testUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra workspace add-user --email=$email --role=READER --format=json
     UFWorkspaceUser addUserReader =
@@ -115,7 +114,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
     TestUser testUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra workspace add-user --email=$email --role=READER --format=json
     TestCommand.runCommandExpectSuccess(
@@ -156,9 +155,12 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Filters on the specified workspace id; Uses the current workspace if null.
    */
   static void expectListedUserWithRoles(
-      String userEmail, UUID workspaceId, bio.terra.cli.businessobject.WorkspaceUser.Role... roles)
+      String userEmail,
+      String workspaceUserFacingId,
+      bio.terra.cli.businessobject.WorkspaceUser.Role... roles)
       throws JsonProcessingException {
-    Optional<UFWorkspaceUser> workspaceUser = workspaceListUsersWithEmail(userEmail, workspaceId);
+    Optional<UFWorkspaceUser> workspaceUser =
+        workspaceListUsersWithEmail(userEmail, workspaceUserFacingId);
     assertTrue(workspaceUser.isPresent(), "test user is in users list");
     assertEquals(
         roles.length, workspaceUser.get().roles.size(), "test user has the right number of roles");
@@ -180,15 +182,18 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
    * Helper method to call `terra workspace list` and filter the results on the specified user email
    * and workspace id (uses the current workspace id if null).
    */
-  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(String userEmail, UUID workspaceId)
-      throws JsonProcessingException {
+  static Optional<UFWorkspaceUser> workspaceListUsersWithEmail(
+      String userEmail, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra workspace list-users --format=json`
     List<UFWorkspaceUser> listWorkspaceUsers =
-        workspaceId == null
+        workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {}, "workspace", "list-users")
             : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "workspace", "list-users", "--workspace=" + workspaceId);
+                new TypeReference<>() {},
+                "workspace",
+                "list-users",
+                "--workspace=" + workspaceUserFacingId);
 
     // find the user in the list
     return listWorkspaceUsers.stream()

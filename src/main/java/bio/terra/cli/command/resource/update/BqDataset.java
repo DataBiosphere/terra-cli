@@ -2,9 +2,11 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
+import bio.terra.cli.command.shared.options.ControlledCloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -24,6 +26,7 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
+  @CommandLine.Mixin ControlledCloningInstructionsForUpdate newCloningInstructionsOption;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -36,7 +39,8 @@ public class BqDataset extends BaseCommand {
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
-        && !bqDatasetNewIds.isDefined()) {
+        && !bqDatasetNewIds.isDefined()
+        && !newCloningInstructionsOption.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -65,9 +69,12 @@ public class BqDataset extends BaseCommand {
                   bqDatasetLifetimeOptions.getDefaultPartitionLifetimeSeconds())
               .defaultTableLifetimeSeconds(
                   bqDatasetLifetimeOptions.getDefaultTableLifetimeSeconds())
+              .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
-
+    // re-load the resource so we display all properties with up-to-date values
+    resource =
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_DATASET);
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
   }
 

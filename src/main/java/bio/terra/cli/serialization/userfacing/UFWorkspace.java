@@ -5,7 +5,6 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.UUID;
 
 /**
  * External representation of a workspace for command input/output.
@@ -43,12 +42,13 @@ public class UFWorkspace extends UFWorkspaceLight {
   public void print() {
     super.print();
     PrintStream OUT = UserIO.getOut();
-    OUT.println("# Resources: " + numResources);
+    // The space add for readable format because only used with terra workspace describe
+    OUT.println("# Resources:       " + numResources);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UUID id;
+    private String id;
     private String name;
     private String description;
     private String googleProjectId;
@@ -56,7 +56,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String userEmail;
     private long numResources;
 
-    public Builder id(UUID id) {
+    public Builder id(String id) {
       this.id = id;
       return this;
     }

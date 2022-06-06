@@ -207,23 +207,25 @@ public class WorkspaceManagerService {
    * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
    * endpoint to wait for the job to finish.
    *
-   * @param displayName optional display name
+   * @param userFacingId required user-facing ID
+   * @param name optional display name
    * @param description optional description
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
-      @Nullable String displayName, @Nullable String description) {
+      String userFacingId, @Nullable String name, @Nullable String description) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
           UUID workspaceId = UUID.randomUUID();
           CreateWorkspaceRequestBody workspaceRequestBody = new CreateWorkspaceRequestBody();
           workspaceRequestBody.setId(workspaceId);
+          workspaceRequestBody.setUserFacingId(userFacingId);
           workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
-          workspaceRequestBody.setDisplayName(displayName);
+          workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
 
           // make the create workspace request
@@ -298,21 +300,39 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
-   *
-   * @param workspaceId the id of the workspace to fetch
-   * @return the Workspace Manager workspace description object
    */
-  public WorkspaceDescription getWorkspace(UUID workspaceId) {
+  public WorkspaceDescription getWorkspace(UUID uuid) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+            () -> new WorkspaceApi(apiClient).getWorkspace(uuid), "Error fetching workspace");
+    String googleProjectId =
+        (workspaceWithContext.getGcpContext() == null)
+            ? null
+            : workspaceWithContext.getGcpContext().getProjectId();
+    logger.info(
+        "Workspace context: userFacingId {}, project id: {}",
+        workspaceWithContext.getUserFacingId(),
+        googleProjectId);
+    return workspaceWithContext;
+  }
+
+  /**
+   * Call the Workspace Manager GET "/api/workspaces/v1/workspaceByUserFacingId/{userFacingId}"
+   * endpoint to fetch an existing workspace.
+   */
+  public WorkspaceDescription getWorkspaceByUserFacingId(String userFacingId) {
+    WorkspaceDescription workspaceWithContext =
+        callWithRetries(
+            () -> new WorkspaceApi(apiClient).getWorkspaceByUserFacingId(userFacingId),
             "Error fetching workspace");
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
             ? null
             : workspaceWithContext.getGcpContext().getProjectId();
     logger.info(
-        "Workspace context: {}, project id: {}", workspaceWithContext.getId(), googleProjectId);
+        "Workspace context: {}, project id: {}",
+        workspaceWithContext.getUserFacingId(),
+        googleProjectId);
     return workspaceWithContext;
   }
 
@@ -335,9 +355,15 @@ public class WorkspaceManagerService {
    * @return the Workspace Manager workspace description object
    */
   public WorkspaceDescription updateWorkspace(
-      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
+      UUID workspaceId,
+      @Nullable String userFacingId,
+      @Nullable String name,
+      @Nullable String description) {
     UpdateWorkspaceRequestBody updateRequest =
-        new UpdateWorkspaceRequestBody().displayName(displayName).description(description);
+        new UpdateWorkspaceRequestBody()
+            .userFacingId(userFacingId)
+            .displayName(name)
+            .description(description);
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
         "Error updating workspace");
@@ -361,16 +387,18 @@ public class WorkspaceManagerService {
    * workspace.
    *
    * @param workspaceId - workspace ID to clone
-   * @param displayName - optional name of new cloned workspace
+   * @param userFacingId - required userFacingId of new cloned workspace
+   * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId, @Nullable String displayName, @Nullable String description) {
+      UUID workspaceId, String userFacingId, @Nullable String name, @Nullable String description) {
     var request =
         new CloneWorkspaceRequest()
             .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
-            .displayName(displayName)
+            .userFacingId(userFacingId)
+            .displayName(name)
             .description(description)
             // force location to null until we have an implementation of a workspace-wide location
             .location(null);
@@ -987,7 +1015,8 @@ public class WorkspaceManagerService {
             .updateParameters(
                 new GcpGcsBucketUpdateParameters()
                     .defaultStorageClass(updateParams.defaultStorageClass)
-                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules)));
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
+                    .cloningInstructions(updateParams.cloningInstructions));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
@@ -1067,7 +1096,8 @@ public class WorkspaceManagerService {
             .updateParameters(
                 new GcpBigQueryDatasetUpdateParameters()
                     .defaultPartitionLifetime(updateParams.defaultPartitionLifetimeSeconds)
-                    .defaultTableLifetime(updateParams.defaultTableLifetimeSeconds));
+                    .defaultTableLifetime(updateParams.defaultTableLifetimeSeconds)
+                    .cloningInstructions(updateParams.cloningInstructions));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)

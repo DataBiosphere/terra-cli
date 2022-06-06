@@ -215,8 +215,9 @@ public class Group extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
 
-    // check that group member is included in the list-users output with two policies
-    expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
+    // Call `terra group list-users` with table format
+    expectListedMemberWithPoliciesTableFormat(
+        name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
 
     // `terra group describe --name=$name`
     UFGroup groupDescribed =
@@ -321,7 +322,36 @@ public class Group extends ClearContextUnit {
         }
       }
     }
-    assertTrue(nameAndEmailExists, "Name and email address for group member should be included in table output.");
+    assertTrue(
+        nameAndEmailExists,
+        "Name and email address for group member should be included in table output.");
+    return cmd;
+  }
+
+  private TestCommand.Result expectListedMemberWithPoliciesTableFormat(
+      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+    // call `terra group list-users` in table format
+    TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
+
+    // assert header is correct
+    String[] rows = cmd.stdOut.split("\\n");
+    String[] rowHead = rows[0].split("\\s+");
+    assertEquals("EMAIL", rowHead[0]);
+    assertEquals("POLICIES", rowHead[1]);
+
+    // assert email and policies are correct
+    boolean emailExists = false;
+    for (int i = 1; i < rows.length; i++) {
+      // Convert to lower-case because email in broad.json is mixed case
+      if (rows[i].contains(email.toLowerCase())) {
+        emailExists = true;
+        for (var policy : policies) {
+          assertThat("Row has all policies.", rows[i].contains(policy.toString()));
+        }
+      }
+    }
+    // email address for group member should be included in table output.
+    assertTrue(emailExists, "Email address for group member should be included in table output.");
     return cmd;
   }
 

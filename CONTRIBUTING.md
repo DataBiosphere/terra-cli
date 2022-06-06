@@ -23,7 +23,8 @@
     * [Build a new image](#build-a-new-image)
     * [Publish a new image](#publish-a-new-image)
     * [Update the default image](#update-the-default-image)
-5. [Code structure](#code-structure)
+5. [Code](#code)
+    * [Code structure](#code-structure)
     * [Top-level package](#top-level-package)
     * [Supported tools](#supported-tools)
         * [Adding a new supported tool](#add-a-new-supported-tool)
@@ -31,6 +32,7 @@
     * [Serialization](#serialization)
     * [Terra and cloud services](#terra-and-cloud-services)
     * [Servers](#servers)
+    * [Workspace IDs](#workspace-ids)
 6. [Command style guide](#command-style-guide)
     * [Options instead of parameters](#options-instead-of-parameters)
     * [Always specify a description](#always-specify-a-description)
@@ -164,7 +166,7 @@ CLI installation on the same machine.
 `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
 
 - Run a single test by specifying the `--tests` option:
-  `./gradlew runTestsWithTag -PtestTag=unit --tests "unit.Workspace.createFailsWithoutSpendAccess" --info`
+  `./gradlew runTestsWithTag -PtestTag=unit --tests Workspace.createFailsWithoutSpendAccess`
 
 #### Docker and Tests
 
@@ -360,7 +362,9 @@ It's best to do this as part of a release, but if it's necessary to update the d
 2. Update the `DockerAppsRunner.defaultImageId` method in the Java code to return a hard-coded string.
 
 
-### Code structure
+### Code
+
+#### Code structure
 Below is an outline of the package structure. More details are included in the sub-sections below.
 ```
 bio.terra.cli      
@@ -372,14 +376,6 @@ bio.terra.cli
     service        # helper/wrapper classes for talking to Terra and cloud services
     utils          # uncategorized
 ```
-
-* [Business logic](#business-logic)
-* [Supported tools](#supported-tools)
-    * [Adding a new supported tool](#add-a-new-supported-tool)
-* [Commands](#commands)
-* [Serialization](#serialization)
-* [Terra and cloud services](#terra-and-cloud-services)
-* [Servers](#servers)
 
 #### Business logic
 The `businessobjects` package contains objects that represent the internal state (e.g. `Config`, `Server`, `User`, 
@@ -467,6 +463,18 @@ class here.
 To add a new server specification, create a new file in this directory and add the file name to the `all-servers.json` 
 file.
 
+#### Workspace IDs
+
+In WSM db, `workspace` table has 2 ID columns: `workspace_id` and `user_facing_id`.
+
+|               | What is this                                | Name in codebase | What CLI user sees                   |
+|---------------|---------------------------------------------|------------------|--------------------------------------|
+|workspace_id   | UUID; db primary key                        | `uuid`           | N/A, user doesn't see this.          |
+|user_facing_id | A human-settable, mutable, ID. Also unique. | `userFacingId`   | `ID`                                 |
+
+For simplicity, user only sees `user_facing_id`; for example in `terra workspace describe.`
+
+`uuid` does appear in `context.json` (and `.terra/logs/terra.log`). We need `uuid` because WSM APIs take `uuid`, not `userFacingId`. 
 
 ### Command style guide
 Below are guidelines for adding or modifying commands. The goal is to have a consistent presentation across commands.
@@ -516,6 +524,12 @@ for two reasons:
   SA access token which does have `https://www.googleapis.com/auth/cloud-platform` scope. (SAM stores pet SA keys, so
   SAM is able to generate an access token with that scope.)
 
+Some tests use test user refresh tokens ([example](https://github.com/DataBiosphere/terra-cli/blob/1f6e18eb7922cbc6c1ea6e7e80048ae79a8e3892/src/test/java/harness/TestUser.java#L120)).
+These refresh tokens are stored in vault. Most places uses service account keys
+to bypass manual OAuth in tests. However, our employer prohibits the use of service
+account keys for security reasons, so we use refresh tokens instead. Note that
+[refresh tokens never expire](https://developers.google.com/identity/protocols/oauth2#expiration).
+
 <table>
 <tr>
 <td></td>
@@ -554,10 +568,11 @@ In Docker mode, [we mount `.config/gcloud`](https://github.com/DataBiosphere/ter
 <td>GCP notebook</td>
 <td>
 
-**Pet ADC** (if you use `--use-app-default-credentials`)
+**Pet ADC**
 
-Notebooks can run terra CLI with  [`--use-app-default-credentials`](https://github.com/DataBiosphere/terra-cli/pull/197/files).
-terra will pick up creds from ADC instead of OAuth (which involves interacting with a browser).
+[Notebook startup script runs `terra auth login --mode=APP_DEFAULT_CREDENTIALS`.](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L71)
+So notebook `terra` commands will use ADC, which is automatically configured for
+GCE VMs, rather than OAuth (which involves interacting with a browser).
 </td>
 <td valign="top">
 

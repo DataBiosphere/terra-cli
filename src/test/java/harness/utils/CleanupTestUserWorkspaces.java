@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * This class implements a script to cleanup workspaces owned by test users. Tests are not supposed
@@ -29,8 +28,8 @@ import java.util.UUID;
  * defined, so it's easier to loop through them here.
  */
 public class CleanupTestUserWorkspaces {
-  private static List<UUID> deletedWorkspaces = new ArrayList<>();
-  private static List<UUID> failedWorkspaces = new ArrayList<>();
+  private static List<String> deletedWorkspaces = new ArrayList<>();
+  private static List<String> failedWorkspaces = new ArrayList<>();
 
   /**
    * List all workspaces the test user has access to and try to delete each one that the test user

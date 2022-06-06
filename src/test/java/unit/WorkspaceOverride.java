@@ -34,6 +34,7 @@ import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import harness.utils.ExternalGCSBuckets;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -80,13 +81,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     ExternalBQDatasets.grantReadAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
-    // `terra workspace create --format=json`
-    workspace1 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
-
-    // `terra workspace create --format=json`
-    workspace2 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    workspace1 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
   }
 
   /** Delete the two workspaces. */
@@ -374,9 +370,7 @@ public class WorkspaceOverride extends ClearContextUnit {
   void workspace() throws IOException {
     workspaceCreator.login();
 
-    // `terra workspace create`
-    UFWorkspace workspace3 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
@@ -387,8 +381,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
-        "--name=" + newName,
-        "--description=" + newDescription,
+        "--new-name=" + newName,
+        "--new-description=" + newDescription,
         "--workspace=" + workspace3.id);
 
     // check that the workspace 3 description has been updated, and the workspace 1 has not
@@ -430,9 +424,7 @@ public class WorkspaceOverride extends ClearContextUnit {
   void matchingCurrentWorkspace() throws IOException {
     workspaceCreator.login();
 
-    // `terra workspace create`
-    UFWorkspace workspace3 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // `terra workspace set --id=$id3`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace3.id);
@@ -443,8 +435,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace",
         "update",
-        "--name=" + newName,
-        "--description=" + newDescription,
+        "--new-name=" + newName,
+        "--new-description=" + newDescription,
         "--workspace=" + workspace3.id);
 
     // Check that current workspace status is updated, despite the --workspace flag.

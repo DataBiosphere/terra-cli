@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +35,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // set the docker image id to an invalid string
     TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=badimageid");
@@ -70,7 +71,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // create 2 resources
 
@@ -134,8 +135,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "create");
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // `terra config get workspace`
     UFWorkspace getValue =
@@ -148,17 +148,17 @@ public class Config extends SingleWorkspaceUnit {
     assertEquals(workspace2.id, config.workspaceId, "workspace create affects config list");
 
     // `terra workspace set --id=$id1`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getWorkspaceId());
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra config get workspace`
     getValue =
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "config", "get", "workspace");
-    assertEquals(getWorkspaceId(), getValue.id, "workspace set affects config get");
+    assertEquals(getUserFacingId(), getValue.id, "workspace set affects config get");
 
     // `terra config list`
     config = TestCommand.runAndParseCommandExpectSuccess(UFConfig.class, "config", "list");
-    assertEquals(getWorkspaceId(), config.workspaceId, "workspace set affects config list");
+    assertEquals(getUserFacingId(), config.workspaceId, "workspace set affects config list");
 
     // `terra config set workspace --id=$id2`
     TestCommand.runCommandExpectSuccess("config", "set", "workspace", "--id=" + workspace2.id);
