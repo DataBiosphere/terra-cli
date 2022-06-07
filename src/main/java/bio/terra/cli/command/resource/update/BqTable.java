@@ -20,11 +20,11 @@ import picocli.CommandLine;
     description = "Update a BigQuery data table.",
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
-  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
 
   @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;

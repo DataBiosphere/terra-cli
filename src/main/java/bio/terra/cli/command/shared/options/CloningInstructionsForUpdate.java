@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 public class CloningInstructionsForUpdate {
   /**
-   * Use this --new-cloning flag when updating controlled resources.
+   * Use this --new-cloning flag when updating resources.
    *
    * <p>This class is meant to be used as a @CommandLine.Mixin.
    */
@@ -14,12 +14,10 @@ public class CloningInstructionsForUpdate {
   // update cloning instructions.
   @CommandLine.Option(
       names = "--new-cloning",
-      // Only COPY_NOTHING，COPY_DEFINITION and COPY_RESOURCE are allowed for updating resources
-      // Only COPY_NOTHING and COPY_REFERENCE are allowed for referenced resources
-      // two options or commands in the same class file with same name could not build
-      // https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/ResourceValidationUtils.java#L452
+      // For what is allowed, see:
+      // https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/ResourceValidationUtils.java#L448
       description =
-          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE for controlled resources; COPY_NOTHING and COPY_REFERENCE are allowed for referenced resources")
+          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, or COPY_RESOURCE for controlled resources; COPY_NOTHING or COPY_REFERENCE for referenced resources")
   private CloningInstructionsEnum cloning;
 
   public CloningInstructionsEnum getCloning() {

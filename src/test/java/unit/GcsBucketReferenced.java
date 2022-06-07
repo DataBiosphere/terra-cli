@@ -299,10 +299,11 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
     assertEquals(description, describedBucket.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedBucket.cloningInstructions);
 
     // update description and cloning instructions
     // `terra resources update gcs-bucket --name=$newName --description=$newDescription
-    // --new-cloning=COPY_NOTHING`
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(

@@ -328,7 +328,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // update description and cloning instructions
     // `terra resources update bq-dataset --name=$newName --description=$newDescription
-    // --new-cloning=COPY_NOTHING`
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
