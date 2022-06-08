@@ -17,7 +17,7 @@ public class CloningInstructionsForUpdate {
       // For what is allowed, see:
       // https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/ResourceValidationUtils.java#L448
       description =
-          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, or COPY_RESOURCE for controlled resources; COPY_NOTHING or COPY_REFERENCE for referenced resources")
+          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, or COPY_RESOURCE for controlled resources; COPY_NOTHING or COPY_REFERENCE for referenced resources.")
   private CloningInstructionsEnum cloning;
 
   public CloningInstructionsEnum getCloning() {
