@@ -78,6 +78,9 @@ public class Group extends ClearContextUnit {
         matchedGroup.get().currentUserPolicies.contains(GroupPolicy.ADMIN),
         "group policies for current user matches list output after create");
 
+    // call `terra group list` with table format
+    expectGroupListedMemberWithPoliciesTableFormat(name, groupCreated.email, GroupPolicy.ADMIN);
+
     // `terra group describe --name=$name`
     UFGroup groupDescribed =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -212,36 +215,15 @@ public class Group extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
 
-    // check that group member is included in the list-users output with two policies
-    expectListedMemberWithPolicies(name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
+    // Call `terra group list-users` with table format
+    expectListedMemberWithPoliciesTableFormat(
+        name, groupMember.email, GroupPolicy.MEMBER, GroupPolicy.ADMIN);
 
     // `terra group describe --name=$name`
     UFGroup groupDescribed =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGroup.class, "group", "describe", "--name=" + name);
     assertEquals(2, groupDescribed.numMembers, "group describe shows two members");
-
-    // test the group list-user as a table format
-    TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
-
-    // use regular expression testing the table format and content inside
-    assertTrue(cmd.stdErr == null || cmd.stdErr.isEmpty());
-    assertEquals(0, cmd.exitCode, "group list-user returned successfully");
-    String[] rows = cmd.stdOut.split("\\n");
-    String[] rowHead = rows[0].split("\\s+");
-    assertEquals("EMAIL", rowHead[0].trim().replace("\r", ""));
-    assertEquals("POLICIES", rowHead[1].trim().replace("\r", ""));
-
-    for (int i = 1; i < rows.length; i = i + 1) {
-      String[] rowi = rows[i].split("\\s+", 2);
-      assertTrue(listMembersWithEmail(name, rowi[0]).isPresent());
-      assertTrue(
-          rowi[0].matches(
-              "^[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+@[a-zA-Z\\d_-]+(\\.[a-zA-Z\\d_-]+)+$"));
-      assertTrue(
-          Arrays.asList("[ADMIN]", "[MEMBER]", "[ADMIN, MEMBER]", "[MEMBER, ADMIN]")
-              .contains(rowi[1].trim().replace("\r", "")));
-    }
 
     // `terra group remove-user --name=$name --email=$email --policy=MEMBER`
     TestCommand.runCommandExpectSuccess(
@@ -313,6 +295,64 @@ public class Group extends ClearContextUnit {
     assertTrue(
         groupMember.get().policies.containsAll(Arrays.asList(policies)),
         "test user has the right policies");
+  }
+
+  private TestCommand.Result expectGroupListedMemberWithPoliciesTableFormat(
+      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+    // call `terra group list` in table format
+    TestCommand.Result cmd = TestCommand.runCommand("group", "list");
+
+    // assert header is correct
+    String[] rows = cmd.stdOut.split("\\n");
+    String[] rowHead = rows[0].split("\\s+");
+    assertEquals("NAME", rowHead[0]);
+    assertEquals("EMAIL", rowHead[1]);
+    assertEquals("MEMBERS", rowHead[2]);
+    assertEquals("POLICIES", rowHead[3]);
+
+    // assert name, email and policies are correct
+    boolean nameAndEmailExists = false;
+
+    for (int i = 1; i < rows.length; i++) {
+      // Convert to lower-case because email in broad.json is mixed case
+      if (rows[i].contains(email) && rows[i].contains(name)) {
+        nameAndEmailExists = true;
+        for (var policy : policies) {
+          assertThat("Row has all policies.", rows[i].contains(policy.toString()));
+        }
+      }
+    }
+    assertTrue(
+        nameAndEmailExists,
+        "Name and email address for group member should be included in table output.");
+    return cmd;
+  }
+
+  private TestCommand.Result expectListedMemberWithPoliciesTableFormat(
+      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+    // call `terra group list-users` in table format
+    TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
+
+    // assert header is correct
+    String[] rows = cmd.stdOut.split("\\n");
+    String[] rowHead = rows[0].split("\\s+");
+    assertEquals("EMAIL", rowHead[0]);
+    assertEquals("POLICIES", rowHead[1]);
+
+    // assert email and policies are correct
+    boolean emailExists = false;
+    for (int i = 1; i < rows.length; i++) {
+      // Convert to lower-case because email in broad.json is mixed case
+      if (rows[i].contains(email.toLowerCase())) {
+        emailExists = true;
+        for (var policy : policies) {
+          assertThat("Row has all policies.", rows[i].contains(policy.toString()));
+        }
+      }
+    }
+    // email address for group member should be included in table output.
+    assertTrue(emailExists, "Email address for group member should be included in table output.");
+    return cmd;
   }
 
   /**
