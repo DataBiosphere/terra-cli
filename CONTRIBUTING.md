@@ -282,10 +282,12 @@ ssh into Docker container where you can run `terra`:
 - After `sleep` runs, go to Docker Desktop and click on `cli` icon. Then you'll have a shell in the Docker container.
 
 Skip creating workspace, since it's slow:
+- Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18) to `TestUser.chooseTestUserWithOwnerAccess()`. Without this, you
+  might get different users on different runs, and they won't have access to each other's workspaces.
 - Comment out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L50).
 - Run test
 - Replace [creating workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
-  with `workspaceId = UUID.fromString("<workspace-id>");`
+  with `userFacingId = <id-from-earlier-workspace>;`
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.
