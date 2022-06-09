@@ -3,9 +3,9 @@ package bio.terra.cli.command.shared.options;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 
-public class ControlledCloningInstructionsForUpdate {
+public class CloningInstructionsForUpdate {
   /**
-   * Use this --new-cloning flag when updating controlled resources.
+   * Use this --new-cloning flag when updating resources.
    *
    * <p>This class is meant to be used as a @CommandLine.Mixin.
    */
@@ -14,8 +14,10 @@ public class ControlledCloningInstructionsForUpdate {
   // update cloning instructions.
   @CommandLine.Option(
       names = "--new-cloning",
+      // For what is allowed, see:
+      // https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/ResourceValidationUtils.java#L448
       description =
-          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, COPY_RESOURCE.")
+          "Instructions for handling when cloning the workspace: COPY_NOTHING, COPY_DEFINITION, or COPY_RESOURCE for controlled resources; COPY_NOTHING or COPY_REFERENCE for referenced resources.")
   private CloningInstructionsEnum cloning;
 
   public CloningInstructionsEnum getCloning() {

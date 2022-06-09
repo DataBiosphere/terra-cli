@@ -364,7 +364,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update bq-table --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFBqTable updateDataTable =
+    UFBqTable updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -372,36 +372,40 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateDataTable.name);
-    assertEquals(description, updateDataTable.description);
+    assertEquals(newName, updatedDataTable.name);
+    assertEquals(description, updatedDataTable.description);
 
     // `terra resources describe --name=$newName`
-    UFBqTable describeDataTable =
+    UFBqTable describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeDataTable.description);
+    assertEquals(description, describedDataTable.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedDataTable.cloningInstructions);
 
-    // update just the description
-    // `terra resources update bq-table --name=$newName --description=$newDescription`
+    // update description and cloning instructions
+    // `terra resources update bq-table --name=$newName --description=$newDescription
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
             "update",
             "bq-table",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateDataTable.name);
-    assertEquals(newDescription, updateDataTable.description);
+            "--description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(newName, updatedDataTable.name);
+    assertEquals(newDescription, updatedDataTable.description);
 
     // `terra resources describe --name=$newName`
-    describeDataTable =
+    describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeDataTable.description);
+    assertEquals(newDescription, describedDataTable.description);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedDataTable.cloningInstructions);
 
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -409,11 +413,11 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--new-table-id=" + externalDataTableName2);
-    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
-    assertEquals(externalDataset.getDatasetId(), updateDataTable.datasetId);
-    assertEquals(externalDataset.getProjectId(), updateDataTable.projectId);
+    assertEquals(externalDataTableName2, updatedDataTable.dataTableId);
+    assertEquals(externalDataset.getDatasetId(), updatedDataTable.datasetId);
+    assertEquals(externalDataset.getProjectId(), updatedDataTable.projectId);
 
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -421,9 +425,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--new-dataset-id=" + externalDataset2.getDatasetId());
-    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
-    assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
-    assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
+    assertEquals(externalDataTableName2, updatedDataTable.dataTableId);
+    assertEquals(externalDataset2.getDatasetId(), updatedDataTable.datasetId);
+    assertEquals(externalDataset2.getProjectId(), updatedDataTable.projectId);
   }
 
   @Test

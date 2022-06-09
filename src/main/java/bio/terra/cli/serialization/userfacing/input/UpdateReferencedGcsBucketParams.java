@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -13,10 +14,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class UpdateReferencedGcsBucketParams {
   public final UpdateResourceParams resourceParams;
   public final String bucketName;
+  public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedGcsBucketParams(UpdateReferencedGcsBucketParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
     this.bucketName = builder.bucketName;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -24,6 +27,7 @@ public class UpdateReferencedGcsBucketParams {
 
     private UpdateResourceParams resourceFields;
     private String bucketName;
+    private CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedGcsBucketParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
@@ -33,6 +37,12 @@ public class UpdateReferencedGcsBucketParams {
 
     public UpdateReferencedGcsBucketParams.Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
+      return this;
+    }
+
+    public UpdateReferencedGcsBucketParams.Builder cloningInstructions(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

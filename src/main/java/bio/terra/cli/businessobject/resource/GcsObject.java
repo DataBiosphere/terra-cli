@@ -92,6 +92,9 @@ public class GcsObject extends Resource {
     if (updateParams.objectName != null) {
       this.objectName = updateParams.objectName;
     }
+    if (updateParams.cloningInstructions != null) {
+      this.cloningInstructions = updateParams.cloningInstructions;
+    }
     super.updatePropertiesAndSync(resourceParams);
   }
 

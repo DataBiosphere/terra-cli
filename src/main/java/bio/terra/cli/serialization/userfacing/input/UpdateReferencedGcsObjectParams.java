@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -24,10 +25,13 @@ public class UpdateReferencedGcsObjectParams {
    */
   public final @Nullable String objectName;
 
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
+
   protected UpdateReferencedGcsObjectParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
     this.objectName = builder.objectName;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -35,6 +39,7 @@ public class UpdateReferencedGcsObjectParams {
     private UpdateResourceParams resourceFields;
     private @Nullable String bucketName;
     private @Nullable String objectName;
+    private @Nullable CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -49,6 +54,12 @@ public class UpdateReferencedGcsObjectParams {
 
     public UpdateReferencedGcsObjectParams.Builder objectName(String objectName) {
       this.objectName = objectName;
+      return this;
+    }
+
+    public UpdateReferencedGcsObjectParams.Builder cloningInstructions(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 
