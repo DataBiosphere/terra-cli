@@ -42,3 +42,6 @@ out/
 ### Nextflow
 .nextflow
 .nextflow.log
+
+### Jenv directory-local version setting
+.java-version
