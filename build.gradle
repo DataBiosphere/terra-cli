@@ -221,13 +221,22 @@ task runTestsWithTag(type: Test) {
         // Gradle Enterprise Test Distribution
         distribution {
             enabled = true
-            maxRemoteExecutors = 0
+            maxLocalExecutors = 0
+            maxRemoteExecutors = 1
         }
     }
 
     dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
 
     outputs.upToDateWhen { false } // force tests to always be re-run
+
+    // If using Test Distribution, this will copy the rendered directory to the
+    // container running the test.
+    inputs.dir "rendered"
+
+    // If using Test Distribution, this will copy buildDir/test-context back
+    // to machine that ran gradlew.
+    outputs.dir "${buildDir}/test-context/"
 }
 
 // cleanup workspaces owned by test users.

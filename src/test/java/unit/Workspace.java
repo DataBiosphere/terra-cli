@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -256,12 +255,6 @@ public class Workspace extends ClearContextUnit {
         stdErr,
         CoreMatchers.containsString(
             "Accessing the spend profile failed. Ask an administrator to grant you access."));
-
-    // workspace was deleted
-    List<UFWorkspace> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list", "--limit=100");
-    assertFalse(listWorkspaces.stream().anyMatch(w -> workspaceName.equals(w.name)));
   }
 
   @Test

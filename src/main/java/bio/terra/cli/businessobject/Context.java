@@ -117,22 +117,22 @@ public class Context {
    */
   public static Path getContextDir() {
     // default to the user's home directory
-    Path parentDir = Paths.get(System.getProperty("user.home"));
+    Path contextDir = Paths.get(System.getProperty("user.home"));
 
-    // if the override environment variable is set and points to a valid directory, then use it
-    // instead
+    // if the override environment variable is set, use it instead
     String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
     if (overrideDirName != null && !overrideDirName.isBlank()) {
-      Path overrideDir = Paths.get(overrideDirName).toAbsolutePath();
-      if (overrideDir.toFile().exists() && overrideDir.toFile().isDirectory()) {
-        parentDir = overrideDir;
-      } else {
-        throw new UserActionableException(
-            "Override environment variable does not point to a valid directory: " + overrideDir);
+      contextDir = Paths.get(overrideDirName).toAbsolutePath();
+      logger.debug("Context directory: {}", contextDir);
+      // build.gradle test task makes contextDir. However, with Gradle Enterprise Test Distribution,
+      // this test is executed in a different place from where the test task mkdir was run. So need
+      // to create directory for if Test Distribution is being used.
+      if (!contextDir.toFile().exists()) {
+        contextDir.toFile().mkdir();
       }
     }
 
-    return parentDir.resolve(CONTEXT_DIRNAME).toAbsolutePath();
+    return contextDir.resolve(CONTEXT_DIRNAME).toAbsolutePath();
   }
 
   /**
