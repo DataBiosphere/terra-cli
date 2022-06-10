@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
+import harness.utils.TestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -131,6 +132,10 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
   void gsutilGcloudAlphaStorageLs() throws IOException {
+    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
+    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -161,13 +166,17 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
+    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
+    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
-    String name = "bqShow";
+    String name = TestUtils.appendRandomNumber("bqShow");
     String datasetId = randomDatasetId();
     UFBqDataset dataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -209,6 +218,15 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
+    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, docker-in-docker
+    // mounting doesn't work. After "git clone", the repos are cloned inside the container started
+    // by terra cli. However, in the "host" (Test Distribution agent container), we're not able to
+    // see the repos.
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
+    String resource1Name = TestUtils.appendRandomNumber("repo1");
+    String resource2Name = TestUtils.appendRandomNumber("repo1");
+
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -216,19 +234,13 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource",
         "add-ref",
         "git-repo",
-        "--name=repo1",
+        "--name=" + resource1Name,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
-        "--name=repo2",
-        "--repo-url=https://github.com/DataBiosphere/terra.git");
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "add-ref",
-        "git-repo",
-        "--name=repo3",
+        "--name=" + resource2Name,
         "--repo-url=https://github.com/DataBiosphere/terra.git");
 
     // `terra git clone --all`
@@ -239,14 +251,21 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo2", "--quiet");
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo3", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resource1Name, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resource2Name, "--quiet");
   }
 
   @Test
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
+    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, docker-in-docker
+    // mounting doesn't work. After "git clone", the repo is cloned inside the container started
+    // by terra cli. However, in the "host" (Test Distribution agent container), we're not able to
+    // see the repo.
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
+    String resourceName = TestUtils.appendRandomNumber("repo");
+
     workspaceCreator.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -254,16 +273,16 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource",
         "add-ref",
         "git-repo",
-        "--name=repo1",
+        "--name=" + resourceName,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
 
-    // `terra git clone --resource=repo2`
-    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=repo1");
+    // `terra git clone --resource=repo1`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=" + resourceName);
 
     assertTrue(
         Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=repo1", "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
   }
 
   @Test

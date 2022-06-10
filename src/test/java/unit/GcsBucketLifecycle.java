@@ -260,6 +260,10 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   @Test
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
+    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
+    // gcslifecycle/multipleRules.json.
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
     // the CLI mounts the current working directory to the Docker container when running apps
     // so we need to give it the path to lifecycle JSON file relative to the current working
     // directory. e.g.
