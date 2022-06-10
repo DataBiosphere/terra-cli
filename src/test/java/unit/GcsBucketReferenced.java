@@ -302,7 +302,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     assertEquals(CloningInstructionsEnum.REFERENCE, describedBucket.cloningInstructions);
 
     // update description and cloning instructions
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription
+    // `terra resources update gcs-bucket --name=$newName --new-description=$newDescription
     // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedBucket =
@@ -312,7 +312,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);
@@ -372,7 +372,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // update the name and description
     // `terra resources update gcs-bucket --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFGcsBucket updateBucket =
@@ -383,7 +383,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-bucket-name=" + externalPrivateBucket.getName());
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);

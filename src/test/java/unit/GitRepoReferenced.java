@@ -220,7 +220,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     assertEquals(CloningInstructionsEnum.REFERENCE, describedGitRepo.cloningInstructions);
 
     // update description and cloning instructions
-    // `terra resources update git-repo --name=$newName --description=$newDescription
+    // `terra resources update git-repo --name=$newName --new-description=$newDescription
     // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedGitRepo =
@@ -230,7 +230,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "update",
             "git-repo",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedGitRepo.name);
     assertEquals(newDescription, updatedGitRepo.description);
@@ -290,7 +290,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFGitRepo updateGitRepoNameAndDescription =
@@ -301,7 +301,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
     assertEquals(newName, updateGitRepoNameAndDescription.name);
     assertEquals(newDescription, updateGitRepoNameAndDescription.description);
 
@@ -313,7 +313,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // update referencing target
     // `terra resources update git-repo --name=$name --new-repo-url=$newRepoUrl
-    // --new-name=$newName --description=$newDescription
+    // --new-name=$newName --new-description=$newDescription
     String yetAnotherName = "updateMultipleOrNoProperties_NEW";
     String yetAnotherDescription = "updateDescription_NEW";
     UFGitRepo updateGitRepoReferenceTarget =
@@ -324,7 +324,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + newName,
             "--new-name=" + yetAnotherName,
-            "--description=" + yetAnotherDescription,
+            "--new-description=" + yetAnotherDescription,
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
     assertEquals(GIT_REPO_HTTPS_URL, updateGitRepoReferenceTarget.gitRepoUrl);
 

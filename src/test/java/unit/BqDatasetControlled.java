@@ -332,7 +332,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     assertEquals(description, describedDataset.description);
 
     // update just the description
-    // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    // `terra resources update bq-dataset --name=$newName --new-description=$newDescription`
     // --new-cloning=$CloningInstructionsEnum.DEFINITION`
     String newDescription = "updateDescription_NEW";
     updatedDataset =
@@ -342,7 +342,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "update",
             "bq-dataset",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     assertEquals(newName, updatedDataset.name);
     assertEquals(newDescription, updatedDataset.description);
@@ -372,7 +372,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
     // update both the name and description
     // `terra resources update bq-dataset --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFBqDataset updateDataset =
@@ -383,7 +383,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
     assertEquals(newName, updateDataset.name);
     assertEquals(newDescription, updateDataset.description);
 
