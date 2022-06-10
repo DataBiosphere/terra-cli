@@ -196,7 +196,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
             "gcp-notebook",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
 
     // check that the properties match
     assertEquals(newName, updatedNotebook.name, "create output matches name");

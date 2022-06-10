@@ -1032,7 +1032,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
-   * update a GCS bucket controlled resource in the workspace.
+   * update a GCP AI Notebook controlled resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
