@@ -166,7 +166,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "gcs-object",
         "--name=" + name,
         "--new-name=" + newName,
-        "--description=" + newDescription,
+        "--new-description=" + newDescription,
         "--new-bucket-name=" + externalBucket.getName(),
         "--new-object-name=" + sharedExternalBlobName);
     // `terra resource describe --name=$name --format=json`
@@ -215,7 +215,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "gcs-object",
         "--name=" + name,
         "--new-name=" + newName,
-        "--description=" + newDescription,
+        "--new-description=" + newDescription,
         "--new-bucket-name=" + externalBucket.getName(),
         "--new-object-name=" + sharedExternalBlobName);
 
@@ -226,7 +226,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "gcs-object",
         "--name=" + name,
         "--new-name=" + newName,
-        "--description=" + newDescription);
+        "--new-description=" + newDescription);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectExitCode(2, "resource", "delete", "--name=" + name, "--quiet");
@@ -272,7 +272,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
         "gcs-object",
         "--name=" + name,
         "--new-name=" + newName,
-        "--description=" + newDescription,
+        "--new-description=" + newDescription,
         "--new-bucket-name=" + externalBucket.getName(),
         "--new-object-name=" + privateExternalBlobName);
 

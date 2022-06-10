@@ -309,7 +309,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(description, describeBucket.description);
 
     // update just the description
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription`
+    // `terra resources update gcs-bucket --name=$newName --new-description=$newDescription`
     String newDescription = "updateDescription_NEW";
     updateBucket =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -318,7 +318,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
@@ -371,7 +371,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // update the name, description, and storage class
     // `terra resources update gcs-bucket --name=$newName --new-name=$newName
-    // --description=$newDescription --storage=$newStorage`
+    // --new-description=$newDescription --storage=$newStorage`
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     GcsStorageClass newStorage = GcsStorageClass.NEARLINE;
@@ -383,7 +383,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--storage=" + newStorage);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);

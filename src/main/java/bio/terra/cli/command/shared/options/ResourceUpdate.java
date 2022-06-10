@@ -18,19 +18,18 @@ public class ResourceUpdate {
           "New name of the resource. Only alphanumeric and underscore characters are permitted.")
   public String newName;
 
-  @CommandLine.Mixin public ResourceDescription resourceDescriptionOption;
+  @CommandLine.Option(names = "--new-description", description = "New description of the resource.")
+  public String newDescription;
 
   /**
    * Helper method to return a {@link UpdateResourceParams.Builder} with the resource metadata
    * fields populated.
    */
   public UpdateResourceParams.Builder populateMetadataFields() {
-    return new UpdateResourceParams.Builder()
-        .name(newName)
-        .description(resourceDescriptionOption.description);
+    return new UpdateResourceParams.Builder().name(newName).description(newDescription);
   }
 
   public boolean isDefined() {
-    return newName != null || resourceDescriptionOption.description != null;
+    return newName != null || newDescription != null;
   }
 }
