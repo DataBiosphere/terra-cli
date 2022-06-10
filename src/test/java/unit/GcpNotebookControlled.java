@@ -185,6 +185,22 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
+
+    String newName = "NewOverrideLocationAndInstanceId";
+    String newDescription = "\"new override default location and instance id\"";
+    UFGcpNotebook updatedNotebook =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpNotebook.class,
+            "resource",
+            "update",
+            "gcp-notebook",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--description=" + newDescription);
+
+    // check that the properties match
+    assertEquals(newName, updatedNotebook.name, "create output matches name");
+    assertEquals(newDescription, updatedNotebook.description, "create output matches description");
   }
 
   @Test // NOTE: This test takes ~10 minutes to run.
@@ -326,16 +342,16 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    */
   static List<UFGcpNotebook> listNotebookResourcesWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AI_NOTEBOOK --format=json`
+    // `terra resources list --type=GCP_NOTEBOOK --format=json`
     List<UFGcpNotebook> listedResources =
         workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AI_NOTEBOOK")
+                new TypeReference<>() {}, "resource", "list", "--type=GCP_NOTEBOOK")
             : TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {},
                 "resource",
                 "list",
-                "--type=AI_NOTEBOOK",
+                "--type=GCP_NOTEBOOK",
                 "--workspace=" + workspaceUserFacingId);
 
     // find the matching notebook in the list

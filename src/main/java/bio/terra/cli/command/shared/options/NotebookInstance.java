@@ -40,7 +40,7 @@ public class NotebookInstance {
     Workspace workspace = Context.requireWorkspace();
     if (argGroup.resourceName != null) {
       Resource resource = workspace.getResource(argGroup.resourceName);
-      if (!resource.getResourceType().equals(Resource.Type.AI_NOTEBOOK)) {
+      if (!resource.getResourceType().equals(Resource.Type.GCP_NOTEBOOK)) {
         throw new UserActionableException(
             "Only able to use notebook commands on notebook resources, but specified resource is "
                 + resource.getResourceType());

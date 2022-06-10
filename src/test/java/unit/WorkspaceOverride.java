@@ -467,11 +467,11 @@ public class WorkspaceOverride extends ClearContextUnit {
         "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
-    // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
+    // `terra resources list --type=GCP_NOTEBOOK --workspace=$id2`
     UFGcpNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
     assertEquals(name, matchedNotebook.name, "list output for workspace 2 matches notebook name");
 
-    // `terra resources list --type=AI_NOTEBOOK`
+    // `terra resources list --type=GCP_NOTEBOOK`
     List<UFGcpNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 

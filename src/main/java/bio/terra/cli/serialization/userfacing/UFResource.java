@@ -34,7 +34,7 @@ import java.util.UUID;
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "resourceType")
 @JsonSubTypes({
-  @Type(value = UFGcpNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFGcpNotebook.class, name = "GCP_NOTEBOOK"),
   @Type(value = UFBqTable.class, name = "BQ_TABLE"),
   @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
