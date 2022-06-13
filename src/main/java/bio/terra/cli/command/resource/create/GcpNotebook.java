@@ -64,10 +64,10 @@ public class GcpNotebook extends BaseCommand {
   private String postStartupScript;
 
   @CommandLine.Option(
-      names = "-M, --metadata",
+      names = {"--metadata", "-M"},
       description =
           "Custom metadata to apply to this instance.\n"
-              + "specify multiple metadata in the format of --metadata=key1=value1 --Mkey2=value2.\n"
+              + "specify multiple metadata in the format of --metadata=key1=value1 -Mkey2=value2.\n"
               + "By default set Terra CLI server terra-cli-server=[CLI_SERVER_ID]\n"
               + "and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).")
   private Map<String, String> metadata;

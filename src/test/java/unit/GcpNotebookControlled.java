@@ -39,7 +39,12 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     String name = "listDescribeReflectCreateDelete";
     UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
+            UFGcpNotebook.class,
+            "resource",
+            "create",
+            "gcp-notebook",
+            "--name=" + name,
+            "--metadata=foo=bar");
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
