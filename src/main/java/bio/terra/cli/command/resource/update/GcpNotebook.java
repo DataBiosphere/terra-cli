@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.NotebookMetadata;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
@@ -19,6 +20,7 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+  @CommandLine.Mixin NotebookMetadata notebookMetadataOption;
 
   /** Update a GCP AI notebook in the workspace. */
   @Override
@@ -39,6 +41,7 @@ public class GcpNotebook extends BaseCommand {
     resource.updateControlled(
         new UpdateControlledGcpNotebookParams.Builder()
             .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
+            .notebookUpdateParameters(notebookMetadataOption.getMetadata())
             .build());
     // re-load the resource so we display all properties with up-to-date values
     resource =

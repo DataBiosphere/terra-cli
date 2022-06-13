@@ -58,6 +58,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
+import bio.terra.workspace.model.GcpAiNotebookUpdateParameters;
 import bio.terra.workspace.model.GcpBigQueryDataTableAttributes;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
@@ -1046,6 +1047,10 @@ public class WorkspaceManagerService {
         new UpdateControlledGcpAiNotebookInstanceRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description);
+    if (updateParams.notebookUpdateParameters != null)
+      updateRequest.updateParameters(
+          new GcpAiNotebookUpdateParameters()
+              .metadata(updateParams.notebookUpdateParameters.getMetadata()));
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)

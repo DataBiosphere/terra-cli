@@ -193,6 +193,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
 
     String newName = "NewOverrideLocationAndInstanceId";
     String newDescription = "\"new override default location and instance id\"";
+    String newMetadata = "NewMetadata=metadata";
     UFGcpNotebook updatedNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpNotebook.class,
@@ -201,7 +202,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
             "gcp-notebook",
             "--name=" + name,
             "--new-name=" + newName,
-            "--new-description=" + newDescription);
+            "--new-description=" + newDescription,
+            "--new-metadata=" + newMetadata);
 
     // check that the properties match
     assertEquals(newName, updatedNotebook.name, "create output matches name");
