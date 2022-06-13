@@ -375,7 +375,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
 
-    // `terra workspace update --name=$newName --description=$newDescription --workspace=$id3`
+    // `terra workspace update --name=$newName --new-description=$newDescription --workspace=$id3`
     String newName = "workspace3_name_NEW";
     String newDescription = "workspace3 description NEW";
     TestCommand.runCommandExpectSuccess(
@@ -429,7 +429,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     // `terra workspace set --id=$id3`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace3.id);
 
-    // `terra workspace update --name=$newName --description=$newDescription --workspace=$id3`
+    // `terra workspace update --name=$newName --new-description=$newDescription --workspace=$id3`
     String newName = "workspace3_name_NEW";
     String newDescription = "workspace3 description NEW";
     TestCommand.runCommandExpectSuccess(

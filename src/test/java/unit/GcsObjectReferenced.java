@@ -460,7 +460,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(CloningInstructionsEnum.REFERENCE, describedBucketObject.cloningInstructions);
 
     // update description and cloning instructions
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription
+    // `terra resources update gcs-bucket --name=$newName --new-description=$newDescription
     // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedBucketObject =
@@ -470,7 +470,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "update",
             "gcs-object",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedBucketObject.name);
     assertEquals(newDescription, updatedBucketObject.description);
@@ -556,7 +556,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFGcsObject updateBucketObject =
@@ -567,7 +567,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "gcs-object",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
     assertEquals(newName, updateBucketObject.name);
     assertEquals(newDescription, updateBucketObject.description);
 
@@ -579,7 +579,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // update referencing target
     // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName
-    // --new-name=$newName --description=$newDescription --new-object-name=$newObjectName`
+    // --new-name=$newName --new-description=$newDescription --new-object-name=$newObjectName`
     String yetAnotherName = "updateMultipleOrNoProperties_NEW";
     String yetAnotherDescription = "updateDescription_NEW";
     UFGcsObject updateBucketObjectReferencingTarget =
@@ -590,7 +590,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "gcs-object",
             "--name=" + newName,
             "--new-name=" + yetAnotherName,
-            "--description=" + yetAnotherDescription,
+            "--new-description=" + yetAnotherDescription,
             "--new-bucket-name=" + externalBucket.getName(),
             "--new-object-name=" + externalBucketBlobName2);
     assertEquals(externalBucket.getName(), updateBucketObjectReferencingTarget.bucketName);

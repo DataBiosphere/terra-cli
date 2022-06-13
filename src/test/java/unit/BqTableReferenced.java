@@ -383,7 +383,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(CloningInstructionsEnum.REFERENCE, describedDataTable.cloningInstructions);
 
     // update description and cloning instructions
-    // `terra resources update bq-table --name=$newName --description=$newDescription
+    // `terra resources update bq-table --name=$newName --new-description=$newDescription
     // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedDataTable =
@@ -393,7 +393,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "update",
             "bq-table",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updatedDataTable.name);
     assertEquals(newDescription, updatedDataTable.description);
@@ -481,7 +481,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
 
     // update both the name and description
     // `terra resources update bq-table --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFBqTable updateDataTable =
@@ -492,7 +492,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-project-id=" + createdDataset.projectId,
             "--new-dataset-id=" + createdDataset.datasetId,
             "--new-table-id=" + tableInControlledDataset);
