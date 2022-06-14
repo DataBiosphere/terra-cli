@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.GoogleOauth;
+import bio.terra.cli.service.utils.TerraCredentials;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdToken;
@@ -85,7 +86,7 @@ public class AppDefaultCredentialUtils {
   }
 
   /** Get the application default credentials. Throw an exception if they are not defined. */
-  public static GoogleCredentials getApplicationDefaultCredentials() {
+  private static GoogleCredentials getApplicationDefaultCredentials() {
     try {
       return GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
@@ -100,7 +101,7 @@ public class AppDefaultCredentialUtils {
    * ADC must be properly scoped; passing improperly scoped credentials will result in a {@code
    * SystemException}. Any other failure to obtain the token will result in an {@code IoException}.
    */
-  public static IdToken getIdTokenFromADC(GoogleCredentials applicationDefaultCredentials)
+  private static IdToken getIdTokenFromADC(GoogleCredentials applicationDefaultCredentials)
       throws IOException {
     if (!(applicationDefaultCredentials instanceof IdTokenProvider)) {
       throw new SystemException(
@@ -120,5 +121,14 @@ public class AppDefaultCredentialUtils {
     // Must call refresh() to obtain the token.
     idTokenCredentials.refresh();
     return idTokenCredentials.getIdToken();
+  }
+
+  public static TerraCredentials getExistingADC(List<String> scopes) throws IOException {
+    GoogleCredentials applicationDefaultCredentials =
+        AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(scopes);
+
+    return new TerraCredentials(
+        applicationDefaultCredentials,
+        AppDefaultCredentialUtils.getIdTokenFromADC(applicationDefaultCredentials));
   }
 }

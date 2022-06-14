@@ -164,14 +164,7 @@ public class User {
   private void loadAppDefaultCredentials() {
 
     try {
-      GoogleCredentials applicationDefaultCredentials =
-          AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
-
-      terraCredentials =
-          new TerraCredentials(
-              applicationDefaultCredentials,
-              AppDefaultCredentialUtils.getIdTokenFromADC(applicationDefaultCredentials));
-
+      terraCredentials = AppDefaultCredentialUtils.getExistingADC(PET_SA_SCOPES);
     } catch (IOException ioException) {
       throw new SystemException(
           "Could not obtain ID Token from Application Default Credentials.", ioException);
