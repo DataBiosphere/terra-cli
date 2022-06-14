@@ -1032,8 +1032,8 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
-   * update a GCP AI Notebook controlled resource in the workspace.
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/notebooks/{resourceId}" endpoint to
+   * update a GCP Notebook controlled resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -1055,7 +1055,7 @@ public class WorkspaceManagerService {
         () ->
             new ControlledGcpResourceApi(apiClient)
                 .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
-        "Error updating controlled GCP AI notebook in the workspace.");
+        "Error updating controlled GCP notebook in the workspace.");
   }
 
   /**

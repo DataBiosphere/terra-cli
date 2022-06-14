@@ -59,7 +59,7 @@ public abstract class Resource {
     GCS_OBJECT,
     BQ_DATASET,
     BQ_TABLE,
-    GCP_NOTEBOOK,
+    AI_NOTEBOOK,
     GIT_REPO;
   }
 

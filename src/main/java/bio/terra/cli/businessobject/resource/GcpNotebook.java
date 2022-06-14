@@ -39,7 +39,7 @@ public class GcpNotebook extends Resource {
   /** Deserialize an instance of the WSM client library object to the internal object. */
   public GcpNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.GCP_NOTEBOOK;
+    this.resourceType = Type.AI_NOTEBOOK;
     this.projectId = wsmObject.getResourceAttributes().getGcpAiNotebookInstance().getProjectId();
     this.instanceId = wsmObject.getResourceAttributes().getGcpAiNotebookInstance().getInstanceId();
     this.location = wsmObject.getResourceAttributes().getGcpAiNotebookInstance().getLocation();
@@ -48,7 +48,7 @@ public class GcpNotebook extends Resource {
   /** Deserialize an instance of the WSM client library create object to the internal object. */
   public GcpNotebook(GcpAiNotebookInstanceResource wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.GCP_NOTEBOOK;
+    this.resourceType = Type.AI_NOTEBOOK;
     this.projectId = wsmObject.getAttributes().getProjectId();
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getLocation();

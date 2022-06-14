@@ -11,7 +11,9 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class NotebookMetadata {
-  @CommandLine.Option(names = "--new-metadata", description = "Metadata of the Gcp Notebook.")
+  @CommandLine.Option(
+      names = "--new-metadata",
+      description = "Update metadata of the GCP Notebook.")
   public Map<String, String> newMetadata;
 
   public GcpAiNotebookUpdateParameters getMetadata() {

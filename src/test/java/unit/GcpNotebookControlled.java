@@ -191,6 +191,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
 
+    // new key-value pair will be appended, existing key-value pair will be updated.
     String newName = "NewOverrideLocationAndInstanceId";
     String newDescription = "\"new override default location and instance id\"";
     String newMetadata = "NewMetadata=metadata";

@@ -36,7 +36,7 @@ public class GcpNotebook extends BaseCommand {
     bio.terra.cli.businessobject.resource.GcpNotebook resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
-            .castToType(Type.GCP_NOTEBOOK);
+            .castToType(Type.AI_NOTEBOOK);
 
     resource.updateControlled(
         new UpdateControlledGcpNotebookParams.Builder()
@@ -45,13 +45,13 @@ public class GcpNotebook extends BaseCommand {
             .build());
     // re-load the resource so we display all properties with up-to-date values
     resource =
-        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCP_NOTEBOOK);
+        Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AI_NOTEBOOK);
     formatOption.printReturnValue(new UFGcpNotebook(resource), GcpNotebook::printText);
   }
 
   /** Print this command's output in text format. */
   private static void printText(UFGcpNotebook returnValue) {
-    OUT.println("Successfully updated Gcp AI notebook.");
+    OUT.println("Successfully updated GCP notebook.");
     returnValue.print();
   }
 }
