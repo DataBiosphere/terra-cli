@@ -8,8 +8,6 @@ import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdToken;
@@ -17,9 +15,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -78,10 +73,6 @@ public class User {
       ImmutableList.of(
           "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
 
-  // google OAuth client secret file
-  // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
-
   // Number of milliseconds early to consider auth credentials as expired.
   private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
 
@@ -116,8 +107,7 @@ public class User {
     }
     try {
       terraCredentials =
-          GoogleOauth.getExistingUserCredential(
-              USER_SCOPES, getClientSecrets(), Context.getContextDir().toFile());
+          GoogleOauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -180,8 +170,7 @@ public class User {
       terraCredentials =
           new TerraCredentials(
               applicationDefaultCredentials,
-              AppDefaultCredentialUtils.getIdTokenFromApplicationDefaultCredentials(
-                  applicationDefaultCredentials, getClientSecrets()));
+              AppDefaultCredentialUtils.getIdTokenFromADC(applicationDefaultCredentials));
 
     } catch (IOException ioException) {
       throw new SystemException(
@@ -257,8 +246,7 @@ public class User {
     try {
 
       // delete the user credentials
-      GoogleOauth.deleteExistingCredential(
-          USER_SCOPES, getClientSecrets(), Context.getContextDir().toFile());
+      GoogleOauth.deleteExistingCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
@@ -282,7 +270,6 @@ public class User {
       terraCredentials =
           GoogleOauth.doLoginAndConsent(
               USER_SCOPES,
-              getClientSecrets(),
               Context.getContextDir().toFile(),
               launchBrowserAutomatically,
               LOGIN_LANDING_PAGE);
@@ -298,24 +285,6 @@ public class User {
     id = userInfo.getUserSubjectId();
     email = userInfo.getUserEmail();
     proxyGroupEmail = samService.getProxyGroupEmail(email);
-  }
-
-  /** Load the client secrets file to pass to oauth API's. */
-  private GoogleClientSecrets getClientSecrets() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-
-      GoogleClientSecrets clientSecrets =
-          GoogleClientSecrets.load(
-              JacksonFactory.getDefaultInstance(),
-              new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
-      return clientSecrets;
-    } catch (IOException ioException) {
-      throw new SystemException(
-          String.format("Could not open client secret file '%s'.", CLIENT_SECRET_FILENAME),
-          ioException);
-    }
   }
 
   // ====================================================

@@ -3,7 +3,7 @@ package bio.terra.cli.app.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import bio.terra.cli.service.GoogleOauth;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdToken;
@@ -97,11 +97,10 @@ public class AppDefaultCredentialUtils {
 
   /**
    * Get an ID token from an Application Default Credential and Client Secrets. Note that the passed
-   * ADC must be properly scoped, passing improperly scoped credentials will result in a {@code
+   * ADC must be properly scoped; passing improperly scoped credentials will result in a {@code
    * SystemException}. Any other failure to obtain the token will result in an {@code IoException}.
    */
-  public static IdToken getIdTokenFromApplicationDefaultCredentials(
-      GoogleCredentials applicationDefaultCredentials, GoogleClientSecrets clientSecrets)
+  public static IdToken getIdTokenFromADC(GoogleCredentials applicationDefaultCredentials)
       throws IOException {
     if (!(applicationDefaultCredentials instanceof IdTokenProvider)) {
       throw new SystemException(
@@ -114,7 +113,7 @@ public class AppDefaultCredentialUtils {
     IdTokenCredentials idTokenCredentials =
         IdTokenCredentials.newBuilder()
             .setIdTokenProvider((IdTokenProvider) applicationDefaultCredentials)
-            .setTargetAudience(clientSecrets.getDetails().getClientId())
+            .setTargetAudience(GoogleOauth.getClientSecrets().getDetails().getClientId())
             .setOptions(List.of(IdTokenProvider.Option.FORMAT_FULL))
             .build();
 
