@@ -350,16 +350,16 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
    */
   static List<UFGcpNotebook> listNotebookResourcesWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=GCP_NOTEBOOK --format=json`
+    // `terra resources list --type=AI_NOTEBOOK --format=json`
     List<UFGcpNotebook> listedResources =
         workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=GCP_NOTEBOOK")
+                new TypeReference<>() {}, "resource", "list", "--type=AI_NOTEBOOK")
             : TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {},
                 "resource",
                 "list",
-                "--type=GCP_NOTEBOOK",
+                "--type=AI_NOTEBOOK",
                 "--workspace=" + workspaceUserFacingId);
 
     // find the matching notebook in the list

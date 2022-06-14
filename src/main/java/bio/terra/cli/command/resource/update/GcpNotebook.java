@@ -22,7 +22,7 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin NotebookMetadata notebookMetadataOption;
 
-  /** Update a GCP AI notebook in the workspace. */
+  /** Update a GCP notebook in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -32,7 +32,8 @@ public class GcpNotebook extends BaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    // get the resource and make sure it's the right type
+    // get the resource and make sure it's the right type, only type use AI_NOTEBOOK, otherwise use
+    // GCP_NOTEBOOK
     bio.terra.cli.businessobject.resource.GcpNotebook resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
