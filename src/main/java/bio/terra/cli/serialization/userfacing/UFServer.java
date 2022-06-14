@@ -22,7 +22,7 @@ public class UFServer {
   public final String workspaceManagerUri;
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
-  public final boolean idTokenAuthentication;
+  public final boolean supportsIdToken;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {
@@ -33,7 +33,7 @@ public class UFServer {
     this.workspaceManagerUri = internalObj.getWorkspaceManagerUri();
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
-    this.idTokenAuthentication = internalObj.getIdTokenAuthentication();
+    this.supportsIdToken = internalObj.getSupportsIdToken();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -45,7 +45,7 @@ public class UFServer {
     this.workspaceManagerUri = builder.workspaceManagerUri;
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
-    this.idTokenAuthentication = builder.idTokenAuthentication;
+    this.supportsIdToken = builder.supportsIdToken;
   }
 
   /** Print out this object in text format. */
@@ -63,7 +63,7 @@ public class UFServer {
     private String workspaceManagerUri;
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
-    private boolean idTokenAuthentication;
+    private boolean supportsIdToken;
 
     public Builder name(String name) {
       this.name = name;
@@ -100,8 +100,8 @@ public class UFServer {
       return this;
     }
 
-    public Builder idTokenAuthentication(boolean idTokenAuthentication) {
-      this.idTokenAuthentication = idTokenAuthentication;
+    public Builder supportsIdToken(boolean supportsIdToken) {
+      this.supportsIdToken = supportsIdToken;
       return this;
     }
 

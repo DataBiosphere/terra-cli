@@ -7,5 +7,5 @@
   "workspaceManagerUri": "https://terra-preprod-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
-  "idTokenAuthentication" : true
+  "supportsIdToken" : true
 }

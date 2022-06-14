@@ -7,5 +7,5 @@
   "workspaceManagerUri": "https://terra-devel-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
-  "idTokenAuthentication" : true
+  "supportsIdToken" : true
 }

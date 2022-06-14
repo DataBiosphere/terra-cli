@@ -341,7 +341,7 @@ public class User {
    * configured Server instance.
    */
   public AccessToken getTerraToken() {
-    return Context.getServer().getIdTokenAuthentication() ? getUserIdToken() : getUserAccessToken();
+    return Context.getServer().getSupportsIdToken() ? getUserIdToken() : getUserAccessToken();
   }
 
   /** Get the access token for the pet SA credentials. */

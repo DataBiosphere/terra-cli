@@ -21,7 +21,7 @@ public class PDServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final String externalCredsUri;
-  public boolean idTokenAuthentication;
+  public final boolean supportsIdToken;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -33,7 +33,7 @@ public class PDServer {
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.externalCredsUri = internalObj.getExternalCredsUri();
-    this.idTokenAuthentication = internalObj.getIdTokenAuthentication();
+    this.supportsIdToken = internalObj.getSupportsIdToken();
   }
 
   private PDServer(PDServer.Builder builder) {
@@ -45,7 +45,7 @@ public class PDServer {
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
     this.externalCredsUri = builder.externalCredsUri;
-    this.idTokenAuthentication = builder.idTokenAuthentication;
+    this.supportsIdToken = builder.supportsIdToken;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -58,7 +58,7 @@ public class PDServer {
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
     private String externalCredsUri;
-    private boolean idTokenAuthentication;
+    private boolean supportsIdToken;
 
     public Builder name(String name) {
       this.name = name;
@@ -100,8 +100,8 @@ public class PDServer {
       return this;
     }
 
-    public Builder idTokenAuthentication(boolean idTokenAuthentication) {
-      this.idTokenAuthentication = idTokenAuthentication;
+    public Builder supportsIdToken(boolean supportsIdToken) {
+      this.supportsIdToken = supportsIdToken;
       return this;
     }
 
