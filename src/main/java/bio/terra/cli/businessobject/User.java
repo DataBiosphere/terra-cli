@@ -336,6 +336,14 @@ public class User {
     return GoogleOauth.getIdToken(terraCredentials);
   }
 
+  /**
+   * Get the token to use for authentication when calling a Terra service API against the currently
+   * configured Server instance.
+   */
+  public AccessToken getTerraToken() {
+    return Context.getServer().getIdTokenAuthentication() ? getUserIdToken() : getUserAccessToken();
+  }
+
   /** Get the access token for the pet SA credentials. */
   public AccessToken getPetSaAccessToken() {
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();

@@ -2,7 +2,6 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.externalcreds.api.SshKeyPairApi;
@@ -41,11 +40,8 @@ public class ExternalCredentialsManagerService {
   }
 
   public static ExternalCredentialsManagerService fromContext() {
-    Server server = Context.getServer();
-    User user = Context.requireUser();
-    AccessToken token =
-        server.getIdTokenAuthentication() ? user.getUserIdToken() : user.getUserAccessToken();
-    return new ExternalCredentialsManagerService(token, server);
+    return new ExternalCredentialsManagerService(
+        Context.requireUser().getTerraToken(), Context.getServer());
   }
 
   /**
