@@ -166,6 +166,10 @@ task runTestsWithTag(type: Test) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
 
+        // For Gradle Enterprise trial, we'd like to distinguish unit tests from
+        // integration tests in GE UI.
+        buildScan.tag testTag
+
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
             includeTags testTag
