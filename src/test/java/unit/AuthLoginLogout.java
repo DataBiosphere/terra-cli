@@ -1,6 +1,7 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +41,7 @@ public class AuthLoginLogout extends ClearContextUnit {
 
     // check that the credential exists in the store on disk
     DataStore<StoredCredential> credentialStore = TestUser.getCredentialStore();
-    assertEquals(2, credentialStore.keySet().size(), "credential store contains two entries");
+    assertThat("credential store contains two entries", credentialStore.keySet(), hasSize(2));
     assertTrue(
         credentialStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
         "credential store contains hard-coded user key");
