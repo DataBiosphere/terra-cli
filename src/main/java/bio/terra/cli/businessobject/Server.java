@@ -42,8 +42,9 @@ public class Server {
   private final String wsmDefaultSpendProfile;
   private final String dataRepoUri;
   private final String externalCredsUri;
-  
-  // Terra services in the service instance are configured to accept JWT ID tokens for authentication.
+
+  // Terra services in the service instance are configured to accept JWT ID tokens for
+  // authentication.
   private final boolean supportsIdToken;
 
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
