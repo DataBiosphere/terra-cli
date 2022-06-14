@@ -2,6 +2,7 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -172,15 +173,6 @@ public final class GoogleOauth {
     }
   }
 
-  /** DRY helper for deleting from DataStore objects parameterized for different types. */
-  private static <T extends Serializable> void deleteFromDataStore(
-      DataStore<T> dataStore, String key) throws IOException {
-    if (!dataStore.containsKey(key)) {
-      logger.debug("Credential for {} not found.", key);
-    }
-    dataStore.delete(key);
-  }
-
   /**
    * Delete the credential associated with the specified userId.
    *
@@ -237,22 +229,6 @@ public final class GoogleOauth {
       // We have existing credentials, but do not have an ID token.  Return null in order to force a
       // credential refresh which will capture and store an ID token with the new credentials.
       logger.info("Credentials present, but no ID token present.");
-      return null;
-    }
-
-    // Since we can't refresh ID tokens later, check expiration and only use the token if within a
-    // clock skew tolerance, otherwise return a null credential to force a refresh cycle on both
-    // tokens.
-    long expiration = idToken.getExpirationTime().getTime();
-    long skew = 60000; // 60K msec = 1 minute
-    long now = System.currentTimeMillis();
-
-    if ((now + skew) > expiration) {
-      logger.info(
-          "ID Token expiration ({}) within {} seconds of now ({}), forcing a refresh.",
-          idToken.getExpirationTime(),
-          skew / 1000,
-          new Date(now));
       return null;
     }
 
@@ -382,10 +358,12 @@ public final class GoogleOauth {
       return googleAuthorizationCodeFlow;
     }
 
+    /** DRY helper for deleting from DataStore objects parameterized for different types. */
     private static <T extends Serializable> void deleteFromDataStore(
         DataStore<T> dataStore, String key) throws IOException {
-      if (!dataStore.containsKey(key)) {}
-
+      if (!dataStore.containsKey(key)) {
+        logger.debug("Credential for {} not found.", key);
+      }
       dataStore.delete(key);
     }
 
@@ -396,7 +374,7 @@ public final class GoogleOauth {
 
     /** Delete stored GoogleCredential (access and refresh tokens) from the credential store */
     public void deleteStoredCredential() throws IOException {
-      GoogleOauth.deleteFromDataStore(
+      deleteFromDataStore(
           googleAuthorizationCodeFlow.getCredentialDataStore(), CREDENTIAL_STORE_KEY);
     }
 
@@ -448,16 +426,17 @@ public final class GoogleOauth {
    */
   public static IdToken getIdToken(TerraCredentials credentials) {
     IdToken idToken = credentials.getIdToken();
-    long expiration = idToken.getExpirationTime().getTime();
-    long now = System.currentTimeMillis();
-    if (now > expiration) {
-      // If we get here, there is no action we can take since we can't refresh an ID token, and no
-      // action the user can take (next run should get new creds and succeed).  Just log a warning
-      // to help in debugging.
-      logger.warn(
-          "ID token expiration ({}) before current time ({}).",
-          idToken.getExpirationTime(),
-          new Date(now));
+    Date now = new Date();
+    if (idToken.getExpirationTime().before(now)) {
+      // We shouldn't get here based on prior checks, specifically a preceding call to
+      // User.requiresReauthentication(), which will trigger a full credential refresh if the ID
+      // token is close to expiration.  If we do get here there is no further action we can take
+      // since we can't refresh an ID token directly (this must be done using the Google SDK OAuth
+      // Flow which obtains both tokens in a single request); the action the user should take is to
+      // retry their command, as next run should get new creds and succeed.
+      logger.error(
+          "ID token expiration ({}) before current time ({}).", idToken.getExpirationTime(), now);
+      throw new UserActionableException("ID Token expired, please try your call again.");
     }
     return idToken;
   }
