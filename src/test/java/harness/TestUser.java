@@ -86,8 +86,7 @@ public class TestUser {
     // get domain-wide delegated credentials for this user. use the same scopes that are requested
     // of CLI users when they login.
     GoogleCredentials googleCredentials = getCredentials(User.USER_SCOPES);
-    IdToken idToken = getIdToken(googleCredentials);
-    writeTerraOAuthCredentialFile(googleCredentials, idToken);
+    writeTerraOAuthCredentialFile(googleCredentials, getIdToken(googleCredentials));
 
     // We're not using pet SA key file (for security reasons), so auth is more complicated.
     writeAdcCredentialFiles();
@@ -180,11 +179,9 @@ public class TestUser {
               + ")");
     }
 
-    List<String> scopesWithCloudPlatform = new ArrayList<>(User.USER_SCOPES);
-    scopesWithCloudPlatform.add(CLOUD_PLATFORM_SCOPE);
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
-            .createScoped(scopesWithCloudPlatform);
+            .createScoped(scopes);
 
     // use the test-user SA to get a domain-wide delegated credential for the test user
     GoogleCredentials delegatedUserCredential = serviceAccountCredential.createDelegated(email);

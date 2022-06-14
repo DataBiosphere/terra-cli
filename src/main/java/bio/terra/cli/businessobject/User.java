@@ -164,7 +164,7 @@ public class User {
   private void loadAppDefaultCredentials() {
 
     try {
-      terraCredentials = AppDefaultCredentialUtils.getExistingADC(PET_SA_SCOPES);
+      terraCredentials = AppDefaultCredentialUtils.getExistingAdc(PET_SA_SCOPES);
     } catch (IOException ioException) {
       throw new SystemException(
           "Could not obtain ID Token from Application Default Credentials.", ioException);

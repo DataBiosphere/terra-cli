@@ -101,7 +101,7 @@ public class AppDefaultCredentialUtils {
    * ADC must be properly scoped; passing improperly scoped credentials will result in a {@code
    * SystemException}. Any other failure to obtain the token will result in an {@code IoException}.
    */
-  private static IdToken getIdTokenFromADC(GoogleCredentials applicationDefaultCredentials)
+  private static IdToken getIdTokenFromAdc(GoogleCredentials applicationDefaultCredentials)
       throws IOException {
     if (!(applicationDefaultCredentials instanceof IdTokenProvider)) {
       throw new SystemException(
@@ -123,12 +123,12 @@ public class AppDefaultCredentialUtils {
     return idTokenCredentials.getIdToken();
   }
 
-  public static TerraCredentials getExistingADC(List<String> scopes) throws IOException {
+  public static TerraCredentials getExistingAdc(List<String> scopes) throws IOException {
     GoogleCredentials applicationDefaultCredentials =
         AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(scopes);
 
     return new TerraCredentials(
         applicationDefaultCredentials,
-        AppDefaultCredentialUtils.getIdTokenFromADC(applicationDefaultCredentials));
+        AppDefaultCredentialUtils.getIdTokenFromAdc(applicationDefaultCredentials));
   }
 }
