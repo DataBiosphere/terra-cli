@@ -1047,10 +1047,11 @@ public class WorkspaceManagerService {
         new UpdateControlledGcpAiNotebookInstanceRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description);
-    if (updateParams.notebookUpdateParameters != null)
+    if (updateParams.notebookUpdateParameters != null) {
       updateRequest.updateParameters(
           new GcpAiNotebookUpdateParameters()
               .metadata(updateParams.notebookUpdateParameters.getMetadata()));
+    }
     callWithRetries(
         () ->
             new ControlledGcpResourceApi(apiClient)
