@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
+import bio.terra.cli.command.shared.options.WorkspaceNameAndDescriptionAndProperty;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
@@ -25,7 +25,8 @@ public class Clone extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace clone`
   private String id;
 
-  @CommandLine.Mixin private WorkspaceNameAndDescription workspaceNameAndDescription;
+  @CommandLine.Mixin
+  private WorkspaceNameAndDescriptionAndProperty workspaceNameAndDescriptionAndProperty;
 
   @CommandLine.Mixin private Format formatOption;
 
@@ -38,7 +39,10 @@ public class Clone extends BaseCommand {
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
-            id, workspaceNameAndDescription.name, workspaceNameAndDescription.description);
+            id,
+            workspaceNameAndDescriptionAndProperty.name,
+            workspaceNameAndDescriptionAndProperty.description,
+            workspaceNameAndDescriptionAndProperty.properties);
     Workspace destinationWorkspaceHydrated =
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 

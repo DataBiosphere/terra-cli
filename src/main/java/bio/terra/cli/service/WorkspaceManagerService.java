@@ -83,6 +83,7 @@ import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceIamRoles;
 import bio.terra.workspace.model.PrivateResourceUser;
+import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -210,12 +211,16 @@ public class WorkspaceManagerService {
    * @param userFacingId required user-facing ID
    * @param name optional display name
    * @param description optional description
+   * @param properties optional property
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
-      String userFacingId, @Nullable String name, @Nullable String description) {
+      String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      @Nullable Properties properties) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -227,6 +232,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
+          workspaceRequestBody.setProperties(properties);
 
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
@@ -390,16 +396,22 @@ public class WorkspaceManagerService {
    * @param userFacingId - required userFacingId of new cloned workspace
    * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
+   * @param property - optional property for new workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId, String userFacingId, @Nullable String name, @Nullable String description) {
+      UUID workspaceId,
+      String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      @Nullable Properties property) {
     var request =
         new CloneWorkspaceRequest()
             .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
             .userFacingId(userFacingId)
             .displayName(name)
             .description(description)
+            .properties(property)
             // force location to null until we have an implementation of a workspace-wide location
             .location(null);
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
