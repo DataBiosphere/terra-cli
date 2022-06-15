@@ -42,7 +42,7 @@ public class GcpNotebook extends BaseCommand {
     resource.updateControlled(
         new UpdateControlledGcpNotebookParams.Builder()
             .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
-            .notebookUpdateParameters(notebookMetadataOption.getMetadata())
+            .notebookUpdateParameters(notebookMetadataOption.getUpdateMetadata())
             .build());
     // re-load the resource so we display all properties with up-to-date values
     resource =

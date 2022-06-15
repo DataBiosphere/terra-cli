@@ -194,7 +194,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // new key-value pair will be appended, existing key-value pair will be updated.
     String newName = "NewOverrideLocationAndInstanceId";
     String newDescription = "\"new override default location and instance id\"";
-    String newMetadata = "NewMetadata=metadata";
+    String newMetadata = "NewMetadata1=metadata1,NewMetadata2=metadata2";
     UFGcpNotebook updatedNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpNotebook.class,
@@ -207,6 +207,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
             "--new-metadata=" + newMetadata);
 
     // check that the properties match
+    // the metadata supports multiple entries, we can't assert on the metadata because it's not
+    // stored in or accessible via Workspace Manager.
     assertEquals(newName, updatedNotebook.name, "create output matches name");
     assertEquals(newDescription, updatedNotebook.description, "create output matches description");
   }

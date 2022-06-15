@@ -13,10 +13,11 @@ import picocli.CommandLine;
 public class NotebookMetadata {
   @CommandLine.Option(
       names = "--new-metadata",
+      split = ",",
       description = "Update metadata of the GCP Notebook.")
   public Map<String, String> newMetadata;
 
-  public GcpAiNotebookUpdateParameters getMetadata() {
+  public GcpAiNotebookUpdateParameters getUpdateMetadata() {
     return new GcpAiNotebookUpdateParameters().metadata(newMetadata);
   }
 
