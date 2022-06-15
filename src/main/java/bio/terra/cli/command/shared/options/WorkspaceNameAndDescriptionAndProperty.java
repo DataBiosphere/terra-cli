@@ -20,6 +20,7 @@ public class WorkspaceNameAndDescriptionAndProperty {
   @CommandLine.Option(
       names = "--property",
       required = false,
+      split = ",",
       description =
           "Custom workspace to apply to this instance.\n"
               + "specify multiple property in the format of --property=key1=value1\n"
