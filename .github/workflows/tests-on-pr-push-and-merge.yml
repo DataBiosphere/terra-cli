@@ -100,6 +100,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
           GHA_EVENT_NAME: ${{ github.event_name }}
+      - name: Set up gcloud Cloud SDK environment
+        uses: google-github-actions/setup-gcloud@v0.6.0
       - name: Run tests
         id: run_tests
         run: |
