@@ -327,6 +327,9 @@ public class Workspace {
 
   public static Properties stringMapToProperties(Map<String, String> map) {
     Properties propertyResult = new Properties();
+    if (map == null) {
+      return propertyResult;
+    }
     for (Map.Entry<String, String> entry : map.entrySet()) {
       Property prop = new Property().key(entry.getKey()).value(entry.getValue());
       propertyResult.add(prop);
