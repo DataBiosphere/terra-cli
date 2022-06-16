@@ -48,6 +48,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
+    assertTrue(createdNotebook.metadata.toString().contains("foo=bar"), "create output matches metadata");
 
     // gcp notebooks are always private
     assertEquals(
@@ -211,6 +212,11 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // stored in or accessible via Workspace Manager.
     assertEquals(newName, updatedNotebook.name, "create output matches name");
     assertEquals(newDescription, updatedNotebook.description, "create output matches description");
+    String[] metadatas = newMetadata.split(",");
+    for (String metadata : metadatas) {
+      assertTrue(
+          updatedNotebook.metadata.toString().contains(metadata), "create output matches metadata" + metadata);
+    }
   }
 
   @Test // NOTE: This test takes ~10 minutes to run.
