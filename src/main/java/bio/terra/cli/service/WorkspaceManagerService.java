@@ -105,9 +105,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
-import java.net.ConnectException;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -1371,7 +1369,8 @@ public class WorkspaceManagerService {
     // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
     // different exception than the SocketTimeoutException thrown by other client libraries.
     final int TIMEOUT_STATUS_CODE = 0;
-    boolean isWsmTimeout = statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
 
     return isWsmTimeout
         || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR

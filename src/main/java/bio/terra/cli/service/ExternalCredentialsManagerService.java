@@ -118,8 +118,9 @@ public class ExternalCredentialsManagerService {
    */
   private static boolean isRetryable(Exception ex) {
     // Unlike Sam or WSM, the ECM client throws an entirely different exception for I/O errors,
-    // rather than pretending they have HTTP status code 0. Despite the name ResourceAccessException
-    // is thrown on low-level I/O errors and is unrelated to application layer access issues.
+    // rather than pretending they have HTTP status code 0. Despite the name,
+    // ResourceAccessException is thrown on low-level I/O errors and is unrelated to application
+    // layer access issues.
     if (ex instanceof ResourceAccessException) {
       return true;
     }
