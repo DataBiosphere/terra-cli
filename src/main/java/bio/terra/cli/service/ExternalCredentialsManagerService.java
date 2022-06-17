@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 public class ExternalCredentialsManagerService {
@@ -116,6 +117,12 @@ public class ExternalCredentialsManagerService {
    * @return true if the exception is retryable
    */
   private static boolean isRetryable(Exception ex) {
+    // Unlike Sam or WSM, the ECM client throws an entirely different exception for I/O errors,
+    // rather than pretending they have HTTP status code 0. Despite the name ResourceAccessException
+    // is thrown on low-level I/O errors and is unrelated to application layer access issues.
+    if (ex instanceof ResourceAccessException) {
+      return true;
+    }
     if (!(ex instanceof HttpStatusCodeException)) {
       return false;
     }
