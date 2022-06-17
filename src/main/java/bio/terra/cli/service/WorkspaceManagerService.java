@@ -105,6 +105,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -1364,7 +1365,15 @@ public class WorkspaceManagerService {
     }
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
+    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
+    // different exception than the SocketTimeoutException thrown by other client libraries.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+
+    return isWsmTimeout
+        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
