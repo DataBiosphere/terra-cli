@@ -214,11 +214,13 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // stored in or accessible via Workspace Manager.
     assertEquals(newName, updatedNotebook.name, "create output matches name");
     assertEquals(newDescription, updatedNotebook.description, "create output matches description");
-    assertTrue(
-        updatedNotebook.metadata.toString().contains(newMetadata1),
+    assertEquals(
+        newMetadata1.split("=")[1],
+        updatedNotebook.metadata.get(newMetadata1.split("=")[0]),
         "create output matches metadata" + newMetadata1);
-    assertTrue(
-        updatedNotebook.metadata.toString().contains(newMetadata2),
+    assertEquals(
+        newMetadata2.split("=")[1],
+        updatedNotebook.metadata.get(newMetadata2.split("=")[0]),
         "create output matches metadata" + newMetadata2);
   }
 
