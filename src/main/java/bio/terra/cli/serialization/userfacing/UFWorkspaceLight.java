@@ -13,7 +13,7 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
-  public Properties property;
+  public Properties properties;
   public String serverName;
   public String userEmail;
 
@@ -28,7 +28,7 @@ public class UFWorkspaceLight {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
-    this.property = internalObj.getProperty();
+    this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
   }
@@ -39,7 +39,7 @@ public class UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
-    this.property = builder.property;
+    this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
   }
@@ -50,7 +50,7 @@ public class UFWorkspaceLight {
     this.name = null;
     this.description = null;
     this.googleProjectId = null;
-    this.property = null;
+    this.properties = null;
     this.serverName = null;
     this.userEmail = null;
   }
@@ -65,8 +65,9 @@ public class UFWorkspaceLight {
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
     OUT.println("Properties:");
-    for (int counter = 0; counter < property.size(); counter++) {
-      OUT.println("   " + property.get(counter).getKey() + ":" + property.get(counter).getValue());
+    for (int counter = 0; counter < properties.size(); counter++) {
+      OUT.println(
+          "   " + properties.get(counter).getKey() + ": " + properties.get(counter).getValue());
     }
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
@@ -81,7 +82,7 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
-    private Properties property;
+    private Properties properties;
     private String serverName;
     private String userEmail;
 
@@ -105,8 +106,8 @@ public class UFWorkspaceLight {
       return this;
     }
 
-    public UFWorkspaceLight.Builder property(Properties property) {
-      this.property = property;
+    public UFWorkspaceLight.Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

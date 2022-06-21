@@ -191,7 +191,7 @@ public class CloneWorkspace extends ClearContextUnit {
         "Correct source workspace ID for clone.");
     destinationWorkspace = clonedWorkspace.destinationWorkspace;
     assertEquals(
-        2, destinationWorkspace.property.size(), "Multiple property entries add successful.");
+        2, destinationWorkspace.properties.size(), "Multiple property entries add successful.");
     assertThat(
         "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
 

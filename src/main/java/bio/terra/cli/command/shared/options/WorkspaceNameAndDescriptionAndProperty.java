@@ -22,8 +22,6 @@ public class WorkspaceNameAndDescriptionAndProperty {
       required = false,
       split = ",",
       description =
-          "Custom workspace to apply to this instance.\n"
-              + "specify multiple property in the format of --property=key1=value1\n"
-              + "It allows multiple metadata entries split by \",\" like --property=key1=value1,key2=value2\n")
+          "Workspace properties. Example: --property=key=value. For multiple properties, use \",\": --property=key1=value1,key2=value2")
   public Map<String, String> properties;
 }

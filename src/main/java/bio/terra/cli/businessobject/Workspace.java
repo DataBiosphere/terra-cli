@@ -76,7 +76,7 @@ public class Workspace {
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.googleProjectId = configFromDisk.googleProjectId;
-    this.properties = configFromDisk.property;
+    this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
     this.resources =
@@ -87,11 +87,11 @@ public class Workspace {
 
   /** Create a new workspace and set it as the current workspace. */
   public static Workspace create(
-      String userFacingId, String name, String description, Map<String, String> property) {
+      String userFacingId, String name, String description, Map<String, String> properties) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(userFacingId, name, description, stringMapToProperties(property));
+            .createWorkspace(userFacingId, name, description, stringMapToProperties(properties));
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -325,16 +325,16 @@ public class Workspace {
     return granteeProxyGroupEmail;
   }
 
-  public static Properties stringMapToProperties(Map<String, String> map) {
-    Properties propertyResult = new Properties();
+  private static Properties stringMapToProperties(Map<String, String> map) {
+    Properties properties = new Properties();
     if (map == null) {
-      return propertyResult;
+      return properties;
     }
     for (Map.Entry<String, String> entry : map.entrySet()) {
-      Property prop = new Property().key(entry.getKey()).value(entry.getValue());
-      propertyResult.add(prop);
+      Property property = new Property().key(entry.getKey()).value(entry.getValue());
+      properties.add(property);
     }
-    return propertyResult;
+    return properties;
   }
 
   public UUID getUuid() {
@@ -357,7 +357,7 @@ public class Workspace {
     return googleProjectId;
   }
 
-  public Properties getProperty() {
+  public Properties getProperties() {
     return properties;
   }
 

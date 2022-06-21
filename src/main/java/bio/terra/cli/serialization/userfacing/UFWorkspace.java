@@ -35,7 +35,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
-    this.property = builder.property;
+    this.properties = builder.properties;
     this.numResources = builder.numResources;
   }
 
@@ -56,7 +56,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String googleProjectId;
     private String serverName;
     private String userEmail;
-    private Properties property;
+    private Properties properties;
     private long numResources;
 
     public Builder id(String id) {
@@ -79,8 +79,8 @@ public class UFWorkspace extends UFWorkspaceLight {
       return this;
     }
 
-    public Builder property(Properties property) {
-      this.property = property;
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

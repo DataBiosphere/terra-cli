@@ -23,7 +23,7 @@ public class PDWorkspace {
   public final String name;
   public final String description;
   public final String googleProjectId;
-  public final Properties property;
+  public final Properties properties;
   public final String serverName;
   public final String userEmail;
   public final List<PDResource> resources;
@@ -35,7 +35,7 @@ public class PDWorkspace {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
-    this.property = internalObj.getProperty();
+    this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
     this.resources =
@@ -50,7 +50,7 @@ public class PDWorkspace {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
-    this.property = builder.property;
+    this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.resources = builder.resources;
@@ -63,7 +63,7 @@ public class PDWorkspace {
     private String name;
     private String description;
     private String googleProjectId;
-    private Properties property;
+    private Properties properties;
     private String serverName;
     private String userEmail;
     private List<PDResource> resources;
@@ -93,8 +93,8 @@ public class PDWorkspace {
       return this;
     }
 
-    public Builder property(Properties property) {
-      this.property = property;
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

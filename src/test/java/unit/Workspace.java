@@ -132,7 +132,7 @@ public class Workspace extends ClearContextUnit {
     // check the created workspace name and description are set
     assertNotNull(createdWorkspace.name, "create workspace name is defined");
     assertNotNull(createdWorkspace.description, "create workspace description is defined");
-    assertNotNull(createdWorkspace.property, "create workspace property is defined");
+    assertNotNull(createdWorkspace.properties, "create workspace property is defined");
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`
