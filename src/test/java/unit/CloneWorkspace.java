@@ -183,7 +183,7 @@ public class CloneWorkspace extends ClearContextUnit {
             "--new-id=cloned_id" + RANDOM.nextInt(Integer.MAX_VALUE),
             "--name=cloned_workspace",
             "--description=A clone.",
-            "--property=key1=value1,key2=value2");
+            "--properties=key1=value1,key2=value2");
 
     assertEquals(
         sourceWorkspace.id,
