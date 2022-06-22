@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
+import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
@@ -135,7 +136,7 @@ public class Workspace extends ClearContextUnit {
     assertNotNull(createdWorkspace.properties, "create workspace property is defined");
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
-    // --new-description=$newDescription`
+    // --new-description=$newDescription --new-properties=newKey1=newValue1`
     String newId = "newid";
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
@@ -146,7 +147,7 @@ public class Workspace extends ClearContextUnit {
         "--new-id=" + newId,
         "--new-name=" + newName,
         "--new-description=" + newDescription,
-        "--new-property=newKey1=newValue1");
+        "--new-properties=newKey1=newValue1");
 
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -158,14 +159,12 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         status.workspace.description,
         "status matches updated workspace description");
-    assertEquals(
-        "newValue1",
-        status.workspace.properties.get(0).getValue(),
-        "Multiple property entries add successful.");
-    assertEquals(
-        "newKey1",
-        status.workspace.properties.get(0).getKey(),
-        "Multiple property entries add successful.");
+    Property property1 =
+        status.workspace.properties.stream()
+            .filter(p -> "newKey1".equals(p.getKey()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("newValue1", property1.getValue(), "Multiple property entries add successful.");
 
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =

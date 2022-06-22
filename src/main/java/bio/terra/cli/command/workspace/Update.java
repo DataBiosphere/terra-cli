@@ -38,11 +38,11 @@ public class Update extends BaseCommand {
     private String description;
 
     @CommandLine.Option(
-        names = "--new-property",
+        names = "--new-properties",
         required = false,
         split = ",",
         description = "Workspace property.")
-    private Map<String, String> property;
+    private Map<String, String> properties;
   }
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -54,7 +54,7 @@ public class Update extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace()
-            .update(argGroup.id, argGroup.name, argGroup.description, argGroup.property);
+            .update(argGroup.id, argGroup.name, argGroup.description, argGroup.properties);
     updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
