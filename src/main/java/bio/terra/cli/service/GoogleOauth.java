@@ -1,6 +1,5 @@
 package bio.terra.cli.service;
 
-import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -40,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public final class GoogleOauth {
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
     try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        GoogleOauth.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
 
       GoogleClientSecrets clientSecrets =
           GoogleClientSecrets.load(
@@ -75,7 +75,7 @@ public final class GoogleOauth {
       return clientSecrets;
     } catch (IOException ioException) {
       throw new SystemException(
-          String.format("Could not open client secret file '%s'.", CLIENT_SECRET_FILENAME),
+          String.format("Failure reading client secrets from file: '%s'.", CLIENT_SECRET_FILENAME),
           ioException);
     }
   }
@@ -189,12 +189,13 @@ public final class GoogleOauth {
   }
 
   /**
-   * Get the existing credential for the given user.
+   * Get the existing stored credential for the given user if it exists.
    *
    * @param scopes list of scopes requested of the user
    * @param dataStoreDir directory where the local credential store is persisted
-   * @return credentials object for the user
+   * @return credentials object for the user, or null if a valid stored credential does not exist
    */
+  @Nullable
   public static TerraCredentials getExistingUserCredential(List<String> scopes, File dataStoreDir)
       throws IOException, GeneralSecurityException {
 
@@ -436,7 +437,7 @@ public final class GoogleOauth {
       // retry their command, as next run should get new creds and succeed.
       logger.error(
           "ID token expiration ({}) before current time ({}).", idToken.getExpirationTime(), now);
-      throw new UserActionableException("ID Token expired, please try your call again.");
+      throw new UserActionableException("ID Token expired, please try your command again.");
     }
     return idToken;
   }

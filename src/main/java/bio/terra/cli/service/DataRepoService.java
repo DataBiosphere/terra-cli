@@ -35,7 +35,9 @@ public class DataRepoService {
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getDataRepoUri());
-    if (user != null) this.apiClient.setAccessToken(user.getTerraToken().getTokenValue());
+    if (user != null) {
+      this.apiClient.setAccessToken(user.getTerraToken().getTokenValue());
+    }
   }
 
   /**

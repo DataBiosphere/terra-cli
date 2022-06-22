@@ -99,7 +99,7 @@ public class AppDefaultCredentialUtils {
   /**
    * Get an ID token from an Application Default Credential and Client Secrets. Note that the passed
    * ADC must be properly scoped; passing improperly scoped credentials will result in a {@code
-   * SystemException}. Any other failure to obtain the token will result in an {@code IoException}.
+   * SystemException}. Any other failure to obtain the token will result in an {@code IOException}.
    */
   private static IdToken getIdTokenFromAdc(GoogleCredentials applicationDefaultCredentials)
       throws IOException {
