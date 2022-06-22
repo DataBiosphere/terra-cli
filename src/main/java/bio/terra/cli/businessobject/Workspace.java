@@ -159,11 +159,15 @@ public class Workspace {
    * @throws UserActionableException if there is no current workspace
    */
   public Workspace update(
-      @Nullable String userFacingId, @Nullable String name, @Nullable String description) {
+      @Nullable String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      @Nullable Map<String, String> properties) {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspace =
         WorkspaceManagerService.fromContext()
-            .updateWorkspace(uuid, userFacingId, name, description);
+            .updateWorkspace(
+                uuid, userFacingId, name, description, stringMapToProperties(properties));
     logger.info("Updated workspace: {}", updatedWorkspace);
 
     // convert the WSM object to a CLI object
@@ -274,7 +278,8 @@ public class Workspace {
       @Nullable Map<String, String> properties) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext()
-            .cloneWorkspace(uuid, userFacingId, name, description, stringMapToProperties(properties));
+            .cloneWorkspace(
+                uuid, userFacingId, name, description, stringMapToProperties(properties));
     return result.getWorkspace();
   }
 

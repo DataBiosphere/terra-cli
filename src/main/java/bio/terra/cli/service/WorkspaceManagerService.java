@@ -368,12 +368,14 @@ public class WorkspaceManagerService {
       UUID workspaceId,
       @Nullable String userFacingId,
       @Nullable String name,
-      @Nullable String description) {
+      @Nullable String description,
+      @Nullable Properties properties) {
     UpdateWorkspaceRequestBody updateRequest =
         new UpdateWorkspaceRequestBody()
             .userFacingId(userFacingId)
             .displayName(name)
-            .description(description);
+            .description(description)
+            .properties(properties);
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
         "Error updating workspace");

@@ -6,6 +6,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import java.util.Map;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -35,6 +36,13 @@ public class Update extends BaseCommand {
         required = false,
         description = "Workspace description.")
     private String description;
+
+    @CommandLine.Option(
+        names = "--new-property",
+        required = false,
+        split = ",",
+        description = "Workspace property.")
+    private Map<String, String> property;
   }
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -45,7 +53,8 @@ public class Update extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
-        Context.requireWorkspace().update(argGroup.id, argGroup.name, argGroup.description);
+        Context.requireWorkspace()
+            .update(argGroup.id, argGroup.name, argGroup.description, argGroup.property);
     updatedWorkspace.listResourcesAndSync();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
