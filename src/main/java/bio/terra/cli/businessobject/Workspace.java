@@ -274,7 +274,8 @@ public class Workspace {
       @Nullable Map<String, String> properties) {
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext()
-            .cloneWorkspace(uuid, userFacingId, name, description, stringMapToProperties(properties));
+            .cloneWorkspace(
+                uuid, userFacingId, name, description, stringMapToProperties(properties));
     return result.getWorkspace();
   }
 
