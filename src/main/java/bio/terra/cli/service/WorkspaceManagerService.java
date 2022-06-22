@@ -14,6 +14,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
@@ -57,6 +58,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
+import bio.terra.workspace.model.GcpAiNotebookUpdateParameters;
 import bio.terra.workspace.model.GcpBigQueryDataTableAttributes;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
@@ -91,6 +93,7 @@ import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
 import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
+import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
@@ -103,6 +106,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -1040,6 +1044,35 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/notebooks/{resourceId}" endpoint to
+   * update a GCP Notebook controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledGcpNotebook(
+      UUID workspaceId, UUID resourceId, UpdateControlledGcpNotebookParams updateParams) {
+
+    // convert the CLI object to a WSM request object
+    UpdateControlledGcpAiNotebookInstanceRequestBody updateRequest =
+        new UpdateControlledGcpAiNotebookInstanceRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description);
+    if (updateParams.notebookUpdateParameters != null) {
+      updateRequest.updateParameters(
+          new GcpAiNotebookUpdateParameters()
+              .metadata(updateParams.notebookUpdateParameters.getMetadata()));
+    }
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
+        "Error updating controlled GCP notebook in the workspace.");
+  }
+
+  /**
    * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
    * endpoint to update a BigQuery data table referenced resource in the workspace.
@@ -1344,7 +1377,15 @@ public class WorkspaceManagerService {
     }
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
+    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
+    // different exception than the SocketTimeoutException thrown by other client libraries.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+
+    return isWsmTimeout
+        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
