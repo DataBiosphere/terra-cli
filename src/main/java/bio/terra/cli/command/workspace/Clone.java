@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.WorkspaceNameAndDescriptionAndProperty;
+import bio.terra.cli.command.shared.options.WorkspaceNameDescriptionAndProperty;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
@@ -26,7 +26,7 @@ public class Clone extends BaseCommand {
   private String id;
 
   @CommandLine.Mixin
-  private WorkspaceNameAndDescriptionAndProperty workspaceNameAndDescriptionAndProperty;
+  private WorkspaceNameDescriptionAndProperty workspaceNameAndDescriptionAndProperty;
 
   @CommandLine.Mixin private Format formatOption;
 

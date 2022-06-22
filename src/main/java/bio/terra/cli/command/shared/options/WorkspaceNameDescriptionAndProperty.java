@@ -4,7 +4,7 @@ import java.util.Map;
 import picocli.CommandLine;
 
 /** @CommandLine.Mixin class for workspace name, description and Property options */
-public class WorkspaceNameAndDescriptionAndProperty {
+public class WorkspaceNameDescriptionAndProperty {
   @CommandLine.Option(
       names = "--name",
       required = false,
@@ -18,10 +18,10 @@ public class WorkspaceNameAndDescriptionAndProperty {
   public String description;
 
   @CommandLine.Option(
-      names = "--property",
+      names = "--properties",
       required = false,
       split = ",",
       description =
-          "Workspace properties. Example: --property=key=value. For multiple properties, use \",\": --property=key1=value1,key2=value2")
+          "Workspace properties. Example: --properties=key=value. For multiple properties, use \",\": --properties=key1=value1,key2=value2")
   public Map<String, String> properties;
 }

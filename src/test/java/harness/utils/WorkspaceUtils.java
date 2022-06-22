@@ -52,7 +52,7 @@ public class WorkspaceUtils {
             "--id=" + createUserFacingId(),
             "--name=" + name,
             "--description=" + description,
-            "--property=" + property);
+            "--properties=" + property);
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
