@@ -6,14 +6,15 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
 import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
+import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
@@ -49,10 +50,10 @@ public class User {
   // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
   private String petSAEmail;
 
-  // Google credentials for the user. This can be either 1) end-user google credentials from an
-  // oauth browser flow, or 2) end-user or pet sa google credentials pulled from the application
-  // default credentials.
-  private GoogleCredentials googleCredentials;
+  // User credentials to be used in calls to Terra API's. This can be either 1) end-user google
+  // credentials from an oauth browser flow, or 2) end-user or pet sa google credentials pulled from
+  // the application default credentials.
+  private TerraCredentials terraCredentials;
 
   /**
    * User specified what mode to log-in. When log-in mode is {@code APP_DEFAULT_CREDENTIALS}, check
@@ -71,10 +72,6 @@ public class User {
   private static final List<String> PET_SA_SCOPES =
       ImmutableList.of(
           "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
-
-  // google OAuth client secret file
-  // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
 
   // Number of milliseconds early to consider auth credentials as expired.
   private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
@@ -108,11 +105,9 @@ public class User {
       loadAppDefaultCredentials();
       return;
     }
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
-      googleCredentials =
-          GoogleOauth.getExistingUserCredential(
-              USER_SCOPES, inputStream, Context.getContextDir().toFile());
+    try {
+      terraCredentials =
+          GoogleOauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -163,19 +158,24 @@ public class User {
   }
 
   /**
-   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and set to {@code
-   * googleCredentials}.
+   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and stores in {@code
+   * terraCredentials}.
    */
   private void loadAppDefaultCredentials() {
-    googleCredentials =
-        AppDefaultCredentialUtils.getApplicationDefaultCredentials().createScoped(PET_SA_SCOPES);
+
+    try {
+      terraCredentials = AppDefaultCredentialUtils.getExistingAdc(PET_SA_SCOPES);
+    } catch (IOException ioException) {
+      throw new SystemException(
+          "Could not obtain ID Token from Application Default Credentials.", ioException);
+    }
   }
 
   /** Delete all credentials associated with this user. */
   public void logout() {
     deleteOauthCredentials();
     deletePetSaEmail();
-    GoogleOauth.revokeToken(getGoogleCredentials());
+    GoogleOauth.revokeToken(getTerraCredentials());
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -236,12 +236,10 @@ public class User {
 
   /** Delete this user's OAuth credentials. */
   private void deleteOauthCredentials() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+    try {
 
       // delete the user credentials
-      GoogleOauth.deleteExistingCredential(
-          USER_SCOPES, inputStream, Context.getContextDir().toFile());
+      GoogleOauth.deleteExistingCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
@@ -257,16 +255,14 @@ public class User {
    * load that. If not, then we prompt the user for the requested user scopes.
    */
   private void doOauthLoginFlow() {
-    try (InputStream inputStream =
-        User.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+    try {
 
       // log the user in and get their consent to the requested scopes
       boolean launchBrowserAutomatically =
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
-      googleCredentials =
+      terraCredentials =
           GoogleOauth.doLoginAndConsent(
               USER_SCOPES,
-              inputStream,
               Context.getContextDir().toFile(),
               launchBrowserAutomatically,
               LOGIN_LANDING_PAGE);
@@ -302,8 +298,8 @@ public class User {
     return petSAEmail;
   }
 
-  public Optional<GoogleCredentials> getGoogleCredentials() {
-    return Optional.ofNullable(googleCredentials);
+  public Optional<TerraCredentials> getTerraCredentials() {
+    return Optional.ofNullable(terraCredentials);
   }
 
   public GoogleCredentials getPetSACredentials() {
@@ -316,23 +312,43 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    if (googleCredentials == null) {
+    if (terraCredentials == null) {
       return true;
     }
 
-    // this method call will attempt to refresh the token if it's already expired
-    AccessToken accessToken = getUserAccessToken();
+    // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired
+
+    Date accessTokenExpiration = getUserAccessToken().getExpirationTime();
+    logger.debug("Access token expiration date: {}", accessTokenExpiration);
+    Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
+    logger.debug("ID token expiration date: {}", idTokenExipration);
+    Date earliestExpiration =
+        accessTokenExpiration.before(idTokenExipration) ? accessTokenExpiration : idTokenExipration;
 
     // check if the token is expired
-    logger.debug("Access token expiration date: {}", accessToken.getExpirationTime());
     Date cutOffDate = new Date();
     cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
-    return accessToken.getExpirationTime().compareTo(cutOffDate) <= 0;
+
+    // If either token expires before the cutoff, return true to trigger a re-authentication.
+    return (earliestExpiration.before(cutOffDate));
   }
 
-  /** Get the access token for the user credentials. */
+  /** Get the access token from the user's credentials. */
   public AccessToken getUserAccessToken() {
-    return GoogleOauth.getAccessToken(googleCredentials);
+    return GoogleOauth.getAccessToken(terraCredentials);
+  }
+
+  /** Get the ID token from the user's credentials. */
+  public IdToken getUserIdToken() {
+    return GoogleOauth.getIdToken(terraCredentials);
+  }
+
+  /**
+   * Get the token to use for authentication when calling a Terra service API against the currently
+   * configured Server instance.
+   */
+  public AccessToken getTerraToken() {
+    return Context.getServer().getSupportsIdToken() ? getUserIdToken() : getUserAccessToken();
   }
 
   /** Get the access token for the pet SA credentials. */

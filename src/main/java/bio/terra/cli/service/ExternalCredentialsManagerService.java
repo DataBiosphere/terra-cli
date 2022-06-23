@@ -41,7 +41,7 @@ public class ExternalCredentialsManagerService {
 
   public static ExternalCredentialsManagerService fromContext() {
     return new ExternalCredentialsManagerService(
-        Context.requireUser().getUserAccessToken(), Context.getServer());
+        Context.requireUser().getTerraToken(), Context.getServer());
   }
 
   /**
