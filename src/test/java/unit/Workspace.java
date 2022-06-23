@@ -136,7 +136,7 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`
-    String newId = "newid";
+    String newId = "new-" + createdWorkspace.id;
     String newName = "NEW_statusDescribeListReflectUpdate";
     String newDescription = "NEW status describe list reflect update";
     TestCommand.runCommandExpectSuccess(
