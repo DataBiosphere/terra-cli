@@ -36,9 +36,7 @@ public class DataRepoService {
 
     this.apiClient.setBasePath(server.getDataRepoUri());
     if (user != null) {
-      // fetch the user access token
-      // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(user.getUserAccessToken().getTokenValue());
+      this.apiClient.setAccessToken(user.getTerraToken().getTokenValue());
     }
   }
 

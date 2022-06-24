@@ -66,7 +66,7 @@ public class SamService {
 
   /** Factory method for class that talks to SAM. Pulls the current server from the context. */
   public static SamService forUser(User user) {
-    return new SamService(user.getUserAccessToken(), Context.getServer());
+    return new SamService(user.getTerraToken(), Context.getServer());
   }
 
   /** Factory method for class that talks to SAM. Pulls the current server from the context. */

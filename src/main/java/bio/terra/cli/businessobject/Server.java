@@ -43,6 +43,10 @@ public class Server {
   private final String dataRepoUri;
   private final String externalCredsUri;
 
+  // Terra services in the service instance are configured to accept JWT ID tokens for
+  // authentication.
+  private final boolean supportsIdToken;
+
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
   @VisibleForTesting public static final String ALL_SERVERS_FILENAME = "all-servers.json";
@@ -57,6 +61,7 @@ public class Server {
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
+    this.supportsIdToken = configFromDisk.supportsIdToken;
   }
 
   /** Return an instance of this class with default values. */
@@ -200,5 +205,9 @@ public class Server {
 
   public String getExternalCredsUri() {
     return externalCredsUri;
+  }
+
+  public boolean getSupportsIdToken() {
+    return supportsIdToken;
   }
 }

@@ -153,8 +153,7 @@ public class WorkspaceManagerService {
    * Factory method for class that talks to WSM. Pulls the current server and user from the context.
    */
   public static WorkspaceManagerService fromContext() {
-    return new WorkspaceManagerService(
-        Context.requireUser().getUserAccessToken(), Context.getServer());
+    return new WorkspaceManagerService(Context.requireUser().getTerraToken(), Context.getServer());
   }
 
   /**
