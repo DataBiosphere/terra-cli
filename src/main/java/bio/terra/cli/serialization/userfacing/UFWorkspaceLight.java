@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.userfacing;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
@@ -65,9 +66,8 @@ public class UFWorkspaceLight {
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
     OUT.println("Properties:");
-    for (int counter = 0; counter < properties.size(); counter++) {
-      OUT.println(
-          "   " + properties.get(counter).getKey() + ": " + properties.get(counter).getValue());
+    for (Property property : properties) {
+      OUT.println("  " + property.getKey() + ": " + property.getValue());
     }
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="

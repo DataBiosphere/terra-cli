@@ -129,10 +129,10 @@ public class Workspace extends ClearContextUnit {
     UFWorkspace createdWorkspace =
         WorkspaceUtils.createWorkspace(testUser, name, description, property);
 
-    // check the created workspace name and description are set
-    assertNotNull(createdWorkspace.name, "create workspace name is defined");
-    assertNotNull(createdWorkspace.description, "create workspace description is defined");
-    assertNotNull(createdWorkspace.properties, "create workspace property is defined");
+    // check the created workspace name, description, properties are set
+    assertEquals(name, createdWorkspace.name);
+    assertEquals(description, createdWorkspace.description);
+    assertEquals(property, createdWorkspace.properties);
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`

@@ -214,7 +214,7 @@ public class WorkspaceManagerService {
    * @param userFacingId required user-facing ID
    * @param name optional display name
    * @param description optional description
-   * @param properties optional property
+   * @param properties optional properties
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete

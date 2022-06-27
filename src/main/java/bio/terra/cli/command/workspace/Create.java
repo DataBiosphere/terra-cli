@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
-import bio.terra.cli.command.shared.options.WorkspaceProperty;
+import bio.terra.cli.command.shared.options.WorkspaceProperties;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -17,9 +17,9 @@ public class Create extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
-  @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescriptionAndProperty;
+  @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
 
-  @CommandLine.Mixin WorkspaceProperty workspaceProperty;
+  @CommandLine.Mixin WorkspaceProperties workspaceProperties;
 
   @CommandLine.Mixin Format formatOption;
 
@@ -29,9 +29,9 @@ public class Create extends BaseCommand {
     Workspace workspace =
         Workspace.create(
             id,
-            workspaceNameAndDescriptionAndProperty.name,
-            workspaceNameAndDescriptionAndProperty.description,
-            workspaceProperty.properties);
+            workspaceNameAndDescription.name,
+            workspaceNameAndDescription.description,
+            workspaceProperties.properties);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
