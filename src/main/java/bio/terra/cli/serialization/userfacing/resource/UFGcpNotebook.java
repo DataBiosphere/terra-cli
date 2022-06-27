@@ -67,9 +67,7 @@ public class UFGcpNotebook extends UFResource {
     OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
     OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
     OUT.println(prefix + "Metadata:");
-    for (Map.Entry<String, String> entry : metadata.entrySet()) {
-      OUT.println("   " + entry.getKey() + ": " + entry.getValue());
-    }
+    metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
     OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println(prefix + "Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
