@@ -399,22 +399,16 @@ public class WorkspaceManagerService {
    * @param userFacingId - required userFacingId of new cloned workspace
    * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
-   * @param properties - optional property for new workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId,
-      String userFacingId,
-      @Nullable String name,
-      @Nullable String description,
-      @Nullable Properties properties) {
+      UUID workspaceId, String userFacingId, @Nullable String name, @Nullable String description) {
     var request =
         new CloneWorkspaceRequest()
             .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
             .userFacingId(userFacingId)
             .displayName(name)
             .description(description)
-            .properties(properties)
             // force location to null until we have an implementation of a workspace-wide location
             .location(null);
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);

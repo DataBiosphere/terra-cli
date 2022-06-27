@@ -264,18 +264,12 @@ public class Workspace {
    * @param userFacingId - user-facing ID of the new workspace
    * @param name - name of the new workspace
    * @param description - description of the new workspace
-   * @param properties - property of the new workspace
    * @return - ClonedWorkspace structure with details on each resource
    */
   public ClonedWorkspace clone(
-      String userFacingId,
-      @Nullable String name,
-      @Nullable String description,
-      @Nullable Map<String, String> properties) {
+      String userFacingId, @Nullable String name, @Nullable String description) {
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContext()
-            .cloneWorkspace(
-                uuid, userFacingId, name, description, stringMapToProperties(properties));
+        WorkspaceManagerService.fromContext().cloneWorkspace(uuid, userFacingId, name, description);
     return result.getWorkspace();
   }
 
@@ -326,7 +320,7 @@ public class Workspace {
     return granteeProxyGroupEmail;
   }
 
-  private static Properties stringMapToProperties(Map<String, String> map) {
+  private static Properties stringMapToProperties(@Nullable Map<String, String> map) {
     Properties properties = new Properties();
     if (map == null) {
       return properties;
