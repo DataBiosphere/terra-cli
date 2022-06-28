@@ -132,7 +132,8 @@ public class Workspace extends ClearContextUnit {
     // check the created workspace name, description, properties are set
     assertEquals(name, createdWorkspace.name);
     assertEquals(description, createdWorkspace.description);
-    assertEquals(property, createdWorkspace.properties);
+    assertEquals("key1", createdWorkspace.properties.get(0).getKey());
+    assertEquals("value1", createdWorkspace.properties.get(0).getValue());
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`
