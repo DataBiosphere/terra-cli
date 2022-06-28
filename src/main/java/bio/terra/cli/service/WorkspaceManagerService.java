@@ -30,12 +30,10 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
@@ -83,8 +81,6 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
@@ -909,21 +905,6 @@ public class WorkspaceManagerService {
             .cloningInstructions(createParams.cloningInstructions)
             .accessScope(createParams.accessScope)
             .managedBy(ManagedBy.USER);
-
-    if (createParams.accessScope == AccessScope.PRIVATE_ACCESS) {
-      // since private resources cannot be reassigned, it never makes sense to have less than full
-      // access to the resource, so add all possible IAM roles here.
-      PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-      privateResourceIamRoles.add(ControlledResourceIamRole.READER);
-      privateResourceIamRoles.add(ControlledResourceIamRole.WRITER);
-      privateResourceIamRoles.add(ControlledResourceIamRole.EDITOR);
-      commonFields.privateResourceUser(
-          new PrivateResourceUser()
-              // WSM requires the owner of a private resource to be the user who creates it, so
-              // force this here
-              .userName(Context.requireUser().getEmail())
-              .privateResourceIamRoles(privateResourceIamRoles));
-    }
 
     return commonFields;
   }
