@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.Properties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -34,6 +35,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
+    this.properties = builder.properties;
     this.numResources = builder.numResources;
   }
 
@@ -54,6 +56,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String googleProjectId;
     private String serverName;
     private String userEmail;
+    private Properties properties;
     private long numResources;
 
     public Builder id(String id) {
@@ -73,6 +76,11 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

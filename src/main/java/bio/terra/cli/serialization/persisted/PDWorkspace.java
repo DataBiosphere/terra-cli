@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.workspace.model.Properties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
@@ -22,6 +23,7 @@ public class PDWorkspace {
   public final String name;
   public final String description;
   public final String googleProjectId;
+  public final Properties properties;
   public final String serverName;
   public final String userEmail;
   public final List<PDResource> resources;
@@ -33,6 +35,7 @@ public class PDWorkspace {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
     this.resources =
@@ -47,6 +50,7 @@ public class PDWorkspace {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.resources = builder.resources;
@@ -59,6 +63,7 @@ public class PDWorkspace {
     private String name;
     private String description;
     private String googleProjectId;
+    private Properties properties;
     private String serverName;
     private String userEmail;
     private List<PDResource> resources;
@@ -85,6 +90,11 @@ public class PDWorkspace {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

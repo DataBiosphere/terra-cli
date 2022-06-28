@@ -41,7 +41,8 @@ public class WorkspaceUtils {
    *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
-      TestUser workspaceCreator, String name, String description) throws JsonProcessingException {
+      TestUser workspaceCreator, String name, String description, String property)
+      throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -50,7 +51,8 @@ public class WorkspaceUtils {
             "create",
             "--id=" + createUserFacingId(),
             "--name=" + name,
-            "--description=" + description);
+            "--description=" + description,
+            "--properties=" + property);
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }

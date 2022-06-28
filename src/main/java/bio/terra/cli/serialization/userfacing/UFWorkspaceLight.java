@@ -2,6 +2,8 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
@@ -12,6 +14,7 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
+  public Properties properties;
   public String serverName;
   public String userEmail;
 
@@ -26,6 +29,7 @@ public class UFWorkspaceLight {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
   }
@@ -36,6 +40,7 @@ public class UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
   }
@@ -46,6 +51,7 @@ public class UFWorkspaceLight {
     this.name = null;
     this.description = null;
     this.googleProjectId = null;
+    this.properties = null;
     this.serverName = null;
     this.userEmail = null;
   }
@@ -59,6 +65,10 @@ public class UFWorkspaceLight {
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
+    OUT.println("Properties:");
+    for (Property property : properties) {
+      OUT.println("  " + property.getKey() + ": " + property.getValue());
+    }
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
@@ -72,6 +82,7 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private Properties properties;
     private String serverName;
     private String userEmail;
 
@@ -92,6 +103,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

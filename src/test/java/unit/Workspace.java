@@ -124,11 +124,16 @@ public class Workspace extends ClearContextUnit {
 
     String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, name, description);
+    String property = "key1=value1";
 
-    // check the created workspace name and description are set
-    assertNotNull(createdWorkspace.name, "create workspace name is defined");
-    assertNotNull(createdWorkspace.description, "create workspace description is defined");
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, name, description, property);
+
+    // check the created workspace name, description, properties are set
+    assertEquals(name, createdWorkspace.name);
+    assertEquals(description, createdWorkspace.description);
+    assertEquals("key1", createdWorkspace.properties.get(0).getKey());
+    assertEquals("value1", createdWorkspace.properties.get(0).getValue());
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`
