@@ -40,6 +40,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'net.java.dev.jna:jna:5.11.0'
     ext {
         // command parsing
         picocli = '4.6.1'
