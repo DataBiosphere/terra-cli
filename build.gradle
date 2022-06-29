@@ -40,6 +40,8 @@ repositories {
 }
 
 dependencies {
+    // Needed for Mac M1
+    implementation 'net.java.dev.jna:jna:5.11.0'
     ext {
         // command parsing
         picocli = '4.6.1'
