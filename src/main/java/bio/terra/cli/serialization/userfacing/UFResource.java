@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.userfacing;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
+import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
@@ -40,6 +41,7 @@ import java.util.UUID;
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
   @Type(value = UFGcsObject.class, name = "GCS_OBJECT"),
   @Type(value = UFGitRepo.class, name = "GIT_REPO"),
+  @Type(value = UFDataSource.class, name = "DATA_SOURCE"),
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {
