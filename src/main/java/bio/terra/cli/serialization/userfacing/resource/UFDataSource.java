@@ -22,9 +22,9 @@ public class UFDataSource extends UFResource {
   // Fields from PF-1703
   // TODO(PF-1724): After PF-1738 is done, add Created On and Last Updated
   public final String title;
-  // public final String shortDescription;    Do after #269 is merged
+  public String shortDescription;
+  public String version;
   public final String description;
-  // public final String version;             Do after #269 is merged
 
   /** Serialize an instance of the internal class to the command format. */
   public UFDataSource(DataSource internalObj) {
@@ -33,6 +33,8 @@ public class UFDataSource extends UFResource {
 
     Workspace workspace = internalObj.getDataSourceWorkspace();
     this.title = workspace.getName();
+    this.shortDescription = workspace.getProperty(DataSource.SHORT_DESCRIPTION_KEY).orElse("");
+    this.version = workspace.getProperty(DataSource.VERSION_KEY).orElse("");
     this.description = workspace.getDescription();
   }
 
@@ -41,6 +43,8 @@ public class UFDataSource extends UFResource {
     super(builder);
     this.dataSourceWorkspaceUuid = builder.dataSourceWorkspaceUuid;
     this.title = builder.title;
+    this.shortDescription = builder.shortDescription;
+    this.version = builder.version;
     this.description = builder.description;
   }
 
@@ -51,17 +55,20 @@ public class UFDataSource extends UFResource {
     // - We don't want to print reference name; we want data source workspace name.
     // - Printing stewardship doesn't make sense for data sources.
     // - Etc
-
-    // Print the fields in PF-1703.
+    // Instead, print fields in PF-1703.
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "Title:\t\t" + title);
-    OUT.println(prefix + "Description:\t" + description);
+    OUT.println(prefix + "Title:\t\t\t" + title);
+    OUT.println(prefix + "Short description:\t" + shortDescription);
+    OUT.println(prefix + "Version:\t\t" + version);
+    OUT.println(prefix + "Description:\t\t" + description);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private UUID dataSourceWorkspaceUuid;
     private String title;
+    private String shortDescription;
+    private String version;
     private String description;
 
     public Builder dataSourceWorkspaceUuid(UUID dataSourceWorkspaceUuid) {
@@ -71,6 +78,16 @@ public class UFDataSource extends UFResource {
 
     public Builder title(String title) {
       this.title = title;
+      return this;
+    }
+
+    public Builder shortDescription(String shortDescription) {
+      this.shortDescription = shortDescription;
+      return this;
+    }
+
+    public Builder version(String version) {
+      this.version = version;
       return this;
     }
 

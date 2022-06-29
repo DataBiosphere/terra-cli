@@ -2,10 +2,10 @@ package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.workspace.model.Properties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,7 +23,7 @@ public class PDWorkspace {
   public final String name;
   public final String description;
   public final String googleProjectId;
-  public final Properties properties;
+  public final Map<String, String> properties;
   public final String serverName;
   public final String userEmail;
   public final List<PDResource> resources;
@@ -63,7 +63,7 @@ public class PDWorkspace {
     private String name;
     private String description;
     private String googleProjectId;
-    private Properties properties;
+    private Map<String, String> properties;
     private String serverName;
     private String userEmail;
     private List<PDResource> resources;
@@ -93,7 +93,7 @@ public class PDWorkspace {
       return this;
     }
 
-    public Builder properties(Properties properties) {
+    public Builder properties(Map<String, String> properties) {
       this.properties = properties;
       return this;
     }

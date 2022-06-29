@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
@@ -124,16 +125,18 @@ public class Workspace extends ClearContextUnit {
 
     String name = "statusDescribeListReflectUpdate";
     String description = "status list reflect update";
-    String property = "key1=value1";
+    String key = "key";
+    String value = "value";
+    String property = key + "=" + value;
 
     UFWorkspace createdWorkspace =
         WorkspaceUtils.createWorkspace(testUser, name, description, property);
 
-    // check the created workspace name, description, properties are set
+    // check the created workspace name, description, property are set
     assertEquals(name, createdWorkspace.name);
     assertEquals(description, createdWorkspace.description);
-    assertEquals("key1", createdWorkspace.properties.get(0).getKey());
-    assertEquals("value1", createdWorkspace.properties.get(0).getValue());
+    assertTrue(createdWorkspace.properties.containsKey(key));
+    assertEquals(value, createdWorkspace.properties.get(key));
 
     // `terra workspace update --format=json --new-id=$newId --new-name=$newName
     // --new-description=$newDescription`

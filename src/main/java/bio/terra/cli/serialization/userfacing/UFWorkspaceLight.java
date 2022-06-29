@@ -2,10 +2,9 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.Properties;
-import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Map;
 
 public class UFWorkspaceLight {
   // "id" instead of "userFacingId" because user sees this with "terra workspace describe
@@ -14,7 +13,7 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
-  public Properties properties;
+  public Map<String, String> properties;
   public String serverName;
   public String userEmail;
 
@@ -66,9 +65,7 @@ public class UFWorkspaceLight {
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
     OUT.println("Properties:");
-    for (Property property : properties) {
-      OUT.println("  " + property.getKey() + ": " + property.getValue());
-    }
+    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
@@ -82,7 +79,7 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
-    private Properties properties;
+    private Map<String, String> properties;
     private String serverName;
     private String userEmail;
 
@@ -106,7 +103,7 @@ public class UFWorkspaceLight {
       return this;
     }
 
-    public UFWorkspaceLight.Builder properties(Properties properties) {
+    public UFWorkspaceLight.Builder properties(Map<String, String> properties) {
       this.properties = properties;
       return this;
     }

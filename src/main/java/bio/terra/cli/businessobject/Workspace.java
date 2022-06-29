@@ -44,7 +44,7 @@ public class Workspace {
   private String name; // not unique
   private String description;
   private String googleProjectId;
-  private Properties properties;
+  private Map<String, String> properties;
 
   // name of the server where this workspace exists
   private String serverName;
@@ -63,7 +63,7 @@ public class Workspace {
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
-    this.properties = wsmObject.getProperties();
+    this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
     this.resources = new ArrayList<>();
@@ -91,7 +91,7 @@ public class Workspace {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(userFacingId, name, description, stringMapToProperties(properties));
+            .createWorkspace(userFacingId, name, description, properties);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -320,7 +320,7 @@ public class Workspace {
     return granteeProxyGroupEmail;
   }
 
-  private static Properties stringMapToProperties(@Nullable Map<String, String> map) {
+  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
     Properties properties = new Properties();
     if (map == null) {
       return properties;
@@ -330,6 +330,10 @@ public class Workspace {
       properties.add(property);
     }
     return properties;
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 
   public UUID getUuid() {
@@ -352,8 +356,12 @@ public class Workspace {
     return googleProjectId;
   }
 
-  public Properties getProperties() {
+  public Map<String, String> getProperties() {
     return properties;
+  }
+
+  public Optional<String> getProperty(String key) {
+    return Optional.ofNullable(properties.get(key));
   }
 
   public String getServerName() {

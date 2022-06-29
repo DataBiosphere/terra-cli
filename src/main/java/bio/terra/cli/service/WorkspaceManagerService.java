@@ -2,6 +2,7 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
@@ -83,7 +84,6 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -114,6 +114,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -223,7 +224,7 @@ public class WorkspaceManagerService {
       String userFacingId,
       @Nullable String name,
       @Nullable String description,
-      @Nullable Properties properties) {
+      @Nullable Map<String, String> properties) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -235,7 +236,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
-          workspaceRequestBody.setProperties(properties);
+          workspaceRequestBody.setProperties(Workspace.stringMapToProperties(properties));
 
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);

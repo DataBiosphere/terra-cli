@@ -2,6 +2,7 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -21,7 +22,10 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle data sources. */
 @Tag("unit")
 public class DataSourceReferenced extends SingleWorkspaceUnit {
-  private static final String thousandGenomesDataSourceWorkspaceName = "1000 Genomes";
+  private static final String thousandGenomesWorkspaceName = "1000 Genomes";
+  private static final String thousandGenomesShortDescription = "short description";
+  private static final String thousandGenomesVersion = "version";
+  private static final String thousandGenomesDescription = "description";
   private static final String thousandGenomesResourceName =
       TestUtils.appendRandomNumber("1000-genomes-ref");
   private UUID thousandGenomesUuid;
@@ -32,9 +36,16 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     super.setupOnce();
 
     // Set up 1000 Genomes data source workspace
+    String properties =
+        String.format(
+            "%s=%s,%s=%s",
+            DataSource.SHORT_DESCRIPTION_KEY,
+            thousandGenomesShortDescription,
+            DataSource.VERSION_KEY,
+            thousandGenomesVersion);
     UFWorkspace thousandGenomesWorkspace =
         WorkspaceUtils.createWorkspace(
-            workspaceCreator, thousandGenomesDataSourceWorkspaceName, /*description=*/ "");
+            workspaceCreator, thousandGenomesWorkspaceName, thousandGenomesDescription, properties);
 
     // Add 1000 Genomes data source to researcher workspace. This isn't supported by CLI, so call
     // WSM directly.
@@ -63,22 +74,19 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             new TypeReference<>() {}, "resource", "list", "--type=DATA_SOURCE");
 
     // Assert resource list result
-    UFDataSource actualResource =
+    UFDataSource actual =
         actualResources.stream()
             .filter(resource -> resource.name.equals(thousandGenomesResourceName))
             .collect(MoreCollectors.onlyElement());
-    // For some reason resourceType is null, so don't assert resourceType.
-    assertEquals(thousandGenomesUuid, actualResource.dataSourceWorkspaceUuid);
-    assertEquals(thousandGenomesDataSourceWorkspaceName, actualResource.title);
+    assertThousandGenomesResource(actual);
 
     // `terra resource describe --name=$name`
-    actualResource =
+    actual =
         TestCommand.runAndParseCommandExpectSuccess(
             UFDataSource.class, "resource", "describe", "--name=" + thousandGenomesResourceName);
 
     // Assert resource describe result
-    assertEquals(thousandGenomesUuid, actualResource.dataSourceWorkspaceUuid);
-    assertEquals(thousandGenomesDataSourceWorkspaceName, actualResource.title);
+    assertThousandGenomesResource(actual);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
@@ -90,5 +98,14 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             new TypeReference<>() {}, "resource", "list", "--type=DATA_SOURCE");
     actualResources.stream()
         .noneMatch(resource -> resource.name.equals(thousandGenomesResourceName));
+  }
+
+  private void assertThousandGenomesResource(UFDataSource actual) {
+    // For some reason resourceType is null, so don't assert resourceType.
+    assertEquals(thousandGenomesUuid, actual.dataSourceWorkspaceUuid);
+    assertEquals(thousandGenomesWorkspaceName, actual.title);
+    assertEquals(thousandGenomesShortDescription, actual.shortDescription);
+    assertEquals(thousandGenomesVersion, actual.version);
+    assertEquals(thousandGenomesDescription, actual.description);
   }
 }

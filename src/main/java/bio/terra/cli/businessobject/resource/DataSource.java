@@ -19,7 +19,10 @@ import org.slf4j.LoggerFactory;
 public class DataSource extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(DataSource.class);
 
-  private UUID dataSourceWorkspaceUuid;
+  public static final String SHORT_DESCRIPTION_KEY = "terra-short-description";
+  public static final String VERSION_KEY = "terra-version";
+
+  private final UUID dataSourceWorkspaceUuid;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public DataSource(PDDataSource configFromDisk) {
