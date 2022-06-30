@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 public class DataSource extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(DataSource.class);
 
-  public static final String SHORT_DESCRIPTION_KEY = "terra-short-description";
-  public static final String VERSION_KEY = "terra-version";
+  public static final String SHORT_DESCRIPTION_KEY = "terra-workspace-short-description";
+  public static final String VERSION_KEY = "terra-workspace-version";
 
   private final UUID dataSourceWorkspaceUuid;
 
@@ -70,6 +70,7 @@ public class DataSource extends Resource {
   }
 
   /** Resolve data source. */
+  // TODO(PF-1743, PF-1744): Implement
   public String resolve() {
     return "";
   }

@@ -47,8 +47,8 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
         WorkspaceUtils.createWorkspace(
             workspaceCreator, thousandGenomesWorkspaceName, thousandGenomesDescription, properties);
 
-    // Add 1000 Genomes data source to researcher workspace. This isn't supported by CLI, so call
-    // WSM directly.
+    // Add 1000 Genomes data source to researcher workspace. We don't support add-ref for data
+    // sources (see PF-1742), so call WSM directly.
     UUID researcherWorkspaceUuid =
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(getUserFacingId()).getId();
     thousandGenomesUuid =
