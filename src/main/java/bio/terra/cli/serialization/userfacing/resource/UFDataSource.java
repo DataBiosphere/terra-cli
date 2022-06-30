@@ -24,7 +24,6 @@ public class UFDataSource extends UFResource {
   public final String title;
   public String shortDescription;
   public String version;
-  public final String description;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFDataSource(DataSource internalObj) {
@@ -35,7 +34,6 @@ public class UFDataSource extends UFResource {
     this.title = workspace.getName();
     this.shortDescription = workspace.getProperty(DataSource.SHORT_DESCRIPTION_KEY).orElse("");
     this.version = workspace.getProperty(DataSource.VERSION_KEY).orElse("");
-    this.description = workspace.getDescription();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -45,7 +43,6 @@ public class UFDataSource extends UFResource {
     this.title = builder.title;
     this.shortDescription = builder.shortDescription;
     this.version = builder.version;
-    this.description = builder.description;
   }
 
   /** Print out this object in text format. */
@@ -60,7 +57,6 @@ public class UFDataSource extends UFResource {
     OUT.println(prefix + "Title:\t\t\t" + title);
     OUT.println(prefix + "Short description:\t" + shortDescription);
     OUT.println(prefix + "Version:\t\t" + version);
-    OUT.println(prefix + "Description:\t\t" + description);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -69,7 +65,6 @@ public class UFDataSource extends UFResource {
     private String title;
     private String shortDescription;
     private String version;
-    private String description;
 
     public Builder dataSourceWorkspaceUuid(UUID dataSourceWorkspaceUuid) {
       this.dataSourceWorkspaceUuid = dataSourceWorkspaceUuid;
@@ -88,11 +83,6 @@ public class UFDataSource extends UFResource {
 
     public Builder version(String version) {
       this.version = version;
-      return this;
-    }
-
-    public Builder description(String description) {
-      this.description = description;
       return this;
     }
 

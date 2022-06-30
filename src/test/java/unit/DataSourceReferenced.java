@@ -25,7 +25,6 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
   private static final String thousandGenomesWorkspaceName = "1000 Genomes";
   private static final String thousandGenomesShortDescription = "short description";
   private static final String thousandGenomesVersion = "version";
-  private static final String thousandGenomesDescription = "description";
   private static final String thousandGenomesResourceName =
       TestUtils.appendRandomNumber("1000-genomes-ref");
   private UUID thousandGenomesUuid;
@@ -45,7 +44,7 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             thousandGenomesVersion);
     UFWorkspace thousandGenomesWorkspace =
         WorkspaceUtils.createWorkspace(
-            workspaceCreator, thousandGenomesWorkspaceName, thousandGenomesDescription, properties);
+            workspaceCreator, thousandGenomesWorkspaceName, /*description=*/ "", properties);
 
     // Add 1000 Genomes data source to researcher workspace. We don't support add-ref for data
     // sources (see PF-1742), so call WSM directly.
@@ -106,6 +105,5 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     assertEquals(thousandGenomesWorkspaceName, actual.title);
     assertEquals(thousandGenomesShortDescription, actual.shortDescription);
     assertEquals(thousandGenomesVersion, actual.version);
-    assertEquals(thousandGenomesDescription, actual.description);
   }
 }
