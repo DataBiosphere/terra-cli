@@ -2,6 +2,7 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
@@ -32,6 +33,7 @@ import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
@@ -44,6 +46,7 @@ import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
+import bio.terra.workspace.model.CreateTerraWorkspaceReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
@@ -81,12 +84,13 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.TerraWorkspaceAttributes;
+import bio.terra.workspace.model.TerraWorkspaceResource;
 import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
@@ -110,6 +114,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -219,7 +224,7 @@ public class WorkspaceManagerService {
       String userFacingId,
       @Nullable String name,
       @Nullable String description,
-      @Nullable Properties properties) {
+      @Nullable Map<String, String> properties) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -231,7 +236,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
-          workspaceRequestBody.setProperties(properties);
+          workspaceRequestBody.setProperties(Workspace.stringMapToProperties(properties));
 
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
@@ -892,6 +897,24 @@ public class WorkspaceManagerService {
         "Error creating controlled BigQuery dataset in the workspace.");
   }
 
+  /** Used by tests only. */
+  public TerraWorkspaceResource createReferencedTerraWorkspace(
+      UUID workspaceId, UUID referencedWorkspaceId, String referenceName) {
+    CreateTerraWorkspaceReferenceRequestBody createRequest =
+        new CreateTerraWorkspaceReferenceRequestBody()
+            .metadata(
+                new ReferenceResourceCommonFields()
+                    .name(referenceName)
+                    .cloningInstructions(CloningInstructionsEnum.NOTHING))
+            .referencedWorkspace(
+                new TerraWorkspaceAttributes().referencedWorkspaceId(referencedWorkspaceId));
+    return callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .createTerraWorkspaceReference(createRequest, workspaceId),
+        "Error creating referenced data source in the workspace.");
+  }
+
   /**
    * Create a common fields WSM object from a Resource that is being used to create a controlled
    * resource.
@@ -1206,6 +1229,15 @@ public class WorkspaceManagerService {
             new ReferencedGcpResourceApi(apiClient).deleteGitRepoReference(workspaceId, resourceId),
         "Error deleting referenced git repo in the workspace.");
   }
+
+  public void deleteReferencedTerraWorkspace(UUID workspaceId, UUID resourceId) {
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .deleteTerraWorkspaceReference(workspaceId, resourceId),
+        "Error deleting referenced data source in the workspace.");
+  }
+
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
