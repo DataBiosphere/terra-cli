@@ -112,6 +112,10 @@ public class TestCommand {
     return cmd.readObjectFromStdOut(objectType);
   }
 
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and return the standard
+   * output. Adds `==format=json` to the argument list.
+   */
   public static String runAndGetStdoutExpectSuccess(String... args) {
     Result cmd = runCommand(addFormatJsonArg(args));
     assertEquals(0, cmd.exitCode, "exit code = success");
