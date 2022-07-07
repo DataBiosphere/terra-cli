@@ -11,6 +11,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -60,6 +61,17 @@ public class Resolve extends BaseCommand {
       default:
         cloudId = resource.resolve();
     }
-    formatOption.printReturnValue(cloudId);
+    JSONObject object = new JSONObject();
+    object.put(resource.getName(), cloudId);
+    formatOption.printReturnValue(object, this::printText, this::printJson);
+  }
+
+  public void printText(JSONObject object) {
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
+    OUT.println(object.get(resource.getName()));
+  }
+
+  public void printJson(JSONObject object) {
+    OUT.println(object.toString());
   }
 }

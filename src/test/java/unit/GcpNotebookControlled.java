@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -114,10 +115,11 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
             UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
-    assertEquals(createdNotebook.instanceName, resolved, "resolve returns the instance name");
+    JSONObject resolved =
+        new JSONObject(
+            TestCommand.runAndGetStdoutExpectSuccess("resource", "resolve", "--name=" + name));
+    assertEquals(
+        createdNotebook.instanceName, resolved.get(name), "resolve returns the instance name");
 
     // `terra resource check-access --name=$name`
     String stdErr =
