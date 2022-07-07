@@ -15,6 +15,7 @@ plugins {
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
+    id 'org.gradle.test-retry' version '1.4.0'
 }
 
 if (hasProperty('buildScan')) {
@@ -361,5 +362,20 @@ task getDockerImageName {
 task getDockerImageTag {
     doLast {
         println("${project.properties['dockerImageTag']}")
+    }
+}
+
+test {
+    retry {
+        // Max retries per test.
+        maxRetries = 2
+        // Max total test failures.
+        // This is an estimate based on current failure rates, but if more than
+        // 5 tests fail in a run it's likely a real source of failure and we
+        // should stop retrying.
+        maxFailures = 5
+        // TODO: until test flakiness is at a manageable level, accept flaky
+        //  tests as long as they pass once.
+        failOnPassedAfterRetry = false
     }
 }
