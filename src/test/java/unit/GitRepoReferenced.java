@@ -97,7 +97,8 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess("resource", "resolve", "--name=" + name));
+            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
+                .stdOut);
     assertEquals(GIT_REPO_SSH_URL, resolved.get(name), "resolve matches git repo ssh url");
 
     // `terra resource delete --name=$name`

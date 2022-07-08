@@ -207,7 +207,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess("resource", "resolve", "--name=" + name));
+            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
+                .stdOut);
     assertEquals(
         ExternalBQDatasets.getDataTableFullPath(
             externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
@@ -217,8 +218,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     JSONObject resolvedProjectIdOnly =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess(
-                "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY"));
+            TestCommand.runAndGetResultExpectSuccess(
+                    "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY")
+                .stdOut);
     assertEquals(
         externalDataset.getProjectId(),
         resolvedProjectIdOnly.get(name),
@@ -227,8 +229,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
     JSONObject resolvedDatasetIdOnly =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess(
-                "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY"));
+            TestCommand.runAndGetResultExpectSuccess(
+                    "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY")
+                .stdOut);
     assertEquals(
         externalDataset.getDatasetId(),
         resolvedDatasetIdOnly.get(name),
@@ -236,8 +239,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
 
     JSONObject resolveTableIdOnly =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess(
-                "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY"));
+            TestCommand.runAndGetResultExpectSuccess(
+                    "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY")
+                .stdOut);
     assertEquals(
         externalDataTableName,
         resolveTableIdOnly.get(name),

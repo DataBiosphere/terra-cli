@@ -281,7 +281,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess("resource", "resolve", "--name=" + name));
+            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
+                .stdOut);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName),
         resolved.get(name),
@@ -290,8 +291,9 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json --exclude-bucket-prefix`
     JSONObject resolveExcludeBucketPrefix =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess(
-                "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix"));
+            TestCommand.runAndGetResultExpectSuccess(
+                    "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix")
+                .stdOut);
     assertEquals(
         externalBucket.getName() + "/" + externalBucketBlobName,
         resolveExcludeBucketPrefix.get(name),

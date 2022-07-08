@@ -117,7 +117,8 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         new JSONObject(
-            TestCommand.runAndGetStdoutExpectSuccess("resource", "resolve", "--name=" + name));
+            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
+                .stdOut);
     assertEquals(
         createdNotebook.instanceName, resolved.get(name), "resolve returns the instance name");
 

@@ -67,11 +67,10 @@ public class Resolve extends BaseCommand {
   }
 
   private void printText(JSONObject object) {
-    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    OUT.println(object.get(resource.getName()));
+    OUT.println(object.get(resourceNameOption.name));
   }
 
   private void printJson(JSONObject object) {
-    OUT.println(object.toString());
+    OUT.println(object);
   }
 }
