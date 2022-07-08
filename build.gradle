@@ -368,14 +368,12 @@ task getDockerImageTag {
 test {
     retry {
         // Max retries per test.
-        maxRetries = 2
+        maxRetries = 1
         // Max total test failures.
         // This is an estimate based on current failure rates, but if more than
         // 5 tests fail in a run it's likely a real source of failure and we
         // should stop retrying.
         maxFailures = 5
-        // TODO: until test flakiness is at a manageable level, accept flaky
-        //  tests as long as they pass once.
-        failOnPassedAfterRetry = false
+        failOnPassedAfterRetry = true
     }
 }
