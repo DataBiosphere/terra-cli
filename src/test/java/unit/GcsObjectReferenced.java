@@ -520,8 +520,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     var resolved2 =
         new JSONObject(
-            TestCommand.runAndParseCommandExpectSuccess(
-                String.class, "resource", "resolve", "--name=" + newName));
+            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + newName)
+                .stdOut);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
         resolved2.get(newName),
