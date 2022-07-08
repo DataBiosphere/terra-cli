@@ -14,6 +14,7 @@ import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.api.services.bigquery.model.Dataset;
 import java.util.Optional;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +155,7 @@ public class BqDataset extends Resource {
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
-  public String resolve() {
+  public JSONObject resolve() {
     return resolve(BqResolvedOptions.FULL_PATH);
   }
 
@@ -162,17 +163,22 @@ public class BqDataset extends Resource {
    * Resolve a BigQuery dataset resource to its cloud identifier. Returns the SQL path to the
    * dataset: [GCP project id].[BQ dataset id]
    */
-  public String resolve(BqResolvedOptions resolveOption) {
+  public JSONObject resolve(BqResolvedOptions resolveOption) {
+    JSONObject object = new JSONObject();
     switch (resolveOption) {
       case FULL_PATH:
-        return projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;
+        object.put(name, projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId);
+        break;
       case DATASET_ID_ONLY:
-        return datasetId;
+        object.put(name, datasetId);
+        break;
       case PROJECT_ID_ONLY:
-        return projectId;
+        object.put(name, projectId);
+        break;
       default:
         throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
     }
+    return object;
   }
 
   /** Query the cloud for information about the dataset. */

@@ -12,6 +12,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public class GcsObject extends Resource {
   }
 
   /** Resolve a GCS bucket object resource to its cloud identifier. */
-  public String resolve() {
+  public JSONObject resolve() {
     return resolve(/*includePrefix=*/ true);
   }
 
@@ -120,10 +121,12 @@ public class GcsObject extends Resource {
    * Resolve a GCS bucket object resource to its cloud identifier. Optionally include the 'gs://'
    * prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix
+  public JSONObject resolve(boolean includePrefix) {
+    JSONObject object = new JSONObject();
+    object.put(name, includePrefix
         ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + objectName
-        : bucketName + "/" + objectName;
+        : bucketName + "/" + objectName);
+    return object;
   }
 
   // ====================================================

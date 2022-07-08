@@ -14,6 +14,7 @@ import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
 import java.util.Optional;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,15 +140,17 @@ public class GcsBucket extends Resource {
   }
 
   /** Resolve a GCS bucket resource to its cloud identifier. */
-  public String resolve() {
+  public JSONObject resolve() {
     return resolve(true);
   }
 
   /**
    * Resolve a GCS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
+  public JSONObject resolve(boolean includePrefix) {
+    JSONObject object = new JSONObject();
+    object.put(name, includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName);
+    return object;
   }
 
   /** Query the cloud for information about the bucket. */

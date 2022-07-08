@@ -9,6 +9,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GitRepoResource;
 import bio.terra.workspace.model.ResourceDescription;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +103,10 @@ public class GitRepo extends Resource {
   }
 
   /** Resolve git repo resource. */
-  public String resolve() {
-    return gitRepoUrl;
+  public JSONObject resolve() {
+    JSONObject object = new JSONObject();
+    object.put(name, gitRepoUrl);
+    return object;
   }
 
   // ====================================================

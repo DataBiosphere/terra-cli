@@ -14,6 +14,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.api.services.notebooks.v1.model.Instance;
 import java.util.Optional;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,8 +119,10 @@ public class GcpNotebook extends Resource {
    *
    * @return full name of the instance
    */
-  public String resolve() {
-    return String.format("projects/%s/locations/%s/instances/%s", projectId, location, instanceId);
+  public JSONObject resolve() {
+    JSONObject object = new JSONObject();
+    object.put(name, String.format("projects/%s/locations/%s/instances/%s", projectId, location, instanceId));
+    return object;
   }
 
   /** Query the cloud for information about the notebook VM. */

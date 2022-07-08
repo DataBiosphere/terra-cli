@@ -1,6 +1,7 @@
 package bio.terra.cli.app;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import com.google.common.annotations.VisibleForTesting;
@@ -117,8 +118,9 @@ public abstract class CommandRunner {
     Map<String, String> terraReferences = new HashMap<>();
     Context.requireWorkspace()
         .getResources()
+        .stream().filter(resource -> resource.getResourceType() != Resource.Type.DATA_SOURCE)
         .forEach(
-            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve()));
+            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve().getString(resource.getName())));
 
     return terraReferences;
   }
