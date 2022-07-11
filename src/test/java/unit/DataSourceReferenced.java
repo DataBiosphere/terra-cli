@@ -158,13 +158,27 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
         resolve3.get(THOUSAND_GENOMES_BUCKET_RESOURCE_NAME));
     assertEquals(1, resolve3.length());
 
+    // `terra resolve
+    // --name=$THOUSAND_GENOMES_RESOURCE_NAME/$THOUSAND_GENOMES_BUCKET_RESOURCE_NAME/random`
+    var err =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resolve",
+            "--name="
+                + THOUSAND_GENOMES_RESOURCE_NAME
+                + "/"
+                + THOUSAND_GENOMES_BUCKET_RESOURCE_NAME
+                + "/"
+                + RandomStringUtils.random(10));
+    assertTrue(err.contains("Invalid path"));
+
     // `terra resolve --name=$THOUSAND_GENOMES_RESOURCE_NAME/<random>`
-    String err =
+    var err2 =
         TestCommand.runCommandExpectExitCode(
             1,
             "resolve",
             "--name=" + THOUSAND_GENOMES_RESOURCE_NAME + "/" + RandomStringUtils.random(10));
-    assertTrue(err.contains("Invalid path"));
+    assertTrue(err2.contains("Invalid path"));
   }
 
   private void assertThousandGenomesResourceResolve(JSONObject resolve) {

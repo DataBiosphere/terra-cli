@@ -10,9 +10,8 @@ import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import com.google.common.base.Preconditions;
+import bio.terra.cli.exception.UserActionableException;
 import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -21,7 +20,13 @@ import picocli.CommandLine.Command;
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends BaseCommand {
 
-  @CommandLine.Mixin ResourceName resourceNameOption;
+  @CommandLine.Option(
+      names = "--name",
+      required = true,
+      description =
+          "Name of the resource in the workspace or path to the resource in the Data Source in the"
+              + "format of [data source name]/[resource name]")
+  public String resourceName;
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
@@ -44,8 +49,12 @@ public class Resolve extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    String[] paths = resourceNameOption.name.split("/");
-    Preconditions.checkArgument(paths.length == 1 || paths.length == 2);
+    String[] paths = resourceName.split("/");
+    if (paths.length > 2) {
+      throw new UserActionableException(
+          "Invalid path, only support resolving [resource name] or"
+              + "[data source name]/[resource name]");
+    }
 
     Resource resource = Context.requireWorkspace().getResource(paths[0]);
 
