@@ -52,7 +52,7 @@ public class Resolve extends BaseCommand {
     String[] paths = resourceName.split("/");
     if (paths.length > 2) {
       throw new UserActionableException(
-          "Invalid path, only support resolving [resource name] or"
+          "Invalid path provided, only support resolving [resource name] or"
               + "[data source name]/[resource name]");
     }
 
