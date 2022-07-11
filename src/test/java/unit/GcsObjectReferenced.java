@@ -280,9 +280,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName),
         resolved.get(name),
@@ -290,10 +288,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --format=json --exclude-bucket-prefix`
     JSONObject resolveExcludeBucketPrefix =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess(
-                    "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix")
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalBucket.getName() + "/" + externalBucketBlobName,
         resolveExcludeBucketPrefix.get(name),
@@ -498,12 +494,11 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket.getName(), updatedBucketObject.bucketName);
 
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
+    var resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName2),
-        resolved,
+        resolved.get(newName),
         "resolve matches bucket object blob2 name");
 
     updatedBucketObject =
@@ -517,12 +512,11 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket2.getName(), updatedBucketObject.bucketName);
 
-    String resolved2 =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
+    var resolved2 =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
-        resolved2,
+        resolved2.get(newName),
         "resolve matches bucket2 bucket name");
   }
 
