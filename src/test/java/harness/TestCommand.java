@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.json.JSONObject;
 
 /**
  * Utility methods for executing commands and reading their outputs during testing. This class is
@@ -102,13 +103,33 @@ public class TestCommand {
   }
 
   /**
+   * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
+   * Adds `==format=json` to the argument list.
+   */
+  private static Result runAndGetResultExpectSuccess(String... args) {
+    Result cmd = runCommand(addFormatJsonArg(args));
+    assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd;
+  }
+
+  /**
+   * Helper method to run a command, check its exit code is 0=success, and return {@code
+   * Result.stdOut}. Adds `==format=json` to the argument list.
+   *
+   * <p>If the stdOut can be serialized to a Java class (e.g. UFGitRepo.class), use {@link
+   * TestCommand#runAndParseCommandExpectSuccess} instead.
+   */
+  public static JSONObject runAndGetJsonObjectExpectSuccess(String... args) {
+    return new JSONObject(runAndGetResultExpectSuccess(args).stdOut);
+  }
+
+  /**
    * Helper method to run a command, check its exit code is 0=success, and read what's written to
    * standard out into a Java object. Adds `--format=json` to the argument list.
    */
   public static <T> T runAndParseCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runCommand(addFormatJsonArg(args));
-    assertEquals(0, cmd.exitCode, "exit code = success");
+    Result cmd = runAndGetResultExpectSuccess(args);
     return cmd.readObjectFromStdOut(objectType);
   }
 
@@ -118,8 +139,7 @@ public class TestCommand {
    */
   public static <T> T runAndParseCommandExpectSuccess(TypeReference<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runCommand(addFormatJsonArg(args));
-    assertEquals(0, cmd.exitCode, "exit code = success");
+    Result cmd = runAndGetResultExpectSuccess(args);
     return cmd.readObjectFromStdOut(objectType);
   }
 

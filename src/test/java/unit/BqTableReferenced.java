@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -204,39 +205,38 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "--table-id=" + externalDataTableName);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalBQDatasets.getDataTableFullPath(
             externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
-        resolved,
+        resolved.get(name),
         "default resolve include full path");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
-    String resolvedProjectIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
+    JSONObject resolvedProjectIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getProjectId(),
-        resolvedProjectIdOnly,
+        resolvedProjectIdOnly.get(name),
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
     // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
-    String resolvedDatasetIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
+    JSONObject resolvedDatasetIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId(),
-        resolvedDatasetIdOnly,
+        resolvedDatasetIdOnly.get(name),
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
-    String resolveTableIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
+    JSONObject resolveTableIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
     assertEquals(
         externalDataTableName,
-        resolveTableIdOnly,
+        resolveTableIdOnly.get(name),
         "resolve with option TABLE_ID_ONLY only includes the table id");
 
     // `terra resource delete --name=$name`

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -94,10 +95,9 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         "--repo-url=" + GIT_REPO_SSH_URL);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
-    assertEquals(GIT_REPO_SSH_URL, resolved, "resolve matches git repo ssh url");
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
+    assertEquals(GIT_REPO_SSH_URL, resolved.get(name), "resolve matches git repo ssh url");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -252,10 +252,9 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
     assertEquals(GIT_REPO_HTTPS_URL, updatedGitRepo.gitRepoUrl);
 
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
-    assertEquals(GIT_REPO_HTTPS_URL, resolved, "resolve matches https Git url");
+    var resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
+    assertEquals(GIT_REPO_HTTPS_URL, resolved.get(newName), "resolve matches https Git url");
   }
 
   @Test

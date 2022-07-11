@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -278,21 +279,20 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         "--object-name=" + externalBucketBlobName);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName),
-        resolved,
+        resolved.get(name),
         "resolve matches bucket object name");
 
     // `terra resource resolve --name=$name --format=json --exclude-bucket-prefix`
-    String resolveExcludeBucketPrefix =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
+    JSONObject resolveExcludeBucketPrefix =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalBucket.getName() + "/" + externalBucketBlobName,
-        resolveExcludeBucketPrefix,
+        resolveExcludeBucketPrefix.get(name),
         "resolve matches bucket object name excluding the prefix");
 
     // `terra resource delete --name=$name`
@@ -494,12 +494,11 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket.getName(), updatedBucketObject.bucketName);
 
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
+    var resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName2),
-        resolved,
+        resolved.get(newName),
         "resolve matches bucket object blob2 name");
 
     updatedBucketObject =
@@ -513,12 +512,11 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket2.getName(), updatedBucketObject.bucketName);
 
-    String resolved2 =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
+    var resolved2 =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
-        resolved2,
+        resolved2.get(newName),
         "resolve matches bucket2 bucket name");
   }
 

@@ -17,6 +17,7 @@ import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -164,21 +165,20 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "--bucket-name=" + externalSharedBucket.getName());
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalSharedBucket.getName()),
-        resolved,
+        resolved.get(name),
         "default resolve includes gs:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
-    String resolvedExcludePrefix =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
+    JSONObject resolvedExcludePrefix =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalSharedBucket.getName(),
-        resolvedExcludePrefix,
+        resolvedExcludePrefix.get(name),
         "exclude prefix resolve only includes bucket name");
 
     // `terra resource delete --name=$name`
