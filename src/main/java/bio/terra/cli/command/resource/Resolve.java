@@ -24,7 +24,7 @@ public class Resolve extends BaseCommand {
       names = "--name",
       required = true,
       description =
-          "Name of the resource in the workspace or path to the resource in the Data Source in the"
+          "Name of the resource in the workspace or path to the resource in the data source in the"
               + "format of [data source name]/[resource name]")
   public String resourceName;
 

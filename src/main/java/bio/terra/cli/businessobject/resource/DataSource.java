@@ -87,7 +87,7 @@ public class DataSource extends Resource {
         .orElseThrow(
             () ->
                 new UserActionableException(
-                    "Invalid path: please check if the resource name in the datasource is specified incorrectly."));
+                    "Invalid path: please check if the resource name in the data source is specified incorrectly."));
   }
 
   public Workspace getDataSourceWorkspace() {
