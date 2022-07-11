@@ -24,7 +24,6 @@ import bio.terra.workspace.model.StewardshipType;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import org.json.JSONObject;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
@@ -183,7 +182,7 @@ public abstract class Resource {
   protected abstract void deleteControlled();
 
   /** Resolve a resource to its cloud identifier. */
-  public abstract JSONObject resolve();
+  public abstract String resolve();
 
   /**
    * Check whether a user's pet SA can access a resource.

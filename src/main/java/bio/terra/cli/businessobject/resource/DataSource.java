@@ -3,25 +3,15 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDDataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.client.JSON;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.TerraWorkspaceResource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.http.HttpStatus;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.concurrent.impl.FutureConvertersImpl.P;
 
 /**
  * Internal representation of a data source referenced resource. Instances of this class are part of
@@ -81,40 +71,23 @@ public class DataSource extends Resource {
   }
 
   /** Resolve data source. */
-  public JSONObject resolve() {
-    return new JSONObject();
+  public String resolve() {
+    return "";
   }
 
-  public JSONObject resolve(String resourceName) {
-    var resources = getResources();
-    if (resources.isEmpty()) {
-      return new JSONObject();
-    }
-    return resources.map(
-        r ->
-            r.stream()
-                .filter(resource ->
-                    resource.getResourceType() != Type.DATA_SOURCE
+  public String resolve(String resourceName) {
+    var resources = getDataSourceWorkspace().getResources();
+    return resources.stream()
+        .filter(
+            resource ->
+                resource.getResourceType() != Type.DATA_SOURCE
                     && resource.getName().equals(resourceName))
-                .map(Resource::resolve)
-                .findFirst()
-                .orElse(new JSONObject())
-    ).orElse(new JSONObject());
-  }
-
-  public Optional<List<Resource>> getResources() {
-    try {
-      return Optional.of(WorkspaceManagerService.fromContext()
-          .enumerateAllResources(dataSourceWorkspaceUuid, Context.getConfig().getResourcesCacheSize())
-          .stream().map(Resource::deserializeFromWsm).collect(Collectors.toList()));
-    } catch(SystemException e) {
-      if (e.getCause() instanceof ApiException) {
-        if (((ApiException) e.getCause()).getCode() == HttpStatus.SC_FORBIDDEN) {
-          return Optional.empty();
-        }
-      }
-      throw e;
-    }
+        .map(Resource::resolve)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new UserActionableException(
+                    "Invalid path: please check if the resource name in the datasource is specified incorrectly."));
   }
 
   public Workspace getDataSourceWorkspace() {

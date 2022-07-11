@@ -116,11 +116,10 @@ public abstract class CommandRunner {
   private Map<String, String> buildMapOfTerraReferences() {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
-    Context.requireWorkspace()
-        .getResources()
-        .stream().filter(resource -> resource.getResourceType() != Resource.Type.DATA_SOURCE)
+    Context.requireWorkspace().getResources().stream()
+        .filter(resource -> resource.getResourceType() != Resource.Type.DATA_SOURCE)
         .forEach(
-            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve().getString(resource.getName())));
+            resource -> terraReferences.put("TERRA_" + resource.getName(), resource.resolve()));
 
     return terraReferences;
   }

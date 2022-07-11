@@ -13,12 +13,6 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import com.google.common.base.Preconditions;
-import java.net.DatagramSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -55,48 +49,43 @@ public class Resolve extends BaseCommand {
 
     Resource resource = Context.requireWorkspace().getResource(paths[0]);
 
-
-    JSONArray cloudIds = new JSONArray();
+    JSONObject cloudIds = new JSONObject();
     switch (resource.getResourceType()) {
       case GCS_BUCKET:
-        cloudIds.put(((GcsBucket) resource).resolve(!excludeBucketPrefix));
+        cloudIds.put(resource.getName(), ((GcsBucket) resource).resolve(!excludeBucketPrefix));
         break;
       case GCS_OBJECT:
-        cloudIds.put(((GcsObject) resource).resolve(!excludeBucketPrefix));
+        cloudIds.put(resource.getName(), ((GcsObject) resource).resolve(!excludeBucketPrefix));
         break;
       case BQ_DATASET:
-        cloudIds.put(((BqDataset) resource).resolve(bqPathFormat));
+        cloudIds.put(resource.getName(), ((BqDataset) resource).resolve(bqPathFormat));
         break;
       case BQ_TABLE:
-        cloudIds.put(((BqTable) resource).resolve(bqPathFormat));
+        cloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
         break;
       case DATA_SOURCE:
         if (paths.length == 2) {
-          cloudIds.put(((DataSource) resource).resolve(paths[1]));
+          cloudIds.put(paths[1], ((DataSource) resource).resolve(paths[1]));
         } else {
-          var resourcesOptional = ((DataSource) resource).getResources();
-          if (resourcesOptional.isPresent()) {
-            cloudIds.put(resourcesOptional.map(
-                resources ->
-                    resources.stream()
-                        .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
-                        .map(Resource::resolve)
-                        .collect(Collectors.toList())
-            ).orElse(Collections.emptyList()));
-          }
+          var resources = ((DataSource) resource).getDataSourceWorkspace().getResources();
+          resources.stream()
+              .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
+              .forEach(r -> cloudIds.put(r.getName(), r.resolve()));
         }
         break;
       default:
-        cloudIds.put(resource.resolve());
+        cloudIds.put(resource.getName(), resource.resolve());
     }
     formatOption.printReturnValue(cloudIds, this::printText, this::printJson);
   }
 
-  private void printText(JSONArray arr) {
-    OUT.println(arr.join("\n"));
+  private void printText(JSONObject object) {
+    for (var key : object.keySet()) {
+      OUT.println(key + ": " + object.get((String) key));
+    }
   }
 
-  private void printJson(JSONArray arr) {
-    OUT.println(arr);
+  private void printJson(JSONObject object) {
+    OUT.println(object.toString(2));
   }
 }

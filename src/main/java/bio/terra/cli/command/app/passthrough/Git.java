@@ -70,7 +70,7 @@ public class Git extends ToolCommand {
 
   private void cloneGitRepoResource(Resource resource) {
     List<String> cloneCommands = Stream.of("git", "clone").collect(Collectors.toList());
-    String gitRepoUrl = resource.resolve().getString(resource.getName());
+    String gitRepoUrl = resource.resolve();
     cloneCommands.add(gitRepoUrl);
     try {
       Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);

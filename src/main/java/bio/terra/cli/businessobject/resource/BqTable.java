@@ -11,7 +11,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.ResourceDescription;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +121,7 @@ public class BqTable extends Resource {
    * Resolve a BigQuery data table resource to its cloud identifier. Returns the SQL path to the
    * data table: [GCP project id].[BQ dataset id].[BQ data table id]
    */
-  public JSONObject resolve() {
+  public String resolve() {
     return resolve(BqResolvedOptions.FULL_PATH);
   }
 
@@ -130,31 +129,23 @@ public class BqTable extends Resource {
    * Resolve a BigQuery data table resource to its cloud identifier with a specified {@code
    * resolveOption}.
    */
-  public JSONObject resolve(BqResolvedOptions resolveOption) {
-    String cloudId;
+  public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
-        cloudId = projectId
+        return projectId
             + BQ_PROJECT_DATA_TABLE_DELIMITER
             + datasetId
             + BQ_PROJECT_DATA_TABLE_DELIMITER
             + dataTableId;
-        break;
       case TABLE_ID_ONLY:
-        cloudId = dataTableId;
-        break;
+        return dataTableId;
       case DATASET_ID_ONLY:
-        cloudId = datasetId;
-        break;
+        return datasetId;
       case PROJECT_ID_ONLY:
-        cloudId = projectId;
-        break;
+        return projectId;
       default:
         throw new IllegalArgumentException("Unknown BigQuery data table resolve option.");
     }
-    JSONObject object = new JSONObject();
-    object.put(name, cloudId);
-    return object;
   }
 
   // ====================================================
