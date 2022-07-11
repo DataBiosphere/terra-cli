@@ -96,9 +96,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(GIT_REPO_SSH_URL, resolved.get(name), "resolve matches git repo ssh url");
 
     // `terra resource delete --name=$name`
@@ -255,9 +253,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     assertEquals(GIT_REPO_HTTPS_URL, updatedGitRepo.gitRepoUrl);
 
     var resolved =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + newName)
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(GIT_REPO_HTTPS_URL, resolved.get(newName), "resolve matches https Git url");
   }
 

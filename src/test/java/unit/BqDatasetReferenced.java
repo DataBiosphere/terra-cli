@@ -169,9 +169,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess("resource", "resolve", "--name=" + name)
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalBQDatasets.getDatasetFullPath(
             externalDataset.getProjectId(), externalDataset.getDatasetId()),
@@ -180,10 +178,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     JSONObject resolvedProjectIdOnly =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess(
-                    "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY")
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getProjectId(),
         resolvedProjectIdOnly.get(name),
@@ -191,10 +187,8 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
 
     // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
     JSONObject resolvedDatasetIdOnly =
-        new JSONObject(
-            TestCommand.runAndGetResultExpectSuccess(
-                    "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY")
-                .stdOut);
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId(),
         resolvedDatasetIdOnly.get(name),
