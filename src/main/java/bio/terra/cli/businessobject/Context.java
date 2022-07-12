@@ -122,7 +122,10 @@ public class Context {
     // if the override environment variable is set, use it instead
     String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
     if (overrideDirName != null && !overrideDirName.isBlank()) {
-      contextDir = Paths.get(overrideDirName).toAbsolutePath();
+      // TODO: hack
+      contextDir =
+          Paths.get(overrideDirName + System.getProperty("org.gradle.test.worker"))
+              .toAbsolutePath();
       logger.debug("Context directory: {}", contextDir);
       // build.gradle test task makes contextDir. However, with Gradle Enterprise Test Distribution,
       // this test is executed in a different place from where the test task mkdir was run. So need

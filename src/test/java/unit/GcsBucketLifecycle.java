@@ -8,13 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.api.client.util.DateTime;
-import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
-import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,8 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -32,28 +28,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for specifying lifecycle rules for controlled GCS buckets. */
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
-  // external bucket to use for testing the JSON format against GCS directly
-  private BucketInfo externalBucket;
-
-  @Override
-  @BeforeAll
-  protected void setupOnce() throws Exception {
-    super.setupOnce();
-    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
-
-    // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
-    // lifecycle` with the same JSON format used for creating controlled bucket resources with
-    // lifecycle rules
-    ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
-  }
-
-  @Override
-  @AfterAll
-  protected void cleanupOnce() throws Exception {
-    super.cleanupOnce();
-    ExternalGCSBuckets.deleteBucket(externalBucket);
-    externalBucket = null;
-  }
 
   @Override
   @BeforeEach
@@ -254,41 +228,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     String name = "multipleRules";
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createBucketWithLifecycleRules(name, name + ".json");
-    validateMultipleRules(lifecycleRules);
-  }
-
-  @Test
-  @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
-  void sameFormatForExternalBucket() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER, we're unable to mount volume with
-    // docker-in-docker. Say we're using DOCKER_CONTAINER and Test Distribution is on. The docker
-    // container started by `terra` needs to see gcslifecycle/multipleRules.json. See
-    // https://stackoverflow.com/a/62413225/6447189. H = GCP VM, D = Test Distribution agent,
-    // D2 = docker started by CLI. We can't mount build/resources into D2, because it doesn't exist
-    // in H.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
-    // the CLI mounts the current working directory to the Docker container when running apps
-    // so we need to give it the path to lifecycle JSON file relative to the current working
-    // directory. e.g.
-    // lifecyclePathOnHost =
-    // /Users/gh/terra-cli/src/test/resources/testinputs/gcslifecycle/multipleRules.json
-    // currentDirOnHost = /Users/gh/terra-cli/
-    // lifecyclePathOnContainer = ./src/test/resources/testinputs/gcslifecycle/multipleRules.json
-    Path lifecyclePathOnHost = TestCommand.getPathForTestInput("gcslifecycle/multipleRules.json");
-    Path currentDirOnHost = Path.of(System.getProperty("user.dir"));
-    Path lifecyclePathOnContainer = currentDirOnHost.relativize(lifecyclePathOnHost);
-
-    // `terra gsutil lifecycle set $lifecycle gs://$bucketname`
-    TestCommand.runCommandExpectSuccess(
-        "gsutil",
-        "lifecycle",
-        "set",
-        lifecyclePathOnContainer.toString(),
-        ExternalGCSBuckets.getGsPath(externalBucket.getName()));
-
-    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        getLifecycleRulesFromCloud(externalBucket.getName());
     validateMultipleRules(lifecycleRules);
   }
 

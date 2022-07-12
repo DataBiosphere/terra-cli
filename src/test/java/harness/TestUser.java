@@ -78,7 +78,7 @@ public class TestUser {
    *
    * @return global context object, populated with the user's credentials
    */
-  public void login() throws IOException {
+  public void login(boolean gsutilLogin) throws IOException {
     System.out.println("Logging in test user: " + email);
 
     // get domain-wide delegated credentials for this user. use the same scopes that are requested
@@ -87,14 +87,20 @@ public class TestUser {
     writeTerraOAuthCredentialFile(googleCredentials);
 
     // We're not using pet SA key file (for security reasons), so auth is more complicated.
-    writeAdcCredentialFiles();
-    writeGsUtilCredentialFile();
+    if (gsutilLogin) {
+      writeAdcCredentialFiles();
+      writeGsUtilCredentialFile();
+    }
 
     // unset the current user in the global context if already specified
     Context.setUser(null);
 
     // do the login flow to populate the global context with the current user
     User.login();
+  }
+
+  public void login() throws IOException {
+    login(false);
   }
 
   /** Writes .terra/StoredCredential. */

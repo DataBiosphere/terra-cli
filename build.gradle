@@ -221,8 +221,8 @@ task runTestsWithTag(type: Test) {
         // Gradle Enterprise Test Distribution
         distribution {
             enabled = true
-            maxLocalExecutors = 0
-            maxRemoteExecutors = 1
+            maxLocalExecutors = 8
+            maxRemoteExecutors = 0
         }
     }
 
