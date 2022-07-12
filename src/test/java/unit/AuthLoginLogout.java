@@ -1,6 +1,7 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +14,7 @@ import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
+import com.google.auth.oauth2.IdToken;
 import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
@@ -38,13 +40,25 @@ public class AuthLoginLogout extends ClearContextUnit {
     testUser.login();
 
     // check that the credential exists in the store on disk
-    DataStore<StoredCredential> dataStore = TestUser.getCredentialStore();
-    assertEquals(1, dataStore.keySet().size(), "credential store only contains one entry");
+    DataStore<StoredCredential> credentialStore = TestUser.getCredentialStore();
+    assertThat("credential store contains two entries", credentialStore.keySet(), hasSize(2));
     assertTrue(
-        dataStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
-        "credential store contains hard-coded single user key");
-    StoredCredential storedCredential = dataStore.get(GoogleOauth.CREDENTIAL_STORE_KEY);
+        credentialStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
+        "credential store contains hard-coded user key");
+    assertTrue(
+        credentialStore.containsKey(GoogleOauth.ID_TOKEN_STORE_KEY),
+        "credential store contains  id token");
+    StoredCredential storedCredential = credentialStore.get(GoogleOauth.CREDENTIAL_STORE_KEY);
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
+
+    DataStore<IdToken> idTokenStore = TestUser.getCredentialStore();
+    assertEquals(
+        idTokenStore.keySet(),
+        credentialStore.keySet(),
+        "credentialStore and idTokenStore are different views of same underlying datastore");
+    assertThat(
+        idTokenStore.get(GoogleOauth.ID_TOKEN_STORE_KEY).getTokenValue(),
+        CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user
     Optional<User> currentUser = Context.getUser();

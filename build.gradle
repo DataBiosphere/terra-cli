@@ -15,6 +15,7 @@ plugins {
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
+    id 'org.gradle.test-retry' version '1.4.0'
 }
 
 if (hasProperty('buildScan')) {
@@ -25,7 +26,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.196.0'
+version = '0.211.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -40,6 +41,8 @@ repositories {
 }
 
 dependencies {
+    // Needed for Mac M1
+    implementation 'net.java.dev.jna:jna:5.11.0'
     ext {
         // command parsing
         picocli = '4.6.1'
@@ -53,10 +56,10 @@ dependencies {
         jackson = '2.12.3'
 
         // GCP
-        googleOauth2 = '0.22.0'
-        googleClient = '1.31.1'
+        googleOauth2 = '1.6.0'
+        googleClient = '1.33.3'
         bigQuery = '1.116.6'
-        cloudStorage = '1.117.0'
+        cloudStorage = '2.7.2'
         // Only used for testing
         pubsub = '1.116.4'
 
@@ -69,7 +72,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
-        workspaceManagerClient = "0.254.242-SNAPSHOT"
+        workspaceManagerClient = "0.254.283-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
         janitor = "0.113.5-SNAPSHOT"
@@ -94,6 +97,7 @@ dependencies {
 
     implementation "com.google.oauth-client:google-oauth-client-jetty:${googleClient}"
     implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
+    implementation "com.google.auth:google-auth-library-credentials:${googleOauth2}"
     implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
     implementation "com.google.cloud:google-cloud-bigquery:${bigQuery}"
     implementation "com.google.cloud:google-cloud-storage:${cloudStorage}"
@@ -119,8 +123,8 @@ dependencies {
     implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
     testImplementation "bio.terra:terra-resource-janitor-client:${janitor}"
 
-    compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
-    compile "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
+    implementation "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
 
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
@@ -165,6 +169,10 @@ task runTestsWithTag(type: Test) {
         if (testTag == null) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
+
+        // For Gradle Enterprise trial, we'd like to distinguish unit tests from
+        // integration tests in GE UI.
+        buildScan.tag testTag
 
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
@@ -369,5 +377,22 @@ task getDockerImageName {
 task getDockerImageTag {
     doLast {
         println("${project.properties['dockerImageTag']}")
+    }
+}
+
+test {
+    retry {
+        // This is set automatically on Github Actions runners, and never set
+        // otherwise.
+        if (System.getenv().containsKey("CI")) {
+            // Max retries per test.
+            maxRetries = 1
+            // Max total test failures.
+            // This is an estimate based on current failure rates, but if more
+            // than 5 tests fail in a run it's likely a real source of failure
+            // and we should stop retrying.
+            maxFailures = 5
+        }
+        failOnPassedAfterRetry = true
     }
 }

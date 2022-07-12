@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -162,30 +163,29 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "resource", "create", "bq-dataset", "--name=" + name, "--dataset-id=" + datasetId);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         workspace.googleProjectId + "." + datasetId,
-        resolved,
+        resolved.get(name),
         "default resolve includes [project id].[dataset id]");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
-    String resolvedProjectIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
+    JSONObject resolvedProjectIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         workspace.googleProjectId,
-        resolvedProjectIdOnly,
+        resolvedProjectIdOnly.get(name),
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
     // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
-    String resolvedDatasetIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
+    JSONObject resolvedDatasetIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         datasetId,
-        resolvedDatasetIdOnly,
+        resolvedDatasetIdOnly.get(name),
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
     // `terra resources delete --name=$name`
@@ -332,7 +332,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     assertEquals(description, describedDataset.description);
 
     // update just the description
-    // `terra resources update bq-dataset --name=$newName --description=$newDescription`
+    // `terra resources update bq-dataset --name=$newName --new-description=$newDescription`
     // --new-cloning=$CloningInstructionsEnum.DEFINITION`
     String newDescription = "updateDescription_NEW";
     updatedDataset =
@@ -342,7 +342,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "update",
             "bq-dataset",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     assertEquals(newName, updatedDataset.name);
     assertEquals(newDescription, updatedDataset.description);
@@ -372,7 +372,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
     // update both the name and description
     // `terra resources update bq-dataset --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFBqDataset updateDataset =
@@ -383,7 +383,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
             "bq-dataset",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
     assertEquals(newName, updateDataset.name);
     assertEquals(newDescription, updateDataset.description);
 

@@ -106,6 +106,9 @@ public class GcsBucket extends Resource {
     if (updateParams.bucketName != null) {
       this.bucketName = updateParams.bucketName;
     }
+    if (updateParams.cloningInstructions != null) {
+      this.cloningInstructions = updateParams.cloningInstructions;
+    }
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);

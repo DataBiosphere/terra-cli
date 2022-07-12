@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -29,10 +30,13 @@ public class UpdateReferencedBqDatasetParams {
    */
   public final @Nullable String projectId;
 
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
+
   protected UpdateReferencedBqDatasetParams(UpdateReferencedBqDatasetParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -41,6 +45,7 @@ public class UpdateReferencedBqDatasetParams {
     private UpdateResourceParams resourceFields;
     private String datasetId;
     private String projectId;
+    private CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedBqDatasetParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
@@ -55,6 +60,12 @@ public class UpdateReferencedBqDatasetParams {
 
     public UpdateReferencedBqDatasetParams.Builder projectId(String projectId) {
       this.projectId = projectId;
+      return this;
+    }
+
+    public UpdateReferencedBqDatasetParams.Builder cloningInstructions(
+        CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

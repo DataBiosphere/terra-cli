@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -94,10 +95,9 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         "--repo-url=" + GIT_REPO_SSH_URL);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
-    assertEquals(GIT_REPO_SSH_URL, resolved, "resolve matches git repo ssh url");
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
+    assertEquals(GIT_REPO_SSH_URL, resolved.get(name), "resolve matches git repo ssh url");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -201,7 +201,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update git-repo --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFGitRepo updateGitRepo =
+    UFGitRepo updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
@@ -209,36 +209,40 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateGitRepo.name);
-    assertEquals(description, updateGitRepo.description);
+    assertEquals(newName, updatedGitRepo.name);
+    assertEquals(description, updatedGitRepo.description);
 
     // `terra resources describe --name=$newName`
-    UFGitRepo describeGitRepo =
+    UFGitRepo describedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeGitRepo.description);
+    assertEquals(description, describedGitRepo.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedGitRepo.cloningInstructions);
 
-    // update just the description
-    // `terra resources update git-repo --name=$newName --description=$newDescription`
+    // update description and cloning instructions
+    // `terra resources update git-repo --name=$newName --new-description=$newDescription
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
-    updateGitRepo =
+    updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
             "update",
             "git-repo",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateGitRepo.name);
-    assertEquals(newDescription, updateGitRepo.description);
+            "--new-description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(newName, updatedGitRepo.name);
+    assertEquals(newDescription, updatedGitRepo.description);
 
     // `terra resources describe --name=$newName`
-    describeGitRepo =
+    describedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeGitRepo.description);
+    assertEquals(newDescription, describedGitRepo.description);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedGitRepo.cloningInstructions);
 
-    updateGitRepo =
+    updatedGitRepo =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGitRepo.class,
             "resource",
@@ -246,12 +250,11 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + newName,
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
-    assertEquals(GIT_REPO_HTTPS_URL, updateGitRepo.gitRepoUrl);
+    assertEquals(GIT_REPO_HTTPS_URL, updatedGitRepo.gitRepoUrl);
 
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + newName);
-    assertEquals(GIT_REPO_HTTPS_URL, resolved, "resolve matches https Git url");
+    var resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
+    assertEquals(GIT_REPO_HTTPS_URL, resolved.get(newName), "resolve matches https Git url");
   }
 
   @Test
@@ -286,7 +289,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFGitRepo updateGitRepoNameAndDescription =
@@ -297,7 +300,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription);
+            "--new-description=" + newDescription);
     assertEquals(newName, updateGitRepoNameAndDescription.name);
     assertEquals(newDescription, updateGitRepoNameAndDescription.description);
 
@@ -309,7 +312,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // update referencing target
     // `terra resources update git-repo --name=$name --new-repo-url=$newRepoUrl
-    // --new-name=$newName --description=$newDescription
+    // --new-name=$newName --new-description=$newDescription
     String yetAnotherName = "updateMultipleOrNoProperties_NEW";
     String yetAnotherDescription = "updateDescription_NEW";
     UFGitRepo updateGitRepoReferenceTarget =
@@ -320,7 +323,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "git-repo",
             "--name=" + newName,
             "--new-name=" + yetAnotherName,
-            "--description=" + yetAnotherDescription,
+            "--new-description=" + yetAnotherDescription,
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
     assertEquals(GIT_REPO_HTTPS_URL, updateGitRepoReferenceTarget.gitRepoUrl);
 

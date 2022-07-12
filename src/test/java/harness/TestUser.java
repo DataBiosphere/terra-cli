@@ -8,7 +8,9 @@ import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.FileInputStream;
@@ -84,7 +86,7 @@ public class TestUser {
     // get domain-wide delegated credentials for this user. use the same scopes that are requested
     // of CLI users when they login.
     GoogleCredentials googleCredentials = getCredentials(User.USER_SCOPES);
-    writeTerraOAuthCredentialFile(googleCredentials);
+    writeTerraOAuthCredentialFile(googleCredentials, getIdToken(googleCredentials));
 
     // We're not using pet SA key file (for security reasons), so auth is more complicated.
     if (gsutilLogin) {
@@ -104,7 +106,7 @@ public class TestUser {
   }
 
   /** Writes .terra/StoredCredential. */
-  private void writeTerraOAuthCredentialFile(GoogleCredentials googleCredentials)
+  private void writeTerraOAuthCredentialFile(GoogleCredentials googleCredentials, IdToken idToken)
       throws IOException {
     // use the domain-wide delegated credential to build a stored credential for the test user
     StoredCredential dwdStoredCredential = new StoredCredential();
@@ -116,6 +118,9 @@ public class TestUser {
     // set the single entry to the stored credential for the test user
     DataStore<StoredCredential> dataStore = getCredentialStore();
     dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+
+    DataStore<IdToken> tokenStore = getCredentialStore();
+    tokenStore.set(GoogleOauth.ID_TOKEN_STORE_KEY, idToken);
   }
 
   /** Writes ADC credential files. */
@@ -179,6 +184,7 @@ public class TestUser {
               + jsonKey.toAbsolutePath()
               + ")");
     }
+
     GoogleCredentials serviceAccountCredential =
         ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey.toFile()))
             .createScoped(scopes);
@@ -190,10 +196,33 @@ public class TestUser {
   }
 
   /** Helper method that returns a pointer to the credential store on disk. */
-  public static DataStore<StoredCredential> getCredentialStore() throws IOException {
+  public static <T> DataStore getCredentialStore() throws IOException {
     Path globalContextDir = Context.getContextDir();
     FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
     return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
+  }
+
+  /** Get an ID token for this user. */
+  private IdToken getIdToken(GoogleCredentials credentials) throws IOException {
+
+    // Note that the passed GoogleCredential will be a domain-wide delegated credential obtained
+    // from method ServiceAccountCredential.createDelegated(), which is a ServiceAccountCredential
+    // under the hood.  A ServiceAccountCredential is an IdTokenProvider, but uses a different
+    // mechanism to get an SA ID token that does not work for user accounts. Since we need a user
+    // account, we instead must build a UserCredential to use to obtain the ID token.  Note that
+    // this also requires a refresh token, so we must use the refresh token that we've stashed in a
+    // secret and used elsewhere to obtain domain-wide delegated user credentials.
+
+    UserCredentials userCredentials =
+        UserCredentials.newBuilder()
+            .setClientId(GCLOUD_CLIENT_ID)
+            .setClientSecret(GCLOUD_CLIENT_SECRET)
+            .setAccessToken(credentials.getAccessToken())
+            .setRefreshToken(getRefreshToken())
+            .build();
+
+    // Target audience MUST be null when calling this method for a user account.
+    return userCredentials.idTokenWithAudience(null, List.of());
   }
 
   /** Read refresh_token from testconfig. */

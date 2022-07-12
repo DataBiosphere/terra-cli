@@ -118,6 +118,9 @@ public class BqDataset extends Resource {
     if (updateParams.datasetId != null) {
       this.datasetId = updateParams.datasetId;
     }
+    if (updateParams.cloningInstructions != null) {
+      this.cloningInstructions = updateParams.cloningInstructions;
+    }
     WorkspaceManagerService.fromContext()
         .updateReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);

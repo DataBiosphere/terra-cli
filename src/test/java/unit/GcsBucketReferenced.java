@@ -17,6 +17,7 @@ import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -164,21 +165,20 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
         "--bucket-name=" + externalSharedBucket.getName());
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalSharedBucket.getName()),
-        resolved,
+        resolved.get(name),
         "default resolve includes gs:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
-    String resolvedExcludePrefix =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
+    JSONObject resolvedExcludePrefix =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
         externalSharedBucket.getName(),
-        resolvedExcludePrefix,
+        resolvedExcludePrefix.get(name),
         "exclude prefix resolve only includes bucket name");
 
     // `terra resource delete --name=$name`
@@ -283,7 +283,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update gcs-bucket --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFGcsBucket updateBucket =
+    UFGcsBucket updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
@@ -291,36 +291,40 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateBucket.name);
-    assertEquals(description, updateBucket.description);
+    assertEquals(newName, updatedBucket.name);
+    assertEquals(description, updatedBucket.description);
 
     // `terra resources describe --name=$newName`
-    UFGcsBucket describeBucket =
+    UFGcsBucket describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeBucket.description);
+    assertEquals(description, describedBucket.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedBucket.cloningInstructions);
 
-    // update just the description
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription`
+    // update description and cloning instructions
+    // `terra resources update gcs-bucket --name=$newName --new-description=$newDescription
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
-    updateBucket =
+    updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateBucket.name);
-    assertEquals(newDescription, updateBucket.description);
+            "--new-description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(newName, updatedBucket.name);
+    assertEquals(newDescription, updatedBucket.description);
 
     // `terra resources describe --name=$newName`
-    describeBucket =
+    describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeBucket.description);
+    assertEquals(newDescription, describedBucket.description);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedBucket.cloningInstructions);
 
-    updateBucket =
+    updatedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
@@ -328,12 +332,12 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + newName,
             "--new-bucket-name=" + externalPrivateBucket.getName());
-    assertEquals(externalPrivateBucket.getName(), updateBucket.bucketName);
+    assertEquals(externalPrivateBucket.getName(), updatedBucket.bucketName);
     // `terra resources describe --name=$newName`
-    describeBucket =
+    describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + newName);
-    assertEquals(externalPrivateBucket.getName(), describeBucket.bucketName);
+    assertEquals(externalPrivateBucket.getName(), describedBucket.bucketName);
   }
 
   @Test
@@ -368,7 +372,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
 
     // update the name and description
     // `terra resources update gcs-bucket --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFGcsBucket updateBucket =
@@ -379,7 +383,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-bucket-name=" + externalPrivateBucket.getName());
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);

@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
+import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -23,6 +24,7 @@ public class BqTable extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
 
   @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;
@@ -50,7 +52,8 @@ public class BqTable extends BaseCommand {
             .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
             .tableId(newBqTableId)
             .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-            .projectId(bqDatasetNewIds.getNewGcpProjectId());
+            .projectId(bqDatasetNewIds.getNewGcpProjectId())
+            .cloningInstructions(newCloningInstructionsOption.getCloning());
 
     resource.updateReferenced(bqTableParams.build());
     // re-load the resource so we display all properties with up-to-date values

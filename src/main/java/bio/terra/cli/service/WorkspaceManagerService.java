@@ -2,6 +2,7 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
@@ -14,6 +15,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
@@ -29,12 +31,11 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
-import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
@@ -45,6 +46,7 @@ import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
+import bio.terra.workspace.model.CreateTerraWorkspaceReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
@@ -57,6 +59,7 @@ import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.GcpAiNotebookInstanceVmImage;
+import bio.terra.workspace.model.GcpAiNotebookUpdateParameters;
 import bio.terra.workspace.model.GcpBigQueryDataTableAttributes;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
@@ -81,15 +84,16 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.PrivateResourceIamRoles;
-import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.TerraWorkspaceAttributes;
+import bio.terra.workspace.model.TerraWorkspaceResource;
 import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
+import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
@@ -102,6 +106,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -109,6 +114,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -149,8 +155,7 @@ public class WorkspaceManagerService {
    * Factory method for class that talks to WSM. Pulls the current server and user from the context.
    */
   public static WorkspaceManagerService fromContext() {
-    return new WorkspaceManagerService(
-        Context.requireUser().getUserAccessToken(), Context.getServer());
+    return new WorkspaceManagerService(Context.requireUser().getTerraToken(), Context.getServer());
   }
 
   /**
@@ -210,12 +215,16 @@ public class WorkspaceManagerService {
    * @param userFacingId required user-facing ID
    * @param name optional display name
    * @param description optional description
+   * @param properties optional properties
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public WorkspaceDescription createWorkspace(
-      String userFacingId, @Nullable String name, @Nullable String description) {
+      String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      @Nullable Map<String, String> properties) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -227,6 +236,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
           workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
+          workspaceRequestBody.setProperties(Workspace.stringMapToProperties(properties));
 
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
@@ -887,6 +897,24 @@ public class WorkspaceManagerService {
         "Error creating controlled BigQuery dataset in the workspace.");
   }
 
+  /** Used by tests only. */
+  public TerraWorkspaceResource createReferencedTerraWorkspace(
+      UUID workspaceId, UUID referencedWorkspaceId, String referenceName) {
+    CreateTerraWorkspaceReferenceRequestBody createRequest =
+        new CreateTerraWorkspaceReferenceRequestBody()
+            .metadata(
+                new ReferenceResourceCommonFields()
+                    .name(referenceName)
+                    .cloningInstructions(CloningInstructionsEnum.NOTHING))
+            .referencedWorkspace(
+                new TerraWorkspaceAttributes().referencedWorkspaceId(referencedWorkspaceId));
+    return callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .createTerraWorkspaceReference(createRequest, workspaceId),
+        "Error creating referenced data source in the workspace.");
+  }
+
   /**
    * Create a common fields WSM object from a Resource that is being used to create a controlled
    * resource.
@@ -900,21 +928,6 @@ public class WorkspaceManagerService {
             .cloningInstructions(createParams.cloningInstructions)
             .accessScope(createParams.accessScope)
             .managedBy(ManagedBy.USER);
-
-    if (createParams.accessScope == AccessScope.PRIVATE_ACCESS) {
-      // since private resources cannot be reassigned, it never makes sense to have less than full
-      // access to the resource, so add all possible IAM roles here.
-      PrivateResourceIamRoles privateResourceIamRoles = new PrivateResourceIamRoles();
-      privateResourceIamRoles.add(ControlledResourceIamRole.READER);
-      privateResourceIamRoles.add(ControlledResourceIamRole.WRITER);
-      privateResourceIamRoles.add(ControlledResourceIamRole.EDITOR);
-      commonFields.privateResourceUser(
-          new PrivateResourceUser()
-              // WSM requires the owner of a private resource to be the user who creates it, so
-              // force this here
-              .userName(Context.requireUser().getEmail())
-              .privateResourceIamRoles(privateResourceIamRoles));
-    }
 
     return commonFields;
   }
@@ -937,7 +950,8 @@ public class WorkspaceManagerService {
         .name(updateParams.resourceFields.name)
         .description(updateParams.resourceFields.description)
         .bucketName(updateParams.bucketName)
-        .objectName(updateParams.objectName);
+        .objectName(updateParams.objectName)
+        .cloningInstructions(updateParams.cloningInstructions);
 
     callWithRetries(
         () ->
@@ -962,7 +976,8 @@ public class WorkspaceManagerService {
         new UpdateGcsBucketReferenceRequestBody()
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description)
-            .bucketName(updateParams.bucketName);
+            .bucketName(updateParams.bucketName)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -985,7 +1000,8 @@ public class WorkspaceManagerService {
         new UpdateGitRepoReferenceRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description)
-            .gitRepoUrl(updateParams.gitRepoUrl);
+            .gitRepoUrl(updateParams.gitRepoUrl)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -1025,6 +1041,35 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/notebooks/{resourceId}" endpoint to
+   * update a GCP Notebook controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledGcpNotebook(
+      UUID workspaceId, UUID resourceId, UpdateControlledGcpNotebookParams updateParams) {
+
+    // convert the CLI object to a WSM request object
+    UpdateControlledGcpAiNotebookInstanceRequestBody updateRequest =
+        new UpdateControlledGcpAiNotebookInstanceRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description);
+    if (updateParams.notebookUpdateParameters != null) {
+      updateRequest.updateParameters(
+          new GcpAiNotebookUpdateParameters()
+              .metadata(updateParams.notebookUpdateParameters.getMetadata()));
+    }
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
+        "Error updating controlled GCP notebook in the workspace.");
+  }
+
+  /**
    * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
    * endpoint to update a BigQuery data table referenced resource in the workspace.
@@ -1042,7 +1087,8 @@ public class WorkspaceManagerService {
             .description(updateParams.resourceParams.description)
             .projectId(updateParams.projectId)
             .datasetId(updateParams.datasetId)
-            .dataTableId(updateParams.tableId);
+            .dataTableId(updateParams.tableId)
+            .cloningInstructions(updateParams.cloningInstructions);
 
     callWithRetries(
         () ->
@@ -1068,7 +1114,8 @@ public class WorkspaceManagerService {
             .name(updateParams.resourceParams.name)
             .description(updateParams.resourceParams.description)
             .projectId(updateParams.projectId)
-            .datasetId(updateParams.datasetId);
+            .datasetId(updateParams.datasetId)
+            .cloningInstructions(updateParams.cloningInstructions);
     callWithRetries(
         () ->
             new ReferencedGcpResourceApi(apiClient)
@@ -1182,6 +1229,15 @@ public class WorkspaceManagerService {
             new ReferencedGcpResourceApi(apiClient).deleteGitRepoReference(workspaceId, resourceId),
         "Error deleting referenced git repo in the workspace.");
   }
+
+  public void deleteReferencedTerraWorkspace(UUID workspaceId, UUID resourceId) {
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .deleteTerraWorkspaceReference(workspaceId, resourceId),
+        "Error deleting referenced data source in the workspace.");
+  }
+
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
@@ -1327,7 +1383,15 @@ public class WorkspaceManagerService {
     }
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
+    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
+    // different exception than the SocketTimeoutException thrown by other client libraries.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+
+    return isWsmTimeout
+        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;

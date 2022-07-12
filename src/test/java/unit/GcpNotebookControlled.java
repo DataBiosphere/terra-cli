@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,10 +40,16 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
     String name = "listDescribeReflectCreateDelete";
     UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
+            UFGcpNotebook.class,
+            "resource",
+            "create",
+            "gcp-notebook",
+            "--name=" + name,
+            "--metadata=foo=bar");
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
+    assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
 
     // gcp notebooks are always private
     assertEquals(
@@ -108,10 +115,10 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
             UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
-    assertEquals(createdNotebook.instanceName, resolved, "resolve returns the instance name");
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
+    assertEquals(
+        createdNotebook.instanceName, resolved.get(name), "resolve returns the instance name");
 
     // `terra resource check-access --name=$name`
     String stdErr =
@@ -185,6 +192,40 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
         workspaceCreator.email.toLowerCase(),
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
+
+    // new key-value pair will be appended, existing key-value pair will be updated.
+    String newName = "NewOverrideLocationAndInstanceId";
+    String newDescription = "\"new override default location and instance id\"";
+    String newKey1 = "NewMetadata1";
+    String newKey2 = "NewMetadata2";
+    String newValue1 = "metadata1";
+    String newValue2 = "metadata2";
+    String newEntry1 = newKey1 + "=" + newValue1;
+    String newEntry2 = newKey2 + "=" + newValue2;
+    UFGcpNotebook updatedNotebook =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpNotebook.class,
+            "resource",
+            "update",
+            "gcp-notebook",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--new-description=" + newDescription,
+            "--new-metadata=" + newEntry1 + "," + newEntry2);
+
+    // check that the properties match
+    // the metadata supports multiple entries, we can't assert on the metadata because it's not
+    // stored in or accessible via Workspace Manager.
+    assertEquals(newName, updatedNotebook.name, "create output matches name");
+    assertEquals(newDescription, updatedNotebook.description, "create output matches description");
+    assertEquals(
+        newValue1,
+        updatedNotebook.metadata.get(newKey1),
+        "create output matches metadata" + newKey1 + ": " + newValue1);
+    assertEquals(
+        newValue2,
+        updatedNotebook.metadata.get(newKey2),
+        "create output matches metadata" + newKey2 + ": " + newValue2);
   }
 
   @Test // NOTE: This test takes ~10 minutes to run.

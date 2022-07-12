@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -204,39 +205,38 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "--table-id=" + externalDataTableName);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalBQDatasets.getDataTableFullPath(
             externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
-        resolved,
+        resolved.get(name),
         "default resolve include full path");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
-    String resolvedProjectIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
+    JSONObject resolvedProjectIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=PROJECT_ID_ONLY");
     assertEquals(
         externalDataset.getProjectId(),
-        resolvedProjectIdOnly,
+        resolvedProjectIdOnly.get(name),
         "resolve with option PROJECT_ID_ONLY only includes the project id");
 
     // `terra resource resolve --name=$name --bq-path=DATASET_ID_ONLY --format=json`
-    String resolvedDatasetIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
+    JSONObject resolvedDatasetIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=DATASET_ID_ONLY");
     assertEquals(
         externalDataset.getDatasetId(),
-        resolvedDatasetIdOnly,
+        resolvedDatasetIdOnly.get(name),
         "resolve with option DATASET_ID_ONLY only includes the project id");
 
-    String resolveTableIdOnly =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
+    JSONObject resolveTableIdOnly =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=TABLE_ID_ONLY");
     assertEquals(
         externalDataTableName,
-        resolveTableIdOnly,
+        resolveTableIdOnly.get(name),
         "resolve with option TABLE_ID_ONLY only includes the table id");
 
     // `terra resource delete --name=$name`
@@ -364,7 +364,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // update just the name
     // `terra resources update bq-table --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
-    UFBqTable updateDataTable =
+    UFBqTable updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -372,36 +372,40 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-name=" + newName);
-    assertEquals(newName, updateDataTable.name);
-    assertEquals(description, updateDataTable.description);
+    assertEquals(newName, updatedDataTable.name);
+    assertEquals(description, updatedDataTable.description);
 
     // `terra resources describe --name=$newName`
-    UFBqTable describeDataTable =
+    UFBqTable describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
-    assertEquals(description, describeDataTable.description);
+    assertEquals(description, describedDataTable.description);
+    assertEquals(CloningInstructionsEnum.REFERENCE, describedDataTable.cloningInstructions);
 
-    // update just the description
-    // `terra resources update bq-table --name=$newName --description=$newDescription`
+    // update description and cloning instructions
+    // `terra resources update bq-table --name=$newName --new-description=$newDescription
+    // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
             "update",
             "bq-table",
             "--name=" + newName,
-            "--description=" + newDescription);
-    assertEquals(newName, updateDataTable.name);
-    assertEquals(newDescription, updateDataTable.description);
+            "--new-description=" + newDescription,
+            "--new-cloning=" + CloningInstructionsEnum.NOTHING);
+    assertEquals(newName, updatedDataTable.name);
+    assertEquals(newDescription, updatedDataTable.description);
 
     // `terra resources describe --name=$newName`
-    describeDataTable =
+    describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
-    assertEquals(newDescription, describeDataTable.description);
+    assertEquals(newDescription, describedDataTable.description);
+    assertEquals(CloningInstructionsEnum.NOTHING, describedDataTable.cloningInstructions);
 
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -409,11 +413,11 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--new-table-id=" + externalDataTableName2);
-    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
-    assertEquals(externalDataset.getDatasetId(), updateDataTable.datasetId);
-    assertEquals(externalDataset.getProjectId(), updateDataTable.projectId);
+    assertEquals(externalDataTableName2, updatedDataTable.dataTableId);
+    assertEquals(externalDataset.getDatasetId(), updatedDataTable.datasetId);
+    assertEquals(externalDataset.getProjectId(), updatedDataTable.projectId);
 
-    updateDataTable =
+    updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
             "resource",
@@ -421,9 +425,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + newName,
             "--new-dataset-id=" + externalDataset2.getDatasetId());
-    assertEquals(externalDataTableName2, updateDataTable.dataTableId);
-    assertEquals(externalDataset2.getDatasetId(), updateDataTable.datasetId);
-    assertEquals(externalDataset2.getProjectId(), updateDataTable.projectId);
+    assertEquals(externalDataTableName2, updatedDataTable.dataTableId);
+    assertEquals(externalDataset2.getDatasetId(), updatedDataTable.datasetId);
+    assertEquals(externalDataset2.getProjectId(), updatedDataTable.projectId);
   }
 
   @Test
@@ -477,7 +481,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
 
     // update both the name and description
     // `terra resources update bq-table --name=$newName --new-name=$newName
-    // --description=$newDescription`
+    // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
     UFBqTable updateDataTable =
@@ -488,7 +492,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-project-id=" + createdDataset.projectId,
             "--new-dataset-id=" + createdDataset.datasetId,
             "--new-table-id=" + tableInControlledDataset);

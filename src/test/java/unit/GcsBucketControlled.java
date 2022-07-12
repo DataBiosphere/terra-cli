@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -146,20 +147,21 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra resource resolve --name=$name --format=json`
-    String resolved =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name);
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
         ExternalGCSBuckets.getGsPath(bucketName),
-        resolved,
+        resolved.get(name),
         "default resolve includes gs:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
-    String resolvedExcludePrefix =
-        TestCommand.runAndParseCommandExpectSuccess(
-            String.class, "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
+    JSONObject resolvedExcludePrefix =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertEquals(
-        bucketName, resolvedExcludePrefix, "exclude prefix resolve only includes bucket name");
+        bucketName,
+        resolvedExcludePrefix.get(name),
+        "exclude prefix resolve only includes bucket name");
 
     // `terra resources delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -309,7 +311,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(description, describeBucket.description);
 
     // update just the description
-    // `terra resources update gcs-bucket --name=$newName --description=$newDescription`
+    // `terra resources update gcs-bucket --name=$newName --new-description=$newDescription`
     String newDescription = "updateDescription_NEW";
     updateBucket =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -318,7 +320,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "update",
             "gcs-bucket",
             "--name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--new-cloning=" + CloningInstructionsEnum.NOTHING);
     assertEquals(newName, updateBucket.name);
     assertEquals(newDescription, updateBucket.description);
@@ -371,7 +373,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
 
     // update the name, description, and storage class
     // `terra resources update gcs-bucket --name=$newName --new-name=$newName
-    // --description=$newDescription --storage=$newStorage`
+    // --new-description=$newDescription --storage=$newStorage`
     String newName = "updateMultipleProperties_NEW";
     String newDescription = "updateDescription_NEW";
     GcsStorageClass newStorage = GcsStorageClass.NEARLINE;
@@ -383,7 +385,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
             "gcs-bucket",
             "--name=" + name,
             "--new-name=" + newName,
-            "--description=" + newDescription,
+            "--new-description=" + newDescription,
             "--storage=" + newStorage);
     assertEquals(newName, updatedBucket.name);
     assertEquals(newDescription, updatedBucket.description);

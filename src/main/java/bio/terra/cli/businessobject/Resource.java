@@ -2,6 +2,7 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
+import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
@@ -60,7 +61,9 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO;
+    GIT_REPO,
+    // Corresponds to WSM type TERRA_WORKSPACE
+    DATA_SOURCE;
   }
 
   /** Deserialize an instance of the disk format to the internal object. */
@@ -118,6 +121,8 @@ public abstract class Resource {
         return new GcpNotebook(wsmObject);
       case GIT_REPO:
         return new GitRepo(wsmObject);
+      case TERRA_WORKSPACE:
+        return new DataSource(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }

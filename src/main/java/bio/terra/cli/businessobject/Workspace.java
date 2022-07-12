@@ -10,6 +10,8 @@ import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
+import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,6 +44,7 @@ public class Workspace {
   private String name; // not unique
   private String description;
   private String googleProjectId;
+  private Map<String, String> properties;
 
   // name of the server where this workspace exists
   private String serverName;
@@ -59,6 +63,7 @@ public class Workspace {
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
+    this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
     this.resources = new ArrayList<>();
@@ -71,6 +76,7 @@ public class Workspace {
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
     this.resources =
@@ -80,10 +86,12 @@ public class Workspace {
   }
 
   /** Create a new workspace and set it as the current workspace. */
-  public static Workspace create(String userFacingId, String name, String description) {
+  public static Workspace create(
+      String userFacingId, String name, String description, Map<String, String> properties) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
-        WorkspaceManagerService.fromContext().createWorkspace(userFacingId, name, description);
+        WorkspaceManagerService.fromContext()
+            .createWorkspace(userFacingId, name, description, properties);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -312,6 +320,22 @@ public class Workspace {
     return granteeProxyGroupEmail;
   }
 
+  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
+    Properties properties = new Properties();
+    if (map == null) {
+      return properties;
+    }
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      Property property = new Property().key(entry.getKey()).value(entry.getValue());
+      properties.add(property);
+    }
+    return properties;
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
+  }
+
   public UUID getUuid() {
     return uuid;
   }
@@ -330,6 +354,14 @@ public class Workspace {
 
   public String getGoogleProjectId() {
     return googleProjectId;
+  }
+
+  public Map<String, String> getProperties() {
+    return properties;
+  }
+
+  public Optional<String> getProperty(String key) {
+    return Optional.ofNullable(properties.get(key));
   }
 
   public String getServerName() {

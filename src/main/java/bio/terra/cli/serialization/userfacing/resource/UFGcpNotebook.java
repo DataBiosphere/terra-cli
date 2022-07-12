@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.api.services.notebooks.v1.model.Instance;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,6 +24,7 @@ public class UFGcpNotebook extends UFResource {
   public final String location;
   public final String instanceName;
   public final String state;
+  public final Map<String, String> metadata;
   public final String proxyUri;
   public final String createTime;
 
@@ -36,6 +38,7 @@ public class UFGcpNotebook extends UFResource {
     Optional<Instance> instance = internalObj.getInstance();
     this.instanceName = instance.map(Instance::getName).orElse(null);
     this.state = instance.map(Instance::getState).orElse(null);
+    this.metadata = instance.map(Instance::getMetadata).orElse(null);
     this.proxyUri = instance.map(Instance::getProxyUri).orElse(null);
     this.createTime = instance.map(Instance::getCreateTime).orElse(null);
   }
@@ -48,6 +51,7 @@ public class UFGcpNotebook extends UFResource {
     this.location = builder.location;
     this.instanceName = builder.instanceName;
     this.state = builder.state;
+    this.metadata = builder.metadata;
     this.proxyUri = builder.proxyUri;
     this.createTime = builder.createTime;
   }
@@ -59,9 +63,11 @@ public class UFGcpNotebook extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id:                " + projectId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-    OUT.println(prefix + "Instance id:       " + instanceId);
+    OUT.println(prefix + "Instance id:   " + instanceId);
     OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
     OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
+    OUT.println(prefix + "Metadata:");
+    metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
     OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println(prefix + "Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
@@ -73,6 +79,7 @@ public class UFGcpNotebook extends UFResource {
     private String location;
     private String instanceName;
     private String state;
+    private Map<String, String> metadata;
     private String proxyUri;
     private String createTime;
 
@@ -98,6 +105,11 @@ public class UFGcpNotebook extends UFResource {
 
     public Builder state(String state) {
       this.state = state;
+      return this;
+    }
+
+    public Builder metadata(Map<String, String> metadata) {
+      this.metadata = metadata;
       return this;
     }
 

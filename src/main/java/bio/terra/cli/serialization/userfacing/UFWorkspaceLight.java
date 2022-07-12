@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Map;
 
 public class UFWorkspaceLight {
   // "id" instead of "userFacingId" because user sees this with "terra workspace describe
@@ -12,6 +13,7 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
+  public Map<String, String> properties;
   public String serverName;
   public String userEmail;
 
@@ -26,6 +28,7 @@ public class UFWorkspaceLight {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
   }
@@ -36,6 +39,7 @@ public class UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
   }
@@ -46,6 +50,7 @@ public class UFWorkspaceLight {
     this.name = null;
     this.description = null;
     this.googleProjectId = null;
+    this.properties = null;
     this.serverName = null;
     this.userEmail = null;
   }
@@ -59,6 +64,8 @@ public class UFWorkspaceLight {
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
+    OUT.println("Properties:");
+    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
@@ -72,6 +79,7 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private Map<String, String> properties;
     private String serverName;
     private String userEmail;
 
@@ -92,6 +100,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder properties(Map<String, String> properties) {
+      this.properties = properties;
       return this;
     }
 

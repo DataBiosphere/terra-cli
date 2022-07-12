@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -36,11 +37,14 @@ public class UpdateReferencedBqTableParams {
    */
   public final @Nullable String tableId;
 
+  public final @Nullable CloningInstructionsEnum cloningInstructions;
+
   protected UpdateReferencedBqTableParams(UpdateReferencedBqTableParams.Builder builder) {
     this.resourceParams = builder.resourceParams;
     this.datasetId = builder.datasetId;
     this.projectId = builder.projectId;
     this.tableId = builder.tableId;
+    this.cloningInstructions = builder.cloningInstructions;
   }
 
   /** Whether to update the target that the referenced resource is pointing to. */
@@ -55,6 +59,7 @@ public class UpdateReferencedBqTableParams {
     private @Nullable String datasetId;
     private @Nullable String projectId;
     private @Nullable String tableId;
+    private @Nullable CloningInstructionsEnum cloningInstructions;
 
     public UpdateReferencedBqTableParams.Builder resourceParams(
         UpdateResourceParams resourceParams) {
@@ -74,6 +79,12 @@ public class UpdateReferencedBqTableParams {
 
     public UpdateReferencedBqTableParams.Builder projectId(@Nullable String projectId) {
       this.projectId = projectId;
+      return this;
+    }
+
+    public UpdateReferencedBqTableParams.Builder cloningInstructions(
+        @Nullable CloningInstructionsEnum cloningInstructions) {
+      this.cloningInstructions = cloningInstructions;
       return this;
     }
 

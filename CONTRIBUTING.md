@@ -33,6 +33,7 @@
     * [Terra and cloud services](#terra-and-cloud-services)
     * [Servers](#servers)
     * [Workspace IDs](#workspace-ids)
+    * [Adding a new resource type](#adding-a-new-resource-type)
 6. [Command style guide](#command-style-guide)
     * [Options instead of parameters](#options-instead-of-parameters)
     * [Always specify a description](#always-specify-a-description)
@@ -477,6 +478,10 @@ In WSM db, `workspace` table has 2 ID columns: `workspace_id` and `user_facing_i
 For simplicity, user only sees `user_facing_id`; for example in `terra workspace describe.`
 
 `uuid` does appear in `context.json` (and `.terra/logs/terra.log`). We need `uuid` because WSM APIs take `uuid`, not `userFacingId`. 
+
+#### Adding a new resource type
+
+See https://github.com/DataBiosphere/terra-cli/pull/276
 
 ### Command style guide
 Below are guidelines for adding or modifying commands. The goal is to have a consistent presentation across commands.

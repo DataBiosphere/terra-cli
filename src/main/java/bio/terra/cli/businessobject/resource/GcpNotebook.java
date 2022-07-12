@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDGcpNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -88,6 +89,15 @@ public class GcpNotebook extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GcpNotebook(createdResource);
+  }
+
+  public void updateControlled(UpdateControlledGcpNotebookParams updateParams) {
+    if (updateParams.resourceFields.name != null) {
+      validateEnvironmentVariableName(updateParams.resourceFields.name);
+    }
+    WorkspaceManagerService.fromContext()
+        .updateControlledGcpNotebook(Context.requireWorkspace().getUuid(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /** Delete a GCP notebook referenced resource in the workspace. Currently unsupported. */
