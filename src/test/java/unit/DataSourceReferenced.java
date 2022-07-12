@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
-import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
 
   private UUID thousandGenomesUuid;
 
-  @BeforeAll
+  @BeforeEach
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
@@ -65,13 +64,13 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
         "--name=" + THOUSAND_GENOMES_BUCKET_RESOURCE_NAME,
         "--bucket-name=" + THOUSAND_GENOMES_BUCKET_NAME,
         "--workspace=" + thousandGenomesUfId);
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFGitRepo.class,
+    TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
         "--name=" + THOUSAND_GENOMES_GIT_RESOURCE_NAME,
-        "--repo-url=" + GIT_REPO_SSH_URL);
+        "--repo-url=" + GIT_REPO_SSH_URL,
+        "--workspace=" + thousandGenomesUfId);
 
     // Add 1000 Genomes data source to researcher workspace. We don't support add-ref for data
     // sources (see PF-1742), so call WSM directly.
@@ -179,6 +178,10 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             "resolve",
             "--name=" + THOUSAND_GENOMES_RESOURCE_NAME + "/" + RandomStringUtils.random(10));
     assertTrue(err2.contains("Invalid path"));
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "resource", "delete", "--name=" + THOUSAND_GENOMES_RESOURCE_NAME, "--quiet");
   }
 
   private void assertThousandGenomesResourceResolve(JSONObject resolve) {
