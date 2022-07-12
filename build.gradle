@@ -15,7 +15,7 @@ plugins {
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '0.4'
-    id 'org.gradle.test-retry' version '1.4.0'
+//    id 'org.gradle.test-retry' version '1.4.0'
 }
 
 if (hasProperty('buildScan')) {
@@ -381,18 +381,18 @@ task getDockerImageTag {
 }
 
 test {
-    retry {
-        // This is set automatically on Github Actions runners, and never set
-        // otherwise.
-        if (System.getenv().containsKey("CI")) {
-            // Max retries per test.
-            maxRetries = 1
-            // Max total test failures.
-            // This is an estimate based on current failure rates, but if more
-            // than 5 tests fail in a run it's likely a real source of failure
-            // and we should stop retrying.
-            maxFailures = 5
-        }
-        failOnPassedAfterRetry = true
-    }
+//    retry {
+//        // This is set automatically on Github Actions runners, and never set
+//        // otherwise.
+//        if (System.getenv().containsKey("CI")) {
+//            // Max retries per test.
+//            maxRetries = 1
+//            // Max total test failures.
+//            // This is an estimate based on current failure rates, but if more
+//            // than 5 tests fail in a run it's likely a real source of failure
+//            // and we should stop retrying.
+//            maxFailures = 5
+//        }
+//        failOnPassedAfterRetry = true
+//    }
 }
