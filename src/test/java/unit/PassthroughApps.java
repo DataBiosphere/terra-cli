@@ -117,9 +117,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("env vars include a resolved workspace resource")
   void resourceEnvVars() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
-    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     workspaceCreator.login(true);
 
     // `terra workspace set --id=$id`
@@ -147,9 +144,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("gcloud is configured with the workspace project and user")
   void gcloudConfigured() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
-    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     workspaceCreator.login(true);
 
     // `terra workspace set --id=$id`
@@ -190,9 +184,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
   void gsutilGcloudAlphaStorageLs() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
-    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
 
     workspaceCreator.login(true);
 
@@ -224,9 +215,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
-    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
 
     workspaceCreator.login(true);
 
@@ -276,12 +264,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, docker-in-docker
-    // mounting doesn't work. After "git clone", the repos are cloned inside the container started
-    // by terra cli. However, in the "host" (Test Distribution agent container), we're not able to
-    // see the repos.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
     String resource1Name = TestUtils.appendRandomNumber("repo1");
     String resource2Name = TestUtils.appendRandomNumber("repo1");
 
@@ -316,12 +298,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, docker-in-docker
-    // mounting doesn't work. After "git clone", the repo is cloned inside the container started
-    // by terra cli. However, in the "host" (Test Distribution agent container), we're not able to
-    // see the repo.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
     String resourceName = TestUtils.appendRandomNumber("repo");
 
     workspaceCreator.login(true);
@@ -377,9 +353,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra config set app-launch LOCAL_PROCESS`
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
     // `terra app execute exit 123`
     // this just returns an arbitrary exit code (similar to doing (exit 123); echo "$?" in a
     // terminal)
@@ -401,14 +374,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
     workspaceCreator.login(true);
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER, we're unable to mount volume with
-    // docker-in-docker. Say we're using DOCKER_CONTAINER and Test Distribution is on. The docker
-    // container started by `terra` needs to see gcslifecycle/multipleRules.json. See
-    // https://stackoverflow.com/a/62413225/6447189. H = GCP VM, D = Test Distribution agent,
-    // D2 = docker started by CLI. We can't mount build/resources into D2, because it doesn't exist
-    // in H.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -441,9 +406,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
   void gcloudAppExecute() throws IOException {
-    // Use LOCAL_PROCESS because with DOCKER_CONTAINER and Test Distribution, we're unable to mount
-    // ~/.config/gcloud (needed for authentication) into container started by terra cli.
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
     workspaceCreator.login(true);
 
     // `terra workspace set --id=$id1`
