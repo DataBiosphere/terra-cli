@@ -263,7 +263,7 @@ Commands:
   notebook   Use GCP Notebooks in the workspace.
   resolve    Resolve a resource to its cloud id or path. For data source, 
              resolve all the resources inside the data source to their cloud id
-             or path. if path to a resource inside the data source is specified
+             or path. If path to a resource inside the data source is specified
              in the format of [data source name]/[resource name], resolve the
              specified resource's cloud id or path.
   resource   Manage resources in the workspace.
@@ -459,7 +459,7 @@ Commands:
   list                       List all resources.
   resolve                    Resolve a resource to its cloud id or path. For 
                              data source, resolve all the resources inside the
-                             data source to their cloud id or path. if path to a
+                             data source to their cloud id or path. If path to a
                              resource inside the data source is specified
                              in the format of [data source name]/[resource name],
                              resolve the specified resource's cloud id or path

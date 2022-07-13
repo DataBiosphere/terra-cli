@@ -73,7 +73,7 @@ public class DataSource extends Resource {
   @Override
   public String resolve() {
     throw new UnsupportedOperationException(
-        "Must specify which resource inside this data source" + "that is to be resolved");
+        "Must specify which resource inside this data source that is to be resolved");
   }
 
   public String resolve(String resourceName) {

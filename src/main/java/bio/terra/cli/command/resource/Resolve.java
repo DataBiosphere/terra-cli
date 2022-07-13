@@ -85,8 +85,7 @@ public class Resolve extends BaseCommand {
           ((DataSource) resource)
               .getDataSourceWorkspace().getResources().stream()
                   // There shouldn't be any data source resources in a data source workspace, but
-                  // filter
-                  // out just in case
+                  // filter out just in case
                   .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
                   .forEach(r -> resourceNamesToCloudIds.put(r.getName(), r.resolve()));
         }
@@ -97,21 +96,21 @@ public class Resolve extends BaseCommand {
     formatOption.printReturnValue(resourceNamesToCloudIds, this::printText, this::printJson);
   }
 
-  private void printText(JSONObject resourceNameToCloudId) {
+  private void printText(JSONObject resourceNamesToCloudIds) {
     // No need to print the resource name as well as the cloudId if there's only one resource.
-    boolean printResourceName = resourceNameToCloudId.length() > 1;
-    for (var resourceName : resourceNameToCloudId.keySet()) {
+    boolean printResourceName = resourceNamesToCloudIds.length() > 1;
+    for (var resourceName : resourceNamesToCloudIds.keySet()) {
       if (printResourceName) {
-        OUT.println(resourceName + ": " + resourceNameToCloudId.get((String) resourceName));
+        OUT.println(resourceName + ": " + resourceNamesToCloudIds.get((String) resourceName));
       } else {
-        OUT.println(resourceNameToCloudId.get((String) resourceName));
+        OUT.println(resourceNamesToCloudIds.get((String) resourceName));
       }
     }
   }
 
-  private void printJson(JSONObject resourceNameToCloudId) {
+  private void printJson(JSONObject resourceNamesToCloudIds) {
     // "2" prevents entire dict from being printed on one line and to stay consistent with the rest
     // of JSON formatted output.
-    OUT.println(resourceNameToCloudId.toString(2));
+    OUT.println(resourceNamesToCloudIds.toString(2));
   }
 }
