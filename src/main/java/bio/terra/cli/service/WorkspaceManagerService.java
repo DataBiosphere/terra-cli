@@ -427,7 +427,8 @@ public class WorkspaceManagerService {
                 HttpUtils.pollWithRetries(
                     () ->
                         workspaceApi.getCloneWorkspaceResult(
-                            workspaceId, initialResult.getJobReport().getId()),
+                            initialResult.getWorkspace().getDestinationWorkspaceId(),
+                            initialResult.getJobReport().getId()),
                     (result) -> isDone(result.getJobReport()),
                     WorkspaceManagerService::isRetryable,
                     CLONE_WORKSPACE_MAXIMUM_RETRIES,
