@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
@@ -194,5 +195,9 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     assertEquals(DATA_SOURCE_NAME, actual.title);
     assertEquals(DATA_SOURCE_DESCRIPTION, actual.shortDescription);
     assertEquals(DATA_SOURCE_VERSION, actual.version);
+
+    UFGcsBucket actualBucket = (UFGcsBucket) actual.resources.get(0);
+    assertEquals(thousandGenomesBucketResourceName, actualBucket.name);
+    assertEquals(thousandGenomesBucketName, actualBucket.bucketName);
   }
 }
