@@ -24,7 +24,7 @@ public class Resolve extends BaseCommand {
       names = "--name",
       required = true,
       description =
-          "Name of the resource in the workspace or path to the resource in the data source in the"
+          "Name of the resource in the workspace or path to the resource in the data source in the "
               + "format of [data source name]/[resource name]")
   public String resourceName;
 
@@ -49,16 +49,16 @@ public class Resolve extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    String[] paths = resourceName.split("/");
-    if (paths.length > 2) {
+    String[] splits = resourceName.split("/");
+    if (splits.length > 2) {
       throw new UserActionableException(
           String.format(
-              "Invalid path provided: %s, only support resolving [resource name] or"
-                  + "[data source name]/[resource name]",
+              "Invalid path provided: %s, only support resolving [resource name] or "
+                  + "[data source name]/[resource name].",
               resourceName));
     }
 
-    Resource resource = Context.requireWorkspace().getResource(paths[0]);
+    Resource resource = Context.requireWorkspace().getResource(splits[0]);
 
     JSONObject cloudIds = new JSONObject();
     switch (resource.getResourceType()) {
@@ -75,8 +75,8 @@ public class Resolve extends BaseCommand {
         cloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
         break;
       case DATA_SOURCE:
-        if (paths.length == 2) {
-          cloudIds.put(paths[1], ((DataSource) resource).resolve(paths[1]));
+        if (splits.length == 2) {
+          cloudIds.put(splits[1], ((DataSource) resource).resolve(splits[1]));
         } else {
           var resources = ((DataSource) resource).getDataSourceWorkspace().getResources();
           resources.stream()
@@ -90,13 +90,21 @@ public class Resolve extends BaseCommand {
     formatOption.printReturnValue(cloudIds, this::printText, this::printJson);
   }
 
-  private void printText(JSONObject object) {
-    for (var key : object.keySet()) {
-      OUT.println(key + ": " + object.get((String) key));
+  private void printText(JSONObject resourceNameToCloudId) {
+    // No need to print the resource name as well as the cloudId if there's only one resource.
+    boolean printResourceName = resourceNameToCloudId.length() > 1;
+    for (var resourceName : resourceNameToCloudId.keySet()) {
+      if (printResourceName) {
+        OUT.println(resourceName + ": " + resourceNameToCloudId.get((String) resourceName));
+      } else {
+        OUT.println(resourceNameToCloudId.get((String) resourceName));
+      }
     }
   }
 
-  private void printJson(JSONObject object) {
-    OUT.println(object.toString(2));
+  private void printJson(JSONObject resourceNameToCloudId) {
+    // "2" prevents entire dict from being printed on one line and to stay consistent with the rest
+    // of JSON formatted output.
+    OUT.println(resourceNameToCloudId.toString(2));
   }
 }

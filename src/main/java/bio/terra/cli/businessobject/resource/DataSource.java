@@ -87,7 +87,8 @@ public class DataSource extends Resource {
         .orElseThrow(
             () ->
                 new UserActionableException(
-                    "Invalid path: please check if the resource name in the data source is specified incorrectly."));
+                    "Invalid path: please run terra resource describe --name=[data source name] to"
+                        + "check if the resource name in the data source is specified incorrectly."));
   }
 
   public Workspace getDataSourceWorkspace() {

@@ -25,20 +25,20 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle data sources. */
 @Tag("unit")
 public class DataSourceReferenced extends SingleWorkspaceUnit {
-  private static final String DATASOURCE_NAME = "1000 Genomes";
-  private static final String DATASOURCE_DESCRIPTION = "short description";
-  private static final String DATASOURCE_VERSION = "version";
-  private static final String DATASOURCE_RESOURCE_NAME =
+  private static final String DATA_SOURCE_NAME = "1000 Genomes";
+  private static final String DATA_SOURCE_DESCRIPTION = "short description";
+  private static final String DATA_SOURCE_VERSION = "version";
+  private static final String DATA_SOURCE_RESOURCE_NAME =
       TestUtils.appendRandomNumber("1000-genomes-ref");
-  private static final String DATASOURCE_BUCKET_NAME = "bucket-name";
-  private static final String DATASOURCE_BUCKET_RESOURCE_NAME =
+  private static final String DATA_SOURCE_BUCKET_NAME = "bucket-name";
+  private static final String DATA_SOURCE_BUCKET_RESOURCE_NAME =
       TestUtils.appendRandomNumber("bucket_resource_name");
   private static final String GIT_REPO_SSH_URL =
       "git@github.com:DataBiosphere/terra-workspace-manager.git";
-  private static final String DATASOURCE_GIT_RESOURCE_NAME =
+  private static final String DATA_SOURCE_GIT_RESOURCE_NAME =
       TestUtils.appendRandomNumber("git_resource_name");
 
-  private UUID datasourceUuid;
+  private UUID dataSourceUuid;
 
   @BeforeEach
   @Override
@@ -50,25 +50,25 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
         String.format(
             "%s=%s,%s=%s",
             DataSource.SHORT_DESCRIPTION_KEY,
-            DATASOURCE_DESCRIPTION,
+            DATA_SOURCE_DESCRIPTION,
             DataSource.VERSION_KEY,
-            DATASOURCE_VERSION);
+            DATA_SOURCE_VERSION);
     String thousandGenomesUfId =
         WorkspaceUtils.createWorkspace(
-                workspaceCreator, DATASOURCE_NAME, /*description=*/ "", properties)
+                workspaceCreator, DATA_SOURCE_NAME, /*description=*/ "", properties)
             .id;
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "gcs-bucket",
-        "--name=" + DATASOURCE_BUCKET_RESOURCE_NAME,
-        "--bucket-name=" + DATASOURCE_BUCKET_NAME,
+        "--name=" + DATA_SOURCE_BUCKET_RESOURCE_NAME,
+        "--bucket-name=" + DATA_SOURCE_BUCKET_NAME,
         "--workspace=" + thousandGenomesUfId);
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
-        "--name=" + DATASOURCE_GIT_RESOURCE_NAME,
+        "--name=" + DATA_SOURCE_GIT_RESOURCE_NAME,
         "--repo-url=" + GIT_REPO_SSH_URL,
         "--workspace=" + thousandGenomesUfId);
 
@@ -76,14 +76,14 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     // sources (see PF-1742), so call WSM directly.
     UUID researcherWorkspaceUuid =
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(getUserFacingId()).getId();
-    datasourceUuid =
+    dataSourceUuid =
         WorkspaceManagerService.fromContext()
             .getWorkspaceByUserFacingId(thousandGenomesUfId)
             .getId();
     WorkspaceManagerService.fromContext()
         .createReferencedTerraWorkspace(
-            researcherWorkspaceUuid, datasourceUuid, DATASOURCE_RESOURCE_NAME);
-    System.out.println("Created data source resource with name " + DATASOURCE_RESOURCE_NAME);
+            researcherWorkspaceUuid, dataSourceUuid, DATA_SOURCE_RESOURCE_NAME);
+    System.out.println("Created data source resource with name " + DATA_SOURCE_RESOURCE_NAME);
   }
 
   @Test
@@ -101,27 +101,27 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     // Assert resource list result
     UFDataSource actual =
         actualResources.stream()
-            .filter(resource -> resource.name.equals(DATASOURCE_RESOURCE_NAME))
+            .filter(resource -> resource.name.equals(DATA_SOURCE_RESOURCE_NAME))
             .collect(MoreCollectors.onlyElement());
-    assertThousandGenomesResource(actual);
+    assertDataSourceResource(actual);
 
     // `terra resource describe --name=$name`
     actual =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFDataSource.class, "resource", "describe", "--name=" + DATASOURCE_RESOURCE_NAME);
+            UFDataSource.class, "resource", "describe", "--name=" + DATA_SOURCE_RESOURCE_NAME);
 
     // Assert resource describe result
-    assertThousandGenomesResource(actual);
+    assertDataSourceResource(actual);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + DATASOURCE_RESOURCE_NAME, "--quiet");
+        "resource", "delete", "--name=" + DATA_SOURCE_RESOURCE_NAME, "--quiet");
 
     // Assert resource was deleted
     actualResources =
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "resource", "list", "--type=DATA_SOURCE");
-    actualResources.stream().noneMatch(resource -> resource.name.equals(DATASOURCE_RESOURCE_NAME));
+    actualResources.stream().noneMatch(resource -> resource.name.equals(DATA_SOURCE_RESOURCE_NAME));
   }
 
   @Test
@@ -131,68 +131,68 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resolve --name=$THOUSAND_GENOMES_RESOURCE_NAME`
+    // `terra resolve --name=$DATA_SOURCE_RESOURCE_NAME`
     JSONObject resolve =
         TestCommand.runAndGetJsonObjectExpectSuccess(
-            "resolve", "--name=" + DATASOURCE_RESOURCE_NAME);
-    assertThousandGenomesResourceResolve(resolve);
+            "resolve", "--name=" + DATA_SOURCE_RESOURCE_NAME);
+    assertDataSourceResourceResolve(resolve);
 
-    // `terra resolve --name=$THOUSAND_GENOMES_RESOURCE_NAME/`
+    // `terra resolve --name=$DATA_SOURCE_RESOURCE_NAME/`
     JSONObject resolve2 =
         TestCommand.runAndGetJsonObjectExpectSuccess(
-            "resolve", "--name=" + DATASOURCE_RESOURCE_NAME + "/");
-    assertThousandGenomesResourceResolve(resolve2);
+            "resolve", "--name=" + DATA_SOURCE_RESOURCE_NAME + "/");
+    assertDataSourceResourceResolve(resolve2);
 
-    // `terra resolve --name=$THOUSAND_GENOMES_RESOURCE_NAME/$THOUSAND_GENOMES_BUCKET_RESOURCE_NAME`
+    // `terra resolve --name=$DATA_SOURCE_RESOURCE_NAME/$DATA_SOURCE_BUCKET_RESOURCE_NAME`
     JSONObject resolve3 =
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "resolve",
-            "--name=" + DATASOURCE_RESOURCE_NAME + "/" + DATASOURCE_BUCKET_RESOURCE_NAME);
+            "--name=" + DATA_SOURCE_RESOURCE_NAME + "/" + DATA_SOURCE_BUCKET_RESOURCE_NAME);
     assertEquals(
-        ExternalGCSBuckets.getGsPath(DATASOURCE_BUCKET_NAME),
-        resolve3.get(DATASOURCE_BUCKET_RESOURCE_NAME));
+        ExternalGCSBuckets.getGsPath(DATA_SOURCE_BUCKET_NAME),
+        resolve3.get(DATA_SOURCE_BUCKET_RESOURCE_NAME));
     assertEquals(1, resolve3.length());
 
     // `terra resolve
-    // --name=$THOUSAND_GENOMES_RESOURCE_NAME/$THOUSAND_GENOMES_BUCKET_RESOURCE_NAME/random`
+    // --name=$DATA_SOURCE_RESOURCE_NAME/$DATA_SOURCE_BUCKET_RESOURCE_NAME/random`
     var err =
         TestCommand.runCommandExpectExitCode(
             1,
             "resolve",
             "--name="
-                + DATASOURCE_RESOURCE_NAME
+                + DATA_SOURCE_RESOURCE_NAME
                 + "/"
-                + DATASOURCE_BUCKET_RESOURCE_NAME
+                + DATA_SOURCE_BUCKET_RESOURCE_NAME
                 + "/"
                 + RandomStringUtils.random(10));
     assertTrue(err.contains("Invalid path"));
 
-    // `terra resolve --name=$THOUSAND_GENOMES_RESOURCE_NAME/<random>`
+    // `terra resolve --name=$DATA_SOURCE_RESOURCE_NAME/<random>`
     var err2 =
         TestCommand.runCommandExpectExitCode(
             1,
             "resolve",
-            "--name=" + DATASOURCE_RESOURCE_NAME + "/" + RandomStringUtils.random(10));
+            "--name=" + DATA_SOURCE_RESOURCE_NAME + "/" + RandomStringUtils.random(10));
     assertTrue(err2.contains("Invalid path"));
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + DATASOURCE_RESOURCE_NAME, "--quiet");
+        "resource", "delete", "--name=" + DATA_SOURCE_RESOURCE_NAME, "--quiet");
   }
 
-  private void assertThousandGenomesResourceResolve(JSONObject resolve) {
+  private void assertDataSourceResourceResolve(JSONObject resolve) {
     assertEquals(
-        ExternalGCSBuckets.getGsPath(DATASOURCE_BUCKET_NAME),
-        resolve.get(DATASOURCE_BUCKET_RESOURCE_NAME));
-    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATASOURCE_GIT_RESOURCE_NAME));
+        ExternalGCSBuckets.getGsPath(DATA_SOURCE_BUCKET_NAME),
+        resolve.get(DATA_SOURCE_BUCKET_RESOURCE_NAME));
+    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATA_SOURCE_GIT_RESOURCE_NAME));
     assertEquals(2, resolve.length());
   }
 
-  private void assertThousandGenomesResource(UFDataSource actual) {
+  private void assertDataSourceResource(UFDataSource actual) {
     // For some reason resourceType is null, so don't assert resourceType.
-    assertEquals(datasourceUuid, actual.dataSourceWorkspaceUuid);
-    assertEquals(DATASOURCE_NAME, actual.title);
-    assertEquals(DATASOURCE_DESCRIPTION, actual.shortDescription);
-    assertEquals(DATASOURCE_VERSION, actual.version);
+    assertEquals(dataSourceUuid, actual.dataSourceWorkspaceUuid);
+    assertEquals(DATA_SOURCE_NAME, actual.title);
+    assertEquals(DATA_SOURCE_DESCRIPTION, actual.shortDescription);
+    assertEquals(DATA_SOURCE_VERSION, actual.version);
   }
 }
