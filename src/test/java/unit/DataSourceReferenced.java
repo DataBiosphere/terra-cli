@@ -3,8 +3,8 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.businessobject.resource.DataSource;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
@@ -25,8 +25,13 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
   private static final String thousandGenomesWorkspaceName = "1000 Genomes";
   private static final String thousandGenomesShortDescription = "short description";
   private static final String thousandGenomesVersion = "version";
+  private static final String thousandGenomesBucketName = "bucket-name";
+  private static final String thousandGenomesBucketResourceName =
+      TestUtils.appendRandomNumber("bucket_resource_name");
+
   private static final String thousandGenomesResourceName =
       TestUtils.appendRandomNumber("1000-genomes-ref");
+
   private UUID thousandGenomesUuid;
 
   @BeforeAll
@@ -42,9 +47,18 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             thousandGenomesShortDescription,
             DataSource.VERSION_KEY,
             thousandGenomesVersion);
-    UFWorkspace thousandGenomesWorkspace =
+    String thousandGenomesUfId =
         WorkspaceUtils.createWorkspace(
-            workspaceCreator, thousandGenomesWorkspaceName, /*description=*/ "", properties);
+                workspaceCreator, thousandGenomesWorkspaceName, /*description=*/ "", properties)
+            .id;
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucket.class,
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + thousandGenomesBucketResourceName,
+        "--bucket-name=" + thousandGenomesBucketName,
+        "--workspace=" + thousandGenomesUfId);
 
     // Add 1000 Genomes data source to researcher workspace. We don't support add-ref for data
     // sources (see PF-1742), so call WSM directly.
@@ -52,7 +66,7 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(getUserFacingId()).getId();
     thousandGenomesUuid =
         WorkspaceManagerService.fromContext()
-            .getWorkspaceByUserFacingId(thousandGenomesWorkspace.id)
+            .getWorkspaceByUserFacingId(thousandGenomesUfId)
             .getId();
     WorkspaceManagerService.fromContext()
         .createReferencedTerraWorkspace(
@@ -105,5 +119,9 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     assertEquals(thousandGenomesWorkspaceName, actual.title);
     assertEquals(thousandGenomesShortDescription, actual.shortDescription);
     assertEquals(thousandGenomesVersion, actual.version);
+
+    UFGcsBucket actualBucket = (UFGcsBucket) actual.resources.get(0);
+    assertEquals(thousandGenomesBucketResourceName, actualBucket.name);
+    assertEquals(thousandGenomesBucketName, actualBucket.bucketName);
   }
 }

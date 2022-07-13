@@ -64,11 +64,15 @@ public class UFWorkspaceLight {
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
     OUT.println("Google project:    " + googleProjectId);
-    OUT.println("Properties:");
-    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println(
         "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
             + googleProjectId);
+
+    if (properties == null) {
+      return;
+    }
+    OUT.println("Properties:");
+    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
