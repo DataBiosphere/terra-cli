@@ -197,7 +197,7 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     assertEquals(DATA_SOURCE_VERSION, actual.version);
 
     UFGcsBucket actualBucket = (UFGcsBucket) actual.resources.get(0);
-    assertEquals(thousandGenomesBucketResourceName, actualBucket.name);
-    assertEquals(thousandGenomesBucketName, actualBucket.bucketName);
+    assertEquals(DATA_SOURCE_BUCKET_RESOURCE_NAME, actualBucket.name);
+    assertEquals(DATA_SOURCE_BUCKET_NAME, actualBucket.bucketName);
   }
 }
