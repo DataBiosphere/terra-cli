@@ -3,8 +3,6 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.businessobject.resource.DataSource;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;

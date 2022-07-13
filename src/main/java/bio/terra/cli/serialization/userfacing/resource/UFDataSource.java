@@ -10,7 +10,6 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.UUID;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
