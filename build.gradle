@@ -226,12 +226,14 @@ task runTestsWithTag(type: Test) {
         // generate a unique id for each test run
         systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
 
+        // TODO(zloery): tweaking values for GHA runner
+        maxParallelForks = 8
         // Gradle Enterprise Test Distribution
-        distribution {
-            enabled = true
-            maxLocalExecutors = 8
-            maxRemoteExecutors = 0
-        }
+//        distribution {
+//            enabled = true
+//            maxLocalExecutors = 8
+//            maxRemoteExecutors = 0
+//        }
     }
 
     dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
