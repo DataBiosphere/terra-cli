@@ -60,34 +60,41 @@ public class Resolve extends BaseCommand {
 
     Resource resource = Context.requireWorkspace().getResource(splits[0]);
 
-    JSONObject cloudIds = new JSONObject();
+    JSONObject resourceNamesToCloudIds = new JSONObject();
     switch (resource.getResourceType()) {
       case GCS_BUCKET:
-        cloudIds.put(resource.getName(), ((GcsBucket) resource).resolve(!excludeBucketPrefix));
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((GcsBucket) resource).resolve(!excludeBucketPrefix));
         break;
       case GCS_OBJECT:
-        cloudIds.put(resource.getName(), ((GcsObject) resource).resolve(!excludeBucketPrefix));
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((GcsObject) resource).resolve(!excludeBucketPrefix));
         break;
       case BQ_DATASET:
-        cloudIds.put(resource.getName(), ((BqDataset) resource).resolve(bqPathFormat));
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((BqDataset) resource).resolve(bqPathFormat));
         break;
       case BQ_TABLE:
-        cloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
+        resourceNamesToCloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
         break;
       case DATA_SOURCE:
         if (splits.length == 2) {
-          cloudIds.put(splits[1], ((DataSource) resource).resolve(splits[1]));
+          resourceNamesToCloudIds.put(splits[1], ((DataSource) resource).resolve(splits[1]));
         } else {
-          var resources = ((DataSource) resource).getDataSourceWorkspace().getResources();
-          resources.stream()
-              .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
-              .forEach(r -> cloudIds.put(r.getName(), r.resolve()));
+          // Put the cloudId of all the resources in the data source to resourceNamesToCloudIds.
+          ((DataSource) resource)
+              .getDataSourceWorkspace().getResources().stream()
+                  // There shouldn't be any data source resources in a data source workspace, but
+                  // filter
+                  // out just in case
+                  .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
+                  .forEach(r -> resourceNamesToCloudIds.put(r.getName(), r.resolve()));
         }
         break;
       default:
-        cloudIds.put(resource.getName(), resource.resolve());
+        resourceNamesToCloudIds.put(resource.getName(), resource.resolve());
     }
-    formatOption.printReturnValue(cloudIds, this::printText, this::printJson);
+    formatOption.printReturnValue(resourceNamesToCloudIds, this::printText, this::printJson);
   }
 
   private void printText(JSONObject resourceNameToCloudId) {

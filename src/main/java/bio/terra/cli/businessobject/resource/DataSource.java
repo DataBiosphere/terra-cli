@@ -70,9 +70,10 @@ public class DataSource extends Resource {
     throw new UnsupportedOperationException("Controlled data source resource is not supported");
   }
 
-  /** Resolve data source. */
+  @Override
   public String resolve() {
-    return "";
+    throw new UnsupportedOperationException(
+        "Must specify which resource inside this data source" + "that is to be resolved");
   }
 
   public String resolve(String resourceName) {
@@ -80,6 +81,8 @@ public class DataSource extends Resource {
     return resources.stream()
         .filter(
             resource ->
+                // There shouldn't be any data source resources in a data source workspace, but
+                // filter out just in case.
                 resource.getResourceType() != Type.DATA_SOURCE
                     && resource.getName().equals(resourceName))
         .map(Resource::resolve)
