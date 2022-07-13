@@ -230,7 +230,7 @@ task runTestsWithTag(type: Test) {
         enabled = true
         // Only run unit tests in parallel. Integration tests test integrations
         // with external tools, and they generally do not parallelize well due
-        // to maintaing their own global state.
+        // to maintaining their own global state.
         maxLocalExecutors = (testTag == "unit" ? 12 : 1)
         maxRemoteExecutors = 0
     }

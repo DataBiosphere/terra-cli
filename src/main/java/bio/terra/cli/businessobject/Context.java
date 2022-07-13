@@ -127,7 +127,8 @@ public class Context {
     }
     // If this is a test, append the current runner's ID. This lets us run multiple tests in
     // parallel without clobbering context across runners.
-    if (System.getProperty(CommandRunner.IS_TEST).equals("true")) {
+    String isTest = System.getProperty(CommandRunner.IS_TEST);
+    if (isTest != null && isTest.equals("true")) {
       contextDir += System.getProperty("org.gradle.test.worker");
     }
 

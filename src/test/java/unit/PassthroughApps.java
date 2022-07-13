@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test;
  * Tests for the `terra app` commands and the pass-through apps: `terra gcloud`, `terra gsutil`,
  * `terra bq`, `terra nextflow`.
  *
- * Important: all tests using these commands should live inside this class! We often run tests in
+ * <p>Important: all tests using these commands should live inside this class! We often run tests in
  * parallel, and the test class is the unit of parallelization. These tools each maintain their own
  * global state in various places, and they will clobber eachother if they run in multiple test
  * runners at once.
