@@ -123,7 +123,6 @@ public class Context {
     String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
     if (overrideDirName != null && !overrideDirName.isBlank()) {
       contextDir = overrideDirName;
-      logger.debug("Overriding context directory to: {}", contextDir);
     }
     // If this is a test, append the current runner's ID. This lets us run multiple tests in
     // parallel without clobbering context across runners.
@@ -132,7 +131,7 @@ public class Context {
       contextDir += System.getProperty("org.gradle.test.worker");
     }
 
-    Path contextPath = Paths.get(contextDir);
+    Path contextPath = Paths.get(contextDir).toAbsolutePath();
     // build.gradle test task makes contextDir. However, with Gradle Enterprise Test Distribution,
     // this test is executed in a different place from where the test task mkdir was run. So need
     // to create directory for if Test Distribution is being used.

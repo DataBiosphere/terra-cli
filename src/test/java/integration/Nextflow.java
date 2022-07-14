@@ -21,7 +21,7 @@ public class Nextflow extends ClearContextIntegration {
   void helloWorld() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
+    testUser.login(/*gsutilLogin=*/ true);
 
     // create a workspace
     int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
@@ -49,7 +49,7 @@ public class Nextflow extends ClearContextIntegration {
   void nextflowFromGLSTutorial() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
+    testUser.login(/*gsutilLogin=*/ true);
 
     // create a workspace
     int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
