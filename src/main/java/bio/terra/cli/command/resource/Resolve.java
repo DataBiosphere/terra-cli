@@ -5,12 +5,13 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
+import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.exception.UserActionableException;
 import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -19,7 +20,13 @@ import picocli.CommandLine.Command;
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends BaseCommand {
 
-  @CommandLine.Mixin ResourceName resourceNameOption;
+  @CommandLine.Option(
+      names = "--name",
+      required = true,
+      description =
+          "Name of the resource in the workspace or path to the resource in the data source in the "
+              + "format of [data source name]/[resource name]")
+  public String resourceName;
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
@@ -42,35 +49,68 @@ public class Resolve extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
+    String[] splits = resourceName.split("/");
+    if (splits.length > 2) {
+      throw new UserActionableException(
+          String.format(
+              "Invalid path provided: %s, only support resolving [resource name] or "
+                  + "[data source name]/[resource name].",
+              resourceName));
+    }
 
-    String cloudId;
+    Resource resource = Context.requireWorkspace().getResource(splits[0]);
+
+    JSONObject resourceNamesToCloudIds = new JSONObject();
     switch (resource.getResourceType()) {
       case GCS_BUCKET:
-        cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((GcsBucket) resource).resolve(!excludeBucketPrefix));
         break;
       case GCS_OBJECT:
-        cloudId = ((GcsObject) resource).resolve(!excludeBucketPrefix);
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((GcsObject) resource).resolve(!excludeBucketPrefix));
         break;
       case BQ_DATASET:
-        cloudId = ((BqDataset) resource).resolve(bqPathFormat);
+        resourceNamesToCloudIds.put(
+            resource.getName(), ((BqDataset) resource).resolve(bqPathFormat));
         break;
       case BQ_TABLE:
-        cloudId = ((BqTable) resource).resolve(bqPathFormat);
+        resourceNamesToCloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
+        break;
+      case DATA_SOURCE:
+        if (splits.length == 2) {
+          resourceNamesToCloudIds.put(splits[1], ((DataSource) resource).resolve(splits[1]));
+        } else {
+          // Put the cloudId of all the resources in the data source to resourceNamesToCloudIds.
+          ((DataSource) resource)
+              .getDataSourceWorkspace().getResources().stream()
+                  // There shouldn't be any data source resources in a data source workspace, but
+                  // filter out just in case
+                  .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
+                  .forEach(r -> resourceNamesToCloudIds.put(r.getName(), r.resolve()));
+        }
         break;
       default:
-        cloudId = resource.resolve();
+        resourceNamesToCloudIds.put(resource.getName(), resource.resolve());
     }
-    JSONObject object = new JSONObject();
-    object.put(resource.getName(), cloudId);
-    formatOption.printReturnValue(object, this::printText, this::printJson);
+    formatOption.printReturnValue(resourceNamesToCloudIds, this::printText, this::printJson);
   }
 
-  private void printText(JSONObject object) {
-    OUT.println(object.get(resourceNameOption.name));
+  private void printText(JSONObject resourceNamesToCloudIds) {
+    // No need to print the resource name as well as the cloudId if there's only one resource.
+    boolean printResourceName = resourceNamesToCloudIds.length() > 1;
+    for (var resourceName : resourceNamesToCloudIds.keySet()) {
+      if (printResourceName) {
+        OUT.println(resourceName + ": " + resourceNamesToCloudIds.get((String) resourceName));
+      } else {
+        OUT.println(resourceNamesToCloudIds.get((String) resourceName));
+      }
+    }
   }
 
-  private void printJson(JSONObject object) {
-    OUT.println(object);
+  private void printJson(JSONObject resourceNamesToCloudIds) {
+    // "2" prevents entire dict from being printed on one line and to stay consistent with the rest
+    // of JSON formatted output.
+    OUT.println(resourceNamesToCloudIds.toString(2));
   }
 }

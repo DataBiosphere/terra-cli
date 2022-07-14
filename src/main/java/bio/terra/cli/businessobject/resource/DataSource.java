@@ -3,6 +3,7 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDDataSource;
 import bio.terra.cli.serialization.userfacing.resource.UFDataSource;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -69,10 +70,28 @@ public class DataSource extends Resource {
     throw new UnsupportedOperationException("Controlled data source resource is not supported");
   }
 
-  /** Resolve data source. */
-  // TODO(PF-1743, PF-1744): Implement
+  @Override
   public String resolve() {
-    return "";
+    throw new UnsupportedOperationException(
+        "Must specify which resource inside this data source that is to be resolved");
+  }
+
+  public String resolve(String resourceName) {
+    var resources = getDataSourceWorkspace().getResources();
+    return resources.stream()
+        .filter(
+            resource ->
+                // There shouldn't be any data source resources in a data source workspace, but
+                // filter out just in case.
+                resource.getResourceType() != Type.DATA_SOURCE
+                    && resource.getName().equals(resourceName))
+        .map(Resource::resolve)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new UserActionableException(
+                    "Invalid path: please run terra resource describe --name=[data source name] to"
+                        + "check if the resource name in the data source is specified incorrectly."));
   }
 
   public Workspace getDataSourceWorkspace() {
