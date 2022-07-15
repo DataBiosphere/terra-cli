@@ -177,6 +177,7 @@ task runTestsWithTag(type: Test) {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
+            boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
             String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
             systemProperty "TERRA_INSTALL_DIR", installDir
 
@@ -198,7 +199,6 @@ task runTestsWithTag(type: Test) {
         showStandardStreams = true // disable stdout & stderr redirection
     }
 
-    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
     boolean contextDir = project.hasProperty("contextDir")
 
     // by default, tests override the global context directory with a sub-directory of the gradle build directory
