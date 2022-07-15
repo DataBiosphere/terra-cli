@@ -226,14 +226,16 @@ task runTestsWithTag(type: Test) {
     systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
 
     // Gradle Enterprise Test Distribution
-    distribution {
-        enabled = true
-        // Only run unit tests in parallel. Integration tests test integrations
-        // with external tools, and they generally do not parallelize well due
-        // to maintaining their own global state.
-        maxLocalExecutors = (testTag == "unit" ? 12 : 1)
-        maxRemoteExecutors = 0
-    }
+    maxParallelForks = (testTag == "unit" ? 12 : 1)
+    // TODO(zloery): somehow this breaks integration tests
+    //    distribution {
+    //        enabled = true
+    //        // Only run unit tests in parallel. Integration tests test integrations
+    //        // with external tools, and they generally do not parallelize well due
+    //        // to maintaining their own global state.
+    //        maxLocalExecutors = (testTag == "unit" ? 12 : 1)
+    //        maxRemoteExecutors = 0
+    //    }
 
 
     dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
