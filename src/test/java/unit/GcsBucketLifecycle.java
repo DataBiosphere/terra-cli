@@ -2,13 +2,11 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.api.client.util.DateTime;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
@@ -192,7 +190,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--format=json");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
     BucketInfo.LifecycleRule lifecycleRuleFromGCS = lifecycleRulesFromGCS.get(0);
 
@@ -260,7 +258,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--lifecycle=" + lifecycle2,
         "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
     expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
     assertEquals(
@@ -298,15 +296,18 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
   }
 
   /**
    * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
    * the multipleRules.json file.
+   *
+   * <p>This is static and package-private to be available for other test classes, like gsutil-based
+   * tests in PassthroughApps.
    */
-  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
+  static void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
     assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
 
     Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
@@ -330,7 +331,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   /** Check that the action is Delete. */
-  private void expectActionDelete(BucketInfo.LifecycleRule rule) {
+  static void expectActionDelete(BucketInfo.LifecycleRule rule) {
     assertEquals(
         BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
         rule.getAction().getActionType(),
@@ -338,7 +339,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   /** Check that the action is SetStorageClass and the storage class is the given one. */
-  private void expectActionSetStorageClass(
+  static void expectActionSetStorageClass(
       BucketInfo.LifecycleRule rule, StorageClass storageClass) {
     assertEquals(
         BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
@@ -392,22 +393,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle);
 
-    return getLifecycleRulesFromCloud(bucketName);
-  }
-
-  /** Helper method to get the lifecycle rules on the bucket by querying GCS directly. */
-  private List<? extends BucketInfo.LifecycleRule> getLifecycleRulesFromCloud(String bucketName)
-      throws IOException {
-    Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
-    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
-
-    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        createdBucketOnCloud.getLifecycleRules();
-    assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    lifecycleRules.forEach(System.out::println); // log to console
-
-    return lifecycleRules;
+    return ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
   }
 }

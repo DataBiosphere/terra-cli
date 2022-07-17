@@ -2,19 +2,13 @@ package unit;
 
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.Identity;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
-import com.google.cloud.storage.BucketInfo.LifecycleRule;
-import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.baseclasses.SingleWorkspaceUnit;
@@ -29,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
@@ -374,7 +367,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "Expected to return exit code 123 or 1, instead got " + cmd.exitCode);
   }
 
-  // TODO: consider renaming this test suite
   @Test
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
@@ -404,8 +396,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         ExternalGCSBuckets.getGsPath(externalBucket.getName()));
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        getLifecycleRulesFromCloud(externalBucket.getName());
-    validateMultipleRules(lifecycleRules);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(externalBucket.getName(), workspaceCreator);
+    GcsBucketLifecycle.validateMultipleRules(lifecycleRules);
   }
 
   @Test
@@ -437,71 +429,5 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "gcloud project = workspace2's project",
         cmd.stdOut,
         CoreMatchers.containsString(workspace2.googleProjectId));
-  }
-
-  /** Helper method to get the lifecycle rules on the bucket by querying GCS directly. */
-  private List<? extends BucketInfo.LifecycleRule> getLifecycleRulesFromCloud(String bucketName)
-      throws IOException {
-    Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
-    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
-
-    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        createdBucketOnCloud.getLifecycleRules();
-    assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    lifecycleRules.forEach(System.out::println); // log to console
-
-    return lifecycleRules;
-  }
-
-  // TODO: util-ify these methods instead of just copying
-  /**
-   * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
-   * the multipleRules.json file.
-   */
-  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
-    assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
-
-    Optional<? extends LifecycleRule> ruleWithDeleteAction =
-        lifecycleRules.stream()
-            .filter(rule -> rule.getAction().getActionType().equals("Delete"))
-            .findFirst();
-    assertTrue(ruleWithDeleteAction.isPresent(), "one rule has action type = delete");
-    expectActionDelete(ruleWithDeleteAction.get());
-    assertEquals(84, ruleWithDeleteAction.get().getCondition().getAge(), "condition age matches");
-
-    Optional<? extends BucketInfo.LifecycleRule> ruleWithSetStorageClassAction =
-        lifecycleRules.stream()
-            .filter(rule -> rule.getAction().getActionType().equals("SetStorageClass"))
-            .findFirst();
-    assertTrue(
-        ruleWithSetStorageClassAction.isPresent(), "one rule has action type = set storage class");
-    expectActionSetStorageClass(ruleWithSetStorageClassAction.get(), StorageClass.COLDLINE);
-    assertFalse(
-        ruleWithSetStorageClassAction.get().getCondition().getIsLive(),
-        "condition is live matches");
-  }
-
-  /** Check that the action is Delete. */
-  private void expectActionDelete(BucketInfo.LifecycleRule rule) {
-    assertEquals(
-        BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
-        rule.getAction().getActionType(),
-        "Delete action type matches");
-  }
-
-  /** Check that the action is SetStorageClass and the storage class is the given one. */
-  private void expectActionSetStorageClass(
-      BucketInfo.LifecycleRule rule, StorageClass storageClass) {
-    assertEquals(
-        BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
-        rule.getAction().getActionType(),
-        "SetStorageClass action type matches");
-    assertEquals(
-        storageClass,
-        ((BucketInfo.LifecycleRule.SetStorageClassLifecycleAction) rule.getAction())
-            .getStorageClass(),
-        "SetStorageClass action storage class matches");
   }
 }
