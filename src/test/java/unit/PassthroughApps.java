@@ -351,6 +351,9 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
+    // `terra config set app-launch LOCAL_PROCESS`
+    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
+
     // `terra app execute exit 123`
     // this just returns an arbitrary exit code (similar to doing (exit 123); echo "$?" in a
     // terminal)
