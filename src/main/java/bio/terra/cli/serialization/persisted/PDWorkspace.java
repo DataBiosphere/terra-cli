@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +28,8 @@ public class PDWorkspace {
   public final String serverName;
   public final String userEmail;
   public final List<PDResource> resources;
+  public final OffsetDateTime createdDate;
+  public final OffsetDateTime lastUpdatedDate;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
@@ -42,6 +45,8 @@ public class PDWorkspace {
         internalObj.getResources().stream()
             .map(Resource::serializeToDisk)
             .collect(Collectors.toList());
+    this.createdDate = internalObj.getCreatedDate();
+    this.lastUpdatedDate = internalObj.getLastUpdatedDate();
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
@@ -54,6 +59,8 @@ public class PDWorkspace {
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.resources = builder.resources;
+    this.createdDate = builder.createdDate;
+    this.lastUpdatedDate = builder.lastUpdatedDate;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -67,6 +74,8 @@ public class PDWorkspace {
     private String serverName;
     private String userEmail;
     private List<PDResource> resources;
+    private OffsetDateTime createdDate;
+    private OffsetDateTime lastUpdatedDate;
 
     public Builder uuid(UUID uuid) {
       this.uuid = uuid;
@@ -110,6 +119,16 @@ public class PDWorkspace {
 
     public Builder resources(List<PDResource> resources) {
       this.resources = resources;
+      return this;
+    }
+
+    public Builder createdDate(OffsetDateTime createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
+      this.lastUpdatedDate = lastUpdatedDate;
       return this;
     }
 
