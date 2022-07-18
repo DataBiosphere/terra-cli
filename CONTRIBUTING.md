@@ -161,7 +161,8 @@ as the test, and the installed code in a separate process from the test). This c
 Both types of tests:
 - Use the same code to authenticate a test user without requiring browser interaction.
 - Override the context directory to `build/test-context/`, so that tests don't overwrite the context for an existing
-CLI installation on the same machine.
+CLI installation on the same machine. Unit tests additionally create sub-directories inside `build/test-context/` based on
+the runner number, so each process's logs will live in a directory like `build/test-context/1`
 
 #### Run tests
 - Run unit tests directly against the source code:
