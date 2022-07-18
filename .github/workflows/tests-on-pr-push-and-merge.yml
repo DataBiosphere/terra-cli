@@ -118,3 +118,5 @@ jobs:
           path: |
             build/test-context/.terra/logs/
             build/test-context/.terra/context.json
+            build/test-context/**/.terra/logs/
+            build/test-context/**/.terra/context.json

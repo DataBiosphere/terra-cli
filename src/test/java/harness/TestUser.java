@@ -78,9 +78,12 @@ public class TestUser {
    * uses domain-wide delegation to populate test user credentials, instead of the usual Google
    * Oauth login flow, which requires manual interaction with a browser.
    *
+   * @param writeGcloudAuthFiles Whether to write gcloud auth files for the user as part of logging
+   *     in. GCloud state is shared per-machine, so only tests in PassthroughApps should use this to
+   *     avoid clobbering across threads.
    * @return global context object, populated with the user's credentials
    */
-  public void login(boolean gsutilLogin) throws IOException {
+  public void login(boolean writeGcloudAuthFiles) throws IOException {
     System.out.println("Logging in test user: " + email);
 
     // get domain-wide delegated credentials for this user. use the same scopes that are requested
@@ -89,7 +92,7 @@ public class TestUser {
     writeTerraOAuthCredentialFile(googleCredentials, getIdToken(googleCredentials));
 
     // We're not using pet SA key file (for security reasons), so auth is more complicated.
-    if (gsutilLogin) {
+    if (writeGcloudAuthFiles) {
       writeAdcCredentialFiles();
       writeGsUtilCredentialFile();
     }

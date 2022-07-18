@@ -132,7 +132,7 @@ public class Context {
     }
 
     Path contextPath = Paths.get(contextDir).toAbsolutePath();
-    // build.gradle test task makes contextDir. However, with Gradle Enterprise Test Distribution,
+    // build.gradle test task makes contextDir. However, with test-runner specific directories,
     // this test is executed in a different place from where the test task mkdir was run. So need
     // to create directory for if Test Distribution is being used.
     if (!contextPath.toFile().exists()) {

@@ -29,7 +29,6 @@ import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
@@ -55,8 +54,6 @@ public class CloneWorkspace extends ClearContextUnit {
   private static DatasetReference externalDataset;
   private UFWorkspace sourceWorkspace;
   private UFWorkspace destinationWorkspace;
-
-  private static final Random RANDOM = new Random();
 
   @BeforeAll
   public static void setupOnce() throws IOException {

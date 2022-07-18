@@ -135,14 +135,19 @@ This is the script users can add to their `$PATH` to invoke the CLI more easily 
 
 #### Two types of tests
 There are two types of CLI tests:
-- Unit tests call commands directly in Java. They run against source code; no CLI installation is required.
-Example unit test code:
+- Unit tests call commands directly in Java. They run against source code; no CLI installation is required. 
+By default, unit tests will run in parallel on up to 12 cores in order to run faster. This behavior is
+controlled by the `maxParallelForks` setting in `build.gradle`. Example unit test code:
 ```
     // `terra auth status --format=json`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
 ```
+
+
 - Integration tests call commands from a bash script run in a separate process. They run against a CLI installation,
-either one built directly from source code via `./gradlew install` or one built from the latest GitHub release.
+either one built directly from source code via `./gradlew install` or one built from the latest GitHub release. Integration
+tests often use passthrough apps (e.g. nextflow, gcloud, gsutil, bq, etc.) which maintain their own global state, so by default
+we do not run them in parallel to avoid clobbering state across runners.
 Example integration test code:
 ```
     // run a script that includes a Nextflow workflow
