@@ -84,6 +84,8 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -377,6 +379,24 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).updateWorkspace(updateRequest, workspaceId),
         "Error updating workspace");
+  }
+
+  /**
+   * Call the Workspace Manager POST "/api/workspaces/v1/{id}/properties" endpoint to update
+   * properties in workspace.
+   *
+   * @param workspaceId the id of the workspace to update
+   * @param workspaceProperties the update properties
+   * @return the Workspace Manager workspace description object
+   */
+  public WorkspaceDescription updateWorkspaceProperties(
+      UUID workspaceId, Map<String, String> workspaceProperties) {
+    new WorkspaceApi(apiClient).updateWorkspaceProperties(updateRequest,
+  workspaceId, buildProperties(workspaceProperties);
+
+    return callWithRetries(
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        "Error updating workspace properties");
   }
 
   /**
@@ -1526,5 +1546,18 @@ public class WorkspaceManagerService {
     return ((apiExMsg != null && !apiExMsg.isEmpty())
         ? apiExMsg
         : apiEx.getCode() + " " + apiEx.getMessage());
+  }
+
+  public Properties buildProperties(Map<String, String> propertyMap) {
+    Properties properties = new Properties();
+    Property property = new Property();
+
+    for (Map.Entry<String, String> entry : propertyMap.entrySet()) {
+      property.setKey(entry.getKey());
+      property.setValue(entry.getValue());
+      properties.add(property);
+    }
+
+    return properties;
   }
 }

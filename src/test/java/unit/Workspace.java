@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
+import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
@@ -151,6 +152,9 @@ public class Workspace extends ClearContextUnit {
         "--new-name=" + newName,
         "--new-description=" + newDescription);
 
+    String updateProperties = "key=valueUpdate,key1=value1";
+    TestCommand.runCommandExpectSuccess("workspace", "set-property", updateProperties);
+
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
@@ -161,6 +165,13 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         status.workspace.description,
         "status matches updated workspace description");
+    // Property property1 =
+    //     status.workspace.properties.stream()
+    //         .filter(p -> "newKey1".equals(p.getKey()))
+    //         .findFirst()
+    //         .orElseThrow();
+    // assertEquals("newValue1", property1.getValue(), "Multiple property entries add successful.");
+
 
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =
@@ -172,6 +183,10 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         describeWorkspace.description,
         "describe matches updated workspace description");
+    // assertEquals("key", describeWorkspace.properties.get(0).getKey());
+    // assertEquals("valueUpdate", describeWorkspace.properties.get(0).getValue());
+    // assertEquals("key1", describeWorkspace.properties.get(1).getKey());
+    // assertEquals("value1", describeWorkspace.properties.get(1).getValue());
 
     // check the workspace list reflects the update
     List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
