@@ -243,8 +243,6 @@ task runTestsWithTag(type: Test) {
             // and we should stop retrying.
             maxFailures = 5
         }
-        maxRetries = 1
-        maxFailures = 5
         failOnPassedAfterRetry = true
     }
 }
