@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying lifecycle rules for controlled GCS buckets. */
 @Tag("unit")
@@ -29,8 +30,8 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
 
   @Override
   @BeforeEach
-  protected void setupEachTime() throws IOException {
-    super.setupEachTime();
+  protected void setupEachTime(TestInfo testInfo) throws IOException {
+    super.setupEachTime(testInfo);
 
     workspaceCreator.login();
 

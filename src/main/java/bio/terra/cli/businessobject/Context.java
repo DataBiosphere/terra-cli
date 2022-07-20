@@ -40,7 +40,8 @@ public class Context {
   // file paths related to persisting the context on disk
   private static final String CONTEXT_DIRNAME = ".terra";
   private static final String CONTEXT_FILENAME = "context.json";
-  private static final String LOGS_DIRNAME = "logs";
+  // Only exposed for logging in tests
+  public static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
   /**

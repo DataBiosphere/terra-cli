@@ -188,7 +188,8 @@ task runTestsWithTag(type: Test) {
         }
         // Integration tests wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        maxParallelForks = (testTag == "unit" ? 12 : 1)
+        int localCores = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+        maxParallelForks = (testTag == "unit" ? localCores : 1)
     }
     beforeTest { descriptor ->
         println "========================================================="
@@ -267,8 +268,6 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     systemProperty "TERRA_SERVER", project.findProperty("server")
 
     // set which file in src/test/resources/testconfigs to use
-    // TODO(PF-1289): Change testconfig to to say which servers it supports. Make it so
-    // user only needs to set -PtestConfig, no -Pserver.
     String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
     systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
 

@@ -136,7 +136,7 @@ This is the script users can add to their `$PATH` to invoke the CLI more easily 
 #### Two types of tests
 There are two types of CLI tests:
 - Unit tests call commands directly in Java. They run against source code; no CLI installation is required. 
-By default, unit tests will run in parallel on up to 12 cores in order to run faster. This behavior is
+By default, unit tests will run in parallel on up half the available cores in order to run faster. This behavior is
 controlled by the `maxParallelForks` setting in `build.gradle`. Example unit test code:
 ```
     // `terra auth status --format=json`

@@ -94,7 +94,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("env vars include workspace cloud project")
   void workspaceEnvVars() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
@@ -115,7 +115,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("env vars include a resolved workspace resource")
   void resourceEnvVars() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -142,7 +142,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("gcloud is configured with the workspace project and user")
   void gcloudConfigured() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     UFWorkspace workspace =
@@ -183,7 +183,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
   void gsutilGcloudAlphaStorageLs() throws IOException {
 
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -214,7 +214,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
 
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -246,7 +246,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("check nextflow version")
   void nextflowVersion() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -265,7 +265,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     String resource1Name = TestUtils.appendRandomNumber("repo1");
     String resource2Name = TestUtils.appendRandomNumber("repo1");
 
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     TestCommand.runCommandExpectSuccess(
@@ -298,7 +298,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gitCloneResource() throws IOException {
     String resourceName = TestUtils.appendRandomNumber("repo");
 
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     TestCommand.runCommandExpectSuccess(
@@ -320,7 +320,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("exit code is passed through to CLI caller in docker container")
   void exitCodePassedThroughDockerContainer() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -346,7 +346,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("exit code is passed through to CLI caller in local process")
   void exitCodePassedThroughLocalProcess() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -373,7 +373,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -406,7 +406,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
   void gcloudAppExecute() throws IOException {
-    workspaceCreator.login(true);
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/true);
 
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
