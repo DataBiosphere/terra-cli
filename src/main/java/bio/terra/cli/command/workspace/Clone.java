@@ -40,7 +40,8 @@ public class Clone extends BaseCommand {
         sourceWorkspace.clone(
             id, workspaceNameAndDescription.name, workspaceNameAndDescription.description);
     Workspace destinationWorkspaceHydrated =
-        Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
+        Workspace.get(
+            clonedWorkspace.getDestinationWorkspaceId(), /*isDataCollectionWorkspace=*/ false);
 
     // Get a list of UFClonedResource objects based on the resources returned in the ClonedWorkspace
     java.util.List<UFClonedResource> ufClonedResources =
