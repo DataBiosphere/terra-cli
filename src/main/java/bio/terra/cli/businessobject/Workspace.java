@@ -21,6 +21,7 @@ import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +56,9 @@ public class Workspace {
   // list of resources (controlled & referenced)
   private List<Resource> resources;
 
+  private OffsetDateTime createdDate;
+  private OffsetDateTime lastUpdatedDate;
+
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.uuid = wsmObject.getId();
@@ -67,6 +71,8 @@ public class Workspace {
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
     this.resources = new ArrayList<>();
+    this.createdDate = wsmObject.getCreatedDate();
+    this.lastUpdatedDate = wsmObject.getLastUpdatedDate();
   }
 
   /** Build an instance of this class from the serialized format on disk. */
@@ -83,6 +89,8 @@ public class Workspace {
         configFromDisk.resources.stream()
             .map(PDResource::deserializeToInternal)
             .collect(Collectors.toList());
+    this.createdDate = configFromDisk.createdDate;
+    this.lastUpdatedDate = configFromDisk.lastUpdatedDate;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -126,9 +134,10 @@ public class Workspace {
   }
 
   /** Fetch an existing workspace by uuid, with resources populated */
-  public static Workspace get(UUID id) {
+  public static Workspace get(UUID id, boolean isDataCollectionWorkspace) {
     // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
+    WorkspaceDescription loadedWorkspace =
+        WorkspaceManagerService.fromContext().getWorkspace(id, isDataCollectionWorkspace);
     logger.info("Loaded workspace: {}", loadedWorkspace);
     return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
   }
@@ -374,5 +383,13 @@ public class Workspace {
 
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
+  }
+
+  public OffsetDateTime getCreatedDate() {
+    return createdDate;
+  }
+
+  public OffsetDateTime getLastUpdatedDate() {
+    return lastUpdatedDate;
   }
 }

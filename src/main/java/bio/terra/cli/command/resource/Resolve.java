@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
-import bio.terra.cli.businessobject.resource.DataSource;
+import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -24,8 +24,8 @@ public class Resolve extends BaseCommand {
       names = "--name",
       required = true,
       description =
-          "Name of the resource in the workspace or path to the resource in the data source in the "
-              + "format of [data source name]/[resource name]")
+          "Name of the resource in the workspace or path to the resource in the data collection in the "
+              + "format of [data collection name]/[resource name]")
   public String resourceName;
 
   @CommandLine.Option(
@@ -54,7 +54,7 @@ public class Resolve extends BaseCommand {
       throw new UserActionableException(
           String.format(
               "Invalid path provided: %s, only support resolving [resource name] or "
-                  + "[data source name]/[resource name].",
+                  + "[data collection name]/[resource name].",
               resourceName));
     }
 
@@ -77,16 +77,17 @@ public class Resolve extends BaseCommand {
       case BQ_TABLE:
         resourceNamesToCloudIds.put(resource.getName(), ((BqTable) resource).resolve(bqPathFormat));
         break;
-      case DATA_SOURCE:
+      case DATA_COLLECTION:
         if (splits.length == 2) {
-          resourceNamesToCloudIds.put(splits[1], ((DataSource) resource).resolve(splits[1]));
+          resourceNamesToCloudIds.put(splits[1], ((DataCollection) resource).resolve(splits[1]));
         } else {
-          // Put the cloudId of all the resources in the data source to resourceNamesToCloudIds.
-          ((DataSource) resource)
-              .getDataSourceWorkspace().getResources().stream()
-                  // There shouldn't be any data source resources in a data source workspace, but
-                  // filter out just in case
-                  .filter(r -> r.getResourceType() != Resource.Type.DATA_SOURCE)
+          // Put the cloudId of all the resources in the data collection to resourceNamesToCloudIds.
+          ((DataCollection) resource)
+              .getDataCollectionWorkspace().getResources().stream()
+                  // There shouldn't be any data collection resources in a data collection
+                  // workspace,
+                  // but filter out just in case
+                  .filter(r -> r.getResourceType() != Resource.Type.DATA_COLLECTION)
                   .forEach(r -> resourceNamesToCloudIds.put(r.getName(), r.resolve()));
         }
         break;
