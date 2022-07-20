@@ -106,21 +106,30 @@ public class TestCommand {
    * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
    * Adds `==format=json` to the argument list.
    */
-  private static Result runAndGetResultExpectSuccess(String... args) {
+  private static Result runAndGetJsonResultExpectSuccess(String... args) {
     Result cmd = runCommand(addFormatJsonArg(args));
     assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd;
   }
 
   /**
+   * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
+   */
+  public static Result runAndGetResultExpectSuccess(String... args) {
+    Result cmd = runCommand(args);
+    assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd;
+  }
+
+  /**
    * Helper method to run a command, check its exit code is 0=success, and return {@code
-   * Result.stdOut}. Adds `==format=json` to the argument list.
+   * Result.stdOut} wrapped in a JSONObject. Adds `==format=json` to the argument list.
    *
    * <p>If the stdOut can be serialized to a Java class (e.g. UFGitRepo.class), use {@link
    * TestCommand#runAndParseCommandExpectSuccess} instead.
    */
   public static JSONObject runAndGetJsonObjectExpectSuccess(String... args) {
-    return new JSONObject(runAndGetResultExpectSuccess(args).stdOut);
+    return new JSONObject(runAndGetJsonResultExpectSuccess(args).stdOut);
   }
 
   /**
@@ -129,7 +138,7 @@ public class TestCommand {
    */
   public static <T> T runAndParseCommandExpectSuccess(Class<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runAndGetResultExpectSuccess(args);
+    Result cmd = runAndGetJsonResultExpectSuccess(args);
     return cmd.readObjectFromStdOut(objectType);
   }
 
@@ -139,7 +148,7 @@ public class TestCommand {
    */
   public static <T> T runAndParseCommandExpectSuccess(TypeReference<T> objectType, String... args)
       throws JsonProcessingException {
-    Result cmd = runAndGetResultExpectSuccess(args);
+    Result cmd = runAndGetJsonResultExpectSuccess(args);
     return cmd.readObjectFromStdOut(objectType);
   }
 

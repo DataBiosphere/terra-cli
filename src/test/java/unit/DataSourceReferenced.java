@@ -10,6 +10,7 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
@@ -189,11 +190,33 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    TestCommand.runCommandExpectSuccess("app", "execute", "env");
+    // `terra app execute env`
+    Result result = TestCommand.runAndGetResultExpectSuccess("app", "execute", "env");
+    String stdOut = result.stdOut;
+    assertDataSourceResourcesEnv(stdOut);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
         "resource", "delete", "--name=" + DATA_SOURCE_RESOURCE_NAME, "--quiet");
+  }
+
+  private void assertDataSourceResourcesEnv(String stdOut) {
+    assertTrue(
+        stdOut.contains(
+            "TERRA_"
+                + DATA_SOURCE_RESOURCE_NAME
+                + "_"
+                + DATA_SOURCE_BUCKET_RESOURCE_NAME
+                + "="
+                + ExternalGCSBuckets.getGsPath(DATA_SOURCE_BUCKET_NAME)));
+    assertTrue(
+        stdOut.contains(
+            "TERRA_"
+                + DATA_SOURCE_RESOURCE_NAME
+                + "_"
+                + DATA_SOURCE_GIT_RESOURCE_NAME
+                + "="
+                + GIT_REPO_SSH_URL));
   }
 
   private void assertDataSourceResourceResolve(JSONObject resolve) {
