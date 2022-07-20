@@ -20,6 +20,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -175,6 +176,20 @@ public class DataSourceReferenced extends SingleWorkspaceUnit {
             "resolve",
             "--name=" + DATA_SOURCE_RESOURCE_NAME + "/" + RandomStringUtils.random(10));
     assertTrue(err2.contains("Invalid path"));
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "resource", "delete", "--name=" + DATA_SOURCE_RESOURCE_NAME, "--quiet");
+  }
+
+  @Test
+  @DisplayName("Test running terra app execute env in a workspace with data source")
+  void appExecuteEnv() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    TestCommand.runCommandExpectSuccess("app", "execute", "env");
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(
