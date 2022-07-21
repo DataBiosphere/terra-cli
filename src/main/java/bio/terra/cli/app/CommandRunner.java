@@ -3,7 +3,7 @@ package bio.terra.cli.app;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resource.DataSource;
+import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import com.google.common.annotations.VisibleForTesting;
@@ -122,21 +122,22 @@ public abstract class CommandRunner {
         .getResources()
         .forEach(
             resource -> {
-              if (Resource.Type.DATA_SOURCE != resource.getResourceType()) {
+              if (Resource.Type.DATA_COLLECTION != resource.getResourceType()) {
                 terraReferences.put("TERRA_" + resource.getName(), resource.resolve());
               } else {
-                Workspace workspace = null;
+                Workspace dataCollectionWorkspace = null;
                 try {
-                  workspace = ((DataSource) resource).getDataSourceWorkspace();
+                  dataCollectionWorkspace =
+                      ((DataCollection) resource).getDataCollectionWorkspace();
                 } catch (SystemException e) {
                   logger.warn(
-                      String.format("Failed to get the data source %s", resource.getName()), e);
+                      String.format("Failed to get the data collection %s", resource.getName()), e);
                 }
-                if (workspace != null) {
-                  workspace.getResources().stream()
+                if (dataCollectionWorkspace != null) {
+                  dataCollectionWorkspace.getResources().stream()
                       .filter(
                           // This should NEVER happen but check here to prevent endless resolve.
-                          r -> Resource.Type.DATA_SOURCE != r.getResourceType())
+                          r -> Resource.Type.DATA_COLLECTION != r.getResourceType())
                       .forEach(
                           r ->
                               terraReferences.put(

@@ -8,6 +8,7 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +27,8 @@ import org.json.JSONObject;
  */
 public class TestCommand {
 
-  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER =
+      new ObjectMapper().registerModule(new JavaTimeModule());
 
   private TestCommand() {}
 
@@ -173,12 +175,12 @@ public class TestCommand {
 
     /** Convert what's written to standard out into a Java object. */
     private <T> T readObjectFromStdOut(Class<T> objectType) throws JsonProcessingException {
-      return objectMapper.readValue(stdOut, objectType);
+      return OBJECT_MAPPER.readValue(stdOut, objectType);
     }
 
     /** Convert what's written to standard out into a Java object. */
     private <T> T readObjectFromStdOut(TypeReference<T> objectType) throws JsonProcessingException {
-      return objectMapper.readValue(stdOut, objectType);
+      return OBJECT_MAPPER.readValue(stdOut, objectType);
     }
   }
 

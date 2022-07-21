@@ -261,10 +261,10 @@ Commands:
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
   notebook   Use GCP Notebooks in the workspace.
-  resolve    Resolve a resource to its cloud id or path. For data source, 
-             resolve all the resources inside the data source to their cloud id
-             or path. If path to a resource inside the data source is specified
-             in the format of [data source name]/[resource name], resolve the
+  resolve    Resolve a resource to its cloud id or path. For data collection, 
+             resolve all the resources inside the data collection to their cloud id
+             or path. If path to a resource inside the data collection is specified
+             in the format of [data collection name]/[resource name], resolve the
              specified resource's cloud id or path.
   resource   Manage resources in the workspace.
   server     Connect to a Terra server.
@@ -458,10 +458,10 @@ Commands:
   describe                   Describe a resource.
   list                       List all resources.
   resolve                    Resolve a resource to its cloud id or path. For 
-                             data source, resolve all the resources inside the
-                             data source to their cloud id or path. If path to a
-                             resource inside the data source is specified
-                             in the format of [data source name]/[resource name],
+                             data collection, resolve all the resources inside the
+                             data collection to their cloud id or path. If path to a
+                             resource inside the data collection is specified
+                             in the format of [data collection name]/[resource name],
                              resolve the specified resource's cloud id or path
   update                     Update the properties of a resouce
 ```
