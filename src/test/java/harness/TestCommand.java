@@ -105,8 +105,8 @@ public class TestCommand {
   }
 
   /**
-   * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
-   * Adds `==format=json` to the argument list.
+   * Helper method to run a command with --format=json, check its exit code is 0=success, and return
+   * {@link Result}.
    */
   private static Result runAndGetJsonResultExpectSuccess(String... args) {
     Result cmd = runCommand(addFormatJsonArg(args));
