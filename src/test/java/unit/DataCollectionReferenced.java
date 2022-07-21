@@ -187,10 +187,6 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
             "resolve",
             "--name=" + DATA_COLLECTION_RECOLLECTION_NAME + "/" + RandomStringUtils.random(10));
     assertTrue(err2.contains("Invalid path"));
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + DATA_COLLECTION_RECOLLECTION_NAME, "--quiet");
   }
 
   @Test
@@ -204,10 +200,6 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
     Result result = TestCommand.runAndGetResultExpectSuccess("app", "execute", "env");
     String stdOut = result.stdOut;
     assertDataCollectionResourcesEnv(stdOut);
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + DATA_COLLECTION_RECOLLECTION_NAME, "--quiet");
   }
 
   private void assertDataCollectionResource(UFDataCollection actual) {
