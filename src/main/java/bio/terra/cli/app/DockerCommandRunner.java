@@ -60,7 +60,7 @@ public class DockerCommandRunner extends CommandRunner {
       throws PassthroughException {
     // mount the global context directory and the current working directory to the container
     //  e.g. global context dir (host) $HOME/.terra -> (container) CONTAINER_HOME_DIR/.terra
-    //       current working dir (host) /Users/mm/workspace123 -> (container) CONTAINER_HOME_DIR
+    //       current working dir (host) /Users/mm/workspace123 -> (container) CONTAINER_WORKING_DIR
     Map<Path, Path> bindMounts = new HashMap<>();
     bindMounts.put(getGlobalContextDirOnContainer(), Context.getContextDir());
     bindMounts.put(Path.of(CONTAINER_WORKING_DIR), Path.of(System.getProperty("user.dir")));
