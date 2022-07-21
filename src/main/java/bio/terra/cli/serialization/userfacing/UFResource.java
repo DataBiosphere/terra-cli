@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -54,7 +53,7 @@ public abstract class UFResource {
   public final AccessScope accessScope;
   public final ManagedBy managedBy;
   public final String privateUserName;
-  public final List<ControlledResourceIamRole> privateUserRoles;
+  public final ControlledResourceIamRole privateUserRole;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {
@@ -67,7 +66,7 @@ public abstract class UFResource {
     this.accessScope = internalObj.getAccessScope();
     this.managedBy = internalObj.getManagedBy();
     this.privateUserName = internalObj.getPrivateUserName();
-    this.privateUserRoles = internalObj.getPrivateUserRoles();
+    this.privateUserRole = internalObj.getPrivateUserRole();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -81,7 +80,7 @@ public abstract class UFResource {
     this.accessScope = builder.accessScope;
     this.managedBy = builder.managedBy;
     this.privateUserName = builder.privateUserName;
-    this.privateUserRoles = builder.privateUserRoles;
+    this.privateUserRole = builder.privateUserRole;
   }
 
   /**
@@ -123,7 +122,7 @@ public abstract class UFResource {
     private AccessScope accessScope;
     private ManagedBy managedBy;
     private String privateUserName;
-    private List<ControlledResourceIamRole> privateUserRoles;
+    private ControlledResourceIamRole privateUserRole;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -170,8 +169,8 @@ public abstract class UFResource {
       return this;
     }
 
-    public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
-      this.privateUserRoles = privateUserRoles;
+    public Builder privateUserRoles(ControlledResourceIamRole privateUserRole) {
+      this.privateUserRole = privateUserRole;
       return this;
     }
 

@@ -21,7 +21,6 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -45,7 +44,7 @@ public abstract class Resource {
 
   // private controlled resources
   protected String privateUserName;
-  protected List<ControlledResourceIamRole> privateUserRoles;
+  protected ControlledResourceIamRole privateUserRole;
 
   /**
    * Enum for the types of workspace resources supported by the CLI. Each enum value maps to a
@@ -77,7 +76,7 @@ public abstract class Resource {
     this.accessScope = configFromDisk.accessScope;
     this.managedBy = configFromDisk.managedBy;
     this.privateUserName = configFromDisk.privateUserName;
-    this.privateUserRoles = configFromDisk.privateUserRoles;
+    this.privateUserRole = configFromDisk.privateUserRole;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -96,7 +95,7 @@ public abstract class Resource {
       PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
         this.privateUserName = privateMetadata.getUserName();
-        this.privateUserRoles = privateMetadata.getPrivateResourceIamRoles();
+        this.privateUserRole = privateMetadata.getPrivateResourceIamRole();
       }
     }
   }
@@ -251,7 +250,7 @@ public abstract class Resource {
     return privateUserName;
   }
 
-  public List<ControlledResourceIamRole> getPrivateUserRoles() {
-    return privateUserRoles;
+  public ControlledResourceIamRole getPrivateUserRole() {
+    return privateUserRole;
   }
 }
