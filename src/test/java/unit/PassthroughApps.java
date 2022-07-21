@@ -336,7 +336,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + repo2, "--quiet");
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + bucketResourceName, "--quiet");
+    TestCommand.runCommandExpectSuccess(
+        "resource", "delete", "--name=" + bucketResourceName, "--quiet");
   }
 
   @Test
