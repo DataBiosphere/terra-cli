@@ -296,22 +296,22 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
-    String resourceName = TestUtils.appendRandomNumber("repo");
-
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    String repo1 = TestUtils.appendRandomNumber("repo");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
-        "--name=" + resourceName,
+        "--name=" + repo1,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+    String repo2 = TestUtils.appendRandomNumber("repo2");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
-        "--name=repo2",
+        "--name=" + repo2,
         "--repo-url=https://github.com/DataBiosphere/terra.git");
     String bucketResourceName = "git_clone_bucket_resource_name";
     TestCommand.runCommandExpectSuccess(
@@ -333,11 +333,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // cleanup
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
-
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + repo2, "--quiet");
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + bucketResourceName, "--quiet");
   }
 
   @Test
