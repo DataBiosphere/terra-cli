@@ -321,7 +321,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "--name=" + bucketResourceName,
         "--bucket-name=" + TestUtils.appendRandomNumber("bucket-name"));
 
-    // `terra git clone --resource=$resourceName,repo2`
+    // `terra git clone --resource=$repo1,repo2`
     TestCommand.runCommandExpectSuccess("git", "clone", "--resource=" + repo1 + "," + repo2);
     // `terra git clone --resource=$bucketResourceName`
     TestCommand.runCommandExpectExitCode(1, "git", "clone", "--resource=" + bucketResourceName);
