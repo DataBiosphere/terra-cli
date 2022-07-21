@@ -56,7 +56,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
-    if (System.getProperty(CommandRunner.IS_TEST).equals("true")) {
+    if ("true".equals(System.getProperty(CommandRunner.IS_TEST))) {
       // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically
       // authenticate as test user, without SA key file
       // (https://cloud.google.com/sdk/docs/authorizing).
