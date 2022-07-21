@@ -15,9 +15,13 @@ import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
 import harness.utils.WorkspaceUtils;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -191,12 +195,29 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
         "resource", "delete", "--name=" + DATA_COLLECTION_RECOLLECTION_NAME, "--quiet");
   }
 
-  private void assertDataCollectionResourceResolve(JSONObject resolve) {
-    assertEquals(
-        ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME),
-        resolve.get(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME));
-    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATA_COLLECTION_GIT_RECOLLECTION_NAME));
-    assertEquals(2, resolve.length());
+  @Test
+  public void gitClone() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra git clone --all`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--all");
+
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-workspace-manager", ".git")));
+
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-workspace-manager"));
+
+    // `terra git clone --resource=$DATA_COLLECTION_RECOLLECTION_NAME`
+    TestCommand.runCommandExpectSuccess(
+        "git", "clone", "--resource=" + DATA_COLLECTION_RECOLLECTION_NAME);
+
+    assertTrue(
+        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-workspace-manager", ".git")));
+
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-workspace-manager"));
   }
 
   private void assertDataCollectionResource(UFDataCollection actual) {
@@ -211,5 +232,13 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
     UFGcsBucket actualBucket = (UFGcsBucket) actual.resources.get(0);
     assertEquals(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME, actualBucket.name);
     assertEquals(DATA_COLLECTION_BUCKET_NAME, actualBucket.bucketName);
+  }
+
+  private void assertDataCollectionResourceResolve(JSONObject resolve) {
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME),
+        resolve.get(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME));
+    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATA_COLLECTION_GIT_RECOLLECTION_NAME));
+    assertEquals(2, resolve.length());
   }
 }

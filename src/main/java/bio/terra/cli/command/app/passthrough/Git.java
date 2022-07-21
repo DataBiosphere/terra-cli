@@ -4,20 +4,20 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.DataCollection;
-import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;;
-import bio.terra.workspace.client.ApiException;
+import bio.terra.cli.exception.UserActionableException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "git", description = "Call git in the Terra workspace.")
 public class Git extends ToolCommand {
+  private static final Logger logger = LoggerFactory.getLogger(Git.class);
 
   @CommandLine.Option(
       names = "--resource",
@@ -57,25 +57,14 @@ public class Git extends ToolCommand {
       getGitRepoResourceToClone(resources);
       resources.stream()
           .filter(resource -> Resource.Type.DATA_COLLECTION == resource.getResourceType())
-          .forEach(resource -> {
-            Workspace dataSourceWorkspace = null;
-            try {
-              dataSourceWorkspace = ((DataCollection) resource).getDataCollectionWorkspace();
-            } catch (SystemException e) {
-              if (e.getCause() instanceof ApiException) {
-                int statusCode = ((ApiException) e.getCause()).getCode();
-                if (HttpStatus.SC_FORBIDDEN == statusCode) {
-                  return;
+          .forEach(
+              resource -> {
+                Workspace dataCollectionWorkspace =
+                    attemptToGetDataCollectionWorkspace((DataCollection) resource);
+                if (dataCollectionWorkspace != null) {
+                  getGitRepoResourceToClone(dataCollectionWorkspace.getResources());
                 }
-              }
-
-            }
-            if (dataSourceWorkspace != null) {
-              getGitRepoResourceToClone(dataSourceWorkspace.getResources());
-            }
-          }
-
-          );
+              });
       return;
     }
     if (names != null) {
@@ -83,7 +72,11 @@ public class Git extends ToolCommand {
       for (String name : names) {
         var resource = Context.requireWorkspace().getResource(name);
         if (Resource.Type.DATA_COLLECTION == resource.getResourceType()) {
-          getGitRepoResourceToClone(((DataCollection) resource).getDataCollectionWorkspace().getResources());
+          var dataCollectionWorkspace =
+              attemptToGetDataCollectionWorkspace((DataCollection) resource);
+          if (dataCollectionWorkspace != null) {
+            getGitRepoResourceToClone(dataCollectionWorkspace.getResources());
+          }
         } else {
           cloneGitRepoResource(Context.requireWorkspace().getResource(name));
         }
@@ -100,15 +93,30 @@ public class Git extends ToolCommand {
     }
   }
 
+  private Workspace attemptToGetDataCollectionWorkspace(DataCollection dataCollection) {
+    Workspace dataCollectionWorkspace = null;
+    try {
+      dataCollectionWorkspace = dataCollection.getDataCollectionWorkspace();
+    } catch (SystemException e) {
+      // If a user does not have access to the data collection, do not throw.
+      logger.warn(String.format("Failed to get Data collection %s", dataCollection.getName()));
+    }
+    return dataCollectionWorkspace;
+  }
+
   private void getGitRepoResourceToClone(List<Resource> resources) {
     resources.stream()
         .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
         .forEach(this::cloneGitRepoResource);
   }
+
   private void cloneGitRepoResource(Resource resource) {
     List<String> cloneCommands = Stream.of("git", "clone").collect(Collectors.toList());
     if (!Resource.Type.GIT_REPO.equals(resource.getResourceType())) {
-      throw new UserActionableException(String.format("%s %s cannot be cloned because it is not a git repo resource", resource.getResourceType(), resource.getName()));
+      throw new UserActionableException(
+          String.format(
+              "%s %s cannot be cloned because it is not a git repo resource",
+              resource.getResourceType(), resource.getName()));
     }
     String gitRepoUrl = resource.resolve();
     cloneCommands.add(gitRepoUrl);
