@@ -11,6 +11,7 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -185,18 +187,19 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
             "resolve",
             "--name=" + DATA_COLLECTION_RECOLLECTION_NAME + "/" + RandomStringUtils.random(10));
     assertTrue(err2.contains("Invalid path"));
-
-    // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess(
-        "resource", "delete", "--name=" + DATA_COLLECTION_RECOLLECTION_NAME, "--quiet");
   }
 
-  private void assertDataCollectionResourceResolve(JSONObject resolve) {
-    assertEquals(
-        ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME),
-        resolve.get(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME));
-    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATA_COLLECTION_GIT_RECOLLECTION_NAME));
-    assertEquals(2, resolve.length());
+  @Test
+  @DisplayName("Test running terra app execute env in a workspace with data collection")
+  void appExecuteEnv() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra app execute env`
+    Result result = TestCommand.runAndGetResultExpectSuccess("app", "execute", "env");
+    String stdOut = result.stdOut;
+    assertDataCollectionResourcesEnv(stdOut);
   }
 
   private void assertDataCollectionResource(UFDataCollection actual) {
@@ -211,5 +214,32 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
     UFGcsBucket actualBucket = (UFGcsBucket) actual.resources.get(0);
     assertEquals(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME, actualBucket.name);
     assertEquals(DATA_COLLECTION_BUCKET_NAME, actualBucket.bucketName);
+  }
+
+  private void assertDataCollectionResourceResolve(JSONObject resolve) {
+    assertEquals(
+        ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME),
+        resolve.get(DATA_COLLECTION_BUCKET_RECOLLECTION_NAME));
+    assertEquals(GIT_REPO_SSH_URL, resolve.get(DATA_COLLECTION_GIT_RECOLLECTION_NAME));
+    assertEquals(2, resolve.length());
+  }
+
+  private void assertDataCollectionResourcesEnv(String stdOut) {
+    assertTrue(
+        stdOut.contains(
+            "TERRA_"
+                + DATA_COLLECTION_RECOLLECTION_NAME
+                + "_"
+                + DATA_COLLECTION_BUCKET_RECOLLECTION_NAME
+                + "="
+                + ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME)));
+    assertTrue(
+        stdOut.contains(
+            "TERRA_"
+                + DATA_COLLECTION_RECOLLECTION_NAME
+                + "_"
+                + DATA_COLLECTION_GIT_RECOLLECTION_NAME
+                + "="
+                + GIT_REPO_SSH_URL));
   }
 }
