@@ -311,10 +311,12 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
    */
-  public WorkspaceDescription getWorkspace(UUID uuid) {
+  public WorkspaceDescription getWorkspace(UUID uuid, boolean isDataCollectionWorkspace) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspace(uuid), "Error fetching workspace");
+            () -> new WorkspaceApi(apiClient).getWorkspace(uuid),
+            "Error fetching workspace",
+            isDataCollectionWorkspace);
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
             ? null
@@ -913,7 +915,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .createTerraWorkspaceReference(createRequest, workspaceId),
-        "Error creating referenced data source in the workspace.");
+        "Error creating referenced data collection in the workspace.");
   }
 
   /**
@@ -1236,7 +1238,7 @@ public class WorkspaceManagerService {
         () ->
             new ReferencedGcpResourceApi(apiClient)
                 .deleteTerraWorkspaceReference(workspaceId, resourceId),
-        "Error deleting referenced data source in the workspace.");
+        "Error deleting referenced data collection in the workspace.");
   }
 
   /**
@@ -1414,6 +1416,11 @@ public class WorkspaceManagerService {
         errorMsg);
   }
 
+  private <T> T callWithRetries(
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+    return callWithRetries(makeRequest, errorMsg, /*isDataCollectionWorkspace=*/ false);
+  }
+
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
    * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
@@ -1422,12 +1429,16 @@ public class WorkspaceManagerService {
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
    *     thrown by the WSM client or the retries
+   * @param isDataCollectionWorkspace whether workspace is data collection workspace
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest,
+      String errorMsg,
+      boolean isDataCollectionWorkspace) {
     return handleClientExceptions(
         () -> HttpUtils.callWithRetries(makeRequest, WorkspaceManagerService::isRetryable),
-        errorMsg);
+        errorMsg,
+        isDataCollectionWorkspace);
   }
 
   /**
@@ -1477,6 +1488,11 @@ public class WorkspaceManagerService {
         errorMsg);
   }
 
+  private <T> T handleClientExceptions(
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+    return handleClientExceptions(makeRequest, errorMsg, /*isDataCollectionWorkspace=*/ false);
+  }
+
   /**
    * Execute a function that includes hitting WSM endpoints. If an exception is thrown by the WSM
    * client or the retries, make sure the HTTP status code and error message are logged.
@@ -1486,12 +1502,25 @@ public class WorkspaceManagerService {
    *     thrown by the WSM client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest,
+      String errorMsg,
+      boolean isDataCollectionWorkspace) {
     try {
       return makeRequest.makeRequest();
     } catch (ApiException | InterruptedException ex) {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
+
+        // If requester doesn't have access to data collection workspace, normally
+        // `terra resource describe` would return:
+        //     [ERROR] Error fetching workspace: User XXX is not authorized to read resource YYY of
+        //     type workspace
+        // We generally hide the fact that data collections are workspaces. Show a different error
+        // that doesn't have "workspace".
+        if (isDataCollectionWorkspace) {
+          throw new SystemException("User does not have access to this data collection", ex);
+        }
+
         String exceptionErrorMessage = logErrorMessage((ApiException) ex);
 
         errorMsg += ": " + exceptionErrorMessage;
