@@ -10,6 +10,7 @@ import bio.terra.cli.exception.UserActionableException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -93,15 +94,14 @@ public class Git extends ToolCommand {
     }
   }
 
-  private Workspace attemptToGetDataCollectionWorkspace(DataCollection dataCollection) {
-    Workspace dataCollectionWorkspace = null;
+  private @Nullable Workspace attemptToGetDataCollectionWorkspace(DataCollection dataCollection) {
     try {
-      dataCollectionWorkspace = dataCollection.getDataCollectionWorkspace();
+      return dataCollection.getDataCollectionWorkspace();
     } catch (SystemException e) {
       // If a user does not have access to the data collection, do not throw.
       logger.warn(String.format("Failed to get Data collection %s", dataCollection.getName()));
+      return null;
     }
-    return dataCollectionWorkspace;
   }
 
   private void getGitRepoResourceToClone(List<Resource> resources) {
