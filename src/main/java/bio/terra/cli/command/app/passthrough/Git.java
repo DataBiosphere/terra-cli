@@ -3,6 +3,7 @@ package bio.terra.cli.command.app.passthrough;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.businessobject.resource.DataSource;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
@@ -55,11 +56,11 @@ public class Git extends ToolCommand {
       var resources = Context.requireWorkspace().getResources();
       getGitRepoResourceToClone(resources);
       resources.stream()
-          .filter(resource -> Resource.Type.DATA_SOURCE == resource.getResourceType())
+          .filter(resource -> Resource.Type.DATA_COLLECTION == resource.getResourceType())
           .forEach(resource -> {
             Workspace dataSourceWorkspace = null;
             try {
-              dataSourceWorkspace = ((DataSource) resource).getDataSourceWorkspace();
+              dataSourceWorkspace = ((DataCollection) resource).getDataCollectionWorkspace();
             } catch (SystemException e) {
               if (e.getCause() instanceof ApiException) {
                 int statusCode = ((ApiException) e.getCause()).getCode();
@@ -81,8 +82,8 @@ public class Git extends ToolCommand {
       validateCloneCommand();
       for (String name : names) {
         var resource = Context.requireWorkspace().getResource(name);
-        if (Resource.Type.DATA_SOURCE == resource.getResourceType()) {
-          getGitRepoResourceToClone(((DataSource) resource).getDataSourceWorkspace().getResources());
+        if (Resource.Type.DATA_COLLECTION == resource.getResourceType()) {
+          getGitRepoResourceToClone(((DataCollection) resource).getDataCollectionWorkspace().getResources());
         } else {
           cloneGitRepoResource(Context.requireWorkspace().getResource(name));
         }
