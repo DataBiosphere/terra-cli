@@ -54,6 +54,7 @@ public class Git extends ToolCommand {
           "Conflicted input argument. Only specify one depending on "
               + "whether you'd like to clone all or some of the git repo resources in this workspace");
     }
+    // handle terra git clone
     if (cloneAll || (names != null && names.length > 0)) {
       validateCloneCommand();
 
@@ -80,8 +81,9 @@ public class Git extends ToolCommand {
         }
       }
       cloneAll(gitReposToClone);
+      return;
     }
-
+    // handle other git commands
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 
