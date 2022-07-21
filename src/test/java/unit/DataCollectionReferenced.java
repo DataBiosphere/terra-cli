@@ -217,15 +217,6 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
         Files.exists(Paths.get(System.getProperty("user.dir"), "terra-workspace-manager", ".git")));
 
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-workspace-manager"));
-
-    // `terra git clone --resource=$DATA_COLLECTION_RECOLLECTION_NAME`
-    TestCommand.runCommandExpectSuccess(
-        "git", "clone", "--resource=" + DATA_COLLECTION_RESOURCE_NAME);
-
-    assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-workspace-manager", ".git")));
-
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-workspace-manager"));
   }
 
   private void assertDataCollectionResource(UFDataCollection actual) {
