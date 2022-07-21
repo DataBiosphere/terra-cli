@@ -42,7 +42,7 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
   private static final String DATA_COLLECTION_BUCKET_RECOLLECTION_NAME =
       TestUtils.appendRandomNumber("bucket_resource_name");
   private static final String GIT_REPO_SSH_URL =
-      "git@github.com:DataBiosphere/terra-workspace-manager.git";
+      "https://github.com/DataBiosphere/terra-workspace-manager.git";
   private static final String DATA_COLLECTION_GIT_RECOLLECTION_NAME =
       TestUtils.appendRandomNumber("git_resource_name");
 
