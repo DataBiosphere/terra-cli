@@ -186,9 +186,11 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
         }
+        // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
+        // work, but that's not a concern for dedicated CI machines.
+        int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
         // Integration tests wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        int localCores = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
         maxParallelForks = (testTag == "unit" ? localCores : 1)
     }
     beforeTest { descriptor ->
