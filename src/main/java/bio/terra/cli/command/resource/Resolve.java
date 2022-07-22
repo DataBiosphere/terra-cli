@@ -132,7 +132,7 @@ public class Resolve extends BaseCommand {
 
   private enum ResolveColumns implements ColumnDefinition<Pair<String, String>> {
     NAME("NAME", Pair::getLeft, 40, Alignment.LEFT),
-    CLOUD_ID("CLOUD ID", Pair::getRight, 90, Alignment.LEFT);
+    CLOUD_ID("PATH", Pair::getRight, 90, Alignment.LEFT);
 
     private final String columnLabel;
     private final Function<Pair<String, String>, String> valueExtractor;
