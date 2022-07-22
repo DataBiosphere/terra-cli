@@ -119,25 +119,23 @@ public class Context {
    */
   public static Path getContextDir() {
     // default to the user's home directory
-    String contextDir = System.getProperty("user.home");
+    Path contextPath = Paths.get(System.getProperty("user.home"));
     // if the override environment variable is set, use it instead
     String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
     if (overrideDirName != null && !overrideDirName.isBlank()) {
-      contextDir = overrideDirName;
+      contextPath = Paths.get(overrideDirName);
     }
     // If this is a test, append the current runner's ID. This lets us run multiple tests in
     // parallel without clobbering context across runners.
     String isTest = System.getProperty(CommandRunner.IS_TEST);
     if (isTest != null && isTest.equals("true")) {
-      contextDir += System.getProperty("org.gradle.test.worker");
+      contextPath.resolve(System.getProperty("org.gradle.test.worker"));
     }
-
-    Path contextPath = Paths.get(contextDir).toAbsolutePath();
     // build.gradle test task makes contextDir. However, with test-runner specific directories,
     // this test is executed in a different place from where the test task mkdir was run. So need
     // to create directory for if Test Distribution is being used.
-    if (!contextPath.toFile().exists()) {
-      contextPath.toFile().mkdir();
+    if (!contextPath.toAbsolutePath().toFile().exists()) {
+      contextPath.toAbsolutePath().toFile().mkdir();
     }
 
     return contextPath.resolve(CONTEXT_DIRNAME).toAbsolutePath();
