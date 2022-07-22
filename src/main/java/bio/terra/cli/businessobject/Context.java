@@ -129,7 +129,7 @@ public class Context {
     // parallel without clobbering context across runners.
     String isTest = System.getProperty(CommandRunner.IS_TEST);
     if (isTest != null && isTest.equals("true")) {
-      contextPath.resolve(System.getProperty("org.gradle.test.worker"));
+      contextPath = contextPath.resolve(System.getProperty("org.gradle.test.worker"));
     }
     // build.gradle test task makes contextDir. However, with test-runner specific directories,
     // this test is executed in a different place from where the test task mkdir was run. So need
