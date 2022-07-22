@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * External representation of a data collection for command input/output.
@@ -33,8 +34,8 @@ public class UFDataCollection extends UFResource {
   public final String shortDescription;
   public final String version;
   public final List<UFResource> resources;
-  public final OffsetDateTime createdDate;
-  public final OffsetDateTime lastUpdatedDate;
+  public final @Nullable OffsetDateTime createdDate;
+  public final @Nullable OffsetDateTime lastUpdatedDate;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFDataCollection(DataCollection internalObj) {
@@ -183,7 +184,10 @@ public class UFDataCollection extends UFResource {
     public Builder() {}
   }
 
-  private void printDate(String prefix, String dateLabel, OffsetDateTime dateTime) {
+  private void printDate(String prefix, String dateLabel, @Nullable OffsetDateTime dateTime) {
+    if (dateTime == null) {
+      return;
+    }
     UserIO.getOut()
         .println(prefix + dateLabel + ":\t\t" + dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
