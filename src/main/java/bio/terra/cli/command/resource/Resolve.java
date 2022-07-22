@@ -1,5 +1,7 @@
 package bio.terra.cli.command.resource;
 
+import bio.terra.cli.app.utils.tables.ColumnDefinition;
+import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.BqDataset;
@@ -12,6 +14,9 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import java.util.ArrayList;
+import java.util.function.Function;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -98,20 +103,71 @@ public class Resolve extends BaseCommand {
   }
 
   private void printText(JSONObject resourceNamesToCloudIds) {
-    // No need to print the resource name as well as the cloudId if there's only one resource.
-    boolean printResourceName = resourceNamesToCloudIds.length() > 1;
-    for (var resourceName : resourceNamesToCloudIds.keySet()) {
-      if (printResourceName) {
-        OUT.println(resourceName + ": " + resourceNamesToCloudIds.get((String) resourceName));
-      } else {
-        OUT.println(resourceNamesToCloudIds.get((String) resourceName));
-      }
+    // For a single resource, just print cloud ID (no resource name)
+    if (resourceNamesToCloudIds.length() == 1) {
+      String resourceName = (String) resourceNamesToCloudIds.keySet().iterator().next();
+      OUT.println(resourceNamesToCloudIds.get(resourceName));
     }
+
+    // These are the resources for a data collection. Print table of resource name and cloud ID.
+    // Convert JSONObject to List for TablePrinter.
+    java.util.List<Pair<String, String>> resourceNameToCloudIdsList = new ArrayList<>();
+    resourceNamesToCloudIds
+        .keySet()
+        .forEach(
+            resourceName ->
+                resourceNameToCloudIdsList.add(
+                    Pair.of(
+                        (String) resourceName,
+                        (String) resourceNamesToCloudIds.get((String) resourceName))));
+    TablePrinter<Pair<String, String>> printer = ResolveColumns::values;
+    OUT.println(printer.print(resourceNameToCloudIdsList));
   }
 
   private void printJson(JSONObject resourceNamesToCloudIds) {
     // "2" prevents entire dict from being printed on one line and to stay consistent with the rest
     // of JSON formatted output.
     OUT.println(resourceNamesToCloudIds.toString(2));
+  }
+
+  private enum ResolveColumns implements ColumnDefinition<Pair<String, String>> {
+    NAME("NAME", Pair::getLeft, 40, Alignment.LEFT),
+    CLOUD_ID("CLOUD ID", Pair::getRight, 90, Alignment.LEFT);
+
+    private final String columnLabel;
+    private final Function<Pair<String, String>, String> valueExtractor;
+    private final int width;
+    private final Alignment alignment;
+
+    ResolveColumns(
+        String columnLabel,
+        Function<Pair<String, String>, String> valueExtractor,
+        int width,
+        Alignment alignment) {
+      this.columnLabel = columnLabel;
+      this.valueExtractor = valueExtractor;
+      this.width = width;
+      this.alignment = alignment;
+    }
+
+    @Override
+    public String getLabel() {
+      return columnLabel;
+    }
+
+    @Override
+    public Function<Pair<String, String>, String> getValueExtractor() {
+      return valueExtractor;
+    }
+
+    @Override
+    public int getWidth() {
+      return width;
+    }
+
+    @Override
+    public Alignment getAlignment() {
+      return alignment;
+    }
   }
 }
