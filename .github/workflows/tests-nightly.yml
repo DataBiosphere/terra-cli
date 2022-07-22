@@ -67,34 +67,34 @@ jobs:
           echo "Running unit tests for server: ${{ matrix.testServer }}"
           mkdir -p ~/logs-unit
           ./gradlew runTestsWithTag -PtestTag=unit --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit
-      - name: Run integration tests against source code
-        id: run_integration_tests_against_source_code
-        if: always()
-        run: |
-          echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
-          mkdir -p ~/logs-integration-source
-          ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source
-      - name: Run integration tests against release
-        id: run_integration_tests_against_release
-        if: always()
-        run: |
-          echo "Running integration tests against release for server: ${{ matrix.testServer }}"
-          mkdir -p ~/logs-integration-release
-          ./gradlew runTestsWithTag -PtestTag=integration --scan -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release
+#      - name: Run integration tests against source code
+#        id: run_integration_tests_against_source_code
+#        if: always()
+#        run: |
+#          echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
+#          mkdir -p ~/logs-integration-source
+#          ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source
+#      - name: Run integration tests against release
+#        id: run_integration_tests_against_release
+#        if: always()
+#        run: |
+#          echo "Running integration tests against release for server: ${{ matrix.testServer }}"
+#          mkdir -p ~/logs-integration-release
+#          ./gradlew runTestsWithTag -PtestTag=integration --scan -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release
       - name: Compile logs and context files for all test runs
         id: compile_logs_and_context_files
         if: always()
         run: |
-          declare -a arr=("integration-source" "integration-release")
-          for i in "${arr[@]}"
-          do
-            echo "Compiling logs and context files for test run: $i"
-            mkdir -p ~/to-archive/$i
-            cp -R ~/logs-$i/.terra/logs/ ~/to-archive/$i/logs/
-            cp -R ~/logs-$i/.terra/context.json ~/to-archive/$i/context.json
-          done
+#          declare -a arr=("integration-source" "integration-release")
+#          for i in "${arr[@]}"
+#          do
+#            echo "Compiling logs and context files for test run: $i"
+#            mkdir -p ~/to-archive/$i
+#            cp -R ~/logs-$i/.terra/logs/ ~/to-archive/$i/logs/
+#            cp -R ~/logs-$i/.terra/context.json ~/to-archive/$i/context.json
+#          done
           # Unit tests write to worker-specific directories, extract those here
-          mkdir -p ~/to-archive/logs-unit
+          mkdir -p ~/to-archive/unit
           for N in `ls ~/logs-unit`
           do
             mkdir -p ~/to-archive/unit/$N/logs
