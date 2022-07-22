@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * External representation of a data collection for command input/output.
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
  */
 @JsonDeserialize(builder = UFDataCollection.Builder.class)
 public class UFDataCollection extends UFResource {
+  private static final Logger logger = LoggerFactory.getLogger(UFDataCollection.class);
   public final UUID dataCollectionWorkspaceUuid;
   // Fields from PF-1703
   // TODO(PF-1724): After PF-1738 is done, add Created On and Last Updated
@@ -33,8 +37,8 @@ public class UFDataCollection extends UFResource {
   public final String shortDescription;
   public final String version;
   public final List<UFResource> resources;
-  public final OffsetDateTime createdDate;
-  public final OffsetDateTime lastUpdatedDate;
+  public final @Nullable OffsetDateTime createdDate;
+  public final @Nullable OffsetDateTime lastUpdatedDate;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFDataCollection(DataCollection internalObj) {
@@ -183,7 +187,11 @@ public class UFDataCollection extends UFResource {
     public Builder() {}
   }
 
-  private void printDate(String prefix, String dateLabel, OffsetDateTime dateTime) {
+  private void printDate(String prefix, String dateLabel, @Nullable OffsetDateTime dateTime) {
+    if (dateTime == null) {
+      logger.warn("datetime is null");
+      return;
+    }
     UserIO.getOut()
         .println(prefix + dateLabel + ":\t\t" + dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
