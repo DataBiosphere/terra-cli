@@ -296,25 +296,43 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
-    String resourceName = TestUtils.appendRandomNumber("repo");
-
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    String repo1 = TestUtils.appendRandomNumber("repo");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
-        "--name=" + resourceName,
+        "--name=" + repo1,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
+    String repo2 = TestUtils.appendRandomNumber("repo2");
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "git-repo",
+        "--name=" + repo2,
+        "--repo-url=https://github.com/DataBiosphere/terra.git");
+    String bucketResourceName = "git_clone_bucket_resource_name";
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "add-ref",
+        "gcs-bucket",
+        "--name=" + bucketResourceName,
+        "--bucket-name=" + TestUtils.appendRandomNumber("bucket-name"));
 
-    // `terra git clone --resource=repo1`
-    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=" + resourceName);
+    // `terra git clone --resource=$repo1,repo2`
+    TestCommand.runCommandExpectSuccess("git", "clone", "--resource=" + repo1 + "," + repo2);
+    // `terra git clone --resource=$bucketResourceName`
+    TestCommand.runCommandExpectExitCode(1, "git", "clone", "--resource=" + bucketResourceName);
 
     assertTrue(
         Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
+
+    // cleanup
     FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
   }
 
   @Test
