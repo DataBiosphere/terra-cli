@@ -107,6 +107,7 @@ public class Resolve extends BaseCommand {
     if (resourceNamesToCloudIds.length() == 1) {
       String resourceName = (String) resourceNamesToCloudIds.keySet().iterator().next();
       OUT.println(resourceNamesToCloudIds.get(resourceName));
+      return;
     }
 
     // These are the resources for a data collection. Print table of resource name and cloud ID.
