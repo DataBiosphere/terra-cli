@@ -120,7 +120,7 @@ public abstract class PDResource {
       return this;
     }
 
-    public Builder privateUserRoles(ControlledResourceIamRole privateUserRole) {
+    public Builder privateUserRole(ControlledResourceIamRole privateUserRole) {
       this.privateUserRole = privateUserRole;
       return this;
     }
