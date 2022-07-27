@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDContext;
@@ -39,7 +40,8 @@ public class Context {
   // file paths related to persisting the context on disk
   private static final String CONTEXT_DIRNAME = ".terra";
   private static final String CONTEXT_FILENAME = "context.json";
-  private static final String LOGS_DIRNAME = "logs";
+  // Only exposed for logging in tests
+  public static final String LOGS_DIRNAME = "logs";
   private static final String LOG_FILENAME = "terra.log";
 
   /**
@@ -117,22 +119,26 @@ public class Context {
    */
   public static Path getContextDir() {
     // default to the user's home directory
-    Path parentDir = Paths.get(System.getProperty("user.home"));
-
-    // if the override environment variable is set and points to a valid directory, then use it
-    // instead
+    Path contextPath = Paths.get(System.getProperty("user.home"));
+    // if the override environment variable is set, use it instead
     String overrideDirName = System.getenv(CONTEXT_DIR_OVERRIDE_NAME);
     if (overrideDirName != null && !overrideDirName.isBlank()) {
-      Path overrideDir = Paths.get(overrideDirName).toAbsolutePath();
-      if (overrideDir.toFile().exists() && overrideDir.toFile().isDirectory()) {
-        parentDir = overrideDir;
-      } else {
-        throw new UserActionableException(
-            "Override environment variable does not point to a valid directory: " + overrideDir);
-      }
+      contextPath = Paths.get(overrideDirName);
+    }
+    // If this is a test, append the current runner's ID. This lets us run multiple tests in
+    // parallel without clobbering context across runners.
+    String isTest = System.getProperty(CommandRunner.IS_TEST);
+    if (isTest != null && isTest.equals("true")) {
+      contextPath = contextPath.resolve(System.getProperty("org.gradle.test.worker"));
+    }
+    // build.gradle test task makes contextDir. However, with test-runner specific directories,
+    // this test is executed in a different place from where the test task mkdir was run. So need
+    // to create directory for if Test Distribution is being used.
+    if (!contextPath.toAbsolutePath().toFile().exists()) {
+      contextPath.toAbsolutePath().toFile().mkdir();
     }
 
-    return parentDir.resolve(CONTEXT_DIRNAME).toAbsolutePath();
+    return contextPath.resolve(CONTEXT_DIRNAME).toAbsolutePath();
   }
 
   /**

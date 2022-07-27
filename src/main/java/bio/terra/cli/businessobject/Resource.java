@@ -2,7 +2,7 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
-import bio.terra.cli.businessobject.resource.DataSource;
+import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
@@ -21,7 +21,6 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -45,7 +44,7 @@ public abstract class Resource {
 
   // private controlled resources
   protected String privateUserName;
-  protected List<ControlledResourceIamRole> privateUserRoles;
+  protected ControlledResourceIamRole privateUserRole;
 
   /**
    * Enum for the types of workspace resources supported by the CLI. Each enum value maps to a
@@ -63,7 +62,7 @@ public abstract class Resource {
     AI_NOTEBOOK,
     GIT_REPO,
     // Corresponds to WSM type TERRA_WORKSPACE
-    DATA_SOURCE;
+    DATA_COLLECTION;
   }
 
   /** Deserialize an instance of the disk format to the internal object. */
@@ -77,7 +76,7 @@ public abstract class Resource {
     this.accessScope = configFromDisk.accessScope;
     this.managedBy = configFromDisk.managedBy;
     this.privateUserName = configFromDisk.privateUserName;
-    this.privateUserRoles = configFromDisk.privateUserRoles;
+    this.privateUserRole = configFromDisk.privateUserRole;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -96,7 +95,7 @@ public abstract class Resource {
       PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
         this.privateUserName = privateMetadata.getUserName();
-        this.privateUserRoles = privateMetadata.getPrivateResourceIamRoles();
+        this.privateUserRole = privateMetadata.getPrivateResourceIamRole();
       }
     }
   }
@@ -122,7 +121,7 @@ public abstract class Resource {
       case GIT_REPO:
         return new GitRepo(wsmObject);
       case TERRA_WORKSPACE:
-        return new DataSource(wsmObject);
+        return new DataCollection(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
@@ -251,7 +250,7 @@ public abstract class Resource {
     return privateUserName;
   }
 
-  public List<ControlledResourceIamRole> getPrivateUserRoles() {
-    return privateUserRoles;
+  public ControlledResourceIamRole getPrivateUserRole() {
+    return privateUserRole;
   }
 }

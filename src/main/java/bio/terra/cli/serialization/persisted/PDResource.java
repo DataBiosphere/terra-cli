@@ -9,7 +9,6 @@ import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,7 +30,7 @@ public abstract class PDResource {
   public final AccessScope accessScope;
   public final ManagedBy managedBy;
   public final String privateUserName;
-  public final List<ControlledResourceIamRole> privateUserRoles;
+  public final ControlledResourceIamRole privateUserRole;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDResource(Resource internalObj) {
@@ -44,7 +43,7 @@ public abstract class PDResource {
     this.accessScope = internalObj.getAccessScope();
     this.managedBy = internalObj.getManagedBy();
     this.privateUserName = internalObj.getPrivateUserName();
-    this.privateUserRoles = internalObj.getPrivateUserRoles();
+    this.privateUserRole = internalObj.getPrivateUserRole();
   }
 
   protected PDResource(PDResource.Builder builder) {
@@ -57,7 +56,7 @@ public abstract class PDResource {
     this.accessScope = builder.accessScope;
     this.managedBy = builder.managedBy;
     this.privateUserName = builder.privateUserName;
-    this.privateUserRoles = builder.privateUserRoles;
+    this.privateUserRole = builder.privateUserRole;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
@@ -74,7 +73,7 @@ public abstract class PDResource {
     private AccessScope accessScope;
     private ManagedBy managedBy;
     private String privateUserName;
-    private List<ControlledResourceIamRole> privateUserRoles;
+    private ControlledResourceIamRole privateUserRole;
 
     public Builder id(UUID id) {
       this.id = id;
@@ -121,8 +120,8 @@ public abstract class PDResource {
       return this;
     }
 
-    public Builder privateUserRoles(List<ControlledResourceIamRole> privateUserRoles) {
-      this.privateUserRoles = privateUserRoles;
+    public Builder privateUserRole(ControlledResourceIamRole privateUserRole) {
+      this.privateUserRole = privateUserRole;
       return this;
     }
 

@@ -29,8 +29,8 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Override
   @BeforeEach
-  protected void setupEachTime() throws IOException {
-    super.setupEachTime();
+  protected void setupEachTime(TestInfo testInfo) throws IOException {
+    super.setupEachTime(testInfo);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

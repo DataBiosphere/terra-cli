@@ -2,19 +2,15 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.api.client.util.DateTime;
-import com.google.cloud.Identity;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
-import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,43 +18,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying lifecycle rules for controlled GCS buckets. */
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
-  // external bucket to use for testing the JSON format against GCS directly
-  private BucketInfo externalBucket;
-
-  @Override
-  @BeforeAll
-  protected void setupOnce() throws Exception {
-    super.setupOnce();
-    externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
-
-    // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
-    // lifecycle` with the same JSON format used for creating controlled bucket resources with
-    // lifecycle rules
-    ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
-  }
-
-  @Override
-  @AfterAll
-  protected void cleanupOnce() throws Exception {
-    super.cleanupOnce();
-    ExternalGCSBuckets.deleteBucket(externalBucket);
-    externalBucket = null;
-  }
 
   @Override
   @BeforeEach
-  protected void setupEachTime() throws IOException {
-    super.setupEachTime();
+  protected void setupEachTime(TestInfo testInfo) throws IOException {
+    super.setupEachTime(testInfo);
 
     workspaceCreator.login();
 
@@ -218,7 +191,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--format=json");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
     BucketInfo.LifecycleRule lifecycleRuleFromGCS = lifecycleRulesFromGCS.get(0);
 
@@ -258,33 +231,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
-  void sameFormatForExternalBucket() throws IOException {
-    // the CLI mounts the current working directory to the Docker container when running apps
-    // so we need to give it the path to lifecycle JSON file relative to the current working
-    // directory. e.g.
-    // lifecyclePathOnHost =
-    // /Users/gh/terra-cli/src/test/resources/testinputs/gcslifecycle/multipleRules.json
-    // currentDirOnHost = /Users/gh/terra-cli/
-    // lifecyclePathOnContainer = ./src/test/resources/testinputs/gcslifecycle/multipleRules.json
-    Path lifecyclePathOnHost = TestCommand.getPathForTestInput("gcslifecycle/multipleRules.json");
-    Path currentDirOnHost = Path.of(System.getProperty("user.dir"));
-    Path lifecyclePathOnContainer = currentDirOnHost.relativize(lifecyclePathOnHost);
-
-    // `terra gsutil lifecycle set $lifecycle gs://$bucketname`
-    TestCommand.runCommandExpectSuccess(
-        "gsutil",
-        "lifecycle",
-        "set",
-        lifecyclePathOnContainer.toString(),
-        ExternalGCSBuckets.getGsPath(externalBucket.getName()));
-
-    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        getLifecycleRulesFromCloud(externalBucket.getName());
-    validateMultipleRules(lifecycleRules);
-  }
-
-  @Test
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
@@ -313,7 +259,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--lifecycle=" + lifecycle2,
         "--new-cloning=" + CloningInstructionsEnum.DEFINITION);
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(1, lifecycleRulesFromGCS.size(), "bucket has exactly one lifecycle rule defined");
     expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
     assertEquals(
@@ -351,15 +297,18 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "resource", "update", "gcs-bucket", "--name=" + resourceName, "--lifecycle=" + lifecycle2);
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
-        getLifecycleRulesFromCloud(bucketName);
+        ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
   }
 
   /**
    * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
    * the multipleRules.json file.
+   *
+   * <p>This is static and package-private to be available for other test classes, like gsutil-based
+   * tests in PassthroughApps.
    */
-  private void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
+  static void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
     assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
 
     Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
@@ -383,7 +332,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   /** Check that the action is Delete. */
-  private void expectActionDelete(BucketInfo.LifecycleRule rule) {
+  static void expectActionDelete(BucketInfo.LifecycleRule rule) {
     assertEquals(
         BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
         rule.getAction().getActionType(),
@@ -391,7 +340,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
   }
 
   /** Check that the action is SetStorageClass and the storage class is the given one. */
-  private void expectActionSetStorageClass(
+  static void expectActionSetStorageClass(
       BucketInfo.LifecycleRule rule, StorageClass storageClass) {
     assertEquals(
         BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
@@ -445,22 +394,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle);
 
-    return getLifecycleRulesFromCloud(bucketName);
-  }
-
-  /** Helper method to get the lifecycle rules on the bucket by querying GCS directly. */
-  private List<? extends BucketInfo.LifecycleRule> getLifecycleRulesFromCloud(String bucketName)
-      throws IOException {
-    Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
-    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
-
-    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
-        createdBucketOnCloud.getLifecycleRules();
-    assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
-    lifecycleRules.forEach(System.out::println); // log to console
-
-    return lifecycleRules;
+    return ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
   }
 }

@@ -1,7 +1,6 @@
 package unit;
 
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,7 +39,6 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -110,37 +108,6 @@ public class WorkspaceOverride extends ClearContextUnit {
     externalBucket = null;
     ExternalBQDatasets.deleteDataset(externalDataset);
     externalDataset = null;
-  }
-
-  @Test
-  @DisplayName("gcloud and app execute respect workspace override")
-  void gcloudAppExecute() throws IOException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id1`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
-
-    // `terra app execute --workspace=$id2 echo \$GOOGLE_CLOUD_PROJECT`
-    TestCommand.Result cmd =
-        TestCommand.runCommand(
-            "app", "execute", "--workspace=" + workspace2.id, "echo", "$GOOGLE_CLOUD_PROJECT");
-
-    // check that the google cloud project id matches workspace 2
-    assertThat(
-        "GOOGLE_CLOUD_PROJECT set to workspace2's project",
-        cmd.stdOut,
-        CoreMatchers.containsString(workspace2.googleProjectId));
-
-    // `terra gcloud --workspace=$id2 config get project`
-    cmd =
-        TestCommand.runCommand(
-            "gcloud", "--workspace=" + workspace2.id, "config", "get-value", "project");
-
-    // check that the google cloud project id matches workspace 2
-    assertThat(
-        "gcloud project = workspace2's project",
-        cmd.stdOut,
-        CoreMatchers.containsString(workspace2.googleProjectId));
   }
 
   @Test

@@ -20,13 +20,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /** Tests for the `terra workspace` commands that handle sharing with other users. */
 @Tag("unit")
 public class WorkspaceUser extends SingleWorkspaceUnit {
   @BeforeEach
   @Override
-  protected void setupEachTime() throws IOException {
+  protected void setupEachTime(TestInfo testInfo) throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -48,7 +49,7 @@ public class WorkspaceUser extends SingleWorkspaceUnit {
       }
     }
 
-    super.setupEachTime();
+    super.setupEachTime(testInfo);
   }
 
   @Test
