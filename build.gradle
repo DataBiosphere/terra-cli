@@ -72,7 +72,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
-        workspaceManagerClient = "0.254.283-SNAPSHOT"
+        workspaceManagerClient = "0.254.324-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
         janitor = "0.113.5-SNAPSHOT"

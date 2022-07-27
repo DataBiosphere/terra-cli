@@ -188,6 +188,20 @@ public class Workspace {
   }
 
   /**
+   * Update the mutable properties of the current workspace.
+   *
+   * @param propertyKeys properties for updating
+   * @throws UserActionableException if there is no current workspace
+   */
+  public Workspace deleteProperties(List<String> propertyKeys) {
+    // call WSM to update the existing workspace object
+    WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
+    logger.info("Deleted workspace properties: {}", propertyKeys);
+
+    return get(uuid);
+  }
+
+  /**
    * Enable the current user and their pet to impersonate their pet SA in this workspace.
    *
    * @return Email identifier of the pet SA the current user can now actAs.
