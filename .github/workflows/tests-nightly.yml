@@ -85,13 +85,21 @@ jobs:
         id: compile_logs_and_context_files
         if: always()
         run: |
-          declare -a arr=("unit" "integration-source" "integration-release")
+          declare -a arr=("integration-source" "integration-release")
           for i in "${arr[@]}"
           do
             echo "Compiling logs and context files for test run: $i"
             mkdir -p ~/to-archive/$i
             cp -R ~/logs-$i/.terra/logs/ ~/to-archive/$i/logs/
             cp -R ~/logs-$i/.terra/context.json ~/to-archive/$i/context.json
+          done
+          # Unit tests write to worker-specific directories, extract those here
+          mkdir -p ~/to-archive/unit
+          for N in `ls ~/logs-unit`
+          do
+            mkdir -p ~/to-archive/unit/$N
+            cp -R ~/logs-unit/$N/.terra/logs/ ~/to-archive/unit/$N/logs/
+            cp -R ~/logs-unit/$N/.terra/context.json ~/to-archive/unit/$N/context.json
           done
       - name: Archive logs and context file for all test runs
         id: archive_logs_and_context

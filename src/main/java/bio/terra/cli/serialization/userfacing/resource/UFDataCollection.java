@@ -189,7 +189,7 @@ public class UFDataCollection extends UFResource {
 
   private void printDate(String prefix, String dateLabel, @Nullable OffsetDateTime dateTime) {
     if (dateTime == null) {
-      logger.warn(String.format("datetime for %s is null", dateLabel));
+      logger.info(String.format("datetime for %s is null, expected for old workspaces", dateLabel));
       return;
     }
     UserIO.getOut()
