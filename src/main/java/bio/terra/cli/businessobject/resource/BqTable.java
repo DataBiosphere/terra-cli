@@ -70,7 +70,7 @@ public class BqTable extends Resource {
    * @return the resource that was added
    */
   public static BqTable addReferenced(AddBqTableParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDataTableResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -85,7 +85,7 @@ public class BqTable extends Resource {
   /** Update a BigQuery data table referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqTableParams updateParams) {
     if (updateParams.resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceParams.name);
+      validateResourceName(updateParams.resourceParams.name);
     }
     if (updateParams.projectId != null) {
       this.projectId = updateParams.projectId;

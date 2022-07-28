@@ -46,17 +46,12 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
-  private UFWorkspace workspace2;
 
   @Override
   @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
-    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
-    // Set workspace back to the original
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // grant the user's proxy group write access to the bucket, so we can test calling `terra gsutil
     // lifecycle` with the same JSON format used for creating controlled bucket resources with
@@ -73,11 +68,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     super.cleanupOnce();
     ExternalGCSBuckets.deleteBucket(externalBucket);
     externalBucket = null;
-    // `terra workspace set --id=$id2`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace2.id);
-
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -121,13 +111,15 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name = "resourceEnvVars";
+    // Put dash in resource name. Dashes aren't allowed in env variables.
+    String name = "resource-Env-Vars";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra app execute echo \$TERRA_$name`
-    TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + name);
+    TestCommand.Result cmd =
+        TestCommand.runCommand("app", "execute", "echo", "$TERRA_resource__Env__Vars");
 
     // check that TERRA_$name = resolved bucket name
     assertThat(
@@ -426,6 +418,9 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gcloudAppExecute() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+
+    // Set workspace back to the original
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
