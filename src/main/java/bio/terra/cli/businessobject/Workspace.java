@@ -191,6 +191,7 @@ public class Workspace {
    */
   public Workspace updateProperties(Map<String, String> properties) {
     // call WSM to update the existing workspace object
+    System.out.println("my properties: " + properties);
     WorkspaceDescription updatedWorkspaceProperties =
         WorkspaceManagerService.fromContext().updateWorkspaceProperties(uuid, properties);
     logger.info("Updated workspace: {}", updatedWorkspaceProperties);

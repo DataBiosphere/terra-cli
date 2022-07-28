@@ -84,7 +84,6 @@ import bio.terra.workspace.model.JobControl;
 import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
 import bio.terra.workspace.model.ManagedBy;
-import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
@@ -393,12 +392,14 @@ public class WorkspaceManagerService {
    */
   public WorkspaceDescription updateWorkspaceProperties(
       UUID workspaceId, Map<String, String> workspaceProperties) {
-    new WorkspaceApi(apiClient).updateWorkspaceProperties(updateRequest,
-  workspaceId, buildProperties(workspaceProperties);
-
+    callWithRetries(
+        () ->
+            new WorkspaceApi(apiClient)
+                .updateWorkspaceProperties(buildProperties(workspaceProperties), workspaceId),
+        "Error updating workspace properties");
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
-        "Error updating workspace properties");
+        "Error getting the workspace after updating properties");
   }
 
   /**
@@ -1577,16 +1578,14 @@ public class WorkspaceManagerService {
         : apiEx.getCode() + " " + apiEx.getMessage());
   }
 
-  public Properties buildProperties(Map<String, String> propertyMap) {
-    Properties properties = new Properties();
+  public List<Property> buildProperties(Map<String, String> propertyMap) {
+    List propertList = new ArrayList();
     Property property = new Property();
-
     for (Map.Entry<String, String> entry : propertyMap.entrySet()) {
       property.setKey(entry.getKey());
       property.setValue(entry.getValue());
-      properties.add(property);
+      propertList.add(property);
     }
-
-    return properties;
+    return propertList;
   }
 }

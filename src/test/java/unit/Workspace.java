@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
-import bio.terra.workspace.model.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
@@ -171,7 +170,6 @@ public class Workspace extends ClearContextUnit {
     //         .findFirst()
     //         .orElseThrow();
     // assertEquals("newValue1", property1.getValue(), "Multiple property entries add successful.");
-
 
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =
