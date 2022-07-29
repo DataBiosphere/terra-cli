@@ -50,7 +50,6 @@ public class LocalProcessLauncher {
       Map<String, String> procEnvVars = procBuilder.environment();
       procEnvVars.putAll(envVars);
     }
-    procBuilder.inheritIO();
 
     try {
       process = procBuilder.start();
@@ -61,6 +60,7 @@ public class LocalProcessLauncher {
 
   /** Stream standard out/err from the child process to the CLI console. */
   public void streamOutputForProcess() {
+    // getInputStream() is confusingly named; it returns process stdout (what we want).
     Runnable streamStdOut = () -> streamOutput(process.getInputStream(), UserIO.getOut());
     stdOutThread = new Thread(streamStdOut);
     stdOutThread.start();
@@ -82,7 +82,7 @@ public class LocalProcessLauncher {
 
       String line;
       while ((line = bufferedReader.readLine()) != null) {
-        toStream.print(line);
+        toStream.println(line);
         toStream.flush();
       }
     } catch (IOException ioEx) {

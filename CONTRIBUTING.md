@@ -135,14 +135,19 @@ This is the script users can add to their `$PATH` to invoke the CLI more easily 
 
 #### Two types of tests
 There are two types of CLI tests:
-- Unit tests call commands directly in Java. They run against source code; no CLI installation is required.
-Example unit test code:
+- Unit tests call commands directly in Java. They run against source code; no CLI installation is required. 
+By default, unit tests will run in parallel on up half the available cores in order to run faster. This behavior is
+controlled by the `maxParallelForks` setting in `build.gradle`. Example unit test code:
 ```
     // `terra auth status --format=json`
     TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
 ```
+
+
 - Integration tests call commands from a bash script run in a separate process. They run against a CLI installation,
-either one built directly from source code via `./gradlew install` or one built from the latest GitHub release.
+either one built directly from source code via `./gradlew install` or one built from the latest GitHub release. Integration
+tests often use passthrough apps (e.g. nextflow, gcloud, gsutil, bq, etc.) which maintain their own global state, so by default
+we do not run them in parallel to avoid clobbering state across runners.
 Example integration test code:
 ```
     // run a script that includes a Nextflow workflow
@@ -156,7 +161,8 @@ as the test, and the installed code in a separate process from the test). This c
 Both types of tests:
 - Use the same code to authenticate a test user without requiring browser interaction.
 - Override the context directory to `build/test-context/`, so that tests don't overwrite the context for an existing
-CLI installation on the same machine.
+CLI installation on the same machine. Unit tests additionally create sub-directories inside `build/test-context/` based on
+the runner number, so each process's logs will live in a directory like `build/test-context/1`
 
 #### Run tests
 - Run unit tests directly against the source code:
@@ -283,10 +289,12 @@ ssh into Docker container where you can run `terra`:
 - After `sleep` runs, go to Docker Desktop and click on `cli` icon. Then you'll have a shell in the Docker container.
 
 Skip creating workspace, since it's slow:
-- Comment out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L50).
+- Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18) to `TestUser.chooseTestUserWithOwnerAccess()`. Without this, you
+  might get different users on different runs, and they won't have access to each other's workspaces.
+- Comment out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L37-L49).
 - Run test
 - Replace [creating workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
-  with `workspaceId = UUID.fromString("<workspace-id>");`
+  with `userFacingId = <id-from-earlier-workspace>;`
 
 ### Docker
 The `docker/` directory contains files required to build the Docker image.

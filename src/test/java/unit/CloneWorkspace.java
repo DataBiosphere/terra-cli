@@ -24,11 +24,11 @@ import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
+import harness.utils.TestUtils;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
@@ -113,9 +113,6 @@ public class CloneWorkspace extends ClearContextUnit {
     // create a workspace
     sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
 
-    // create a radom workspace clone
-    Random RANDOM = new Random();
-
     // Add a bucket resource
     UFGcsBucket sourceBucket =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -180,7 +177,7 @@ public class CloneWorkspace extends ClearContextUnit {
             UFClonedWorkspace.class,
             "workspace",
             "clone",
-            "--new-id=cloned_id" + RANDOM.nextInt(Integer.MAX_VALUE),
+            "--new-id=" + TestUtils.appendRandomNumber("cloned-workspace-id"),
             "--name=cloned_workspace",
             "--description=A clone.");
 

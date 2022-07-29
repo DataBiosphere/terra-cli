@@ -56,10 +56,14 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected int runToolCommandImpl(String command, Map<String, String> envVars)
       throws PassthroughException {
-
-    // Don't enforce ADC for tests. (`gcloud auth activate-service-account` requires a key file,
-    // which we don't want for security reasons.)
-    if (System.getProperty(CommandRunner.IS_TEST) != null) {
+    if ("true".equals(System.getProperty(CommandRunner.IS_TEST))) {
+      // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically
+      // authenticate as test user, without SA key file
+      // (https://cloud.google.com/sdk/docs/authorizing).
+      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().get());
+    } else {
+      // Only enforce ADC if we're not a test. (`gcloud auth activate-service-account` requires a
+      // key file, which we don't want for security reasons.)
 
       // check that the ADC match the user or their pet SA
       AppDefaultCredentialUtils.throwIfADCDontMatchContext();

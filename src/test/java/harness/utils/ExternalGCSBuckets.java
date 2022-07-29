@@ -1,5 +1,7 @@
 package harness.utils;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
@@ -12,8 +14,10 @@ import com.google.cloud.storage.Acl.Entity;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.BucketInfo.IamConfiguration;
+import com.google.cloud.storage.BucketInfo.LifecycleRule;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageException;
@@ -22,9 +26,11 @@ import com.google.cloud.storage.StorageRoles;
 import harness.CRLJanitor;
 import harness.TestConfig;
 import harness.TestExternalResources;
+import harness.TestUser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 
@@ -188,5 +194,21 @@ public class ExternalGCSBuckets {
   /** Utility method to get the gs:// path of a bucket object. */
   public static String getGsPath(String bucketName, String objectPath) {
     return getGsPath(bucketName) + "/" + objectPath;
+  }
+
+  /** Helper method to get the lifecycle rules on the bucket by querying GCS directly. */
+  public static List<? extends LifecycleRule> getLifecycleRulesFromCloud(
+      String bucketName, TestUser workspaceCreator) throws IOException {
+    Bucket createdBucketOnCloud =
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .get(bucketName);
+    assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
+
+    List<? extends BucketInfo.LifecycleRule> lifecycleRules =
+        createdBucketOnCloud.getLifecycleRules();
+    assertNotNull(lifecycleRules, "looking up lifecycle rules via GCS API succeeded");
+    lifecycleRules.forEach(System.out::println); // log to console
+
+    return lifecycleRules;
   }
 }
