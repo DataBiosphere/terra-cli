@@ -197,13 +197,13 @@ public class Workspace {
   }
 
   /**
-   * Update the mutable properties of the current workspace.
+   * Delete the mutable properties of the current workspace.
    *
-   * @param propertyKeys properties for updating
+   * @param propertyKeys properties for deleting
    * @throws UserActionableException if there is no current workspace
    */
   public Workspace deleteProperties(List<String> propertyKeys) {
-    // call WSM to update the existing workspace object
+    // call WSM to delete the existing workspace object
     WorkspaceDescription deletedWorkspaceProperties =
         WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
     logger.info("Deleted workspace properties: {}", propertyKeys);

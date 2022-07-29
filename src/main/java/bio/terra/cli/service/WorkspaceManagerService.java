@@ -443,11 +443,11 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Call the Workspace Manager PATCH "/api/workspaces/v1/{id}/properties" endpoint to update
+   * Call the Workspace Manager PATCH "/api/workspaces/v1/{id}/properties" endpoint to delete
    * properties in workspace.
    *
-   * @param workspaceId the id of the workspace to update
-   * @param workspacePropertyKeys the update properties
+   * @param workspaceId the id of the workspace to delete properties
+   * @param workspacePropertyKeys the property keys for deleting
    * @return the Workspace Manager workspace description object
    */
   public WorkspaceDescription deleteWorkspaceProperties(
@@ -459,7 +459,7 @@ public class WorkspaceManagerService {
         "Error deleting workspace properties");
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
-        "Error getting the workspace after updating properties");
+        "Error getting the workspace after deleting properties");
   }
 
   /**

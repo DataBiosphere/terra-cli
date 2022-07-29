@@ -36,7 +36,7 @@ public class DeleteProperty extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(UFWorkspace returnValue) {
-    OUT.println("Workspace successfully loaded.");
+    OUT.println("Workspace properties successfully deleted.");
     returnValue.print();
   }
 }

@@ -162,6 +162,8 @@ public class Workspace extends ClearContextUnit {
         status.workspace.description,
         "status matches updated workspace description");
 
+    TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key");
+
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
@@ -172,6 +174,8 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         describeWorkspace.description,
         "describe matches updated workspace description");
+    assertFalse(describeWorkspace.properties.containsKey("key"));
+    assertFalse(describeWorkspace.properties.containsValue("value"));
 
     // check the workspace list reflects the update
     List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
@@ -183,12 +187,6 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         matchingWorkspaces.get(0).description,
         "updated workspace description matches that in list");
-
-    String deletePropertyKeys = "key";
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "delete-property", "--keys=" + deletePropertyKeys);
-    assertFalse(describeWorkspace.properties.containsKey("key"));
-    assertFalse(describeWorkspace.properties.containsKey("value"));
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
