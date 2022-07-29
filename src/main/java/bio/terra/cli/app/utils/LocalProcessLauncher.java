@@ -82,7 +82,7 @@ public class LocalProcessLauncher {
 
       String line;
       while ((line = bufferedReader.readLine()) != null) {
-        toStream.print(line);
+        toStream.println(line);
         toStream.flush();
       }
     } catch (IOException ioEx) {

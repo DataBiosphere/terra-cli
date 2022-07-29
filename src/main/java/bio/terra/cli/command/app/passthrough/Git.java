@@ -7,13 +7,13 @@ import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import com.google.common.base.Preconditions;
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -57,7 +57,7 @@ public class Git extends ToolCommand {
     }
     if (cloneAll || (names != null && names.length > 0)) {
       validateCloneCommand();
-      clone(cloneAll ? getAllGitResourcesInWorkspace() : getGitResourcesByNames());
+      clone(cloneAll ? getAllGitReposInWorkspace() : getGitReposByNames());
       return;
     }
     // handle other git commands
@@ -71,21 +71,23 @@ public class Git extends ToolCommand {
     }
   }
 
-  private List<Resource> getAllGitResourcesInWorkspace() {
-    List<Resource> gitResources = new ArrayList<>();
-    var resources = Context.requireWorkspace().getResources();
-    gitResources.addAll(getGitReposToClone(resources));
-    resources.stream()
-        .filter(resource -> Resource.Type.DATA_COLLECTION == resource.getResourceType())
-        .forEach(
-            resource ->
-                gitResources.addAll(
-                    attemptToGetGitResourcesInDataCollection((DataCollection) resource)));
+  private Set<String> getAllGitReposInWorkspace() {
+    // Use Set instead of List because there might be duplicates. This workspace may have a git
+    // repo, and a data collection may have the same repo.
+    Set<String> gitResources = getGitRepos(Context.requireWorkspace().getResources());
+
+    // Add git repos from data collections
+    // Java doesn't allow modifying gitResources in lambda, so use for loop
+    for (Resource resource : Context.requireWorkspace().getResources()) {
+      if (resource.getResourceType() == Resource.Type.DATA_COLLECTION) {
+        gitResources.addAll(attemptToGetGitReposInDataCollection((DataCollection) resource));
+      }
+    }
     return gitResources;
   }
 
-  private List<Resource> getGitResourcesByNames() {
-    List<Resource> gitResources = new ArrayList<>();
+  private Set<String> getGitReposByNames() {
+    Set<String> gitResources = new HashSet<>();
     Arrays.stream(names)
         .forEach(
             name -> {
@@ -96,12 +98,12 @@ public class Git extends ToolCommand {
                         "%s %s cannot be cloned because it is not a git resource",
                         resource.getResourceType(), resource.getName()));
               }
-              gitResources.add(resource);
+              gitResources.add(resource.resolve());
             });
     return gitResources;
   }
 
-  private List<Resource> attemptToGetGitResourcesInDataCollection(DataCollection dataCollection) {
+  private Set<String> attemptToGetGitReposInDataCollection(DataCollection dataCollection) {
     Workspace dataCollectionWorkspace = null;
     try {
       dataCollectionWorkspace = dataCollection.getDataCollectionWorkspace();
@@ -110,28 +112,26 @@ public class Git extends ToolCommand {
       logger.warn(String.format("Failed to get Data collection %s", dataCollection.getName()));
     }
     if (dataCollectionWorkspace != null) {
-      return getGitReposToClone(dataCollectionWorkspace.getResources());
+      return getGitRepos(dataCollectionWorkspace.getResources());
     }
-    return Collections.emptyList();
+    return Collections.emptySet();
   }
 
-  private List<Resource> getGitReposToClone(List<Resource> resources) {
+  private Set<String> getGitRepos(List<Resource> resources) {
     return resources.stream()
         .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
-        .collect(Collectors.toList());
+        .map(Resource::resolve)
+        .collect(Collectors.toSet());
   }
 
-  private void clone(List<Resource> resources) {
-    resources.forEach(
-        resource -> {
-          Preconditions.checkArgument(Resource.Type.GIT_REPO == resource.getResourceType());
-          List<String> cloneCommands = Stream.of("git", "clone").collect(Collectors.toList());
-          String gitRepoUrl = resource.resolve();
-          cloneCommands.add(gitRepoUrl);
+  private void clone(Set<String> gitRepos) {
+    gitRepos.forEach(
+        gitRepo -> {
+          List<String> cloneCommands = ImmutableList.of("git", "clone", gitRepo);
           try {
             Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);
           } catch (PassthroughException e) {
-            ERR.println("Git clone for " + gitRepoUrl + " failed");
+            ERR.println("Git clone for " + gitRepo + " failed");
           }
         });
   }
