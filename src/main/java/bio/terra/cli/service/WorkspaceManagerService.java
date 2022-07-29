@@ -1580,8 +1580,8 @@ public class WorkspaceManagerService {
 
   public List<Property> buildProperties(Map<String, String> propertyMap) {
     List propertList = new ArrayList();
-    Property property = new Property();
     for (Map.Entry<String, String> entry : propertyMap.entrySet()) {
+      Property property = new Property();
       property.setKey(entry.getKey());
       property.setValue(entry.getValue());
       propertList.add(property);

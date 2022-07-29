@@ -7,7 +7,7 @@ import picocli.CommandLine;
 public class WorkspaceProperties {
   @CommandLine.Option(
       names = "--properties",
-      required = true,
+      required = false,
       split = ",",
       description =
           "Workspace properties. Example: --properties=key=value. For multiple properties, use \",\": --properties=key1=value1,key2=value2")

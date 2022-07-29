@@ -21,7 +21,6 @@ public class SetProperty extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    System.out.println("my properteis: " + workspaceProperties.properties);
     Workspace updatedWorkspace =
         Context.requireWorkspace().updateProperties(workspaceProperties.properties);
     updatedWorkspace.listResourcesAndSync();
