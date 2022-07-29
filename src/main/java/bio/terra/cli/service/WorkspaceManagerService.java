@@ -450,12 +450,16 @@ public class WorkspaceManagerService {
    * @param workspacePropertyKeys the update properties
    * @return the Workspace Manager workspace description object
    */
-  public void deleteWorkspaceProperties(UUID workspaceId, List<String> workspacePropertyKeys) {
+  public WorkspaceDescription deleteWorkspaceProperties(
+      UUID workspaceId, List<String> workspacePropertyKeys) {
     callWithRetries(
         () ->
             new WorkspaceApi(apiClient)
                 .deleteWorkspaceProperties(workspacePropertyKeys, workspaceId),
         "Error deleting workspace properties");
+    return callWithRetries(
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        "Error getting the workspace after updating properties");
   }
 
   /**

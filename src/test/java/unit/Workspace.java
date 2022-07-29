@@ -184,6 +184,12 @@ public class Workspace extends ClearContextUnit {
         matchingWorkspaces.get(0).description,
         "updated workspace description matches that in list");
 
+    String deletePropertyKeys = "key";
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "delete-property", "--keys=" + deletePropertyKeys);
+    assertFalse(describeWorkspace.properties.containsKey("key"));
+    assertFalse(describeWorkspace.properties.containsKey("value"));
+
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }

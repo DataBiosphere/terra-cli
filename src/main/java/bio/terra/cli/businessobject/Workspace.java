@@ -204,10 +204,16 @@ public class Workspace {
    */
   public Workspace deleteProperties(List<String> propertyKeys) {
     // call WSM to update the existing workspace object
-    WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
+    WorkspaceDescription deletedWorkspaceProperties =
+        WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
     logger.info("Deleted workspace properties: {}", propertyKeys);
 
-    return get(uuid);
+    // convert the WSM object to a CLI object
+    Workspace workspace = new Workspace(deletedWorkspaceProperties);
+
+    // update the global context with the current workspace
+    Context.setWorkspace(workspace);
+    return workspace;
   }
 
   /**
