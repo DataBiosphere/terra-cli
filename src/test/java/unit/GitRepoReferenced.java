@@ -30,6 +30,8 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   @DisplayName("list and describe reflect adding a new referenced git repo")
   void listDescribeReflectAdd() throws IOException {
     workspaceCreator.login();
+
+    // Generate ssh key to avoid prompt about ssh key
     TestCommand.runCommandExpectSuccess("user", "ssh-key", "generate", "--quiet");
 
     // `terra workspace set --id=$id`
