@@ -151,8 +151,8 @@ public class Workspace extends ClearContextUnit {
         "--new-name=" + newName,
         "--new-description=" + newDescription);
 
-    String updateProperties = "key=valueUpdate,key1=value1";
-    TestCommand.runCommandExpectSuccess("workspace", "set-property", updateProperties);
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "set-property", "--properties=key=valueUpdate,key1=value1");
 
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
@@ -168,7 +168,7 @@ public class Workspace extends ClearContextUnit {
     assertEquals("valueUpdate", status.workspace.properties.get("key"));
     assertEquals("value1", status.workspace.properties.get("key1"));
     assertEquals(
-        2, status.workspace.properties.size(), "Multiple property entries add successful.");
+        2, status.workspace.properties.size(), "Multiple property entries updated successful.");
 
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =

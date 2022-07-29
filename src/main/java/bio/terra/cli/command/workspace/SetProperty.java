@@ -29,7 +29,7 @@ public class SetProperty extends BaseCommand {
 
   /** Print this command's output in text format. */
   private void printText(UFWorkspace returnValue) {
-    OUT.println("Workspace successfully loaded.");
+    OUT.println("Workspace properties successfully updated.");
     returnValue.print();
   }
 }
