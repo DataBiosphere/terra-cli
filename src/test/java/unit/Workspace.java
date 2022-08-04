@@ -124,9 +124,7 @@ public class Workspace extends ClearContextUnit {
     String initialProperties = "key=value,key1=value1,foo=bar";
 
     // Create a workspace with 3 properties
-    UFWorkspace createdWorkspace =
-        WorkspaceUtils.createWorkspace(
-            testUser, "propertyDeleteTest", /*description=*/ "", initialProperties);
+    WorkspaceUtils.createWorkspace(testUser, "propertyDeleteTest", "", initialProperties);
 
     //    Call `terra workspace delete-property` for 2 properties
     TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key,key1");
