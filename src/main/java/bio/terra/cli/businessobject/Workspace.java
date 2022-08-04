@@ -203,7 +203,6 @@ public class Workspace {
    * @throws UserActionableException if there is no current workspace
    */
   public Workspace deleteProperties(List<String> propertyKeys) {
-    // call WSM to delete the existing workspace object
     WorkspaceDescription deletedWorkspaceProperties =
         WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
     logger.info("Deleted workspace properties: {}", propertyKeys);

@@ -117,6 +117,32 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
+  @DisplayName("delete property")
+  void deleteProperty() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+    String initialProperties = "key=value,key1=value1,foo=bar";
+
+    // Create a workspace with 3 properties
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(
+            testUser, "propertyDeleteTest", /*description=*/ "", initialProperties);
+
+    //    Call `terra workspace delete-property` for 2 properties
+    TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key,key1");
+
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    //    Check workspace only has 1 property
+    assertFalse(describeWorkspace.properties.containsKey("foo"));
+    assertFalse(describeWorkspace.properties.containsValue("bar"));
+    assertEquals(1, describeWorkspace);
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
   @DisplayName("status, describe, workspace list reflect workspace update")
   void statusDescribeListReflectUpdate() throws IOException {
     // select a test user and login
@@ -162,8 +188,6 @@ public class Workspace extends ClearContextUnit {
         status.workspace.description,
         "status matches updated workspace description");
 
-    TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key");
-
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
@@ -174,8 +198,6 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         describeWorkspace.description,
         "describe matches updated workspace description");
-    assertFalse(describeWorkspace.properties.containsKey("key"));
-    assertFalse(describeWorkspace.properties.containsValue("value"));
 
     // check the workspace list reflects the update
     List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
