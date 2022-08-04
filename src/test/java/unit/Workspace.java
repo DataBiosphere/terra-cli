@@ -132,9 +132,8 @@ public class Workspace extends ClearContextUnit {
     UFWorkspace describeWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     // check workspace only has 1 property
-    assertFalse(describeWorkspace.properties.containsKey("foo"));
-    assertFalse(describeWorkspace.properties.containsValue("bar"));
-    assertEquals(1, describeWorkspace);
+    assertEquals("bar", describeWorkspace.properties.get("foo"));
+    assertEquals(1, describeWorkspace.properties.size());
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
