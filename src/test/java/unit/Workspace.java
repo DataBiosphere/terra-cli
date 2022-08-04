@@ -190,7 +190,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("update properties in workspace")
-  void updateProperties() throws IOException {
+  void updateProperty() throws IOException {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
     String initialProperties = "key=value";
