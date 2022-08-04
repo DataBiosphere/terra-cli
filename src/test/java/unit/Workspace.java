@@ -123,15 +123,15 @@ public class Workspace extends ClearContextUnit {
     testUser.login();
     String initialProperties = "key=value,key1=value1,foo=bar";
 
-    // Create a workspace with 3 properties
+    // create a workspace with 3 properties
     WorkspaceUtils.createWorkspace(testUser, "propertyDeleteTest", "", initialProperties);
 
-    //    Call `terra workspace delete-property` for 2 properties
+    // call `terra workspace delete-property` for 2 properties
     TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key,key1");
 
     UFWorkspace describeWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    //    Check workspace only has 1 property
+    // check workspace only has 1 property
     assertFalse(describeWorkspace.properties.containsKey("foo"));
     assertFalse(describeWorkspace.properties.containsValue("bar"));
     assertEquals(1, describeWorkspace);
