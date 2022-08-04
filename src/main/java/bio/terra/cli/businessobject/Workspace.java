@@ -193,7 +193,7 @@ public class Workspace {
     // call WSM to update the existing workspace object
     WorkspaceDescription updatedWorkspaceProperties =
         WorkspaceManagerService.fromContext().updateWorkspaceProperties(uuid, properties);
-    logger.info("Updated workspace: {}", updatedWorkspaceProperties);
+    logger.info("Updated workspace properties: {}", updatedWorkspaceProperties);
 
     // convert the WSM object to a CLI object
     Workspace workspace = new Workspace(updatedWorkspaceProperties);

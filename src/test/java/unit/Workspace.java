@@ -151,9 +151,6 @@ public class Workspace extends ClearContextUnit {
         "--new-name=" + newName,
         "--new-description=" + newDescription);
 
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "set-property", "--properties=key=valueUpdate,key1=value1");
-
     // `terra status --format=json`
     UFStatus status = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
 
@@ -164,11 +161,6 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         status.workspace.description,
         "status matches updated workspace description");
-
-    assertEquals("valueUpdate", status.workspace.properties.get("key"));
-    assertEquals("value1", status.workspace.properties.get("key1"));
-    assertEquals(
-        2, status.workspace.properties.size(), "Multiple property entries updated successful.");
 
     // `terra workspace describe --format=json`
     UFWorkspace describeWorkspace =
@@ -191,6 +183,32 @@ public class Workspace extends ClearContextUnit {
         newDescription,
         matchingWorkspaces.get(0).description,
         "updated workspace description matches that in list");
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
+  @DisplayName("update properties in workspace")
+  void updateProperties() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+    String initialProperties = "key=value";
+
+    // create a workspace with 1 properties
+    WorkspaceUtils.createWorkspace(testUser, "propertyUpdateTest", "", initialProperties);
+
+    // call `terra workspace set-property` for 2 properties
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "set-property", "--properties=key1=value1,key=valueUpdate");
+
+    UFWorkspace describeWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+    // check workspace has 2 properties
+    assertEquals("valueUpdate", describeWorkspace.properties.get("key"));
+    assertEquals("value1", describeWorkspace.properties.get("key1"));
+    assertEquals(
+        2, describeWorkspace.properties.size(), "Multiple property entries updated successful.");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

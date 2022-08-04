@@ -11,6 +11,8 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace set-property" command. */
+// This is set-property instead of add-property because this can be used to 1) Add property 2)
+// Update existing property.
 @Command(name = "set-property", description = "Set the workspace properties.")
 public class SetProperty extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
