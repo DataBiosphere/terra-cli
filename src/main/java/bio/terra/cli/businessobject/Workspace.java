@@ -183,6 +183,26 @@ public class Workspace {
     return workspace;
   }
 
+  /**
+   * Update the mutable properties of the current workspace.
+   *
+   * @param properties properties for updating
+   * @throws UserActionableException if there is no current workspace
+   */
+  public Workspace updateProperties(Map<String, String> properties) {
+    // call WSM to update the existing workspace object
+    WorkspaceDescription updatedWorkspaceProperties =
+        WorkspaceManagerService.fromContext().updateWorkspaceProperties(uuid, properties);
+    logger.info("Updated workspace properties: {}", updatedWorkspaceProperties);
+
+    // convert the WSM object to a CLI object
+    Workspace workspace = new Workspace(updatedWorkspaceProperties);
+
+    // update the global context with the current workspace
+    Context.setWorkspace(workspace);
+    return workspace;
+  }
+
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object

@@ -11,6 +11,7 @@ import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
 import bio.terra.cli.command.workspace.RemoveUser;
 import bio.terra.cli.command.workspace.Set;
+import bio.terra.cli.command.workspace.SetProperty;
 import bio.terra.cli.command.workspace.Update;
 import picocli.CommandLine.Command;
 
@@ -33,6 +34,7 @@ import picocli.CommandLine.Command;
       ListUsers.class,
       RemoveUser.class,
       Set.class,
+      SetProperty.class,
       Update.class,
     })
 public class Workspace {}

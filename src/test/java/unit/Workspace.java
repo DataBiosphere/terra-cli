@@ -212,6 +212,33 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
+  @DisplayName("update properties in workspace")
+  void updateProperty() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+    String initialProperties = "key=value,key1=value1";
+
+    // create a workspace with 2 properties key=value, key1=value1
+    WorkspaceUtils.createWorkspace(testUser, "propertyUpdateTest", "", initialProperties);
+
+    // call `terra workspace set-property` for 2 properties, key=valueUpdate, foo=bar
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "set-property", "--properties=key=valueUpdate,foo=bar");
+    UFWorkspace describedWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // assert 3 properties are correct
+    assertEquals("valueUpdate", describedWorkspace.properties.get("key"));
+    assertEquals("value1", describedWorkspace.properties.get("key1"));
+    assertEquals("bar", describedWorkspace.properties.get("foo"));
+    assertEquals(
+        3, describedWorkspace.properties.size(), "Multiple property entries updated successful.");
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
   @DisplayName("status, describe reflect workspace set")
   void statusDescribeReflectsSet() throws IOException {
     // select a test user and login
