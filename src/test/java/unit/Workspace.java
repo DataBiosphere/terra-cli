@@ -65,15 +65,15 @@ public class Workspace extends ClearContextUnit {
         "workspace gcp project matches current status");
 
     // `terra workspace describe --format=json`
-    UFWorkspace describeWorkspace =
+    UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
     // check the new workspace is returned by describe
     assertEquals(
-        createdWorkspace.id, describeWorkspace.id, "workspace id matches that in describe");
+        createdWorkspace.id, describedWorkspace.id, "workspace id matches that in describe");
     assertEquals(
         createdWorkspace.googleProjectId,
-        describeWorkspace.googleProjectId,
+        describedWorkspace.googleProjectId,
         "workspace gcp project matches that in describe");
 
     // check the new workspace is included in the list
@@ -114,6 +114,29 @@ public class Workspace extends ClearContextUnit {
     // check the deleted workspace is not included in the list
     List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createdWorkspace.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace is not included in list");
+  }
+
+  @Test
+  @DisplayName("delete property")
+  void deleteProperty() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+    String initialProperties = "key=value,key1=value1,foo=bar";
+
+    // create a workspace with 3 properties
+    WorkspaceUtils.createWorkspace(testUser, "propertyDeleteTest", "", initialProperties);
+
+    // call `terra workspace delete-property` for 2 properties
+    TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key,key1");
+    UFWorkspace describedWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
+
+    // check workspace only has 1 property
+    assertEquals("bar", describedWorkspace.properties.get("foo"));
+    assertEquals(1, describedWorkspace.properties.size());
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -163,14 +186,14 @@ public class Workspace extends ClearContextUnit {
         "status matches updated workspace description");
 
     // `terra workspace describe --format=json`
-    UFWorkspace describeWorkspace =
+    UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
     // check the workspace describe reflects the update
-    assertEquals(newName, describeWorkspace.name, "describe matches updated workspace name");
+    assertEquals(newName, describedWorkspace.name, "describe matches updated workspace name");
     assertEquals(
         newDescription,
-        describeWorkspace.description,
+        describedWorkspace.description,
         "describe matches updated workspace description");
 
     // check the workspace list reflects the update
@@ -238,12 +261,12 @@ public class Workspace extends ClearContextUnit {
     assertEquals(createdWorkspace1.id, status.workspace.id, "status matches set workspace id (1)");
 
     // `terra workspace describe --format=json`
-    UFWorkspace describeWorkspace =
+    UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
     // check the workspace describe reflects the workspace set
     assertEquals(
-        createdWorkspace1.id, describeWorkspace.id, "describe matches set workspace id (1)");
+        createdWorkspace1.id, describedWorkspace.id, "describe matches set workspace id (1)");
 
     // set current workspace = workspace 2
     UFWorkspace setWorkspace2 =
@@ -258,12 +281,12 @@ public class Workspace extends ClearContextUnit {
     assertEquals(createdWorkspace2.id, status.workspace.id, "status matches set workspace id (2)");
 
     // `terra workspace describe --format=json`
-    describeWorkspace =
+    describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
     // check the workspace describe reflects the workspace set
     assertEquals(
-        createdWorkspace2.id, describeWorkspace.id, "describe matches set workspace id (2)");
+        createdWorkspace2.id, describedWorkspace.id, "describe matches set workspace id (2)");
 
     // `terra workspace delete` (workspace 2)
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -333,10 +356,10 @@ public class Workspace extends ClearContextUnit {
         "--bucket-name=" + bucketName);
 
     // `terra workspace describe`
-    UFWorkspace describeWorkspace =
+    UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        1, describeWorkspace.numResources, "worksapce has 1 resource after creating bucket");
+        1, describedWorkspace.numResources, "worksapce has 1 resource after creating bucket");
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
     String datasetResourceName = "describeReflectsNumResourcesBQ";
@@ -360,10 +383,10 @@ public class Workspace extends ClearContextUnit {
         describeResult2.stdErr,
         is(emptyString()));
 
-    UFWorkspace describeWorkspace3 =
+    UFWorkspace describedWorkspace3 =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        2, describeWorkspace3.numResources, "worksapce has 2 resources after creating dataset");
+        2, describedWorkspace3.numResources, "worksapce has 2 resources after creating dataset");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

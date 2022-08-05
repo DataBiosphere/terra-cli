@@ -464,6 +464,26 @@ public class WorkspaceManagerService {
   }
 
   /**
+   * Call the Workspace Manager PATCH "/api/workspaces/v1/{id}/properties" endpoint to delete
+   * properties in workspace.
+   *
+   * @param workspaceId the id of the workspace to delete properties
+   * @param workspacePropertyKeys the property keys for deleting
+   * @return the Workspace Manager workspace description object
+   */
+  public WorkspaceDescription deleteWorkspaceProperties(
+      UUID workspaceId, List<String> workspacePropertyKeys) {
+    callWithRetries(
+        () ->
+            new WorkspaceApi(apiClient)
+                .deleteWorkspaceProperties(workspacePropertyKeys, workspaceId),
+        "Error deleting workspace properties");
+    return callWithRetries(
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        "Error getting the workspace after deleting properties");
+  }
+
+  /**
    * Call the Workspace Manager POST "/api/workspaces/v1/{id}/roles/{role}/members" endpoint to
    * grant an IAM role.
    *

@@ -5,6 +5,7 @@ import bio.terra.cli.command.workspace.BreakGlass;
 import bio.terra.cli.command.workspace.Clone;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
+import bio.terra.cli.command.workspace.DeleteProperty;
 import bio.terra.cli.command.workspace.Describe;
 import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
@@ -27,6 +28,7 @@ import picocli.CommandLine.Command;
       Clone.class,
       Create.class,
       Delete.class,
+      DeleteProperty.class,
       Describe.class,
       List.class,
       ListUsers.class,
