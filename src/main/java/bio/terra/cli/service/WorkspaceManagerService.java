@@ -1579,13 +1579,14 @@ public class WorkspaceManagerService {
   }
 
   public List<Property> buildProperties(Map<String, String> propertyMap) {
-    List propertList = new ArrayList();
-    for (Map.Entry<String, String> entry : propertyMap.entrySet()) {
-      Property property = new Property();
-      property.setKey(entry.getKey());
-      property.setValue(entry.getValue());
-      propertList.add(property);
-    }
-    return propertList;
+    return propertyMap.entrySet().stream()
+        .map(
+            entry -> {
+              Property property = new Property();
+              property.setKey(entry.getKey());
+              property.setValue(entry.getValue());
+              return property;
+            })
+        .collect(Collectors.toList());
   }
 }

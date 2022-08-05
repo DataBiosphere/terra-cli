@@ -193,22 +193,23 @@ public class Workspace extends ClearContextUnit {
   void updateProperty() throws IOException {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
-    String initialProperties = "key=value";
+    String initialProperties = "key=value,key1=value1";
 
-    // create a workspace with 1 properties
+    // create a workspace with 2 properties key=value, key1=value1
     WorkspaceUtils.createWorkspace(testUser, "propertyUpdateTest", "", initialProperties);
 
-    // call `terra workspace set-property` for 2 properties
+    // call `terra workspace set-property` for 2 properties, key=valueUpdate, foo=bar
     TestCommand.runCommandExpectSuccess(
-        "workspace", "set-property", "--properties=key1=value1,key=valueUpdate");
-
-    UFWorkspace describeWorkspace =
+        "workspace", "set-property", "--properties=key=valueUpdate,foo=bar");
+    UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    // check workspace has 2 properties
-    assertEquals("valueUpdate", describeWorkspace.properties.get("key"));
-    assertEquals("value1", describeWorkspace.properties.get("key1"));
+
+    // assert 3 properties are correct
+    assertEquals("valueUpdate", describedWorkspace.properties.get("key"));
+    assertEquals("value1", describedWorkspace.properties.get("key1"));
+    assertEquals("bar", describedWorkspace.properties.get("foo"));
     assertEquals(
-        2, describeWorkspace.properties.size(), "Multiple property entries updated successful.");
+        3, describedWorkspace.properties.size(), "Multiple property entries updated successful.");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
