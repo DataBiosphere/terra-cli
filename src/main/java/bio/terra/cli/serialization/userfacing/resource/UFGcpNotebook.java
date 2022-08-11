@@ -70,7 +70,7 @@ public class UFGcpNotebook extends UFResource {
       OUT.println(prefix + "Metadata:");
       metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
     } else {
-      OUT.println(prefix + "Metadata: (undefined)");
+      OUT.println(prefix + "Metadata:      (undefined)");
     }
     OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println(prefix + "Create time:   " + (createTime == null ? "(undefined)" : createTime));
