@@ -4,6 +4,10 @@ import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.service.ExternalCredentialsManagerService;
+import bio.terra.externalcreds.model.SshKeyPair;
+import bio.terra.externalcreds.model.SshKeyPairType;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * This class runs client-side tools in a Docker container and manipulates the tools-related
@@ -43,7 +48,7 @@ public class DockerCommandRunner extends CommandRunner {
    */
   protected String wrapCommandInSetupCleanup(List<String> command) {
     // the terra_init script is already copied into the Docker image
-    return "terra_init.sh && " + buildFullCommand(command);
+    return "terra_init.sh && ssh_init.sh && " + buildFullCommand(command);
   }
 
   /**
@@ -72,6 +77,27 @@ public class DockerCommandRunner extends CommandRunner {
     Path gcloudConfigDirOnContainer = Path.of(CONTAINER_HOME_DIR, ".config/gcloud");
     if (gcloudConfigDir.toFile().exists() && gcloudConfigDir.toFile().isDirectory()) {
       bindMounts.put(gcloudConfigDirOnContainer, gcloudConfigDir);
+    }
+
+    // mount the .ssh directory to the container
+    // e.g. (host) ssh dir $HOME/.ssh -> (container) CONTAINER_HOME_DIR/.ssh
+    Path sshDir = Path.of(System.getProperty("user.home"), ".ssh");
+    Path sshDirOnContainer = Path.of(CONTAINER_HOME_DIR, ".ssh");
+    if (sshDir.toFile().exists() && sshDir.toFile().isDirectory()) {
+      bindMounts.put(sshDirOnContainer, sshDir);
+    }
+    ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
+    SshKeyPair sshKeyPair = null;
+    try {
+      sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
+    } catch (SystemException e) {
+      if (e.getCause() instanceof HttpStatusCodeException) {
+        logger.warn("No terra ssh key, cannot set up ssh key in the docker container");
+      }
+    }
+    if (sshKeyPair != null) {
+      logger.debug(sshKeyPair.getPrivateKey());
+      envVars.put("SSH_PRIVATE_KEY", sshKeyPair.getPrivateKey());
     }
 
     // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically authenticate
