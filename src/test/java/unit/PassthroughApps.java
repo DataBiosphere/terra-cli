@@ -119,7 +119,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra app execute echo \$TERRA_$name`
     TestCommand.Result cmd =
-        TestCommand.runCommand("app", "execute", "echo", "$TERRA_resource__Env__Vars");
+        TestCommand.runCommand("app", "execute", "echo", "$TERRA_resource_Env_Vars");
 
     // check that TERRA_$name = resolved bucket name
     assertThat(
