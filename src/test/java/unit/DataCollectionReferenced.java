@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.serialization.userfacing.resource.UFDataCollection;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
@@ -242,21 +243,23 @@ public class DataCollectionReferenced extends SingleWorkspaceUnit {
   }
 
   private void assertDataCollectionResourcesEnv(String stdOut) {
+    String expectedBucketEnvVariable =
+        CommandRunner.convertToEnvironmentVariable(DATA_COLLECTION_RESOURCE_NAME)
+            + "_"
+            + DATA_COLLECTION_BUCKET_RESOURCE_NAME
+            + "="
+            + ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME);
     assertTrue(
-        stdOut.contains(
-            "TERRA_"
-                + DATA_COLLECTION_RESOURCE_NAME
-                + "_"
-                + DATA_COLLECTION_BUCKET_RESOURCE_NAME
-                + "="
-                + ExternalGCSBuckets.getGsPath(DATA_COLLECTION_BUCKET_NAME)));
+        stdOut.contains(expectedBucketEnvVariable),
+        "Did not get expected bucket environment variable: " + expectedBucketEnvVariable);
+    String expectedGitRepoEnvVariable =
+        CommandRunner.convertToEnvironmentVariable(DATA_COLLECTION_RESOURCE_NAME)
+            + "_"
+            + DATA_COLLECTION_GIT_RESOURCE_NAME
+            + "="
+            + GIT_REPO_URL;
     assertTrue(
-        stdOut.contains(
-            "TERRA_"
-                + DATA_COLLECTION_RESOURCE_NAME
-                + "_"
-                + DATA_COLLECTION_GIT_RESOURCE_NAME
-                + "="
-                + GIT_REPO_URL));
+        stdOut.contains(expectedGitRepoEnvVariable),
+        "Did not get expected git repo environment variable: " + expectedGitRepoEnvVariable);
   }
 }

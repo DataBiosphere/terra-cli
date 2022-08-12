@@ -154,7 +154,7 @@ public abstract class CommandRunner {
   }
 
   // Note: `foo-bar` and `foo_bar` will have the same env variable. PF-1907 will fix this.
-  private static final String convertToEnvironmentVariable(String string) {
+  public static final String convertToEnvironmentVariable(String string) {
     return "TERRA_" + string.replace("-", "_");
   }
 
