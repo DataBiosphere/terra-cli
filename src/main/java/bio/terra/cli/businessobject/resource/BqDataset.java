@@ -76,7 +76,7 @@ public class BqDataset extends Resource {
    * @return the resource that was added
    */
   public static BqDataset addReferenced(CreateBqDatasetParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDatasetResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -94,7 +94,7 @@ public class BqDataset extends Resource {
    * @return the resource that was created
    */
   public static BqDataset createControlled(CreateBqDatasetParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
@@ -110,7 +110,7 @@ public class BqDataset extends Resource {
   /** Update a BigQuery dataset referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqDatasetParams updateParams) {
     if (updateParams.resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceParams.name);
+      validateResourceName(updateParams.resourceParams.name);
     }
     if (updateParams.projectId != null) {
       this.projectId = updateParams.projectId;
@@ -129,7 +129,7 @@ public class BqDataset extends Resource {
   /** Update a BigQuery dataset controlled resource in the workspace. */
   public void updateControlled(UpdateControlledBqDatasetParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);

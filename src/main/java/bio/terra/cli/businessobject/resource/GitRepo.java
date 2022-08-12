@@ -59,7 +59,7 @@ public class GitRepo extends Resource {
    * @return the resource that was added
    */
   public static GitRepo addReferenced(AddGitRepoParams addGitRepoParams) {
-    validateEnvironmentVariableName(addGitRepoParams.resourceFields.name);
+    validateResourceName(addGitRepoParams.resourceFields.name);
 
     // call WSM to add the reference.
     GitRepoResource addedResource =
@@ -74,7 +74,7 @@ public class GitRepo extends Resource {
   /** Update a Git repo referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGitRepoParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     if (updateParams.gitRepoUrl != null) {
       this.gitRepoUrl = updateParams.gitRepoUrl;

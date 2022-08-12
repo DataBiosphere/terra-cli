@@ -23,6 +23,7 @@ import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
@@ -30,6 +31,10 @@ import java.util.regex.Pattern;
  * sub-classes are part of the current context or state.
  */
 public abstract class Resource {
+  // Copied from WSM
+  private static final Pattern RESOURCE_NAME_VALIDATION_PATTERN =
+      Pattern.compile("^[a-zA-Z0-9][-_a-zA-Z0-9]{0,1023}$");
+
   // all resources
   protected UUID id;
   protected String name;
@@ -135,21 +140,10 @@ public abstract class Resource {
   /** Serialize the internal representation of the resource to the format for writing to disk. */
   public abstract PDResource serializeToDisk();
 
-  /**
-   * Check if the name only contains alphanumeric and underscore characters.
-   *
-   * <p>When launching an app, either in a Docker container or a local process, we pass a map of all
-   * the resources in the workspace to their resolved cloud identifiers (e.g. TERRA_MYBUCKET ->
-   * gs://mybucket). This is the reason for this restriction at resource creation time.
-   *
-   * @param name string to check
-   * @throws UserActionableException if the string is not a valid environment variable name
-   */
-  protected static void validateEnvironmentVariableName(String name) {
-    if (Pattern.compile("[^a-zA-Z0-9_]").matcher(name).find()) {
+  protected static void validateResourceName(String name) {
+    if (StringUtils.isEmpty(name) || !RESOURCE_NAME_VALIDATION_PATTERN.matcher(name).matches())
       throw new UserActionableException(
-          "Resource name can contain only alphanumeric and underscore characters.");
-    }
+          "Invalid resource name specified. Name must be 1 to 1024 alphanumeric characters, underscores, and dashes and must not start with a dash or underscore.");
   }
 
   /** Update the properties of this resource object that are common to all resource types. */

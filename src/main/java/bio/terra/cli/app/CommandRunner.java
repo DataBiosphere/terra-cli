@@ -123,7 +123,8 @@ public abstract class CommandRunner {
         .forEach(
             resource -> {
               if (Resource.Type.DATA_COLLECTION != resource.getResourceType()) {
-                terraReferences.put("TERRA_" + resource.getName(), resource.resolve());
+                String envVariable = convertToEnvironmentVariable(resource.getName());
+                terraReferences.put(envVariable, resource.resolve());
               } else {
                 Workspace dataCollectionWorkspace = null;
                 try {
@@ -139,14 +140,22 @@ public abstract class CommandRunner {
                           // This should NEVER happen but check here to prevent endless resolve.
                           r -> Resource.Type.DATA_COLLECTION != r.getResourceType())
                       .forEach(
-                          r ->
-                              terraReferences.put(
-                                  "TERRA_" + resource.getName() + "_" + r.getName(), r.resolve()));
+                          r -> {
+                            String envVariable =
+                                convertToEnvironmentVariable(
+                                    resource.getName() + "_" + r.getName());
+                            terraReferences.put(envVariable, r.resolve());
+                          });
                 }
               }
             });
 
     return terraReferences;
+  }
+
+  // Note: `foo-bar` and `foo_bar` will have the same env variable. PF-1907 will fix this.
+  public static final String convertToEnvironmentVariable(String string) {
+    return "TERRA_" + string.replace("-", "_");
   }
 
   /**

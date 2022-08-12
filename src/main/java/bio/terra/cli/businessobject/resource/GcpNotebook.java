@@ -77,7 +77,7 @@ public class GcpNotebook extends Resource {
    * @return the resource that was created
    */
   public static GcpNotebook createControlled(CreateGcpNotebookParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
@@ -93,7 +93,7 @@ public class GcpNotebook extends Resource {
 
   public void updateControlled(UpdateControlledGcpNotebookParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateControlledGcpNotebook(Context.requireWorkspace().getUuid(), id, updateParams);
