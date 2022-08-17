@@ -611,7 +611,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
         "storageClass": "ARCHIVE"
       },
       "condition": {
-      	"age": 10
+        "age": 10
       }
     }
   ]
@@ -629,7 +629,7 @@ December 3, 2007.
         "type": "Delete"
       },
       "condition": {
-      	"createdBefore": "2007-12-03",
+        "createdBefore": "2007-12-03",
         "matchesStorageClass": [
           "STANDARD"
         ]
@@ -649,7 +649,7 @@ December 3, 2007.
         "type": "Delete"
       },
       "condition": {
-      	"age": 365
+        "age": 365
       }
     }
   ]
