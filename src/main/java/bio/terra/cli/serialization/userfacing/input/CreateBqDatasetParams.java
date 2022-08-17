@@ -36,6 +36,9 @@ public class CreateBqDatasetParams {
     private Integer defaultPartitionLifetimeSeconds;
     private Integer defaultTableLifetimeSeconds;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -70,8 +73,5 @@ public class CreateBqDatasetParams {
     public CreateBqDatasetParams build() {
       return new CreateBqDatasetParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

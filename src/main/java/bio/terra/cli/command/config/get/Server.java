@@ -13,15 +13,15 @@ public class Server extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  public static void printText(UFServer returnValue) {
+    OUT.println(returnValue.name);
+  }
+
   /** Return the server property of the global context. */
   @Override
   protected void execute() {
     formatOption.printReturnValue(new UFServer(Context.getServer()), Server::printText);
-  }
-
-  /** Print this command's output in text format. */
-  public static void printText(UFServer returnValue) {
-    OUT.println(returnValue.name);
   }
 
   /** This command never requires login. */

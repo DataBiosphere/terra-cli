@@ -16,25 +16,13 @@ import picocli.CommandLine;
  */
 public class NotebookInstance {
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
-  ArgGroup argGroup;
-
-  static class ArgGroup {
-    @CommandLine.Option(
-        names = "--name",
-        description =
-            "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
-    public String resourceName;
-
-    @CommandLine.Option(names = "--instance-id", description = "The id of the notebook instance.")
-    public String instanceId;
-  }
-
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",
       description = "The Google Cloud location of the instance (if using --instance-id).")
   public String location;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+  ArgGroup argGroup;
 
   public InstanceName toInstanceName() {
     Workspace workspace = Context.requireWorkspace();
@@ -58,5 +46,16 @@ public class NotebookInstance {
           .instanceId(argGroup.instanceId)
           .build();
     }
+  }
+
+  static class ArgGroup {
+    @CommandLine.Option(
+        names = "--name",
+        description =
+            "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
+    public String resourceName;
+
+    @CommandLine.Option(names = "--instance-id", description = "The id of the notebook instance.")
+    public String instanceId;
   }
 }

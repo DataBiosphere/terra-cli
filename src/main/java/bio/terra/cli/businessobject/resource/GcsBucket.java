@@ -22,12 +22,10 @@ import org.slf4j.LoggerFactory;
  * the current context or state.
  */
 public class GcsBucket extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
-
-  private String bucketName;
-
   // prefix for GCS bucket to make a valid URL.
   protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
+  private String bucketName;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsBucket(PDGcsBucket configFromDisk) {
@@ -47,18 +45,6 @@ public class GcsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.GCS_BUCKET;
     this.bucketName = wsmObject.getAttributes().getBucketName();
-  }
-
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGcsBucket serializeToCommand() {
-    return new UFGcsBucket(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcsBucket serializeToDisk() {
-    return new PDGcsBucket(this);
   }
 
   /**
@@ -96,6 +82,18 @@ public class GcsBucket extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GcsBucket(createdResource);
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGcsBucket serializeToCommand() {
+    return new UFGcsBucket(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGcsBucket serializeToDisk() {
+    return new PDGcsBucket(this);
   }
 
   /** Update a GCS bucket referenced resource in the workspace. */

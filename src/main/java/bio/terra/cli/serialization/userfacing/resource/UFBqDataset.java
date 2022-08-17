@@ -63,6 +63,9 @@ public class UFBqDataset extends UFResource {
     private String location;
     private Integer numTables;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder projectId(String projectId) {
       this.projectId = projectId;
       return this;
@@ -87,8 +90,5 @@ public class UFBqDataset extends UFResource {
     public UFBqDataset build() {
       return new UFBqDataset(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

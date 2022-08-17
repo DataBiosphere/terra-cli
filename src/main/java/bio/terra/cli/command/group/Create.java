@@ -14,16 +14,16 @@ public class Create extends BaseCommand {
   @CommandLine.Mixin GroupName groupNameOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGroup returnValue) {
+    OUT.println("Terra group created.");
+    returnValue.print();
+  }
+
   /** Create a new Terra group. */
   @Override
   protected void execute() {
     Group group = Group.create(groupNameOption.name);
     formatOption.printReturnValue(new UFGroup(group), Create::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGroup returnValue) {
-    OUT.println("Terra group created.");
-    returnValue.print();
   }
 }

@@ -161,6 +161,18 @@ public class TestCommand {
     return argsWithFormatJson.toArray(new String[0]);
   }
 
+  /**
+   * Helper method to get the absolute path to a file in the test/resources/testinputs directory.
+   *
+   * @param filename name of a file in the test/resources/testinputs directory
+   */
+  public static Path getPathForTestInput(String filename) {
+    Path filePath =
+        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + filename).getPath())
+            .toAbsolutePath();
+    return filePath;
+  }
+
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */
   public static class Result {
     public final int exitCode;
@@ -182,17 +194,5 @@ public class TestCommand {
     private <T> T readObjectFromStdOut(TypeReference<T> objectType) throws JsonProcessingException {
       return OBJECT_MAPPER.readValue(stdOut, objectType);
     }
-  }
-
-  /**
-   * Helper method to get the absolute path to a file in the test/resources/testinputs directory.
-   *
-   * @param filename name of a file in the test/resources/testinputs directory
-   */
-  public static Path getPathForTestInput(String filename) {
-    Path filePath =
-        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + filename).getPath())
-            .toAbsolutePath();
-    return filePath;
   }
 }

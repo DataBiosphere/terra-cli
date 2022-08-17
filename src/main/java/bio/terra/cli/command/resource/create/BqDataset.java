@@ -19,21 +19,24 @@ import picocli.CommandLine;
 public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
-
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Option(
       names = "--dataset-id",
       description =
           "BigQuery dataset id. If not provided, the resource name will be used as the dataset id.")
   private String bigQueryDatasetId;
-
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1",
       description = "Dataset location (https://cloud.google.com/bigquery/docs/locations).")
   private String location;
 
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFBqDataset returnValue) {
+    OUT.println("Successfully added controlled BigQuery dataset.");
+    returnValue.print();
+  }
 
   /** Add a controlled BigQuery dataset to the workspace. */
   @Override
@@ -57,11 +60,5 @@ public class BqDataset extends BaseCommand {
     bio.terra.cli.businessobject.resource.BqDataset createdResource =
         bio.terra.cli.businessobject.resource.BqDataset.createControlled(createParams.build());
     formatOption.printReturnValue(new UFBqDataset(createdResource), BqDataset::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFBqDataset returnValue) {
-    OUT.println("Successfully added controlled BigQuery dataset.");
-    returnValue.print();
   }
 }

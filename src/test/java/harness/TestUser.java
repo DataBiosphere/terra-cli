@@ -44,33 +44,84 @@ import org.slf4j.LoggerFactory;
  * user (e.g. they have some permission that should've been deleted).
  */
 public class TestUser {
-  private static final Logger logger = LoggerFactory.getLogger(TestUser.class);
-
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
-
   // test users need the cloud platform scope when they talk to GCP directly (e.g. to check the
   // lifecycle property of a GCS bucket, which is not stored as WSM metadata)
   public static final String CLOUD_PLATFORM_SCOPE =
       "https://www.googleapis.com/auth/cloud-platform";
-
+  private static final Logger logger = LoggerFactory.getLogger(TestUser.class);
   // See https://medium.com/datamindedbe/mastering-the-google-cloud-platform-sdk-tools-ddcb16b62886
   private static final String GCLOUD_CLIENT_ID = "32555940559.apps.googleusercontent.com";
   private static final String GCLOUD_CLIENT_SECRET = "ZmssLNjJy2998hD4CTg2ejr2";
+  public String email;
+  public SpendEnabled spendEnabled;
 
   public static List<TestUser> getTestUsers() {
     return TestConfig.get().getTestUsers();
   }
 
-  public String email;
-  public SpendEnabled spendEnabled;
+  /** Helper method that returns a pointer to the credential store on disk. */
+  public static <T> DataStore getCredentialStore() throws IOException {
+    Path globalContextDir = Context.getContextDir();
+    FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
+    return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
+  }
 
-  /** This enum lists the different ways a user can be enabled on the WSM default spend profile. */
-  public enum SpendEnabled {
-    OWNER, // owner of the cli-test-users group and owner on the spend profile resource
-    NO, // not enabled
-    CLI_TEST_USERS_GROUP, // member of cli-test-users group, which is enabled on spend profile
-    DIRECTLY; // user of the spend profile resource
+  /**
+   * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
+   * choosing a user that is not the workspace creator.
+   */
+  public static TestUser chooseTestUserWhoIsNot(TestUser testUser) {
+    final int maxNumTries = 50;
+    for (int ctr = 0; ctr < maxNumTries; ctr++) {
+      TestUser chosen = chooseTestUser(Set.of(SpendEnabled.values()));
+      if (!chosen.equals(testUser)) {
+        return chosen;
+      }
+    }
+    throw new RuntimeException("Error choosing a test user who is anyone except for: " + testUser);
+  }
+
+  /** Randomly chooses a test user. */
+  public static TestUser chooseTestUser() {
+    return chooseTestUser(Set.of(SpendEnabled.values()));
+  }
+
+  /** Randomly chooses a test user with spend profile access, but without owner privileges. */
+  public static TestUser chooseTestUserWithSpendAccess() {
+    return chooseTestUser(
+        Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
+  }
+
+  /**
+   * Randomly chooses a test user who is a spend profile admin and an admin of the SAM cli-testers
+   * group.
+   */
+  public static TestUser chooseTestUserWithOwnerAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.OWNER));
+  }
+
+  /** Randomly chooses a test user without spend profile access. */
+  public static TestUser chooseTestUserWithoutSpendAccess() {
+    return chooseTestUser(Set.of(SpendEnabled.NO));
+  }
+
+  /** Randomly chooses a test user that matches one of the specified spend enabled values. */
+  public static TestUser chooseTestUser(Set<SpendEnabled> spendEnabledFilter) {
+    // filter the list of all test users to include only those that match one of the specified spend
+    // enabled values
+    List<TestUser> testUsers =
+        TestUser.getTestUsers().stream()
+            .filter(testUser -> spendEnabledFilter.contains(testUser.spendEnabled))
+            .collect(Collectors.toList());
+    if (testUsers.isEmpty()) {
+      throw new IllegalArgumentException("No test users match the specified spend enabled values");
+    }
+
+    // randomly reorder the list, so we can get a different user each time
+    Collections.shuffle(testUsers);
+    return testUsers.get(0);
   }
 
   /**
@@ -198,13 +249,6 @@ public class TestUser {
     return delegatedUserCredential;
   }
 
-  /** Helper method that returns a pointer to the credential store on disk. */
-  public static <T> DataStore getCredentialStore() throws IOException {
-    Path globalContextDir = Context.getContextDir();
-    FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(globalContextDir.toFile());
-    return dataStoreFactory.getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID);
-  }
-
   /** Get an ID token for this user. */
   private IdToken getIdToken(GoogleCredentials credentials) throws IOException {
 
@@ -258,59 +302,11 @@ public class TestUser {
         || spendEnabled.equals(SpendEnabled.OWNER);
   }
 
-  /**
-   * Randomly chooses a test user, who is anyone except for the given test user. Helpful e.g.
-   * choosing a user that is not the workspace creator.
-   */
-  public static TestUser chooseTestUserWhoIsNot(TestUser testUser) {
-    final int maxNumTries = 50;
-    for (int ctr = 0; ctr < maxNumTries; ctr++) {
-      TestUser chosen = chooseTestUser(Set.of(SpendEnabled.values()));
-      if (!chosen.equals(testUser)) {
-        return chosen;
-      }
-    }
-    throw new RuntimeException("Error choosing a test user who is anyone except for: " + testUser);
-  }
-
-  /** Randomly chooses a test user. */
-  public static TestUser chooseTestUser() {
-    return chooseTestUser(Set.of(SpendEnabled.values()));
-  }
-
-  /** Randomly chooses a test user with spend profile access, but without owner privileges. */
-  public static TestUser chooseTestUserWithSpendAccess() {
-    return chooseTestUser(
-        Set.of(new SpendEnabled[] {SpendEnabled.CLI_TEST_USERS_GROUP, SpendEnabled.DIRECTLY}));
-  }
-
-  /**
-   * Randomly chooses a test user who is a spend profile admin and an admin of the SAM cli-testers
-   * group.
-   */
-  public static TestUser chooseTestUserWithOwnerAccess() {
-    return chooseTestUser(Set.of(SpendEnabled.OWNER));
-  }
-
-  /** Randomly chooses a test user without spend profile access. */
-  public static TestUser chooseTestUserWithoutSpendAccess() {
-    return chooseTestUser(Set.of(SpendEnabled.NO));
-  }
-
-  /** Randomly chooses a test user that matches one of the specified spend enabled values. */
-  public static TestUser chooseTestUser(Set<SpendEnabled> spendEnabledFilter) {
-    // filter the list of all test users to include only those that match one of the specified spend
-    // enabled values
-    List<TestUser> testUsers =
-        TestUser.getTestUsers().stream()
-            .filter(testUser -> spendEnabledFilter.contains(testUser.spendEnabled))
-            .collect(Collectors.toList());
-    if (testUsers.isEmpty()) {
-      throw new IllegalArgumentException("No test users match the specified spend enabled values");
-    }
-
-    // randomly reorder the list, so we can get a different user each time
-    Collections.shuffle(testUsers);
-    return testUsers.get(0);
+  /** This enum lists the different ways a user can be enabled on the WSM default spend profile. */
+  public enum SpendEnabled {
+    OWNER, // owner of the cli-test-users group and owner on the spend profile resource
+    NO, // not enabled
+    CLI_TEST_USERS_GROUP, // member of cli-test-users group, which is enabled on spend profile
+    DIRECTLY; // user of the spend profile resource
   }
 }

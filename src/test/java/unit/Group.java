@@ -29,6 +29,46 @@ import org.junit.jupiter.api.Test;
 public class Group extends ClearContextUnit {
   SamGroups trackedGroups = new SamGroups();
 
+  /** Helper method to check that a command returned a group not found error. */
+  private static void expectGroupNotFound(TestCommand.Result cmd) {
+    assertEquals(1, cmd.exitCode, "specifying a nonexistent group threw a UserActionableException");
+    assertThat(
+        "error message indicates group not found",
+        cmd.stdErr,
+        CoreMatchers.containsString("No group found with this name"));
+  }
+
+  /**
+   * Helper method to check that a group member is included in the list with the specified policies.
+   */
+  private static void expectListedMemberWithPolicies(
+      String group, String email, GroupPolicy... policies) throws JsonProcessingException {
+    Optional<UFGroupMember> groupMember = listMembersWithEmail(group, email);
+    assertTrue(groupMember.isPresent(), "test user is in members list");
+    assertEquals(
+        policies.length,
+        groupMember.get().policies.size(),
+        "test user has the right number of policies");
+    assertTrue(
+        groupMember.get().policies.containsAll(Arrays.asList(policies)),
+        "test user has the right policies");
+  }
+
+  /**
+   * Helper method to call `terra group list-users` and filter the results on the specified user
+   * email.
+   */
+  static Optional<UFGroupMember> listMembersWithEmail(String group, String email)
+      throws JsonProcessingException {
+    // `terra group list-users --format=json`
+    List<UFGroupMember> listGroupMembers =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "group", "list-users", "--name=" + group);
+
+    // find the user in the list
+    return listGroupMembers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
+  }
+
   @AfterAll
   void cleanupOnce() throws IOException {
     // try to delete each group that was created by a method in this class
@@ -272,31 +312,6 @@ public class Group extends ClearContextUnit {
     }
   }
 
-  /** Helper method to check that a command returned a group not found error. */
-  private static void expectGroupNotFound(TestCommand.Result cmd) {
-    assertEquals(1, cmd.exitCode, "specifying a nonexistent group threw a UserActionableException");
-    assertThat(
-        "error message indicates group not found",
-        cmd.stdErr,
-        CoreMatchers.containsString("No group found with this name"));
-  }
-
-  /**
-   * Helper method to check that a group member is included in the list with the specified policies.
-   */
-  private static void expectListedMemberWithPolicies(
-      String group, String email, GroupPolicy... policies) throws JsonProcessingException {
-    Optional<UFGroupMember> groupMember = listMembersWithEmail(group, email);
-    assertTrue(groupMember.isPresent(), "test user is in members list");
-    assertEquals(
-        policies.length,
-        groupMember.get().policies.size(),
-        "test user has the right number of policies");
-    assertTrue(
-        groupMember.get().policies.containsAll(Arrays.asList(policies)),
-        "test user has the right policies");
-  }
-
   private TestCommand.Result expectGroupListedMemberWithPoliciesTableFormat(
       String name, String email, GroupPolicy... policies) throws JsonProcessingException {
     // call `terra group list` in table format
@@ -353,20 +368,5 @@ public class Group extends ClearContextUnit {
     // email address for group member should be included in table output.
     assertTrue(emailExists, "Email address for group member should be included in table output.");
     return cmd;
-  }
-
-  /**
-   * Helper method to call `terra group list-users` and filter the results on the specified user
-   * email.
-   */
-  static Optional<UFGroupMember> listMembersWithEmail(String group, String email)
-      throws JsonProcessingException {
-    // `terra group list-users --format=json`
-    List<UFGroupMember> listGroupMembers =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "group", "list-users", "--name=" + group);
-
-    // find the user in the list
-    return listGroupMembers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
   }
 }

@@ -68,6 +68,9 @@ public class UFGroup {
     private Integer numMembers;
     private List<GroupPolicy> currentUserPolicies;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder name(String name) {
       this.name = name;
       return this;
@@ -92,8 +95,5 @@ public class UFGroup {
     public UFGroup build() {
       return new UFGroup(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

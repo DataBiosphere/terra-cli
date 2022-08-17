@@ -46,6 +46,9 @@ public class PDBqTable extends PDResource {
     private String datasetId;
     private String dataTableId;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder projectId(String projectId) {
       this.projectId = projectId;
       return this;
@@ -65,8 +68,5 @@ public class PDBqTable extends PDResource {
     public PDBqTable build() {
       return new PDBqTable(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

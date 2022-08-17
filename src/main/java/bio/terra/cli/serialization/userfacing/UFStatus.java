@@ -34,6 +34,9 @@ public class UFStatus {
     private UFServer server;
     private UFWorkspace workspace;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder server(UFServer server) {
       this.server = server;
       return this;
@@ -48,8 +51,5 @@ public class UFStatus {
     public UFStatus build() {
       return new UFStatus(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

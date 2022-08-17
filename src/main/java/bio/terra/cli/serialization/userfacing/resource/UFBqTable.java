@@ -73,6 +73,9 @@ public class UFBqTable extends UFResource {
     private @Nullable String tableDescription;
     private BigInteger numRows;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder projectId(String projectId) {
       this.projectId = projectId;
       return this;
@@ -97,12 +100,10 @@ public class UFBqTable extends UFResource {
       this.numRows = numRows;
       return this;
     }
+
     /** Call the private constructor. */
     public UFBqTable build() {
       return new UFBqTable(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

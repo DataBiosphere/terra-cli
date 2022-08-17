@@ -15,17 +15,17 @@ public class Enable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFSpendProfileUser returnValue) {
+    OUT.println("User enabled on the default spend profile.");
+    returnValue.print();
+  }
+
   /** Enable access to the WSM default spend profile for the given email. */
   @Override
   protected void execute() {
     SpendProfileUser spendProfileUser =
         SpendProfileUser.enable(spendProfileUserOption.email, spendProfileUserOption.policy);
     formatOption.printReturnValue(new UFSpendProfileUser(spendProfileUser), Enable::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFSpendProfileUser returnValue) {
-    OUT.println("User enabled on the default spend profile.");
-    returnValue.print();
   }
 }

@@ -18,7 +18,8 @@ import picocli.CommandLine;
 public class GcsObject extends BaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin GcsBucketName bucketNameOption;
-
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Option(
       names = "--object-name",
       required = true,
@@ -26,8 +27,11 @@ public class GcsObject extends BaseCommand {
           "Full path to the object in the specified GCS bucket, such as folder1/file.txt and folder1/")
   private String objectName;
 
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFGcsObject returnValue) {
+    OUT.println("Successfully added referenced GCS bucket object.");
+    returnValue.print();
+  }
 
   /** Add a referenced GCS bucket object to the workspace. */
   @Override
@@ -45,11 +49,5 @@ public class GcsObject extends BaseCommand {
     bio.terra.cli.businessobject.resource.GcsObject addedResource =
         bio.terra.cli.businessobject.resource.GcsObject.addReferenced(createParams.build());
     formatOption.printReturnValue(new UFGcsObject(addedResource), GcsObject::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcsObject returnValue) {
-    OUT.println("Successfully added referenced GCS bucket object.");
-    returnValue.print();
   }
 }

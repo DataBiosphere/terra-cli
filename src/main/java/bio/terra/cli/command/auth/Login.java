@@ -13,11 +13,6 @@ import picocli.CommandLine.Command;
     showDefaultValues = true)
 public class Login extends BaseCommand {
 
-  public enum LogInMode {
-    BROWSER,
-    APP_DEFAULT_CREDENTIALS
-  }
-
   @CommandLine.Option(
       names = "--mode",
       description = "Set the log in mode: ${COMPLETION-CANDIDATES}. Default to BROWSER",
@@ -40,5 +35,10 @@ public class Login extends BaseCommand {
   @Override
   protected boolean requiresLogin() {
     return false;
+  }
+
+  public enum LogInMode {
+    BROWSER,
+    APP_DEFAULT_CREDENTIALS
   }
 }

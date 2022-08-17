@@ -61,6 +61,9 @@ public class UpdateReferencedBqTableParams {
     private @Nullable String tableId;
     private @Nullable CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateReferencedBqTableParams.Builder resourceParams(
         UpdateResourceParams resourceParams) {
       this.resourceParams = resourceParams;
@@ -92,8 +95,5 @@ public class UpdateReferencedBqTableParams {
     public UpdateReferencedBqTableParams build() {
       return new UpdateReferencedBqTableParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

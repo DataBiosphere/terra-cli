@@ -32,12 +32,12 @@ public class Resolve extends BaseCommand {
           "Name of the resource in the workspace or path to the resource in the data collection in the "
               + "format of [data collection name]/[resource name]")
   public String resourceName;
-
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
       description = "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
-
   @CommandLine.Option(
       names = "--bq-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
@@ -46,9 +46,6 @@ public class Resolve extends BaseCommand {
               + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], "
               + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
   private BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
-
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
 
   /** Resolve a resource in the workspace to its path. */
   @Override

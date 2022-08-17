@@ -76,6 +76,9 @@ public class CreateGcpNotebookParams {
     private Long dataDiskSizeGb;
     private String dataDiskType;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -175,8 +178,5 @@ public class CreateGcpNotebookParams {
     public CreateGcpNotebookParams build() {
       return new CreateGcpNotebookParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

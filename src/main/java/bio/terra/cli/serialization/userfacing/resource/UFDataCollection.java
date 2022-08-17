@@ -89,6 +89,15 @@ public class UFDataCollection extends UFResource {
     OUT.println(printer.print(resources));
   }
 
+  private void printDate(String prefix, String dateLabel, @Nullable OffsetDateTime dateTime) {
+    if (dateTime == null) {
+      logger.info(String.format("datetime for %s is null, expected for old workspaces", dateLabel));
+      return;
+    }
+    UserIO.getOut()
+        .println(prefix + dateLabel + ":\t\t" + dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE));
+  }
+
   /** Column information for data collection resources `terra resource describe` output */
   private enum UFResourceColumns implements ColumnDefinition<UFResource> {
     BLANK_COLUMN("", r -> " ", 22, Alignment.LEFT),
@@ -143,6 +152,9 @@ public class UFDataCollection extends UFResource {
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder dataCollectionWorkspaceUuid(UUID dataCollectionWorkspaceUuid) {
       this.dataCollectionWorkspaceUuid = dataCollectionWorkspaceUuid;
       return this;
@@ -182,17 +194,5 @@ public class UFDataCollection extends UFResource {
     public UFDataCollection build() {
       return new UFDataCollection(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
-  }
-
-  private void printDate(String prefix, String dateLabel, @Nullable OffsetDateTime dateTime) {
-    if (dateTime == null) {
-      logger.info(String.format("datetime for %s is null, expected for old workspaces", dateLabel));
-      return;
-    }
-    UserIO.getOut()
-        .println(prefix + dateLabel + ":\t\t" + dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
 }

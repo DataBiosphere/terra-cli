@@ -54,6 +54,9 @@ public class UFClonedWorkspace {
     private UFWorkspace destinationWorkspace;
     private List<UFClonedResource> resources;
 
+    /** Default constructor for Jackson */
+    public Builder() {}
+
     public Builder sourceWorkspace(UFWorkspace sourceWorkspace) {
       this.sourceWorkspace = sourceWorkspace;
       return this;
@@ -72,8 +75,5 @@ public class UFClonedWorkspace {
     public UFClonedWorkspace build() {
       return new UFClonedWorkspace(this);
     }
-
-    /** Default constructor for Jackson */
-    public Builder() {}
   }
 }

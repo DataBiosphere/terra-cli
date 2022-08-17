@@ -24,6 +24,9 @@ public class AddGitRepoParams {
     private CreateResourceParams resourceFields;
     private String gitRepoUrl;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -38,8 +41,5 @@ public class AddGitRepoParams {
     public AddGitRepoParams build() {
       return new AddGitRepoParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

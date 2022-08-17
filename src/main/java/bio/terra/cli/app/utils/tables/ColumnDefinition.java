@@ -12,25 +12,6 @@ public interface ColumnDefinition<UF_TYPE> {
   String EMPTY_FIELD_PLACEHOLDER = "(unset)";
   String TRUNCATION_MARK = "...";
 
-  enum Alignment {
-    LEFT("-"),
-    RIGHT("");
-
-    private final String format;
-
-    Alignment(String format) {
-      this.format = format;
-    }
-
-    /**
-     * Return the prefix for use in a format string such as {@code %-20.20s} for left alignment, or
-     * nothing for default (right) alignment.
-     */
-    String getFormat() {
-      return format;
-    }
-  }
-
   /** Get the column header label, before any formatting. */
   String getLabel();
 
@@ -64,5 +45,24 @@ public interface ColumnDefinition<UF_TYPE> {
       return original;
     }
     return original.substring(0, getWidth() - TRUNCATION_MARK.length()) + TRUNCATION_MARK;
+  }
+
+  enum Alignment {
+    LEFT("-"),
+    RIGHT("");
+
+    private final String format;
+
+    Alignment(String format) {
+      this.format = format;
+    }
+
+    /**
+     * Return the prefix for use in a format string such as {@code %-20.20s} for left alignment, or
+     * nothing for default (right) alignment.
+     */
+    String getFormat() {
+      return format;
+    }
   }
 }

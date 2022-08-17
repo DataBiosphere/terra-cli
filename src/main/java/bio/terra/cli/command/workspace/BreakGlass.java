@@ -34,44 +34,37 @@ import picocli.CommandLine.Command;
 @Command(name = "break-glass", description = "Grant break-glass access to a workspace user.")
 public class BreakGlass extends BaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(BreakGlass.class);
-
+  // pointers to the central BQ dataset where break-glass requests are logged
+  // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
+  private static String BQ_DATASET_NAME = "break_glass_requests";
+  private static String BQ_TABLE_NAME = "requests";
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Option(
       names = "--email",
       required = true,
       description = "Email of workspace user requesting break-glass access.")
   private String granteeEmail;
-
   @CommandLine.Option(
       names = "--user-project-admin-sa",
       required = true,
       description =
           "Path to the key file for a SA that has permission to set IAM policy on workspace projects for the current server.")
   private String userProjectAdminSAKeyFile;
-
   @CommandLine.Option(
       names = "--big-query-sa",
       required = true,
       description =
           "Path to the key file for a SA that has permissions to update the BigQuery dataset tracking break-glass requests.")
   private String bigQuerySAKeyFile;
-
   @CommandLine.Option(
       names = "--big-query-project",
       required = true,
       description = "Project ID that contains the BigQuery dataset tracking break-glass requests.")
   private String bigQueryProjectId;
-
   @CommandLine.Option(
       names = "--notes",
       description = "Free text string about this request, to store in the BigQuery dataset.")
   private String notes;
-
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-
-  // pointers to the central BQ dataset where break-glass requests are logged
-  // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
-  private static String BQ_DATASET_NAME = "break_glass_requests";
-  private static String BQ_TABLE_NAME = "requests";
 
   /** Grant break-glass access to the workspace. */
   @Override

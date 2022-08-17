@@ -53,18 +53,6 @@ public class BqTable extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFBqTable serializeToCommand() {
-    return new UFBqTable(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDBqTable serializeToDisk() {
-    return new PDBqTable(this);
-  }
-
-  /**
    * Add a BigQuery data table as a referenced resource in the workspace.
    *
    * @return the resource that was added
@@ -80,6 +68,18 @@ public class BqTable extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new BqTable(addedResource);
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFBqTable serializeToCommand() {
+    return new UFBqTable(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDBqTable serializeToDisk() {
+    return new PDBqTable(this);
   }
 
   /** Update a BigQuery data table referenced resource in the workspace. */

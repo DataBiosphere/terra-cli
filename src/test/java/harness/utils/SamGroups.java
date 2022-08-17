@@ -12,11 +12,15 @@ import java.util.Random;
  * the end.
  */
 public class SamGroups {
+  private static final Random RANDOM = new Random();
   // keep a map of groups created by tests, so we can try to clean them up
   // group name -> test user that created it
   private Map<String, TestUser> trackedGroups = new HashMap<>();
 
-  private static final Random RANDOM = new Random();
+  /** Helper method to generate a random group name. */
+  public static String randomGroupName() {
+    return "terraCLI_" + RANDOM.nextInt(Integer.MAX_VALUE);
+  }
 
   /** Try to delete each group that was tracked here. */
   public void deleteAllTrackedGroups() throws IOException {
@@ -34,11 +38,6 @@ public class SamGroups {
   /** Add a group to be tracked. */
   public void trackGroup(String name, TestUser admin) {
     trackedGroups.put(name, admin);
-  }
-
-  /** Helper method to generate a random group name. */
-  public static String randomGroupName() {
-    return "terraCLI_" + RANDOM.nextInt(Integer.MAX_VALUE);
   }
 
   public Map<String, TestUser> getTrackedGroups() {

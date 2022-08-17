@@ -21,6 +21,26 @@ public class LocalProcessLauncher {
   public LocalProcessLauncher() {}
 
   /**
+   * Helper method to stream the child process' output to the CLI console.
+   *
+   * @param fromStream stream reading from the child process output
+   * @param toStream stream writing to the CLI console
+   */
+  private static void streamOutput(InputStream fromStream, PrintStream toStream) {
+    try (BufferedReader bufferedReader =
+        new BufferedReader(new InputStreamReader(fromStream, StandardCharsets.UTF_8))) {
+
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        toStream.println(line);
+        toStream.flush();
+      }
+    } catch (IOException ioEx) {
+      throw new SystemException("Error streaming output of child process", ioEx);
+    }
+  }
+
+  /**
    * Executes a command in a separate process from the current working directory (i.e. the same
    * place as this Java process is running).
    *
@@ -68,26 +88,6 @@ public class LocalProcessLauncher {
     Runnable streamStdErr = () -> streamOutput(process.getErrorStream(), UserIO.getErr());
     stdErrThread = new Thread(streamStdErr);
     stdErrThread.start();
-  }
-
-  /**
-   * Helper method to stream the child process' output to the CLI console.
-   *
-   * @param fromStream stream reading from the child process output
-   * @param toStream stream writing to the CLI console
-   */
-  private static void streamOutput(InputStream fromStream, PrintStream toStream) {
-    try (BufferedReader bufferedReader =
-        new BufferedReader(new InputStreamReader(fromStream, StandardCharsets.UTF_8))) {
-
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        toStream.println(line);
-        toStream.flush();
-      }
-    } catch (IOException ioEx) {
-      throw new SystemException("Error streaming output of child process", ioEx);
-    }
   }
 
   /** Block until the child process terminates, then return its exit code. */

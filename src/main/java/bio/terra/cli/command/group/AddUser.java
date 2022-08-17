@@ -14,6 +14,12 @@ public class AddUser extends BaseCommand {
   @CommandLine.Mixin GroupMember groupMemberOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGroupMember returnValue) {
+    OUT.println("User added to Terra group.");
+    returnValue.print();
+  }
+
   /** Add a user to a Terra group. */
   @Override
   protected void execute() {
@@ -21,11 +27,5 @@ public class AddUser extends BaseCommand {
         Group.get(groupMemberOption.groupNameOption.name)
             .addPolicyToMember(groupMemberOption.email, groupMemberOption.policy);
     formatOption.printReturnValue(new UFGroupMember(groupMember), AddUser::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGroupMember returnValue) {
-    OUT.println("User added to Terra group.");
-    returnValue.print();
   }
 }

@@ -11,10 +11,9 @@ import picocli.CommandLine.Command;
 @Command(name = "status", description = "Check the registration status of a user.")
 public class Status extends BaseCommand {
 
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Option(names = "--email", required = true, description = "User email.")
   private String email;
-
-  @CommandLine.Mixin Format formatOption;
 
   /** Check the registration status of a user. */
   @Override

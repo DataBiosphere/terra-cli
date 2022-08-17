@@ -13,17 +13,17 @@ public class Workspace extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  public static void printText(UFWorkspace returnValue) {
+    OUT.println(returnValue == null ? "" : returnValue.id);
+  }
+
   /** Return the workspace property of the global context. */
   @Override
   protected void execute() {
     UFWorkspace currentWorkspace =
         Context.getWorkspace().isPresent() ? new UFWorkspace(Context.requireWorkspace()) : null;
     formatOption.printReturnValue(currentWorkspace, Workspace::printText);
-  }
-
-  /** Print this command's output in text format. */
-  public static void printText(UFWorkspace returnValue) {
-    OUT.println(returnValue == null ? "" : returnValue.id);
   }
 
   /** This command never requires login. */

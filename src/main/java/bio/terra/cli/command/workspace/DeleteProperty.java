@@ -13,8 +13,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace delete-property" command. */
 @Command(name = "delete-property", description = "Delete the workspace properties.")
 public class DeleteProperty extends BaseCommand {
-  @CommandLine.Mixin Format formatOption;
-
   @CommandLine.Option(
       names = "--keys",
       required = true,
@@ -22,7 +20,7 @@ public class DeleteProperty extends BaseCommand {
       description =
           "Workspace properties. Example: --keys=key1. For multiple property keys, use \",\": --keys=key1,key2")
   public List<String> propertyKeys;
-
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   /** Load an existing workspace. */

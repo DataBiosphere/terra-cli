@@ -45,6 +45,9 @@ public class PDUser {
     private String petSAEmail;
     private LogInMode useApplicationDefaultCredentials;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder id(String id) {
       this.id = id;
       return this;
@@ -74,8 +77,5 @@ public class PDUser {
     public PDUser build() {
       return new PDUser(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -53,6 +53,9 @@ public class UFTerraUser {
     private boolean isRegistered;
     private boolean isEnabled;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder email(String email) {
       this.email = email;
       return this;
@@ -77,8 +80,5 @@ public class UFTerraUser {
     public UFTerraUser build() {
       return new UFTerraUser(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

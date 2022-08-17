@@ -51,25 +51,6 @@ public abstract class Resource {
   protected String privateUserName;
   protected ControlledResourceIamRole privateUserRole;
 
-  /**
-   * Enum for the types of workspace resources supported by the CLI. Each enum value maps to a
-   * single WSM client library ({@link bio.terra.workspace.model.ResourceType}) enum value.
-   *
-   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the
-   * resource types supported (e.g. no Data Repo snapshots). It also gives the CLI control over what
-   * the enum names are, which are exposed to users as command options.
-   */
-  public enum Type {
-    GCS_BUCKET,
-    GCS_OBJECT,
-    BQ_DATASET,
-    BQ_TABLE,
-    AI_NOTEBOOK,
-    GIT_REPO,
-    // Corresponds to WSM type TERRA_WORKSPACE
-    DATA_COLLECTION;
-  }
-
   /** Deserialize an instance of the disk format to the internal object. */
   protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
@@ -132,6 +113,12 @@ public abstract class Resource {
     }
   }
 
+  protected static void validateResourceName(String name) {
+    if (StringUtils.isEmpty(name) || !RESOURCE_NAME_VALIDATION_PATTERN.matcher(name).matches())
+      throw new UserActionableException(
+          "Invalid resource name specified. Name must be 1 to 1024 alphanumeric characters, underscores, and dashes and must not start with a dash or underscore.");
+  }
+
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
@@ -139,12 +126,6 @@ public abstract class Resource {
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
   public abstract PDResource serializeToDisk();
-
-  protected static void validateResourceName(String name) {
-    if (StringUtils.isEmpty(name) || !RESOURCE_NAME_VALIDATION_PATTERN.matcher(name).matches())
-      throw new UserActionableException(
-          "Invalid resource name specified. Name must be 1 to 1024 alphanumeric characters, underscores, and dashes and must not start with a dash or underscore.");
-  }
 
   /** Update the properties of this resource object that are common to all resource types. */
   protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
@@ -205,12 +186,12 @@ public abstract class Resource {
     return (T) this;
   }
 
-  // ====================================================
-  // Property getters.
-
   public UUID getId() {
     return id;
   }
+
+  // ====================================================
+  // Property getters.
 
   public String getName() {
     return name;
@@ -246,5 +227,24 @@ public abstract class Resource {
 
   public ControlledResourceIamRole getPrivateUserRole() {
     return privateUserRole;
+  }
+
+  /**
+   * Enum for the types of workspace resources supported by the CLI. Each enum value maps to a
+   * single WSM client library ({@link bio.terra.workspace.model.ResourceType}) enum value.
+   *
+   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the
+   * resource types supported (e.g. no Data Repo snapshots). It also gives the CLI control over what
+   * the enum names are, which are exposed to users as command options.
+   */
+  public enum Type {
+    GCS_BUCKET,
+    GCS_OBJECT,
+    BQ_DATASET,
+    BQ_TABLE,
+    AI_NOTEBOOK,
+    GIT_REPO,
+    // Corresponds to WSM type TERRA_WORKSPACE
+    DATA_COLLECTION;
   }
 }

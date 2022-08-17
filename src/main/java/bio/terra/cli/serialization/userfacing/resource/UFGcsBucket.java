@@ -19,13 +19,12 @@ import java.util.Optional;
  */
 @JsonDeserialize(builder = UFGcsBucket.Builder.class)
 public class UFGcsBucket extends UFResource {
-  public final String bucketName;
-  public final String location;
-  public final Integer numObjects;
-
   // the maximum number of objects to iterate through in the bucket.
   // if there are more, we just add a "+" at the end for display
   private static final long MAX_NUM_OBJECTS = 100;
+  public final String bucketName;
+  public final String location;
+  public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcsBucket(GcsBucket internalObj) {
@@ -70,6 +69,9 @@ public class UFGcsBucket extends UFResource {
     private String location;
     private Integer numObjects;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
@@ -89,8 +91,5 @@ public class UFGcsBucket extends UFResource {
     public UFGcsBucket build() {
       return new UFGcsBucket(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

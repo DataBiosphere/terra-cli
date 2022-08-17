@@ -30,6 +30,9 @@ public class UpdateResourceParams {
     private @Nullable String name;
     private @Nullable String description;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder name(@Nullable String name) {
       this.name = name;
       return this;
@@ -44,8 +47,5 @@ public class UpdateResourceParams {
     public UpdateResourceParams build() {
       return new UpdateResourceParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

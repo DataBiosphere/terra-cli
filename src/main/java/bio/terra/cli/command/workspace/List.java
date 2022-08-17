@@ -23,6 +23,7 @@ import picocli.CommandLine.Command;
     showDefaultValues = true)
 public class List extends BaseCommand {
 
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Option(
       names = "--offset",
       required = false,
@@ -30,15 +31,12 @@ public class List extends BaseCommand {
       description =
           "The offset to use when listing workspaces. (Zero means to start from the beginning.)")
   private int offset;
-
   @CommandLine.Option(
       names = "--limit",
       required = false,
       defaultValue = "30",
       description = "The maximum number of workspaces to return.")
   private int limit;
-
-  @CommandLine.Mixin Format formatOption;
 
   /** List all workspaces a user has access to. */
   @Override

@@ -177,6 +177,37 @@ public class DockerClientWrapper {
     }
   }
 
+  /**
+   * Check if the given exception indicates that connecting to the Docker daemon failed. This
+   * usually means that Docker is either not installed or not running.
+   *
+   * <p>- If this exception was caused by a Docker connection failure, then this method wraps the
+   * given exception in a new RuntimeException with a more readable error message. Previously, it
+   * was an obscure connection refused error.
+   *
+   * <p>- If this exception was NOT caused by a Docker connection failure, then this method returns
+   * the given exception, unchanged.
+   *
+   * @param ex exception to check
+   * @return a RuntimeException for the caller to re-throw
+   */
+  private RuntimeException wrapExceptionIfDockerConnectionFailed(RuntimeException ex) {
+    boolean isDockerConnectionFailed =
+        ex.getCause() != null
+            && ex.getCause() instanceof IOException
+            && ex.getCause().getMessage() != null
+            && (ex.getCause().getMessage().toLowerCase().contains("connection refused")
+                || ex.getCause().getMessage().contains("native connect() failed"));
+    if (isDockerConnectionFailed) {
+      return new UserActionableException(
+          "Connecting to Docker daemon failed. Check that Docker is installed and running. "
+              + "To run apps without Docker, use the LOCAL_PROCESS app launch mode (terra config set app-launch LOCAL_PROCESS).",
+          ex);
+    } else {
+      return ex;
+    }
+  }
+
   /** Helper class for reading Docker container logs into a string. */
   private static class LogContainerCommandCallback extends ResultCallback.Adapter<Frame> {
 
@@ -221,37 +252,6 @@ public class DockerClientWrapper {
 
     public List<Frame> getFramesList() {
       return framesList;
-    }
-  }
-
-  /**
-   * Check if the given exception indicates that connecting to the Docker daemon failed. This
-   * usually means that Docker is either not installed or not running.
-   *
-   * <p>- If this exception was caused by a Docker connection failure, then this method wraps the
-   * given exception in a new RuntimeException with a more readable error message. Previously, it
-   * was an obscure connection refused error.
-   *
-   * <p>- If this exception was NOT caused by a Docker connection failure, then this method returns
-   * the given exception, unchanged.
-   *
-   * @param ex exception to check
-   * @return a RuntimeException for the caller to re-throw
-   */
-  private RuntimeException wrapExceptionIfDockerConnectionFailed(RuntimeException ex) {
-    boolean isDockerConnectionFailed =
-        ex.getCause() != null
-            && ex.getCause() instanceof IOException
-            && ex.getCause().getMessage() != null
-            && (ex.getCause().getMessage().toLowerCase().contains("connection refused")
-                || ex.getCause().getMessage().contains("native connect() failed"));
-    if (isDockerConnectionFailed) {
-      return new UserActionableException(
-          "Connecting to Docker daemon failed. Check that Docker is installed and running. "
-              + "To run apps without Docker, use the LOCAL_PROCESS app launch mode (terra config set app-launch LOCAL_PROCESS).",
-          ex);
-    } else {
-      return ex;
     }
   }
 }

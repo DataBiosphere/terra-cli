@@ -46,6 +46,9 @@ public class PDGcpNotebook extends PDResource {
     private String instanceId;
     private String location;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder projectId(String projectId) {
       this.projectId = projectId;
       return this;
@@ -65,8 +68,5 @@ public class PDGcpNotebook extends PDResource {
     public PDGcpNotebook build() {
       return new PDGcpNotebook(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

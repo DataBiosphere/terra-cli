@@ -42,18 +42,6 @@ public class GitRepo extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGitRepo serializeToCommand() {
-    return new UFGitRepo(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGitRepo serializeToDisk() {
-    return new PDGitRepo(this);
-  }
-
-  /**
    * Add a git repo as a referenced resource in the workspace.
    *
    * @return the resource that was added
@@ -69,6 +57,18 @@ public class GitRepo extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GitRepo(addedResource);
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGitRepo serializeToCommand() {
+    return new UFGitRepo(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGitRepo serializeToDisk() {
+    return new PDGitRepo(this);
   }
 
   /** Update a Git repo referenced resource in the workspace. */
