@@ -265,8 +265,11 @@ task runTestsWithTag(type: Test) {
         localOnly {
             includeAnnotationClasses = ["harness.LocalTestOnly"]
         }
-        maxLocalExecutors = localCores
-        maxRemoteExecutors = 5
+//        maxLocalExecutors = localCores
+//        maxRemoteExecutors = 5
+        // TODO(zloery): debugging integration tests
+        maxLocalExecutors = 5
+        maxRemoteExecutors = 0
     }
 }
 
