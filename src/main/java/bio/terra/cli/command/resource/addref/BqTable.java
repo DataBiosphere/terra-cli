@@ -17,6 +17,9 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class BqTable extends BaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin BqDatasetsIds bigQueryIds;
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
       names = "--table-id",
@@ -24,9 +27,11 @@ public class BqTable extends BaseCommand {
       description = "BigQuery data table id.")
   private String bigQueryTableId;
 
-  @CommandLine.Mixin BqDatasetsIds bigQueryIds;
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFBqTable returnValue) {
+    OUT.println("Successfully added referenced BigQuery data table.");
+    returnValue.print();
+  }
 
   /** Add a referenced BigQuery DataTable to the workspace. */
   @Override
@@ -45,11 +50,5 @@ public class BqTable extends BaseCommand {
     bio.terra.cli.businessobject.resource.BqTable createdResource =
         bio.terra.cli.businessobject.resource.BqTable.addReferenced(createParamsBuilder.build());
     formatOption.printReturnValue(new UFBqTable(createdResource), BqTable::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFBqTable returnValue) {
-    OUT.println("Successfully added referenced BigQuery data table.");
-    returnValue.print();
   }
 }

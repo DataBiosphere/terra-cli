@@ -87,6 +87,9 @@ public class UFGcpNotebook extends UFResource {
     private String proxyUri;
     private String createTime;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder projectId(String projectId) {
       this.projectId = projectId;
       return this;
@@ -131,8 +134,5 @@ public class UFGcpNotebook extends UFResource {
     public UFGcpNotebook build() {
       return new UFGcpNotebook(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -23,10 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BqDataset extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
-
-  private String projectId;
-  private String datasetId;
-
   /**
    * Delimiter between the project id and dataset id for a BigQuery dataset.
    *
@@ -34,6 +30,9 @@ public class BqDataset extends Resource {
    * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
+
+  private String projectId;
+  private String datasetId;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public BqDataset(PDBqDataset configFromDisk) {
@@ -56,18 +55,6 @@ public class BqDataset extends Resource {
     this.resourceType = Type.BQ_DATASET;
     this.projectId = wsmObject.getAttributes().getProjectId();
     this.datasetId = wsmObject.getAttributes().getDatasetId();
-  }
-
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFBqDataset serializeToCommand() {
-    return new UFBqDataset(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDBqDataset serializeToDisk() {
-    return new PDBqDataset(this);
   }
 
   /**
@@ -105,6 +92,18 @@ public class BqDataset extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new BqDataset(createdResource);
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFBqDataset serializeToCommand() {
+    return new UFBqDataset(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDBqDataset serializeToDisk() {
+    return new PDBqDataset(this);
   }
 
   /** Update a BigQuery dataset referenced resource in the workspace. */

@@ -20,18 +20,18 @@ import picocli.CommandLine.Command;
 public class List extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(java.util.List<UFGroup> returnValue) {
+    TablePrinter<UFGroup> printer = bio.terra.cli.command.group.List.UFGroupColumns::values;
+    OUT.println(printer.print(returnValue));
+  }
+
   /** List the groups to which the current user belongs. */
   @Override
   protected void execute() {
     formatOption.printReturnValue(
         UserIO.sortAndMap(Group.list(), Comparator.comparing(Group::getName), UFGroup::new),
         List::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(java.util.List<UFGroup> returnValue) {
-    TablePrinter<UFGroup> printer = bio.terra.cli.command.group.List.UFGroupColumns::values;
-    OUT.println(printer.print(returnValue));
   }
 
   /** Column information for fields in `resource list` output */

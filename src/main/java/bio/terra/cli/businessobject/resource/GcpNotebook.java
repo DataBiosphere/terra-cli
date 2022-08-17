@@ -54,18 +54,6 @@ public class GcpNotebook extends Resource {
     this.location = wsmObject.getAttributes().getLocation();
   }
 
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGcpNotebook serializeToCommand() {
-    return new UFGcpNotebook(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcpNotebook serializeToDisk() {
-    return new PDGcpNotebook(this);
-  }
-
   /** Add a GCP notebook as a referenced resource in the workspace. Currently unsupported. */
   public static GcpNotebook addReferenced(CreateGcpNotebookParams createParams) {
     throw new UserActionableException("Referenced resources not supported for GCP notebooks.");
@@ -89,6 +77,18 @@ public class GcpNotebook extends Resource {
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
     return new GcpNotebook(createdResource);
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGcpNotebook serializeToCommand() {
+    return new UFGcpNotebook(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGcpNotebook serializeToDisk() {
+    return new PDGcpNotebook(this);
   }
 
   public void updateControlled(UpdateControlledGcpNotebookParams updateParams) {

@@ -93,6 +93,9 @@ public class UFGcsObject extends UFResource {
     private Long size;
     private Long timeStorageClassUpdated;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
@@ -127,8 +130,5 @@ public class UFGcsObject extends UFResource {
     public UFGcsObject build() {
       return new UFGcsObject(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

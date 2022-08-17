@@ -12,14 +12,6 @@ public class Logging extends BaseCommand {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   Logging.LogLevelArgGroup argGroup;
 
-  static class LogLevelArgGroup {
-    @CommandLine.Option(names = "--console", description = "Console logging level.")
-    private boolean console;
-
-    @CommandLine.Option(names = "--file", description = "File logging level.")
-    private boolean file;
-  }
-
   @CommandLine.Option(
       names = "--level",
       required = true,
@@ -47,5 +39,13 @@ public class Logging extends BaseCommand {
   @Override
   protected boolean requiresLogin() {
     return false;
+  }
+
+  static class LogLevelArgGroup {
+    @CommandLine.Option(names = "--console", description = "Console logging level.")
+    private boolean console;
+
+    @CommandLine.Option(names = "--file", description = "File logging level.")
+    private boolean file;
   }
 }

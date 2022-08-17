@@ -22,6 +22,12 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin NotebookMetadata notebookMetadataOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGcpNotebook returnValue) {
+    OUT.println("Successfully updated GCP notebook.");
+    returnValue.print();
+  }
+
   /** Update a GCP notebook in the workspace. */
   @Override
   protected void execute() {
@@ -48,11 +54,5 @@ public class GcpNotebook extends BaseCommand {
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AI_NOTEBOOK);
     formatOption.printReturnValue(new UFGcpNotebook(resource), GcpNotebook::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcpNotebook returnValue) {
-    OUT.println("Successfully updated GCP notebook.");
-    returnValue.print();
   }
 }

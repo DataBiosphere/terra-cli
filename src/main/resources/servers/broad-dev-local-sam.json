@@ -1,7 +1,6 @@
 {
   "name": "broad-dev-local-sam",
   "description": "Local SAM and Broad development environment for other services.",
-
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://local.broadinstitute.org:50443",
   "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org",

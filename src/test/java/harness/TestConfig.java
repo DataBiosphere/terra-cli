@@ -15,20 +15,19 @@ import org.slf4j.LoggerFactory;
 /** Test config that can vary between Terra deployments. */
 public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
-
+  private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
+  private static TestConfig INSTANCE;
   @JsonProperty private List<TestUser> testUsers;
-
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
   @JsonProperty private String projectForExternalResources;
-
   // Whether to use janitor to clean up external resources and workspaces.
   @JsonProperty private boolean useJanitor;
-
   // The PubSub topic to use for publishing Janitor cleanup requests
   @JsonProperty private String janitorPubSubTopic;
-
   // The project ID of the Janitor PubSub topic
   @JsonProperty private String janitorPubSubProjectId;
+
+  private TestConfig() {}
 
   // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
   // directory under `rendered` where credentials are stored.
@@ -48,12 +47,6 @@ public final class TestConfig {
     }
     return INSTANCE;
   }
-
-  private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
-
-  private static TestConfig INSTANCE;
-
-  private TestConfig() {}
 
   /**
    * Reads test config from a file in src/main/resources/tests.

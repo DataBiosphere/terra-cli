@@ -1,7 +1,9 @@
 {
   "rule": [
     {
-      "action": {"type": "Delete"},
+      "action": {
+        "type": "Delete"
+      },
       "condition": {
         "daysSinceNoncurrentTime": 35
       }

@@ -37,6 +37,9 @@ public class PDGitRepo extends PDResource {
   public static class Builder extends PDResource.Builder {
     private String gitRepoUrl;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public PDGitRepo.Builder gitRepoUrl(String gitRepoUrl) {
       this.gitRepoUrl = gitRepoUrl;
       return this;
@@ -46,8 +49,5 @@ public class PDGitRepo extends PDResource {
     public PDGitRepo build() {
       return new PDGitRepo(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

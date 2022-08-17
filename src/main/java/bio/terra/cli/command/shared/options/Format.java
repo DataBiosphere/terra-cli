@@ -26,15 +26,37 @@ public class Format {
               + " Defaults to the config format property.")
   private FormatOptions format;
 
+  /**
+   * Default implementation of printing this command's return value in JSON format. This method uses
+   * Jackson for serialization.
+   *
+   * @param returnValue command return value
+   */
+  public static <T> void printJson(T returnValue) {
+    // use Jackson to map the object to a JSON-formatted text block
+    ObjectWriter objectWriter = JacksonMapper.getMapper().writerWithDefaultPrettyPrinter();
+    try {
+      UserIO.getOut().println(objectWriter.writeValueAsString(returnValue));
+    } catch (JsonProcessingException jsonEx) {
+      throw new SystemException("Error JSON-formatting the command return value.", jsonEx);
+    }
+  }
+
+  /**
+   * Default implementation of printing the return value. This method uses the {@link
+   * Object#toString} method of the return value object, and prints nothing if this object is null.
+   *
+   * @param returnValue command return value
+   */
+  public static <T> void printText(T returnValue) {
+    if (returnValue != null) {
+      UserIO.getOut().println(returnValue);
+    }
+  }
+
   // Return the option in force, either from the --format passed in or the Config system.
   private FormatOptions getEffectiveFormatOption() {
     return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().getFormat());
-  }
-
-  /** This enum specifies the format options for printing the command output. */
-  public enum FormatOptions {
-    JSON,
-    TEXT;
   }
 
   /**
@@ -78,31 +100,9 @@ public class Format {
     }
   }
 
-  /**
-   * Default implementation of printing this command's return value in JSON format. This method uses
-   * Jackson for serialization.
-   *
-   * @param returnValue command return value
-   */
-  public static <T> void printJson(T returnValue) {
-    // use Jackson to map the object to a JSON-formatted text block
-    ObjectWriter objectWriter = JacksonMapper.getMapper().writerWithDefaultPrettyPrinter();
-    try {
-      UserIO.getOut().println(objectWriter.writeValueAsString(returnValue));
-    } catch (JsonProcessingException jsonEx) {
-      throw new SystemException("Error JSON-formatting the command return value.", jsonEx);
-    }
-  }
-
-  /**
-   * Default implementation of printing the return value. This method uses the {@link
-   * Object#toString} method of the return value object, and prints nothing if this object is null.
-   *
-   * @param returnValue command return value
-   */
-  public static <T> void printText(T returnValue) {
-    if (returnValue != null) {
-      UserIO.getOut().println(returnValue);
-    }
+  /** This enum specifies the format options for printing the command output. */
+  public enum FormatOptions {
+    JSON,
+    TEXT;
   }
 }

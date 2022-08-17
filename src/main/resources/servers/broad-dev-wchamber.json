@@ -1,7 +1,6 @@
 {
   "name": "broad-dev-wchamber",
   "description": "Broad developer environment (wchamber)",
-
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
   "workspaceManagerUri": "https://workspace.wchamber.integ.envs.broadinstitute.org",

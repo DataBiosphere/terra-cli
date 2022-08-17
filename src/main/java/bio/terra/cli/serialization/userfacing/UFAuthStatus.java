@@ -53,6 +53,9 @@ public class UFAuthStatus {
     private String serviceAccountEmail;
     private boolean loggedIn;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder userEmail(String userEmail) {
       this.userEmail = userEmail;
       return this;
@@ -77,8 +80,5 @@ public class UFAuthStatus {
     public UFAuthStatus build() {
       return new UFAuthStatus(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

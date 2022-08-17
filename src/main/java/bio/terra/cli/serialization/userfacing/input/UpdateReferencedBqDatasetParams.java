@@ -47,6 +47,9 @@ public class UpdateReferencedBqDatasetParams {
     private String projectId;
     private CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateReferencedBqDatasetParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -73,8 +76,5 @@ public class UpdateReferencedBqDatasetParams {
     public UpdateReferencedBqDatasetParams build() {
       return new UpdateReferencedBqDatasetParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

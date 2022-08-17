@@ -25,6 +25,9 @@ public class UpdateReferencedGitRepoParams {
     private @Nullable String gitRepoUrl;
     private @Nullable CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateReferencedGitRepoParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -46,8 +49,5 @@ public class UpdateReferencedGitRepoParams {
     public UpdateReferencedGitRepoParams build() {
       return new UpdateReferencedGitRepoParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

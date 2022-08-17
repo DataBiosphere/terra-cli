@@ -18,6 +18,10 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+  @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
       names = "--bucket-name",
@@ -25,18 +29,17 @@ public class GcsBucket extends BaseCommand {
           "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket'). If not provided, a unique bucket name will be generated.")
   private String bucketName;
 
-  @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
-
   @CommandLine.Option(
       names = "--location",
       defaultValue = "US-CENTRAL1",
       description = "Bucket location (https://cloud.google.com/storage/docs/locations).")
   private String location;
 
-  @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
-
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFGcsBucket returnValue) {
+    OUT.println("Successfully added controlled GCS bucket.");
+    returnValue.print();
+  }
 
   /** Add a controlled GCS bucket to the workspace. */
   @Override
@@ -59,11 +62,5 @@ public class GcsBucket extends BaseCommand {
     bio.terra.cli.businessobject.resource.GcsBucket createdResource =
         bio.terra.cli.businessobject.resource.GcsBucket.createControlled(createParams.build());
     formatOption.printReturnValue(new UFGcsBucket(createdResource), GcsBucket::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcsBucket returnValue) {
-    OUT.println("Successfully added controlled GCS bucket.");
-    returnValue.print();
   }
 }

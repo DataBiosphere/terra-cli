@@ -45,6 +45,49 @@ public class ExternalCredentialsManagerService {
   }
 
   /**
+   * Utility method that checks if an exception thrown by the ECM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  private static boolean isRetryable(Exception ex) {
+    // Unlike Sam or WSM, the ECM client throws an entirely different exception for I/O errors,
+    // rather than pretending they have HTTP status code 0. Despite the name,
+    // ResourceAccessException is thrown on low-level I/O errors and is unrelated to application
+    // layer access issues.
+    if (ex instanceof ResourceAccessException) {
+      return true;
+    }
+    if (!(ex instanceof HttpStatusCodeException)) {
+      return false;
+    }
+    logErrorMessage((HttpStatusCodeException) ex);
+    var statusCode = ((HttpStatusCodeException) ex).getStatusCode();
+    return statusCode == HttpStatus.INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.BAD_GATEWAY
+        || statusCode == HttpStatus.SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.GATEWAY_TIMEOUT;
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  private static String logErrorMessage(HttpStatusCodeException ex) {
+    logger.error(
+        "ECM exception status code: {}, response body: {}, message: {}",
+        ex.getStatusCode(),
+        ex.getResponseBodyAsString(),
+        ex.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    var responseBody = ex.getResponseBodyAsString();
+
+    // if we found a ECM error message, then return it
+    // otherwise return a string with the http code
+    return !TextUtils.isEmpty(responseBody)
+        ? responseBody
+        : ex.getStatusCode() + " " + ex.getMessage();
+  }
+
+  /**
    * Gets Ssh key pair from ECM. If one does not exist yet, generate one.
    *
    * @param keyPairType git server tied to the key (e.g. GitHub, GitLab, Azure).
@@ -108,48 +151,5 @@ public class ExternalCredentialsManagerService {
       // wrap the ECM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the ECM client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  private static boolean isRetryable(Exception ex) {
-    // Unlike Sam or WSM, the ECM client throws an entirely different exception for I/O errors,
-    // rather than pretending they have HTTP status code 0. Despite the name,
-    // ResourceAccessException is thrown on low-level I/O errors and is unrelated to application
-    // layer access issues.
-    if (ex instanceof ResourceAccessException) {
-      return true;
-    }
-    if (!(ex instanceof HttpStatusCodeException)) {
-      return false;
-    }
-    logErrorMessage((HttpStatusCodeException) ex);
-    var statusCode = ((HttpStatusCodeException) ex).getStatusCode();
-    return statusCode == HttpStatus.INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.BAD_GATEWAY
-        || statusCode == HttpStatus.SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.GATEWAY_TIMEOUT;
-  }
-
-  /** Pull a human-readable error message from an ApiException. */
-  private static String logErrorMessage(HttpStatusCodeException ex) {
-    logger.error(
-        "ECM exception status code: {}, response body: {}, message: {}",
-        ex.getStatusCode(),
-        ex.getResponseBodyAsString(),
-        ex.getMessage());
-
-    // try to deserialize the response body into an ErrorReport
-    var responseBody = ex.getResponseBodyAsString();
-
-    // if we found a ECM error message, then return it
-    // otherwise return a string with the http code
-    return !TextUtils.isEmpty(responseBody)
-        ? responseBody
-        : ex.getStatusCode() + " " + ex.getMessage();
   }
 }

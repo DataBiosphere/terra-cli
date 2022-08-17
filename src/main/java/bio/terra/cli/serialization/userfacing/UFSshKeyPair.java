@@ -38,6 +38,9 @@ public class UFSshKeyPair {
     private String publicSshKey;
     private String userEmail;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder privateSshKey(String privateSshKey) {
       this.privateSshKey = privateSshKey;
       return this;
@@ -57,8 +60,5 @@ public class UFSshKeyPair {
     public UFSshKeyPair build() {
       return new UFSshKeyPair(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

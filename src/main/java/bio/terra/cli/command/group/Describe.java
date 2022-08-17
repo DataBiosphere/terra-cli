@@ -14,15 +14,15 @@ public class Describe extends BaseCommand {
   @CommandLine.Mixin GroupName groupNameOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGroup returnValue) {
+    returnValue.print();
+  }
+
   /** Describe an existing Terra group. */
   @Override
   protected void execute() {
     Group group = Group.get(groupNameOption.name);
     formatOption.printReturnValue(new UFGroup(group), Describe::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGroup returnValue) {
-    returnValue.print();
   }
 }

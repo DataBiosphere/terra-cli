@@ -130,19 +130,31 @@ public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
   private static final int CLONE_WORKSPACE_MAXIMUM_RETRIES = 360;
   private static final Duration CLONE_WORKSPACE_RETRY_INTERVAL = Duration.ofSeconds(10);
-
-  // the Terra environment where the WSM service lives
-  private final Server server;
-
-  // the client object used for talking to WSM
-  private final ApiClient apiClient;
-
   // the maximum number of retries and time to sleep for creating a new workspace
   private static final int CREATE_WORKSPACE_MAXIMUM_RETRIES = 120;
   private static final Duration CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
-
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
+  // the Terra environment where the WSM service lives
+  private final Server server;
+  // the client object used for talking to WSM
+  private final ApiClient apiClient;
+
+  /**
+   * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
+   * endpoints can be called.
+   */
+  private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
+    this.server = server;
+    this.apiClient = new ApiClient();
+
+    this.apiClient.setBasePath(server.getWorkspaceManagerUri());
+    if (accessToken != null) {
+      // fetch the user access token
+      // this method call will attempt to refresh the token if it's already expired
+      this.apiClient.setAccessToken(accessToken.getTokenValue());
+    }
+  }
 
   /**
    * Factory method for class that talks to WSM. No user credentials are used, so only
@@ -160,19 +172,209 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
-   * endpoints can be called.
+   * This method converts this CLI-defined POJO class into the WSM client library-defined request
+   * object.
+   *
+   * @return GCP notebook attributes in the format expected by the WSM client library
    */
-  private WorkspaceManagerService(@Nullable AccessToken accessToken, Server server) {
-    this.server = server;
-    this.apiClient = new ApiClient();
-
-    this.apiClient.setBasePath(server.getWorkspaceManagerUri());
-    if (accessToken != null) {
-      // fetch the user access token
-      // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(accessToken.getTokenValue());
+  private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
+      CreateGcpNotebookParams createParams) {
+    GcpAiNotebookInstanceCreationParameters notebookParams =
+        new GcpAiNotebookInstanceCreationParameters()
+            .instanceId(createParams.instanceId)
+            .location(createParams.location)
+            .machineType(createParams.machineType)
+            .postStartupScript(createParams.postStartupScript)
+            .metadata(createParams.metadata)
+            .installGpuDriver(createParams.installGpuDriver)
+            .customGpuDriverPath(createParams.customGpuDriverPath)
+            .bootDiskType(createParams.bootDiskType)
+            .bootDiskSizeGb(createParams.bootDiskSizeGb)
+            .dataDiskType(createParams.dataDiskType)
+            .dataDiskSizeGb(createParams.dataDiskSizeGb);
+    if (createParams.acceleratorType != null || createParams.acceleratorCoreCount != null) {
+      notebookParams.acceleratorConfig(
+          new GcpAiNotebookInstanceAcceleratorConfig()
+              .type(createParams.acceleratorType)
+              .coreCount(createParams.acceleratorCoreCount));
     }
+    if (createParams.vmImageProject != null) {
+      notebookParams.vmImage(
+          new GcpAiNotebookInstanceVmImage()
+              .projectId(createParams.vmImageProject)
+              .imageFamily(createParams.vmImageFamily)
+              .imageName(createParams.vmImageName));
+    } else if (createParams.containerRepository != null) {
+      notebookParams.containerImage(
+          new GcpAiNotebookInstanceContainerImage()
+              .repository(createParams.containerRepository)
+              .tag(createParams.containerTag));
+    } else {
+      throw new SystemException("Expected either VM or Container image definition.");
+    }
+    return notebookParams;
+  }
+
+  /**
+   * This method converts this CLI-defined POJO class into a list of WSM client library-defined
+   * request objects.
+   *
+   * @return list of lifecycle rules in the format expected by the WSM client library
+   */
+  private static List<GcpGcsBucketLifecycleRule> fromCLIObject(GcsBucketLifecycle lifecycle) {
+    List<GcpGcsBucketLifecycleRule> wsmLifecycleRules = new ArrayList<>();
+    for (GcsBucketLifecycle.Rule rule : lifecycle.rule) {
+      GcpGcsBucketLifecycleRuleAction action =
+          new GcpGcsBucketLifecycleRuleAction().type(rule.action.type.toWSMEnum());
+      if (rule.action.storageClass != null) {
+        action.storageClass(rule.action.storageClass.toWSMEnum());
+      }
+
+      GcpGcsBucketLifecycleRuleCondition condition =
+          new GcpGcsBucketLifecycleRuleCondition()
+              .age(rule.condition.age)
+              .createdBefore(dateAtMidnightAndUTC(rule.condition.createdBefore))
+              .customTimeBefore(dateAtMidnightAndUTC(rule.condition.customTimeBefore))
+              .daysSinceCustomTime(rule.condition.daysSinceCustomTime)
+              .daysSinceNoncurrentTime(rule.condition.daysSinceNoncurrentTime)
+              .live(rule.condition.isLive)
+              .matchesStorageClass(
+                  rule.condition.matchesStorageClass.stream()
+                      .map(GcsStorageClass::toWSMEnum)
+                      .collect(Collectors.toList()))
+              .noncurrentTimeBefore(dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))
+              .numNewerVersions(rule.condition.numNewerVersions);
+
+      GcpGcsBucketLifecycleRule lifecycleRuleRequestObject =
+          new GcpGcsBucketLifecycleRule().action(action).condition(condition);
+      wsmLifecycleRules.add(lifecycleRuleRequestObject);
+    }
+    return wsmLifecycleRules;
+  }
+
+  /**
+   * Helper method to convert a local date (e.g. 2014-01-02) into an object that includes time and
+   * zone. The time is set to midnight, the zone to UTC.
+   *
+   * @param localDate date object with no time or zone/offset information included
+   * @return object that specifies the date, time and zone/offest
+   */
+  private static OffsetDateTime dateAtMidnightAndUTC(@Nullable LocalDate localDate) {
+    return localDate == null
+        ? null
+        : OffsetDateTime.of(localDate.atTime(LocalTime.MIDNIGHT), ZoneOffset.UTC);
+  }
+
+  /**
+   * Create a common fields WSM object from a Resource that is being used to create a controlled
+   * resource.
+   */
+  private static ControlledResourceCommonFields createCommonFields(
+      CreateResourceParams createParams) {
+    ControlledResourceCommonFields commonFields =
+        new ControlledResourceCommonFields()
+            .name(createParams.name)
+            .description(createParams.description)
+            .cloningInstructions(createParams.cloningInstructions)
+            .accessScope(createParams.accessScope)
+            .managedBy(ManagedBy.USER);
+
+    return commonFields;
+  }
+
+  /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
+  private static boolean isDone(JobReport jobReport) {
+    return !jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING);
+  }
+
+  /**
+   * Helper method that checks a JobReport's status and throws an exception if it's not COMPLETED.
+   *
+   * <p>- Throws a {@link SystemException} if the job FAILED.
+   *
+   * <p>- Throws a {@link UserActionableException} if the job is still RUNNING. Some actions are
+   * expected to take a long time (e.g. deleting a bucket with lots of objects), and a timeout is
+   * not necessarily a failure. The action the user can take is to wait a bit longer and then check
+   * back (e.g. by listing the buckets in the workspace) later to see if the job completed.
+   *
+   * @param jobReport WSM job report object
+   * @param errorReport WSM error report object
+   */
+  private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
+    switch (jobReport.getStatus()) {
+      case FAILED:
+        throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING:
+        throw new UserActionableException(
+            "CLI timed out waiting for the job to complete. It's still running on the server.");
+    }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client matches the given HTTP
+   * status code.
+   *
+   * @param ex exception to test
+   * @return true if the exception status code matches
+   */
+  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int exceptionStatusCode = ((ApiException) ex).getCode();
+    return statusCode == exceptionStatusCode;
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  private static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    logErrorMessage((ApiException) ex);
+    int statusCode = ((ApiException) ex).getCode();
+    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
+    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
+    // different exception than the SocketTimeoutException thrown by other client libraries.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+
+    return isWsmTimeout
+        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  private static String logErrorMessage(ApiException apiEx) {
+    logger.error(
+        "WSM exception status code: {}, response body: {}, message: {}",
+        apiEx.getCode(),
+        apiEx.getResponseBody(),
+        apiEx.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    String apiExMsg = apiEx.getResponseBody();
+    if (apiExMsg != null)
+      try {
+        ErrorReport errorReport =
+            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+        apiExMsg = errorReport.getMessage();
+      } catch (JsonProcessingException jsonEx) {
+        logger.debug("Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
+      }
+
+    // if we found a SAM error message, then return it
+    // otherwise return a string with the http code
+    return ((apiExMsg != null && !apiExMsg.isEmpty())
+        ? apiExMsg
+        : apiEx.getCode() + " " + apiEx.getMessage());
   }
 
   /**
@@ -787,50 +989,6 @@ public class WorkspaceManagerService {
   }
 
   /**
-   * This method converts this CLI-defined POJO class into the WSM client library-defined request
-   * object.
-   *
-   * @return GCP notebook attributes in the format expected by the WSM client library
-   */
-  private static GcpAiNotebookInstanceCreationParameters fromCLIObject(
-      CreateGcpNotebookParams createParams) {
-    GcpAiNotebookInstanceCreationParameters notebookParams =
-        new GcpAiNotebookInstanceCreationParameters()
-            .instanceId(createParams.instanceId)
-            .location(createParams.location)
-            .machineType(createParams.machineType)
-            .postStartupScript(createParams.postStartupScript)
-            .metadata(createParams.metadata)
-            .installGpuDriver(createParams.installGpuDriver)
-            .customGpuDriverPath(createParams.customGpuDriverPath)
-            .bootDiskType(createParams.bootDiskType)
-            .bootDiskSizeGb(createParams.bootDiskSizeGb)
-            .dataDiskType(createParams.dataDiskType)
-            .dataDiskSizeGb(createParams.dataDiskSizeGb);
-    if (createParams.acceleratorType != null || createParams.acceleratorCoreCount != null) {
-      notebookParams.acceleratorConfig(
-          new GcpAiNotebookInstanceAcceleratorConfig()
-              .type(createParams.acceleratorType)
-              .coreCount(createParams.acceleratorCoreCount));
-    }
-    if (createParams.vmImageProject != null) {
-      notebookParams.vmImage(
-          new GcpAiNotebookInstanceVmImage()
-              .projectId(createParams.vmImageProject)
-              .imageFamily(createParams.vmImageFamily)
-              .imageName(createParams.vmImageName));
-    } else if (createParams.containerRepository != null) {
-      notebookParams.containerImage(
-          new GcpAiNotebookInstanceContainerImage()
-              .repository(createParams.containerRepository)
-              .tag(createParams.containerTag));
-    } else {
-      throw new SystemException("Expected either VM or Container image definition.");
-    }
-    return notebookParams;
-  }
-
-  /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
    * bucket as a controlled resource in the workspace.
@@ -860,56 +1018,6 @@ public class WorkspaceManagerService {
                 .createBucket(createRequest, workspaceId)
                 .getGcpBucket(),
         "Error creating controlled GCS bucket in the workspace.");
-  }
-
-  /**
-   * This method converts this CLI-defined POJO class into a list of WSM client library-defined
-   * request objects.
-   *
-   * @return list of lifecycle rules in the format expected by the WSM client library
-   */
-  private static List<GcpGcsBucketLifecycleRule> fromCLIObject(GcsBucketLifecycle lifecycle) {
-    List<GcpGcsBucketLifecycleRule> wsmLifecycleRules = new ArrayList<>();
-    for (GcsBucketLifecycle.Rule rule : lifecycle.rule) {
-      GcpGcsBucketLifecycleRuleAction action =
-          new GcpGcsBucketLifecycleRuleAction().type(rule.action.type.toWSMEnum());
-      if (rule.action.storageClass != null) {
-        action.storageClass(rule.action.storageClass.toWSMEnum());
-      }
-
-      GcpGcsBucketLifecycleRuleCondition condition =
-          new GcpGcsBucketLifecycleRuleCondition()
-              .age(rule.condition.age)
-              .createdBefore(dateAtMidnightAndUTC(rule.condition.createdBefore))
-              .customTimeBefore(dateAtMidnightAndUTC(rule.condition.customTimeBefore))
-              .daysSinceCustomTime(rule.condition.daysSinceCustomTime)
-              .daysSinceNoncurrentTime(rule.condition.daysSinceNoncurrentTime)
-              .live(rule.condition.isLive)
-              .matchesStorageClass(
-                  rule.condition.matchesStorageClass.stream()
-                      .map(GcsStorageClass::toWSMEnum)
-                      .collect(Collectors.toList()))
-              .noncurrentTimeBefore(dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))
-              .numNewerVersions(rule.condition.numNewerVersions);
-
-      GcpGcsBucketLifecycleRule lifecycleRuleRequestObject =
-          new GcpGcsBucketLifecycleRule().action(action).condition(condition);
-      wsmLifecycleRules.add(lifecycleRuleRequestObject);
-    }
-    return wsmLifecycleRules;
-  }
-
-  /**
-   * Helper method to convert a local date (e.g. 2014-01-02) into an object that includes time and
-   * zone. The time is set to midnight, the zone to UTC.
-   *
-   * @param localDate date object with no time or zone/offset information included
-   * @return object that specifies the date, time and zone/offest
-   */
-  private static OffsetDateTime dateAtMidnightAndUTC(@Nullable LocalDate localDate) {
-    return localDate == null
-        ? null
-        : OffsetDateTime.of(localDate.atTime(LocalTime.MIDNIGHT), ZoneOffset.UTC);
   }
 
   /**
@@ -957,23 +1065,6 @@ public class WorkspaceManagerService {
             new ReferencedGcpResourceApi(apiClient)
                 .createTerraWorkspaceReference(createRequest, workspaceId),
         "Error creating referenced data collection in the workspace.");
-  }
-
-  /**
-   * Create a common fields WSM object from a Resource that is being used to create a controlled
-   * resource.
-   */
-  private static ControlledResourceCommonFields createCommonFields(
-      CreateResourceParams createParams) {
-    ControlledResourceCommonFields commonFields =
-        new ControlledResourceCommonFields()
-            .name(createParams.name)
-            .description(createParams.description)
-            .cloningInstructions(createParams.cloningInstructions)
-            .accessScope(createParams.accessScope)
-            .managedBy(ManagedBy.USER);
-
-    return commonFields;
   }
 
   /**
@@ -1372,75 +1463,6 @@ public class WorkspaceManagerService {
         "Error deleting controlled BigQuery dataset in the workspace.");
   }
 
-  /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
-  private static boolean isDone(JobReport jobReport) {
-    return !jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING);
-  }
-
-  /**
-   * Helper method that checks a JobReport's status and throws an exception if it's not COMPLETED.
-   *
-   * <p>- Throws a {@link SystemException} if the job FAILED.
-   *
-   * <p>- Throws a {@link UserActionableException} if the job is still RUNNING. Some actions are
-   * expected to take a long time (e.g. deleting a bucket with lots of objects), and a timeout is
-   * not necessarily a failure. The action the user can take is to wait a bit longer and then check
-   * back (e.g. by listing the buckets in the workspace) later to see if the job completed.
-   *
-   * @param jobReport WSM job report object
-   * @param errorReport WSM error report object
-   */
-  private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
-    switch (jobReport.getStatus()) {
-      case FAILED:
-        throw new SystemException("Job failed: " + errorReport.getMessage());
-      case RUNNING:
-        throw new UserActionableException(
-            "CLI timed out waiting for the job to complete. It's still running on the server.");
-    }
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the WSM client matches the given HTTP
-   * status code.
-   *
-   * @param ex exception to test
-   * @return true if the exception status code matches
-   */
-  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    int exceptionStatusCode = ((ApiException) ex).getCode();
-    return statusCode == exceptionStatusCode;
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the WSM client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  private static boolean isRetryable(Exception ex) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    logErrorMessage((ApiException) ex);
-    int statusCode = ((ApiException) ex).getCode();
-    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
-    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
-    // different exception than the SocketTimeoutException thrown by other client libraries.
-    final int TIMEOUT_STATUS_CODE = 0;
-    boolean isWsmTimeout =
-        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
-
-    return isWsmTimeout
-        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.SC_BAD_GATEWAY
-        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
-  }
-
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
    * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
@@ -1570,32 +1592,6 @@ public class WorkspaceManagerService {
       // wrap the WSM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
-  }
-
-  /** Pull a human-readable error message from an ApiException. */
-  private static String logErrorMessage(ApiException apiEx) {
-    logger.error(
-        "WSM exception status code: {}, response body: {}, message: {}",
-        apiEx.getCode(),
-        apiEx.getResponseBody(),
-        apiEx.getMessage());
-
-    // try to deserialize the response body into an ErrorReport
-    String apiExMsg = apiEx.getResponseBody();
-    if (apiExMsg != null)
-      try {
-        ErrorReport errorReport =
-            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
-        apiExMsg = errorReport.getMessage();
-      } catch (JsonProcessingException jsonEx) {
-        logger.debug("Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
-      }
-
-    // if we found a SAM error message, then return it
-    // otherwise return a string with the http code
-    return ((apiExMsg != null && !apiExMsg.isEmpty())
-        ? apiExMsg
-        : apiEx.getCode() + " " + apiEx.getMessage());
   }
 
   public List<Property> buildProperties(Map<String, String> propertyMap) {

@@ -47,6 +47,9 @@ public class UFGroupMember {
     private String email;
     private List<GroupPolicy> policies;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder email(String email) {
       this.email = email;
       return this;
@@ -61,8 +64,5 @@ public class UFGroupMember {
     public UFGroupMember build() {
       return new UFGroupMember(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -22,12 +22,10 @@ public class UserIO {
   private static final PrintStream DEFAULT_OUT_STREAM = System.out;
   private static final PrintStream DEFAULT_ERR_STREAM = System.err;
   private static final InputStream DEFAULT_IN_STREAM = System.in;
-
+  private static UserIO userIO;
   private final PrintStream out;
   private final PrintStream err;
   private final InputStream in;
-
-  private static UserIO userIO;
 
   /** Constructor that initializes the printer with the specified output streams. */
   private UserIO(PrintStream out, PrintStream err, InputStream in) {

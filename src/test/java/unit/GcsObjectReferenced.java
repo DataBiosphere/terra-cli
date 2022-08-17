@@ -38,6 +38,23 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
   private String externalBucketBlobName = "blobs/testBlob";
   private String externalBucketBlobName2 = "blob2";
 
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFGcsObject> listObjectResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    // `terra resources list --type=GCS_OBJECT --format=json`
+    List<UFGcsObject> listedResources =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "resource", "list", "--type=GCS_OBJECT");
+
+    // find the matching bucket in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
@@ -602,22 +619,5 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
     assertEquals(
         externalBucket.getName(), describeBucketObjectUpdatingReferencingTarget.bucketName);
     assertEquals(yetAnotherName, describeBucketObjectUpdatingReferencingTarget.name);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
-   */
-  static List<UFGcsObject> listObjectResourceWithName(String resourceName)
-      throws JsonProcessingException {
-    // `terra resources list --type=GCS_OBJECT --format=json`
-    List<UFGcsObject> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resource", "list", "--type=GCS_OBJECT");
-
-    // find the matching bucket in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
   }
 }

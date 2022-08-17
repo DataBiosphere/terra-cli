@@ -16,6 +16,8 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GitRepo extends BaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
       names = "--repo-url",
@@ -23,8 +25,11 @@ public class GitRepo extends BaseCommand {
       description = "URL for cloning the git repository, it can be either HTTPS or SSH urls")
   private String repoUrl;
 
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFGitRepo returnValue) {
+    OUT.println("Successfully added referenced git repo.");
+    returnValue.print();
+  }
 
   /** Add a referenced git repo to the workspace. */
   @Override
@@ -41,11 +46,5 @@ public class GitRepo extends BaseCommand {
     bio.terra.cli.businessobject.resource.GitRepo addedResource =
         bio.terra.cli.businessobject.resource.GitRepo.addReferenced(createParams.build());
     formatOption.printReturnValue(new UFGitRepo(addedResource), GitRepo::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGitRepo returnValue) {
-    OUT.println("Successfully added referenced git repo.");
-    returnValue.print();
   }
 }

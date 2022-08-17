@@ -22,7 +22,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -30,24 +34,19 @@ import java.util.concurrent.ExecutionException;
  * create external resources that will get automatically cleaned up if e.g. the tests fail.
  */
 public class CRLJanitor {
-  // CRL janitor client SA
-  private static final String SA_KEY_FILE =
-      "./rendered/" + TestConfig.getTestConfigName() + "/janitor-client.json";
-
-  // default scope to request for the SA
-  private static final List<String> CLOUD_PLATFORM_SCOPE =
-      Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
-
-  private static final String DEFAULT_CLIENT_NAME = "cli-test";
-
-  // How long Janitor should wait before cleaning test workspaces. It might be useful
-  // to keep these workspaces around long enough to debug, this should be lowered if not.
-  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(120);
-
   // Map from CLI server to Janitor's identifier for WSM instance.
   public static final Map<String, String> serverToWsmInstanceIdentifier =
       ImmutableMap.of("broad-dev", "dev");
-
+  // CRL janitor client SA
+  private static final String SA_KEY_FILE =
+      "./rendered/" + TestConfig.getTestConfigName() + "/janitor-client.json";
+  // default scope to request for the SA
+  private static final List<String> CLOUD_PLATFORM_SCOPE =
+      Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+  private static final String DEFAULT_CLIENT_NAME = "cli-test";
+  // How long Janitor should wait before cleaning test workspaces. It might be useful
+  // to keep these workspaces around long enough to debug, this should be lowered if not.
+  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(120);
   // Publisher objects are heavyweight and we use the same credentials for all publishing, so
   // it's better to re-use a single Publisher instance.
   private static final Publisher publisher = initializeJanitorPubSubPublisher();

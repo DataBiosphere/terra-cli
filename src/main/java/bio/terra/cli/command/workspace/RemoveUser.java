@@ -11,6 +11,8 @@ import picocli.CommandLine.Command;
 @Command(name = "remove-user", description = "Remove a user or group from the workspace.")
 public class RemoveUser extends BaseCommand {
 
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+
   @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
   private String email;
 
@@ -19,8 +21,6 @@ public class RemoveUser extends BaseCommand {
       required = true,
       description = "Role to grant: ${COMPLETION-CANDIDATES}.")
   private WorkspaceUser.Role role;
-
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   /** Remove a user from a workspace. */
   @Override

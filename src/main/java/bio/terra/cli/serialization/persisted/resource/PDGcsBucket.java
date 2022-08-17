@@ -38,6 +38,9 @@ public class PDGcsBucket extends PDResource {
   public static class Builder extends PDResource.Builder {
     private String bucketName;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
       return this;
@@ -47,8 +50,5 @@ public class PDGcsBucket extends PDResource {
     public PDGcsBucket build() {
       return new PDGcsBucket(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

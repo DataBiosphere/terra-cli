@@ -55,6 +55,9 @@ public class PDContext {
     private PDWorkspace workspace;
     private PDVersionCheck versionCheck;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder config(PDConfig config) {
       this.config = config;
       return this;
@@ -84,8 +87,5 @@ public class PDContext {
     public PDContext build() {
       return new PDContext(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

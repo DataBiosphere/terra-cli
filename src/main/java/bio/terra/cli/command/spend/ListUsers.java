@@ -18,6 +18,13 @@ public class ListUsers extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(List<UFSpendProfileUser> returnValue) {
+    for (UFSpendProfileUser spendProfileUser : returnValue) {
+      spendProfileUser.print();
+    }
+  }
+
   /** List all users that have access to the WSM default spend profile. */
   @Override
   protected void execute() {
@@ -27,12 +34,5 @@ public class ListUsers extends BaseCommand {
             Comparator.comparing(SpendProfileUser::getEmail),
             UFSpendProfileUser::new),
         ListUsers::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(List<UFSpendProfileUser> returnValue) {
-    for (UFSpendProfileUser spendProfileUser : returnValue) {
-      spendProfileUser.print();
-    }
   }
 }

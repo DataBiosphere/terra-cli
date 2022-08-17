@@ -160,6 +160,38 @@ public class Workspace {
   }
 
   /**
+   * List all workspaces that the current user has read access to.
+   *
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
+   * @return list of workspaces
+   */
+  public static List<Workspace> list(int offset, int limit) {
+    // fetch the list of workspaces from WSM
+    List<WorkspaceDescription> listedWorkspaces =
+        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
+
+    // convert the WSM objects to CLI objects
+    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
+  }
+
+  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
+    Properties properties = new Properties();
+    if (map == null) {
+      return properties;
+    }
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      Property property = new Property().key(entry.getKey()).value(entry.getValue());
+      properties.add(property);
+    }
+    return properties;
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
+  }
+
+  /**
    * Update the mutable properties of the current workspace.
    *
    * @param userFacingId optional user-facing ID
@@ -242,22 +274,6 @@ public class Workspace {
    */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
-  }
-
-  /**
-   * List all workspaces that the current user has read access to.
-   *
-   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
-   * @param limit the maximum number of workspaces to return
-   * @return list of workspaces
-   */
-  public static List<Workspace> list(int offset, int limit) {
-    // fetch the list of workspaces from WSM
-    List<WorkspaceDescription> listedWorkspaces =
-        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
-
-    // convert the WSM objects to CLI objects
-    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
   }
 
   /**
@@ -366,22 +382,6 @@ public class Workspace {
     }
 
     return granteeProxyGroupEmail;
-  }
-
-  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
-    Properties properties = new Properties();
-    if (map == null) {
-      return properties;
-    }
-    for (Map.Entry<String, String> entry : map.entrySet()) {
-      Property property = new Property().key(entry.getKey()).value(entry.getValue());
-      properties.add(property);
-    }
-    return properties;
-  }
-
-  private static Map<String, String> propertiesToStringMap(Properties properties) {
-    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 
   public UUID getUuid() {

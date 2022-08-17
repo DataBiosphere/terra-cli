@@ -85,16 +85,6 @@ public class ExternalBQDatasets {
   }
 
   /**
-   * Helper enum to distinguish between two different types of IAM members: users and groups. This
-   * information could be conveyed using a boolean flag, but it makes the method signature more
-   * readable to use an enum instead.
-   */
-  public enum IamMemberType {
-    USER,
-    GROUP;
-  }
-
-  /**
    * Grant a given user or group READER access to a dataset. This method uses SA credentials that
    * have permissions on the external (to WSM) project.
    */
@@ -236,5 +226,15 @@ public class ExternalBQDatasets {
   public static String getDataTableFullPath(
       String projectId, String datasetId, String dataTableId) {
     return projectId + "." + datasetId + "." + dataTableId;
+  }
+
+  /**
+   * Helper enum to distinguish between two different types of IAM members: users and groups. This
+   * information could be conveyed using a boolean flag, but it makes the method signature more
+   * readable to use an enum instead.
+   */
+  public enum IamMemberType {
+    USER,
+    GROUP;
   }
 }

@@ -41,6 +41,9 @@ public class UpdateReferencedGcsObjectParams {
     private @Nullable String objectName;
     private @Nullable CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateReferencedGcsObjectParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -67,8 +70,5 @@ public class UpdateReferencedGcsObjectParams {
     public UpdateReferencedGcsObjectParams build() {
       return new UpdateReferencedGcsObjectParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -32,6 +32,9 @@ public class UpdateControlledGcsBucketParams {
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
     private CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateControlledGcsBucketParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -59,8 +62,5 @@ public class UpdateControlledGcsBucketParams {
     public UpdateControlledGcsBucketParams build() {
       return new UpdateControlledGcsBucketParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -12,17 +12,6 @@ import picocli.CommandLine.Command;
 public class Logging extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
-  /** Return the logging level properties of the global context. */
-  @Override
-  protected void execute() {
-    UFLoggingConfig loggingLevels =
-        new UFLoggingConfig.Builder()
-            .consoleLoggingLevel(Context.getConfig().getConsoleLoggingLevel())
-            .fileLoggingLevel(Context.getConfig().getFileLoggingLevel())
-            .build();
-    formatOption.printReturnValue(loggingLevels, Logging::printText);
-  }
-
   /** Print this command's output in text format. */
   public static void printText(UFLoggingConfig returnValue) {
     OUT.println(
@@ -33,6 +22,17 @@ public class Logging extends BaseCommand {
             + Context.getLogFile().getParent()
             + " = "
             + returnValue.fileLoggingLevel);
+  }
+
+  /** Return the logging level properties of the global context. */
+  @Override
+  protected void execute() {
+    UFLoggingConfig loggingLevels =
+        new UFLoggingConfig.Builder()
+            .consoleLoggingLevel(Context.getConfig().getConsoleLoggingLevel())
+            .fileLoggingLevel(Context.getConfig().getFileLoggingLevel())
+            .build();
+    formatOption.printReturnValue(loggingLevels, Logging::printText);
   }
 
   /** This command never requires login. */

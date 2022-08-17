@@ -15,27 +15,21 @@ import org.slf4j.LoggerFactory;
  * context or state.
  */
 public class Config {
+  public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Config.class);
-
   // launch a browser automatically or not
   private BrowserLaunchOption browserLaunchOption = BrowserLaunchOption.AUTO;
-
   // how to launch tools: docker image id or tag
   private CommandRunnerOption commandRunnerOption = CommandRunnerOption.DOCKER_CONTAINER;
   private String dockerImageId;
-
   // maximum number of resources to cache on disk for a single workspace before throwing an error
   // (corresponds to ~1MB cache size on disk)
   private int resourcesCacheSize = DEFAULT_RESOURCES_CACHE_SIZE;
-
   // log levels for file and stdout
   private Logger.LogLevel consoleLoggingLevel = Logger.LogLevel.OFF;
   private Logger.LogLevel fileLoggingLevel = Logger.LogLevel.INFO;
-
   // Output format option
   private Format.FormatOptions format = FormatOptions.TEXT;
-
-  public static final int DEFAULT_RESOURCES_CACHE_SIZE = 1000;
 
   /** Build an instance of this class from the serialized format on disk. */
   public Config(PDConfig configFromDisk) {
@@ -66,29 +60,6 @@ public class Config {
       logger.warn(
           "Implementation version not defined in the JAR manifest. This is expected when testing, not during normal operation.");
       return System.getProperty("TERRA_JAR_IMPLEMENTATION_VERSION");
-    }
-  }
-
-  /** Options for handling the browser during the OAuth process. */
-  public enum BrowserLaunchOption {
-    MANUAL,
-    AUTO;
-  }
-
-  /** Different ways of running tool/app commands. */
-  public enum CommandRunnerOption {
-    DOCKER_CONTAINER(new DockerCommandRunner()),
-    LOCAL_PROCESS(new LocalProcessCommandRunner());
-
-    private CommandRunner commandRunner;
-
-    CommandRunnerOption(CommandRunner commandRunner) {
-      this.commandRunner = commandRunner;
-    }
-
-    /** Helper method to get the {@link CommandRunner} sub-class that maps to each enum value. */
-    public CommandRunner getRunner() {
-      return commandRunner;
     }
   }
 
@@ -158,5 +129,28 @@ public class Config {
   public void setFormat(Format.FormatOptions format) {
     this.format = format;
     Context.synchronizeToDisk();
+  }
+
+  /** Options for handling the browser during the OAuth process. */
+  public enum BrowserLaunchOption {
+    MANUAL,
+    AUTO;
+  }
+
+  /** Different ways of running tool/app commands. */
+  public enum CommandRunnerOption {
+    DOCKER_CONTAINER(new DockerCommandRunner()),
+    LOCAL_PROCESS(new LocalProcessCommandRunner());
+
+    private CommandRunner commandRunner;
+
+    CommandRunnerOption(CommandRunner commandRunner) {
+      this.commandRunner = commandRunner;
+    }
+
+    /** Helper method to get the {@link CommandRunner} sub-class that maps to each enum value. */
+    public CommandRunner getRunner() {
+      return commandRunner;
+    }
   }
 }
