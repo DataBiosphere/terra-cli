@@ -26,8 +26,6 @@ public class ControlledResourceCreation {
 
   @CommandLine.Mixin ResourceCreation resourceCreationOption;
 
-  @CommandLine.Mixin ResourceCreation resourceCreationOption;
-
   /**
    * Helper method to return a {@link CreateResourceParams.Builder} with the controlled resource
    * metadata fields populated.

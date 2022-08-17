@@ -25,9 +25,6 @@ public class NotebookInstance {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
-  ArgGroup argGroup;
-
   public InstanceName toInstanceName() {
     Workspace workspace = Context.requireWorkspace();
     if (argGroup.resourceName != null) {

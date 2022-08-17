@@ -22,8 +22,6 @@ public class ReferencedResourceCreation {
 
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
-  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
-
   /**
    * Helper method to return a {@link CreateResourceParams.Builder} with the referenced resource
    * metadata fields populated.

@@ -34,9 +34,6 @@ public class BqDataset extends Resource {
   private String projectId;
   private String datasetId;
 
-  private String projectId;
-  private String datasetId;
-
   /** Deserialize an instance of the disk format to the internal object. */
   public BqDataset(PDBqDataset configFromDisk) {
     super(configFromDisk);
