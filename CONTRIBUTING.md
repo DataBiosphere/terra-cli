@@ -48,15 +48,10 @@
 
 The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it
 to DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image or
-DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running)
-. Then, from the top-level directory, run:
+DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running).
 
-```
-source tools/local-dev.sh
-terra
-```
-
-To rebuild after changing code: `./gradlew installDist`
+- From the top-level directory, run: `source tools/local-dev.sh`
+- To rebuild after changing code: `./gradlew installDist`
 
 #### Logging
 
