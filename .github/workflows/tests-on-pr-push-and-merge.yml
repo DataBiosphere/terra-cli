@@ -110,6 +110,7 @@ jobs:
           ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE
         env:
           TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
+          GRADLE_ENTERPRISE_ACCESS_KEY: "gradle-enterprise-prod-helm-cluster.api.verily.com=${{ secrets.ZLOERY_GRADLE_ENTERPRISE_API_KEY }}"
       - name: Archive logs and context file
         id: archive_logs_and_context
         if: always()
