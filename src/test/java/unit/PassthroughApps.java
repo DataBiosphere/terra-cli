@@ -9,6 +9,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
+import harness.LocalTestOnly;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.baseclasses.SingleWorkspaceUnit;
@@ -42,6 +43,7 @@ import org.junit.jupiter.api.Test;
  * runners at once.
  */
 @Tag("unit")
+@LocalTestOnly
 public class PassthroughApps extends SingleWorkspaceUnit {
 
   // external bucket to use for testing the JSON format against GCS directly

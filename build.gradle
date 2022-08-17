@@ -148,6 +148,9 @@ task runInstallForTesting(type: Exec){
 // 3) run integration tests against an installation built from the latest GitHub release
 //    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
 task runTestsWithTag(type: Test) {
+    // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
+    // work, but that's not a concern for dedicated CI machines.
+    int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
     doFirst {
         // All gradle tasks are evaluated every time any task is run. If we
         // require that the testTag property be defined in this task definition,
@@ -186,9 +189,6 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
         }
-        // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
-        // work, but that's not a concern for dedicated CI machines.
-        int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
         // Integration tests wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
         maxParallelForks = (testTag == "unit" ? localCores : 1)
@@ -249,6 +249,23 @@ task runTestsWithTag(type: Test) {
             maxFailures = 5
         }
         failOnPassedAfterRetry = true
+    }
+
+    // If using Test Distribution, this will copy the rendered directory to the
+    // container running the test.
+    inputs.dir "rendered"
+
+    // If using Test Distribution, this will copy buildDir/test-context back
+    // to machine that ran gradlew.
+    outputs.dir "${buildDir}/test-context/"
+    // Gradle Enterprise Test Distribution
+    distribution {
+        enabled = true
+        localOnly {
+            includeAnnotationClasses = ["harness.LocalTestOnly"]
+        }
+        maxLocalExecutors = localCores
+        maxRemoteExecutors = 5
     }
 }
 

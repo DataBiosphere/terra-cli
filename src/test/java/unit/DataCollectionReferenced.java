@@ -11,6 +11,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.MoreCollectors;
+import harness.LocalTestOnly;
 import harness.TestCommand;
 import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnit;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle data collections. */
 @Tag("unit")
+@LocalTestOnly
 public class DataCollectionReferenced extends SingleWorkspaceUnit {
   private static final String DATA_COLLECTION_NAME = "1000 Genomes";
   private static final String DATA_COLLECTION_DESCRIPTION = "short description";
