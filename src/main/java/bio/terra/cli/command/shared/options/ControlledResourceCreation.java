@@ -23,6 +23,7 @@ public class ControlledResourceCreation {
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
+  @CommandLine.Mixin ResourceCreation resourceCreationOption;
 
   @CommandLine.Mixin ResourceCreation resourceCreationOption;
 

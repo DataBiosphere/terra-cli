@@ -21,6 +21,8 @@ public class NotebookInstance {
       defaultValue = "us-central1-a",
       description = "The Google Cloud location of the instance (if using --instance-id).")
   public String location;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+  ArgGroup argGroup;
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
