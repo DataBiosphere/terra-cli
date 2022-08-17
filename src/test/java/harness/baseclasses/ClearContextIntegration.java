@@ -3,6 +3,7 @@ package harness.baseclasses;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.businessobject.Context;
+import harness.LocalTestOnly;
 import harness.TestBashScript;
 import harness.TestContext;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
  * Base class for integration tests that includes standard setup/cleanup. Because they are for
  * integration tests, these methods call the setup/cleanup commands from a bash script.
  */
+@LocalTestOnly
 public class ClearContextIntegration {
   @BeforeEach
   protected void setupEachTime() throws IOException {
