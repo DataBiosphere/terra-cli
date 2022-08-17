@@ -16,19 +16,6 @@ public class ResourceLimit extends BaseCommand {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ResourceLimitArgGroup argGroup;
 
-  static class ResourceLimitArgGroup {
-    @CommandLine.Option(
-        names = "--max",
-        description = "Maximum number to allow before throwing an error.")
-    private int max;
-
-    @CommandLine.Option(
-        names = "--default",
-        description =
-            "Use the default number of resources: " + Config.DEFAULT_RESOURCES_CACHE_SIZE + ".")
-    private boolean useDefault;
-  }
-
   /** Updates the resources cache size property of the global context. */
   @Override
   protected void execute() {
@@ -60,5 +47,18 @@ public class ResourceLimit extends BaseCommand {
   @Override
   protected boolean requiresLogin() {
     return false;
+  }
+
+  static class ResourceLimitArgGroup {
+    @CommandLine.Option(
+        names = "--max",
+        description = "Maximum number to allow before throwing an error.")
+    private int max;
+
+    @CommandLine.Option(
+        names = "--default",
+        description =
+            "Use the default number of resources: " + Config.DEFAULT_RESOURCES_CACHE_SIZE + ".")
+    private boolean useDefault;
   }
 }

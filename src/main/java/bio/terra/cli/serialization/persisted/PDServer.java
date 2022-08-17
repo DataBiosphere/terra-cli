@@ -60,6 +60,9 @@ public class PDServer {
     private String externalCredsUri;
     private boolean supportsIdToken;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder name(String name) {
       this.name = name;
       return this;
@@ -109,8 +112,5 @@ public class PDServer {
     public PDServer build() {
       return new PDServer(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

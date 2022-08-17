@@ -28,6 +28,61 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled BQ datasets. */
 @Tag("unit")
 public class BqDatasetControlled extends SingleWorkspaceUnit {
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
+  static UFBqDataset listOneDatasetResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    return listOneDatasetResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  static UFBqDataset listOneDatasetResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFBqDataset> matchedResources =
+        listDatasetResourcesWithName(resourceName, workspaceUserFacingId);
+
+    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
+    return matchedResources.get(0);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name. Uses the current workspace.
+   */
+  static List<UFBqDataset> listDatasetResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    return listDatasetResourcesWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFBqDataset> listDatasetResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    // `terra resources list --type=BQ_DATASET --format=json`
+    List<UFBqDataset> listedResources =
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resource", "list", "--type=BQ_DATASET")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resource",
+                "list",
+                "--type=BQ_DATASET",
+                "--workspace=" + workspaceUserFacingId);
+
+    // find the matching dataset in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @Test
   @DisplayName("list and describe reflect creating a new controlled dataset")
   void listDescribeReflectCreate() throws IOException {
@@ -392,58 +447,5 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + newName);
     assertEquals(newDescription, describeDataset.description);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
-   * current workspace.
-   */
-  static UFBqDataset listOneDatasetResourceWithName(String resourceName)
-      throws JsonProcessingException {
-    return listOneDatasetResourceWithName(resourceName, null);
-  }
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
-   * the specified workspace id; Uses the current workspace if null.
-   */
-  static UFBqDataset listOneDatasetResourceWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    List<UFBqDataset> matchedResources =
-        listDatasetResourcesWithName(resourceName, workspaceUserFacingId);
-
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    return matchedResources.get(0);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Uses the current workspace.
-   */
-  static List<UFBqDataset> listDatasetResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    return listDatasetResourcesWithName(resourceName, null);
-  }
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
-   */
-  static List<UFBqDataset> listDatasetResourcesWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=BQ_DATASET --format=json`
-    List<UFBqDataset> listedResources =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=BQ_DATASET")
-            : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {},
-                "resource",
-                "list",
-                "--type=BQ_DATASET",
-                "--workspace=" + workspaceUserFacingId);
-
-    // find the matching dataset in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
   }
 }

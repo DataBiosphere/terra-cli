@@ -31,6 +31,38 @@ public class SpendProfileUser extends ClearContextUnit {
 
   SamGroups trackedGroups = new SamGroups();
 
+  /**
+   * Helper method to check that a spend profile user is included in the list with the specified
+   * policies.
+   */
+  private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
+      throws JsonProcessingException {
+    Optional<UFSpendProfileUser> spendUser = listUsersWithEmail(email);
+    assertTrue(spendUser.isPresent(), "test user is in spend users list");
+    assertEquals(
+        policies.length,
+        spendUser.get().policies.size(),
+        "test user has the right number of policies");
+    assertTrue(
+        spendUser.get().policies.containsAll(Arrays.asList(policies)),
+        "test user has the right policies");
+  }
+
+  /**
+   * Helper method to call `terra spend list-users` and filter the results on the specified user
+   * email.
+   */
+  static Optional<UFSpendProfileUser> listUsersWithEmail(String email)
+      throws JsonProcessingException {
+    // `terra spend list-users --format=json`
+    List<UFSpendProfileUser> listSpendUsers =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "spend", "list-users");
+
+    // find the user in the list
+    return listSpendUsers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
+  }
+
   @AfterAll
   void cleanupOnce() throws IOException, InterruptedException {
     spendProfileOwner.login();
@@ -141,38 +173,6 @@ public class SpendProfileUser extends ClearContextUnit {
     for (TestUser expectedSpendUser : expectedSpendUsers) {
       expectListedUserWithPolicies(expectedSpendUser.email, SpendProfilePolicy.USER);
     }
-  }
-
-  /**
-   * Helper method to check that a spend profile user is included in the list with the specified
-   * policies.
-   */
-  private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
-      throws JsonProcessingException {
-    Optional<UFSpendProfileUser> spendUser = listUsersWithEmail(email);
-    assertTrue(spendUser.isPresent(), "test user is in spend users list");
-    assertEquals(
-        policies.length,
-        spendUser.get().policies.size(),
-        "test user has the right number of policies");
-    assertTrue(
-        spendUser.get().policies.containsAll(Arrays.asList(policies)),
-        "test user has the right policies");
-  }
-
-  /**
-   * Helper method to call `terra spend list-users` and filter the results on the specified user
-   * email.
-   */
-  static Optional<UFSpendProfileUser> listUsersWithEmail(String email)
-      throws JsonProcessingException {
-    // `terra spend list-users --format=json`
-    List<UFSpendProfileUser> listSpendUsers =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "spend", "list-users");
-
-    // find the user in the list
-    return listSpendUsers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
   }
 
   /**

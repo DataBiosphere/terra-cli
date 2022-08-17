@@ -1,58 +1,58 @@
 name: Bump version and publish release
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: { }
   push:
     branches:
-      - main
+    - main
 
 jobs:
   bump-version-publish-release:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          ref: main
-      - name: Bump tag and build version
-        id: bump_tag
-        uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
-        env:
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          DEFAULT_BUMP: minor
-          RELEASE_BRANCHES: main
-          VERSION_FILE_PATH: build.gradle
-          VERSION_LINE_MATCH: ^version\>
-      - name: Updating code to get the version bump changes
-        id: update_code_post_version_bump
-        run: |
-          git pull
-        env:
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-      - name: Render config
-        id: render_config
-        run: |
-          # this step does the equivalent of the tools/render-config.sh script.
-          # on local machines, the script fetches a SA from Vault.
-          # in GH actions, the SA key is stored in a GH repo secret.
-          # regardless of how it was fetched, tests and scripts expect these
-          # keys to be stored in rendered/broad
-          mkdir -p rendered/broad
-          echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
-          echo "$DEV_CI_SA_KEY" > rendered/broad/ci-account.json
-          echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
-          echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
-        env:
-          TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
-          DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
-          EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
-          JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
-      - name: Publish a release
-        id: publish_release
-        run: |
-          ./tools/publish-release.sh $RELEASE_VERSION true
-        env:
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}
+    - name: Checkout current code
+      id: checkout_code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        ref: main
+    - name: Bump tag and build version
+      id: bump_tag
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        DEFAULT_BUMP: minor
+        RELEASE_BRANCHES: main
+        VERSION_FILE_PATH: build.gradle
+        VERSION_LINE_MATCH: ^version\>
+    - name: Updating code to get the version bump changes
+      id: update_code_post_version_bump
+      run: |
+        git pull
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+    - name: Render config
+      id: render_config
+      run: |
+        # this step does the equivalent of the tools/render-config.sh script.
+        # on local machines, the script fetches a SA from Vault.
+        # in GH actions, the SA key is stored in a GH repo secret.
+        # regardless of how it was fetched, tests and scripts expect these
+        # keys to be stored in rendered/broad
+        mkdir -p rendered/broad
+        echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
+        echo "$DEV_CI_SA_KEY" > rendered/broad/ci-account.json
+        echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
+        echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
+      env:
+        TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
+        DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
+        EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
+        JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
+    - name: Publish a release
+      id: publish_release
+      run: |
+        ./tools/publish-release.sh $RELEASE_VERSION true
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}

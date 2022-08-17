@@ -38,6 +38,9 @@ public class PDDataCollection extends PDResource {
   public static class Builder extends PDResource.Builder {
     private UUID dataCollectionWorkspaceUuid;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public PDDataCollection.Builder dataCollectionWorkspaceUuid(UUID dataCollectionWorkspaceUuid) {
       this.dataCollectionWorkspaceUuid = dataCollectionWorkspaceUuid;
       return this;
@@ -47,8 +50,5 @@ public class PDDataCollection extends PDResource {
     public PDDataCollection build() {
       return new PDDataCollection(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

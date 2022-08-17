@@ -14,6 +14,15 @@ public class List extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(java.util.List<String> returnValue) {
+    OUT.println(
+        "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
+    for (String app : returnValue) {
+      OUT.println("  " + app);
+    }
+  }
+
   /** Print out a list of all the supported apps. */
   @Override
   protected void execute() {
@@ -23,15 +32,6 @@ public class List extends BaseCommand {
             Comparator.comparing(PassThrough::name),
             Enum::toString);
     formatOption.printReturnValue(returnValue, List::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(java.util.List<String> returnValue) {
-    OUT.println(
-        "Call any of the supported applications listed below, by prefixing it with 'terra' (e.g. terra gsutil ls, terra nextflow run hello)\n");
-    for (String app : returnValue) {
-      OUT.println("  " + app);
-    }
   }
 
   /** This command never requires login. */

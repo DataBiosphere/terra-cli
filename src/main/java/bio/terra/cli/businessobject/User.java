@@ -32,56 +32,47 @@ import org.slf4j.LoggerFactory;
     justification =
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
 public class User {
-  private static final Logger logger = LoggerFactory.getLogger(User.class);
-
-  // id that Terra uses to identify a user. the CLI queries SAM for a user's subject id to populate
-  // this field.
-  private String id;
-
-  // name that Terra associates with this user. the CLI queries SAM for a user's email to populate
-  // this field.
-  private String email;
-
-  // proxy group email that Terra associates with this user. permissions granted to the proxy group
-  // are transitively granted to the user and all of their pet SAs. the CLI queries SAM to populate
-  // this field.
-  private String proxyGroupEmail;
-
-  // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
-  private String petSAEmail;
-
-  // User credentials to be used in calls to Terra API's. This can be either 1) end-user google
-  // credentials from an oauth browser flow, or 2) end-user or pet sa google credentials pulled from
-  // the application default credentials.
-  private TerraCredentials terraCredentials;
-
-  /**
-   * User specified what mode to log-in. When log-in mode is {@code APP_DEFAULT_CREDENTIALS}, check
-   * for ADC instead of user credentials that are stored on disk in the Terra CLI credential store
-   * ($home/.terra).
-   */
-  private LogInMode logInMode;
-
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 
+  private static final Logger logger = LoggerFactory.getLogger(User.class);
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
   // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status
   // of a GCP notebook)
   private static final List<String> PET_SA_SCOPES =
       ImmutableList.of(
           "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
-
   // Number of milliseconds early to consider auth credentials as expired.
   private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
-
   // URL of the landing page shown in the browser after completing the OAuth part of login
   // ideally this should point to product documentation or perhaps the UI, but for now the CLI
   // README seems like the best option. in the future, if we want to make this server-specific, then
   // it should become a property of the Server
   private static final String LOGIN_LANDING_PAGE =
       "https://github.com/DataBiosphere/terra-cli/blob/main/README.md";
+  // id that Terra uses to identify a user. the CLI queries SAM for a user's subject id to populate
+  // this field.
+  private String id;
+  // name that Terra associates with this user. the CLI queries SAM for a user's email to populate
+  // this field.
+  private String email;
+  // proxy group email that Terra associates with this user. permissions granted to the proxy group
+  // are transitively granted to the user and all of their pet SAs. the CLI queries SAM to populate
+  // this field.
+  private String proxyGroupEmail;
+  // pet SA email that Terra associates with this user. the CLI queries SAM to populate this field.
+  private String petSAEmail;
+  // User credentials to be used in calls to Terra API's. This can be either 1) end-user google
+  // credentials from an oauth browser flow, or 2) end-user or pet sa google credentials pulled from
+  // the application default credentials.
+  private TerraCredentials terraCredentials;
+  /**
+   * User specified what mode to log-in. When log-in mode is {@code APP_DEFAULT_CREDENTIALS}, check
+   * for ADC instead of user credentials that are stored on disk in the Terra CLI credential store
+   * ($home/.terra).
+   */
+  private LogInMode logInMode;
 
   /** Build an instance of this class from the serialized format on disk. */
   public User(PDUser configFromDisk) {
@@ -94,24 +85,6 @@ public class User {
 
   /** Build an empty instance of this class. */
   private User() {}
-
-  /**
-   * Load any existing credentials for this user. Return silently, do not prompt for login, if they
-   * are expired or do not exist on disk.
-   */
-  public void loadExistingCredentials() {
-    // load existing user credentials from disk
-    if (logInMode == LogInMode.APP_DEFAULT_CREDENTIALS) {
-      loadAppDefaultCredentials();
-      return;
-    }
-    try {
-      terraCredentials =
-          GoogleOauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
-    } catch (IOException | GeneralSecurityException ex) {
-      throw new SystemException("Error fetching user credentials.", ex);
-    }
-  }
 
   /** Load any existing credentials for this user. Use the {@code user.logInMode} if it's set. */
   public static void login() {
@@ -154,6 +127,24 @@ public class User {
       Context.setUser(user);
 
       user.fetchPetSaEmailForLogin();
+    }
+  }
+
+  /**
+   * Load any existing credentials for this user. Return silently, do not prompt for login, if they
+   * are expired or do not exist on disk.
+   */
+  public void loadExistingCredentials() {
+    // load existing user credentials from disk
+    if (logInMode == LogInMode.APP_DEFAULT_CREDENTIALS) {
+      loadAppDefaultCredentials();
+      return;
+    }
+    try {
+      terraCredentials =
+          GoogleOauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
+    } catch (IOException | GeneralSecurityException ex) {
+      throw new SystemException("Error fetching user credentials.", ex);
     }
   }
 

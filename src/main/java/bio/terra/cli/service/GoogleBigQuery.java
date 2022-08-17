@@ -19,12 +19,14 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for talking to Google BigQuery. */
 public class GoogleBigQuery {
-  private static final Logger logger = LoggerFactory.getLogger(GoogleBigQuery.class);
-
-  private final BigQueryCow bigQuery;
-
   // default value for the maximum number of times to retry HTTP requests to BQ
   public static final int BQ_MAXIMUM_RETRIES = 5;
+  private static final Logger logger = LoggerFactory.getLogger(GoogleBigQuery.class);
+  private final BigQueryCow bigQuery;
+
+  private GoogleBigQuery(GoogleCredentials credentials) {
+    bigQuery = CrlUtils.createBigQueryCow(credentials);
+  }
 
   /**
    * Factory method for class that talks to BQ. Pulls the current user from the context. Uses the
@@ -36,8 +38,30 @@ public class GoogleBigQuery {
     return new GoogleBigQuery(Context.requireUser().getPetSACredentials());
   }
 
-  private GoogleBigQuery(GoogleCredentials credentials) {
-    bigQuery = CrlUtils.createBigQueryCow(credentials);
+  /**
+   * Utility method that checks if an exception thrown by the BQ client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  static boolean isRetryable(Exception ex) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    }
+    if (!(ex instanceof GoogleJsonResponseException)) {
+      return false;
+    }
+    logger.error("Caught a BQ error.", ex);
+    int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
+
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
+
+        // retry forbidden errors because we often see propagation delays when a user is just
+        // granted access
+        || statusCode == HttpStatus.SC_FORBIDDEN;
   }
 
   public Optional<Dataset> getDataset(String projectId, String datasetId) {
@@ -118,31 +142,5 @@ public class GoogleBigQuery {
       // wrap the BQ exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the BQ client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  static boolean isRetryable(Exception ex) {
-    if (ex instanceof SocketTimeoutException) {
-      return true;
-    }
-    if (!(ex instanceof GoogleJsonResponseException)) {
-      return false;
-    }
-    logger.error("Caught a BQ error.", ex);
-    int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
-
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.SC_BAD_GATEWAY
-        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-
-        // retry forbidden errors because we often see propagation delays when a user is just
-        // granted access
-        || statusCode == HttpStatus.SC_FORBIDDEN;
   }
 }

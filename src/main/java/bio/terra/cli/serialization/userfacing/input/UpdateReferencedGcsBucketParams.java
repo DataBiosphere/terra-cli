@@ -29,6 +29,9 @@ public class UpdateReferencedGcsBucketParams {
     private String bucketName;
     private CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateReferencedGcsBucketParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -50,8 +53,5 @@ public class UpdateReferencedGcsBucketParams {
     public UpdateReferencedGcsBucketParams build() {
       return new UpdateReferencedGcsBucketParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -32,6 +32,12 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGcsBucket returnValue) {
+    OUT.println("Successfully updated GCS bucket.");
+    returnValue.print();
+  }
+
   /** Update a bucket in the workspace. */
   @Override
   protected void execute() {
@@ -77,11 +83,5 @@ public class GcsBucket extends BaseCommand {
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_BUCKET);
     formatOption.printReturnValue(new UFGcsBucket(resource), GcsBucket::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcsBucket returnValue) {
-    OUT.println("Successfully updated GCS bucket.");
-    returnValue.print();
   }
 }

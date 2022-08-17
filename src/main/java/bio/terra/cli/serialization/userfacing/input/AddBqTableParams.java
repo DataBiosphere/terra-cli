@@ -30,6 +30,9 @@ public class AddBqTableParams {
     private String datasetId;
     private String dataTableId;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -54,8 +57,5 @@ public class AddBqTableParams {
     public AddBqTableParams build() {
       return new AddBqTableParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -19,15 +19,21 @@ import picocli.CommandLine;
     description = "Update a Git Repo.",
     showDefaultValues = true)
 public class GitRepo extends BaseCommand {
+  @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
+  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--new-repo-url",
       description = "New git repo url, it can be either https or ssh url.")
   private String newRepoUrl;
 
-  @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in text format. */
+  private static void printText(UFGitRepo returnValue) {
+    OUT.println("Successfully updated Git repo.");
+    returnValue.print();
+  }
 
   /** Update a git repo in the workspace. */
   @Override
@@ -54,11 +60,5 @@ public class GitRepo extends BaseCommand {
     // re-load the resource so we display all properties with up-to-date values
     resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GIT_REPO);
     formatOption.printReturnValue(new UFGitRepo(resource), GitRepo::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGitRepo returnValue) {
-    OUT.println("Successfully updated Git repo.");
-    returnValue.print();
   }
 }

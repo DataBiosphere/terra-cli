@@ -26,36 +26,6 @@ public class WorkspaceUser {
   private List<Role> roles;
   private UUID workspaceId;
 
-  /**
-   * Enum for the workspace user roles supported by the CLI. Each enum value maps to a single WSM
-   * client library ({@link bio.terra.workspace.model.IamRole}) enum value.
-   *
-   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the roles
-   * supported (e.g. no applications). It also gives the CLI control over what the enum names are,
-   * which are exposed to users as command options.
-   */
-  public enum Role {
-    READER(IamRole.READER),
-    WRITER(IamRole.WRITER),
-    OWNER(IamRole.OWNER);
-
-    private IamRole wsmRole;
-
-    Role(IamRole wsmRole) {
-      this.wsmRole = wsmRole;
-    }
-
-    /** Get the CLI enum value that maps to the given WSM enum value. */
-    public static Role fromWsmRole(IamRole wsmRole) {
-      return Role.valueOf(wsmRole.getValue());
-    }
-
-    /** Get the WSM client enum value that maps to this CLI enum value. */
-    public IamRole getWsmRole() {
-      return wsmRole;
-    }
-  }
-
   private WorkspaceUser(String email, List<Role> roles) {
     this.email = email;
     this.roles = roles;
@@ -153,12 +123,12 @@ public class WorkspaceUser {
     return workspaceUsers;
   }
 
-  // ====================================================
-  // Property getters.
-
   public String getEmail() {
     return email;
   }
+
+  // ====================================================
+  // Property getters.
 
   public List<Role> getRoles() {
     return roles;
@@ -166,5 +136,35 @@ public class WorkspaceUser {
 
   public UUID getWorkspaceId() {
     return workspaceId;
+  }
+
+  /**
+   * Enum for the workspace user roles supported by the CLI. Each enum value maps to a single WSM
+   * client library ({@link bio.terra.workspace.model.IamRole}) enum value.
+   *
+   * <p>The CLI defines its own enum instead of using the WSM one so that we can restrict the roles
+   * supported (e.g. no applications). It also gives the CLI control over what the enum names are,
+   * which are exposed to users as command options.
+   */
+  public enum Role {
+    READER(IamRole.READER),
+    WRITER(IamRole.WRITER),
+    OWNER(IamRole.OWNER);
+
+    private IamRole wsmRole;
+
+    Role(IamRole wsmRole) {
+      this.wsmRole = wsmRole;
+    }
+
+    /** Get the CLI enum value that maps to the given WSM enum value. */
+    public static Role fromWsmRole(IamRole wsmRole) {
+      return Role.valueOf(wsmRole.getValue());
+    }
+
+    /** Get the WSM client enum value that maps to this CLI enum value. */
+    public IamRole getWsmRole() {
+      return wsmRole;
+    }
   }
 }

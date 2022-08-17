@@ -11,13 +11,13 @@ import picocli.CommandLine.Command;
 @Command(name = "set", description = "Set the Terra server to connect to.")
 public class Set extends BaseCommand {
 
+  @CommandLine.Mixin ConfirmationPrompt confirmationPromptOption;
+
   @CommandLine.Option(
       names = "--name",
       required = true,
       description = "Server name. Run `terra server list` to see the available servers.")
   private String name;
-
-  @CommandLine.Mixin ConfirmationPrompt confirmationPromptOption;
 
   /** Update the Terra environment to which the CLI is pointing. */
   @Override

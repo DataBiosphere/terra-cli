@@ -121,14 +121,14 @@ public class Main implements Runnable {
     System.exit(exitCode);
   }
 
-  /** Required method to implement Runnable, but not actually called by picocli. */
-  @Override
-  public void run() {}
-
   /** Get the user input arguments */
   public static List<String> getArgList() {
     return argList;
   }
+
+  /** Required method to implement Runnable, but not actually called by picocli. */
+  @Override
+  public void run() {}
 
   /**
    * Custom handler class that intercepts all exceptions.

@@ -1,11 +1,10 @@
 {
   "name": "verily-preprod",
   "description": "Verily pre-prod environment",
-
   "samUri": "https://terra-preprod-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-preprod-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
-  "supportsIdToken" : true
+  "supportsIdToken": true
 }

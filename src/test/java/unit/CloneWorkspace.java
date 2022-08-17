@@ -75,6 +75,27 @@ public class CloneWorkspace extends ClearContextUnit {
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
   }
 
+  @AfterAll
+  public static void cleanupOnce() throws IOException {
+    if (externalDataset != null) {
+      ExternalBQDatasets.deleteDataset(externalDataset);
+      externalDataset = null;
+    }
+  }
+
+  /**
+   * Check Optional's value is present and return it, or else fail an assertion.
+   *
+   * @param optional - Optional expression
+   * @param <T> - value type of optional
+   * @return - value of optional, if present
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public static <T> T getOrFail(Optional<T> optional) {
+    assertTrue(optional.isPresent(), "Optional value was empty.");
+    return optional.get();
+  }
+
   @AfterEach
   public void cleanupEachTime() throws IOException {
     workspaceCreator.login();
@@ -95,14 +116,6 @@ public class CloneWorkspace extends ClearContextUnit {
       if (0 != result.exitCode) {
         logger.error("Failed to delete destination workspace. exit code = {}", result.exitCode);
       }
-    }
-  }
-
-  @AfterAll
-  public static void cleanupOnce() throws IOException {
-    if (externalDataset != null) {
-      ExternalBQDatasets.deleteDataset(externalDataset);
-      externalDataset = null;
     }
   }
 
@@ -271,18 +284,5 @@ public class CloneWorkspace extends ClearContextUnit {
         "error message indicate user must set ID",
         stdErr,
         CoreMatchers.containsString("Missing required option: '--new-id=<id>'"));
-  }
-
-  /**
-   * Check Optional's value is present and return it, or else fail an assertion.
-   *
-   * @param optional - Optional expression
-   * @param <T> - value type of optional
-   * @return - value of optional, if present
-   */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public static <T> T getOrFail(Optional<T> optional) {
-    assertTrue(optional.isPresent(), "Optional value was empty.");
-    return optional.get();
   }
 }

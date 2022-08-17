@@ -12,8 +12,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a {@link CommandLine.Mixin}
  */
 public class ReferencedResourceCreation {
-  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
-
   // Cloning option must have a different default for referenced resources (REFERENCE) than
   // for controlled resources (RESOURCE).
   @CommandLine.Option(
@@ -21,6 +19,8 @@ public class ReferencedResourceCreation {
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
   public CloningInstructionsEnum cloningInstructionsOption = CloningInstructionsEnum.REFERENCE;
+
+  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   /**
    * Helper method to return a {@link CreateResourceParams.Builder} with the referenced resource

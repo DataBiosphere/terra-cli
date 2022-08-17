@@ -21,6 +21,12 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFBqDataset returnValue) {
+    OUT.println("Successfully added referenced BigQuery dataset.");
+    returnValue.print();
+  }
+
   /** Add a referenced BigQuery dataset to the workspace. */
   @Override
   protected void execute() {
@@ -37,11 +43,5 @@ public class BqDataset extends BaseCommand {
     bio.terra.cli.businessobject.resource.BqDataset createdResource =
         bio.terra.cli.businessobject.resource.BqDataset.addReferenced(createParams.build());
     formatOption.printReturnValue(new UFBqDataset(createdResource), BqDataset::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFBqDataset returnValue) {
-    OUT.println("Successfully added referenced BigQuery dataset.");
-    returnValue.print();
   }
 }

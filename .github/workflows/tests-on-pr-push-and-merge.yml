@@ -1,31 +1,31 @@
 name: Run tests against PRs (pre and post merge)
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: { }
   push:
     branches:
-      - main
+    - main
   pull_request:
     branches:
-      - '**'
+    - '**'
 
 jobs:
   lint-and-static-analysis:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-      - name: Run linter
-        id: run_linter
-        run: |
-          ./gradlew spotlessCheck
-      - name: Run static analysis
-        id: run_static_analysis
-        run: |
-          ./gradlew spotbugsMain spotbugsTest
+    - name: Checkout current code
+      id: checkout_code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+    - name: Run linter
+      id: run_linter
+      run: |
+        ./gradlew spotlessCheck
+    - name: Run static analysis
+      id: run_static_analysis
+      run: |
+        ./gradlew spotbugsMain spotbugsTest
   tests-against-source-code:
     strategy:
       matrix:
@@ -34,91 +34,91 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-      - name: Checkout current code
-        id: checkout_code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-      - name: Set up AdoptOpenJDK 11
-        id: setup_jdk
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: 'temurin'
-      - name: Cache Gradle packages
-        id: cache_gradle
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Render config
-        id: render_config
-        run: |
-          # For security reasons, Broad prefers we read GHA secrets instead of reading from vault.
-          # this step does the equivalent of the tools/render-config.sh script.
-          # on local machines, the script fetches a SA from Vault.
-          # in GH actions, the SA key is stored in a GH repo secret.
-          # regardless of how it was fetched, tests and scripts expect these
-          # keys to be stored in rendered/broad/
-          mkdir -p rendered/broad/
-          echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
-          echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
-          echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
-          echo "$BROOKLYN_THUNDERLORD" > rendered/broad/Brooklyn.Thunderlord@test.firecloud.org.json
-          echo "$ETHAN_BONECHEWER" > rendered/broad/Ethan.Bonechewer@test.firecloud.org.json
-          echo "$JOHN_WHITECLAW" > rendered/broad/John.Whiteclaw@test.firecloud.org.json
-          echo "$LILY_SHADOWMOON" > rendered/broad/Lily.Shadowmoon@test.firecloud.org.json
-          echo "$NOAH_FROSTWOLF" > rendered/broad/Noah.Frostwolf@test.firecloud.org.json
-          echo "$PENELOPE_TWILIGHTSHAMMER" > rendered/broad/Penelope.TwilightsHammer@test.firecloud.org.json
-        env:
-          TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
-          EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
-          JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
-          BROOKLYN_THUNDERLORD: ${{ secrets.BROOKLYN_THUNDERLORD }}
-          ETHAN_BONECHEWER: ${{ secrets.ETHAN_BONECHEWER }}
-          JOHN_WHITECLAW: ${{ secrets.JOHN_WHITECLAW }}
-          LILY_SHADOWMOON: ${{ secrets.LILY_SHADOWMOON }}
-          NOAH_FROSTWOLF: ${{ secrets.NOAH_FROSTWOLF }}
-          PENELOPE_TWILIGHTSHAMMER: ${{ secrets.PENELOPE_TWILIGHTSHAMMER }}
-      - name: Build Docker image
-        id: build_docker_image
-        run: |
-          # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
-          if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
-            git fetch --no-tags --depth=1 origin main
-            if [ -z "$(git diff --name-only origin/main | grep '^docker/')" ]; then
-              echo "No changes to docker/ directory. Using default Docker image."
-              exit 0
-            fi
+    - name: Checkout current code
+      id: checkout_code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+    - name: Set up AdoptOpenJDK 11
+      id: setup_jdk
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: 'temurin'
+    - name: Cache Gradle packages
+      id: cache_gradle
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+    - name: Render config
+      id: render_config
+      run: |
+        # For security reasons, Broad prefers we read GHA secrets instead of reading from vault.
+        # this step does the equivalent of the tools/render-config.sh script.
+        # on local machines, the script fetches a SA from Vault.
+        # in GH actions, the SA key is stored in a GH repo secret.
+        # regardless of how it was fetched, tests and scripts expect these
+        # keys to be stored in rendered/broad/
+        mkdir -p rendered/broad/
+        echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
+        echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
+        echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
+        echo "$BROOKLYN_THUNDERLORD" > rendered/broad/Brooklyn.Thunderlord@test.firecloud.org.json
+        echo "$ETHAN_BONECHEWER" > rendered/broad/Ethan.Bonechewer@test.firecloud.org.json
+        echo "$JOHN_WHITECLAW" > rendered/broad/John.Whiteclaw@test.firecloud.org.json
+        echo "$LILY_SHADOWMOON" > rendered/broad/Lily.Shadowmoon@test.firecloud.org.json
+        echo "$NOAH_FROSTWOLF" > rendered/broad/Noah.Frostwolf@test.firecloud.org.json
+        echo "$PENELOPE_TWILIGHTSHAMMER" > rendered/broad/Penelope.TwilightsHammer@test.firecloud.org.json
+      env:
+        TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
+        EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
+        JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
+        BROOKLYN_THUNDERLORD: ${{ secrets.BROOKLYN_THUNDERLORD }}
+        ETHAN_BONECHEWER: ${{ secrets.ETHAN_BONECHEWER }}
+        JOHN_WHITECLAW: ${{ secrets.JOHN_WHITECLAW }}
+        LILY_SHADOWMOON: ${{ secrets.LILY_SHADOWMOON }}
+        NOAH_FROSTWOLF: ${{ secrets.NOAH_FROSTWOLF }}
+        PENELOPE_TWILIGHTSHAMMER: ${{ secrets.PENELOPE_TWILIGHTSHAMMER }}
+    - name: Build Docker image
+      id: build_docker_image
+      run: |
+        # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
+        if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
+          git fetch --no-tags --depth=1 origin main
+          if [ -z "$(git diff --name-only origin/main | grep '^docker/')" ]; then
+            echo "No changes to docker/ directory. Using default Docker image."
+            exit 0
           fi
-          echo "Building new Docker image."
-          imageTag="ghaTest"
-          ./tools/build-docker.sh $imageTag # generates an image with this tag
-          echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
-        env:
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-          GHA_EVENT_NAME: ${{ github.event_name }}
-      - name: Run tests
-        id: run_tests
-        run: |
-          # runs against the default server: broad-dev
-          echo "Running tests with tag: ${{ matrix.testTag }}"
-          echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-          ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE
-        env:
-          TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
-          GRADLE_ENTERPRISE_ACCESS_KEY: "gradle-enterprise-prod-helm-cluster.api.verily.com=${{ secrets.ZLOERY_GRADLE_ENTERPRISE_API_KEY }}"
-      - name: Archive logs and context file
-        id: archive_logs_and_context
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: logs-and-context-${{ matrix.testTag }}
-          path: |
-            build/test-context/.terra/logs/
-            build/test-context/.terra/context.json
-            build/test-context/*/.terra/logs/
-            build/test-context/*/.terra/context.json
+        fi
+        echo "Building new Docker image."
+        imageTag="ghaTest"
+        ./tools/build-docker.sh $imageTag # generates an image with this tag
+        echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        GHA_EVENT_NAME: ${{ github.event_name }}
+    - name: Run tests
+      id: run_tests
+      run: |
+        # runs against the default server: broad-dev
+        echo "Running tests with tag: ${{ matrix.testTag }}"
+        echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
+        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE
+      env:
+        TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: "gradle-enterprise-prod-helm-cluster.api.verily.com=${{ secrets.ZLOERY_GRADLE_ENTERPRISE_API_KEY }}"
+    - name: Archive logs and context file
+      id: archive_logs_and_context
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: logs-and-context-${{ matrix.testTag }}
+        path: |
+          build/test-context/.terra/logs/
+          build/test-context/.terra/context.json
+          build/test-context/*/.terra/logs/
+          build/test-context/*/.terra/context.json

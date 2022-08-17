@@ -12,15 +12,17 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for talking to the future Spend Profile Manager service. */
 public class SpendProfileManagerService {
   private static final Logger logger = LoggerFactory.getLogger(SamService.class);
-
-  // there currently is no SPM service, so this class just wraps calls to SAM
-  // keep a reference to the SAM service instance here
-  private final SamService samService;
-
   // these are the resource type and id of the default spend profile used by WSM. currently there is
   // only one SAM resource used. in the future, if this varies per environment, move this resource
   // id into the server specification
   private static final String SPEND_PROFILE_RESOURCE_TYPE = "spend-profile";
+  // there currently is no SPM service, so this class just wraps calls to SAM
+  // keep a reference to the SAM service instance here
+  private final SamService samService;
+
+  private SpendProfileManagerService(SamService samService) {
+    this.samService = samService;
+  }
 
   /**
    * Factory method for class that talks to the SPM service. The user must be authenticated. Methods
@@ -29,26 +31,6 @@ public class SpendProfileManagerService {
    */
   public static SpendProfileManagerService fromContext() {
     return new SpendProfileManagerService(SamService.fromContext());
-  }
-
-  private SpendProfileManagerService(SamService samService) {
-    this.samService = samService;
-  }
-
-  /**
-   * These are the policies for the WSM default spend profile resource. They can be looked up
-   * dynamically by calling the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/policies" GET
-   * endpoint. They are hard-coded here to show the possible values in the CLI usage help. (And in
-   * the eventual SPM service, this may be an enum in their API?)
-   */
-  public enum SpendProfilePolicy {
-    OWNER,
-    USER;
-
-    /** Helper method to get the SAM string that corresponds to this spend profile policy. */
-    public String getSamPolicy() {
-      return name().toLowerCase();
-    }
   }
 
   /**
@@ -106,5 +88,21 @@ public class SpendProfileManagerService {
   public void deleteDefaultSpendProfile() {
     samService.deleteResource(
         SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
+  }
+
+  /**
+   * These are the policies for the WSM default spend profile resource. They can be looked up
+   * dynamically by calling the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/policies" GET
+   * endpoint. They are hard-coded here to show the possible values in the CLI usage help. (And in
+   * the eventual SPM service, this may be an enum in their API?)
+   */
+  public enum SpendProfilePolicy {
+    OWNER,
+    USER;
+
+    /** Helper method to get the SAM string that corresponds to this spend profile policy. */
+    public String getSamPolicy() {
+      return name().toLowerCase();
+    }
   }
 }

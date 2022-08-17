@@ -87,6 +87,9 @@ public class UFWorkspaceLight {
     private String serverName;
     private String userEmail;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UFWorkspaceLight.Builder id(String id) {
       this.id = id;
       return this;
@@ -126,8 +129,5 @@ public class UFWorkspaceLight {
     public UFWorkspaceLight build() {
       return new UFWorkspaceLight(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

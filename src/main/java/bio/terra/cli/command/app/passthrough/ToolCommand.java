@@ -17,6 +17,9 @@ import picocli.CommandLine;
 
 public abstract class ToolCommand extends BaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(ToolCommand.class);
+  @CommandLine.Unmatched protected final List<String> command = new ArrayList<>();
+  @CommandLine.Mixin protected WorkspaceOverride workspaceOption;
+
   /** Return the name used to invoke this command in the shell. */
   public abstract String getExecutableName();
 
@@ -26,10 +29,6 @@ public abstract class ToolCommand extends BaseCommand {
   }
 
   public abstract String getInstallationUrl();
-
-  @CommandLine.Mixin protected WorkspaceOverride workspaceOption;
-
-  @CommandLine.Unmatched protected final List<String> command = new ArrayList<>();
 
   /** Pass the command through to the CLI Docker image. */
   @Override

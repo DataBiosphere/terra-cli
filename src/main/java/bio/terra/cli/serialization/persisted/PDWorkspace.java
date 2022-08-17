@@ -77,6 +77,9 @@ public class PDWorkspace {
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder uuid(UUID uuid) {
       this.uuid = uuid;
       return this;
@@ -136,8 +139,5 @@ public class PDWorkspace {
     public PDWorkspace build() {
       return new PDWorkspace(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

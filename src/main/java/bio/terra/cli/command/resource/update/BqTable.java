@@ -29,6 +29,12 @@ public class BqTable extends BaseCommand {
   @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFBqTable returnValue) {
+    OUT.println("Successfully updated BigQuery data table.");
+    returnValue.print();
+  }
+
   /** Update a BigQuery dataset in the workspace. */
   @Override
   protected void execute() {
@@ -59,11 +65,5 @@ public class BqTable extends BaseCommand {
     // re-load the resource so we display all properties with up-to-date values
     resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_TABLE);
     formatOption.printReturnValue(new UFBqTable(resource), BqTable::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFBqTable returnValue) {
-    OUT.println("Successfully updated BigQuery data table.");
-    returnValue.print();
   }
 }

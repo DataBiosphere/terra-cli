@@ -23,26 +23,28 @@ import java.util.List;
 public class GcsBucketLifecycle {
   public List<Rule> rule = new ArrayList<>();
 
-  public static class Rule {
-    public Action action;
-    public Condition condition;
-  }
+  /**
+   * Helper method to build a lifecycle rule that auto-deletes the contents of the bucket after some
+   * number of days.
+   *
+   * @param numDays number of days after which to delete an object in the bucket
+   * @return lifecycle rule definition
+   */
+  public static GcsBucketLifecycle buildAutoDeleteRule(Integer numDays) {
+    Action action = new Action();
+    action.type = ActionType.Delete;
 
-  public static class Action {
-    public ActionType type;
-    public GcsStorageClass storageClass;
-  }
+    Condition condition = new Condition();
+    condition.age = numDays;
 
-  public static class Condition {
-    public Integer age;
-    public LocalDate createdBefore;
-    public LocalDate customTimeBefore;
-    public Integer daysSinceCustomTime;
-    public Integer daysSinceNoncurrentTime;
-    public Boolean isLive;
-    public List<GcsStorageClass> matchesStorageClass = new ArrayList<>();
-    public LocalDate noncurrentTimeBefore;
-    public Integer numNewerVersions;
+    Rule rule = new Rule();
+    rule.action = action;
+    rule.condition = condition;
+
+    GcsBucketLifecycle lifecycle = new GcsBucketLifecycle();
+    lifecycle.rule.add(rule);
+
+    return lifecycle;
   }
 
   /**
@@ -78,27 +80,25 @@ public class GcsBucketLifecycle {
     }
   }
 
-  /**
-   * Helper method to build a lifecycle rule that auto-deletes the contents of the bucket after some
-   * number of days.
-   *
-   * @param numDays number of days after which to delete an object in the bucket
-   * @return lifecycle rule definition
-   */
-  public static GcsBucketLifecycle buildAutoDeleteRule(Integer numDays) {
-    Action action = new Action();
-    action.type = ActionType.Delete;
+  public static class Rule {
+    public Action action;
+    public Condition condition;
+  }
 
-    Condition condition = new Condition();
-    condition.age = numDays;
+  public static class Action {
+    public ActionType type;
+    public GcsStorageClass storageClass;
+  }
 
-    Rule rule = new Rule();
-    rule.action = action;
-    rule.condition = condition;
-
-    GcsBucketLifecycle lifecycle = new GcsBucketLifecycle();
-    lifecycle.rule.add(rule);
-
-    return lifecycle;
+  public static class Condition {
+    public Integer age;
+    public LocalDate createdBefore;
+    public LocalDate customTimeBefore;
+    public Integer daysSinceCustomTime;
+    public Integer daysSinceNoncurrentTime;
+    public Boolean isLive;
+    public List<GcsStorageClass> matchesStorageClass = new ArrayList<>();
+    public LocalDate noncurrentTimeBefore;
+    public Integer numNewerVersions;
   }
 }

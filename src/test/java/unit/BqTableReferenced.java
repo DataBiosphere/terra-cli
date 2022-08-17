@@ -37,6 +37,23 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
   private String externalDataTableName = "testTable";
   private String externalDataTableName2 = "testTable2";
 
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name on current workspace.
+   */
+  private static List<UFBqTable> listDataTableResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    // `terra resources list --type=BQ_TABLE --format=json`
+    List<UFBqTable> listedResources =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "resource", "list", "--type=BQ_TABLE");
+
+    // find the matching data table in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
@@ -564,22 +581,5 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // sharee user doesn't have read access to the table so they can't know that
     assertNull(
         shareeDescribeDataTable.numRows, "referenced dataset with no access contains NULL numRows");
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name on current workspace.
-   */
-  private static List<UFBqTable> listDataTableResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    // `terra resources list --type=BQ_TABLE --format=json`
-    List<UFBqTable> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resource", "list", "--type=BQ_TABLE");
-
-    // find the matching data table in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
   }
 }

@@ -33,6 +33,23 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
+  /**
+   * Helper method to call `terra workspace list` and filter the results on the specified workspace
+   * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
+   * about to page out.
+   */
+  static List<UFWorkspaceLight> listWorkspacesWithId(String userFacingId)
+      throws JsonProcessingException {
+    // `terra workspace list --format=json --limit=500`
+    List<UFWorkspaceLight> listWorkspaces =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "workspace", "list", "--limit=500");
+
+    return listWorkspaces.stream()
+        .filter(workspace -> workspace.id.equals(userFacingId))
+        .collect(Collectors.toList());
+  }
+
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreate() throws IOException {
@@ -390,22 +407,5 @@ public class Workspace extends ClearContextUnit {
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
-  }
-
-  /**
-   * Helper method to call `terra workspace list` and filter the results on the specified workspace
-   * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
-   * about to page out.
-   */
-  static List<UFWorkspaceLight> listWorkspacesWithId(String userFacingId)
-      throws JsonProcessingException {
-    // `terra workspace list --format=json --limit=500`
-    List<UFWorkspaceLight> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list", "--limit=500");
-
-    return listWorkspaces.stream()
-        .filter(workspace -> workspace.id.equals(userFacingId))
-        .collect(Collectors.toList());
   }
 }

@@ -48,6 +48,9 @@ public class UFSpendProfileUser {
     private String email;
     private List<SpendProfilePolicy> policies;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder email(String email) {
       this.email = email;
       return this;
@@ -62,8 +65,5 @@ public class UFSpendProfileUser {
     public UFSpendProfileUser build() {
       return new UFSpendProfileUser(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

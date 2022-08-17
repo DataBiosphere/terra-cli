@@ -42,6 +42,9 @@ public class CreateResourceParams {
     private CloningInstructionsEnum cloningInstructions;
     private AccessScope accessScope;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder name(String name) {
       this.name = name;
       return this;
@@ -76,8 +79,5 @@ public class CreateResourceParams {
     public CreateResourceParams build() {
       return new CreateResourceParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

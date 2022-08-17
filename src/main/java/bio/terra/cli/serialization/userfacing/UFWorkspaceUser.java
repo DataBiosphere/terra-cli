@@ -45,6 +45,9 @@ public class UFWorkspaceUser {
     private String email;
     private List<Role> roles;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder email(String email) {
       this.email = email;
       return this;
@@ -59,8 +62,5 @@ public class UFWorkspaceUser {
     public UFWorkspaceUser build() {
       return new UFWorkspaceUser(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

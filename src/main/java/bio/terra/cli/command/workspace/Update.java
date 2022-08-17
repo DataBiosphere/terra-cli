@@ -19,24 +19,6 @@ public class Update extends BaseCommand {
       heading = "Property update parameters:%n")
   Update.UpdateArgGroup argGroup;
 
-  static class UpdateArgGroup {
-    @CommandLine.Option(names = "--new-id", required = false, description = "Workspace ID.")
-    // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace update`
-    private String id;
-
-    @CommandLine.Option(
-        names = "--new-name",
-        required = false,
-        description = "Workspace name (not unique).")
-    private String name;
-
-    @CommandLine.Option(
-        names = "--new-description",
-        required = false,
-        description = "Workspace description.")
-    private String description;
-  }
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -54,5 +36,23 @@ public class Update extends BaseCommand {
   private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully updated.");
     returnValue.print();
+  }
+
+  static class UpdateArgGroup {
+    @CommandLine.Option(names = "--new-id", required = false, description = "Workspace ID.")
+    // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace update`
+    private String id;
+
+    @CommandLine.Option(
+        names = "--new-name",
+        required = false,
+        description = "Workspace name (not unique).")
+    private String name;
+
+    @CommandLine.Option(
+        names = "--new-description",
+        required = false,
+        description = "Workspace description.")
+    private String description;
   }
 }

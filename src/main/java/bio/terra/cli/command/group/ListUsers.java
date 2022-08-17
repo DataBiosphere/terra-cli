@@ -23,6 +23,12 @@ public class ListUsers extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(List<UFGroupMember> returnValue) {
+    TablePrinter<UFGroupMember> printer = UFGroupMemberColumns::values;
+    OUT.println(printer.print(returnValue));
+  }
+
   /** List the users in the given group. */
   @Override
   protected void execute() {
@@ -32,12 +38,6 @@ public class ListUsers extends BaseCommand {
             Comparator.comparing(Group.Member::getEmail),
             UFGroupMember::new),
         ListUsers::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(List<UFGroupMember> returnValue) {
-    TablePrinter<UFGroupMember> printer = UFGroupMemberColumns::values;
-    OUT.println(printer.print(returnValue));
   }
 
   /** Column information for fields in `resource list` output */

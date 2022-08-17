@@ -14,17 +14,17 @@ public class List extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFConfig returnValue) {
+    returnValue.print();
+  }
+
   /** Print out a list of all the config properties. */
   @Override
   protected void execute() {
     formatOption.printReturnValue(
         new UFConfig(Context.getConfig(), Context.getServer(), Context.getWorkspace()),
         List::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFConfig returnValue) {
-    returnValue.print();
   }
 
   /** This command never requires login. */
