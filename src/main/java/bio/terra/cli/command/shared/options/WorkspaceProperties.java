@@ -3,9 +3,7 @@ package bio.terra.cli.command.shared.options;
 import java.util.Map;
 import picocli.CommandLine;
 
-/**
- * @CommandLine.Mixin class for workspace properties options
- */
+/** @CommandLine.Mixin class for workspace properties options */
 public class WorkspaceProperties {
   @CommandLine.Option(
       names = "--properties",
