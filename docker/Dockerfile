@@ -1,5 +1,5 @@
-# Java 11 base image
-FROM openjdk:11.0-jre-slim
+# Java 17 base image
+FROM eclipse-temurin:17.0.4_8-jre-alpine
 
 # working directory when the docker is run
 WORKDIR /usr
