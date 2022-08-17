@@ -20,6 +20,7 @@ public class GcsObject extends BaseCommand {
   @CommandLine.Mixin GcsBucketName bucketNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--object-name",
       required = true,

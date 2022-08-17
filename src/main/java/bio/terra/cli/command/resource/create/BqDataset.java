@@ -21,11 +21,13 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--dataset-id",
       description =
           "BigQuery dataset id. If not provided, the resource name will be used as the dataset id.")
   private String bigQueryDatasetId;
+
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1",

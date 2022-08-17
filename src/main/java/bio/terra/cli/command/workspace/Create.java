@@ -16,6 +16,7 @@ public class Create extends BaseCommand {
   @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
   @CommandLine.Mixin WorkspaceProperties workspaceProperties;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(names = "--id", required = true, description = "Workspace ID")
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;

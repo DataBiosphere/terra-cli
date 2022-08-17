@@ -39,28 +39,33 @@ public class BreakGlass extends BaseCommand {
   private static String BQ_DATASET_NAME = "break_glass_requests";
   private static String BQ_TABLE_NAME = "requests";
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
+
   @CommandLine.Option(
       names = "--email",
       required = true,
       description = "Email of workspace user requesting break-glass access.")
   private String granteeEmail;
+
   @CommandLine.Option(
       names = "--user-project-admin-sa",
       required = true,
       description =
           "Path to the key file for a SA that has permission to set IAM policy on workspace projects for the current server.")
   private String userProjectAdminSAKeyFile;
+
   @CommandLine.Option(
       names = "--big-query-sa",
       required = true,
       description =
           "Path to the key file for a SA that has permissions to update the BigQuery dataset tracking break-glass requests.")
   private String bigQuerySAKeyFile;
+
   @CommandLine.Option(
       names = "--big-query-project",
       required = true,
       description = "Project ID that contains the BigQuery dataset tracking break-glass requests.")
   private String bigQueryProjectId;
+
   @CommandLine.Option(
       names = "--notes",
       description = "Free text string about this request, to store in the BigQuery dataset.")

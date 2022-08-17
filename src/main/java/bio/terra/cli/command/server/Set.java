@@ -12,6 +12,7 @@ import picocli.CommandLine.Command;
 public class Set extends BaseCommand {
 
   @CommandLine.Mixin ConfirmationPrompt confirmationPromptOption;
+
   @CommandLine.Option(
       names = "--name",
       required = true,

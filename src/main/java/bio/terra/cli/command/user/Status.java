@@ -12,6 +12,7 @@ import picocli.CommandLine.Command;
 public class Status extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(names = "--email", required = true, description = "User email.")
   private String email;
 

@@ -12,8 +12,10 @@ import picocli.CommandLine.Command;
 public class RemoveUser extends BaseCommand {
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
+
   @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
   private String email;
+
   @CommandLine.Option(
       names = "--role",
       required = true,

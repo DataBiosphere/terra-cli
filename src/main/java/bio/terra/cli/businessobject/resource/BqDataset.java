@@ -30,6 +30,7 @@ public class BqDataset extends Resource {
    * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
+
   private String projectId;
   private String datasetId;
 

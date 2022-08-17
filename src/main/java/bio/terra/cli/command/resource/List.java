@@ -21,10 +21,12 @@ import picocli.CommandLine;
 public class List extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--stewardship",
       description = "Filter on a particular stewardship type: ${COMPLETION-CANDIDATES}.")
   private StewardshipType stewardship;
+
   @CommandLine.Option(
       names = "--type",
       description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}.")

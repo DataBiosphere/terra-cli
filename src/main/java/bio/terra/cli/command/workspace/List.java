@@ -24,6 +24,7 @@ import picocli.CommandLine.Command;
 public class List extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--offset",
       required = false,
@@ -31,6 +32,7 @@ public class List extends BaseCommand {
       description =
           "The offset to use when listing workspaces. (Zero means to start from the beginning.)")
   private int offset;
+
   @CommandLine.Option(
       names = "--limit",
       required = false,

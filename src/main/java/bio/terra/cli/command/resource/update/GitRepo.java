@@ -23,6 +23,7 @@ public class GitRepo extends BaseCommand {
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--new-repo-url",
       description = "New git repo url, it can be either https or ssh url.")

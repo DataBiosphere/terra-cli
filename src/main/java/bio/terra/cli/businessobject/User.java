@@ -35,6 +35,7 @@ public class User {
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
+
   private static final Logger logger = LoggerFactory.getLogger(User.class);
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
   // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status

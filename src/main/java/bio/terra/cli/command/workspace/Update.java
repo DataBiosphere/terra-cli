@@ -18,6 +18,7 @@ public class Update extends BaseCommand {
       multiplicity = "1",
       heading = "Property update parameters:%n")
   Update.UpdateArgGroup argGroup;
+
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

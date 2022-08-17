@@ -15,8 +15,10 @@ public class AddUser extends BaseCommand {
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(names = "--email", required = true, description = "User or group email.")
   private String email;
+
   @CommandLine.Option(
       names = "--role",
       required = true,

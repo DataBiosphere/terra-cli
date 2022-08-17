@@ -20,6 +20,7 @@ public class DeleteProperty extends BaseCommand {
       description =
           "Workspace properties. Example: --keys=key1. For multiple property keys, use \",\": --keys=key1,key2")
   public List<String> propertyKeys;
+
   @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 

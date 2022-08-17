@@ -20,6 +20,7 @@ public class BqTable extends BaseCommand {
   @CommandLine.Mixin BqDatasetsIds bigQueryIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--table-id",
       required = true,

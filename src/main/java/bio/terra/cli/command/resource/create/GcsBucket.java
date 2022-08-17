@@ -22,11 +22,13 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--bucket-name",
       description =
           "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket'). If not provided, a unique bucket name will be generated.")
   private String bucketName;
+
   @CommandLine.Option(
       names = "--location",
       defaultValue = "US-CENTRAL1",

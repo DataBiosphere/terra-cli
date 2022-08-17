@@ -30,6 +30,7 @@ public class GcpNotebook extends BaseCommand {
   // Use CreateResource instead of createControlledResource because only private notebooks are
   // supported and we don't want to provide options that are not useful.
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
   GcpNotebook.VmOrContainerImage vmOrContainerImage;
   // TODO(PF-767): Consider how to improve usability & validation of these parameters.
@@ -38,23 +39,28 @@ public class GcpNotebook extends BaseCommand {
       multiplicity = "0..1",
       heading = "The hardware accelerator used on this instance.%n")
   GcpNotebook.AcceleratorConfig acceleratorConfig;
+
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "GPU driver configurations.%n")
   GcpNotebook.GpuDriverConfiguration gpuDriverConfiguration;
+
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "Boot disk configurations.%n")
   GcpNotebook.BootDiskConfiguration bootDiskConfiguration;
+
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "Data disk configurations.%n")
   GcpNotebook.DataDiskConfiguration dataDiskConfiguration;
+
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--instance-id",
       description =
@@ -64,17 +70,20 @@ public class GcpNotebook extends BaseCommand {
               + "letter and the last character cannot be a dash. If not specified, an "
               + "auto-generated name based on your email address and time will be used.")
   private String instanceId;
+
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",
       description =
           "The Google Cloud location of the instance (https://cloud.google.com/vertex-ai/docs/general/locations#user-managed-notebooks-locations).")
   private String location;
+
   @CommandLine.Option(
       names = "--machine-type",
       defaultValue = "n1-standard-4",
       description = "The Compute Engine machine type of this instance.")
   private String machineType;
+
   @CommandLine.Option(
       names = "--post-startup-script",
       description =
@@ -83,6 +92,7 @@ public class GcpNotebook extends BaseCommand {
       defaultValue =
           "https://raw.githubusercontent.com/DataBiosphere/terra-workspace-manager/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh")
   private String postStartupScript;
+
   @CommandLine.Option(
       names = {"--metadata", "-M"},
       split = ",",
@@ -184,6 +194,7 @@ public class GcpNotebook extends BaseCommand {
   static class VmImage {
     @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
     ImageConfig imageConfig;
+
     @CommandLine.Option(
         names = "--vm-image-project",
         required = true,

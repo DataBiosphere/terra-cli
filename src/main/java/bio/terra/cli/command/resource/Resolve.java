@@ -32,12 +32,15 @@ public class Resolve extends BaseCommand {
           "Name of the resource in the workspace or path to the resource in the data collection in the "
               + "format of [data collection name]/[resource name]")
   public String resourceName;
+
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
       description = "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
+
   @CommandLine.Option(
       names = "--bq-path",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,

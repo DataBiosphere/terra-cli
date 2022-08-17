@@ -11,6 +11,7 @@ import picocli.CommandLine.Command;
 public class Logging extends BaseCommand {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   Logging.LogLevelArgGroup argGroup;
+
   @CommandLine.Option(
       names = "--level",
       required = true,
