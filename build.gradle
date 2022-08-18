@@ -268,7 +268,7 @@ task runTestsWithTag(type: Test) {
 //        maxLocalExecutors = localCores
 //        maxRemoteExecutors = 5
         // TODO(zloery): debugging integration tests
-        maxLocalExecutors = 5
+        maxLocalExecutors = 1
         maxRemoteExecutors = 0
     }
 }
