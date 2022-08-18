@@ -7,8 +7,8 @@ import bio.terra.cloudres.common.JanitorException;
 import bio.terra.cloudres.common.cleanup.CleanupConfig;
 import bio.terra.janitor.model.CloudResourceUid;
 import bio.terra.janitor.model.CreateResourceRequestBody;
+import bio.terra.janitor.model.GoogleProjectUid;
 import bio.terra.janitor.model.ResourceMetadata;
-import bio.terra.janitor.model.TerraWorkspaceUid;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -101,17 +102,16 @@ public class CRLJanitor {
       return;
     }
     String wsmInstance = Context.getServer().getWorkspaceManagerUri();
+    OffsetDateTime curOffsetDateTime = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS);
     CreateResourceRequestBody janitorRequest =
         new CreateResourceRequestBody()
             .resourceUid(
                 new CloudResourceUid()
-                    .terraWorkspace(
-                        new TerraWorkspaceUid()
-                            .workspaceId(uuid)
-                            .workspaceManagerInstance(wsmInstance)))
-            .resourceMetadata(new ResourceMetadata().workspaceOwner(testUser.email))
-            .creation(OffsetDateTime.now())
-            .expiration(OffsetDateTime.now().plus(WORKSPACE_TIME_TO_LIVE));
+                    .googleProjectUid(
+                        new GoogleProjectUid().projectId(UUID.randomUUID().toString())))
+            .resourceMetadata(new ResourceMetadata().googleProjectParent("folders/1234"))
+            .creation(curOffsetDateTime)
+            .expiration(curOffsetDateTime.plus(WORKSPACE_TIME_TO_LIVE));
     ByteString data;
     try {
       data = ByteString.copyFromUtf8(JacksonMapper.getMapper().writeValueAsString(janitorRequest));
