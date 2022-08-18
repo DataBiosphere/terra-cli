@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import javax.annotation.Nullable;
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * User-facing view of cloned resource descriptions.
@@ -30,8 +30,8 @@ public class UFClonedResource {
     this.destinationResource = destinationResource;
     // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
     this.errorMessage =
-        StringEscapeUtils.unescapeHtml4(
-            StringEscapeUtils.unescapeHtml4(resourceCloneDetails.getErrorMessage()));
+        StringEscapeUtils.unescapeHtml(
+            StringEscapeUtils.unescapeHtml(resourceCloneDetails.getErrorMessage()));
   }
 
   protected UFClonedResource(Builder builder) {
