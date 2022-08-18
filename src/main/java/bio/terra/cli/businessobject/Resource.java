@@ -23,7 +23,7 @@ import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
