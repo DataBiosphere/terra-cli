@@ -261,7 +261,7 @@ task runTestsWithTag(type: Test) {
     outputs.dir "${buildDir}/test-context/"
     // Gradle Enterprise Test Distribution
     distribution {
-        enabled = true
+        enabled = false
         localOnly {
             includeAnnotationClasses = ["harness.LocalTestOnly"]
         }

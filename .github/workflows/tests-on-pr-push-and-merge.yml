@@ -29,7 +29,9 @@ jobs:
   tests-against-source-code:
     strategy:
       matrix:
-        testTag: [ "unit", "integration" ]
+        # TODO(zloery): integration only while debugging
+        # testTag: [ "unit", "integration" ]
+        testTag: [ "integration" ]
       fail-fast: false
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
