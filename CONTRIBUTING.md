@@ -1,6 +1,7 @@
 # terra-cli
 
 1. [Setup development environment](#setup-development-environment)
+    * [Dependencies](#dependencies)
     * [Logging](#logging)
     * [Troubleshooting](#troubleshooting)
 2. [Publish a release](#publish-a-release)
@@ -52,6 +53,17 @@ DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running)
 
 - From the top-level directory, run: `source tools/local-dev.sh`
 - To rebuild after changing code: `./gradlew installDist`
+
+### Dependencies
+
+We use [Gradle's dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
+to ensure that builds use the same transitive dependencies, so they're reproducible. This means that
+adding or updating a dependency requires telling Gradle to save the change. If you're getting errors
+that mention "dependency lock state" after changing a dep, you need to do this step.
+
+```sh
+./gradlew dependencies --write-locks
+```
 
 #### Logging
 

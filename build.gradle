@@ -8,32 +8,33 @@ plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'com.diffplug.spotless' version '6.3.0'
-    id 'com.github.spotbugs' version '4.2.0'
+
+    id 'com.diffplug.spotless' version '6.9.1'
+    id 'com.github.spotbugs' version '5.0.9'
+    id 'org.gradle.test-retry' version '1.4.0'
+
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
-    id 'de.jjohannes.missing-metadata-guava' version '0.4'
-    id 'org.gradle.test-retry' version '1.4.0'
+    id 'de.jjohannes.missing-metadata-guava' version '0.4' // TODO: dexamundsen
 }
 
-if (hasProperty('buildScan')) {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
-}
-
-// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.235.0'
-group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_17
 
+// If true, search local repository (~/.m2/repository/) first for dependencies.
+def useMavenLocal = false
+
+group = 'terra-cli'
+version = gradle.cliVersion
+
 repositories {
+    if (useMavenLocal) {
+        mavenLocal() // must be listed first to take effect
+    }
     mavenCentral()
     maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
@@ -129,6 +130,18 @@ dependencies {
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.hamcrest:hamcrest:${hamcrest}"
+}
+
+dependencyLocking {
+    lockAllConfigurations() // see https://docs.gradle.org/current/userguide/dependency_locking.html
+}
+
+// for scans
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
 }
 
 // install the CLI, either from source code directly or from a GH release, before starting tests
@@ -284,6 +297,7 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
 spotless {
     java {
         googleJavaFormat()
+        targetExclude "${buildDir}/**"
     }
 }
 compileJava.dependsOn tasks.spotlessApply
