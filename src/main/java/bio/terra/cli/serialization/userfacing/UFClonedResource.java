@@ -30,8 +30,8 @@ public class UFClonedResource {
     this.destinationResource = destinationResource;
     // JSON blocks in the error message are HTML escaped twice, so unescape them twice.
     this.errorMessage =
-        StringEscapeUtils.unescapeHtml(
-            StringEscapeUtils.unescapeHtml(resourceCloneDetails.getErrorMessage()));
+        StringEscapeUtils.unescapeHtml4(
+            StringEscapeUtils.unescapeHtml4(resourceCloneDetails.getErrorMessage()));
   }
 
   protected UFClonedResource(Builder builder) {

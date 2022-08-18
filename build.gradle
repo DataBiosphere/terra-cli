@@ -51,7 +51,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.98.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.7.2-SNAPSHOT'
     implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.345-SNAPSHOT'
-    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-9867891-SNAP'
+    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     implementation platform('bio.terra.cloud-resource-lib:platform:0.11.0')
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '1.4.0'
@@ -90,9 +90,9 @@ dependencies {
     testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.1'
 
     // Deps whose versions are controlled by Spring
-    implementation group: 'org.apache.commons', name: 'commons-lang3'
-    //implementation group: 'org.apache.commons', name: 'commons-text'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
+    implementation group: 'org.apache.commons', name: 'commons-lang3'
+
 
     // Swagger deps
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
