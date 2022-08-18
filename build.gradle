@@ -148,9 +148,9 @@ task runInstallForTesting(type: Exec) {
 // 3) run integration tests against an installation built from the latest GitHub release
 //    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
 task runTestsWithTag(type: Test) {
-    // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
-    // work, but that's not a concern for dedicated CI machines.
-    int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
+    // This is set automatically on Github Actions runners, and never set
+    // otherwise.
+    boolean isCIBuild = System.getenv().containsKey("CI")
     doFirst {
         // All gradle tasks are evaluated every time any task is run. If we
         // require that the testTag property be defined in this task definition,
@@ -189,9 +189,6 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
         }
-        // Integration tests wrap various external command-line tools which often maintain their own global state.
-        // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        // maxParallelForks = (testTag == "unit" ? localCores : 1)
     }
     beforeTest { descriptor ->
         println "========================================================="
@@ -238,9 +235,7 @@ task runTestsWithTag(type: Test) {
     outputs.upToDateWhen { false } // force tests to always be re-run
 
     retry {
-        // This is set automatically on Github Actions runners, and never set
-        // otherwise.
-        if (System.getenv().containsKey("CI")) {
+        if (isCIBuild) {
             // Max retries per test.
             maxRetries = 1
             // Max total test failures.
@@ -252,6 +247,8 @@ task runTestsWithTag(type: Test) {
         failOnPassedAfterRetry = true
     }
 
+    // Gradle Enterprise Test Distribution
+
     // If using Test Distribution, this will copy the rendered directory to the
     // container running the test.
     inputs.dir "rendered"
@@ -259,17 +256,28 @@ task runTestsWithTag(type: Test) {
     // If using Test Distribution, this will copy buildDir/test-context back
     // to machine that ran gradlew.
     outputs.dir "${buildDir}/test-context/"
-    // Gradle Enterprise Test Distribution
+
+    String testTag = project.findProperty("testTag");
+    boolean isUnitTest = ((testTag != null) && testTag == "unit")
     distribution {
-        enabled = true
+        // Only CI builds use test distribution, and they only use it for unit tests.
+        // Integration tests wrap various external command-line tools which often maintain their own global state.
+        // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
+        enabled = isUnitTest && isCIBuild
         localOnly {
             includeAnnotationClasses = ["harness.LocalTestOnly"]
         }
-//        maxLocalExecutors = localCores
-//        maxRemoteExecutors = 5
-        // TODO(zloery): debugging integration tests
-        maxLocalExecutors = 1
-        maxRemoteExecutors = 0
+        // Because this is a CI build, it's fine to use as many local cores as possible.
+        maxLocalExecutors = Runtime.runtime.availableProcessors()
+        // Limit the use of remote executors to a reasonable amount, as they are a shared resource. This value will
+        // likely need to be tweaked.
+        maxRemoteExecutors = 5
+    }
+    // For local builds, just run tests in parallel locally instead.
+    if (!isCIBuild) {
+        // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
+        // work. Instead, use half the available processors.
+        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2)
     }
 }
 
