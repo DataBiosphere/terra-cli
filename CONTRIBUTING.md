@@ -95,7 +95,7 @@ To publish a release manually, from the current local code:
     > git tag -a test123 -m "testing version 123"
     > git push --tags
     ```
-2. Update the version in `build.gradle`.
+2. Update the version in `settings.gradle`.
     ```
     version = 'test123'
     ```
