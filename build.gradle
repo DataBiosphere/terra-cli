@@ -20,8 +20,6 @@ plugins {
     id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
 
