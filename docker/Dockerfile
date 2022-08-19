@@ -5,8 +5,7 @@ FROM eclipse-temurin:17.0.4_8-jre-alpine
 WORKDIR /usr
 
 # install curl (to download install packages), python (for gcloud sdk) and git
-RUN apt-get update \
-    && apt-get install -y \
+RUN apk add --update \
     curl \
     python3 \
     git
