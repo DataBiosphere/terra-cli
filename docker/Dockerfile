@@ -7,6 +7,7 @@ WORKDIR /usr
 # install curl (to download install packages), python (for gcloud sdk) and git
 RUN apt-get update \
     && apt-get install -y \
+    curl \
     python3 \
     git
 
