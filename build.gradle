@@ -105,7 +105,6 @@ dependencies {
     testImplementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.11'
 
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: '4.6.3'
-
 }
 
 dependencyLocking {

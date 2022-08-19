@@ -1,12 +1,12 @@
 # Java 17 base image
-FROM eclipse-temurin:17.0.4_8-jre-alpine
+FROM eclipse-temurin:17.0.4_8-jre-focal
 
 # working directory when the docker is run
 WORKDIR /usr
 
 # install curl (to download install packages), python (for gcloud sdk) and git
-RUN apk add --update \
-    curl \
+RUN apt-get update \
+    && apt-get install -y \
     python3 \
     git
 
