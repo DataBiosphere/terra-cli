@@ -405,7 +405,7 @@ public class WorkspaceManagerService {
    */
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).listWorkspaces(offset, limit.IAM),
+        () -> new WorkspaceApi(apiClient).listWorkspaces(offset, limit),
         "Error fetching list of workspaces");
   }
 
