@@ -134,7 +134,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
-    String name = "listDescribeReflectCreate";
+    String name = "GcsBucketWithoutSpecifyingBucketName";
     UFGcsBucket createdBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + name);
@@ -143,7 +143,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(name, createdBucket.name, "create output matches name");
     String bucketName = createdBucket.bucketName;
     assertNotNull(bucketName, "a random bucket name is generated");
-    assertTrue(bucketName.contains("bucket"));
+    assertTrue(bucketName.contains(name.toLowerCase()));
 
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
