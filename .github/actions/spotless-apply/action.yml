@@ -3,9 +3,6 @@ description: 'Run spotlessApply and create PR'
 author: 'yuhuyoyo'
 
 inputs:
-  reviewers:
-    description: 'PR reviewers'
-    required: true
   token:
     description: 'broadbot token for creating PR'
     required: true
@@ -40,4 +37,3 @@ runs:
       body: |
         Run spotlessApply.
         *Note: This PR was opened by the [nightly-test GitHub Actions workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).*
-      reviewers: ${{ inputs.reviewers }}

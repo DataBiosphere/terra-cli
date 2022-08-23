@@ -3,8 +3,7 @@ on:
   workflow_dispatch: { }
   schedule:
   - cron: '0 5 * * *' # 5AM UTC = 12AM EST
-env:
-  PR_REVIEWERS: "ddietterich,yuhuyoyo,zloery,mikenev,melissachang"
+
 jobs:
   test-source-and-install:
     strategy:
@@ -29,7 +28,6 @@ jobs:
       if: always()
       uses: ./.github/actions/spotless-apply
       with:
-        reviewers: ${{ env.PR_REVIEWERS }}
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
     - name: Cache Gradle packages
       id: cache_gradle
