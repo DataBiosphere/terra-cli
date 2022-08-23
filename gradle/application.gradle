@@ -1,0 +1,50 @@
+// plugin: distribution
+distributions {
+    main {
+        distributionBaseName = 'terra-cli'
+        // configure what to include in the release archive
+        contents {
+            from 'tools/install.sh'
+            from 'README.md'
+        }
+    }
+}
+
+// plugin: application
+application {
+    mainClass = 'bio.terra.cli.command.Main'
+    applicationName = 'terra'
+    executableDir = 'bin'
+
+    // TODO: Suppress Jersey PATCH related warnings (PF-622)
+    applicationDefaultJvmArgs = [
+            '--add-opens', 'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    ]
+}
+
+startScripts {
+    // set the $APP_HOME path to $HOME/.terra
+    doLast {
+        // add the -PforRelease flag to update the APP_HOME in preparation for install
+        // default is to not update APP_HOME, so that ./gradlew install still works for development
+        if (project.hasProperty("forRelease")) {
+            println("Updating APP_HOME")
+            unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
+            windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
+        } else {
+            println("Skipping APP_HOME update")
+        }
+    }
+}
+
+jar {
+    // set attributes in the JAR manifest file that we can access from the Java code
+    // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
+    manifest {
+        attributes 'Specification-Title': 'Terra CLI',
+                'Specification-Version': "${project.version}", // this matches the top-level version property
+                'Implementation-Title': 'bio.terra.cli',
+                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
+    }
+}
