@@ -1,0 +1,43 @@
+name: 'spotless-apply'
+description: 'Run spotlessApply and create PR'
+author: 'yuhuyoyo'
+
+inputs:
+  reviewers:
+    description: 'PR reviewers'
+    required: true
+  token:
+    description: 'broadbot token for creating PR'
+    required: true
+outputs:
+  spotlesscheck:
+    description: 'success if the code base is spotless and no further action needed'
+    value: ${{ steps.spotless-check.outcome }}
+runs:
+  using: "composite"
+  steps:
+  - name: spotless check
+    id: spotless-check
+    run: ./gradlew spotlessCheck
+    shell: bash
+  - name: spotless apply
+    id: spotless-apply
+    if: failure() && steps.spotless-check.outcome == 'failure'
+    run: ./gradlew spotlessApply
+    shell: bash
+  - name: create PR
+    id: create-pr
+    uses: peter-evans/create-pull-request@v4
+    if: failure() && steps.spotless-apply.outcome == 'success'
+    with:
+      token: ${{ inputs.token }}
+      commit-message: "Terra CLI spotless apply"
+      committer: terracli-bot <noreply@github.com>
+      author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+      title: "Terra CLI spotless apply"
+      branch: "actions/spotlessApply"
+      delete-branch: true
+      body: |
+        Run spotlessApply.
+        *Note: This PR was opened by the [nightly-test GitHub Actions workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).*
+      reviewers: ${{ inputs.reviewers }}
