@@ -1,0 +1,20 @@
+// static analysis
+spotbugs {
+    effort = 'max'
+    extraArgs = ['-emacs']
+    includeFilter = file("gradle/config/spotbugs/exclude.xml")
+}
+spotbugsMain {
+    reports {
+        html {
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            stylesheet = 'fancy.xsl'
+        }
+    }
+} // TODO: check these stylesheets
