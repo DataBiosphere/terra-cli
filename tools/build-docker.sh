@@ -30,7 +30,14 @@ fi
 
 echo "Building the image"
 localImageNameAndTag="$localImageName:$localImageTag"
-docker build -t $localImageNameAndTag ./docker
+
+hwArch="$(uname -m)"
+if  [[ $hwArch == arm* ]] || [[ $arch = aarch* ]]; then
+  # force to build amd64 (x86) image
+  docker build -t $localImageNameAndTag ./docker --platform=linux/amd64
+else
+  docker build -t $localImageNameAndTag ./docker
+fi
 
 # write out the path to the local image
 echo "$localImageNameAndTag successfully built"
