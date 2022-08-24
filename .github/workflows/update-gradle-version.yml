@@ -1,3 +1,9 @@
+# This is a manual-trigger-only Github action for updating gradle version.
+# A gradle version such as 7.1.5 needs to be passed in to run this action. A
+# PR will be generated. If tests fail, the PR will need human intervention. You
+# can checkout the branch and make more changes and commit again. Doing so,
+# your manual fix is separated from the generated code, making it easier for
+# the reviewers to know what to look at.
 name: Update gradlew version
 on:
   workflow_dispatch:
