@@ -3,8 +3,7 @@ on:
   workflow_dispatch: { }
   schedule:
   - cron: '0 5 * * *' # 5AM UTC = 12AM EST
-env:
-  PR_REVIEWERS: "ddietterich,yuhuyoyo,zloery,mikenev,melissachang"
+
 jobs:
   test-source-and-install:
     strategy:
@@ -24,13 +23,6 @@ jobs:
       with:
         java-version: 11
         distribution: 'temurin'
-    - name: Run spotlessApply
-      id: spotless-apply
-      if: always()
-      uses: ./.github/actions/spotless-apply
-      with:
-        reviewers: ${{ env.PR_REVIEWERS }}
-        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
     - name: Cache Gradle packages
       id: cache_gradle
       uses: actions/cache@v2
@@ -126,8 +118,7 @@ jobs:
         L2="Unit: ${{ steps.run_unit_tests.outcome }} "
         L3="Integ (Source): ${{ steps.run_integration_tests_against_source_code.outcome }} "
         L4="Integ (Release): ${{ steps.run_integration_tests_against_release.outcome }}"
-        L5="Lint: ${{ steps.spotless-apply.outputs.spotlesscheck }}"
-        bold="$L2 | $L3 | $L4 | $L5"
+        bold="$L2 | $L3 | $L4"
         text="Link to <https://github.com/DataBiosphere/terra-cli/actions/runs/$GITHUB_RUN_ID|test run>"
         if [ "${{ job.status }}" == "success" ]; then
           text=":white_check_mark: $text"
