@@ -1,0 +1,35 @@
+name: Update gradle version
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'the gradle version to upgrade to'
+        required: true
+
+jobs:
+  update-gradle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout current code
+      id: checkout_code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+    - name: Update Gradle wrapper
+      run: ./gradlew wrapper --gradle-version ${{ github.event.inputs.version }}
+    - name: create PR
+      id: create-pr
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        commit-message: "Terra CLI gradlew update to ${{ github.event.inputs.version }}"
+        committer: terracli-bot <noreply@github.com>
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        title: "Terra CLI gradlew update version to ${{ github.event.inputs.version }}"
+        branch: "actions/update-gradlew"
+        delete-branch: true
+        body: |
+          Update gradlew version.
+          *Note: This PR was opened by the [update-gradle-version GitHub Actions workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).*
