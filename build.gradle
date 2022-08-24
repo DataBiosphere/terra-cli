@@ -26,7 +26,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = 'dexamundsen-1932'
+version = 'dexamundsen-1932-jar'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -358,7 +358,8 @@ jar {
         attributes 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
-                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
+                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}",
+                'Main-Class': "bio.terra.cli.command.Main"
     }
 }
 
