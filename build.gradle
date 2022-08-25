@@ -26,8 +26,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-//version = 'dexamundsen-1932'
-version = '0.239.0'
+version = '0.240.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -328,7 +327,7 @@ distributions {
 
 // plugin: application
 application {
-    mainClass = 'bio.terra.cli.command.Main'
+    mainClass.set('bio.terra.cli.command.Main')
     applicationName = 'terra'
     executableDir = 'bin'
 
@@ -356,8 +355,7 @@ jar {
     // set attributes in the JAR manifest file that we can access from the Java code
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
     manifest {
-        attributes 'Main-Class': 'bio.terra.cli.command.Main',
-                'Specification-Title': 'Terra CLI',
+        attributes 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
                 'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
