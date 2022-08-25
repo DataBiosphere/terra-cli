@@ -260,7 +260,7 @@ task runTestsWithTag(type: Test) {
 //    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
-    mainClass = "harness.utils.CleanupTestUserWorkspaces"
+    main = "harness.utils.CleanupTestUserWorkspaces"
 
     // override the default global context directory with a sub-directory of the gradle build directory
     // this is so that the tests don't overwrite any context that exists on this same machine.
@@ -327,7 +327,7 @@ distributions {
 
 // plugin: application
 application {
-    mainClass.set('bio.terra.cli.command.Main')
+    mainClass = 'bio.terra.cli.command.Main'
     applicationName = 'terra'
     executableDir = 'bin'
 
