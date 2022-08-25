@@ -1,9 +1,6 @@
 # Java 11 base image
 FROM openjdk:11.0-jre-slim
 
-# Specify platform if image was built on arm based M1 Mac
-# FROM --platform=linux/amd64 openjdk:11.0-jre-slim
-
 # working directory when the docker is run
 WORKDIR /usr
 

@@ -357,7 +357,6 @@ jar {
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
     manifest {
         attributes 'Main-Class': 'bio.terra.cli.command.Main',
-                'Class-Path': './bio.terra.cli.command.Main',
                 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
