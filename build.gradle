@@ -26,7 +26,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-//version = 'dexamundsen-1932-3'
+//version = 'dexamundsen-1932'
 version = '0.239.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
@@ -261,7 +261,7 @@ task runTestsWithTag(type: Test) {
 //    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
-    main = "harness.utils.CleanupTestUserWorkspaces"
+    mainClass = "harness.utils.CleanupTestUserWorkspaces"
 
     // override the default global context directory with a sub-directory of the gradle build directory
     // this is so that the tests don't overwrite any context that exists on this same machine.
@@ -357,6 +357,7 @@ jar {
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
     manifest {
         attributes 'Main-Class': 'bio.terra.cli.command.Main',
+                'Class-Path': './bio.terra.cli.command.Main',
                 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
