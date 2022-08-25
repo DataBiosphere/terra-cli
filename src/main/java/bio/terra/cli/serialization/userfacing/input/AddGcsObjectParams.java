@@ -27,6 +27,9 @@ public class AddGcsObjectParams {
     private String bucketName;
     private String objectName;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -46,8 +49,5 @@ public class AddGcsObjectParams {
     public AddGcsObjectParams build() {
       return new AddGcsObjectParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

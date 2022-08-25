@@ -1,9 +1,9 @@
 {
-  "name": "broad-dev-mmedlock",
-  "description": "Broad developer environment (mmedlock)",
+  "name": "broad-wsmtest",
+  "description": "Broad WSM test server and Broad development environment for other services.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
-  "workspaceManagerUri": "https://workspace.mmedlock.integ.envs.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.wsmtest.integ.envs.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://externalcreds.dsde-dev.broadinstitute.org"
 }

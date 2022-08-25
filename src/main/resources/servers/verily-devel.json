@@ -1,11 +1,10 @@
 {
   "name": "verily-devel",
   "description": "Verily devel environment",
-
   "samUri": "https://terra-devel-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
   "workspaceManagerUri": "https://terra-devel-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
-  "supportsIdToken" : true
+  "supportsIdToken": true
 }

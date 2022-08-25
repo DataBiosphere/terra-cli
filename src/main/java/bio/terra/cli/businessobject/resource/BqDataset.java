@@ -23,10 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BqDataset extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
-
-  private String projectId;
-  private String datasetId;
-
   /**
    * Delimiter between the project id and dataset id for a BigQuery dataset.
    *
@@ -34,6 +30,9 @@ public class BqDataset extends Resource {
    * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
    */
   private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
+
+  private String projectId;
+  private String datasetId;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public BqDataset(PDBqDataset configFromDisk) {
@@ -59,24 +58,12 @@ public class BqDataset extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFBqDataset serializeToCommand() {
-    return new UFBqDataset(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDBqDataset serializeToDisk() {
-    return new PDBqDataset(this);
-  }
-
-  /**
    * Add a BigQuery dataset as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
   public static BqDataset addReferenced(CreateBqDatasetParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDatasetResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -94,7 +81,7 @@ public class BqDataset extends Resource {
    * @return the resource that was created
    */
   public static BqDataset createControlled(CreateBqDatasetParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
@@ -107,10 +94,22 @@ public class BqDataset extends Resource {
     return new BqDataset(createdResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFBqDataset serializeToCommand() {
+    return new UFBqDataset(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDBqDataset serializeToDisk() {
+    return new PDBqDataset(this);
+  }
+
   /** Update a BigQuery dataset referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqDatasetParams updateParams) {
     if (updateParams.resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceParams.name);
+      validateResourceName(updateParams.resourceParams.name);
     }
     if (updateParams.projectId != null) {
       this.projectId = updateParams.projectId;
@@ -129,7 +128,7 @@ public class BqDataset extends Resource {
   /** Update a BigQuery dataset controlled resource in the workspace. */
   public void updateControlled(UpdateControlledBqDatasetParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);

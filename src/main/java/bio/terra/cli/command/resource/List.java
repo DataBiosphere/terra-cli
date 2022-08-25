@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource;
 
-import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.*;
+import static bio.terra.cli.app.utils.tables.ColumnDefinition.Alignment.LEFT;
 
 import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
@@ -19,6 +19,9 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resource list" command. */
 @CommandLine.Command(name = "list", description = "List all resources.")
 public class List extends BaseCommand {
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--stewardship",
       description = "Filter on a particular stewardship type: ${COMPLETION-CANDIDATES}.")
@@ -29,8 +32,11 @@ public class List extends BaseCommand {
       description = "Filter on a particular resource type: ${COMPLETION-CANDIDATES}.")
   private Resource.Type type;
 
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
+  /** Print this command's output in tabular text format. */
+  private static void printText(java.util.List<UFResource> returnValue) {
+    TablePrinter<UFResource> printer = UFResourceColumns::values;
+    OUT.println(printer.print(returnValue));
+  }
 
   /** List the resources in the workspace. */
   @Override
@@ -49,12 +55,6 @@ public class List extends BaseCommand {
             .map(Resource::serializeToCommand)
             .collect(Collectors.toList());
     formatOption.printReturnValue(resources, List::printText);
-  }
-
-  /** Print this command's output in tabular text format. */
-  private static void printText(java.util.List<UFResource> returnValue) {
-    TablePrinter<UFResource> printer = UFResourceColumns::values;
-    OUT.println(printer.print(returnValue));
   }
 
   /** Column information for fields in `resource list` output */

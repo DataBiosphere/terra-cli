@@ -59,6 +59,9 @@ public class UFWorkspace extends UFWorkspaceLight {
     private Map<String, String> properties;
     private long numResources;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder id(String id) {
       this.id = id;
       return this;
@@ -103,8 +106,5 @@ public class UFWorkspace extends UFWorkspaceLight {
     public UFWorkspace build() {
       return new UFWorkspace(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

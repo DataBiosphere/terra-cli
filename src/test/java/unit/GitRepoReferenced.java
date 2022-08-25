@@ -26,6 +26,23 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
 
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFGitRepo> listGitRepoResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    // `terra resources list --type=GIT_REPO --format=json`
+    List<UFGitRepo> listedResources =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "resource", "list", "--type=GIT_REPO");
+
+    // find the matching git repo in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @Test
   @DisplayName("list and describe reflect adding a new referenced git repo")
   void listDescribeReflectAdd() throws IOException {
@@ -324,22 +341,5 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     assertEquals(yetAnotherDescription, describeGitRepoAfterUpdatingReferenceTarget.description);
     assertEquals(GIT_REPO_HTTPS_URL, describeGitRepoAfterUpdatingReferenceTarget.gitRepoUrl);
     assertEquals(yetAnotherName, describeGitRepoAfterUpdatingReferenceTarget.name);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
-   */
-  static List<UFGitRepo> listGitRepoResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    // `terra resources list --type=GIT_REPO --format=json`
-    List<UFGitRepo> listedResources =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "resource", "list", "--type=GIT_REPO");
-
-    // find the matching git repo in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
   }
 }

@@ -22,12 +22,10 @@ import org.slf4j.LoggerFactory;
  * the current context or state.
  */
 public class GcsBucket extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
-
-  private String bucketName;
-
   // prefix for GCS bucket to make a valid URL.
   protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
+  private String bucketName;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsBucket(PDGcsBucket configFromDisk) {
@@ -50,24 +48,12 @@ public class GcsBucket extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGcsBucket serializeToCommand() {
-    return new UFGcsBucket(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcsBucket serializeToDisk() {
-    return new PDGcsBucket(this);
-  }
-
-  /**
    * Add a GCS bucket as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
   public static GcsBucket addReferenced(CreateGcsBucketParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpGcsBucketResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -85,7 +71,7 @@ public class GcsBucket extends Resource {
    * @return the resource that was created
    */
   public static GcsBucket createControlled(CreateGcsBucketParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpGcsBucketResource createdResource =
@@ -98,10 +84,22 @@ public class GcsBucket extends Resource {
     return new GcsBucket(createdResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGcsBucket serializeToCommand() {
+    return new UFGcsBucket(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGcsBucket serializeToDisk() {
+    return new PDGcsBucket(this);
+  }
+
   /** Update a GCS bucket referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
     if (updateParams.resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceParams.name);
+      validateResourceName(updateParams.resourceParams.name);
     }
     if (updateParams.bucketName != null) {
       this.bucketName = updateParams.bucketName;
@@ -117,7 +115,7 @@ public class GcsBucket extends Resource {
   /** Update a GCS bucket controlled resource in the workspace. */
   public void updateControlled(UpdateControlledGcsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateControlledGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);

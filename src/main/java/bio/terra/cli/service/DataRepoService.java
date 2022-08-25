@@ -20,14 +20,6 @@ public class DataRepoService {
   private final ApiClient apiClient;
 
   /**
-   * Factory method for class that talks to TDR. No user credentials are used, so only
-   * unauthenticated endpoints can be called.
-   */
-  public static DataRepoService unauthenticated(Server server) {
-    return new DataRepoService(null, server);
-  }
-
-  /**
    * Constructor for class that talks to TDR. If the user is null, only unauthenticated endpoints
    * can be called.
    */
@@ -38,6 +30,14 @@ public class DataRepoService {
     if (user != null) {
       this.apiClient.setAccessToken(user.getTerraToken().getTokenValue());
     }
+  }
+
+  /**
+   * Factory method for class that talks to TDR. No user credentials are used, so only
+   * unauthenticated endpoints can be called.
+   */
+  public static DataRepoService unauthenticated(Server server) {
+    return new DataRepoService(null, server);
   }
 
   /**

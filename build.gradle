@@ -26,7 +26,7 @@ if (hasProperty('buildScan')) {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.228.0'
+version = '0.239.0'
 group = 'terra-cli'
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -72,7 +72,7 @@ dependencies {
         // terra libraries
         crlPlatform = "0.2.0"
         samClient = "0.1-ffb0a89-SNAP"
-        workspaceManagerClient = "0.254.322-SNAPSHOT"
+        workspaceManagerClient = "0.254.324-SNAPSHOT"
         externalCredsClient = "0.82.0-SNAPSHOT"
         dataRepoClient = "1.0.155-SNAPSHOT"
         janitor = "0.113.5-SNAPSHOT"
@@ -132,7 +132,7 @@ dependencies {
 }
 
 // install the CLI, either from source code directly or from a GH release, before starting tests
-task runInstallForTesting(type: Exec){
+task runInstallForTesting(type: Exec) {
     boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
     String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
     commandLine "bash", "./tools/install-for-testing.sh", installMode, "${project.version}"
@@ -232,7 +232,8 @@ task runTestsWithTag(type: Test) {
     // generate a unique id for each test run
     systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
 
-    dependsOn runInstallForTesting // run the install-for-testing.sh script before any tests
+    dependsOn runInstallForTesting
+    // run the install-for-testing.sh script before any tests
 
     outputs.upToDateWhen { false } // force tests to always be re-run
 
@@ -290,7 +291,7 @@ compileJava.dependsOn tasks.spotlessApply
 // static analysis
 spotbugs {
     effort = 'max'
-    extraArgs = [ '-emacs']
+    extraArgs = ['-emacs']
     includeFilter = file("gradle/config/spotbugs/exclude.xml")
 }
 spotbugsMain {
@@ -341,7 +342,7 @@ startScripts {
     doLast {
         // add the -PforRelease flag to update the APP_HOME in preparation for install
         // default is to not update APP_HOME, so that ./gradlew install still works for development
-        if(project.hasProperty("forRelease")) {
+        if (project.hasProperty("forRelease")) {
             println("Updating APP_HOME")
             unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
             windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
@@ -354,8 +355,8 @@ jar {
     // set attributes in the JAR manifest file that we can access from the Java code
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
     manifest {
-        attributes  'Specification-Title' : 'Terra CLI',
-                'Specification-Version' : "${project.version}", // this matches the top-level version property
+        attributes 'Specification-Title': 'Terra CLI',
+                'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
                 'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
     }

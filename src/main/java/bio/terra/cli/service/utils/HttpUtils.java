@@ -21,26 +21,13 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for making raw HTTP requests (e.g. in place of using a client library). */
 public class HttpUtils {
-  private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
-
   // default value for the maximum number of times to retry HTTP requests
   public static final int DEFAULT_MAXIMUM_RETRIES = 15;
-
   // default value for the time to sleep between retries
   public static final Duration DEFAULT_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
+  private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
   private HttpUtils() {}
-
-  /** This is a POJO class to hold the HTTP status code and the raw JSON response body. */
-  public static class HttpResponse {
-    public String responseBody;
-    public int statusCode;
-
-    HttpResponse(String responseBody, int statusCode) {
-      this.responseBody = responseBody;
-      this.statusCode = statusCode;
-    }
-  }
 
   /**
    * Sends an HTTP request using Java's HTTPURLConnection class.
@@ -459,5 +446,16 @@ public class HttpUtils {
   @FunctionalInterface
   public interface RunnableWithCheckedException<E extends Exception> {
     void run() throws E, InterruptedException;
+  }
+
+  /** This is a POJO class to hold the HTTP status code and the raw JSON response body. */
+  public static class HttpResponse {
+    public String responseBody;
+    public int statusCode;
+
+    HttpResponse(String responseBody, int statusCode) {
+      this.responseBody = responseBody;
+      this.statusCode = statusCode;
+    }
   }
 }

@@ -65,6 +65,9 @@ public class UFServer {
     private String dataRepoUri;
     private boolean supportsIdToken;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder name(String name) {
       this.name = name;
       return this;
@@ -109,8 +112,5 @@ public class UFServer {
     public UFServer build() {
       return new UFServer(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

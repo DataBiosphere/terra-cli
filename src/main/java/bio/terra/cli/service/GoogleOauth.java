@@ -45,22 +45,19 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating Google credentials. */
 public final class GoogleOauth {
-  private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
-
   // key names for the credentials persisted in the file data store.
   // the CLI only stores a single set of credentials at a time, so this key is hard-coded here
   // instead of setting to generated ids per user
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
   public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
-
+  private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
   private static final GoogleClientSecrets clientSecrets = readClientSecrets();
+  private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
-
-  private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
@@ -150,30 +147,6 @@ public final class GoogleOauth {
   }
 
   /**
-   * Helper class that asks the user to copy/paste the token response manually to stdin.
-   * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
-   */
-  private static class StdinReceiver extends AbstractPromptReceiver {
-    @Override
-    public String getRedirectUri() {
-      return "urn:ietf:wg:oauth:2.0:oob";
-    }
-  }
-
-  /**
-   * Helper class that prints the URL to follow the OAuth flow to stdout, and does not try to open a
-   * browser locally (i.e. on this machine).
-   */
-  private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
-    @Override
-    public void browse(String url) {
-      PrintStream out = UserIO.getOut();
-      out.println("Please open the following address in a browser on any machine:");
-      out.println("  " + url);
-    }
-  }
-
-  /**
    * Delete the credential associated with the specified userId.
    *
    * @param scopes list of scopes requested of the user
@@ -234,6 +207,108 @@ public final class GoogleOauth {
     }
 
     return new TerraCredentials(credentials, idToken);
+  }
+
+  /**
+   * Get a credentials object for a service account using its JSON-formatted key file.
+   *
+   * @jsonKey file handle for the JSON-formatted service account key file
+   * @scopes scopes to request for the credential object
+   * @return credentials object for the service account
+   */
+  public static ServiceAccountCredentials getServiceAccountCredential(
+      File jsonKey, List<String> scopes) throws IOException {
+    return (ServiceAccountCredentials)
+        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey)).createScoped(scopes);
+  }
+
+  /**
+   * Refresh the credential if expired and then return its access token.
+   *
+   * @param credential Terra credentials object
+   * @return access token
+   */
+  public static AccessToken getAccessToken(TerraCredentials credential) {
+    try {
+      credential.getGoogleCredentials().refreshIfExpired();
+    } catch (IOException ioEx) {
+      logger.warn("Error refreshing access token", ioEx);
+      // don't throw an exception here because the token may not be expired, in which case it's fine
+      // to use it without refreshing first. if the token is expired, then we'll get a permission
+      // error when we try to re-use it anyway, and this log statement may help with debugging.
+    }
+    return credential.getGoogleCredentials().getAccessToken();
+  }
+
+  /**
+   * @param credentials Terra credentials object
+   * @return id token
+   */
+  public static IdToken getIdToken(TerraCredentials credentials) {
+    IdToken idToken = credentials.getIdToken();
+    Date now = new Date();
+    if (idToken.getExpirationTime().before(now)) {
+      // We shouldn't get here based on prior checks, specifically a preceding call to
+      // User.requiresReauthentication(), which will trigger a full credential refresh if the ID
+      // token is close to expiration.  If we do get here there is no further action we can take
+      // since we can't refresh an ID token directly (this must be done using the Google SDK OAuth
+      // Flow which obtains both tokens in a single request); the action the user should take is to
+      // retry their command, as next run should get new creds and succeed.
+      logger.error(
+          "ID token expiration ({}) before current time ({}).", idToken.getExpirationTime(), now);
+      throw new UserActionableException("ID Token expired, please try your command again.");
+    }
+    return idToken;
+  }
+
+  /**
+   * Revoke token (https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke).
+   *
+   * <p>Google Java OAuth library doesn't support revoking tokens
+   * (https://github.com/googleapis/google-oauth-java-client/issues/250), so make the call ourself.
+   *
+   * @param credential credentials object
+   */
+  public static void revokeToken(Optional<TerraCredentials> credential) {
+    if (credential.isPresent()
+        && credential.get().getGoogleCredentials().getAccessToken() != null) {
+      String endpoint = "https://oauth2.googleapis.com/revoke";
+      Map<String, String> headers =
+          ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
+      Map<String, String> params =
+          ImmutableMap.of(
+              "token", credential.get().getGoogleCredentials().getAccessToken().getTokenValue());
+
+      try {
+        HttpUtils.sendHttpRequest(endpoint, "POST", headers, params);
+      } catch (IOException ioEx) {
+        throw new SystemException("Unable to revoke token", ioEx);
+      }
+    }
+  }
+
+  /**
+   * Helper class that asks the user to copy/paste the token response manually to stdin.
+   * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
+   */
+  private static class StdinReceiver extends AbstractPromptReceiver {
+    @Override
+    public String getRedirectUri() {
+      return "urn:ietf:wg:oauth:2.0:oob";
+    }
+  }
+
+  /**
+   * Helper class that prints the URL to follow the OAuth flow to stdout, and does not try to open a
+   * browser locally (i.e. on this machine).
+   */
+  private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
+    @Override
+    public void browse(String url) {
+      PrintStream out = UserIO.getOut();
+      out.println("Please open the following address in a browser on any machine:");
+      out.println("  " + url);
+    }
   }
 
   /**
@@ -355,10 +430,6 @@ public final class GoogleOauth {
       return new TerraAuthenticationHelper(scopes, clientSecrets, dataStoreDir);
     }
 
-    public GoogleAuthorizationCodeFlow getGoogleAuthorizationCodeFlow() {
-      return googleAuthorizationCodeFlow;
-    }
-
     /** DRY helper for deleting from DataStore objects parameterized for different types. */
     private static <T extends Serializable> void deleteFromDataStore(
         DataStore<T> dataStore, String key) throws IOException {
@@ -366,6 +437,10 @@ public final class GoogleOauth {
         logger.debug("Credential for {} not found.", key);
       }
       dataStore.delete(key);
+    }
+
+    public GoogleAuthorizationCodeFlow getGoogleAuthorizationCodeFlow() {
+      return googleAuthorizationCodeFlow;
     }
 
     /** Delete stored ID token from the credential store */
@@ -387,84 +462,6 @@ public final class GoogleOauth {
     /** Get GoogleCrendential (access and refresh tokens) from the credential store */
     public StoredCredential getStoredCredential() throws IOException {
       return googleAuthorizationCodeFlow.getCredentialDataStore().get(CREDENTIAL_STORE_KEY);
-    }
-  }
-
-  /**
-   * Get a credentials object for a service account using its JSON-formatted key file.
-   *
-   * @jsonKey file handle for the JSON-formatted service account key file
-   * @scopes scopes to request for the credential object
-   * @return credentials object for the service account
-   */
-  public static ServiceAccountCredentials getServiceAccountCredential(
-      File jsonKey, List<String> scopes) throws IOException {
-    return (ServiceAccountCredentials)
-        ServiceAccountCredentials.fromStream(new FileInputStream(jsonKey)).createScoped(scopes);
-  }
-
-  /**
-   * Refresh the credential if expired and then return its access token.
-   *
-   * @param credential Terra credentials object
-   * @return access token
-   */
-  public static AccessToken getAccessToken(TerraCredentials credential) {
-    try {
-      credential.getGoogleCredentials().refreshIfExpired();
-    } catch (IOException ioEx) {
-      logger.warn("Error refreshing access token", ioEx);
-      // don't throw an exception here because the token may not be expired, in which case it's fine
-      // to use it without refreshing first. if the token is expired, then we'll get a permission
-      // error when we try to re-use it anyway, and this log statement may help with debugging.
-    }
-    return credential.getGoogleCredentials().getAccessToken();
-  }
-
-  /**
-   * @param credentials Terra credentials object
-   * @return id token
-   */
-  public static IdToken getIdToken(TerraCredentials credentials) {
-    IdToken idToken = credentials.getIdToken();
-    Date now = new Date();
-    if (idToken.getExpirationTime().before(now)) {
-      // We shouldn't get here based on prior checks, specifically a preceding call to
-      // User.requiresReauthentication(), which will trigger a full credential refresh if the ID
-      // token is close to expiration.  If we do get here there is no further action we can take
-      // since we can't refresh an ID token directly (this must be done using the Google SDK OAuth
-      // Flow which obtains both tokens in a single request); the action the user should take is to
-      // retry their command, as next run should get new creds and succeed.
-      logger.error(
-          "ID token expiration ({}) before current time ({}).", idToken.getExpirationTime(), now);
-      throw new UserActionableException("ID Token expired, please try your command again.");
-    }
-    return idToken;
-  }
-
-  /**
-   * Revoke token (https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke).
-   *
-   * <p>Google Java OAuth library doesn't support revoking tokens
-   * (https://github.com/googleapis/google-oauth-java-client/issues/250), so make the call ourself.
-   *
-   * @param credential credentials object
-   */
-  public static void revokeToken(Optional<TerraCredentials> credential) {
-    if (credential.isPresent()
-        && credential.get().getGoogleCredentials().getAccessToken() != null) {
-      String endpoint = "https://oauth2.googleapis.com/revoke";
-      Map<String, String> headers =
-          ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
-      Map<String, String> params =
-          ImmutableMap.of(
-              "token", credential.get().getGoogleCredentials().getAccessToken().getTokenValue());
-
-      try {
-        HttpUtils.sendHttpRequest(endpoint, "POST", headers, params);
-      } catch (IOException ioEx) {
-        throw new SystemException("Unable to revoke token", ioEx);
-      }
     }
   }
 }

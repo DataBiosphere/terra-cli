@@ -31,6 +31,9 @@ public class UpdateControlledBqDatasetParams {
     private Integer defaultTableLifetimeSeconds;
     private CloningInstructionsEnum cloningInstructions;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public UpdateControlledBqDatasetParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
@@ -57,8 +60,5 @@ public class UpdateControlledBqDatasetParams {
     public UpdateControlledBqDatasetParams build() {
       return new UpdateControlledBqDatasetParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -25,6 +25,9 @@ public class UFLoggingConfig {
     private Logger.LogLevel consoleLoggingLevel;
     private Logger.LogLevel fileLoggingLevel;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder consoleLoggingLevel(Logger.LogLevel consoleLoggingLevel) {
       this.consoleLoggingLevel = consoleLoggingLevel;
       return this;
@@ -39,8 +42,5 @@ public class UFLoggingConfig {
     public UFLoggingConfig build() {
       return new UFLoggingConfig(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

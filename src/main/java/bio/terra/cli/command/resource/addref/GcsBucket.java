@@ -21,6 +21,12 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGcsBucket returnValue) {
+    OUT.println("Successfully added referenced GCS bucket.");
+    returnValue.print();
+  }
+
   /** Add a referenced GCS bucket to the workspace. */
   @Override
   protected void execute() {
@@ -36,11 +42,5 @@ public class GcsBucket extends BaseCommand {
     bio.terra.cli.businessobject.resource.GcsBucket addedResource =
         bio.terra.cli.businessobject.resource.GcsBucket.addReferenced(createParams.build());
     formatOption.printReturnValue(new UFGcsBucket(addedResource), GcsBucket::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcsBucket returnValue) {
-    OUT.println("Successfully added referenced GCS bucket.");
-    returnValue.print();
   }
 }

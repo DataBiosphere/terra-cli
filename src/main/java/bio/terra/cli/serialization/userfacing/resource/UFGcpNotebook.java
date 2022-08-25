@@ -66,8 +66,12 @@ public class UFGcpNotebook extends UFResource {
     OUT.println(prefix + "Instance id:   " + instanceId);
     OUT.println(prefix + "Instance name: " + (instanceName == null ? "(undefined)" : instanceName));
     OUT.println(prefix + "State:         " + (state == null ? "(undefined)" : state));
-    OUT.println(prefix + "Metadata:");
-    metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
+    if (metadata != null) {
+      OUT.println(prefix + "Metadata:");
+      metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
+    } else {
+      OUT.println(prefix + "Metadata:      (undefined)");
+    }
     OUT.println(prefix + "Proxy URL:     " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println(prefix + "Create time:   " + (createTime == null ? "(undefined)" : createTime));
   }
@@ -82,6 +86,9 @@ public class UFGcpNotebook extends UFResource {
     private Map<String, String> metadata;
     private String proxyUri;
     private String createTime;
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
@@ -127,8 +134,5 @@ public class UFGcpNotebook extends UFResource {
     public UFGcpNotebook build() {
       return new UFGcpNotebook(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

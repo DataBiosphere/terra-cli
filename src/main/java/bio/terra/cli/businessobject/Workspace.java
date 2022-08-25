@@ -160,6 +160,38 @@ public class Workspace {
   }
 
   /**
+   * List all workspaces that the current user has read access to.
+   *
+   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
+   * @param limit the maximum number of workspaces to return
+   * @return list of workspaces
+   */
+  public static List<Workspace> list(int offset, int limit) {
+    // fetch the list of workspaces from WSM
+    List<WorkspaceDescription> listedWorkspaces =
+        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
+
+    // convert the WSM objects to CLI objects
+    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
+  }
+
+  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
+    Properties properties = new Properties();
+    if (map == null) {
+      return properties;
+    }
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      Property property = new Property().key(entry.getKey()).value(entry.getValue());
+      properties.add(property);
+    }
+    return properties;
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
+  }
+
+  /**
    * Update the mutable properties of the current workspace.
    *
    * @param userFacingId optional user-facing ID
@@ -183,6 +215,26 @@ public class Workspace {
     return workspace;
   }
 
+  /**
+   * Update the mutable properties of the current workspace.
+   *
+   * @param properties properties for updating
+   * @throws UserActionableException if there is no current workspace
+   */
+  public Workspace updateProperties(Map<String, String> properties) {
+    // call WSM to update the existing workspace object
+    WorkspaceDescription updatedWorkspaceProperties =
+        WorkspaceManagerService.fromContext().updateWorkspaceProperties(uuid, properties);
+    logger.info("Updated workspace properties: {}", updatedWorkspaceProperties);
+
+    // convert the WSM object to a CLI object
+    Workspace workspace = new Workspace(updatedWorkspaceProperties);
+
+    // update the global context with the current workspace
+    Context.setWorkspace(workspace);
+    return workspace;
+  }
+
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object
@@ -197,28 +249,31 @@ public class Workspace {
   }
 
   /**
+   * Delete the mutable properties of the current workspace.
+   *
+   * @param propertyKeys properties for deleting
+   * @throws UserActionableException if there is no current workspace
+   */
+  public Workspace deleteProperties(List<String> propertyKeys) {
+    WorkspaceDescription deletedWorkspaceProperties =
+        WorkspaceManagerService.fromContext().deleteWorkspaceProperties(uuid, propertyKeys);
+    logger.info("Deleted workspace properties: {}", propertyKeys);
+
+    // convert the WSM object to a CLI object
+    Workspace workspace = new Workspace(deletedWorkspaceProperties);
+
+    // update the global context with the current workspace
+    Context.setWorkspace(workspace);
+    return workspace;
+  }
+
+  /**
    * Enable the current user and their pet to impersonate their pet SA in this workspace.
    *
    * @return Email identifier of the pet SA the current user can now actAs.
    */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
-  }
-
-  /**
-   * List all workspaces that the current user has read access to.
-   *
-   * @param offset the offset to use when listing workspaces (zero to start from the beginning)
-   * @param limit the maximum number of workspaces to return
-   * @return list of workspaces
-   */
-  public static List<Workspace> list(int offset, int limit) {
-    // fetch the list of workspaces from WSM
-    List<WorkspaceDescription> listedWorkspaces =
-        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
-
-    // convert the WSM objects to CLI objects
-    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
   }
 
   /**
@@ -327,22 +382,6 @@ public class Workspace {
     }
 
     return granteeProxyGroupEmail;
-  }
-
-  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
-    Properties properties = new Properties();
-    if (map == null) {
-      return properties;
-    }
-    for (Map.Entry<String, String> entry : map.entrySet()) {
-      Property property = new Property().key(entry.getKey()).value(entry.getValue());
-      properties.add(property);
-    }
-    return properties;
-  }
-
-  private static Map<String, String> propertiesToStringMap(Properties properties) {
-    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 
   public UUID getUuid() {

@@ -21,12 +21,14 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for talking to Google Cloud Storage. */
 public class GoogleCloudStorage {
-  private static final Logger logger = LoggerFactory.getLogger(GoogleCloudStorage.class);
-
-  private final StorageCow storage;
-
   // default value for the maximum number of times to retry HTTP requests to GCS
   public static final int GCS_MAXIMUM_RETRIES = 5;
+  private static final Logger logger = LoggerFactory.getLogger(GoogleCloudStorage.class);
+  private final StorageCow storage;
+
+  private GoogleCloudStorage(GoogleCredentials credentials) {
+    storage = CrlUtils.createStorageCow(credentials);
+  }
 
   /**
    * Factory method for class that talks to GCS. Pulls the current user from the context. Uses the
@@ -38,8 +40,30 @@ public class GoogleCloudStorage {
     return new GoogleCloudStorage(Context.requireUser().getPetSACredentials());
   }
 
-  private GoogleCloudStorage(GoogleCredentials credentials) {
-    storage = CrlUtils.createStorageCow(credentials);
+  /**
+   * Utility method that checks if an exception thrown by the GCS client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  static boolean isRetryable(Exception ex) {
+    if (ex instanceof SocketTimeoutException) {
+      return true;
+    }
+    if (!(ex instanceof StorageException)) {
+      return false;
+    }
+    logger.error("Caught a GCS error.", ex);
+    int statusCode = ((StorageException) ex).getCode();
+
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
+
+        // retry forbidden errors because we often see propagation delays when a user is just
+        // granted access
+        || statusCode == HttpStatus.SC_FORBIDDEN;
   }
 
   public Optional<BucketCow> getBucket(String bucketName) {
@@ -122,31 +146,5 @@ public class GoogleCloudStorage {
       // wrap the GCS exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the GCS client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  static boolean isRetryable(Exception ex) {
-    if (ex instanceof SocketTimeoutException) {
-      return true;
-    }
-    if (!(ex instanceof StorageException)) {
-      return false;
-    }
-    logger.error("Caught a GCS error.", ex);
-    int statusCode = ((StorageException) ex).getCode();
-
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.SC_BAD_GATEWAY
-        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-
-        // retry forbidden errors because we often see propagation delays when a user is just
-        // granted access
-        || statusCode == HttpStatus.SC_FORBIDDEN;
   }
 }

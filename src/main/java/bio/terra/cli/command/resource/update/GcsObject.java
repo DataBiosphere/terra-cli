@@ -32,6 +32,12 @@ public class GcsObject extends BaseCommand {
       description = "Full path to the object in the specified GCS bucket.")
   private String newObjectName;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFGcsObject returnValue) {
+    OUT.println("Successfully updated GCS bucket object.");
+    returnValue.print();
+  }
+
   /** Update a bucket object in the workspace. */
   @Override
   protected void execute() {
@@ -64,11 +70,5 @@ public class GcsObject extends BaseCommand {
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_OBJECT);
     formatOption.printReturnValue(new UFGcsObject(resource), GcsObject::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFGcsObject returnValue) {
-    OUT.println("Successfully updated GCS bucket object.");
-    returnValue.print();
   }
 }

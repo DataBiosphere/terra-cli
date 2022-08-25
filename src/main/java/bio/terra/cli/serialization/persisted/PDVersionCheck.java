@@ -33,6 +33,9 @@ public class PDVersionCheck {
   public static class Builder {
     private OffsetDateTime lastVersionCheckTime;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder lastVersionCheckTime(OffsetDateTime lastVersionCheckTime) {
       this.lastVersionCheckTime = lastVersionCheckTime;
       return this;
@@ -42,8 +45,5 @@ public class PDVersionCheck {
     public PDVersionCheck build() {
       return new PDVersionCheck(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -21,10 +21,9 @@ import org.slf4j.LoggerFactory;
  * environment variables specify resolved workspace references and other context information.
  */
 public abstract class CommandRunner {
-  private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
-
   // Only tests set this.
   @VisibleForTesting public static final String IS_TEST = "IS_TEST";
+  private static final Logger logger = LoggerFactory.getLogger(CommandRunner.class);
 
   /**
    * Utility method for concatenating a command and its arguments.
@@ -38,6 +37,24 @@ public abstract class CommandRunner {
       fullCommand += argSeparator + String.join(argSeparator, command);
     }
     return fullCommand;
+  }
+
+  // Note: `foo-bar` and `foo_bar` will have the same env variable. PF-1907 will fix this.
+  public static final String convertToEnvironmentVariable(String string) {
+    return "TERRA_" + string.replace("-", "_");
+  }
+
+  /**
+   * If this is a test and there is a user and workspace, returns pet SA access token. Else, returns
+   * empty.
+   */
+  public static Optional<String> getTestPetSaAccessToken() {
+    if (System.getProperty(IS_TEST) != null
+        && Context.getUser().isPresent()
+        && Context.getWorkspace().isPresent()) {
+      return Optional.of(Context.getUser().get().getPetSaAccessToken().getTokenValue());
+    }
+    return Optional.empty();
   }
 
   /**
@@ -123,7 +140,8 @@ public abstract class CommandRunner {
         .forEach(
             resource -> {
               if (Resource.Type.DATA_COLLECTION != resource.getResourceType()) {
-                terraReferences.put("TERRA_" + resource.getName(), resource.resolve());
+                String envVariable = convertToEnvironmentVariable(resource.getName());
+                terraReferences.put(envVariable, resource.resolve());
               } else {
                 Workspace dataCollectionWorkspace = null;
                 try {
@@ -139,26 +157,16 @@ public abstract class CommandRunner {
                           // This should NEVER happen but check here to prevent endless resolve.
                           r -> Resource.Type.DATA_COLLECTION != r.getResourceType())
                       .forEach(
-                          r ->
-                              terraReferences.put(
-                                  "TERRA_" + resource.getName() + "_" + r.getName(), r.resolve()));
+                          r -> {
+                            String envVariable =
+                                convertToEnvironmentVariable(
+                                    resource.getName() + "_" + r.getName());
+                            terraReferences.put(envVariable, r.resolve());
+                          });
                 }
               }
             });
 
     return terraReferences;
-  }
-
-  /**
-   * If this is a test and there is a user and workspace, returns pet SA access token. Else, returns
-   * empty.
-   */
-  public static Optional<String> getTestPetSaAccessToken() {
-    if (System.getProperty(IS_TEST) != null
-        && Context.getUser().isPresent()
-        && Context.getWorkspace().isPresent()) {
-      return Optional.of(Context.getUser().get().getPetSaAccessToken().getTokenValue());
-    }
-    return Optional.empty();
   }
 }

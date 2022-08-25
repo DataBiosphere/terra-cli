@@ -54,18 +54,6 @@ public class GcpNotebook extends Resource {
     this.location = wsmObject.getAttributes().getLocation();
   }
 
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGcpNotebook serializeToCommand() {
-    return new UFGcpNotebook(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcpNotebook serializeToDisk() {
-    return new PDGcpNotebook(this);
-  }
-
   /** Add a GCP notebook as a referenced resource in the workspace. Currently unsupported. */
   public static GcpNotebook addReferenced(CreateGcpNotebookParams createParams) {
     throw new UserActionableException("Referenced resources not supported for GCP notebooks.");
@@ -77,7 +65,7 @@ public class GcpNotebook extends Resource {
    * @return the resource that was created
    */
   public static GcpNotebook createControlled(CreateGcpNotebookParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
@@ -91,9 +79,21 @@ public class GcpNotebook extends Resource {
     return new GcpNotebook(createdResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGcpNotebook serializeToCommand() {
+    return new UFGcpNotebook(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGcpNotebook serializeToDisk() {
+    return new PDGcpNotebook(this);
+  }
+
   public void updateControlled(UpdateControlledGcpNotebookParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateControlledGcpNotebook(Context.requireWorkspace().getUuid(), id, updateParams);

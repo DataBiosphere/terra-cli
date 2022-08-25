@@ -27,6 +27,11 @@ import org.junit.jupiter.api.TestInfo;
 @Tag("unit")
 public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
+  /** Helper to covert a Duration in seconds to a String */
+  private static String toSecondsString(Duration duration) {
+    return Long.valueOf(duration.toSeconds()).toString();
+  }
+
   @Override
   @BeforeEach
   protected void setupEachTime(TestInfo testInfo) throws IOException {
@@ -158,11 +163,6 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
     arguments.addAll(Arrays.asList(defaultLifetimeArguments));
     TestCommand.runCommandExpectSuccess(arguments.toArray(new String[0]));
-  }
-
-  /** Helper to covert a Duration in seconds to a String */
-  private static String toSecondsString(Duration duration) {
-    return Long.valueOf(duration.toSeconds()).toString();
   }
 
   /**

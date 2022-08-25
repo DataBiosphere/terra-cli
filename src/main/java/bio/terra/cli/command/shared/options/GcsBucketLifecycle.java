@@ -18,20 +18,6 @@ public class GcsBucketLifecycle {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
   public LifecycleArgGroup lifecycleArgGroup;
 
-  static class LifecycleArgGroup {
-    @CommandLine.Option(
-        names = "--lifecycle",
-        description =
-            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.")
-    private Path pathToLifecycleFile;
-
-    @CommandLine.Option(
-        names = "--auto-delete",
-        description =
-            "Number of days after which to auto-delete the objects in the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
-    private Integer autoDelete;
-  }
-
   /** Helper method to build the lifecycle object . */
   public bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle buildLifecycleObject() {
     if (lifecycleArgGroup == null) {
@@ -56,5 +42,19 @@ public class GcsBucketLifecycle {
 
   public boolean isDefined() {
     return lifecycleArgGroup != null;
+  }
+
+  static class LifecycleArgGroup {
+    @CommandLine.Option(
+        names = "--lifecycle",
+        description =
+            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.")
+    private Path pathToLifecycleFile;
+
+    @CommandLine.Option(
+        names = "--auto-delete",
+        description =
+            "Number of days after which to auto-delete the objects in the bucket. This option is a shortcut for specifying a lifecycle rule that auto-deletes objects in the bucket after some number of days.")
+    private Integer autoDelete;
   }
 }

@@ -18,11 +18,9 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class DataCollection extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
-
   public static final String SHORT_DESCRIPTION_KEY = "terra-workspace-short-description";
   public static final String VERSION_KEY = "terra-workspace-version";
-
+  private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
   private final UUID dataCollectionWorkspaceUuid;
 
   /** Deserialize an instance of the disk format to the internal object. */

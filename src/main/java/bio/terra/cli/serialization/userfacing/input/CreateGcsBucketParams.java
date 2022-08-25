@@ -34,6 +34,9 @@ public class CreateGcsBucketParams {
     private GcpGcsBucketDefaultStorageClass defaultStorageClass;
     private String location;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder resourceFields(CreateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
       return this;
@@ -63,8 +66,5 @@ public class CreateGcsBucketParams {
     public CreateGcsBucketParams build() {
       return new CreateGcsBucketParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

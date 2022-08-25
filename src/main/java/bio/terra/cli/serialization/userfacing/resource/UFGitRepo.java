@@ -42,6 +42,9 @@ public class UFGitRepo extends UFResource {
   public static class Builder extends UFResource.Builder {
     private String gitRepoUrl;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder gitRepoUrl(String gitRepoUrl) {
       this.gitRepoUrl = gitRepoUrl;
       return this;
@@ -51,8 +54,5 @@ public class UFGitRepo extends UFResource {
     public UFGitRepo build() {
       return new UFGitRepo(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

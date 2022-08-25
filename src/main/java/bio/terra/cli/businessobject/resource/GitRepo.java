@@ -42,24 +42,12 @@ public class GitRepo extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGitRepo serializeToCommand() {
-    return new UFGitRepo(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGitRepo serializeToDisk() {
-    return new PDGitRepo(this);
-  }
-
-  /**
    * Add a git repo as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
   public static GitRepo addReferenced(AddGitRepoParams addGitRepoParams) {
-    validateEnvironmentVariableName(addGitRepoParams.resourceFields.name);
+    validateResourceName(addGitRepoParams.resourceFields.name);
 
     // call WSM to add the reference.
     GitRepoResource addedResource =
@@ -71,10 +59,22 @@ public class GitRepo extends Resource {
     return new GitRepo(addedResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGitRepo serializeToCommand() {
+    return new UFGitRepo(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGitRepo serializeToDisk() {
+    return new PDGitRepo(this);
+  }
+
   /** Update a Git repo referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGitRepoParams updateParams) {
     if (updateParams.resourceFields.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     if (updateParams.gitRepoUrl != null) {
       this.gitRepoUrl = updateParams.gitRepoUrl;

@@ -57,6 +57,9 @@ public class PDConfig {
     private Logger.LogLevel consoleLoggingLevel;
     private Format.FormatOptions format;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder browserLaunchOption(BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
       return this;
@@ -96,8 +99,5 @@ public class PDConfig {
     public PDConfig build() {
       return new PDConfig(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

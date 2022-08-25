@@ -50,6 +50,24 @@ public class SamService {
   private final ApiClient apiClient;
 
   /**
+   * Constructor for class that talks to SAM. If the access token is null, only unauthenticated
+   * endpoints can be called.
+   */
+  private SamService(@Nullable AccessToken accessToken, Server server) {
+    this.accessToken = accessToken;
+    this.server = server;
+    this.apiClient = new ApiClient();
+
+    this.apiClient.setBasePath(server.getSamUri());
+    this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
+    if (accessToken != null) {
+      // fetch the user access token
+      // this method call will attempt to refresh the token if it's already expired
+      this.apiClient.setAccessToken(accessToken.getTokenValue());
+    }
+  }
+
+  /**
    * Factory method for class that talks to SAM. No user credentials are used, so only
    * unauthenticated endpoints can be called.
    */
@@ -75,21 +93,70 @@ public class SamService {
   }
 
   /**
-   * Constructor for class that talks to SAM. If the access token is null, only unauthenticated
-   * endpoints can be called.
+   * Utility method that checks if an exception thrown by the SAM client matches the given HTTP
+   * status code.
+   *
+   * @param ex exception to test
+   * @return true if the exception status code matches
    */
-  private SamService(@Nullable AccessToken accessToken, Server server) {
-    this.accessToken = accessToken;
-    this.server = server;
-    this.apiClient = new ApiClient();
-
-    this.apiClient.setBasePath(server.getSamUri());
-    this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
-    if (accessToken != null) {
-      // fetch the user access token
-      // this method call will attempt to refresh the token if it's already expired
-      this.apiClient.setAccessToken(accessToken.getTokenValue());
+  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
+    if (!(ex instanceof ApiException)) {
+      return false;
     }
+    int exceptionStatusCode = ((ApiException) ex).getCode();
+    return statusCode == exceptionStatusCode;
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the SAM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    logErrorMessage((ApiException) ex);
+    int statusCode = ((ApiException) ex).getCode();
+
+    // if the SAM client gets a SocketTimeoutException, it wraps it in an ApiException, sets the
+    // HTTP status code to 0, and rethrows it to the caller. detect this case here and retry it.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isSamInternalSocketTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketTimeoutException;
+
+    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
+        || isSamInternalSocketTimeout;
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  private static String logErrorMessage(ApiException apiEx) {
+    logger.error(
+        "SAM exception status code: {}, response body: {}, message: {}",
+        apiEx.getCode(),
+        apiEx.getResponseBody(),
+        apiEx.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    String apiExMsg = apiEx.getResponseBody();
+    if (apiExMsg != null)
+      try {
+        ErrorReport errorReport =
+            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+        apiExMsg = errorReport.getMessage();
+      } catch (JsonProcessingException jsonEx) {
+        logger.debug("Error deserializing SAM exception ErrorReport: {}", apiEx.getResponseBody());
+      }
+
+    // if we found a SAM error message, then return it
+    // otherwise return a string with the http code
+    return ((apiExMsg != null && !apiExMsg.isEmpty())
+        ? apiExMsg
+        : apiEx.getCode() + " " + apiEx.getMessage());
   }
 
   /**
@@ -217,29 +284,6 @@ public class SamService {
   public void deleteGroup(String groupName) {
     callWithRetries(
         () -> new GroupApi(apiClient).deleteGroup(groupName), "Error deleting SAM group.");
-  }
-
-  /**
-   * Possible values for the policies on a SAM group. These values are defined as an enum in SAM's
-   * API YAML
-   * (https://github.com/broadinstitute/sam/blob/61135c798873d20a308be1e440b862bf9767c243/src/main/resources/swagger/api-docs.yaml#L383)
-   * but I don't see an enum in the client library. It looks like that was a bug in Swagger codegen
-   * until v2.1.5 (https://github.com/swagger-api/swagger-codegen/pull/1740), but I'm not sure if
-   * that applies to the version that SAM is using.
-   */
-  public enum GroupPolicy {
-    MEMBER,
-    ADMIN;
-
-    /** Get the SAM string that corresponds to this group policy. */
-    public String getSamPolicy() {
-      return name().toLowerCase();
-    }
-
-    /** Get the group policy that corresponds to the SAM string. */
-    public static GroupPolicy fromSamPolicy(String samPolicyName) {
-      return GroupPolicy.valueOf(samPolicyName.toUpperCase());
-    }
   }
 
   /**
@@ -444,47 +488,6 @@ public class SamService {
   }
 
   /**
-   * Utility method that checks if an exception thrown by the SAM client matches the given HTTP
-   * status code.
-   *
-   * @param ex exception to test
-   * @return true if the exception status code matches
-   */
-  private static boolean isHttpStatusCode(Exception ex, int statusCode) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    int exceptionStatusCode = ((ApiException) ex).getCode();
-    return statusCode == exceptionStatusCode;
-  }
-
-  /**
-   * Utility method that checks if an exception thrown by the SAM client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  static boolean isRetryable(Exception ex) {
-    if (!(ex instanceof ApiException)) {
-      return false;
-    }
-    logErrorMessage((ApiException) ex);
-    int statusCode = ((ApiException) ex).getCode();
-
-    // if the SAM client gets a SocketTimeoutException, it wraps it in an ApiException, sets the
-    // HTTP status code to 0, and rethrows it to the caller. detect this case here and retry it.
-    final int TIMEOUT_STATUS_CODE = 0;
-    boolean isSamInternalSocketTimeout =
-        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketTimeoutException;
-
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.SC_BAD_GATEWAY
-        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-        || isSamInternalSocketTimeout;
-  }
-
-  /**
    * Execute a function that includes hitting SAM endpoints. Retry if the function throws an {@link
    * #isRetryable} exception. If an exception is thrown by the SAM client or the retries, make sure
    * the HTTP status code and error message are logged.
@@ -640,29 +643,26 @@ public class SamService {
     }
   }
 
-  /** Pull a human-readable error message from an ApiException. */
-  private static String logErrorMessage(ApiException apiEx) {
-    logger.error(
-        "SAM exception status code: {}, response body: {}, message: {}",
-        apiEx.getCode(),
-        apiEx.getResponseBody(),
-        apiEx.getMessage());
+  /**
+   * Possible values for the policies on a SAM group. These values are defined as an enum in SAM's
+   * API YAML
+   * (https://github.com/broadinstitute/sam/blob/61135c798873d20a308be1e440b862bf9767c243/src/main/resources/swagger/api-docs.yaml#L383)
+   * but I don't see an enum in the client library. It looks like that was a bug in Swagger codegen
+   * until v2.1.5 (https://github.com/swagger-api/swagger-codegen/pull/1740), but I'm not sure if
+   * that applies to the version that SAM is using.
+   */
+  public enum GroupPolicy {
+    MEMBER,
+    ADMIN;
 
-    // try to deserialize the response body into an ErrorReport
-    String apiExMsg = apiEx.getResponseBody();
-    if (apiExMsg != null)
-      try {
-        ErrorReport errorReport =
-            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
-        apiExMsg = errorReport.getMessage();
-      } catch (JsonProcessingException jsonEx) {
-        logger.debug("Error deserializing SAM exception ErrorReport: {}", apiEx.getResponseBody());
-      }
+    /** Get the group policy that corresponds to the SAM string. */
+    public static GroupPolicy fromSamPolicy(String samPolicyName) {
+      return GroupPolicy.valueOf(samPolicyName.toUpperCase());
+    }
 
-    // if we found a SAM error message, then return it
-    // otherwise return a string with the http code
-    return ((apiExMsg != null && !apiExMsg.isEmpty())
-        ? apiExMsg
-        : apiEx.getCode() + " " + apiEx.getMessage());
+    /** Get the SAM string that corresponds to this group policy. */
+    public String getSamPolicy() {
+      return name().toLowerCase();
+    }
   }
 }

@@ -95,6 +95,9 @@ public class UFConfig {
     private String workspaceId;
     private Format.FormatOptions format;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
       this.browserLaunchOption = browserLaunchOption;
       return this;
@@ -144,8 +147,5 @@ public class UFConfig {
     public UFConfig build() {
       return new UFConfig(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

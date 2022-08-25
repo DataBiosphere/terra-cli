@@ -24,8 +24,11 @@ public class UpdateControlledGcpNotebookParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UpdateResourceParams resourceFields;
     public GcpAiNotebookUpdateParameters notebookUpdateParameters;
+    private UpdateResourceParams resourceFields;
+
+    /** Default constructor for Jackson. */
+    public Builder() {}
 
     public UpdateControlledGcpNotebookParams.Builder resourceFields(
         UpdateResourceParams resourceFields) {
@@ -43,8 +46,5 @@ public class UpdateControlledGcpNotebookParams {
     public UpdateControlledGcpNotebookParams build() {
       return new UpdateControlledGcpNotebookParams(this);
     }
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

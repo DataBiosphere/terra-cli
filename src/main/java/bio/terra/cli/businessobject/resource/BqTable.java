@@ -53,24 +53,12 @@ public class BqTable extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFBqTable serializeToCommand() {
-    return new UFBqTable(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDBqTable serializeToDisk() {
-    return new PDBqTable(this);
-  }
-
-  /**
    * Add a BigQuery data table as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
   public static BqTable addReferenced(AddBqTableParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDataTableResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -82,10 +70,22 @@ public class BqTable extends Resource {
     return new BqTable(addedResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFBqTable serializeToCommand() {
+    return new UFBqTable(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDBqTable serializeToDisk() {
+    return new PDBqTable(this);
+  }
+
   /** Update a BigQuery data table referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedBqTableParams updateParams) {
     if (updateParams.resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceParams.name);
+      validateResourceName(updateParams.resourceParams.name);
     }
     if (updateParams.projectId != null) {
       this.projectId = updateParams.projectId;

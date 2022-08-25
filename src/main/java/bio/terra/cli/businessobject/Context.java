@@ -19,30 +19,26 @@ import org.slf4j.LoggerFactory;
  * of the internal state classes (Config, Server, User, Workspace).
  */
 public class Context {
+  // Only exposed for logging in tests
+  public static final String LOGS_DIRNAME = "logs";
   private static final Logger logger = LoggerFactory.getLogger(Context.class);
-
+  // env var name to optionally override where the context is persisted on disk
+  private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
+  // file paths related to persisting the context on disk
+  private static final String CONTEXT_DIRNAME = ".terra";
+  private static final String CONTEXT_FILENAME = "context.json";
+  private static final String LOG_FILENAME = "terra.log";
   // singleton objects that define the current context or state
   private static Config currentConfig;
   private static Server currentServer;
   @Nullable private static User currentUser;
   @Nullable private static Workspace currentWorkspace;
   @Nullable private static VersionCheck currentVersionCheck;
-
   // functions as the current workspace for this command execution only
   // unlike the other parts of the current context, this property is not persisted to disk
   private static Workspace overrideWorkspace;
   // true if the current command is using an override workspace
   private static boolean useOverrideWorkspace;
-
-  // env var name to optionally override where the context is persisted on disk
-  private static final String CONTEXT_DIR_OVERRIDE_NAME = "TERRA_CONTEXT_PARENT_DIR";
-
-  // file paths related to persisting the context on disk
-  private static final String CONTEXT_DIRNAME = ".terra";
-  private static final String CONTEXT_FILENAME = "context.json";
-  // Only exposed for logging in tests
-  public static final String LOGS_DIRNAME = "logs";
-  private static final String LOG_FILENAME = "terra.log";
 
   /**
    * Reads the context file from disk and initializes the singleton internal state classes (Config,
@@ -184,6 +180,11 @@ public class Context {
     return Optional.ofNullable(currentUser);
   }
 
+  public static void setUser(User user) {
+    currentUser = user;
+    synchronizeToDisk();
+  }
+
   public static User requireUser() {
     return getUser()
         .orElseThrow(
@@ -192,17 +193,8 @@ public class Context {
             });
   }
 
-  public static void setUser(User user) {
-    currentUser = user;
-    synchronizeToDisk();
-  }
-
   public static Optional<Workspace> getWorkspace() {
     return Optional.ofNullable(useOverrideWorkspace ? overrideWorkspace : currentWorkspace);
-  }
-
-  public static Workspace requireWorkspace() {
-    return getWorkspace().orElseThrow(() -> new UserActionableException("No workspace set."));
   }
 
   public static void setWorkspace(Workspace workspace) {
@@ -212,6 +204,10 @@ public class Context {
       currentWorkspace = workspace;
       synchronizeToDisk();
     }
+  }
+
+  public static Workspace requireWorkspace() {
+    return getWorkspace().orElseThrow(() -> new UserActionableException("No workspace set."));
   }
 
   public static Optional<VersionCheck> getVersionCheck() {

@@ -35,12 +35,6 @@ public class Group {
     return get(name);
   }
 
-  /** Delete a SAM group. */
-  public void delete() {
-    SamService.fromContext().deleteGroup(name);
-    logger.info("Deleted group: name={}", name);
-  }
-
   /**
    * Get the group object.
    *
@@ -88,32 +82,10 @@ public class Group {
     return nameToGroup;
   }
 
-  /**
-   * Internal representation of a group member (i.e. someone who is a member of a SAM group). This
-   * is different from a regular {@link User} because they are never logged in. This is just a
-   * reference to another Terra user who has some group membership. This class is not part of the
-   * current context or state.
-   */
-  public static class Member {
-    private String email;
-    private List<GroupPolicy> policies;
-
-    private Member(String email, List<GroupPolicy> policies) {
-      this.email = email;
-      this.policies = policies;
-    }
-
-    public String getEmail() {
-      return email;
-    }
-
-    public List<GroupPolicy> getPolicies() {
-      return policies;
-    }
-
-    public void addPolicy(GroupPolicy policy) {
-      policies.add(policy);
-    }
+  /** Delete a SAM group. */
+  public void delete() {
+    SamService.fromContext().deleteGroup(name);
+    logger.info("Deleted group: name={}", name);
   }
 
   /**
@@ -193,12 +165,12 @@ public class Group {
     return groupMembers;
   }
 
-  // ====================================================
-  // Property getters.
-
   public String getName() {
     return name;
   }
+
+  // ====================================================
+  // Property getters.
 
   public String getEmail() {
     return email;
@@ -210,5 +182,33 @@ public class Group {
 
   public void addCurrentUserPolicy(GroupPolicy policy) {
     currentUserPolicies.add(policy);
+  }
+
+  /**
+   * Internal representation of a group member (i.e. someone who is a member of a SAM group). This
+   * is different from a regular {@link User} because they are never logged in. This is just a
+   * reference to another Terra user who has some group membership. This class is not part of the
+   * current context or state.
+   */
+  public static class Member {
+    private String email;
+    private List<GroupPolicy> policies;
+
+    private Member(String email, List<GroupPolicy> policies) {
+      this.email = email;
+      this.policies = policies;
+    }
+
+    public String getEmail() {
+      return email;
+    }
+
+    public List<GroupPolicy> getPolicies() {
+      return policies;
+    }
+
+    public void addPolicy(GroupPolicy policy) {
+      policies.add(policy);
+    }
   }
 }

@@ -31,6 +31,12 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
+  /** Print this command's output in text format. */
+  private static void printText(UFBqDataset returnValue) {
+    OUT.println("Successfully updated BigQuery dataset.");
+    returnValue.print();
+  }
+
   /** Update a BigQuery dataset in the workspace. */
   @Override
   protected void execute() {
@@ -77,11 +83,5 @@ public class BqDataset extends BaseCommand {
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_DATASET);
     formatOption.printReturnValue(new UFBqDataset(resource), BqDataset::printText);
-  }
-
-  /** Print this command's output in text format. */
-  private static void printText(UFBqDataset returnValue) {
-    OUT.println("Successfully updated BigQuery dataset.");
-    returnValue.print();
   }
 }

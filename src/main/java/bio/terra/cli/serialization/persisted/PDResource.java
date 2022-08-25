@@ -75,6 +75,9 @@ public abstract class PDResource {
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder id(UUID id) {
       this.id = id;
       return this;
@@ -127,8 +130,5 @@ public abstract class PDResource {
 
     /** Call the private constructor. */
     public abstract PDResource build();
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

@@ -49,24 +49,12 @@ public class GcsObject extends Resource {
   }
 
   /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFGcsObject serializeToCommand() {
-    return new UFGcsObject(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDGcsObject serializeToDisk() {
-    return new PDGcsObject(this);
-  }
-
-  /**
    * Add a GCS bucket object as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
   public static GcsObject addReferenced(AddGcsObjectParams createParams) {
-    validateEnvironmentVariableName(createParams.resourceFields.name);
+    validateResourceName(createParams.resourceFields.name);
 
     GcpGcsObjectResource addedResource =
         WorkspaceManagerService.fromContext()
@@ -78,11 +66,23 @@ public class GcsObject extends Resource {
     return new GcsObject(addedResource);
   }
 
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFGcsObject serializeToCommand() {
+    return new UFGcsObject(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDGcsObject serializeToDisk() {
+    return new PDGcsObject(this);
+  }
+
   /** Update a GCS bucket object referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedGcsObjectParams updateParams) {
     UpdateResourceParams resourceParams = updateParams.resourceFields;
     if (resourceParams.name != null) {
-      validateEnvironmentVariableName(updateParams.resourceFields.name);
+      validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
         .updateReferencedGcsObject(Context.requireWorkspace().getUuid(), id, updateParams);

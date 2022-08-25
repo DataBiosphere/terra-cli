@@ -31,6 +31,36 @@ public class GcpNotebook extends BaseCommand {
   // supported and we don't want to provide options that are not useful.
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
+  GcpNotebook.VmOrContainerImage vmOrContainerImage;
+  // TODO(PF-767): Consider how to improve usability & validation of these parameters.
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "The hardware accelerator used on this instance.%n")
+  GcpNotebook.AcceleratorConfig acceleratorConfig;
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "GPU driver configurations.%n")
+  GcpNotebook.GpuDriverConfiguration gpuDriverConfiguration;
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "Boot disk configurations.%n")
+  GcpNotebook.BootDiskConfiguration bootDiskConfiguration;
+
+  @CommandLine.ArgGroup(
+      exclusive = false,
+      multiplicity = "0..1",
+      heading = "Data disk configurations.%n")
+  GcpNotebook.DataDiskConfiguration dataDiskConfiguration;
+
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
+
   @CommandLine.Option(
       names = "--instance-id",
       description =
@@ -74,150 +104,11 @@ public class GcpNotebook extends BaseCommand {
               + "and the Terra workspace id (terra-workspace-id=[WORKSPACE_ID]).")
   private Map<String, String> metadata;
 
-  @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  GcpNotebook.VmOrContainerImage vmOrContainerImage;
-
-  static class VmOrContainerImage {
-    @CommandLine.ArgGroup(
-        exclusive = false,
-        multiplicity = "1",
-        heading =
-            "Definition of a custom Compute Engine virtual machine image for starting a "
-                + "notebook instance with the environment installed directly on the VM.\n"
-                + "If neither this nor --container-* are specified, default to \n"
-                + "'--vm-image-project="
-                + DEFAULT_VM_IMAGE_PROJECT
-                + " --vm-image-family="
-                + DEFAULT_VM_IMAGE_FAMILY
-                + "'.%n")
-    VmImage vm;
-
-    @CommandLine.ArgGroup(
-        exclusive = false,
-        multiplicity = "1",
-        heading =
-            "Definition of a container image for starting a notebook instance with the environment "
-                + "installed in a container.%n")
-    ContainerImage container;
+  /** Print this command's output in text format. */
+  private static void printText(UFGcpNotebook returnValue) {
+    OUT.println("Successfully added controlled GCP Notebook instance.");
+    returnValue.print();
   }
-
-  static class VmImage {
-    @CommandLine.Option(
-        names = "--vm-image-project",
-        required = true,
-        description = "The ID of the Google Cloud project that this VM image belongs to.")
-    private String project;
-
-    @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
-    ImageConfig imageConfig;
-
-    static class ImageConfig {
-      @CommandLine.Option(
-          names = "--vm-image-family",
-          description =
-              "Use this VM image family to find the image; the newest image in this family will be "
-                  + "used.")
-      private String family;
-
-      @CommandLine.Option(
-          names = "--vm-image-name",
-          description = "Use this VM image name to find the image.")
-      private String name;
-    }
-  }
-
-  static class ContainerImage {
-    @CommandLine.Option(
-        names = "--container-repository",
-        required = true,
-        description =
-            "The path to the container image repository. For example: "
-                + "'gcr.io/{project_id}/{imageName}'.")
-    private String repository;
-
-    @CommandLine.Option(
-        names = "--container-tag",
-        description =
-            "The tag of the container image. If not specified, this defaults to the latest tag.")
-    private String tag;
-  }
-
-  // TODO(PF-767): Consider how to improve usability & validation of these parameters.
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading = "The hardware accelerator used on this instance.%n")
-  GcpNotebook.AcceleratorConfig acceleratorConfig;
-
-  static class AcceleratorConfig {
-    @CommandLine.Option(names = "--accelerator-type", description = "Type of this accelerator.")
-    private String type;
-
-    @CommandLine.Option(
-        names = "--accelerator-core-count",
-        description = "Count of cores of this accelerator.")
-    private Long coreCount;
-  }
-
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading = "GPU driver configurations.%n")
-  GcpNotebook.GpuDriverConfiguration gpuDriverConfiguration;
-
-  static class GpuDriverConfiguration {
-    @CommandLine.Option(
-        names = "--install-gpu-driver",
-        description =
-            "If true, the end user authorizes Google Cloud to install a GPU driver on this instance.")
-    private Boolean installGpuDriver;
-
-    @CommandLine.Option(
-        names = "--custom-gpu-driver-path",
-        description = "Specify a custom Cloud Storage path where the GPU driver is stored.")
-    private String customGpuDriverPath;
-  }
-
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading = "Boot disk configurations.%n")
-  GcpNotebook.BootDiskConfiguration bootDiskConfiguration;
-
-  static class BootDiskConfiguration {
-    @CommandLine.Option(
-        names = "--boot-disk-size",
-        description = "The size of the disk in GB attached to this instance.")
-    Long sizeGb;
-
-    @CommandLine.Option(
-        names = "--boot-disk-type",
-        description =
-            "The type of disk attached to this instance, defaults to the standard persistent disk.")
-    String type;
-  }
-
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading = "Data disk configurations.%n")
-  GcpNotebook.DataDiskConfiguration dataDiskConfiguration;
-
-  static class DataDiskConfiguration {
-    @CommandLine.Option(
-        names = "--data-disk-size",
-        description = "The size of the disk in GB attached to this instance.")
-    Long sizeGb;
-
-    @CommandLine.Option(
-        names = "--data-disk-type",
-        description =
-            "The type of disk attached to this instance, defaults to the standard persistent disk.")
-    String type;
-  }
-
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
 
   /** Add a controlled GCP Notebook instance to the workspace. */
   @Override
@@ -276,9 +167,117 @@ public class GcpNotebook extends BaseCommand {
     formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
   }
 
-  /** Print this command's output in text format. */
-  private static void printText(UFGcpNotebook returnValue) {
-    OUT.println("Successfully added controlled GCP Notebook instance.");
-    returnValue.print();
+  static class VmOrContainerImage {
+    @CommandLine.ArgGroup(
+        exclusive = false,
+        multiplicity = "1",
+        heading =
+            "Definition of a custom Compute Engine virtual machine image for starting a "
+                + "notebook instance with the environment installed directly on the VM.\n"
+                + "If neither this nor --container-* are specified, default to \n"
+                + "'--vm-image-project="
+                + DEFAULT_VM_IMAGE_PROJECT
+                + " --vm-image-family="
+                + DEFAULT_VM_IMAGE_FAMILY
+                + "'.%n")
+    VmImage vm;
+
+    @CommandLine.ArgGroup(
+        exclusive = false,
+        multiplicity = "1",
+        heading =
+            "Definition of a container image for starting a notebook instance with the environment "
+                + "installed in a container.%n")
+    ContainerImage container;
+  }
+
+  static class VmImage {
+    @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+    ImageConfig imageConfig;
+
+    @CommandLine.Option(
+        names = "--vm-image-project",
+        required = true,
+        description = "The ID of the Google Cloud project that this VM image belongs to.")
+    private String project;
+
+    static class ImageConfig {
+      @CommandLine.Option(
+          names = "--vm-image-family",
+          description =
+              "Use this VM image family to find the image; the newest image in this family will be "
+                  + "used.")
+      private String family;
+
+      @CommandLine.Option(
+          names = "--vm-image-name",
+          description = "Use this VM image name to find the image.")
+      private String name;
+    }
+  }
+
+  static class ContainerImage {
+    @CommandLine.Option(
+        names = "--container-repository",
+        required = true,
+        description =
+            "The path to the container image repository. For example: "
+                + "'gcr.io/{project_id}/{imageName}'.")
+    private String repository;
+
+    @CommandLine.Option(
+        names = "--container-tag",
+        description =
+            "The tag of the container image. If not specified, this defaults to the latest tag.")
+    private String tag;
+  }
+
+  static class AcceleratorConfig {
+    @CommandLine.Option(names = "--accelerator-type", description = "Type of this accelerator.")
+    private String type;
+
+    @CommandLine.Option(
+        names = "--accelerator-core-count",
+        description = "Count of cores of this accelerator.")
+    private Long coreCount;
+  }
+
+  static class GpuDriverConfiguration {
+    @CommandLine.Option(
+        names = "--install-gpu-driver",
+        description =
+            "If true, the end user authorizes Google Cloud to install a GPU driver on this instance.")
+    private Boolean installGpuDriver;
+
+    @CommandLine.Option(
+        names = "--custom-gpu-driver-path",
+        description = "Specify a custom Cloud Storage path where the GPU driver is stored.")
+    private String customGpuDriverPath;
+  }
+
+  static class BootDiskConfiguration {
+    @CommandLine.Option(
+        names = "--boot-disk-size",
+        description = "The size of the disk in GB attached to this instance.")
+    Long sizeGb;
+
+    @CommandLine.Option(
+        names = "--boot-disk-type",
+        description =
+            "The type of disk attached to this instance, defaults to the standard persistent disk.")
+    String type;
+  }
+
+  static class DataDiskConfiguration {
+    @CommandLine.Option(
+        names = "--data-disk-size",
+        description = "The size of the disk in GB attached to this instance.")
+    Long sizeGb;
+
+    @CommandLine.Option(
+        names = "--data-disk-type",
+        description =
+            "The type of disk attached to this instance, defaults to the standard persistent disk.")
+    String type;
   }
 }

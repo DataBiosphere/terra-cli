@@ -28,6 +28,60 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled GCS buckets. */
 @Tag("unit")
 public class GcsBucketControlled extends SingleWorkspaceUnit {
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
+  static UFGcsBucket listOneBucketResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    return listOneBucketResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  static UFGcsBucket listOneBucketResourceWithName(String resourceName, String userFacingId)
+      throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, userFacingId);
+
+    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
+    return matchedResources.get(0);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name. Uses the current workspace.
+   */
+  static List<UFGcsBucket> listBucketResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    return listBucketResourcesWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name and workspace (uses the current workspace if null).
+   */
+  static List<UFGcsBucket> listBucketResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    // `terra resources list --type=GCS_BUCKET --format=json`
+    List<UFGcsBucket> listedResources =
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resource", "list", "--type=GCS_BUCKET")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resource",
+                "list",
+                "--type=GCS_BUCKET",
+                "--workspace=" + workspaceUserFacingId);
+
+    // find the matching bucket in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @Test
   @DisplayName("list and describe reflect creating a new controlled bucket")
   void listDescribeReflectCreate() throws IOException {
@@ -80,7 +134,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
-    String name = "listDescribeReflectCreate";
+    String name = "GcsBucketWithoutSpecifyingBucketName";
     UFGcsBucket createdBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + name);
@@ -89,7 +143,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
     assertEquals(name, createdBucket.name, "create output matches name");
     String bucketName = createdBucket.bucketName;
     assertNotNull(bucketName, "a random bucket name is generated");
-    assertTrue(bucketName.contains("bucket"));
+    assertTrue(bucketName.contains(name.toLowerCase()));
 
     // check that the bucket is in the list
     UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
@@ -405,59 +459,5 @@ public class GcsBucketControlled extends SingleWorkspaceUnit {
         newStorage.toString(),
         bucketOnCloud.getStorageClass().toString(),
         "bucket storage class matches update input");
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
-   * current workspace.
-   */
-  static UFGcsBucket listOneBucketResourceWithName(String resourceName)
-      throws JsonProcessingException {
-    return listOneBucketResourceWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
-   * the specified workspace id; Uses the current workspace if null.
-   */
-  static UFGcsBucket listOneBucketResourceWithName(String resourceName, String userFacingId)
-      throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, userFacingId);
-
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    return matchedResources.get(0);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Uses the current workspace.
-   */
-  static List<UFGcsBucket> listBucketResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    return listBucketResourcesWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
-   */
-  static List<UFGcsBucket> listBucketResourcesWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=GCS_BUCKET --format=json`
-    List<UFGcsBucket> listedResources =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=GCS_BUCKET")
-            : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {},
-                "resource",
-                "list",
-                "--type=GCS_BUCKET",
-                "--workspace=" + workspaceUserFacingId);
-
-    // find the matching bucket in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
   }
 }

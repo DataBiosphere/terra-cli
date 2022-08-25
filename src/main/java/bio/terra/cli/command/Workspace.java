@@ -5,11 +5,13 @@ import bio.terra.cli.command.workspace.BreakGlass;
 import bio.terra.cli.command.workspace.Clone;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
+import bio.terra.cli.command.workspace.DeleteProperty;
 import bio.terra.cli.command.workspace.Describe;
 import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
 import bio.terra.cli.command.workspace.RemoveUser;
 import bio.terra.cli.command.workspace.Set;
+import bio.terra.cli.command.workspace.SetProperty;
 import bio.terra.cli.command.workspace.Update;
 import picocli.CommandLine.Command;
 
@@ -26,11 +28,13 @@ import picocli.CommandLine.Command;
       Clone.class,
       Create.class,
       Delete.class,
+      DeleteProperty.class,
       Describe.class,
       List.class,
       ListUsers.class,
       RemoveUser.class,
       Set.class,
+      SetProperty.class,
       Update.class,
     })
 public class Workspace {}

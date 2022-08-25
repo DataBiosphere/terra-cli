@@ -18,18 +18,27 @@ import org.slf4j.LoggerFactory;
  */
 public class DockerCommandRunner extends CommandRunner {
   private static final Logger logger = LoggerFactory.getLogger(DockerCommandRunner.class);
-
-  private final DockerClientWrapper dockerClientWrapper = new DockerClientWrapper();
-
   // default $HOME directory on the container (this is where we expect to look for the global
   // context)
   private static final String CONTAINER_HOME_DIR = "/root";
   // mount point for the workspace directory
   private static final String CONTAINER_WORKING_DIR = "/usr/local/etc";
-
   // name of the ADC file mounted on the container
   private static final String APPLICATION_DEFAULT_CREDENTIALS_FILE_NAME =
       "application_default_credentials.json";
+  private final DockerClientWrapper dockerClientWrapper = new DockerClientWrapper();
+
+  /**
+   * Get the global context directory on the container.
+   *
+   * <p>e.g. (host) $HOME/.terra/ -> (container) CONTAINER_HOME_DIR/.terra/
+   *
+   * @return absolute path to the global context directory on the container
+   */
+  private static Path getGlobalContextDirOnContainer() {
+    Path globalContextDirName = Context.getContextDir().getFileName();
+    return Path.of(CONTAINER_HOME_DIR).resolve(globalContextDirName);
+  }
 
   /**
    * This method builds a command string that:
@@ -118,17 +127,5 @@ public class DockerCommandRunner extends CommandRunner {
     dockerClientWrapper.deleteContainer();
 
     return exitCode.intValue();
-  }
-
-  /**
-   * Get the global context directory on the container.
-   *
-   * <p>e.g. (host) $HOME/.terra/ -> (container) CONTAINER_HOME_DIR/.terra/
-   *
-   * @return absolute path to the global context directory on the container
-   */
-  private static Path getGlobalContextDirOnContainer() {
-    Path globalContextDirName = Context.getContextDir().getFileName();
-    return Path.of(CONTAINER_HOME_DIR).resolve(globalContextDirName);
   }
 }

@@ -12,13 +12,10 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class ControlledResourceCreation {
-  @CommandLine.Mixin ResourceCreation resourceCreationOption;
-
   @CommandLine.Option(
       names = "--access",
       description = "Access scope for the resource: ${COMPLETION-CANDIDATES}.")
   public AccessScope access = AccessScope.SHARED_ACCESS;
-
   // Cloning option must have a different default for referenced resources (REFERENCE) than
   // for controlled resources (RESOURCE).
   @CommandLine.Option(
@@ -26,6 +23,8 @@ public class ControlledResourceCreation {
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
   public CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
+
+  @CommandLine.Mixin ResourceCreation resourceCreationOption;
 
   /**
    * Helper method to return a {@link CreateResourceParams.Builder} with the controlled resource

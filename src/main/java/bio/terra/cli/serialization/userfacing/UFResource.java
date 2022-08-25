@@ -124,6 +124,9 @@ public abstract class UFResource {
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
 
+    /** Default constructor for Jackson. */
+    public Builder() {}
+
     public Builder id(UUID id) {
       this.id = id;
       return this;
@@ -176,8 +179,5 @@ public abstract class UFResource {
 
     /** Call the private constructor. */
     public abstract UFResource build();
-
-    /** Default constructor for Jackson. */
-    public Builder() {}
   }
 }

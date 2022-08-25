@@ -28,6 +28,58 @@ import org.junit.jupiter.api.TestInfo;
 @Tag("unit")
 public class GcsBucketLifecycle extends SingleWorkspaceUnit {
 
+  /**
+   * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
+   * the multipleRules.json file.
+   *
+   * <p>This is static and package-private to be available for other test classes, like gsutil-based
+   * tests in PassthroughApps.
+   */
+  static void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
+    assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
+
+    Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
+        lifecycleRules.stream()
+            .filter(rule -> rule.getAction().getActionType().equals("Delete"))
+            .findFirst();
+    assertTrue(ruleWithDeleteAction.isPresent(), "one rule has action type = delete");
+    expectActionDelete(ruleWithDeleteAction.get());
+    assertEquals(84, ruleWithDeleteAction.get().getCondition().getAge(), "condition age matches");
+
+    Optional<? extends BucketInfo.LifecycleRule> ruleWithSetStorageClassAction =
+        lifecycleRules.stream()
+            .filter(rule -> rule.getAction().getActionType().equals("SetStorageClass"))
+            .findFirst();
+    assertTrue(
+        ruleWithSetStorageClassAction.isPresent(), "one rule has action type = set storage class");
+    expectActionSetStorageClass(ruleWithSetStorageClassAction.get(), StorageClass.COLDLINE);
+    assertFalse(
+        ruleWithSetStorageClassAction.get().getCondition().getIsLive(),
+        "condition is live matches");
+  }
+
+  /** Check that the action is Delete. */
+  static void expectActionDelete(BucketInfo.LifecycleRule rule) {
+    assertEquals(
+        BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
+        rule.getAction().getActionType(),
+        "Delete action type matches");
+  }
+
+  /** Check that the action is SetStorageClass and the storage class is the given one. */
+  static void expectActionSetStorageClass(
+      BucketInfo.LifecycleRule rule, StorageClass storageClass) {
+    assertEquals(
+        BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
+        rule.getAction().getActionType(),
+        "SetStorageClass action type matches");
+    assertEquals(
+        storageClass,
+        ((BucketInfo.LifecycleRule.SetStorageClassLifecycleAction) rule.getAction())
+            .getStorageClass(),
+        "SetStorageClass action storage class matches");
+  }
+
   @Override
   @BeforeEach
   protected void setupEachTime(TestInfo testInfo) throws IOException {
@@ -299,58 +351,6 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnit {
     List<? extends BucketInfo.LifecycleRule> lifecycleRulesFromGCS =
         ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
     assertEquals(0, lifecycleRulesFromGCS.size(), "bucket has no lifecycle rules defined");
-  }
-
-  /**
-   * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
-   * the multipleRules.json file.
-   *
-   * <p>This is static and package-private to be available for other test classes, like gsutil-based
-   * tests in PassthroughApps.
-   */
-  static void validateMultipleRules(List<? extends BucketInfo.LifecycleRule> lifecycleRules) {
-    assertEquals(2, lifecycleRules.size(), "bucket has two lifecycle rules defined");
-
-    Optional<? extends BucketInfo.LifecycleRule> ruleWithDeleteAction =
-        lifecycleRules.stream()
-            .filter(rule -> rule.getAction().getActionType().equals("Delete"))
-            .findFirst();
-    assertTrue(ruleWithDeleteAction.isPresent(), "one rule has action type = delete");
-    expectActionDelete(ruleWithDeleteAction.get());
-    assertEquals(84, ruleWithDeleteAction.get().getCondition().getAge(), "condition age matches");
-
-    Optional<? extends BucketInfo.LifecycleRule> ruleWithSetStorageClassAction =
-        lifecycleRules.stream()
-            .filter(rule -> rule.getAction().getActionType().equals("SetStorageClass"))
-            .findFirst();
-    assertTrue(
-        ruleWithSetStorageClassAction.isPresent(), "one rule has action type = set storage class");
-    expectActionSetStorageClass(ruleWithSetStorageClassAction.get(), StorageClass.COLDLINE);
-    assertFalse(
-        ruleWithSetStorageClassAction.get().getCondition().getIsLive(),
-        "condition is live matches");
-  }
-
-  /** Check that the action is Delete. */
-  static void expectActionDelete(BucketInfo.LifecycleRule rule) {
-    assertEquals(
-        BucketInfo.LifecycleRule.DeleteLifecycleAction.TYPE,
-        rule.getAction().getActionType(),
-        "Delete action type matches");
-  }
-
-  /** Check that the action is SetStorageClass and the storage class is the given one. */
-  static void expectActionSetStorageClass(
-      BucketInfo.LifecycleRule rule, StorageClass storageClass) {
-    assertEquals(
-        BucketInfo.LifecycleRule.SetStorageClassLifecycleAction.TYPE,
-        rule.getAction().getActionType(),
-        "SetStorageClass action type matches");
-    assertEquals(
-        storageClass,
-        ((BucketInfo.LifecycleRule.SetStorageClassLifecycleAction) rule.getAction())
-            .getStorageClass(),
-        "SetStorageClass action storage class matches");
   }
 
   /**
