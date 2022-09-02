@@ -16,5 +16,3 @@ gradleEnterprise {
         uploadInBackground = System.getenv("CI") == null
     }
 }
-
-enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
