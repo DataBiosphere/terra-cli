@@ -61,20 +61,7 @@ jobs:
         LILY_SHADOWMOON: ${{ secrets.LILY_SHADOWMOON }}
         NOAH_FROSTWOLF: ${{ secrets.NOAH_FROSTWOLF }}
         PENELOPE_TWILIGHTSHAMMER: ${{ secrets.PENELOPE_TWILIGHTSHAMMER }}
-    - name: Run unit tests
-      id: run_unit_tests
-      if: always()
-      run: |
-        echo "Running unit tests for server: ${{ matrix.testServer }}"
-        mkdir -p ~/logs-unit
-        ./gradlew runTestsWithTag -PtestTag=unit --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit
-    - name: Run integration tests against source code
-      id: run_integration_tests_against_source_code
-      if: always()
-      run: |
-        echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
-        mkdir -p ~/logs-integration-source
-        ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source
+#deleted for testing
     - name: Run integration tests against release
       id: run_integration_tests_against_release
       if: always()
