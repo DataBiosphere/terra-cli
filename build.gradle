@@ -131,6 +131,10 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:${hamcrest}"
 }
 
+dependencyLocking {
+    lockAllConfigurations() // see https://docs.gradle.org/current/userguide/dependency_locking.html
+}
+
 // install the CLI, either from source code directly or from a GH release, before starting tests
 task runInstallForTesting(type: Exec) {
     boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
