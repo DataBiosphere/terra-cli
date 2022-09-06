@@ -45,6 +45,9 @@ public class Workspace {
   private String name; // not unique
   private String description;
   private String googleProjectId;
+  private String tenantId;
+  private String subscriptionId;
+  private String managedResourceGroupName;
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -67,6 +70,16 @@ public class Workspace {
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
+    this.tenantId =
+        wsmObject.getAzureContext() == null ? null : wsmObject.getAzureContext().getTenantId();
+    this.subscriptionId =
+        wsmObject.getAzureContext() == null
+            ? null
+            : wsmObject.getAzureContext().getSubscriptionId();
+    this.managedResourceGroupName =
+        wsmObject.getAzureContext() == null
+            ? null
+            : wsmObject.getAzureContext().getResourceGroupId();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -307,7 +320,9 @@ public class Workspace {
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
     List<Resource> resources =
-        wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
+        wsmObjects.stream()
+            .flatMap(o -> Resource.deserializeFromWsm(o).stream())
+            .collect(Collectors.toList());
 
     this.resources = resources;
   }
@@ -402,6 +417,18 @@ public class Workspace {
 
   public String getGoogleProjectId() {
     return googleProjectId;
+  }
+
+  public String getTenantId() {
+    return tenantId;
+  }
+
+  public String getSubscriptionId() {
+    return subscriptionId;
+  }
+
+  public String getManagedResourceGroupName() {
+    return managedResourceGroupName;
   }
 
   public Map<String, String> getProperties() {

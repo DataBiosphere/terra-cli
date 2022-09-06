@@ -1,6 +1,7 @@
 package bio.terra.cli.command;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.app.passthrough.Azcopy;
 import bio.terra.cli.command.app.passthrough.Bq;
 import bio.terra.cli.command.app.passthrough.Gcloud;
 import bio.terra.cli.command.app.passthrough.Git;
@@ -30,6 +31,7 @@ import picocli.CommandLine.ParseResult;
     subcommands = {
       App.class,
       Auth.class,
+      Azcopy.class,
       Bq.class,
       Config.class,
       Cromwell.class,

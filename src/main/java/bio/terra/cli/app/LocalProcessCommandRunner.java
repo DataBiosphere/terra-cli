@@ -83,6 +83,8 @@ public class LocalProcessCommandRunner extends CommandRunner {
     processCommand.add("-ce");
     processCommand.add(command);
 
+    System.out.println("comamnd: " + processCommand);
+
     // launch the child process
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
     localProcessLauncher.launchProcess(processCommand, envVars);

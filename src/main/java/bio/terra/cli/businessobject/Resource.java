@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.AzureStorageContainer;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.DataCollection;
@@ -21,6 +22,7 @@ import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -90,24 +92,35 @@ public abstract class Resource {
    * Deserialize to the internal representation of the resource from the WSM client library format.
    * Calls the appropriate sub-class constructor based on the resource type.
    */
-  public static Resource deserializeFromWsm(ResourceDescription wsmObject) {
+  public static Optional<Resource> deserializeFromWsm(ResourceDescription wsmObject) {
     bio.terra.workspace.model.ResourceType wsmResourceType =
         wsmObject.getMetadata().getResourceType();
     switch (wsmResourceType) {
       case GCS_BUCKET:
-        return new GcsBucket(wsmObject);
+        return Optional.of(new GcsBucket(wsmObject));
       case GCS_OBJECT:
-        return new GcsObject(wsmObject);
+        return Optional.of(new GcsObject(wsmObject));
       case BIG_QUERY_DATASET:
-        return new BqDataset(wsmObject);
+        return Optional.of(new BqDataset(wsmObject));
       case BIG_QUERY_DATA_TABLE:
-        return new BqTable(wsmObject);
+        return Optional.of(new BqTable(wsmObject));
       case AI_NOTEBOOK:
-        return new GcpNotebook(wsmObject);
+        return Optional.of(new GcpNotebook(wsmObject));
       case GIT_REPO:
-        return new GitRepo(wsmObject);
+        return Optional.of(new GitRepo(wsmObject));
       case TERRA_WORKSPACE:
-        return new DataCollection(wsmObject);
+        return Optional.of(new DataCollection(wsmObject));
+      case AZURE_STORAGE_CONTAINER:
+        return Optional.of(new AzureStorageContainer(wsmObject));
+        // TODO: implement
+      case AZURE_RELAY_NAMESPACE:
+      case AZURE_DISK:
+      case AZURE_IP:
+      case AZURE_NETWORK:
+      case AZURE_STORAGE_ACCOUNT:
+
+      case AZURE_VM:
+        return Optional.empty();
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
@@ -245,6 +258,7 @@ public abstract class Resource {
     AI_NOTEBOOK,
     GIT_REPO,
     // Corresponds to WSM type TERRA_WORKSPACE
-    DATA_COLLECTION;
+    DATA_COLLECTION,
+    AZURE_STORAGE_CONTAINER;
   }
 }

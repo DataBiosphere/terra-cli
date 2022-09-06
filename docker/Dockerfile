@@ -26,6 +26,10 @@ RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     # For gcloud alpha storage \
     gcloud components install alpha --quiet
 
+RUN curl -O https://azcopyvnext.azureedge.net/release20220721/azcopy_linux_amd64_10.16.0.tar.gz && \
+    tar xzf azcopy_linux_amd64_10.16.0.tar.gz && \
+    cp ./azcopy_linux_amd64_10.16.0/azcopy /usr/bin/
+
 # install Nextflow
 ENV NXF_VER 21.10.6
 ENV NXF_MODE google

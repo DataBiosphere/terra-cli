@@ -24,6 +24,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
+import bio.terra.workspace.api.ControlledAzureResourceApi;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -1460,6 +1461,21 @@ public class WorkspaceManagerService {
         () ->
             new ControlledGcpResourceApi(apiClient).deleteBigQueryDataset(workspaceId, resourceId),
         "Error deleting controlled BigQuery dataset in the workspace.");
+  }
+
+  public String getAzureStorageContainerSasToken(UUID workspaceId, UUID resourceId) {
+    ControlledAzureResourceApi controlledAzureResourceApi =
+        new ControlledAzureResourceApi(apiClient);
+    return handleClientExceptions(
+        () ->
+            // make the initial delete request
+            HttpUtils.callWithRetries(
+                    () ->
+                        controlledAzureResourceApi.createAzureStorageContainerSasToken(
+                            workspaceId, resourceId, null),
+                    WorkspaceManagerService::isRetryable)
+                .getUrl(),
+        "Error creating SAS token for controlled Azure storage container in the workspace.");
   }
 
   /**
