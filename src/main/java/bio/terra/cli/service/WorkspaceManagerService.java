@@ -1440,7 +1440,9 @@ public class WorkspaceManagerService {
               HttpUtils.pollWithRetries(
                   () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable);
+                  WorkspaceManagerService::isRetryable,
+                  /*maxCalls=*/ 12,
+                  /*sleepDuration=*/ Duration.ofSeconds(5));
           logger.debug("delete controlled gcs bucket result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
