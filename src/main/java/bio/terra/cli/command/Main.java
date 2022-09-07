@@ -32,7 +32,7 @@ import picocli.CommandLine.ParseResult;
       Auth.class,
       Bq.class,
       Config.class,
-      Cormwell.class,
+      Cromwell.class,
       Gcloud.class,
       Git.class,
       Group.class,

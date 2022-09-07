@@ -471,6 +471,17 @@ Currently the available configuration properties are:
 [format] output format = TEXT
 ```
 
+#### Cromwell
+
+```
+Usage: terra cromwell [COMMAND]
+Generate a cromwell config in workspace ai notebook.
+Commands:
+  generate-config  Autogenerate a cromwell.conf under /home/jupyter/cromwell
+```
+
+This command is creating an auto generation cromwell.conf in workspace.
+
 #### Git
 
 ```
@@ -740,17 +751,19 @@ for more details.
 Usage: terra workspace [COMMAND]
 Setup a Terra workspace.
 Commands:
-  add-user     Add a user or group to the workspace.
-  break-glass  Grant break-glass access to a workspace user.
-  clone        Clone an existing workspace.
-  create       Create a new workspace.
-  delete       Delete an existing workspace.
-  describe     Describe the workspace.
-  list         List all workspaces the current user can access.
-  list-users   List the users of the workspace.
-  remove-user  Remove a user or group from the workspace.
-  set          Set the workspace to an existing one.
-  update       Update an existing workspace.
+  add-user         Add a user or group to the workspace.
+  break-glass      Grant break-glass access to a workspace user.
+  clone            Clone an existing workspace.
+  create           Create a new workspace.
+  delete           Delete an existing workspace.
+  delete-property  Delete the workspace properties.
+  describe         Describe the workspace.
+  list             List all workspaces the current user can access.
+  list-users       List the users of the workspace.
+  remove-user      Remove a user or group from the workspace.
+  set              Set the workspace to an existing one.
+  set-property     Set the workspace properties.
+  update           Update an existing workspace.
 ```
 
 A Terra workspace is backed by a Google project. Creating/deleting a workspace
