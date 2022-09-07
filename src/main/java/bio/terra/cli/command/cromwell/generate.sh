@@ -6,7 +6,7 @@ cromwell_config=/home/jupyter/cromwell/cromwell.conf
 echo "WORKSPACE_BUCKET: $1"
 echo "GOOGLE_PROJECT: $2"
 if [ ! -f "${cromwell_config}" ]; then
-  cat <<EOF | sudo -E tee "${cromwell_config}"
+  cat <<EOF | sudo -E -u jupyter tee "${cromwell_config}"
 include required(classpath("application"))
 
 google {

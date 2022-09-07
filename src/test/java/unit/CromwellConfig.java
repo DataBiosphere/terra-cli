@@ -24,7 +24,7 @@ public class CromwellConfig extends SingleWorkspaceUnit {
     // `terra cromwell generate-config`
     TestCommand.runCommandExpectSuccess("cromwell", "generate-config");
 
-    // New cromwell.conf file exist.
+    // New cromwell.conf file generate successfully.
     assertTrue(new File("cromwell.conf").isFile());
 
     // `terra workspace delete`

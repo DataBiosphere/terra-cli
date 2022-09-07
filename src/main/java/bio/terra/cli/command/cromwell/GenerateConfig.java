@@ -5,13 +5,11 @@ import bio.terra.cli.command.shared.BaseCommand;
 import java.util.List;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra app execute" command. */
+/** This class corresponds to the third-level "terra cromwell generate-config" command. */
 @Command(
     name = "generate-config",
     description = "Autogenerate a cromwell.conf under /home/jupyter/cromwell")
 public class GenerateConfig extends BaseCommand {
-
-  /** Pass the command through to the CLI Docker image. */
   @Override
   protected void execute() {
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
