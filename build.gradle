@@ -332,7 +332,7 @@ distributions {
 
 // plugin: application
 application {
-    mainClass = 'bio.terra.cli.command.Main'
+    mainClass = 'main.java.bio.terra.cli.command.Main'
     applicationName = 'terra'
     executableDir = 'bin'
 
@@ -347,13 +347,13 @@ startScripts {
     doLast {
         // add the -PforRelease flag to update the APP_HOME in preparation for install
         // default is to not update APP_HOME, so that ./gradlew install still works for development
-        if (project.hasProperty("forRelease")) {
+       // if (project.hasProperty("forRelease")) {
             println("Updating APP_HOME")
             unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
             windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
-        } else {
+      //  } else {
             println("Skipping APP_HOME update")
-        }
+       // }
     }
 }
 jar {
@@ -363,7 +363,8 @@ jar {
         attributes 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
                 'Implementation-Title': 'bio.terra.cli',
-                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
+                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}",
+                'Main-Class': 'main.java.bio.terra.cli.command.Main'
     }
 }
 
