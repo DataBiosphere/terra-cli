@@ -58,6 +58,8 @@ terra
 
 To rebuild after changing code: `./gradlew installDist`
 
+To update version dependencies: `./gradlew dependencies --write-locks`
+
 #### Logging
 
 Logging is turned off by default. Modify the level with
