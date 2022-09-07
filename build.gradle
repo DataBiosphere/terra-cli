@@ -359,12 +359,6 @@ startScripts {
 jar {
     // set attributes in the JAR manifest file that we can access from the Java code
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
-
-    boolean testInstallFromGitHub1 = project.hasProperty("testInstallFromGitHub");
-    String installDir1 = testInstallFromGitHub1 ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/lib"
-    systemProperty "TERRA_INSTALL_DIR", installDir
-
-
     manifest {
         attributes 'Specification-Title': 'Terra CLI',
                 'Specification-Version': "${project.version}", // this matches the top-level version property
@@ -373,7 +367,6 @@ jar {
                 'Main-Class': 'bio.terra.cli.command.Main'
     }
 }
-// 'Class-Path' : configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 
 // convenience tasks to fetch build properties from scripts (e.g. see ./tools/)
 task getBuildVersion {
