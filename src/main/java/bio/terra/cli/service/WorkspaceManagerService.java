@@ -461,7 +461,7 @@ public class WorkspaceManagerService {
                   WorkspaceManagerService::isRetryable,
                   // I've observed a flight taking 2 mins 28 sec. So retry for 3 mins.
                   /*maxCalls=*/ 36,
-                  /*sleepDuration=*/ 5);
+                  /*sleepDuration=*/ Duration.ofSeconds(5));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
