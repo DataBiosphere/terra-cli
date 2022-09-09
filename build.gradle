@@ -21,8 +21,7 @@ plugins {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-//version = '0.242.0'
-version = 'dexamundsen-1932'
+version = '0.243.0'
 group = 'terra-cli'
 //sourceCompatibility = JavaVersion.VERSION_17
 //targetCompatibility = JavaVersion.VERSION_17
