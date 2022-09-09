@@ -2,12 +2,12 @@
 
 # Initialize a default Cromwell config. Don't overwrite in case the user has
 # customized their Cromwell config file on their PD.
-cromwell_config=/home/jupyter/cromwell/cromwell.conf
-echo "WORKSPACE_BUCKET: $1"
-echo "GOOGLE_PROJECT: $2"
-if [ ! -f "${cromwell_config}" ]; then
-  cat <<EOF | sudo -E -u jupyter tee "${cromwell_config}"
-include required(classpath("application"))
+echo "cromwell_config" : $1
+echo "GOOGLE_PROJECT": $2
+echo "WORKSPACE_BUCKET": $3
+echo "PET_SA_EMAIL": $4
+if [ ! -f "$1" ]; then
+  cat <<EOF | tee "$1"
 
 google {
   application-name = "cromwell"
@@ -28,9 +28,9 @@ backend {
       actor-factory = "cromwell.backend.google.pipelines.v2beta.PipelinesApiLifecycleActorFactory"
 
       config {
-        project = "${GOOGLE_PROJECT}"
+        project = "$2"
         concurrent-job-limit = 10
-        root = "${WORKSPACE_BUCKET}/workflows/cromwell-executions"
+        root = "$3/workflows/cromwell-executions"
 
         virtual-private-cloud {
           network-label-key = "vpc-network-name"
@@ -40,7 +40,7 @@ backend {
 
         genomics {
           auth = "application_default"
-          compute-service-account = "${PET_SA_EMAIL}"
+          compute-service-account = "$4"
           endpoint-url = "https://lifesciences.googleapis.com/"
           location = "us-central1"
         }
