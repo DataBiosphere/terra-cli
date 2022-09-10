@@ -9,9 +9,9 @@ plugins {
     id 'idea'
     id 'application'
 
-    id 'com.diffplug.spotless' version '6.9.1'
-    id 'com.github.spotbugs' version '5.0.9'
-    id 'org.gradle.test-retry' version '1.4.0'
+    id 'com.diffplug.spotless' version '6.10.0'
+    id 'com.github.spotbugs' version '5.0.12'
+    id 'org.gradle.test-retry' version '1.4.1'
 
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
@@ -67,19 +67,19 @@ dependencies {
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'
 
     // logging
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.0'
 
     // serialization
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.3'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.4'
 
     // GCP
-    implementation group: 'com.google.auth', name: 'google-auth-library-credentials', version: '1.10.0'
-    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.10.0'
+    implementation group: 'com.google.auth', name: 'google-auth-library-credentials', version: '1.11.0'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.11.0'
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-java6', version: '1.34.1'
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.34.1'
-    implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '2.14.6'
+    implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '2.15.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.11.3'
 
     // Docker
@@ -87,8 +87,8 @@ dependencies {
     implementation group: 'com.github.docker-java', name: 'docker-java-transport-httpclient5', version: '3.2.13'
 
     // static analysis
-    compileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.1'
-    testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.1'
+    compileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.2'
+    testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.2'
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
@@ -103,7 +103,7 @@ dependencies {
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
     // PubSub is used in tests to communicate with Janitor, but is not required for the CLI itself.
-    testImplementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.11'
+    testImplementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.13'
 
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: '4.6.3'
 }
