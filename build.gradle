@@ -24,8 +24,8 @@ plugins {
 //version = '0.242.0'
 version = 'dexamundsen-1932'
 group = 'terra-cli'
-//sourceCompatibility = JavaVersion.VERSION_17
-//targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
@@ -79,7 +79,7 @@ dependencies {
     implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.11.0'
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-java6', version: '1.34.1'
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.34.1'
-    implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '2.15.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '2.14.1'
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.11.3'
 
     // Docker
