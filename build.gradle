@@ -17,8 +17,6 @@ plugins {
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
 version = '0.243.0'
 group = 'terra-cli'
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
@@ -111,12 +109,11 @@ if (hasProperty('buildScan')) {
     }
 }
 
+compileJava.dependsOn tasks.spotlessApply
+
 apply from: "$rootDir/gradle/application.gradle"
 apply from: "$rootDir/gradle/dependency-locking.gradle"
 apply from: "$rootDir/gradle/spotbugs.gradle"
 apply from: "$rootDir/gradle/spotless.gradle"
 apply from: "$rootDir/gradle/tools.gradle"
 apply from: "$rootDir/gradle/test.gradle"
-
-compileJava.dependsOn tasks.spotlessApply
-defaultTasks 'spotlessApply', 'build'
