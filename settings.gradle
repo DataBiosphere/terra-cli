@@ -17,6 +17,3 @@ gradleEnterprise {
 
 enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
 rootProject.name = 'terra-cli'
-
-// The next line should only be changed by the BroadBot d.b.a. bumptagbot.
-// gradle.ext.cliVersion = "0.237.0" //TODO
