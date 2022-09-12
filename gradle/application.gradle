@@ -47,7 +47,6 @@ jar {
         attributes 'Specification-Title': 'Terra CLI',
         'Specification-Version': "${project.version}", // this matches the top-level version property
         'Implementation-Title': 'bio.terra.cli',
-        'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}",
-        'Main-Class': 'bio.terra.cli.command.Main'
+        'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
     }
 }
