@@ -394,7 +394,7 @@ public class Workspace extends ClearContextUnit {
     assertThat(
         "workspace has 2 resources after creating dataset",
         describeResult2.stdOut,
-        containsString("# Resources:       2"));
+        containsString("Resource Count:           2"));
     assertThat(
         "No error message is displayed on second describe.",
         describeResult2.stdErr,

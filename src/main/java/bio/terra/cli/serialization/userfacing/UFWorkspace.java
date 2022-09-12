@@ -33,6 +33,9 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.tenantId = builder.tenantId;
+    this.subscriptionId = builder.subscriptionId;
+    this.resourceGroupId = builder.resourceGroupId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.properties = builder.properties;
@@ -54,6 +57,9 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private String tenantId;
+    private String subscriptionId;
+    private String resourceGroupId;
     private String serverName;
     private String userEmail;
     private Map<String, String> properties;
@@ -79,6 +85,21 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder tenantId(String tenantId) {
+      this.tenantId = tenantId;
+      return this;
+    }
+
+    public Builder subscriptionId(String subscriptionId) {
+      this.subscriptionId = subscriptionId;
+      return this;
+    }
+
+    public Builder resourceGroupId(String resourceGroupId) {
+      this.resourceGroupId = resourceGroupId;
       return this;
     }
 
