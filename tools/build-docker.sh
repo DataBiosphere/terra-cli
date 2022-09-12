@@ -30,7 +30,8 @@ fi
 
 echo "Building the image"
 localImageNameAndTag="$localImageName:$localImageTag"
-docker build -t $localImageNameAndTag ./docker
+targetPlatform="--platform=linux/amd64"
+docker build -t $localImageNameAndTag $targetPlatform ./docker
 
 # write out the path to the local image
 echo "$localImageNameAndTag successfully built"

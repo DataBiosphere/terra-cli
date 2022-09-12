@@ -31,7 +31,7 @@ public class ConfirmationPrompt {
     if (!quiet) {
       OUT.print(promptQuestion + " ");
       Scanner reader = new Scanner(UserIO.getIn(), StandardCharsets.UTF_8);
-      String deletePrompt = reader.nextLine();
+      String deletePrompt = reader.hasNextLine() ? reader.nextLine() : "";
       promptReturnedYes =
           deletePrompt.equalsIgnoreCase("y") || deletePrompt.equalsIgnoreCase("yes");
     }
