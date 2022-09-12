@@ -3,6 +3,7 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDAzureStorageContainer;
+import bio.terra.cli.serialization.userfacing.input.CreateAzureStorageContainerParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAzureStorageContainer;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AzureStorageContainerResource;
@@ -58,17 +59,35 @@ public class AzureStorageContainer extends Resource {
     return new PDAzureStorageContainer(this);
   }
 
+  /**
+   * Create an Azure storage container as a controlled resource in the workspace.
+   *
+   * @return the resource that was created
+   */
+  public static AzureStorageContainer createControlled(
+      CreateAzureStorageContainerParams createParams) {
+    validateResourceName(createParams.resourceFields.name);
+
+    // call WSM to create the resource
+    AzureStorageContainerResource createdResource =
+        WorkspaceManagerService.fromContext()
+            .createControlledAzureStorageContainer(
+                Context.requireWorkspace().getUuid(), createParams);
+    logger.info("Created Azure storage container: {}", createdResource);
+
+    // convert the WSM object to a CLI object
+    Context.requireWorkspace().listResourcesAndSync();
+    return new AzureStorageContainer(createdResource);
+  }
+
   /** No-op: referenced Azure storage containers are not supported. */
   protected void deleteReferenced() {}
 
   /** Delete an Azure storage container controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    // TODO
-    //    WorkspaceManagerService.fromContext()
-    //            WorkspaceManagerService.fromContext()
-    //                    .deleteControlledBigQueryDataset(Context.requireWorkspace().getUuid(),
-    // id);
+    WorkspaceManagerService.fromContext()
+        .deleteControlledAzureStorageContainer(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Resolve an Azure storage contaiber resource to a SAS token. */

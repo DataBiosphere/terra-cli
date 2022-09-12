@@ -8,6 +8,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAzureStorageContainerParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -32,6 +33,8 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
+import bio.terra.workspace.model.AzureStorageContainerCreationParameters;
+import bio.terra.workspace.model.AzureStorageContainerResource;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -39,6 +42,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
+import bio.terra.workspace.model.CreateControlledAzureStorageContainerRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
@@ -50,6 +54,7 @@ import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateTerraWorkspaceReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledAzureResourceRequest;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
@@ -131,6 +136,8 @@ public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
+  // The caller must have at least this IAM role to view workspaces
+  private static final IamRole DEFAULT_MINIMUM_IAM_ROLE = IamRole.READER;
   // the Terra environment where the WSM service lives
   private final Server server;
   // the client object used for talking to WSM
@@ -401,7 +408,7 @@ public class WorkspaceManagerService {
    */
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).listWorkspaces(offset, limit),
+        () -> new WorkspaceApi(apiClient).listWorkspaces(offset, limit, DEFAULT_MINIMUM_IAM_ROLE),
         "Error fetching list of workspaces");
   }
 
@@ -502,7 +509,8 @@ public class WorkspaceManagerService {
 
           // call the get workspace endpoint to get the full description object
           return HttpUtils.callWithRetries(
-              () -> workspaceApi.getWorkspace(workspaceId), WorkspaceManagerService::isRetryable);
+              () -> workspaceApi.getWorkspace(workspaceId, DEFAULT_MINIMUM_IAM_ROLE),
+              WorkspaceManagerService::isRetryable);
         },
         "Error creating a new workspace");
   }
@@ -514,7 +522,7 @@ public class WorkspaceManagerService {
   public WorkspaceDescription getWorkspace(UUID uuid, boolean isDataCollectionWorkspace) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspace(uuid),
+            () -> new WorkspaceApi(apiClient).getWorkspace(uuid, DEFAULT_MINIMUM_IAM_ROLE),
             "Error fetching workspace",
             isDataCollectionWorkspace);
     String googleProjectId =
@@ -535,7 +543,9 @@ public class WorkspaceManagerService {
   public WorkspaceDescription getWorkspaceByUserFacingId(String userFacingId) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspaceByUserFacingId(userFacingId),
+            () ->
+                new WorkspaceApi(apiClient)
+                    .getWorkspaceByUserFacingId(userFacingId, DEFAULT_MINIMUM_IAM_ROLE),
             "Error fetching workspace");
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
@@ -597,7 +607,7 @@ public class WorkspaceManagerService {
                 .updateWorkspaceProperties(buildProperties(workspaceProperties), workspaceId),
         "Error updating workspace properties");
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, DEFAULT_MINIMUM_IAM_ROLE),
         "Error getting the workspace after updating properties");
   }
 
@@ -679,7 +689,7 @@ public class WorkspaceManagerService {
                 .deleteWorkspaceProperties(workspacePropertyKeys, workspaceId),
         "Error deleting workspace properties");
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, DEFAULT_MINIMUM_IAM_ROLE),
         "Error getting the workspace after deleting properties");
   }
 
@@ -1472,29 +1482,43 @@ public class WorkspaceManagerService {
    * @param createParams creation parameters
    * @return the Azure storage container resource object
    */
-  //  public AzureStorageContainerResource createControlledAzureStorageContainer(
-  //          UUID workspaceId, CreateAzureStorageContainerParams createParams) {
-  //    // convert the CLI lifecycle rule object into the WSM request objects
-  //    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
-  //
-  //    // convert the CLI object to a WSM request object
-  //    CreateControlledGcpGcsBucketRequestBody createRequest =
-  //            new CreateControlledGcpGcsBucketRequestBody()
-  //                    .common(createCommonFields(createParams.resourceFields))
-  //                    .gcsBucket(
-  //                            new GcpGcsBucketCreationParameters()
-  //                                    .name(createParams.bucketName)
-  //                                    .defaultStorageClass(createParams.defaultStorageClass)
-  //                                    .lifecycle(new
-  // GcpGcsBucketLifecycle().rules(lifecycleRules))
-  //                                    .location(createParams.location));
-  //    return callWithRetries(
-  //            () ->
-  //                    new ControlledGcpResourceApi(apiClient)
-  //                            .createBucket(createRequest, workspaceId)
-  //                            .getGcpBucket(),
-  //            "Error creating controlled GCS bucket in the workspace.");
-  //  }
+  public AzureStorageContainerResource createControlledAzureStorageContainer(
+      UUID workspaceId, CreateAzureStorageContainerParams createParams) {
+    // convert the CLI object to a WSM request object
+    CreateControlledAzureStorageContainerRequestBody createRequest =
+        new CreateControlledAzureStorageContainerRequestBody()
+            .common(createCommonFields(createParams.resourceFields))
+            .azureStorageContainer(
+                new AzureStorageContainerCreationParameters()
+                    .storageContainerName(createParams.storageContainerName)
+                    .storageAccountId(createParams.storageAccountId));
+    return callWithRetries(
+        () ->
+            new ControlledAzureResourceApi(apiClient)
+                .createAzureStorageContainer(createRequest, workspaceId)
+                .getAzureStorageContainer(),
+        "Error creating controlled Azure storage container in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/azure/storageContainer/{resourceId}"
+   * endpoint to delete an Azure storage container as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the container fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledAzureStorageContainer(UUID workspaceId, UUID resourceId) {
+    // Storage container deletion is synchronous so no need to pass a jobId.
+    DeleteControlledAzureResourceRequest deleteRequest = new DeleteControlledAzureResourceRequest();
+    callWithRetries(
+        () ->
+            new ControlledAzureResourceApi(apiClient)
+                .deleteAzureStorageContainer(deleteRequest, workspaceId, resourceId),
+        "Error deleting controlled Azure storage container in the workspace.");
+  }
 
   public String getAzureStorageContainerSasToken(UUID workspaceId, UUID resourceId) {
     ControlledAzureResourceApi controlledAzureResourceApi =
