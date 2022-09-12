@@ -1,6 +1,5 @@
 // automatic code formatting
 spotless {
-    //TODO
     groovyGradle {
         target '**/*.gradle'
         greclipse()
