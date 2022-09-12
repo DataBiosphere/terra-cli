@@ -15,7 +15,7 @@ public class UFWorkspaceLight {
   public String googleProjectId;
   public String tenantId;
   public String subscriptionId;
-  public String managedResourceGroupName;
+  public String resourceGroupId;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -33,7 +33,7 @@ public class UFWorkspaceLight {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.tenantId = internalObj.getTenantId();
     this.subscriptionId = internalObj.getSubscriptionId();
-    this.managedResourceGroupName = internalObj.getManagedResourceGroupName();
+    this.resourceGroupId = internalObj.getResourceGroupId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -47,7 +47,7 @@ public class UFWorkspaceLight {
     this.googleProjectId = builder.googleProjectId;
     this.tenantId = builder.tenantId;
     this.subscriptionId = builder.subscriptionId;
-    this.managedResourceGroupName = builder.managedResourceGroupName;
+    this.resourceGroupId = builder.resourceGroupId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -61,7 +61,7 @@ public class UFWorkspaceLight {
     this.googleProjectId = null;
     this.tenantId = null;
     this.subscriptionId = null;
-    this.managedResourceGroupName = null;
+    this.resourceGroupId = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -84,7 +84,7 @@ public class UFWorkspaceLight {
     if (tenantId != null) {
       OUT.println("Tenant ID:                " + tenantId);
       OUT.println("Subscription ID:          " + subscriptionId);
-      OUT.println("Managed Resource Group:   " + managedResourceGroupName);
+      OUT.println("Managed Resource Group:   " + resourceGroupId);
     }
 
     if (properties == null) {
@@ -104,7 +104,7 @@ public class UFWorkspaceLight {
     private String googleProjectId;
     private String tenantId;
     private String subscriptionId;
-    private String managedResourceGroupName;
+    private String resourceGroupId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -142,8 +142,8 @@ public class UFWorkspaceLight {
       return this;
     }
 
-    public UFWorkspaceLight.Builder managedResourceGroupName(String managedResourceGroupName) {
-      this.managedResourceGroupName = managedResourceGroupName;
+    public UFWorkspaceLight.Builder resourceGroupId(String resourceGroupId) {
+      this.resourceGroupId = resourceGroupId;
       return this;
     }
 

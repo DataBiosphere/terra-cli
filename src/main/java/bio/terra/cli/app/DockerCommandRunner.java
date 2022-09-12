@@ -1,5 +1,6 @@
 package bio.terra.cli.app;
 
+import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.DockerClientWrapper;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
@@ -7,6 +8,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,26 +86,23 @@ public class DockerCommandRunner extends CommandRunner {
     // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically authenticate
     // as test user, without SA key file
     // (https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2).
-    //    if (getTestPetSaAccessToken().isPresent()) {
-    //      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().get());
-    //    } else { // this is normal operation
-    //      // check that the ADC match the user or their pet SA
-    //      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
-    //
-    //      // if the ADC are set by a file, then make sure that file is mounted to the container
-    // and the
-    //      // env var points to it if needed
-    //      Optional<Path> adcCredentialsFile = AppDefaultCredentialUtils.getADCBackingFile();
-    //      if (adcCredentialsFile.isPresent()
-    //          &&
-    // adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
-    //        logger.info(
-    //            "ADC backing file is in the default location and is already mounted in the gcloud
-    // config directory");
-    //      } else {
-    //        logger.info("ADC set by metadata server.");
-    //      }
-    //    }
+    if (getTestPetSaAccessToken().isPresent()) {
+      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().get());
+    } else { // this is normal operation
+      // check that the ADC match the user or their pet SA
+      AppDefaultCredentialUtils.throwIfADCDontMatchContext();
+
+      // if the ADC are set by a file, then make sure that file is mounted to the container and the
+      // env var points to it if needed
+      Optional<Path> adcCredentialsFile = AppDefaultCredentialUtils.getADCBackingFile();
+      if (adcCredentialsFile.isPresent()
+          && adcCredentialsFile.get().equals(AppDefaultCredentialUtils.getDefaultGcloudADCFile())) {
+        logger.info(
+            "ADC backing file is in the default location and is already mounted in the gcloud config directory");
+      } else {
+        logger.info("ADC set by metadata server.");
+      }
+    }
 
     // create and start the docker container
     dockerClientWrapper.startContainer(

@@ -26,7 +26,7 @@ public class PDWorkspace {
   public final String googleProjectId;
   public final String tenantId;
   public final String subscriptionId;
-  public final String managedResourceGroupName;
+  public final String resourceGroupId;
   public final Map<String, String> properties;
   public final String serverName;
   public final String userEmail;
@@ -43,7 +43,7 @@ public class PDWorkspace {
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.tenantId = internalObj.getTenantId();
     this.subscriptionId = internalObj.getSubscriptionId();
-    this.managedResourceGroupName = internalObj.getManagedResourceGroupName();
+    this.resourceGroupId = internalObj.getResourceGroupId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -63,7 +63,7 @@ public class PDWorkspace {
     this.googleProjectId = builder.googleProjectId;
     this.tenantId = builder.tenantId;
     this.subscriptionId = builder.subscriptionId;
-    this.managedResourceGroupName = builder.managedResourceGroupName;
+    this.resourceGroupId = builder.resourceGroupId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -81,7 +81,7 @@ public class PDWorkspace {
     private String googleProjectId;
     private String tenantId;
     private String subscriptionId;
-    private String managedResourceGroupName;
+    private String resourceGroupId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -127,8 +127,8 @@ public class PDWorkspace {
       return this;
     }
 
-    public Builder managedResourceGroupName(String managedResourceGroupName) {
-      this.managedResourceGroupName = managedResourceGroupName;
+    public Builder resourceGroupId(String resourceGroupId) {
+      this.resourceGroupId = resourceGroupId;
       return this;
     }
 

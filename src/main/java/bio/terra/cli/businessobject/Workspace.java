@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class Workspace {
   private String googleProjectId;
   private String tenantId;
   private String subscriptionId;
-  private String managedResourceGroupName;
+  private String resourceGroupId;
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -68,18 +69,14 @@ public class Workspace {
     this.userFacingId = wsmObject.getUserFacingId();
     this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
-    this.googleProjectId =
-        wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
-    this.tenantId =
-        wsmObject.getAzureContext() == null ? null : wsmObject.getAzureContext().getTenantId();
-    this.subscriptionId =
-        wsmObject.getAzureContext() == null
-            ? null
-            : wsmObject.getAzureContext().getSubscriptionId();
-    this.managedResourceGroupName =
-        wsmObject.getAzureContext() == null
-            ? null
-            : wsmObject.getAzureContext().getResourceGroupId();
+    if (wsmObject.getGcpContext() != null) {
+      this.googleProjectId = wsmObject.getGcpContext().getProjectId();
+    }
+    if (wsmObject.getAzureContext() != null) {
+      this.tenantId = wsmObject.getAzureContext().getTenantId();
+      this.subscriptionId = wsmObject.getAzureContext().getSubscriptionId();
+      this.resourceGroupId = wsmObject.getAzureContext().getResourceGroupId();
+    }
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -95,6 +92,9 @@ public class Workspace {
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.tenantId = configFromDisk.tenantId;
+    this.subscriptionId = configFromDisk.subscriptionId;
+    this.resourceGroupId = configFromDisk.resourceGroupId;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
@@ -321,7 +321,8 @@ public class Workspace {
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
     List<Resource> resources =
         wsmObjects.stream()
-            .flatMap(o -> Resource.deserializeFromWsm(o).stream())
+            .map(Resource::deserializeFromWsm)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
     this.resources = resources;
@@ -427,8 +428,8 @@ public class Workspace {
     return subscriptionId;
   }
 
-  public String getManagedResourceGroupName() {
-    return managedResourceGroupName;
+  public String getResourceGroupId() {
+    return resourceGroupId;
   }
 
   public Map<String, String> getProperties() {

@@ -1463,6 +1463,39 @@ public class WorkspaceManagerService {
         "Error deleting controlled BigQuery dataset in the workspace.");
   }
 
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/azure/storageContainer" endpoint to add
+   * an Azure storage container as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams creation parameters
+   * @return the Azure storage container resource object
+   */
+  //  public AzureStorageContainerResource createControlledAzureStorageContainer(
+  //          UUID workspaceId, CreateAzureStorageContainerParams createParams) {
+  //    // convert the CLI lifecycle rule object into the WSM request objects
+  //    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
+  //
+  //    // convert the CLI object to a WSM request object
+  //    CreateControlledGcpGcsBucketRequestBody createRequest =
+  //            new CreateControlledGcpGcsBucketRequestBody()
+  //                    .common(createCommonFields(createParams.resourceFields))
+  //                    .gcsBucket(
+  //                            new GcpGcsBucketCreationParameters()
+  //                                    .name(createParams.bucketName)
+  //                                    .defaultStorageClass(createParams.defaultStorageClass)
+  //                                    .lifecycle(new
+  // GcpGcsBucketLifecycle().rules(lifecycleRules))
+  //                                    .location(createParams.location));
+  //    return callWithRetries(
+  //            () ->
+  //                    new ControlledGcpResourceApi(apiClient)
+  //                            .createBucket(createRequest, workspaceId)
+  //                            .getGcpBucket(),
+  //            "Error creating controlled GCS bucket in the workspace.");
+  //  }
+
   public String getAzureStorageContainerSasToken(UUID workspaceId, UUID resourceId) {
     ControlledAzureResourceApi controlledAzureResourceApi =
         new ControlledAzureResourceApi(apiClient);
