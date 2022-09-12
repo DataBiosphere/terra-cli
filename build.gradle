@@ -15,8 +15,7 @@ plugins {
 }
 
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-//version = '0.243.0'
-version = 'dexamundsen-1932'
+version = '0.243.0'
 group = 'terra-cli'
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
