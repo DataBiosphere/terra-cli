@@ -61,9 +61,7 @@ to ensure that builds use the same transitive dependencies, so they're reproduci
 adding or updating a dependency requires telling Gradle to save the change. If you're getting errors
 that mention "dependency lock state" after changing a dep, you need to do this step.
 
-```
-./gradlew dependencies --write-locks
-```
+To update version dependencies: `./gradlew dependencies --write-locks`
 
 #### Logging
 
