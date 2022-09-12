@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra cromwell generate-config" command. */
 @Command(
     name = "generate-config",
-    description = "Autogenerate a cromwell.conf under /home/jupyter/cromwell")
+    description = "Autogenerate a cromwell.conf under the user specified path.")
 public class GenerateConfig extends BaseCommand {
 
   @CommandLine.Mixin CromwellPath cromwellPath;
@@ -27,7 +27,7 @@ public class GenerateConfig extends BaseCommand {
         .getRunner()
         .runToolCommand(
             List.of(
-                "src/main/java/bio/terra/cli/command/cromwell/generate.sh",
+                "src/main/java/bio/terra/cli/command/cromwell/generate-config.sh",
                 Optional.ofNullable(cromwellPath.path).orElse("cromwell.conf"),
                 googleProjectId,
                 "{WORKSPACE_BUCKET}",

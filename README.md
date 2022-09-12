@@ -317,17 +317,14 @@ Commands:
   auth       Retrieve and manage user credentials.
   bq         Call bq in the Terra workspace.
   config     Configure the CLI.
+  cromwell   Generate a cromwell config in workspace ai notebook.
   gcloud     Call gcloud in the Terra workspace.
-  git        Call git in the Tera workspace
+  git        Call git in the Terra workspace.
   group      Manage groups of users.
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
   notebook   Use GCP Notebooks in the workspace.
-  resolve    Resolve a resource to its cloud id or path. For data collection, 
-             resolve all the resources inside the data collection to their cloud id
-             or path. If path to a resource inside the data collection is specified
-             in the format of [data collection name]/[resource name], resolve the
-             specified resource's cloud id or path.
+  resolve    Resolve a resource to its cloud id or path.
   resource   Manage resources in the workspace.
   server     Connect to a Terra server.
   spend      Manage spend profiles.
@@ -352,6 +349,7 @@ below.
 * `app` [Applications](#applications)
 * `auth` [Authentication](#authentication)
 * `config` [Config](#config)
+* `cromwell` [Cromwell](#cromwell)
 * `git` [Git](#Git)
 * `group` [Groups](#groups)
 * `gsutil` [gsutil](#gsutil)
@@ -473,14 +471,14 @@ Currently the available configuration properties are:
 
 #### Cromwell
 
+This command is creating an auto generation cromwell.conf in workspace.
+
 ```
 Usage: terra cromwell [COMMAND]
 Generate a cromwell config in workspace ai notebook.
 Commands:
-  generate-config  Autogenerate a cromwell.conf under /home/jupyter/cromwell
+  generate-config  Autogenerate a cromwell.conf under the user specified path.
 ```
-
-This command is creating an auto generation cromwell.conf in workspace.
 
 #### Git
 
