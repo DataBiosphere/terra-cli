@@ -3,9 +3,7 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import harness.TestCommand;
-import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
-import harness.utils.WorkspaceUtils;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
@@ -16,11 +14,12 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class CromwellConfig extends SingleWorkspaceUnit {
   @Test
-  @DisplayName("cromwell config create in root path")
-  void cromwellConfigCreateRoot() throws IOException {
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
-    WorkspaceUtils.createWorkspace(testUser);
+  @DisplayName("cromwell generate-config with default dir")
+  void cromwellGenerateConfig() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra cromwell generate-config`
     TestCommand.runCommandExpectSuccess("cromwell", "generate-config");
@@ -30,21 +29,18 @@ public class CromwellConfig extends SingleWorkspaceUnit {
 
     // Remove the created config file.
     new File("cromwell.conf").delete();
-
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
-  @DisplayName("cromwell config create in test path")
-  void cromwellConfigCreatePath() throws IOException {
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
-    WorkspaceUtils.createWorkspace(testUser);
+  @DisplayName("cromwell generate-config with custom dir")
+  void cromwellGenerateConfigCustomDir() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra cromwell generate-config --path=build/cromwell.conf`
-    TestCommand.runCommandExpectSuccess(
-        "cromwell", "generate-config", "--path=build/cromwell.conf");
+    TestCommand.runCommandExpectSuccess("cromwell", "generate-config", "--dir=build");
 
     // New cromwell.conf file generate successfully.
     assertTrue(
@@ -52,8 +48,5 @@ public class CromwellConfig extends SingleWorkspaceUnit {
 
     // Remove the created config file.
     new File("./build/cromwell.conf").delete();
-
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

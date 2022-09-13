@@ -9,6 +9,6 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "cromwell",
-    description = "Generate a cromwell config in workspace ai notebook.",
+    description = "Commands related to Cromwell workflows.",
     subcommands = {GenerateConfig.class})
 public class Cromwell {}

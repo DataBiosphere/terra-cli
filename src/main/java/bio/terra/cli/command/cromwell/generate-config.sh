@@ -2,10 +2,10 @@
 
 # Initialize a default Cromwell config. Don't overwrite in case the user has
 # customized their Cromwell config file on their PD.
-echo "cromwell_config" : $1
+echo "CROMWELL_CONFIG_PATH" : $1
 echo "GOOGLE_PROJECT": $2
-echo "WORKSPACE_BUCKET": $3
-echo "PET_SA_EMAIL": $4
+echo "PET_SA_EMAIL": $3
+echo "IMPORTANT: In {cromwell.conf path}, change {WORKSPACE_BUCKET} to a bucket in your workspace."
 if [ ! -f "$1" ]; then
   cat <<EOF | tee "$1"
 
@@ -30,7 +30,8 @@ backend {
       config {
         project = "$2"
         concurrent-job-limit = 10
-        root = "$3/workflows/cromwell-executions"
+#         replace {WORKSPACE_BUCKET} with the path to a gcs bucket in this workspace, e.g. gs://my-cromwell-workflow-bucket/workflows/cromwell-executions.
+        root = "{WORKSPACE_BUCKET}/workflows/cromwell-executions"
 
         virtual-private-cloud {
           network-label-key = "vpc-network-name"
@@ -40,7 +41,7 @@ backend {
 
         genomics {
           auth = "application_default"
-          compute-service-account = "$4"
+          compute-service-account = "$3"
           endpoint-url = "https://lifesciences.googleapis.com/"
           location = "us-central1"
         }

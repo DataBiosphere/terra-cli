@@ -317,7 +317,7 @@ Commands:
   auth       Retrieve and manage user credentials.
   bq         Call bq in the Terra workspace.
   config     Configure the CLI.
-  cromwell   Generate a cromwell config in workspace ai notebook.
+  cromwell   cromwell Generate a Cromwell configuration file.
   gcloud     Call gcloud in the Terra workspace.
   git        Call git in the Terra workspace.
   group      Manage groups of users.
@@ -475,10 +475,20 @@ This command is creating an auto generation cromwell.conf in workspace.
 
 ```
 Usage: terra cromwell [COMMAND]
-Generate a cromwell config in workspace ai notebook.
+Commands related to Cromwell workflows.
 Commands:
-  generate-config  Autogenerate a cromwell.conf under the user specified path.
+  generate-config  Generate cromwell.conf under the user-specified path.
 ```
+
+To run Cromwell in a notebook instance:
+
+* Run `terra cromwell generate-config [--dir=my/path]`
+* In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
+* Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
+* In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
+* Run workflow: `cromshell submit workflow.wdl inputs.json options.json dependencies.zip`
+
+For more information, see https://github.com/broadinstitute/cromshell.
 
 #### Git
 
