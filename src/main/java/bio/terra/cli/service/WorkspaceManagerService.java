@@ -1521,12 +1521,21 @@ public class WorkspaceManagerService {
         "Error deleting controlled Azure storage container in the workspace.");
   }
 
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/azure/storageContainer/{resourceId}/getSasToken"
+   * endpoint to create a SAS token to access the storage container.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the container fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
   public String getAzureStorageContainerSasToken(UUID workspaceId, UUID resourceId) {
     ControlledAzureResourceApi controlledAzureResourceApi =
         new ControlledAzureResourceApi(apiClient);
     return handleClientExceptions(
         () ->
-            // make the initial delete request
             HttpUtils.callWithRetries(
                     () ->
                         controlledAzureResourceApi.createAzureStorageContainerSasToken(
