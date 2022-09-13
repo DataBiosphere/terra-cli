@@ -26,13 +26,17 @@ public class AzureStorageContainer extends BaseCommand {
 
   @CommandLine.Option(
       names = "--storage-container-name",
-      description = "Name of the Azure storage container.")
+      description = "Name of the Azure storage container.",
+      required = true)
   private String storageContainerName;
 
+  // TODO (TOAZ-105): this should be become optional when landing zones are integrated into storage
+  // container creation.
   @CommandLine.Option(
       names = "--storage-account-id",
       description =
-          "The resource ID of the storage account in which the container will be created.")
+          "The resource ID of the storage account in which the container will be created.",
+      required = true)
   private UUID storageAccountId;
 
   /** Print this command's output in text format. */

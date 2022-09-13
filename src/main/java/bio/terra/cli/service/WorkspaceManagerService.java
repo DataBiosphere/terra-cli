@@ -1485,7 +1485,7 @@ public class WorkspaceManagerService {
   public AzureStorageContainerResource createControlledAzureStorageContainer(
       UUID workspaceId, CreateAzureStorageContainerParams createParams) {
     // convert the CLI object to a WSM request object
-    CreateControlledAzureStorageContainerRequestBody createRequest =
+    var createRequest =
         new CreateControlledAzureStorageContainerRequestBody()
             .common(createCommonFields(createParams.resourceFields))
             .azureStorageContainer(
@@ -1511,8 +1511,9 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAzureStorageContainer(UUID workspaceId, UUID resourceId) {
-    // Storage container deletion is synchronous so no need to pass a jobId.
-    DeleteControlledAzureResourceRequest deleteRequest = new DeleteControlledAzureResourceRequest();
+    String asyncJobId = UUID.randomUUID().toString();
+    var deleteRequest =
+        new DeleteControlledAzureResourceRequest().jobControl(new JobControl().id(asyncJobId));
     callWithRetries(
         () ->
             new ControlledAzureResourceApi(apiClient)

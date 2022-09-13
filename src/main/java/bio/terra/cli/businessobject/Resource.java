@@ -112,10 +112,8 @@ public abstract class Resource {
         return new DataCollection(wsmObject);
       case AZURE_STORAGE_CONTAINER:
         return new AzureStorageContainer(wsmObject);
-        // TODO: implement
-      case AZURE_VM:
-        return null;
       default:
+        // Ignore unknown resources
         return null;
     }
   }
@@ -253,7 +251,6 @@ public abstract class Resource {
     GIT_REPO,
     // Corresponds to WSM type TERRA_WORKSPACE
     DATA_COLLECTION,
-    AZURE_STORAGE_CONTAINER,
-    AZURE_VM;
+    AZURE_STORAGE_CONTAINER;
   }
 }
