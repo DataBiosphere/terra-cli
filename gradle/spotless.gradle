@@ -1,8 +1,7 @@
 // automatic code formatting
 spotless {
     groovyGradle {
-        target '**/*.gradle'
-        greclipse()
+        target "${rootDir}/**/*.gradle"
         indentWithSpaces()
     }
     java {
