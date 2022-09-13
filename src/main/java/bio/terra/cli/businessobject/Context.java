@@ -126,7 +126,7 @@ public class Context {
     String isTest = System.getProperty(CommandRunner.IS_TEST);
     if (isTest != null && isTest.equals("true")) {
       String testWorker = System.getProperty("org.gradle.test.worker");
-      if (null != testWorker) {
+      if (testWorker != null) {
         contextPath = contextPath.resolve(testWorker);
       }
     }
