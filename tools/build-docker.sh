@@ -28,6 +28,7 @@ if [ -z "$localImageName" ]
     localImageName="terra-cli/local"
 fi
 
+# Images built on Apple M1 macs are be default arm-based, force x86 build for docker
 echo "Building the image"
 localImageNameAndTag="$localImageName:$localImageTag"
 targetPlatform="--platform=linux/amd64"
