@@ -484,9 +484,9 @@ To run Cromwell in a notebook instance:
 
 * Run `terra cromwell generate-config [--dir=my/path]`
 * In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
-* Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
+* Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
 * In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
-* Run workflow: `cromshell submit workflow.wdl inputs.json options.json dependencies.zip`
+* Start workflow through cromshell: e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
 
 For more information, see https://github.com/broadinstitute/cromshell.
 
