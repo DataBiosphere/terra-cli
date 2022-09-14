@@ -317,17 +317,14 @@ Commands:
   auth       Retrieve and manage user credentials.
   bq         Call bq in the Terra workspace.
   config     Configure the CLI.
+  cromwell   cromwell Generate a Cromwell configuration file.
   gcloud     Call gcloud in the Terra workspace.
-  git        Call git in the Tera workspace
+  git        Call git in the Terra workspace.
   group      Manage groups of users.
   gsutil     Call gsutil in the Terra workspace.
   nextflow   Call nextflow in the Terra workspace.
   notebook   Use GCP Notebooks in the workspace.
-  resolve    Resolve a resource to its cloud id or path. For data collection, 
-             resolve all the resources inside the data collection to their cloud id
-             or path. If path to a resource inside the data collection is specified
-             in the format of [data collection name]/[resource name], resolve the
-             specified resource's cloud id or path.
+  resolve    Resolve a resource to its cloud id or path.
   resource   Manage resources in the workspace.
   server     Connect to a Terra server.
   spend      Manage spend profiles.
@@ -352,6 +349,7 @@ below.
 * `app` [Applications](#applications)
 * `auth` [Authentication](#authentication)
 * `config` [Config](#config)
+* `cromwell` [Cromwell](#cromwell)
 * `git` [Git](#Git)
 * `group` [Groups](#groups)
 * `gsutil` [gsutil](#gsutil)
@@ -470,6 +468,27 @@ Currently the available configuration properties are:
 [workspace] workspace = (unset)
 [format] output format = TEXT
 ```
+
+#### Cromwell
+
+This command is creating an auto generation cromwell.conf in workspace.
+
+```
+Usage: terra cromwell [COMMAND]
+Commands related to Cromwell workflows.
+Commands:
+  generate-config  Generate cromwell.conf under the user-specified path.
+```
+
+To run Cromwell in a notebook instance:
+
+* Run `terra cromwell generate-config [--dir=my/path]`
+* In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
+* Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
+* In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
+* Start workflow through cromshell: e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
+
+For more information, see https://github.com/broadinstitute/cromshell.
 
 #### Git
 
@@ -740,17 +759,19 @@ for more details.
 Usage: terra workspace [COMMAND]
 Setup a Terra workspace.
 Commands:
-  add-user     Add a user or group to the workspace.
-  break-glass  Grant break-glass access to a workspace user.
-  clone        Clone an existing workspace.
-  create       Create a new workspace.
-  delete       Delete an existing workspace.
-  describe     Describe the workspace.
-  list         List all workspaces the current user can access.
-  list-users   List the users of the workspace.
-  remove-user  Remove a user or group from the workspace.
-  set          Set the workspace to an existing one.
-  update       Update an existing workspace.
+  add-user         Add a user or group to the workspace.
+  break-glass      Grant break-glass access to a workspace user.
+  clone            Clone an existing workspace.
+  create           Create a new workspace.
+  delete           Delete an existing workspace.
+  delete-property  Delete the workspace properties.
+  describe         Describe the workspace.
+  list             List all workspaces the current user can access.
+  list-users       List the users of the workspace.
+  remove-user      Remove a user or group from the workspace.
+  set              Set the workspace to an existing one.
+  set-property     Set the workspace properties.
+  update           Update an existing workspace.
 ```
 
 A Terra workspace is backed by a Google project. Creating/deleting a workspace
