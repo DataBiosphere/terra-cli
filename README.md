@@ -69,7 +69,7 @@ added it to your `$PATH`, that step needs to be repeated after each install.
 
 #### Requirements
 
-1. Java 11
+1. Java 17
 2. Docker 20.10.2 (Must be running if installing in DOCKER_AVAILABLE mode)
 3. `curl`, `tar`, `gcloud` (For install only)
 
@@ -458,7 +458,7 @@ Currently the available configuration properties are:
 ```
 [app-launch] app launch mode = DOCKER_CONTAINER
 [browser] browser launch for login = AUTO
-[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.118.0:stable
+[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.234.0:stable
 [resource-limit] max number of resources to allow per workspace = 1000
 
 [logging, console] logging level for printing directly to the terminal = OFF
