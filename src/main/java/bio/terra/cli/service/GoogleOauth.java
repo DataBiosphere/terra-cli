@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -53,8 +54,8 @@ public final class GoogleOauth {
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
-  private static final GoogleClientSecrets clientSecrets = readClientSecrets();
+  private static String CLIENT_SECRET_FILENAME = "verily_secret.json";
+  private static GoogleClientSecrets clientSecrets = readClientSecrets();
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
@@ -102,6 +103,9 @@ public final class GoogleOauth {
       boolean launchBrowserAutomatically,
       String loginLandingPage)
       throws IOException, GeneralSecurityException {
+
+    clientSecrets = UpdateClientSecret();
+
     // setup the Google OAuth2 flow
     TerraAuthenticationHelper helper =
         TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
@@ -154,6 +158,9 @@ public final class GoogleOauth {
    */
   public static void deleteExistingCredential(List<String> scopes, File dataStoreDir)
       throws IOException, GeneralSecurityException {
+
+    clientSecrets = UpdateClientSecret();
+
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
         TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
@@ -171,6 +178,7 @@ public final class GoogleOauth {
   @Nullable
   public static TerraCredentials getExistingUserCredential(List<String> scopes, File dataStoreDir)
       throws IOException, GeneralSecurityException {
+    clientSecrets = UpdateClientSecret();
 
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
@@ -369,6 +377,16 @@ public final class GoogleOauth {
     public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) {
       throw new SystemException("Error obtaining token: " + tokenErrorResponse);
     }
+  }
+
+  /** Get the client secrets by server. */
+  private static GoogleClientSecrets UpdateClientSecret() {
+    if (Context.getServer().getName().startsWith("broad")) {
+      CLIENT_SECRET_FILENAME = "broad_secret.json";
+    } else {
+      CLIENT_SECRET_FILENAME = "verily_secret.json";
+    }
+    return readClientSecrets();
   }
 
   /**
