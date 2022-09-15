@@ -54,7 +54,7 @@ public final class GoogleOauth {
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static String CLIENT_SECRET_FILENAME = "verily_secret.json";
+  private static String CLIENT_SECRET_FILENAME = "broad_secret.json";
   private static GoogleClientSecrets clientSecrets = readClientSecrets();
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
