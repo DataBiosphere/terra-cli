@@ -98,7 +98,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertThat(
         "TERRA_USER_EMAIL set to test user email",
         cmd.stdOut,
-        CoreMatchers.containsString(workspaceCreator.email));
+        CoreMatchers.containsString(workspaceCreator.email.toLowerCase()));
 
     // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
     cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
