@@ -82,7 +82,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("env vars include workspace cloud project")
+  @DisplayName("env vars include terra user and workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
