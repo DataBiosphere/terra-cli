@@ -128,11 +128,6 @@ import org.slf4j.LoggerFactory;
 public class WorkspaceManagerService {
 
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
-  private static final int CLONE_WORKSPACE_MAXIMUM_RETRIES = 360;
-  private static final Duration CLONE_WORKSPACE_RETRY_INTERVAL = Duration.ofSeconds(10);
-  // the maximum number of retries and time to sleep for creating a new workspace
-  private static final int CREATE_WORKSPACE_MAXIMUM_RETRIES = 120;
-  private static final Duration CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY = Duration.ofSeconds(1);
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
   // the Terra environment where the WSM service lives
@@ -464,8 +459,9 @@ public class WorkspaceManagerService {
                   () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  CREATE_WORKSPACE_MAXIMUM_RETRIES,
-                  CREATE_WORKSPACE_DURATION_SLEEP_FOR_RETRY);
+                  // I've observed a flight taking 2 mins 28 sec. So retry for 3 mins.
+                  /*maxCalls=*/ 36,
+                  /*sleepDuration=*/ Duration.ofSeconds(5));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
@@ -656,8 +652,9 @@ public class WorkspaceManagerService {
                             initialResult.getJobReport().getId()),
                     (result) -> isDone(result.getJobReport()),
                     WorkspaceManagerService::isRetryable,
-                    CLONE_WORKSPACE_MAXIMUM_RETRIES,
-                    CLONE_WORKSPACE_RETRY_INTERVAL),
+                    // Retry for 5 minutes
+                    /*maxCalls=*/ 60,
+                    /*sleepDuration=*/ Duration.ofSeconds(5)),
             "Error in cloning workspace.");
     logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
     throwIfJobNotCompleted(
@@ -1440,7 +1437,9 @@ public class WorkspaceManagerService {
               HttpUtils.pollWithRetries(
                   () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable);
+                  WorkspaceManagerService::isRetryable,
+                  /*maxCalls=*/ 12,
+                  /*sleepDuration=*/ Duration.ofSeconds(5));
           logger.debug("delete controlled gcs bucket result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());

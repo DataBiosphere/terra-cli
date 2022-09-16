@@ -1,0 +1,21 @@
+// convenience tasks to fetch build properties from scripts (e.g. see $rootDir/tools/)
+task getBuildVersion {
+    doLast {
+        println(version)
+    }
+}
+task getDockerRepoPath {
+    doLast {
+        println("${project.properties['dockerRepoPath']}")
+    }
+}
+task getDockerImageName {
+    doLast {
+        println("${project.properties['dockerImageName']}")
+    }
+}
+task getDockerImageTag {
+    doLast {
+        println("${project.properties['dockerImageTag']}")
+    }
+}

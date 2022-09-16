@@ -1,0 +1,24 @@
+// static analysis
+spotbugs {
+    effort = 'max'
+    extraArgs = ['-emacs']
+    includeFilter = file("gradle/config/spotbugs/exclude.xml")
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test.txt")
+            stylesheet = 'fancy.xsl'
+        }
+    }
+}

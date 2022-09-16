@@ -1,36 +1,30 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'com.diffplug.spotless' version '6.3.0'
-    id 'com.github.spotbugs' version '4.2.0'
+
+    id 'com.diffplug.spotless' version '6.10.0'
+    id 'com.github.spotbugs' version '5.0.12'
+    id 'org.gradle.test-retry' version '1.4.1'
+
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
-    id 'de.jjohannes.missing-metadata-guava' version '0.4'
-    id 'org.gradle.test-retry' version '1.4.0'
+    id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
-if (hasProperty('buildScan')) {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
-}
-
+// TODO(PF-1981) - Move version to settings.gradle
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.240.0'
+version = '0.246.0'
 group = 'terra-cli'
-sourceCompatibility = JavaVersion.VERSION_11
 
+// If true, search local repository (~/.m2/repository/) first for dependencies.
+def useMavenLocal = false
 repositories {
+    if (useMavenLocal) {
+        mavenLocal() // must be listed first to take effect
+    }
     mavenCentral()
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
@@ -42,344 +36,85 @@ repositories {
 
 dependencies {
     // Needed for Mac M1
-    implementation 'net.java.dev.jna:jna:5.11.0'
-    ext {
-        // command parsing
-        picocli = '4.6.1'
-        picocliAnnotations = '4.2.0'
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '5.12.1'
 
-        // logging
-        logback = '1.2.3'
-        slf4j = '1.7.30'
+    // Terra deps
+    // TODO(PF-1928) - update versions after Terra-client JDK updates
+    implementation group: 'bio.terra', name: 'datarepo-client', version: '1.0.155-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.82.0-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.324-SNAPSHOT'
+    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
-        // serialization
-        jackson = '2.12.3'
+    // TODO(PF-1928) - update versions after Terra-client JDK updates
+    implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
 
-        // GCP
-        googleOauth2 = '1.6.0'
-        googleClient = '1.33.3'
-        bigQuery = '1.116.6'
-        cloudStorage = '2.7.2'
-        // Only used for testing
-        pubsub = '1.116.4'
+    // hk2 is required to use WSM client, but not correctly exposed by the client
+    implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.36'
 
-        // Docker
-        docker = '3.2.7'
+    // command parsing
+    implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'
 
-        // static analysis
-        findbugsAnnotations = '3.0.1u2'
+    // logging
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.0'
 
-        // terra libraries
-        crlPlatform = "0.2.0"
-        samClient = "0.1-ffb0a89-SNAP"
-        workspaceManagerClient = "0.254.324-SNAPSHOT"
-        externalCredsClient = "0.82.0-SNAPSHOT"
-        dataRepoClient = "1.0.155-SNAPSHOT"
-        janitor = "0.113.5-SNAPSHOT"
+    // serialization
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.4'
 
-        // needed for WSM client library
-        swaggerAnnotations = "2.1.5"
-        jersey = "2.30.1"
+    // GCP
+    // TODO(PF-1928) - update versions after Terra-client JDK updates
+    implementation group: 'com.google.auth', name: 'google-auth-library-credentials', version: '1.6.0'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.6.0'
+    implementation group: 'com.google.oauth-client', name: 'google-oauth-client-java6', version: '1.33.3'
+    implementation group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.33.3'
+    implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '1.116.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.7.2'
 
-        // testing
-        junit = "5.7.2"
-        hamcrest = "2.2"
-    }
+    // Docker
+    implementation group: 'com.github.docker-java', name: 'docker-java-core', version: '3.2.13'
+    implementation group: 'com.github.docker-java', name: 'docker-java-transport-httpclient5', version: '3.2.13'
 
-    implementation "info.picocli:picocli:${picocli}"
-    annotationProcessor "info.picocli:picocli-codegen:${picocliAnnotations}"
+    // static analysis
+    compileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.2'
+    testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.2'
 
-    implementation "ch.qos.logback:logback-classic:${logback}"
-    implementation "org.slf4j:slf4j-api:${slf4j}"
+    // Deps whose versions are controlled by Spring
+    implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
+    implementation group: 'org.apache.commons', name: 'commons-lang3'
 
-    implementation "com.fasterxml.jackson.core:jackson-core:${jackson}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson}"
+    // Swagger deps
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
 
-    implementation "com.google.oauth-client:google-oauth-client-jetty:${googleClient}"
-    implementation "com.google.oauth-client:google-oauth-client-java6:${googleClient}"
-    implementation "com.google.auth:google-auth-library-credentials:${googleOauth2}"
-    implementation "com.google.auth:google-auth-library-oauth2-http:${googleOauth2}"
-    implementation "com.google.cloud:google-cloud-bigquery:${bigQuery}"
-    implementation "com.google.cloud:google-cloud-storage:${cloudStorage}"
-    // PubSub is used in tests to communicate with Janitor, but is not required
-    // for the CLI itself.
-    testImplementation "com.google.cloud:google-cloud-pubsub:${pubsub}"
+    // Test deps
+    testImplementation platform('org.junit:junit-bom:5.9.0')
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.0'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
-    implementation "com.github.docker-java:docker-java-core:${docker}"
-    implementation "com.github.docker-java:docker-java-transport-httpclient5:${docker}"
+    // PubSub is used in tests to communicate with Janitor, but is not required for the CLI itself.
+    testImplementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.13'
 
-    compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
-    testCompileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
-
-    implementation platform("bio.terra.cloud-resource-lib:platform:${crlPlatform}")
-    implementation "bio.terra.cloud-resource-lib:google-cloudresourcemanager"
-    implementation "bio.terra.cloud-resource-lib:google-bigquery"
-    implementation "bio.terra.cloud-resource-lib:google-notebooks"
-    implementation "bio.terra.cloud-resource-lib:google-storage"
-
-    implementation "org.broadinstitute.dsde.workbench:sam-client_2.13:${samClient}"
-    implementation "bio.terra:datarepo-client:${dataRepoClient}"
-    implementation "bio.terra:workspace-manager-client:${workspaceManagerClient}"
-    implementation "bio.terra:externalcreds-client-resttemplate:${externalCredsClient}"
-    testImplementation "bio.terra:terra-resource-janitor-client:${janitor}"
-
-    implementation "io.swagger.core.v3:swagger-annotations:${swaggerAnnotations}"
-    implementation "org.glassfish.jersey.inject:jersey-hk2:${jersey}"
-
-    testImplementation platform("org.junit:junit-bom:${junit}")
-    testImplementation "org.junit.jupiter:junit-jupiter"
-    testImplementation "org.hamcrest:hamcrest:${hamcrest}"
+    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: '4.6.3'
 }
 
-// install the CLI, either from source code directly or from a GH release, before starting tests
-task runInstallForTesting(type: Exec) {
-    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
-    String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
-    commandLine "bash", "./tools/install-for-testing.sh", installMode, "${project.version}"
-
-    dependsOn installDist
-}
-
-// run tests with the specified tag and install mode.
-// 1) run unit tests directly against the source code
-//    ./gradlew runTestsWithTag -PtestTag=unit
-// 2) run integration tests against an installation built from source code
-//    ./gradlew runTestsWithTag -PtestTag=integration
-// 3) run integration tests against an installation built from the latest GitHub release
-//    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
-task runTestsWithTag(type: Test) {
-    doFirst {
-        // All gradle tasks are evaluated every time any task is run. If we
-        // require that the testTag property be defined in this task definition,
-        // gradle will fail any run which does not define this property, even
-        // if the runTestsWithTag task isn't involved!
-
-        // gradle project properties define which tests to run and how to do the install before running them
-        String testTag = project.findProperty("testTag");
-        // if the test tag is not defined, then throw an error. we don't know what tests to run
-        if (testTag == null) {
-            throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
-        }
-        // For Gradle Enterprise trial, we'd like to distinguish unit tests from
-        // integration tests in GE UI.
-        buildScan.tag testTag
-        // tell junit to run tests with this tag: unit or integration
-        useJUnitPlatform {
-            includeTags testTag
-        }
-        if (testTag == "unit") {
-            // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
-            // run against the code directly, and so there is no JAR manifest. this implementation version is
-            // used to get the default docker image id.
-            systemProperty("TERRA_JAR_IMPLEMENTATION_VERSION",
-                    "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
-        } else if (testTag == "integration") {
-            // [for integration tests] specify the install location for the terra application (i.e. launch script)
-            // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
-            // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
-            boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
-            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
-            systemProperty "TERRA_INSTALL_DIR", installDir
-
-            // [for integration tests] specify the working directory to use when running scripts. this makes
-            // it easier to clean up after tests (./gradlew clean) that generate files.
-            mkdir "${project.buildDir}/test-working-dir/"
-            systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
-        }
-        // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
-        // work, but that's not a concern for dedicated CI machines.
-        int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
-        // Integration tests wrap various external command-line tools which often maintain their own global state.
-        // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        maxParallelForks = (testTag == "unit" ? localCores : 1)
-    }
-    beforeTest { descriptor ->
-        println "========================================================="
-        println "Running test: ${descriptor.name} [${descriptor.className}]"
-    }
-    afterTest { descriptor, result ->
-        println "Finished running test ${descriptor.name} [${descriptor.className}] with result: ${result.resultType}"
-    }
-    testLogging {
-        showStandardStreams = true // disable stdout & stderr redirection
-    }
-
-    boolean contextDir = project.hasProperty("contextDir")
-
-    // by default, tests override the global context directory with a sub-directory of the gradle build directory
-    // this makes it easier to clean up after tests and makes sure the tests don't overwrite any context that
-    // exists on this same machine. you can override this default behavior by specifying -PcontextDir=/path/to/dir.
-    // this will cause context to be written to the specified directory.
-    if (!contextDir) {
-        environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
-        mkdir "${project.buildDir}/test-context/"
-    } else {
-        environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
-    }
-
-    // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to "broad-dev"
-    String terraServer = project.hasProperty("server") ? project.findProperty("server") : "broad-dev"
-    environment "TERRA_SERVER", terraServer
-
-    // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
-    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigFileName
-
-    // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
-    String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
-    environment "TERRA_DOCKER_IMAGE", terraDockerImage
-
-    // generate a unique id for each test run
-    systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
-
-    dependsOn runInstallForTesting
-    // run the install-for-testing.sh script before any tests
-
-    outputs.upToDateWhen { false } // force tests to always be re-run
-
-    retry {
-        // This is set automatically on Github Actions runners, and never set
-        // otherwise.
-        if (System.getenv().containsKey("CI")) {
-            // Max retries per test.
-            maxRetries = 1
-            // Max total test failures.
-            // This is an estimate based on current failure rates, but if more
-            // than 5 tests fail in a run it's likely a real source of failure
-            // and we should stop retrying.
-            maxFailures = 5
-        }
-        failOnPassedAfterRetry = true
+// for scans
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }
 
-// cleanup workspaces owned by test users.
-// 1) do a dry run (i.e. don't actually try to delete anything)
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad -PdryRun
-// 2) try to delete each workspace owned by a test user
-//    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
-task cleanupTestUserWorkspaces(type: JavaExec) {
-    classpath sourceSets.test.runtimeClasspath
-    main = "harness.utils.CleanupTestUserWorkspaces"
-
-    // override the default global context directory with a sub-directory of the gradle build directory
-    // this is so that the tests don't overwrite any context that exists on this same machine.
-    environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
-    mkdir "${project.buildDir}/test-context/"
-
-    // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
-    systemProperty "TERRA_SERVER", project.findProperty("server")
-
-    // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
-    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
-
-    // [optional] specify that this is a dry run (e.g. -PdryRun)
-    systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
-
-    dependsOn compileJava
-}
-
-// automatic code formatting
-spotless {
-    java {
-        googleJavaFormat()
-    }
-}
 compileJava.dependsOn tasks.spotlessApply
 
-// static analysis
-spotbugs {
-    effort = 'max'
-    extraArgs = ['-emacs']
-    includeFilter = file("gradle/config/spotbugs/exclude.xml")
-}
-spotbugsMain {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.txt")
-            stylesheet = 'fancy.xsl'
-        }
-    }
-}
-spotbugsTest {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.txt")
-            stylesheet = 'fancy.xsl'
-        }
-    }
-}
-
-// plugin: distribution
-distributions {
-    main {
-        distributionBaseName = 'terra-cli'
-        // configure what to include in the release archive
-        contents {
-            from 'tools/install.sh'
-            from 'README.md'
-        }
-    }
-}
-
-// plugin: application
-application {
-    mainClass = 'bio.terra.cli.command.Main'
-    applicationName = 'terra'
-    executableDir = 'bin'
-
-    // TODO: Suppress Jersey PATCH related warnings (PF-622)
-    applicationDefaultJvmArgs = [
-            '--add-opens', 'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
-            '--add-opens', 'java.base/java.net=ALL-UNNAMED',
-    ]
-}
-startScripts {
-    // set the $APP_HOME path to $HOME/.terra
-    doLast {
-        // add the -PforRelease flag to update the APP_HOME in preparation for install
-        // default is to not update APP_HOME, so that ./gradlew install still works for development
-        if (project.hasProperty("forRelease")) {
-            println("Updating APP_HOME")
-            unixScript.text = unixScript.text.replace('APP_HOME="`pwd -P`"', 'APP_HOME="$HOME/.terra"')
-            windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
-        } else {
-            println("Skipping APP_HOME update")
-        }
-    }
-}
-jar {
-    // set attributes in the JAR manifest file that we can access from the Java code
-    // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
-    manifest {
-        attributes 'Specification-Title': 'Terra CLI',
-                'Specification-Version': "${project.version}", // this matches the top-level version property
-                'Implementation-Title': 'bio.terra.cli',
-                'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}"
-    }
-}
-
-// convenience tasks to fetch build properties from scripts (e.g. see ./tools/)
-task getBuildVersion {
-    doLast {
-        println(version)
-    }
-}
-task getDockerRepoPath {
-    doLast {
-        println("${project.properties['dockerRepoPath']}")
-    }
-}
-task getDockerImageName {
-    doLast {
-        println("${project.properties['dockerImageName']}")
-    }
-}
-task getDockerImageTag {
-    doLast {
-        println("${project.properties['dockerImageTag']}")
-    }
-}
+apply from: "$rootDir/gradle/application.gradle"
+apply from: "$rootDir/gradle/dependency-locking.gradle"
+apply from: "$rootDir/gradle/spotbugs.gradle"
+apply from: "$rootDir/gradle/spotless.gradle"
+apply from: "$rootDir/gradle/tools.gradle"
+apply from: "$rootDir/gradle/test.gradle"

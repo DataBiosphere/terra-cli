@@ -125,7 +125,13 @@ public class Context {
     // parallel without clobbering context across runners.
     String isTest = System.getProperty(CommandRunner.IS_TEST);
     if (isTest != null && isTest.equals("true")) {
-      contextPath = contextPath.resolve(System.getProperty("org.gradle.test.worker"));
+      // cleanupTestUserWorkspaces uses CLI Test Harness to call commands outside of test context.
+      // In this case IS_TEST is true, but "org.gradle.test.worker" is not set, causing testWorker
+      // to be NULL.
+      String testWorker = System.getProperty("org.gradle.test.worker");
+      if (testWorker != null) {
+        contextPath = contextPath.resolve(testWorker);
+      }
     }
     // build.gradle test task makes contextDir. However, with test-runner specific directories,
     // this test is executed in a different place from where the test task mkdir was run. So need
