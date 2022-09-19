@@ -3,6 +3,7 @@ package bio.terra.cli.command.cromwell;
 import bio.terra.cli.businessobject.Config.CommandRunnerOption;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
+import java.io.File;
 import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,6 +23,8 @@ public class GenerateConfig extends BaseCommand {
 
   @Override
   protected void execute() {
+    String absolutePath =
+        new File("src/main/resources/configs/generate-config.sh").getAbsolutePath();
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
 
@@ -31,7 +34,7 @@ public class GenerateConfig extends BaseCommand {
         .getRunner()
         .runToolCommand(
             List.of(
-                "src/main/java/bio/terra/cli/command/cromwell/generate-config.sh",
+                absolutePath,
                 org.apache.commons.io.FilenameUtils.concat(dir, "cromwell.conf"),
                 googleProjectId,
                 petSaEmail));
