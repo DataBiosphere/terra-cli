@@ -79,42 +79,17 @@ public class UFConfig {
                     String.valueOf(this.resourcesCacheSize),
                     "max number of resources to allow per workspace"),
                 new UFConfigItem(
-                    "logging, console",
+                    "console-logging",
                     this.browserLaunchOption.toString(),
                     "logging level for printing directly to the terminal"),
                 new UFConfigItem(
-                    "logging, file",
+                    "file-logging",
                     this.fileLoggingLevel.toString(),
                     "logging level for writing to files" + Context.getLogFile().getParent()),
-                new UFConfigItem("server", this.serverName.toString(), ""),
-                new UFConfigItem(
-                    "workspace", (this.workspaceId == null ? "(unset)" : this.workspaceId), ""),
+                new UFConfigItem("server", this.serverName, ""),
+                new UFConfigItem("workspace", (this.workspaceId), ""),
                 new UFConfigItem("format", this.format.toString(), "output format")));
   }
-
-  // /** Print out this object in text format. */
-  // public void print() {
-  //   PrintStream OUT = UserIO.getOut();
-  //   OUT.println("[app-launch] app launch mode = " + commandRunnerOption);
-  //   OUT.println("[browser] browser launch for login = " + browserLaunchOption);
-  //   OUT.println("[image] docker image id = " + dockerImageId);
-  //   OUT.println(
-  //       "[resource-limit] max number of resources to allow per workspace = " +
-  // resourcesCacheSize);
-  //   OUT.println();
-  //   OUT.println(
-  //       "[logging, console] logging level for printing directly to the terminal = "
-  //           + consoleLoggingLevel);
-  //   OUT.println(
-  //       "[logging, file] logging level for writing to files in "
-  //           + Context.getLogFile().getParent()
-  //           + " = "
-  //           + fileLoggingLevel);
-  //   OUT.println();
-  //   OUT.println("[server] server = " + serverName);
-  //   OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
-  //   OUT.println("[format] output format = " + format);
-  // }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
@@ -132,45 +107,45 @@ public class UFConfig {
     /** Default constructor for Jackson. */
     public Builder() {}
 
-    // public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
-    //   this.browserLaunchOption = browserLaunchOption;
-    //   return this;
-    // }
-    //
-    // public Builder commandRunnerOption(Config.CommandRunnerOption commandRunnerOption) {
-    //   this.commandRunnerOption = commandRunnerOption;
-    //   return this;
-    // }
-    //
-    // public Builder dockerImageId(String dockerImageId) {
-    //   this.dockerImageId = dockerImageId;
-    //   return this;
-    // }
-    //
-    // public Builder resourcesCacheSize(int resourcesCacheSize) {
-    //   this.resourcesCacheSize = resourcesCacheSize;
-    //   return this;
-    // }
-    //
-    // public Builder fileLoggingLevel(Logger.LogLevel fileLoggingLevel) {
-    //   this.fileLoggingLevel = fileLoggingLevel;
-    //   return this;
-    // }
-    //
-    // public Builder consoleLoggingLevel(Logger.LogLevel consoleLoggingLevel) {
-    //   this.consoleLoggingLevel = consoleLoggingLevel;
-    //   return this;
-    // }
+    public Builder browserLaunchOption(Config.BrowserLaunchOption browserLaunchOption) {
+      this.browserLaunchOption = browserLaunchOption;
+      return this;
+    }
+
+    public Builder commandRunnerOption(Config.CommandRunnerOption commandRunnerOption) {
+      this.commandRunnerOption = commandRunnerOption;
+      return this;
+    }
+
+    public Builder dockerImageId(String dockerImageId) {
+      this.dockerImageId = dockerImageId;
+      return this;
+    }
+
+    public Builder resourcesCacheSize(int resourcesCacheSize) {
+      this.resourcesCacheSize = resourcesCacheSize;
+      return this;
+    }
+
+    public Builder fileLoggingLevel(Logger.LogLevel fileLoggingLevel) {
+      this.fileLoggingLevel = fileLoggingLevel;
+      return this;
+    }
+
+    public Builder consoleLoggingLevel(Logger.LogLevel consoleLoggingLevel) {
+      this.consoleLoggingLevel = consoleLoggingLevel;
+      return this;
+    }
 
     public Builder serverName(String serverName) {
       this.serverName = serverName;
       return this;
     }
 
-    // public Builder workspaceId(String workspaceId) {
-    //   this.workspaceId = workspaceId;
-    //   return this;
-    // }
+    public Builder workspaceId(String workspaceId) {
+      this.workspaceId = workspaceId;
+      return this;
+    }
 
     public Builder format(Format.FormatOptions format) {
       this.format = format;
