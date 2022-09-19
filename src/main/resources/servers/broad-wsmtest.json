@@ -1,5 +1,6 @@
 {
   "name": "broad-wsmtest",
+  "clientFile": "broad_secret.json",
   "description": "Broad WSM test server and Broad development environment for other services.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
