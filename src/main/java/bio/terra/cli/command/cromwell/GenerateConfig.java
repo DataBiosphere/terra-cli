@@ -24,7 +24,7 @@ public class GenerateConfig extends BaseCommand {
   @Override
   protected void execute() {
     String absolutePath =
-        new File("src/main/resources/configs/generate-config.sh").getAbsolutePath();
+        new File("src/main/resources/configs/generate-cromwell-config.sh").getAbsolutePath();
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
 
