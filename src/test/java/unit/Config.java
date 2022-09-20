@@ -46,9 +46,9 @@ public class Config extends SingleWorkspaceUnit {
     // `terra config set app-launch LOCAL_PROCESS`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
 
-    // apps launched via local process should not be affected
+    // Apps launched via local process should not be affected
     Result cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-    // cmd exit code can either be 0=success or 1 because gcloud fails with
+    // Cmd exit code can either be 0=success or 1 because gcloud fails with
     // `(gcloud.config.get-value) Failed to create the default configuration. Ensure your have the
     // correct permissions on`.
     assertThat(
@@ -62,7 +62,7 @@ public class Config extends SingleWorkspaceUnit {
     // `terra config set app-launch DOCKER_CONTAINER`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
 
-    // apps launched via docker container should error out
+    // Apps launched via docker container should error out
     String stdErr =
         TestCommand.runCommandExpectExitCode(3, "app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
     assertThat("docker image not found error returned", stdErr, containsString(badImageError));
@@ -76,7 +76,7 @@ public class Config extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // create 2 resources
+    // Create 2 resources
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name1 = "resourceLimit_1";
@@ -90,10 +90,10 @@ public class Config extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name2, "--bucket-name=" + bucketName2);
 
-    // set the resource limit to 1
+    // Set the resource limit to 1
     TestCommand.runCommandExpectSuccess("config", "set", "resource-limit", "--max=1");
 
-    // expect an error when listing the 2 resources created above
+    // Expect an error when listing the 2 resources created above
     String stdErr = TestCommand.runCommandExpectExitCode(2, "resource", "list");
     assertThat(
         "error thrown when resource limit exceeded",
@@ -210,8 +210,8 @@ public class Config extends SingleWorkspaceUnit {
   @Test
   @DisplayName("config get and list always match")
   void getValueList() throws IOException {
-    // toggle each config value and make sure config get and list always match.
-    // server and workspace config properties are not included here because they are covered by
+    // Toggle each config value and make sure config get and list always match.
+    // Server and workspace config properties are not included here because they are covered by
     // tests above.
     List<HashMap> configItemList =
         TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
@@ -301,7 +301,7 @@ public class Config extends SingleWorkspaceUnit {
     // to JSON internally.
 
     TestCommand.runCommandExpectSuccess("config", "set", "format", "json");
-    // if this works, the format was valid json
+    // If this works, the format was valid json
     List<HashMap> result =
         TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
@@ -312,14 +312,14 @@ public class Config extends SingleWorkspaceUnit {
     TestCommand.runCommand("config", "set", "format", "text");
     Result result2 = TestCommand.runCommand("config", "list");
 
-    // assert header is correct
+    // Assert header is correct
     String[] rows = result2.stdOut.split("\\n");
     String[] rowHead = rows[0].split("\\s+");
     assertEquals("OPTION", rowHead[0]);
     assertEquals("VALUE", rowHead[1]);
     assertEquals("DESCRIPTION", rowHead[2]);
 
-    // assert email and policies are correct
+    // Assert option columns are correct
     ArrayList<String> expectedOptions =
         new ArrayList<>(
             List.of(

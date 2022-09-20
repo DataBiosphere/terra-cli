@@ -34,7 +34,14 @@ public class List extends BaseCommand {
         new UFConfig(Context.getConfig(), Context.getServer(), Context.getWorkspace()).items,
         List::printText);
   }
-  /** Column information for table output with `terra workspace list` */
+
+  /** This command never requires login. */
+  @Override
+  protected boolean requiresLogin() {
+    return false;
+  }
+
+  /** Column information for table output with `terra config list` */
   private enum UFConfigItemColumns implements ColumnDefinition<UFConfigItem> {
     OPTION("OPTION", w -> w.option, 20, LEFT),
     VALUE("VALUE", w -> w.value, 45, LEFT),
