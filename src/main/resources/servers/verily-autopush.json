@@ -1,5 +1,6 @@
 {
   "name": "verily-autopush",
+  "clientCredentialsFile": "verily_secret.json",
   "description": "Verily auto-push environment",
   "samUri": "https://terra-autopush-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

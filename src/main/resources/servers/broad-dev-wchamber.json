@@ -1,5 +1,6 @@
 {
   "name": "broad-dev-wchamber",
+  "clientCredentialsFile": "broad_secret.json",
   "description": "Broad developer environment (wchamber)",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
