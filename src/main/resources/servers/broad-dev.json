@@ -1,5 +1,6 @@
 {
   "name": "broad-dev",
+  "clientCredentialsFile": "broad_secret.json",
   "description": "Broad main development environment",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",

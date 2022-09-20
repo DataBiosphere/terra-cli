@@ -1,5 +1,6 @@
 {
   "name": "verily-devel",
+  "clientCredentialsFile": "verily_secret.json",
   "description": "Verily devel environment",
   "samUri": "https://terra-devel-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
