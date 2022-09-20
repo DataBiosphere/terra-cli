@@ -1,6 +1,6 @@
 {
   "name": "verily-staging",
-  "clientFile": "verily_secret.json",
+  "clientCredentialsFile": "verily_secret.json",
   "description": "Verily staging environment",
   "samUri": "https://terra-staging-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

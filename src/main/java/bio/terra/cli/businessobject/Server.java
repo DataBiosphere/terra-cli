@@ -31,7 +31,7 @@ public class Server {
   // unique identifier that matches the JSON file name under resources/servers.
   // (e.g. broad-dev)
   private final String name;
-  private final String clientFile;
+  private final String clientCredentialsFile;
   // free-form text field that indicates what the server is used for
   // (e.g. Terra for development purposes)
   private final String description;
@@ -50,7 +50,7 @@ public class Server {
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
     this.name = configFromDisk.name;
-    this.clientFile = configFromDisk.clientFile;
+    this.clientCredentialsFile = configFromDisk.clientCredentialsFile;
     this.description = configFromDisk.description;
     this.samUri = configFromDisk.samUri;
     this.samInviteRequiresAdmin = configFromDisk.samInviteRequiresAdmin;
@@ -176,8 +176,8 @@ public class Server {
     return name;
   }
 
-  public String getClientFile() {
-    return clientFile;
+  public String getclientCredentialsFile() {
+    return clientCredentialsFile;
   }
 
   public String getDescription() {

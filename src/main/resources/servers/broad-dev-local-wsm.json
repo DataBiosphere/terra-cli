@@ -1,6 +1,6 @@
 {
   "name": "broad-dev-local-wsm",
-  "clientFile": "broad_secret.json",
+  "clientCredentialsFile": "broad_secret.json",
   "description": "Local WSM and Broad development environment for other services.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",

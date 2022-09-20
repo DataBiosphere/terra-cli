@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = PDServer.Builder.class)
 public class PDServer {
   public final String name;
-  public final String clientFile;
+  public final String clientCredentialsFile;
   public final String description;
   public final String samUri;
   public final boolean samInviteRequiresAdmin;
@@ -27,7 +27,7 @@ public class PDServer {
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
     this.name = internalObj.getName();
-    this.clientFile = internalObj.getClientFile();
+    this.clientCredentialsFile = internalObj.getclientCredentialsFile();
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();
     this.samInviteRequiresAdmin = internalObj.getSamInviteRequiresAdmin();
@@ -40,7 +40,7 @@ public class PDServer {
 
   private PDServer(PDServer.Builder builder) {
     this.name = builder.name;
-    this.clientFile = builder.clientFile;
+    this.clientCredentialsFile = builder.clientCredentialsFile;
     this.description = builder.description;
     this.samUri = builder.samUri;
     this.samInviteRequiresAdmin = builder.samInviteRequiresAdmin;
@@ -54,7 +54,7 @@ public class PDServer {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String name;
-    private String clientFile;
+    private String clientCredentialsFile;
     private String description;
     private String samUri;
     private boolean samInviteRequiresAdmin;
@@ -72,8 +72,8 @@ public class PDServer {
       return this;
     }
 
-    public Builder clientFile(String clientFile) {
-      this.clientFile = clientFile;
+    public Builder clientCredentialsFile(String clientCredentialsFile) {
+      this.clientCredentialsFile = clientCredentialsFile;
       return this;
     }
 

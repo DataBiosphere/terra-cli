@@ -1,6 +1,6 @@
 {
   "name": "verily",
-  "clientFile": "verily_secret.json",
+  "clientCredentialsFile": "verily_secret.json",
   "description": "Verily production environment",
   "samUri": "https://terra-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

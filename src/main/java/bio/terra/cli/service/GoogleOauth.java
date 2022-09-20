@@ -61,15 +61,13 @@ public final class GoogleOauth {
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
-    String CLIENT_SECRET_FILENAME;
-
-    CLIENT_SECRET_FILENAME =
-        StringUtils.isEmpty(Context.getServer().getClientFile())
+    String clientCredentialsFileName =
+        StringUtils.isEmpty(Context.getServer().getclientCredentialsFile())
             ? "broad_secret.json"
-            : Context.getServer().getClientFile();
+            : Context.getServer().getclientCredentialsFile();
 
     try (InputStream inputStream =
-        GoogleOauth.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
 
       GoogleClientSecrets clientSecrets =
           GoogleClientSecrets.load(
@@ -79,7 +77,8 @@ public final class GoogleOauth {
       return clientSecrets;
     } catch (IOException ioException) {
       throw new SystemException(
-          String.format("Failure reading client secrets from file: '%s'.", CLIENT_SECRET_FILENAME),
+          String.format(
+              "Failure reading client secrets from file: '%s'.", clientCredentialsFileName),
           ioException);
     }
   }

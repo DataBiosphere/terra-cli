@@ -1,6 +1,6 @@
 {
   "name": "broad-dev-zloery",
-  "clientFile": "broad_secret.json",
+  "clientCredentialsFile": "broad_secret.json",
   "description": "Broad developer environment (zloery)",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
