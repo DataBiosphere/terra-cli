@@ -80,7 +80,7 @@ public class UFConfig {
                     "max number of resources to allow per workspace"),
                 new UFConfigItem(
                     "console-logging",
-                    this.browserLaunchOption.toString(),
+                    this.consoleLoggingLevel.toString(),
                     "logging level for printing directly to the terminal"),
                 new UFConfigItem(
                     "file-logging",

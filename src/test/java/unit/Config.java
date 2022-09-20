@@ -203,10 +203,8 @@ public class Config extends SingleWorkspaceUnit {
 
     // `terra config list`
     configItemList = TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
-    assertEquals(
-        "",
-        getTableFormatValue(configItemList, "workspace"),
-        "workspace delete affects config list");
+    assertNull(
+        getTableFormatValue(configItemList, "workspace"), "workspace delete affects config list");
   }
 
   @Test
@@ -215,6 +213,10 @@ public class Config extends SingleWorkspaceUnit {
     // toggle each config value and make sure config get and list always match.
     // server and workspace config properties are not included here because they are covered by
     // tests above.
+    List<HashMap> configItemList =
+        TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
+    assertEquals(
+        "AUTO", getTableFormatValue(configItemList, "browser"), "list reflects set for browser");
 
     // `terra config set browser MANUAL`
     TestCommand.runCommandExpectSuccess("config", "set", "browser", "MANUAL");
@@ -224,12 +226,9 @@ public class Config extends SingleWorkspaceUnit {
             BrowserLaunchOption.class, "config", "get", "browser");
     assertEquals(BrowserLaunchOption.MANUAL, browser, "get reflects set for browser");
     // `terra config list`
-    List<HashMap> configItemList =
-        TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
+    configItemList = TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
-        BrowserLaunchOption.MANUAL,
-        getTableFormatValue(configItemList, "browser"),
-        "list reflects set for browser");
+        "MANUAL", getTableFormatValue(configItemList, "browser"), "list reflects set for browser");
 
     // `terra config set app-launch LOCAL_PROCESS`
     TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
@@ -241,7 +240,7 @@ public class Config extends SingleWorkspaceUnit {
     // `terra config list`
     configItemList = TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
-        CommandRunnerOption.LOCAL_PROCESS,
+        "LOCAL_PROCESS",
         getTableFormatValue(configItemList, "app-launch"),
         "list reflects set for app-launch");
 
@@ -267,7 +266,7 @@ public class Config extends SingleWorkspaceUnit {
     // `terra config list`
     configItemList = TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
-        3,
+        "3",
         getTableFormatValue(configItemList, "resource-limit"),
         "list reflects set for resource-limit");
 
@@ -286,11 +285,11 @@ public class Config extends SingleWorkspaceUnit {
     // `terra config list`
     configItemList = TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
-        Logger.LogLevel.ERROR,
+        "ERROR",
         getTableFormatValue(configItemList, "console-logging"),
         "list reflects set for console logging");
     assertEquals(
-        Logger.LogLevel.TRACE,
+        "TRACE",
         getTableFormatValue(configItemList, "file-logging"),
         "list reflects set for file logging");
   }
@@ -349,11 +348,12 @@ public class Config extends SingleWorkspaceUnit {
   }
 
   private String getTableFormatValue(List<HashMap> result, String Option) {
-    return result.stream()
-        .filter(x -> (x.get("option").equals(Option)))
-        .findFirst()
-        .orElse(new HashMap<>(Map.of("value", "")))
-        .get("value")
-        .toString();
+    var res =
+        result.stream()
+            .filter(x -> (x.get("option").equals(Option)))
+            .findFirst()
+            .orElse(new HashMap<>(Map.of("value", "")))
+            .get("value");
+    return res != null ? res.toString() : null;
   }
 }
