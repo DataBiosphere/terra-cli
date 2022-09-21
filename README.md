@@ -531,7 +531,7 @@ not `mygroup@mydomain.com`:
 > terra group list-users --name=mygroup
 ```
 
-Adding a member to a Terra group implicitly adds their pet service accounts. For example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is granted access to a resource, `terra-user` is able to access that resource from any of their Terra workspaces.
+Adding a member to a Terra group implicitly adds their pet service accounts. For example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is granted access to a resource, `terra-user` is able to access that resource from any of their Terra workspaces. 
 
 #### gsutil
 
