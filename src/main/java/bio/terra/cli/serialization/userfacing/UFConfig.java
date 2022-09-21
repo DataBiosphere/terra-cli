@@ -6,10 +6,10 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.utils.Logger;
-import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,6 +32,8 @@ public class UFConfig {
   public final String workspaceId;
   public final Format.FormatOptions format;
 
+  public List<UFConfigItem> items = new ArrayList<>();
+
   /** Serialize an instance of the internal class to the command format. */
   public UFConfig(
       Config internalConfig, Server internalServer, Optional<Workspace> internalWorkspace) {
@@ -44,6 +46,8 @@ public class UFConfig {
     this.serverName = internalServer.getName();
     this.workspaceId = internalWorkspace.map(Workspace::getUserFacingId).orElse(null);
     this.format = internalConfig.getFormat();
+
+    buildItems();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -57,29 +61,34 @@ public class UFConfig {
     this.serverName = builder.serverName;
     this.workspaceId = builder.workspaceId;
     this.format = builder.format;
+
+    buildItems();
   }
 
-  /** Print out this object in text format. */
-  public void print() {
-    PrintStream OUT = UserIO.getOut();
-    OUT.println("[app-launch] app launch mode = " + commandRunnerOption);
-    OUT.println("[browser] browser launch for login = " + browserLaunchOption);
-    OUT.println("[image] docker image id = " + dockerImageId);
-    OUT.println(
-        "[resource-limit] max number of resources to allow per workspace = " + resourcesCacheSize);
-    OUT.println();
-    OUT.println(
-        "[logging, console] logging level for printing directly to the terminal = "
-            + consoleLoggingLevel);
-    OUT.println(
-        "[logging, file] logging level for writing to files in "
-            + Context.getLogFile().getParent()
-            + " = "
-            + fileLoggingLevel);
-    OUT.println();
-    OUT.println("[server] server = " + serverName);
-    OUT.println("[workspace] workspace = " + (workspaceId == null ? "(unset)" : workspaceId));
-    OUT.println("[format] output format = " + format);
+  public void buildItems() {
+    this.items =
+        new ArrayList<>(
+            List.of(
+                new UFConfigItem(
+                    "app-launch", this.commandRunnerOption.toString(), "app launch mode"),
+                new UFConfigItem(
+                    "browser", this.browserLaunchOption.toString(), "browser launch for login"),
+                new UFConfigItem("image", this.dockerImageId, "docker image id"),
+                new UFConfigItem(
+                    "resource-limit",
+                    String.valueOf(this.resourcesCacheSize),
+                    "max number of resources to allow per workspace"),
+                new UFConfigItem(
+                    "console-logging",
+                    this.consoleLoggingLevel.toString(),
+                    "logging level for printing directly to the terminal"),
+                new UFConfigItem(
+                    "file-logging",
+                    this.fileLoggingLevel.toString(),
+                    "logging level for writing to files" + Context.getLogFile().getParent()),
+                new UFConfigItem("server", this.serverName, ""),
+                new UFConfigItem("workspace", (this.workspaceId), ""),
+                new UFConfigItem("format", this.format.toString(), "output format")));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
