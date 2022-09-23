@@ -12,6 +12,6 @@ public class ResourceName {
       names = "--name",
       required = true,
       description =
-          "Name of the resource, scoped to the workspace. Only alphanumeric and underscore characters are permitted.")
+          "Name of the resource, scoped to the workspace. Only use letters, numbers, dashes, and underscores.")
   public String name;
 }
