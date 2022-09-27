@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource list-tree" command. */
-@CommandLine.Command(name = "list-tree", description = "List all resources in tree view.")
+@CommandLine.Command(
+    name = "list-tree",
+    description = "List all resources and folders in tree view.")
 public class ListTree extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 

@@ -531,6 +531,8 @@ not `mygroup@mydomain.com`:
 > terra group list-users --name=mygroup
 ```
 
+Adding a member to a Terra group implicitly adds their pet service accounts. For example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is granted access to a resource, `terra-user` is able to access that resource from any of their Terra workspaces.
+
 #### gsutil
 
 You can run `terra gsutil` or `terra gcloud alpha storage`
@@ -608,14 +610,13 @@ example) to pick up any changes that your collaborators have made.
 The list of resources in a workspace could be contained in the folder. `terra resource list-tree` command is created to show the structures.
 
 ```
-> terra resource list-tree --workspace=newidupdate
+> terra resource list-tree
 ├── testfolder1
 │   └── testfolder2
 │       └── testfolder3
 ├── newtest
 └── notebooktest
 ```
-
 
 ##### GCS bucket lifecycle rules
 

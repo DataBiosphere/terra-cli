@@ -56,7 +56,6 @@ public class Workspace {
 
   // list of resources (controlled & referenced)
   private List<Resource> resources;
-  private List<Folder> folders;
 
   private OffsetDateTime createdDate;
   private OffsetDateTime lastUpdatedDate;
@@ -326,10 +325,7 @@ public class Workspace {
 
   /** Populate the list of folders for this workspace */
   public List<Folder> listFolders() {
-    List<Folder> folders = WorkspaceManagerService.fromContext().listFolders(uuid);
-    this.folders = folders;
-
-    return folders;
+    return WorkspaceManagerService.fromContext().listFolders(uuid);
   }
 
   /**
