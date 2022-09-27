@@ -59,8 +59,8 @@ public class List extends BaseCommand {
 
   /** Column information for fields in `resource list` output */
   private enum UFResourceColumns implements ColumnDefinition<UFResource> {
-    NAME("NAME", r -> r.name, 30, LEFT),
-    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 20, LEFT),
+    NAME("NAME", r -> r.name, 45, LEFT),
+    RESOURCE_TYPE("RESOURCE TYPE", r -> r.resourceType.toString(), 30, LEFT),
     STEWARDSHIP_TYPE("STEWARDSHIP TYPE", r -> r.stewardshipType.toString(), 20, LEFT),
     DESCRIPTION("DESCRIPTION", r -> r.description, 40, LEFT);
 

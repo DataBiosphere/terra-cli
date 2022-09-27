@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.AzureStorageContainer;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.DataCollection;
@@ -88,7 +89,8 @@ public abstract class Resource {
 
   /**
    * Deserialize to the internal representation of the resource from the WSM client library format.
-   * Calls the appropriate sub-class constructor based on the resource type.
+   * Calls the appropriate sub-class constructor based on the resource type. Returns null if the
+   * resource is unsupported by terra-cli.
    */
   public static Resource deserializeFromWsm(ResourceDescription wsmObject) {
     bio.terra.workspace.model.ResourceType wsmResourceType =
@@ -108,8 +110,11 @@ public abstract class Resource {
         return new GitRepo(wsmObject);
       case TERRA_WORKSPACE:
         return new DataCollection(wsmObject);
+      case AZURE_STORAGE_CONTAINER:
+        return new AzureStorageContainer(wsmObject);
       default:
-        throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
+        // Ignore unknown resources
+        return null;
     }
   }
 
@@ -245,6 +250,7 @@ public abstract class Resource {
     AI_NOTEBOOK,
     GIT_REPO,
     // Corresponds to WSM type TERRA_WORKSPACE
-    DATA_COLLECTION;
+    DATA_COLLECTION,
+    AZURE_STORAGE_CONTAINER;
   }
 }

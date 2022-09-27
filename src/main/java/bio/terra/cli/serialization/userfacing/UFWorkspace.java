@@ -33,6 +33,9 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.tenantId = builder.tenantId;
+    this.subscriptionId = builder.subscriptionId;
+    this.resourceGroupId = builder.resourceGroupId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.properties = builder.properties;
@@ -45,7 +48,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     super.print();
     PrintStream OUT = UserIO.getOut();
     // The space add for readable format because only used with terra workspace describe
-    OUT.println("# Resources:       " + numResources);
+    OUT.println("Resource Count:           " + numResources);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -54,6 +57,9 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private String tenantId;
+    private String subscriptionId;
+    private String resourceGroupId;
     private String serverName;
     private String userEmail;
     private Map<String, String> properties;
@@ -79,6 +85,21 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder tenantId(String tenantId) {
+      this.tenantId = tenantId;
+      return this;
+    }
+
+    public Builder subscriptionId(String subscriptionId) {
+      this.subscriptionId = subscriptionId;
+      return this;
+    }
+
+    public Builder resourceGroupId(String resourceGroupId) {
+      this.resourceGroupId = resourceGroupId;
       return this;
     }
 

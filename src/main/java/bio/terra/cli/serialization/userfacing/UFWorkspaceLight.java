@@ -13,6 +13,9 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
+  public String tenantId;
+  public String subscriptionId;
+  public String resourceGroupId;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -28,6 +31,9 @@ public class UFWorkspaceLight {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.tenantId = internalObj.getTenantId();
+    this.subscriptionId = internalObj.getSubscriptionId();
+    this.resourceGroupId = internalObj.getResourceGroupId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -39,6 +45,9 @@ public class UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.tenantId = builder.tenantId;
+    this.subscriptionId = builder.subscriptionId;
+    this.resourceGroupId = builder.resourceGroupId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -50,6 +59,9 @@ public class UFWorkspaceLight {
     this.name = null;
     this.description = null;
     this.googleProjectId = null;
+    this.tenantId = null;
+    this.subscriptionId = null;
+    this.resourceGroupId = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -60,13 +72,20 @@ public class UFWorkspaceLight {
     PrintStream OUT = UserIO.getOut();
     // "id" instead of "userFacingId" because user sees this with "terra workspace describe
     // --format=json"
-    OUT.println("ID:                " + id);
-    OUT.println("Name:              " + name);
-    OUT.println("Description:       " + description);
-    OUT.println("Google project:    " + googleProjectId);
-    OUT.println(
-        "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
-            + googleProjectId);
+    OUT.println("ID:                       " + id);
+    OUT.println("Name:                     " + name);
+    OUT.println("Description:              " + description);
+    if (googleProjectId != null) {
+      OUT.println("Google project:           " + googleProjectId);
+      OUT.println(
+          "Cloud console:            https://console.cloud.google.com/home/dashboard?project="
+              + googleProjectId);
+    }
+    if (tenantId != null) {
+      OUT.println("Tenant ID:                " + tenantId);
+      OUT.println("Subscription ID:          " + subscriptionId);
+      OUT.println("Managed Resource Group:   " + resourceGroupId);
+    }
 
     if (properties == null) {
       return;
@@ -83,6 +102,9 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private String tenantId;
+    private String subscriptionId;
+    private String resourceGroupId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -107,6 +129,21 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder tenantId(String tenantId) {
+      this.tenantId = tenantId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder subscriptionId(String subscriptionId) {
+      this.subscriptionId = subscriptionId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder resourceGroupId(String resourceGroupId) {
+      this.resourceGroupId = resourceGroupId;
       return this;
     }
 
