@@ -569,13 +569,9 @@ Commands:
   delete                     Delete a resource from the workspace.
   describe                   Describe a resource.
   list                       List all resources.
-  resolve                    Resolve a resource to its cloud id or path. For 
-                             data collection, resolve all the resources inside the
-                             data collection to their cloud id or path. If path to a
-                             resource inside the data collection is specified
-                             in the format of [data collection name]/[resource name],
-                             resolve the specified resource's cloud id or path
-  update                     Update the properties of a resouce
+  list-tree                  List all resources in tree view.
+  resolve                    Resolve a resource to its path.
+  update                     Update the properties of a resource.
 ```
 
 A controlled resource is a cloud resource that is managed by Terra. It exists
@@ -607,6 +603,19 @@ holds the `gs://` URL of the workspace bucket resource named `mybucket`). The
 CLI updates the cache on every call to a `terra resource` command. So, if you
 are working in a shared workspace, you can run `terra resource list` (for
 example) to pick up any changes that your collaborators have made.
+
+##### list-tree
+The list of resources in a workspace could be contained in the folder. `terra resource list-tree` command is created to show the structures.
+
+```
+> terra resource list-tree --workspace=newidupdate
+├── testfolder1
+│   └── testfolder2
+│       └── testfolder3
+├── newtest
+└── notebooktest
+```
+
 
 ##### GCS bucket lifecycle rules
 

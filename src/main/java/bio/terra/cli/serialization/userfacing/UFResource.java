@@ -13,6 +13,7 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -54,6 +55,7 @@ public abstract class UFResource {
   public final ManagedBy managedBy;
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
+  public final Properties properties;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {
@@ -67,6 +69,7 @@ public abstract class UFResource {
     this.managedBy = internalObj.getManagedBy();
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
+    this.properties = internalObj.getProperties();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -81,6 +84,7 @@ public abstract class UFResource {
     this.managedBy = builder.managedBy;
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
+    this.properties = builder.properties;
   }
 
   /**
@@ -104,6 +108,7 @@ public abstract class UFResource {
         OUT.println(prefix + "Private user: " + privateUserName);
       }
     }
+    OUT.println(prefix + "Properties:   " + properties);
   }
 
   /** Print out this object in text format. */
@@ -123,6 +128,7 @@ public abstract class UFResource {
     private ManagedBy managedBy;
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
+    private Properties properties;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -174,6 +180,11 @@ public abstract class UFResource {
 
     public Builder privateUserRole(ControlledResourceIamRole privateUserRole) {
       this.privateUserRole = privateUserRole;
+      return this;
+    }
+
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 
