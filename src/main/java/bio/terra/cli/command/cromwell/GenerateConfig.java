@@ -3,10 +3,12 @@ package bio.terra.cli.command.cromwell;
 import bio.terra.cli.businessobject.Config.CommandRunnerOption;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.BaseCommand;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
@@ -31,13 +33,14 @@ public class GenerateConfig extends BaseCommand {
     // Get the absolute path for the generate-cromwell-config.sh file.
     String absolutePath = "";
     try {
-      Path file = Files.createTempFile(null, ".sh");
+      File file = File.createTempFile("generate-cromwell-config", ".sh");
+      Path path = file.toPath();
       InputStream inputStream =
           getClass().getClassLoader().getResourceAsStream("configs/generate-cromwell-config.sh");
       // Copy the content in script and grant read, write, execute permission.
-      Files.copy(inputStream, file, StandardCopyOption.REPLACE_EXISTING);
-      Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("rwxrwxrwx"));
-      absolutePath = file.toString();
+      Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+      Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rwxrwxrwx"));
+      absolutePath = path.toString();
     } catch (IOException e) {
       OUT.println("Failed to write to cromwell config file");
     }
@@ -55,5 +58,12 @@ public class GenerateConfig extends BaseCommand {
                 org.apache.commons.io.FilenameUtils.concat(dir, "cromwell.conf"),
                 googleProjectId,
                 petSaEmail));
+    try {
+      if (!absolutePath.equals("")) {
+        Files.deleteIfExists(Paths.get(absolutePath));
+      }
+    } catch (IOException e) {
+      OUT.println("Failed to delete the cromwell config temporary file");
+    }
   }
 }
