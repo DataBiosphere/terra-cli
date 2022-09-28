@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
 
@@ -22,70 +23,68 @@ import picocli.CommandLine;
 public class ListTree extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
-  private final HashMap<String, ArrayList<String>> edges = new HashMap<>();
-  private final HashMap<String, String> nameMap = new HashMap<>();
-  private final HashMap<String, Boolean> isFolderMap = new HashMap<>();
+  private final HashMap<UUID, ArrayList<UUID>> edges = new HashMap<>();
+  private final HashMap<UUID, String> idToName = new HashMap<>();
+  private final HashMap<UUID, Boolean> isFolderMap = new HashMap<>();
+  private final UUID root = UUID.randomUUID();
+  private final String TERRA_FOLDER_ID = "terra-folder-id";
 
   /** List the resources in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
-    // Get all resources and folders in the workspace
+    // Get all resources and folders in the workspace and sort by name
     List<UFResource> resources =
         Context.requireWorkspace().listResourcesAndSync().stream()
             .sorted(Comparator.comparing(Resource::getName))
             .map(Resource::serializeToCommand)
             .collect(Collectors.toList());
-    List<Folder> folders = Context.requireWorkspace().listFolders();
+    List<Folder> folders =
+        Context.requireWorkspace().listFolders().stream()
+            .sorted(Comparator.comparing(Folder::getDisplayName))
+            .collect(Collectors.toList());
 
     // Create edges map for DFS and store name for each id.
     // Display the folder before the resource.
     for (Folder folder : folders) {
-      String folderId = folder.getId().toString();
+      UUID folderId = folder.getId();
       edges
           .computeIfAbsent(
-              folder.getParentFolderId() != null ? folder.getParentFolderId().toString() : "root",
+              folder.getParentFolderId() != null ? folder.getParentFolderId() : root,
               k -> new ArrayList<>())
           .add(folderId);
-      nameMap.put(folderId, folder.getDisplayName());
+      idToName.put(folderId, folder.getDisplayName());
       isFolderMap.put(folderId, true);
     }
 
     for (UFResource resource : resources) {
-      String resourceId = resource.id.toString();
+      UUID resourceId = resource.id;
       Optional<Property> property =
-          resource.properties.stream()
-              .filter(x -> x.getKey().equals("terra-folder-id"))
-              .collect(Collectors.reducing((a, b) -> null));
+          resource.properties.stream().filter(x -> x.getKey().equals(TERRA_FOLDER_ID)).findFirst();
       edges
           .computeIfAbsent(
-              property.isPresent() ? property.get().getValue() : "root", k -> new ArrayList<>())
+              property.map(value -> UUID.fromString(value.getValue())).orElse(root),
+              k -> new ArrayList<>())
           .add(resourceId);
-      nameMap.put(resourceId, resource.name);
+      idToName.put(resourceId, resource.name);
       isFolderMap.put(resourceId, false);
     }
 
-    DFSWalk("root", "");
+    DFSWalk(root, "");
   }
 
   // A DFS walk helper function to print out a tree view graph. Inspired by the original
   // GNU Tree utility implementation: https://github.com/kddnewton/tree/blob/main/Tree.java
-  private void DFSWalk(String parentUuid, String prefix) {
+  private void DFSWalk(UUID parentUuid, String prefix) {
     if (edges.containsKey(parentUuid)) {
-      ArrayList<String> edgeList = edges.get(parentUuid);
+      ArrayList<UUID> edgeList = edges.get(parentUuid);
       for (int index = 0; index < edgeList.size(); index++) {
-        String childUuid = edgeList.get(index);
-        if (index == edgeList.size() - 1) {
-          System.out.println(prefix + "└── " + nameMap.get(childUuid));
-          if (isFolderMap.get(childUuid)) {
-            DFSWalk(childUuid, prefix + "    ");
-          }
-        } else {
-          System.out.println(prefix + "├── " + nameMap.get(childUuid));
-          if (isFolderMap.get(childUuid)) {
-            DFSWalk(childUuid, prefix + "│   ");
-          }
+        UUID childUuid = edgeList.get(index);
+        boolean isLast = index == edgeList.size() - 1;
+        System.out.println(prefix + (isLast ? "└── " : "├── ") + idToName.get(childUuid));
+        if (isFolderMap.get(childUuid)) {
+          DFSWalk(childUuid, prefix + (isLast ? "    " : "│   "));
         }
       }
     }

@@ -323,7 +323,7 @@ public class Workspace {
     return resources;
   }
 
-  /** Populate the list of folders for this workspace */
+  /** Fetch the list of folders for this workspace */
   public List<Folder> listFolders() {
     return WorkspaceManagerService.fromContext().listFolders(uuid);
   }

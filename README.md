@@ -611,11 +611,11 @@ The list of resources in a workspace could be contained in the folder. `terra re
 
 ```
 > terra resource list-tree
-├── testfolder1
-│   └── testfolder2
-│       └── testfolder3
-├── newtest
-└── notebooktest
+├── folder1
+│   └── folder2
+│       └── folder3
+├── newresource
+└── notebook
 ```
 
 ##### GCS bucket lifecycle rules
