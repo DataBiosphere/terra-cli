@@ -12,6 +12,7 @@ plugins {
     // use the wrong guava version, leading to runtime errors.
     // See also https://blog.gradle.org/guava
     id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
+    id 'com.gradle.build-scan' version '3.11.1'
 }
 
 // TODO(PF-1981) - Move version to settings.gradle
