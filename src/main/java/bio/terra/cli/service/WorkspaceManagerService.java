@@ -110,6 +110,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import com.google.common.collect.ImmutableList;
 import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -751,15 +752,14 @@ public class WorkspaceManagerService {
    * @param workspaceId the workspace to query
    * @return a list of folders in this workspace
    */
-  public List<Folder> listFolders(UUID workspaceId) {
-    List<Folder> allFolders = new ArrayList<>();
+  public ImmutableList<Folder> listFolders(UUID workspaceId) {
     FolderList result =
         callWithRetries(
             () -> new FolderApi(apiClient).listFolders(workspaceId),
             "Error fetching list of folders");
 
-    allFolders.addAll(result.getFolders());
-    return allFolders;
+    List<Folder> allFolders = new ArrayList<>(result.getFolders());
+    return ImmutableList.copyOf(allFolders);
   }
 
   /**

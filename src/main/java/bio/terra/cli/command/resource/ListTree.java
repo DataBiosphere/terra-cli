@@ -6,12 +6,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.Folder;
-import bio.terra.workspace.model.Property;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import picocli.CommandLine;
@@ -25,11 +23,11 @@ public class ListTree extends BaseCommand {
 
   private final HashMap<UUID, ArrayList<UUID>> edges = new HashMap<>();
   private final HashMap<UUID, String> idToName = new HashMap<>();
-  private final HashMap<UUID, Boolean> isFolderMap = new HashMap<>();
+  private final HashMap<UUID, Boolean> isFolder = new HashMap<>();
   private final UUID root = UUID.randomUUID();
   private final String TERRA_FOLDER_ID = "terra-folder-id";
 
-  /** List the resources in the workspace. */
+  /** List the resources and folders in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -55,20 +53,20 @@ public class ListTree extends BaseCommand {
               k -> new ArrayList<>())
           .add(folderId);
       idToName.put(folderId, folder.getDisplayName());
-      isFolderMap.put(folderId, true);
+      isFolder.put(folderId, true);
     }
 
     for (UFResource resource : resources) {
       UUID resourceId = resource.id;
-      Optional<Property> property =
-          resource.properties.stream().filter(x -> x.getKey().equals(TERRA_FOLDER_ID)).findFirst();
-      edges
-          .computeIfAbsent(
-              property.map(value -> UUID.fromString(value.getValue())).orElse(root),
-              k -> new ArrayList<>())
-          .add(resourceId);
+      UUID folderId =
+          resource.properties.stream()
+              .filter(x -> x.getKey().equals(TERRA_FOLDER_ID))
+              .findFirst()
+              .map(value -> UUID.fromString(value.getValue()))
+              .orElse(root);
+      edges.computeIfAbsent(folderId, k -> new ArrayList<>()).add(resourceId);
       idToName.put(resourceId, resource.name);
-      isFolderMap.put(resourceId, false);
+      isFolder.put(resourceId, false);
     }
 
     DFSWalk(root, "");
@@ -83,7 +81,7 @@ public class ListTree extends BaseCommand {
         UUID childUuid = edgeList.get(index);
         boolean isLast = index == edgeList.size() - 1;
         System.out.println(prefix + (isLast ? "└── " : "├── ") + idToName.get(childUuid));
-        if (isFolderMap.get(childUuid)) {
+        if (isFolder.get(childUuid)) {
           DFSWalk(childUuid, prefix + (isLast ? "    " : "│   "));
         }
       }
