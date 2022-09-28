@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource list-tree" command. */
@@ -25,7 +24,7 @@ public class ListTree extends BaseCommand {
   private final HashMap<UUID, String> idToName = new HashMap<>();
   private final HashMap<UUID, Boolean> isFolder = new HashMap<>();
   private final UUID root = UUID.randomUUID();
-  private final String TERRA_FOLDER_ID = "terra-folder-id";
+  private final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
 
   /** List the resources and folders in the workspace. */
   @Override
@@ -37,11 +36,11 @@ public class ListTree extends BaseCommand {
         Context.requireWorkspace().listResourcesAndSync().stream()
             .sorted(Comparator.comparing(Resource::getName))
             .map(Resource::serializeToCommand)
-            .collect(Collectors.toList());
+            .toList();
     List<Folder> folders =
         Context.requireWorkspace().listFolders().stream()
             .sorted(Comparator.comparing(Folder::getDisplayName))
-            .collect(Collectors.toList());
+            .toList();
 
     // Create edges map for DFS and store name for each id.
     // Display the folder before the resource.
@@ -60,7 +59,7 @@ public class ListTree extends BaseCommand {
       UUID resourceId = resource.id;
       UUID folderId =
           resource.properties.stream()
-              .filter(x -> x.getKey().equals(TERRA_FOLDER_ID))
+              .filter(x -> x.getKey().equals(TERRA_FOLDER_ID_PROPERTY_KEY))
               .findFirst()
               .map(value -> UUID.fromString(value.getValue()))
               .orElse(root);
