@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +55,19 @@ public final class GoogleOauth {
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static final String CLIENT_SECRET_FILENAME = "client_secret.json";
-  private static final GoogleClientSecrets clientSecrets = readClientSecrets();
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
+    String clientCredentialsFileName =
+        StringUtils.isEmpty(Context.getServer().getclientCredentialsFile())
+            ? "broad_secret.json"
+            : Context.getServer().getclientCredentialsFile();
+
     try (InputStream inputStream =
-        GoogleOauth.class.getClassLoader().getResourceAsStream(CLIENT_SECRET_FILENAME)) {
+        GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
 
       GoogleClientSecrets clientSecrets =
           GoogleClientSecrets.load(
@@ -72,14 +77,15 @@ public final class GoogleOauth {
       return clientSecrets;
     } catch (IOException ioException) {
       throw new SystemException(
-          String.format("Failure reading client secrets from file: '%s'.", CLIENT_SECRET_FILENAME),
+          String.format(
+              "Failure reading client secrets from file: '%s'.", clientCredentialsFileName),
           ioException);
     }
   }
 
   /** Get the client secrets to pass to oauth API's. */
   public static GoogleClientSecrets getClientSecrets() {
-    return clientSecrets;
+    return readClientSecrets();
   }
 
   /**
@@ -102,9 +108,10 @@ public final class GoogleOauth {
       boolean launchBrowserAutomatically,
       String loginLandingPage)
       throws IOException, GeneralSecurityException {
+
     // setup the Google OAuth2 flow
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
     GoogleAuthorizationCodeFlow flow = helper.getGoogleAuthorizationCodeFlow();
 
     // exchange an authorization code for a refresh token
@@ -134,8 +141,8 @@ public final class GoogleOauth {
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
-            .setClientId(clientSecrets.getDetails().getClientId())
-            .setClientSecret(clientSecrets.getDetails().getClientSecret())
+            .setClientId(readClientSecrets().getDetails().getClientId())
+            .setClientSecret(readClientSecrets().getDetails().getClientSecret())
             .setRefreshToken(credential.getRefreshToken())
             .setAccessToken(
                 new AccessToken(
@@ -154,9 +161,10 @@ public final class GoogleOauth {
    */
   public static void deleteExistingCredential(List<String> scopes, File dataStoreDir)
       throws IOException, GeneralSecurityException {
+
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
     helper.deleteStoredCredential();
     helper.deleteStoredIdToken();
   }
@@ -171,10 +179,9 @@ public final class GoogleOauth {
   @Nullable
   public static TerraCredentials getExistingUserCredential(List<String> scopes, File dataStoreDir)
       throws IOException, GeneralSecurityException {
-
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, clientSecrets, dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
 
     // fetch the stored credential for the specified userId
     UserCredentials credentials;
@@ -187,8 +194,8 @@ public final class GoogleOauth {
       // identity and consent
       credentials =
           UserCredentials.newBuilder()
-              .setClientId(clientSecrets.getDetails().getClientId())
-              .setClientSecret(clientSecrets.getDetails().getClientSecret())
+              .setClientId(readClientSecrets().getDetails().getClientId())
+              .setClientSecret(readClientSecrets().getDetails().getClientSecret())
               .setRefreshToken(storedCredential.getRefreshToken())
               .setAccessToken(
                   new AccessToken(

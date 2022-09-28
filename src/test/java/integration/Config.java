@@ -104,6 +104,6 @@ public class Config extends ClearContextIntegration {
     assertThat(
         "config list is in JSON format",
         configListOutput,
-        CoreMatchers.containsString("\"browserLaunchOption\" :"));
+        CoreMatchers.containsString("\"browser\","));
   }
 }
