@@ -516,7 +516,7 @@ Commands:
   delete       Delete an existing Terra group.
   describe     Describe the group.
   list         List the groups to which the current user belongs.
-  list-users   List the users in a group.
+  list-users   List all resources and folders in tree view.
   remove-user  Remove a user from a group with a given policy.
 ```
 
