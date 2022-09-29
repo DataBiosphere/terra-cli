@@ -43,6 +43,7 @@ public class GenerateConfig extends BaseCommand {
       absolutePath = path.toString();
     } catch (IOException e) {
       OUT.println("Failed to write to cromwell config file");
+      return;
     }
 
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
@@ -59,9 +60,7 @@ public class GenerateConfig extends BaseCommand {
                 googleProjectId,
                 petSaEmail));
     try {
-      if (!absolutePath.equals("")) {
-        Files.deleteIfExists(Paths.get(absolutePath));
-      }
+      Files.deleteIfExists(Paths.get(absolutePath));
     } catch (IOException e) {
       OUT.println("Failed to delete the cromwell config temporary file");
     }
