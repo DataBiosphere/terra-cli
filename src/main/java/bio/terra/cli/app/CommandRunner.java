@@ -85,9 +85,14 @@ public abstract class CommandRunner {
 
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
+
+    // Keep in sync with notebook instance environment variables:
+    // https://github.com/DataBiosphere/terra-workspace-manager/blob/42a96e3efe78908d2969d1ac826cd84a11a16714/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L165
+
     terraEnvVars.put("TERRA_USER_EMAIL", Context.requireUser().getEmail());
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
     terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
+
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
         throw new SystemException(
