@@ -357,6 +357,12 @@ For example, consider the project that external resources are created in. The
 Broad deployment uses a project in Broad GCP org; Verily deployment uses a
 project in Verily GCP org.
 
+#### Test cromwell.config generation in notebook
+By default, you can run `terra cromwell generate-config` in the CLI. To run in a jupyter notebook:
+- Open a terminal in notebook, source build terra and set it up with a workspace
+- run `terra cromwell generate-config` or `terra cromwell generate-config --dir=xxx`
+- The cromwell.config will be generated.
+
 #### Troubleshooting
 
 If you
