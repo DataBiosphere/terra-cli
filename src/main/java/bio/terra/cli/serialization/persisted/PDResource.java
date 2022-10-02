@@ -5,6 +5,7 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,6 +32,7 @@ public abstract class PDResource {
   public final ManagedBy managedBy;
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
+  public final Properties properties;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDResource(Resource internalObj) {
@@ -44,6 +46,7 @@ public abstract class PDResource {
     this.managedBy = internalObj.getManagedBy();
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
+    this.properties = internalObj.getProperties();
   }
 
   protected PDResource(PDResource.Builder builder) {
@@ -57,6 +60,7 @@ public abstract class PDResource {
     this.managedBy = builder.managedBy;
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
+    this.properties = builder.properties;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
@@ -74,6 +78,7 @@ public abstract class PDResource {
     private ManagedBy managedBy;
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
+    private Properties properties;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -125,6 +130,11 @@ public abstract class PDResource {
 
     public Builder privateUserRole(ControlledResourceIamRole privateUserRole) {
       this.privateUserRole = privateUserRole;
+      return this;
+    }
+
+    public Builder properties(Properties properties) {
+      this.properties = properties;
       return this;
     }
 

@@ -22,7 +22,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resource resolve" command. */
-@Command(name = "resolve", description = "Resolve a resource to its path.")
+@Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends BaseCommand {
 
   @CommandLine.Option(

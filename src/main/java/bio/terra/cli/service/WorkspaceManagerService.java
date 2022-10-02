@@ -25,6 +25,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParam
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
+import bio.terra.workspace.api.FolderApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
 import bio.terra.workspace.api.UnauthenticatedApi;
@@ -54,6 +55,8 @@ import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
 import bio.terra.workspace.model.ErrorReport;
+import bio.terra.workspace.model.Folder;
+import bio.terra.workspace.model.FolderList;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
 import bio.terra.workspace.model.GcpAiNotebookInstanceContainerImage;
 import bio.terra.workspace.model.GcpAiNotebookInstanceCreationParameters;
@@ -107,6 +110,7 @@ import bio.terra.workspace.model.WorkspaceStageModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
+import com.google.common.collect.ImmutableList;
 import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -400,7 +404,8 @@ public class WorkspaceManagerService {
    */
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).listWorkspaces(offset, limit),
+        () ->
+            new WorkspaceApi(apiClient).listWorkspaces(offset, limit, /*minimumHighestRole=*/ null),
         "Error fetching list of workspaces");
   }
 
@@ -501,7 +506,8 @@ public class WorkspaceManagerService {
 
           // call the get workspace endpoint to get the full description object
           return HttpUtils.callWithRetries(
-              () -> workspaceApi.getWorkspace(workspaceId), WorkspaceManagerService::isRetryable);
+              () -> workspaceApi.getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
+              WorkspaceManagerService::isRetryable);
         },
         "Error creating a new workspace");
   }
@@ -513,7 +519,7 @@ public class WorkspaceManagerService {
   public WorkspaceDescription getWorkspace(UUID uuid, boolean isDataCollectionWorkspace) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspace(uuid),
+            () -> new WorkspaceApi(apiClient).getWorkspace(uuid, /*minimumHighestRole=*/ null),
             "Error fetching workspace",
             isDataCollectionWorkspace);
     String googleProjectId =
@@ -534,7 +540,9 @@ public class WorkspaceManagerService {
   public WorkspaceDescription getWorkspaceByUserFacingId(String userFacingId) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
-            () -> new WorkspaceApi(apiClient).getWorkspaceByUserFacingId(userFacingId),
+            () ->
+                new WorkspaceApi(apiClient)
+                    .getWorkspaceByUserFacingId(userFacingId, /*minimumHighestRole=*/ null),
             "Error fetching workspace");
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
@@ -596,7 +604,7 @@ public class WorkspaceManagerService {
                 .updateWorkspaceProperties(buildProperties(workspaceProperties), workspaceId),
         "Error updating workspace properties");
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
         "Error getting the workspace after updating properties");
   }
 
@@ -678,7 +686,7 @@ public class WorkspaceManagerService {
                 .deleteWorkspaceProperties(workspacePropertyKeys, workspaceId),
         "Error deleting workspace properties");
     return callWithRetries(
-        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId),
+        () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
         "Error getting the workspace after deleting properties");
   }
 
@@ -735,6 +743,23 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).getRoles(workspaceId),
         "Error fetching users and their IAM roles for workspace");
+  }
+
+  /**
+   * Call the Workspace Manager "/api/workspaces/v1/{workspaceId}/folders" endpoint to get a list of
+   * folders.
+   *
+   * @param workspaceId the workspace to query
+   * @return a list of folders in this workspace
+   */
+  public ImmutableList<Folder> listFolders(UUID workspaceId) {
+    FolderList result =
+        callWithRetries(
+            () -> new FolderApi(apiClient).listFolders(workspaceId),
+            "Error fetching list of folders");
+
+    List<Folder> allFolders = new ArrayList<>(result.getFolders());
+    return ImmutableList.copyOf(allFolders);
   }
 
   /**
