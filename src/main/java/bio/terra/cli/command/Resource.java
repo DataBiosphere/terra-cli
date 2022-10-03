@@ -6,6 +6,7 @@ import bio.terra.cli.command.resource.Create;
 import bio.terra.cli.command.resource.Delete;
 import bio.terra.cli.command.resource.Describe;
 import bio.terra.cli.command.resource.List;
+import bio.terra.cli.command.resource.ListTree;
 import bio.terra.cli.command.resource.Resolve;
 import bio.terra.cli.command.resource.Update;
 import picocli.CommandLine;
@@ -24,6 +25,7 @@ import picocli.CommandLine;
       Delete.class,
       Describe.class,
       List.class,
+      ListTree.class,
       Resolve.class,
       Update.class
     })
