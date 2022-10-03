@@ -41,7 +41,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -423,7 +422,6 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   @Test
   @DisplayName("notebook commands respect workspace override")
-  @Disabled("TODO(PF-2060): re-enable after the issue described in the ticket is resolved.")
   void notebooks() throws IOException, InterruptedException {
     workspaceCreator.login();
 
