@@ -16,6 +16,12 @@ jobs:
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         ref: main
+    # publish-release runs Java code so ensure we're using 17 instead of 11    
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 17
     - name: Bump tag and build version
       id: bump_tag
       uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
