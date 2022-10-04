@@ -456,17 +456,16 @@ These commands are property getters and setters for configuring the Terra CLI.
 Currently the available configuration properties are:
 
 ```
-[app-launch] app launch mode = DOCKER_CONTAINER
-[browser] browser launch for login = AUTO
-[image] docker image id = gcr.io/terra-cli-dev/terra-cli/0.234.0:stable
-[resource-limit] max number of resources to allow per workspace = 1000
-
-[logging, console] logging level for printing directly to the terminal = OFF
-[logging, file] logging level for writing to files in /Users/jaycarlton/.terra/logs = INFO
-
-[server] server = broad-dev-cli-testing
-[workspace] workspace = (unset)
-[format] output format = TEXT
+OPTION                VALUE                                          DESCRIPTION                                                 
+app-launch            DOCKER_CONTAINER                               app launch mode                                             
+browser               AUTO                                           browser launch for login                                    
+image                 gcr.io/terra-cli-dev/terra-cli/0.246.0:stable  docker image id                                             
+resource-limit        1000                                           max number of resources to allow per workspace              
+console-logging       OFF                                            logging level for printing directly to the terminal         
+file-logging          INFO                                           logging level for writing to files/Users/ginay/.terra/logs  
+server                broad-dev-cli-testing                          (unset)                                                     
+workspace             (unset)                                        (unset)                                                     
+format                TEXT                                           output format 
 ```
 
 #### Cromwell
@@ -517,7 +516,7 @@ Commands:
   delete       Delete an existing Terra group.
   describe     Describe the group.
   list         List the groups to which the current user belongs.
-  list-users   List the users in a group.
+  list-users   List all resources and folders in tree view.
   remove-user  Remove a user from a group with a given policy.
 ```
 
@@ -571,13 +570,9 @@ Commands:
   delete                     Delete a resource from the workspace.
   describe                   Describe a resource.
   list                       List all resources.
-  resolve                    Resolve a resource to its cloud id or path. For 
-                             data collection, resolve all the resources inside the
-                             data collection to their cloud id or path. If path to a
-                             resource inside the data collection is specified
-                             in the format of [data collection name]/[resource name],
-                             resolve the specified resource's cloud id or path
-  update                     Update the properties of a resouce
+  list-tree                  List all resources in tree view.
+  resolve                    Resolve a resource to its cloud id or path.
+  update                     Update the properties of a resource.
 ```
 
 A controlled resource is a cloud resource that is managed by Terra. It exists

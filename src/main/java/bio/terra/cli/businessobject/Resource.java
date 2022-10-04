@@ -18,6 +18,7 @@ import bio.terra.workspace.model.ControlledResourceIamRole;
 import bio.terra.workspace.model.ControlledResourceMetadata;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceUser;
+import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
@@ -51,6 +52,8 @@ public abstract class Resource {
   protected String privateUserName;
   protected ControlledResourceIamRole privateUserRole;
 
+  protected Properties properties;
+
   /** Deserialize an instance of the disk format to the internal object. */
   protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
@@ -63,6 +66,7 @@ public abstract class Resource {
     this.managedBy = configFromDisk.managedBy;
     this.privateUserName = configFromDisk.privateUserName;
     this.privateUserRole = configFromDisk.privateUserRole;
+    this.properties = configFromDisk.properties;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -84,6 +88,8 @@ public abstract class Resource {
         this.privateUserRole = privateMetadata.getPrivateResourceIamRole();
       }
     }
+
+    this.properties = metadata.getProperties();
   }
 
   /**
@@ -227,6 +233,10 @@ public abstract class Resource {
 
   public ControlledResourceIamRole getPrivateUserRole() {
     return privateUserRole;
+  }
+
+  public Properties getProperties() {
+    return properties;
   }
 
   /**

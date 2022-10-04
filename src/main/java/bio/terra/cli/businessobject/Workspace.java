@@ -10,6 +10,7 @@ import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
+import bio.terra.workspace.model.Folder;
 import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ResourceDescription;
@@ -320,6 +321,11 @@ public class Workspace {
     populateResources();
     Context.synchronizeToDisk();
     return resources;
+  }
+
+  /** Fetch the list of folders for this workspace */
+  public ImmutableList<Folder> listFolders() {
+    return WorkspaceManagerService.fromContext().listFolders(uuid);
   }
 
   /**
