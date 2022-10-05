@@ -44,9 +44,8 @@ public class CRLJanitor {
   private static final List<String> CLOUD_PLATFORM_SCOPE =
       Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
   private static final String DEFAULT_CLIENT_NAME = "cli-test";
-  // How long Janitor should wait before cleaning test workspaces. It might be useful
-  // to keep these workspaces around long enough to debug, this should be lowered if not.
-  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(120);
+  // How long Janitor should wait before cleaning test workspaces.
+  private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(6);
   // Publisher objects are heavyweight and we use the same credentials for all publishing, so
   // it's better to re-use a single Publisher instance.
   private static final Publisher publisher = initializeJanitorPubSubPublisher();
