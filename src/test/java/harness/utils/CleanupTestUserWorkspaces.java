@@ -103,7 +103,7 @@ public class CleanupTestUserWorkspaces {
     if (server == null || server.isEmpty()) {
       throw new UserActionableException("Specify the server to cleanup.");
     }
-    TestCommand.runCommandExpectSuccess("server", "set", "--name", server, "--quiet");
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=" + server, "--quiet");
 
     boolean isDryRun = Boolean.parseBoolean(System.getProperty("DRY_RUN"));
 
