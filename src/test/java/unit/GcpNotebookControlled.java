@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -353,7 +352,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnit {
 
   @Test // NOTE: This test takes ~10 minutes to run.
   @DisplayName("start, stop a notebook and poll until they complete")
-  @Disabled("TODO(PF-2060): re-enable after the issue described in the ticket is resolved.")
   void startStop() throws IOException, InterruptedException {
     workspaceCreator.login();
 
