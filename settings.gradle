@@ -1,18 +1,5 @@
 plugins {
-    id 'com.gradle.enterprise' version '3.11.1'
     id 'com.gradle.common-custom-user-data-gradle-plugin' version '1.8'
-}
-
-// Gradle Enterprise Trial Navigator Step 1
-gradleEnterprise {
-    server = "https://gradle-enterprise-prod-helm-cluster.api.verily.com"
-    buildScan {
-        publishAlways()
-        capture {
-            taskInputFiles = true
-        }
-        uploadInBackground = System.getenv("CI") == null
-    }
 }
 
 enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')

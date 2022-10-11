@@ -27,9 +27,6 @@ task runTestsWithTag(type: Test) {
         if (testTag == null) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
-        // For Gradle Enterprise trial, we'd like to distinguish unit tests from
-        // integration tests in GE UI.
-        buildScan.tag testTag
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
             includeTags testTag
@@ -103,21 +100,6 @@ task runTestsWithTag(type: Test) {
     // run the install-for-testing.sh script before any tests
 
     outputs.upToDateWhen { false } // force tests to always be re-run
-
-    retry {
-        // This is set automatically on Github Actions runners, and never set
-        // otherwise.
-        if (System.getenv().containsKey("CI")) {
-            // Max retries per test.
-            maxRetries = 1
-            // Max total test failures.
-            // This is an estimate based on current failure rates, but if more
-            // than 5 tests fail in a run it's likely a real source of failure
-            // and we should stop retrying.
-            maxFailures = 5
-        }
-        failOnPassedAfterRetry = true
-    }
 }
 
 // cleanup workspaces owned by test users.
