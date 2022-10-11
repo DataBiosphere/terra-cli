@@ -5,6 +5,7 @@ plugins {
 
     id 'com.diffplug.spotless' version '6.10.0'
     id 'com.github.spotbugs' version '5.0.12'
+    id 'org.gradle.test-retry' version '1.4.1'
 
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
