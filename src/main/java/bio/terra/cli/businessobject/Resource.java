@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
-import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
@@ -112,8 +111,6 @@ public abstract class Resource {
         return new GcpNotebook(wsmObject);
       case GIT_REPO:
         return new GitRepo(wsmObject);
-      case TERRA_WORKSPACE:
-        return new DataCollection(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
@@ -253,8 +250,6 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO,
-    // Corresponds to WSM type TERRA_WORKSPACE
-    DATA_COLLECTION;
+    GIT_REPO;
   }
 }

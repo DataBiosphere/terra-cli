@@ -5,6 +5,7 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
@@ -13,6 +14,8 @@ import java.util.Map;
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
  * <p>See the {@link Workspace} class for a workspace's internal representation.
+ *
+ * <p>
  */
 @JsonDeserialize(builder = UFWorkspace.Builder.class)
 public class UFWorkspace extends UFWorkspaceLight {
@@ -36,6 +39,8 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.properties = builder.properties;
+    this.createdDate = builder.createdDate;
+    this.lastUpdatedDate = builder.lastUpdatedDate;
     this.numResources = builder.numResources;
   }
 
@@ -57,6 +62,8 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String serverName;
     private String userEmail;
     private Map<String, String> properties;
+    private OffsetDateTime createdDate;
+    private OffsetDateTime lastUpdatedDate;
     private long numResources;
 
     /** Default constructor for Jackson. */
@@ -94,6 +101,16 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder userEmail(String userEmail) {
       this.userEmail = userEmail;
+      return this;
+    }
+
+    public Builder createdDate(OffsetDateTime createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
+      this.lastUpdatedDate = lastUpdatedDate;
       return this;
     }
 
