@@ -54,6 +54,7 @@ public class GcsObject extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
+    // parsing the path as bucket name and object name
     if (newGcsPath != null) {
       if (newBucketName != null || newObjectName != null) {
         throw new UserActionableException("Specify only one path to add reference.");

@@ -24,21 +24,18 @@ public class GcsObject extends BaseCommand {
 
   @CommandLine.Option(
       names = "--bucket-name",
-      required = false,
       description =
           "Name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
   private String bucketName;
 
   @CommandLine.Option(
       names = "--object-name",
-      required = false,
       description =
           "Full path to the object in the specified GCS bucket, such as folder1/file.txt and folder1/")
   private String objectName;
 
   @CommandLine.Option(
       names = "--gcs-path",
-      required = false,
       description = "Path of the bucket (e.g. 'gs://bucket_name/object/path').")
   public String gcsPath;
 
@@ -56,6 +53,7 @@ public class GcsObject extends BaseCommand {
     CreateResourceParams.Builder createResourceParams =
         referencedResourceCreationOptions.populateMetadataFields();
 
+    // parsing the path as bucket name and object name
     if (gcsPath != null) {
       if (bucketName != null || objectName != null) {
         throw new UserActionableException("Specify only one path to add reference.");

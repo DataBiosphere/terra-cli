@@ -258,23 +258,15 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "--bucket-name=" + externalBucket.getName(),
             "--object-name=" + textFilesInFolder);
 
-    // call update multiple gcs path to modify
-    // `terra resources add-ref gcs-bucket --name=$name --bucket-name=$bucketName
-    // --object-name=$objectName --gcs-path=$bucketName/$objectName`
+    // call add without gcs path
+    // `terra resources add-ref gcs-bucket --name=$name`
     String stdErr =
         TestCommand.runCommandExpectExitCode(
-            1,
-            "resource",
-            "add-ref",
-            "gcs-object",
-            "--name=" + name,
-            "--bucket-name=" + externalBucket.getName(),
-            "--object-name=" + externalBucketBlobName,
-            "--gcs-path=gs://" + externalBucket.getName() + "/" + externalBucketBlobName);
+            1, "resource", "add-ref", "gcs-object", "--name=" + name);
     assertThat(
-        "Specify only one path to add reference.",
+        "Specify at least one path to update.",
         stdErr,
-        CoreMatchers.containsString("Specify only one path to add reference."));
+        CoreMatchers.containsString("Specify at least one path to update."));
 
     // check that the name and bucket name match
     assertEquals(name3, addedBucketObjectReference3.name, "add ref output matches name");
@@ -586,7 +578,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         stdErr,
         CoreMatchers.containsString("Specify at least one property to update."));
 
-    // call update multiple gcs path to modify
+    // call update by specify multiple gcs path
+    // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName --new-gcs-path=gs://$newBucketName+$newOptionName`
     String stdErr2 =
         TestCommand.runCommandExpectExitCode(
             1,
