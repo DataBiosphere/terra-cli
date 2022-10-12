@@ -6,13 +6,14 @@ import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
-import bio.terra.cli.command.shared.options.GcsBucketNewName;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-object" command. */
@@ -23,14 +24,24 @@ import picocli.CommandLine;
 public class GcsObject extends BaseCommand {
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
-  @CommandLine.Mixin GcsBucketNewName newBucketName;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
+  @CommandLine.Option(
+      names = "--new-bucket-name",
+      description =
+          "New name of the GCS bucket, without the prefix. (e.g. 'my-bucket', not 'gs://my-bucket').")
+  private String newBucketName;
 
   @CommandLine.Option(
       names = "--new-object-name",
       description = "Full path to the object in the specified GCS bucket.")
   private String newObjectName;
+
+  @CommandLine.Option(
+      names = "--new-gcs-path",
+      description = "New path of the bucket (e.g. 'gs://bucket_name/object/path').")
+  public String newGcsPath;
 
   /** Print this command's output in text format. */
   private static void printText(UFGcsObject returnValue) {
@@ -43,10 +54,21 @@ public class GcsObject extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
+    if (newGcsPath != null) {
+      if (newBucketName != null || newObjectName != null) {
+        throw new UserActionableException("Specify only one path to add reference.");
+      } else {
+        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
+        Matcher m = r.matcher(newGcsPath);
+        if (m.find()) {
+          newBucketName = m.group(1);
+          newObjectName = m.group(2);
+        }
+      }
+    }
+
     // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined()
-        && newObjectName == null
-        && newBucketName.getNewBucketName() == null) {
+    if (!resourceUpdateOptions.isDefined() && newObjectName == null && newBucketName == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
@@ -61,7 +83,7 @@ public class GcsObject extends BaseCommand {
     UpdateReferencedGcsObjectParams gcsObjectParams =
         new UpdateReferencedGcsObjectParams.Builder()
             .resourceFields(updateResourceParams)
-            .bucketName(newBucketName.getNewBucketName())
+            .bucketName(newBucketName)
             .objectName(newObjectName)
             .cloningInstructions(newCloningInstructionsOption.getCloning())
             .build();
