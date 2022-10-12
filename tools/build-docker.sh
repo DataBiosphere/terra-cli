@@ -23,8 +23,7 @@ fi
 
 # set the local image name if no name was provided
 localImageName=$2
-if [ -z "$localImageName" ]
-  then
+if [ -z "$localImageName" ]; then
     localImageName="terra-cli/local"
 fi
 

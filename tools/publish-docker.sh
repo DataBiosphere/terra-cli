@@ -21,16 +21,14 @@ usage="Usage: tools/publish-docker.sh [remoteImageTag] [remoteImageName] [localI
 remoteImageTag=$1
 remoteImageName=$2
 localImageTag=$3
-if [ -z "$remoteImageTag" ] || [ -z "$remoteImageName" ] || [ -z "$localImageTag" ]
-  then
+if [ -z "$remoteImageTag" ] || [ -z "$remoteImageName" ] || [ -z "$localImageTag" ]; then
     echo $usage
     exit 1
 fi
 
 # set the local image name if no name was provided
 localImageName=$4
-if [ -z "$localImageName" ]
-  then
+if [ -z "$localImageName" ]; then
     localImageName="terra-cli/local"
 fi
 
