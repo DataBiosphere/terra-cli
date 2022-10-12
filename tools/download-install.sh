@@ -14,7 +14,7 @@ then
   readonly CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
   if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]];
   then
-    echo "Java version set to ${CUR_JAVA_VERSION}, is \$JAVA_HOME set correctly?, exiTing..."
+    echo "Java version set to ${CUR_JAVA_VERSION}, exiting..."
     exit 1
   fi
 else
