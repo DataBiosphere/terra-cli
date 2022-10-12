@@ -579,7 +579,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         CoreMatchers.containsString("Specify at least one property to update."));
 
     // call update by specify multiple gcs path
-    // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName --new-gcs-path=gs://$newBucketName+$newOptionName`
+    // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName
+    // --new-gcs-path=gs://$newBucketName+$newOptionName`
     String stdErr2 =
         TestCommand.runCommandExpectExitCode(
             1,
