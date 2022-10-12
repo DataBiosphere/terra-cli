@@ -17,6 +17,9 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /** This class corresponds to the fourth-level "terra resource update bq-dataset" command. */
 @CommandLine.Command(
     name = "bq-dataset",
@@ -31,6 +34,11 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
+  @CommandLine.Option(
+          names = "--new-dataset-path",
+          description = "New path of the bucket (e.g. 'gs://bucket_name/object/path').")
+  public String newDatasetPath;
+
   /** Print this command's output in text format. */
   private static void printText(UFBqDataset returnValue) {
     OUT.println("Successfully updated BigQuery dataset.");
@@ -41,6 +49,26 @@ public class BqDataset extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
+    String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
+    String newDatasetId = bqDatasetNewIds.getNewGcpProjectId();
+
+    if (newDatasetPath != null) {
+      if (newProjectId != null || newDatasetId != null) {
+        throw new UserActionableException("Specify only one path to add reference.");
+      } else {
+        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
+        Matcher m = r.matcher(newDatasetPath);
+        if (m.find()) {
+          newProjectId = m.group(1);
+          newDatasetId = m.group(2);
+        }
+      }
+    } else {
+      if (newProjectId == null || newDatasetId == null) {
+        throw new UserActionableException("Specify at least one path to update.");
+      }
+    }
 
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
@@ -64,8 +92,8 @@ public class BqDataset extends BaseCommand {
       UpdateReferencedBqDatasetParams.Builder updateParams =
           new UpdateReferencedBqDatasetParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-              .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-              .projectId(bqDatasetNewIds.getNewGcpProjectId())
+              .datasetId(newDatasetId)
+              .projectId(newProjectId)
               .cloningInstructions(newCloningInstructionsOption.getCloning());
       resource.updateReferenced(updateParams.build());
     } else {

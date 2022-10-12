@@ -12,11 +12,10 @@ public class BqDatasetsIds {
 
   @CommandLine.Option(
       names = "--project-id",
-      required = true,
       description = "GCP project id of the dataset.")
   private String gcpProjectId;
 
-  @CommandLine.Option(names = "--dataset-id", required = true, description = "BigQuery dataset id.")
+  @CommandLine.Option(names = "--dataset-id", description = "BigQuery dataset id.")
   private String bigQueryDatasetId;
 
   public String getGcpProjectId() {
