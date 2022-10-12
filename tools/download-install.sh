@@ -8,12 +8,10 @@ set -e
 
 readonly REQ_JAVA_VERSION=17
 echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
-if [[ -n "$(which java)" ]];
-then
+if [[ -n "$(which java)" ]]; then
   # Get the current major version of Java: "11.0.12" => "11"
   readonly CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
-  if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]];
-  then
+  if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]]; then
     echo "Error with Java version: set to ${CUR_JAVA_VERSION}, exiting..."
     exit 1
   fi
