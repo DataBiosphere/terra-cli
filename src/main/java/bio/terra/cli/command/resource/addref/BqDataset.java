@@ -11,9 +11,6 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import picocli.CommandLine;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /** This class corresponds to the fourth-level "terra resource add-ref bq-dataset" command. */
 @CommandLine.Command(
     name = "bq-dataset",
@@ -26,8 +23,8 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-          names = "--dataset-path",
-          description = "Path of the bucket (e.g. 'gs://dataset_name/object/path').")
+      names = "--dataset-path",
+      description = "Path of the dataset (e.g. 'project_id.dataset_id').")
   public String datasetPath;
 
   /** Print this command's output in text format. */
@@ -43,16 +40,14 @@ public class BqDataset extends BaseCommand {
     String projectId = bigQueryIds.getGcpProjectId();
     String datasetId = bigQueryIds.getBigQueryDatasetId();
 
+    // parsing the path as project id, database id
     if (datasetPath != null) {
       if (projectId != null || datasetId != null) {
         throw new UserActionableException("Specify only one path to add reference.");
       } else {
-        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-        Matcher m = r.matcher(datasetPath);
-        if (m.find()) {
-          projectId = m.group(1);
-          datasetId = m.group(2);
-        }
+        String[] parsePath = datasetPath.split("[.]");
+        projectId = parsePath[0];
+        datasetId = parsePath[1];
       }
     } else {
       if (projectId == null || datasetId == null) {

@@ -17,9 +17,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /** This class corresponds to the fourth-level "terra resource update bq-dataset" command. */
 @CommandLine.Command(
     name = "bq-dataset",
@@ -35,8 +32,8 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-          names = "--new-dataset-path",
-          description = "New path of the bucket (e.g. 'gs://bucket_name/object/path').")
+      names = "--new-dataset-path",
+      description = "New path of the bucket (e.g. 'gs://project_id.dataset_name').")
   public String newDatasetPath;
 
   /** Print this command's output in text format. */
@@ -57,12 +54,9 @@ public class BqDataset extends BaseCommand {
       if (newProjectId != null || newDatasetId != null) {
         throw new UserActionableException("Specify only one path to add reference.");
       } else {
-        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-        Matcher m = r.matcher(newDatasetPath);
-        if (m.find()) {
-          newProjectId = m.group(1);
-          newDatasetId = m.group(2);
-        }
+        String[] parsePath = newDatasetPath.split("[.]");
+        newProjectId = parsePath[0];
+        newDatasetId = parsePath[1];
       }
     } else {
       if (newProjectId == null || newDatasetId == null) {

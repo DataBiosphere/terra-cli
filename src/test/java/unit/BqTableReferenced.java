@@ -104,9 +104,18 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
+    // `terra resource add-ref bq-table --name=$name --format=json`
+    String name = "listDescribeReflectAdd";
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(
+            1, "resource", "add-ref", "bq-table", "--name=" + name);
+    assertThat(
+        "Specify at least one path to update.",
+        stdErr,
+        CoreMatchers.containsString("Specify at least one path to update."));
+
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
-    String name = "listDescribeReflectAdd";
     UFBqTable addedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
@@ -179,8 +188,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
+    // `terra resource add-ref bq-table --name=$name
+    // --table-path==$projectId.$datasetId.$dataTableId --format=json`
     String name = "listReflectsDelete";
     TestCommand.runAndParseCommandExpectSuccess(
         UFBqTable.class,
@@ -188,9 +197,12 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "bq-table",
         "--name=" + name,
-        "--project-id=" + externalDataset.getProjectId(),
-        "--dataset-id=" + externalDataset.getDatasetId(),
-        "--table-id=" + externalDataTableName);
+        "--table-path="
+            + externalDataset.getProjectId()
+            + "."
+            + externalDataset.getDatasetId()
+            + "."
+            + externalDataTableName);
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -496,6 +508,28 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         stdErr,
         CoreMatchers.containsString("Specify at least one property to update"));
 
+    // call update by specify multiple table path
+    // `terra resources update bq-table --name=$name --new-table-id=$newTableName
+    // --new-table-path=$newProjectId.$newDatasetId.$newTableId`
+    String stdErr2 =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + name,
+            "--new-table-id=" + externalDataTableName,
+            "--new-table-path="
+                + createdDataset.projectId
+                + "."
+                + createdDataset.datasetId
+                + "."
+                + externalDataTableName);
+    assertThat(
+        "Specify only one path to add reference.",
+        stdErr2,
+        CoreMatchers.containsString("Specify only one path to add reference."));
+
     // update both the name and description
     // `terra resources update bq-table --name=$newName --new-name=$newName
     // --new-description=$newDescription`
@@ -528,6 +562,26 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(createdDataset.projectId, describeDataTable.projectId);
     assertEquals(createdDataset.datasetId, describeDataTable.datasetId);
     assertEquals(tableInControlledDataset, describeDataTable.dataTableId);
+
+    // update both the table path
+    // `terra resources update bq-table --name=$newName
+    // --new-table-path=$newProjectId.$newDatasetId.$newTableId`
+    UFBqTable newDataTable =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqTable.class,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + newName,
+            "--new-table-path="
+                + externalDataset.getProjectId()
+                + "."
+                + externalDataset.getDatasetId()
+                + "."
+                + externalDataTableName);
+    assertEquals(externalDataset.getDatasetId(), newDataTable.datasetId);
+    assertEquals(externalDataset.getProjectId(), newDataTable.projectId);
+    assertEquals(externalDataTableName, newDataTable.dataTableId);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(

@@ -10,9 +10,7 @@ import picocli.CommandLine;
  */
 public class BqDatasetsIds {
 
-  @CommandLine.Option(
-      names = "--project-id",
-      description = "GCP project id of the dataset.")
+  @CommandLine.Option(names = "--project-id", description = "GCP project id of the dataset.")
   private String gcpProjectId;
 
   @CommandLine.Option(names = "--dataset-id", description = "BigQuery dataset id.")

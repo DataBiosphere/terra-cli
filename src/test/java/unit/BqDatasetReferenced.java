@@ -65,9 +65,18 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource add-ref bq-dataset --name=$name --project-id=$projectId
-    // --dataset-id=$datasetId --format=json`
+    // `terra resource add-ref bq-dataset --name=$name --format=json`
     String name = "listDescribeReflectAdd";
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(
+            1, "resource", "add-ref", "bq-dataset", "--name=" + name);
+    assertThat(
+        "Specify at least one path to update.",
+        stdErr,
+        CoreMatchers.containsString("Specify at least one path to update."));
+
+    // `terra resource add-ref bq-dataset --name=$name --dataset-path==$projectId.$datasetId
+    // --format=json`
     UFBqDataset addedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class,
@@ -75,8 +84,10 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
             "add-ref",
             "bq-dataset",
             "--name=" + name,
-            "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId());
+            "--dataset-path="
+                + externalDataset.getProjectId()
+                + "."
+                + externalDataset.getDatasetId());
 
     // check that the name, project id, and dataset id match
     assertEquals(name, addedDataset.name, "add ref output matches name");
@@ -411,6 +422,23 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         stdErr,
         CoreMatchers.containsString("Specify at least one property to update"));
 
+    // call update by specify multiple dataset path
+    // `terra resources update bq-dataset --name=$name --new-dataset-id=$newDatasetName
+    // --new-dataset-path=$newProjectId.$newDatasetId.$newObjectName`
+    String stdErr2 =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resource",
+            "update",
+            "bq-dataset",
+            "--name=" + name,
+            "--new-dataset-id=" + createdDataset.datasetId,
+            "--new-dataset-path=" + createdDataset.projectId + "." + createdDataset.datasetId);
+    assertThat(
+        "Specify only one path to add reference.",
+        stdErr2,
+        CoreMatchers.containsString("Specify only one path to add reference."));
+
     // update both the name and description
     // `terra resources update bq-dataset --name=$newName --new-name=$newName
     // --new-description=$newDescription`
@@ -439,6 +467,23 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     assertEquals(newDescription, describeDataset.description);
     assertEquals(createdDataset.datasetId, describeDataset.datasetId);
     assertEquals(createdDataset.projectId, describeDataset.projectId);
+
+    // update both the name and description
+    // `terra resources update bq-dataset --name=$newName
+    // --new-dataset-path=$newProjectId.$newDatasetId `
+    UFBqDataset newDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class,
+            "resource",
+            "update",
+            "bq-dataset",
+            "--name=" + newName,
+            "--new-dataset-path="
+                + externalDataset.getProjectId()
+                + "."
+                + externalDataset.getDatasetId());
+    assertEquals(externalDataset.getProjectId(), newDataset.projectId);
+    assertEquals(externalDataset.getDatasetId(), newDataset.datasetId);
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess(

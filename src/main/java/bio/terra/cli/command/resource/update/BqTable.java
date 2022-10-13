@@ -29,6 +29,11 @@ public class BqTable extends BaseCommand {
   @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;
 
+  @CommandLine.Option(
+      names = "--new-table-path",
+      description = "New path of the big query table (e.g. 'project_id.dataset_id.table_id').")
+  public String newTablePath;
+
   /** Print this command's output in text format. */
   private static void printText(UFBqTable returnValue) {
     OUT.println("Successfully updated BigQuery data table.");
@@ -39,6 +44,25 @@ public class BqTable extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
+    String newDatasetId = bqDatasetNewIds.getNewBqDatasetId();
+    String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
+
+    // parsing the path as project id, database id and table id
+    if (newTablePath != null) {
+      if (newProjectId != null || newDatasetId != null || newBqTableId != null) {
+        throw new UserActionableException("Specify only one path to add reference.");
+      } else {
+        String[] parsePath = newTablePath.split("[.]");
+        newProjectId = parsePath[0];
+        newDatasetId = parsePath[1];
+        newBqTableId = parsePath[2];
+      }
+    } else {
+      if (newProjectId == null || newDatasetId == null || newBqTableId == null) {
+        throw new UserActionableException("Specify at least one path to update.");
+      }
+    }
 
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
@@ -57,8 +81,8 @@ public class BqTable extends BaseCommand {
         new UpdateReferencedBqTableParams.Builder()
             .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
             .tableId(newBqTableId)
-            .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-            .projectId(bqDatasetNewIds.getNewGcpProjectId())
+            .datasetId(newDatasetId)
+            .projectId(newProjectId)
             .cloningInstructions(newCloningInstructionsOption.getCloning());
 
     resource.updateReferenced(bqTableParams.build());
