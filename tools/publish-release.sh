@@ -13,15 +13,13 @@ set -e
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
-usage="Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
-
 releaseVersion=$1
 if [ -z "$releaseVersion" ]; then
-    echo $usage
+    >&2 echo "ERROR: Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
     exit 1
 fi
 isRegularRelease=$2
@@ -33,7 +31,7 @@ echo "-- Validating version string"
 # Docker image name cannot contain any uppercase letters, so this would prevent using the same
 # version number for both the Java code and Docker image
 if [[ $releaseVersion =~ [A-Z] ]]; then
-  echo "Release version cannot contain any uppercase letters"
+  >&2 echo "ERROR: Release version cannot contain any uppercase letters"
   exit 1
 fi
 
@@ -42,7 +40,7 @@ echo "-- Checking if this version matches the value in build.gradle"
 # related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
 buildGradleVersion=$(./gradlew --quiet getBuildVersion)
 if [ "$releaseVersion" != "$buildGradleVersion" ]; then
-  echo "Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
+  >&2 echo "ERROR: Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
 else
   echo "Release version matches build.gradle version"
@@ -52,7 +50,7 @@ echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
 foundReleaseTag=$(git tag -l $releaseVersion)
 if [ -z "$foundReleaseTag" ]; then
-  echo "No tag found matching this version"
+  >&2 echo "ERROR: No tag found matching this version"
   exit 1
 else
   echo "Found tag matching this version"
