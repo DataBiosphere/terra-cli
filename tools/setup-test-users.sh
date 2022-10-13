@@ -47,8 +47,7 @@ if [ $requiresInvite == "true" ]; then
                   "Brooklyn.Thunderlord@test.firecloud.org"
                   "Noah.Frostwolf@test.firecloud.org"
                   "Ethan.Bonechewer@test.firecloud.org")
-  for testUser in "${testUsers[@]}"
-  do
+  for testUser in "${testUsers[@]}"; do
     $terra user status --email="$testUser" || $terra user invite --email="$testUser"
   done
 else
