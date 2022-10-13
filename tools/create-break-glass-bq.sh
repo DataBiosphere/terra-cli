@@ -14,15 +14,13 @@
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
-usage="Usage: ./tools/create-break-glass-bq.sh [projectId]"
-
 projectId=$1
 if [ -z "$projectId" ]; then
-    echo $usage
+    >&2 echo "ERROR: Usage: ./tools/create-break-glass-bq.sh [projectId]"
     exit 1
 fi
 

@@ -12,7 +12,7 @@ if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_
 elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
   terraCliDockerMode="DOCKER_AVAILABLE"
 else
-  echo "Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
+  >&2 echo "ERROR: Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
   exit 1
 fi
 
@@ -21,7 +21,7 @@ echo "--  Docker availability mode is $terraCliDockerMode"
 echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
 if [ ! -f "$archiveDir/install.sh" ]; then
-  echo "Script must be run from the same directory (i.e. ./install.sh, not terra-0.1.0/install.sh)"
+  >&2 echo "ERROR: Script must be run from the same directory (i.e. ./install.sh, not terra-0.1.0/install.sh)"
   exit 1
 fi
 
@@ -29,7 +29,7 @@ echo "--  Checking for application directory"
 applicationDir="${HOME}/.terra"
 mkdir -p "$applicationDir"
 if [ ! -d "${applicationDir}" ]; then
-    echo "Error creating application directory: ${applicationDir}"
+    >&2 echo "ERROR: Error creating application directory: ${applicationDir}"
     exit 1
 fi
 

@@ -22,16 +22,14 @@ set -e
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 terra=$PWD/build/install/terra-cli/bin/terra
 
-usage="Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
-
 adminUsersGroupEmail=$1
 if [ -z "$adminUsersGroupEmail" ]; then
-    echo $usage
+    >&2 echo "ERROR: Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
     exit 1
 fi
 

@@ -12,11 +12,11 @@ if [[ -n "$(which java)" ]]; then
   # Get the current major version of Java: "11.0.12" => "11"
   readonly CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
   if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]]; then
-    echo "Error with Java version: set to ${CUR_JAVA_VERSION}, exiting..."
+    >&2 echo "ERROR: Java version detected (${CUR_JAVA_VERSION}) is less than required (${REQ_JAVA_VERSION})"
     exit 1
   fi
 else
-  echo "Error determining Java version, exiting"
+  >&2 echo "ERROR: No Java installation detected"
   exit 1
 fi
 
@@ -41,7 +41,7 @@ fi
 archiveFileName="terra-cli.tar"
 curl -L "$releaseTarUrl" > $archiveFileName
 if [ ! -f "${archiveFileName}" ]; then
-    echo "Error downloading release: ${archiveFileName}"
+    >&2 echo "ERROR: Error downloading release: ${archiveFileName}"
     exit 1
 fi
 
@@ -51,7 +51,7 @@ rm -rf "$archiveDir"
 mkdir -p "$archiveDir"
 tar -C "$archiveDir" --strip-components=1 -xf $archiveFileName
 if [ ! -f "$archiveDir/install.sh" ]; then
-    echo "Error unarchiving release: ${archiveFileName}"
+    >&2 echo "ERROR: unarchiving release: ${archiveFileName}"
     exit 1
 fi
 
