@@ -11,7 +11,7 @@ set -e
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
@@ -48,8 +48,8 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   curl -L https://github.com/DataBiosphere/terra-cli/releases/$versionPath/download-install.sh | bash
 
 else
-  echo "Usage: tools/install-for-testing.sh installMode [version]"
-  echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
-  echo "           version = version to  install (latest if none passed)"
+  >&2 echo "ERROR: Usage: tools/install-for-testing.sh installMode [version]"
+  >&2 echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
+  >&2 echo "           version = version to  install (latest if none passed)"
   exit 1
 fi

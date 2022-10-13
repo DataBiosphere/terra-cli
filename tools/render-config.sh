@@ -7,7 +7,7 @@
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
@@ -29,7 +29,7 @@ readFromVault () {
   fileName=$2
   decodeBase64=$3
   if [ -z "$vaultPath" ] || [ -z "$fileName" ]; then
-    echo "Two arguments required for readFromVault function"
+    >&2 echo "ERROR: Two arguments required for readFromVault function"
     exit 1
   fi
   if [ -z "$decodeBase64" ]; then
