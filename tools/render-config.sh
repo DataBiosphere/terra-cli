@@ -6,8 +6,8 @@
 ## Usage: ./tools/render-config.sh
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
@@ -28,11 +28,11 @@ readFromVault () {
   vaultPath=$1
   fileName=$2
   decodeBase64=$3
-  if [ -z "$vaultPath" ] || [ -z "$fileName" ]; then
-    echo "Two arguments required for readFromVault function"
+  if [[ -z "$vaultPath" ]] || [[ -z "$fileName" ]]; then
+    >&2 echo "ERROR: Two arguments required for readFromVault function"
     exit 1
   fi
-  if [ -z "$decodeBase64" ]; then
+  if [[ -z "$decodeBase64" ]]; then
     docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
               vault read -format json $vaultPath \
               | jq -r .data > "rendered/broad/$fileName"

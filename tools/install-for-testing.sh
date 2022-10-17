@@ -10,15 +10,15 @@ set -e
 ##        ./tools/install-for-testing.sh GITHUB_RELEASE
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
 # Tests currently assume Docker is available and running.
 installMode=$1
 echo "installMode: $installMode"
-if [ "$installMode" = "SOURCE_CODE" ]; then
+if [[ "$installMode" == "SOURCE_CODE" ]]; then
   echo "Assuming the Java code is already built and installed by Gradle"
   terra=$(pwd)/build/install/terra-cli/bin/terra
 
@@ -28,9 +28,9 @@ if [ "$installMode" = "SOURCE_CODE" ]; then
   echo "Pulling the default Docker image"
   docker pull $($terra config get image)
 
-elif [ "$installMode" = "GITHUB_RELEASE" ]; then
+elif [[ "$installMode" == "GITHUB_RELEASE" ]]; then
 
-  if [ -z "$2" ]; then
+  if [[ -z "$2" ]]; then
     versionPath="latest/download"
   else
     # We want to download the specificed version of the install script AND
@@ -48,8 +48,8 @@ elif [ "$installMode" = "GITHUB_RELEASE" ]; then
   curl -L https://github.com/DataBiosphere/terra-cli/releases/$versionPath/download-install.sh | bash
 
 else
-  echo "Usage: tools/install-for-testing.sh installMode [version]"
-  echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
-  echo "           version = version to  install (latest if none passed)"
+  >&2 echo "ERROR: Usage: tools/install-for-testing.sh installMode [version]"
+  >&2 echo "       installMode = SOURCE_CODE, GITHUB_RELEASE"
+  >&2 echo "           version = version to  install (latest if none passed)"
   exit 1
 fi
