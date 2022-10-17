@@ -21,14 +21,14 @@ set -e
 # TODO(PF-1339): Rename to setup-broad-test-users.sh, add testconfig flag, and get test users from testconfig.
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 terra=$PWD/build/install/terra-cli/bin/terra
 
 adminUsersGroupEmail=$1
-if [ -z "$adminUsersGroupEmail" ]; then
+if [[ -z "$adminUsersGroupEmail" ]]; then
     >&2 echo "ERROR: Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
     exit 1
 fi
@@ -37,7 +37,7 @@ fi
 echo
 echo "Checking whether the server requires inviting new users."
 requiresInvite=$($terra config get server --format=json | jq .samInviteRequiresAdmin)
-if [ $requiresInvite == "true" ]; then
+if [[ $requiresInvite == "true" ]]; then
   echo "Inviting test users."
   declare -a testUsers=("Penelope.TwilightsHammer@test.firecloud.org"
                   "John.Whiteclaw@test.firecloud.org"

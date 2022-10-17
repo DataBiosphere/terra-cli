@@ -32,7 +32,7 @@ fi
 echo "--  Downloading release archive from GitHub"
 ghRepoReleasesUrl="https://github.com/DataBiosphere/terra-cli/releases"
 installPackageFileName="terra-cli.tar"
-if [ "$terraCliVersion" == "latest" ]; then
+if [[ "$terraCliVersion" == "latest" ]]; then
   releaseTarUrl="$ghRepoReleasesUrl/latest/download/$installPackageFileName"
 else
   releaseTarUrl="$ghRepoReleasesUrl/download/$terraCliVersion/$installPackageFileName"
@@ -40,7 +40,7 @@ fi
 
 archiveFileName="terra-cli.tar"
 curl -L "$releaseTarUrl" > $archiveFileName
-if [ ! -f "${archiveFileName}" ]; then
+if [[ ! -f "${archiveFileName}" ]]; then
     >&2 echo "ERROR: Error downloading release: ${archiveFileName}"
     exit 1
 fi
@@ -50,7 +50,7 @@ archiveDir=$PWD/terra-cli-install
 rm -rf "$archiveDir"
 mkdir -p "$archiveDir"
 tar -C "$archiveDir" --strip-components=1 -xf $archiveFileName
-if [ ! -f "$archiveDir/install.sh" ]; then
+if [[ ! -f "$archiveDir/install.sh" ]]; then
     >&2 echo "ERROR: unarchiving release: ${archiveFileName}"
     exit 1
 fi

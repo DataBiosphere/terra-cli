@@ -12,18 +12,18 @@ set -e
 ## Usage: ./publish-release.sh  0.0.0 true   --> publishes version 0.0.0 as a regular release
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
 releaseVersion=$1
-if [ -z "$releaseVersion" ]; then
+if [[ -z "$releaseVersion" ]]; then
     >&2 echo "ERROR: Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
     exit 1
 fi
 isRegularRelease=$2
-if [ "$isRegularRelease" != "true" ]; then
+if [[ "$isRegularRelease" != "true" ]]; then
   isRegularRelease="false"
 fi
 
@@ -39,7 +39,7 @@ echo "-- Checking if this version matches the value in build.gradle"
 # note that the --quiet flag has to be before the task name, otherwise log statements
 # related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
 buildGradleVersion=$(./gradlew --quiet getBuildVersion)
-if [ "$releaseVersion" != "$buildGradleVersion" ]; then
+if [[ "$releaseVersion" != "$buildGradleVersion" ]]; then
   >&2 echo "ERROR: Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
 else
@@ -49,7 +49,7 @@ fi
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
 foundReleaseTag=$(git tag -l $releaseVersion)
-if [ -z "$foundReleaseTag" ]; then
+if [[ -z "$foundReleaseTag" ]]; then
   >&2 echo "ERROR: No tag found matching this version"
   exit 1
 else
@@ -73,7 +73,7 @@ distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled
-if [ "$isRegularRelease" == "true" ]; then
+if [[ "$isRegularRelease" == "true" ]]; then
   echo "Creating regular release"
   preReleaseFlag=""
 else

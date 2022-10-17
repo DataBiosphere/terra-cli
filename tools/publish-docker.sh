@@ -10,7 +10,7 @@ set -e
 ##        ./tools/publish-docker.sh test123 terra-cli/v0.0 test123ab terracli/branchA
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
@@ -19,14 +19,14 @@ fi
 remoteImageTag=$1
 remoteImageName=$2
 localImageTag=$3
-if [ -z "$remoteImageTag" ] || [ -z "$remoteImageName" ] || [ -z "$localImageTag" ]; then
+if [[ -z "$remoteImageTag" ]] || [[ -z "$remoteImageName" ]] || [[ -z "$localImageTag" ]]; then
     >&2 echo "ERROR: Usage: tools/publish-docker.sh [remoteImageTag] [remoteImageName] [localImageTag] [localImageName]"
     exit 1
 fi
 
 # set the local image name if no name was provided
 localImageName=$4
-if [ -z "$localImageName" ]; then
+if [[ -z "$localImageName" ]]; then
     localImageName="terra-cli/local"
 fi
 
@@ -49,7 +49,7 @@ echo "Pushing the image to GCR"
 docker push $remoteImageNameAndTag
 
 echo "Restoring the current gcloud user"
-if [ -n "$currentGcloudUser" ]; then
+if [[ -n "$currentGcloudUser" ]]; then
   gcloud config set account $currentGcloudUser
 else
   echo "No current gcloud user to restore"

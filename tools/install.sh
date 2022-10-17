@@ -7,9 +7,9 @@ set -e
 # # Dependencies: docker, gcloud
 ## Usage: ./install.sh
 
-if [ -z "$TERRA_CLI_DOCKER_MODE" ] || [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]; then
+if [[ -z "$TERRA_CLI_DOCKER_MODE" ]] || [[ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_NOT_AVAILABLE" ]]; then
   terraCliDockerMode="DOCKER_NOT_AVAILABLE"
-elif [ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]; then
+elif [[ "$TERRA_CLI_DOCKER_MODE" == "DOCKER_AVAILABLE" ]]; then
   terraCliDockerMode="DOCKER_AVAILABLE"
 else
   >&2 echo "ERROR: Unsupported TERRA_CLI_DOCKER_MODE specified: $TERRA_CLI_DOCKER_MODE"
@@ -20,7 +20,7 @@ echo "--  Docker availability mode is $terraCliDockerMode"
 
 echo "--  Checking that script is being run from the same directory"
 archiveDir=$PWD
-if [ ! -f "$archiveDir/install.sh" ]; then
+if [[ ! -f "$archiveDir/install.sh" ]]; then
   >&2 echo "ERROR: Script must be run from the same directory (i.e. ./install.sh, not terra-0.1.0/install.sh)"
   exit 1
 fi
@@ -28,13 +28,13 @@ fi
 echo "--  Checking for application directory"
 applicationDir="${HOME}/.terra"
 mkdir -p "$applicationDir"
-if [ ! -d "${applicationDir}" ]; then
+if [[ ! -d "${applicationDir}" ]]; then
     >&2 echo "ERROR: Error creating application directory: ${applicationDir}"
     exit 1
 fi
 
 echo "--  Moving JARs to application directory"
-if [ -f "${applicationDir}/lib" ] || [ -d "${applicationDir}/lib" ]; then
+if [[ -f "${applicationDir}/lib" ]] || [[ -d "${applicationDir}/lib" ]]; then
   rm -R "${applicationDir:?}/lib"
 fi
 cp -R "$archiveDir"/lib "$applicationDir"/lib
@@ -47,7 +47,7 @@ echo "--  Deleting the archive directory"
 cd "$archiveDir"/..
 rm -R "$archiveDir"
 
-if [ "$terraCliDockerMode" == "DOCKER_NOT_AVAILABLE" ]; then
+if [[ "$terraCliDockerMode" == "DOCKER_NOT_AVAILABLE" ]]; then
   echo "Installing without docker image because TERRA_CLI_DOCKER_MODE is DOCKER_NOT_AVAILABLE."
   ./terra config set app-launch LOCAL_PROCESS
 else
