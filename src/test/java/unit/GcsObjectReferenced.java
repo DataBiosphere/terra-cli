@@ -580,7 +580,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
 
     // call update by specify multiple gcs path
     // `terra resources update gcs-object --name=$name --new-bucket-name=$newBucketName
-    // --new-gcs-path=gs://$newBucketName+$newOptionName`
+    // --new-gcs-path=gs://$newBucketName+$newObjectName`
     String stdErr2 =
         TestCommand.runCommandExpectExitCode(
             1,
