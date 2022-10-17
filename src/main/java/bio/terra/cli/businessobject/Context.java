@@ -135,7 +135,7 @@ public class Context {
     }
     // build.gradle test task makes contextDir. However, with test-runner specific directories,
     // this test is executed in a different place from where the test task mkdir was run. So need
-    // to create directory for if Test Distribution is being used.
+    // to create directory for if tests are running in parallel.
     if (!contextPath.toAbsolutePath().toFile().exists()) {
       contextPath.toAbsolutePath().toFile().mkdir();
     }
