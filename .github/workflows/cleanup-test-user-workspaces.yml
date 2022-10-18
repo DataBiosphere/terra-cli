@@ -14,17 +14,9 @@ jobs:
   cleanup-test-user-workspaces:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout current code
-      id: checkout_code
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-    - name: Set up JDK 17
-      id: setup_jdk
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: 17
+    - name: Checkout code & Setup JDK
+      uses: ./.github/actions/code_setup
+
     - name: Cache Gradle packages
       id: cache_gradle
       uses: actions/cache@v2
@@ -34,35 +26,10 @@ jobs:
           ~/.gradle/wrapper
         key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
         restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+
     - name: Render config
-      id: render_config
-      run: |
-        # For security reasons, Broad prefers we read GHA secrets instead of reading from vault.
-        # this step does the equivalent of the tools/render-config.sh script.
-        # on local machines, the script fetches a SA from Vault.
-        # in GH actions, the SA key is stored in a GH repo secret.
-        # regardless of how it was fetched, tests and scripts expect these
-        # keys to be stored in rendered/broad/
-        mkdir -p rendered/broad/
-        echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
-        echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
-        echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
-        echo "$BROOKLYN_THUNDERLORD" > rendered/broad/Brooklyn.Thunderlord@test.firecloud.org.json
-        echo "$ETHAN_BONECHEWER" > rendered/broad/Ethan.Bonechewer@test.firecloud.org.json
-        echo "$JOHN_WHITECLAW" > rendered/broad/John.Whiteclaw@test.firecloud.org.json
-        echo "$LILY_SHADOWMOON" > rendered/broad/Lily.Shadowmoon@test.firecloud.org.json
-        echo "$NOAH_FROSTWOLF" > rendered/broad/Noah.Frostwolf@test.firecloud.org.json
-        echo "$PENELOPE_TWILIGHTSHAMMER" > rendered/broad/Penelope.TwilightsHammer@test.firecloud.org.json
-      env:
-        TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
-        EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
-        JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
-        BROOKLYN_THUNDERLORD: ${{ secrets.BROOKLYN_THUNDERLORD }}
-        ETHAN_BONECHEWER: ${{ secrets.ETHAN_BONECHEWER }}
-        JOHN_WHITECLAW: ${{ secrets.JOHN_WHITECLAW }}
-        LILY_SHADOWMOON: ${{ secrets.LILY_SHADOWMOON }}
-        NOAH_FROSTWOLF: ${{ secrets.NOAH_FROSTWOLF }}
-        PENELOPE_TWILIGHTSHAMMER: ${{ secrets.PENELOPE_TWILIGHTSHAMMER }}
+      uses: ./.github/actions/render_config
+
     - name: Run cleanup script
       id: run_cleanup_script
       run: |

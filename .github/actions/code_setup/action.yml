@@ -1,0 +1,31 @@
+name: Checkout code and Setup JDK
+description: Checkout current branch & Setup requested Java version & distribution
+
+inputs:
+  github_token:
+    description: Github token for code checkout
+    default: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+  github_branch:
+    description: Github branch to checkout
+  jdk_version:
+    description: Java major version
+    default: '17'
+  jdk_distribution:
+    description: Java distribution
+    default: 'temurin'
+
+runs:
+  using: 'composite'
+
+  steps:
+  - name: Checkout current code
+    uses: actions/checkout@v2
+    with:
+      token: ${{ inputs.github_token }}
+      ref: ${{ inputs.github_branch }}
+
+  - name: Set up JDK
+    uses: actions/setup-java@v3
+    with:
+      java-version: ${{ inputs.jdk_version }}
+      distribution: ${{ inputs.jdk_distribution }}
