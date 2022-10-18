@@ -54,9 +54,7 @@ public class GcsObject extends BaseCommand {
         referencedResourceCreationOptions.populateMetadataFields();
 
     // parsing the path as bucket name and object name
-    if (gcsPath == null && (bucketName == null || objectName == null)) {
-      throw new UserActionableException("Both bucket name and object name is required.");
-    }
+
     if (gcsPath != null) {
       if (bucketName != null || objectName != null) {
         throw new UserActionableException(
@@ -70,6 +68,10 @@ public class GcsObject extends BaseCommand {
       }
       bucketName = m.group(1);
       objectName = m.group(2);
+    } else {
+      if (bucketName == null || objectName == null) {
+        throw new UserActionableException("Specify at least one path to add.");
+      }
     }
 
     AddGcsObjectParams.Builder createParams =

@@ -264,9 +264,9 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "add-ref", "gcs-object", "--name=" + name);
     assertThat(
-        "Specify at least one path to update.",
+        "Specify at least one path to add.",
         stdErr,
-        CoreMatchers.containsString("Specify at least one path to update."));
+        CoreMatchers.containsString("Specify at least one path to add."));
 
     // check that the name and bucket name match
     assertEquals(name3, addedBucketObjectReference3.name, "add ref output matches name");
@@ -574,7 +574,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "update", "gcs-object", "--name=" + name);
     assertThat(
-        "Specify at least one property to update..",
+        "Specify at least one property to update.",
         stdErr,
         CoreMatchers.containsString("Specify at least one property to update."));
 
@@ -591,9 +591,10 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
             "--new-bucket-name=" + externalBucket.getName(),
             "--new-gcs-path=gs://" + externalBucket.getName() + "/" + externalBucketBlobName);
     assertThat(
-        "Specify only one path to add reference.",
+        "Specify either --new-gcs-path or both --new-bucket-name and --new-object-name.",
         stdErr2,
-        CoreMatchers.containsString("Specify only one path to add reference."));
+        CoreMatchers.containsString(
+            "Specify either --new-gcs-path or both --new-bucket-name and --new-object-name."));
 
     // update the name and description
     // `terra resources update gcs-object --name=$name --new-name=$newName
