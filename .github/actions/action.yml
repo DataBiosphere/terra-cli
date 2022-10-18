@@ -1,4 +1,4 @@
-name: 'Java setup'
+name: 'setup-java'
 description: 'Setup Java'
 
 inputs:
