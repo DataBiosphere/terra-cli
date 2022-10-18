@@ -54,21 +54,22 @@ public class GcsObject extends BaseCommand {
         referencedResourceCreationOptions.populateMetadataFields();
 
     // parsing the path as bucket name and object name
+    if (gcsPath == null && (bucketName == null || objectName == null)) {
+      throw new UserActionableException("Both bucket name and object name is required.");
+    }
     if (gcsPath != null) {
       if (bucketName != null || objectName != null) {
-        throw new UserActionableException("Specify only one path to add reference.");
-      } else {
-        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-        Matcher m = r.matcher(gcsPath);
-        if (m.find()) {
-          bucketName = m.group(1);
-          objectName = m.group(2);
-        }
+        throw new UserActionableException(
+            "Specify either --gcs-path or both --bucket-name and --object-name.");
       }
-    } else {
-      if (bucketName == null || objectName == null) {
-        throw new UserActionableException("Specify at least one path to update.");
+      Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
+      Matcher m = r.matcher(gcsPath);
+      if (!m.find()) {
+        throw new UserActionableException(
+            "Specify a legal gcs path, like 'gs://bucket_name/object/path'.");
       }
+      bucketName = m.group(1);
+      objectName = m.group(2);
     }
 
     AddGcsObjectParams.Builder createParams =

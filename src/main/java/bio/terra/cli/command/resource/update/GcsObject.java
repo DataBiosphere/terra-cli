@@ -54,23 +54,28 @@ public class GcsObject extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
+    // all update parameters are optional, but make sure at least one is specified
+    if (!resourceUpdateOptions.isDefined()
+        && newObjectName == null
+        && newBucketName == null
+        && newGcsPath == null) {
+      throw new UserActionableException("Specify at least one property to update.");
+    }
+
     // parsing the path as bucket name and object name
     if (newGcsPath != null) {
       if (newBucketName != null || newObjectName != null) {
-        throw new UserActionableException("Specify only one path to add reference.");
-      } else {
-        Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-        Matcher m = r.matcher(newGcsPath);
-        if (m.find()) {
-          newBucketName = m.group(1);
-          newObjectName = m.group(2);
-        }
+        throw new UserActionableException(
+            "Specify either --new-gcs-path or both --new-bucket-name and --new-object-name.");
       }
-    }
-
-    // all update parameters are optional, but make sure at least one is specified
-    if (!resourceUpdateOptions.isDefined() && newObjectName == null && newBucketName == null) {
-      throw new UserActionableException("Specify at least one property to update.");
+      Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
+      Matcher m = r.matcher(newGcsPath);
+      if (!m.find()) {
+        throw new UserActionableException(
+            "Specify a legal gcs path, like 'gs://bucket_name/object/path'.");
+      }
+      newBucketName = m.group(1);
+      newObjectName = m.group(2);
     }
 
     // get the resource and make sure it's the right type
