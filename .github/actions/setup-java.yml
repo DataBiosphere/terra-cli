@@ -1,0 +1,18 @@
+name: 'Java setup'
+description: 'Setup Java'
+
+inputs:
+  version:
+    default: '17'
+  distribution:
+    default: 'temurin'
+
+runs:
+  using: "composite"
+  steps:
+  - name: Set up JDK
+    id: setup_jdk
+    uses: actions/setup-java@v3
+    with:
+      java-version: ${{ inputs.version }}
+      distribution: ${{ inputs.distribution }}
