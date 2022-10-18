@@ -2,14 +2,10 @@ package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.exception.PassthroughException;
-import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +53,7 @@ public class Git extends ToolCommand {
     }
     if (cloneAll || (names != null && names.length > 0)) {
       validateCloneCommand();
-      clone(cloneAll ? getAllGitReposInWorkspace() : getGitReposByNames());
+      clone(cloneAll ? getGitReposInWorkspace() : getGitReposByNames());
       return;
     }
     // handle other git commands
@@ -71,19 +67,11 @@ public class Git extends ToolCommand {
     }
   }
 
-  private Set<String> getAllGitReposInWorkspace() {
-    // Use Set instead of List because there might be duplicates. This workspace may have a git
-    // repo, and a data collection may have the same repo.
-    Set<String> gitResources = getGitRepos(Context.requireWorkspace().getResources());
-
-    // Add git repos from data collections
-    // Java doesn't allow modifying gitResources in lambda, so use for loop
-    for (Resource resource : Context.requireWorkspace().getResources()) {
-      if (resource.getResourceType() == Resource.Type.DATA_COLLECTION) {
-        gitResources.addAll(attemptToGetGitReposInDataCollection((DataCollection) resource));
-      }
-    }
-    return gitResources;
+  private Set<String> getGitReposInWorkspace() {
+    return Context.requireWorkspace().getResources().stream()
+        .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
+        .map(Resource::resolve)
+        .collect(Collectors.toSet());
   }
 
   private Set<String> getGitReposByNames() {
@@ -101,27 +89,6 @@ public class Git extends ToolCommand {
               gitResources.add(resource.resolve());
             });
     return gitResources;
-  }
-
-  private Set<String> attemptToGetGitReposInDataCollection(DataCollection dataCollection) {
-    Workspace dataCollectionWorkspace = null;
-    try {
-      dataCollectionWorkspace = dataCollection.getDataCollectionWorkspace();
-    } catch (SystemException e) {
-      // If a user does not have access to the data collection, do not throw.
-      logger.warn(String.format("Failed to get Data collection %s", dataCollection.getName()));
-    }
-    if (dataCollectionWorkspace != null) {
-      return getGitRepos(dataCollectionWorkspace.getResources());
-    }
-    return Collections.emptySet();
-  }
-
-  private Set<String> getGitRepos(List<Resource> resources) {
-    return resources.stream()
-        .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
-        .map(Resource::resolve)
-        .collect(Collectors.toSet());
   }
 
   private void clone(Set<String> gitRepos) {
