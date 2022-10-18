@@ -1,10 +1,12 @@
-name: 'setup-java'
-description: 'Setup Java'
+name: 'Setup Java'
+description: 'Setup requested Java version & distribution'
 
 inputs:
   version:
+    description: 'Java major version'
     default: '17'
   distribution:
+    description: 'Java distribution'
     default: 'temurin'
 
 runs:
