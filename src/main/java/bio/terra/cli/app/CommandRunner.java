@@ -1,9 +1,6 @@
 package bio.terra.cli.app;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import com.google.common.annotations.VisibleForTesting;
@@ -139,32 +136,8 @@ public abstract class CommandRunner {
         .getResources()
         .forEach(
             resource -> {
-              if (Resource.Type.DATA_COLLECTION != resource.getResourceType()) {
-                String envVariable = convertToEnvironmentVariable(resource.getName());
-                terraReferences.put(envVariable, resource.resolve());
-              } else {
-                Workspace dataCollectionWorkspace = null;
-                try {
-                  dataCollectionWorkspace =
-                      ((DataCollection) resource).getDataCollectionWorkspace();
-                } catch (SystemException e) {
-                  logger.warn(
-                      String.format("Failed to get the data collection %s", resource.getName()), e);
-                }
-                if (dataCollectionWorkspace != null) {
-                  dataCollectionWorkspace.getResources().stream()
-                      .filter(
-                          // This should NEVER happen but check here to prevent endless resolve.
-                          r -> Resource.Type.DATA_COLLECTION != r.getResourceType())
-                      .forEach(
-                          r -> {
-                            String envVariable =
-                                convertToEnvironmentVariable(
-                                    resource.getName() + "_" + r.getName());
-                            terraReferences.put(envVariable, r.resolve());
-                          });
-                }
-              }
+              String envVariable = convertToEnvironmentVariable(resource.getName());
+              terraReferences.put(envVariable, resource.resolve());
             });
 
     return terraReferences;

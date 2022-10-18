@@ -34,7 +34,6 @@ import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
-import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
@@ -47,7 +46,6 @@ import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
-import bio.terra.workspace.model.CreateTerraWorkspaceReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
@@ -93,8 +91,6 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
-import bio.terra.workspace.model.TerraWorkspaceAttributes;
-import bio.terra.workspace.model.TerraWorkspaceResource;
 import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
@@ -516,12 +512,11 @@ public class WorkspaceManagerService {
    * Call the Workspace Manager GET "/api/workspaces/v1/{id}" endpoint to fetch an existing
    * workspace.
    */
-  public WorkspaceDescription getWorkspace(UUID uuid, boolean isDataCollectionWorkspace) {
+  public WorkspaceDescription getWorkspace(UUID uuid) {
     WorkspaceDescription workspaceWithContext =
         callWithRetries(
             () -> new WorkspaceApi(apiClient).getWorkspace(uuid, /*minimumHighestRole=*/ null),
-            "Error fetching workspace",
-            isDataCollectionWorkspace);
+            "Error fetching workspace");
     String googleProjectId =
         (workspaceWithContext.getGcpContext() == null)
             ? null
@@ -1071,24 +1066,6 @@ public class WorkspaceManagerService {
         "Error creating controlled BigQuery dataset in the workspace.");
   }
 
-  /** Used by tests only. */
-  public TerraWorkspaceResource createReferencedTerraWorkspace(
-      UUID workspaceId, UUID referencedWorkspaceId, String referenceName) {
-    CreateTerraWorkspaceReferenceRequestBody createRequest =
-        new CreateTerraWorkspaceReferenceRequestBody()
-            .metadata(
-                new ReferenceResourceCommonFields()
-                    .name(referenceName)
-                    .cloningInstructions(CloningInstructionsEnum.NOTHING))
-            .referencedWorkspace(
-                new TerraWorkspaceAttributes().referencedWorkspaceId(referencedWorkspaceId));
-    return callWithRetries(
-        () ->
-            new ReferencedGcpResourceApi(apiClient)
-                .createTerraWorkspaceReference(createRequest, workspaceId),
-        "Error creating referenced data collection in the workspace.");
-  }
-
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bucket/objects/{resourceId}"
@@ -1387,14 +1364,6 @@ public class WorkspaceManagerService {
         "Error deleting referenced git repo in the workspace.");
   }
 
-  public void deleteReferencedTerraWorkspace(UUID workspaceId, UUID resourceId) {
-    callWithRetries(
-        () ->
-            new ReferencedGcpResourceApi(apiClient)
-                .deleteTerraWorkspaceReference(workspaceId, resourceId),
-        "Error deleting referenced data collection in the workspace.");
-  }
-
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
@@ -1503,11 +1472,6 @@ public class WorkspaceManagerService {
         errorMsg);
   }
 
-  private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
-    return callWithRetries(makeRequest, errorMsg, /*isDataCollectionWorkspace=*/ false);
-  }
-
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
    * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
@@ -1516,16 +1480,12 @@ public class WorkspaceManagerService {
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
    *     thrown by the WSM client or the retries
-   * @param isDataCollectionWorkspace whether workspace is data collection workspace
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest,
-      String errorMsg,
-      boolean isDataCollectionWorkspace) {
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () -> HttpUtils.callWithRetries(makeRequest, WorkspaceManagerService::isRetryable),
-        errorMsg,
-        isDataCollectionWorkspace);
+        errorMsg);
   }
 
   /**
@@ -1575,11 +1535,6 @@ public class WorkspaceManagerService {
         errorMsg);
   }
 
-  private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
-    return handleClientExceptions(makeRequest, errorMsg, /*isDataCollectionWorkspace=*/ false);
-  }
-
   /**
    * Execute a function that includes hitting WSM endpoints. If an exception is thrown by the WSM
    * client or the retries, make sure the HTTP status code and error message are logged.
@@ -1589,25 +1544,12 @@ public class WorkspaceManagerService {
    *     thrown by the WSM client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest,
-      String errorMsg,
-      boolean isDataCollectionWorkspace) {
+      HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
     } catch (ApiException | InterruptedException ex) {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-
-        // If requester doesn't have access to data collection workspace, normally
-        // `terra resource describe` would return:
-        //     [ERROR] Error fetching workspace: User XXX is not authorized to read resource YYY of
-        //     type workspace
-        // We generally hide the fact that data collections are workspaces. Show a different error
-        // that doesn't have "workspace".
-        if (isDataCollectionWorkspace) {
-          throw new SystemException("User does not have access to this data collection", ex);
-        }
-
         String exceptionErrorMessage = logErrorMessage((ApiException) ex);
 
         errorMsg += ": " + exceptionErrorMessage;

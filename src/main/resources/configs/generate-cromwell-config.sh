@@ -6,7 +6,7 @@ echo "CROMWELL_CONFIG_PATH" : $1
 echo "GOOGLE_PROJECT": $2
 echo "PET_SA_EMAIL": $3
 echo "IMPORTANT: In cromwell.conf, change {WORKSPACE_BUCKET} to a bucket in your workspace."
-if [ ! -f "$1" ]; then
+if [[ ! -f "$1" ]]; then
   cat <<EOF | tee "$1"
 
 google {
