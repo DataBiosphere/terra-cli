@@ -39,7 +39,7 @@ public class GcsObject extends BaseCommand {
   private String newObjectName;
 
   @CommandLine.Option(
-      names = "--new-gcs-path",
+      names = "--new-path",
       description = "New path of the bucket (e.g. 'gs://bucket_name/object/path').")
   public String newGcsPath;
 
@@ -66,14 +66,15 @@ public class GcsObject extends BaseCommand {
     if (newGcsPath != null) {
       if (newBucketName != null || newObjectName != null) {
         throw new UserActionableException(
-            "Specify either --new-gcs-path or both --new-bucket-name and --new-object-name.");
+            "No need to specify --new-bucket-name and/or --new-object-name when --new-path is specified.");
       }
       Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
       Matcher m = r.matcher(newGcsPath);
       if (!m.find()) {
         throw new UserActionableException(
-            "Specify a legal gcs path, like 'gs://bucket_name/object/path'.");
+            "Specify a legal path, like 'gs://bucket_name/object/path'.");
       }
+      // the first group is "gs://" after regular expression parsing
       newBucketName = m.group(1);
       newObjectName = m.group(2);
     }
