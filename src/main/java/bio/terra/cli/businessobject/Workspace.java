@@ -120,7 +120,7 @@ public class Workspace {
 
   /** Load an existing workspace and set it as the current workspace. */
   public static Workspace load(String userFacingId) {
-    Workspace workspace = Workspace.get(userFacingId);
+    Workspace workspace = Workspace.getByUserFacingId(userFacingId);
 
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
@@ -135,16 +135,15 @@ public class Workspace {
   }
 
   /** Fetch an existing workspace by uuid, with resources populated */
-  public static Workspace get(UUID id, boolean isDataCollectionWorkspace) {
+  public static Workspace get(UUID id) {
     // call WSM to fetch the existing workspace object and backing Google context
-    WorkspaceDescription loadedWorkspace =
-        WorkspaceManagerService.fromContext().getWorkspace(id, isDataCollectionWorkspace);
+    WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
     logger.info("Loaded workspace: {}", loadedWorkspace);
     return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
   }
 
   /** Fetch an existing workspace by userFacingId, with resources populated */
-  public static Workspace get(String userFacingId) {
+  public static Workspace getByUserFacingId(String userFacingId) {
     // call WSM to fetch the existing workspace object and backing Google context
     WorkspaceDescription loadedWorkspace =
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(userFacingId);

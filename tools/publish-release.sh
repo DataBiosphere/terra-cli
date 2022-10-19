@@ -12,20 +12,18 @@ set -e
 ## Usage: ./publish-release.sh  0.0.0 true   --> publishes version 0.0.0 as a regular release
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [ $(basename $PWD) != 'terra-cli' ]; then
-  echo "Script must be run from top-level directory 'terra-cli/'"
+if [[ $(basename $PWD) != 'terra-cli' ]]; then
+  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
 
-usage="Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
-
 releaseVersion=$1
-if [ -z "$releaseVersion" ]; then
-    echo $usage
+if [[ -z "$releaseVersion" ]]; then
+    >&2 echo "ERROR: Usage: tools/publish-release.sh [releaseVersion] [isRegularRelease]"
     exit 1
 fi
 isRegularRelease=$2
-if [ "$isRegularRelease" != "true" ]; then
+if [[ "$isRegularRelease" != "true" ]]; then
   isRegularRelease="false"
 fi
 
@@ -33,7 +31,7 @@ echo "-- Validating version string"
 # Docker image name cannot contain any uppercase letters, so this would prevent using the same
 # version number for both the Java code and Docker image
 if [[ $releaseVersion =~ [A-Z] ]]; then
-  echo "Release version cannot contain any uppercase letters"
+  >&2 echo "ERROR: Release version cannot contain any uppercase letters"
   exit 1
 fi
 
@@ -41,8 +39,8 @@ echo "-- Checking if this version matches the value in build.gradle"
 # note that the --quiet flag has to be before the task name, otherwise log statements
 # related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
 buildGradleVersion=$(./gradlew --quiet getBuildVersion)
-if [ "$releaseVersion" != "$buildGradleVersion" ]; then
-  echo "Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
+if [[ "$releaseVersion" != "$buildGradleVersion" ]]; then
+  >&2 echo "ERROR: Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
   exit 1
 else
   echo "Release version matches build.gradle version"
@@ -51,8 +49,8 @@ fi
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
 foundReleaseTag=$(git tag -l $releaseVersion)
-if [ -z "$foundReleaseTag" ]; then
-  echo "No tag found matching this version"
+if [[ -z "$foundReleaseTag" ]]; then
+  >&2 echo "ERROR: No tag found matching this version"
   exit 1
 else
   echo "Found tag matching this version"
@@ -75,7 +73,7 @@ distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled
-if [ "$isRegularRelease" == "true" ]; then
+if [[ "$isRegularRelease" == "true" ]]; then
   echo "Creating regular release"
   preReleaseFlag=""
 else
