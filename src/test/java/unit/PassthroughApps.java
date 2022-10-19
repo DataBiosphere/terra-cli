@@ -82,7 +82,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("env vars include workspace cloud project")
+  @DisplayName("env vars include terra user and workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
@@ -91,9 +91,17 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
+    // `terra app execute echo \$TERRA_USER_EMAIL`
+    TestCommand.Result cmd = TestCommand.runCommand("app", "execute", "echo", "$TERRA_USER_EMAIL");
+
+    // check that TERRA_USER_EMAIL = test user email"
+    assertThat(
+        "TERRA_USER_EMAIL set to test user email",
+        cmd.stdOut,
+        CoreMatchers.containsString(workspaceCreator.email.toLowerCase()));
+
     // `terra app execute echo \$GOOGLE_CLOUD_PROJECT`
-    TestCommand.Result cmd =
-        TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
+    cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
 
     // check that GOOGLE_CLOUD_PROJECT = workspace project
     assertThat(
