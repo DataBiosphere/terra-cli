@@ -1,0 +1,26 @@
+name: Run Linter & Static analysis
+description: Run Linter and static analysis
+
+inputs:
+  run_linter:
+    description: Run Linter
+    default: true
+  run_sa:
+    description: Run Static analysis
+    default: true
+
+runs:
+  using: 'composite'
+
+  steps:
+  - name: Run linter
+    if: "${{ inputs.run_linter == 'true' }}"
+    shell: bash
+    run: |
+      ./gradlew spotlessCheck
+
+  - name: Run static analysis
+    if: "${{ inputs.run_sa == 'true' }}"
+    shell: bash
+    run: |
+      ./gradlew spotbugsMain spotbugsTest

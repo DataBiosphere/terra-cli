@@ -4,6 +4,8 @@ description: Render config (terra-cli)
 runs:
   using: 'composite'
 
+# use if check
+
   steps:
   - name: Render config
     shell: bash
@@ -18,6 +20,7 @@ runs:
       echo "$TEST_USER_SA_KEY" > rendered/broad/test-user-account.json
       echo "$EXT_PROJECT_SA_KEY" > rendered/broad/external-project-account.json
       echo "$JANITOR_CLIENT_SA_KEY" > rendered/broad/janitor-client.json
+      echo "$DEV_CI_SA_KEY" > rendered/broad/ci-account.json
       echo "$BROOKLYN_THUNDERLORD" > rendered/broad/Brooklyn.Thunderlord@test.firecloud.org.json
       echo "$ETHAN_BONECHEWER" > rendered/broad/Ethan.Bonechewer@test.firecloud.org.json
       echo "$JOHN_WHITECLAW" > rendered/broad/John.Whiteclaw@test.firecloud.org.json
@@ -28,6 +31,7 @@ runs:
       TEST_USER_SA_KEY: ${{ secrets.TEST_USER_SA_KEY }}
       EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
       JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
+      DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
       BROOKLYN_THUNDERLORD: ${{ secrets.BROOKLYN_THUNDERLORD }}
       ETHAN_BONECHEWER: ${{ secrets.ETHAN_BONECHEWER }}
       JOHN_WHITECLAW: ${{ secrets.JOHN_WHITECLAW }}

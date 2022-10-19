@@ -4,6 +4,9 @@ on:
   schedule:
   - cron: '0 5 * * *' # 5AM UTC = 12AM EST
 
+env:
+  GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+
 jobs:
   test-source-and-install:
     strategy:
@@ -11,20 +14,16 @@ jobs:
         testServer: [ "broad-dev" ]
       fail-fast: false
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code & Setup JDK
-      uses: ./.github/actions/code_setup
-
-    - name: Cache Gradle packages
-      id: cache_gradle
-      uses: actions/cache@v2
+    - name: Checkout current code
+      uses: actions/checkout@v2
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-
+        token: ${{ GITHUB_TOKEN }}
+    - name: Setup JDK
+      uses: ./.github/actions/setup_jdk
+    - name: Cache Gradle packages
+      uses: ./.github/actions/cache_gradle
     - name: Render config
       uses: ./.github/actions/render_config
 

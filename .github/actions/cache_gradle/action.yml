@@ -1,0 +1,15 @@
+name: Cache Gradle packages
+description: Cache Gradle packages
+
+runs:
+  using: 'composite'
+
+  steps:
+  - name: Cache Gradle packages
+    uses: actions/cache@v2
+    with:
+      path: |
+        ~/.gradle/caches
+        ~/.gradle/wrapper
+      key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+      restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}

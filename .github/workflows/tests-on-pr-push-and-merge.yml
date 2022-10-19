@@ -8,49 +8,46 @@ on:
     # Branch settings require status checks before merging, so don't add paths-ignore.
     branches: [ '**' ]
 
+env:
+  GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+  GHA_EVENT_NAME: ${{ github.event_name }}
+
 jobs:
+
+  # Lint & Static Analysis required only on pull requests
   lint-and-static-analysis:
     runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
+    if: "!contains( github.event.sender.login, 'broadbot' ) && (${{ GHA_EVENT_NAME }} == 'pull_request')"
     steps:
-    - name: Checkout code & Setup JDK
-      uses: ./.github/actions/code_setup
+    - name: Checkout current code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ GITHUB_TOKEN }}
+    - name: Setup JDK
+      uses: ./.github/actions/setup_jdk
+    - name: Run Linter & Static analysis
+      uses: ./.github/actions/lint_sa
 
-    - name: Run linter
-      id: run_linter
-      run: |
-        ./gradlew spotlessCheck
-    - name: Run static analysis
-      id: run_static_analysis
-      run: |
-        ./gradlew spotbugsMain spotbugsTest
-
+  # Unit & Integration tests
   tests-against-source-code:
     strategy:
       matrix:
         testTag: [ "unit", "integration" ]
-      fail-fast: false
+      fail-fast: true
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-    - name: Checkout code & Setup JDK
-      uses: ./.github/actions/code_setup
-
-    - name: Cache Gradle packages
-      id: cache_gradle
-      uses: actions/cache@v2
+    - name: Checkout current code
+      uses: actions/checkout@v2
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-
+          token: ${{ GITHUB_TOKEN }}
+    - name: Setup JDK
+      uses: ./.github/actions/setup_jdk
+    - name: Cache Gradle packages
+      uses: ./.github/actions/cache_gradle
     - name: Render config
       uses: ./.github/actions/render_config
-
     - name: Build Docker image
-      id: build_docker_image
       run: |
         # additionally pull the main branch for on-push-to-PRs, so we can diff and see what changed
         if [ "$GHA_EVENT_NAME" = "pull_request" ]; then
@@ -64,11 +61,9 @@ jobs:
         imageTag="ghaTest"
         ./tools/build-docker.sh $imageTag # generates an image with this tag
         echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
-      env:
-        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-        GHA_EVENT_NAME: ${{ github.event_name }}
+      #env:
+       # GITHUB_TOKEN: ${{ GITHUB_TOKEN }}
     - name: Run tests
-      id: run_tests
       run: |
         # runs against the default server: broad-dev
         echo "Running tests with tag: ${{ matrix.testTag }}"
@@ -76,8 +71,8 @@ jobs:
         ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE
       env:
         TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
-    - name: Archive logs and context file
-      id: archive_logs_and_context
+
+    - name: Archive logs and context file # TODO Make action
       if: always()
       uses: actions/upload-artifact@v2
       with:
