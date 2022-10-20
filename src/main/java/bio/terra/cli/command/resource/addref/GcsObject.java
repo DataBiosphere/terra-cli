@@ -37,7 +37,7 @@ public class GcsObject extends BaseCommand {
   @CommandLine.Option(
       names = "--path",
       description = "Path of the bucket (e.g. 'gs://bucket_name/object/path').")
-  public String gcsPath;
+  public String path;
 
   /** Print this command's output in text format. */
   private static void printText(UFGcsObject returnValue) {
@@ -54,13 +54,13 @@ public class GcsObject extends BaseCommand {
         referencedResourceCreationOptions.populateMetadataFields();
 
     // parsing the path as bucket name and object name
-    if (gcsPath != null) {
+    if (path != null) {
       if (bucketName != null || objectName != null) {
         throw new UserActionableException(
             "Specify either --path or both --bucket-name and --object-name.");
       }
       Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-      Matcher m = r.matcher(gcsPath);
+      Matcher m = r.matcher(path);
       if (!m.find()) {
         throw new UserActionableException(
             "Specify a legal path, like 'gs://bucket_name/object/path'.");

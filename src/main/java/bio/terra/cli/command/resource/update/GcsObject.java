@@ -41,7 +41,7 @@ public class GcsObject extends BaseCommand {
   @CommandLine.Option(
       names = "--new-path",
       description = "New path of the bucket (e.g. 'gs://bucket_name/object/path').")
-  public String newGcsPath;
+  public String newPath;
 
   /** Print this command's output in text format. */
   private static void printText(UFGcsObject returnValue) {
@@ -58,18 +58,18 @@ public class GcsObject extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && newObjectName == null
         && newBucketName == null
-        && newGcsPath == null) {
+        && newPath == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
     // parsing the path as bucket name and object name
-    if (newGcsPath != null) {
+    if (newPath != null) {
       if (newBucketName != null || newObjectName != null) {
         throw new UserActionableException(
             "No need to specify --new-bucket-name and/or --new-object-name when --new-path is specified.");
       }
       Pattern r = Pattern.compile("(?:^gs://)([^/]*)/(.*)");
-      Matcher m = r.matcher(newGcsPath);
+      Matcher m = r.matcher(newPath);
       if (!m.find()) {
         throw new UserActionableException(
             "Specify a legal path, like 'gs://bucket_name/object/path'.");
