@@ -110,9 +110,9 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "add-ref", "bq-table", "--name=" + name);
     assertThat(
-        "Specify at least one path to update.",
+        "Specify at least one path to add.",
         stdErr,
-        CoreMatchers.containsString("Specify at least one path to update."));
+        CoreMatchers.containsString("Specify at least one path to add."));
 
     // call add-ref by specifying multiple paths
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId

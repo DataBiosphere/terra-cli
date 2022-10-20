@@ -70,10 +70,6 @@ public class BqTable extends BaseCommand {
       newProjectId = parsePath[0];
       newDatasetId = parsePath[1];
       newBqTableId = parsePath[2];
-    } else {
-      if (newProjectId == null || newDatasetId == null || newBqTableId == null) {
-        throw new UserActionableException("Specify at least one path to update.");
-      }
     }
 
     // get the resource and make sure it's the right type

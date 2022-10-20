@@ -59,6 +59,7 @@ public class BqDataset extends BaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
+    // parsing the path as project id and database id.
     if (newPath != null) {
       if (newProjectId != null || newDatasetId != null) {
         throw new UserActionableException(
