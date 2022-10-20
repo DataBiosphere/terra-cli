@@ -32,8 +32,8 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-      names = "--new-dataset-path",
-      description = "New path of the bucket (e.g. 'gs://project_id.dataset_name').")
+      names = "--new-path",
+      description = "New path of the bucket (e.g. 'project_id.dataset_name').")
   public String newDatasetPath;
 
   /** Print this command's output in text format. */
@@ -50,26 +50,25 @@ public class BqDataset extends BaseCommand {
     String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
     String newDatasetId = bqDatasetNewIds.getNewGcpProjectId();
 
-    if (newDatasetPath != null) {
-      if (newProjectId != null || newDatasetId != null) {
-        throw new UserActionableException("Specify only one path to add reference.");
-      } else {
-        String[] parsePath = newDatasetPath.split("[.]");
-        newProjectId = parsePath[0];
-        newDatasetId = parsePath[1];
-      }
-    } else {
-      if (newProjectId == null || newDatasetId == null) {
-        throw new UserActionableException("Specify at least one path to update.");
-      }
-    }
-
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
         && !newCloningInstructionsOption.isDefined()) {
       throw new UserActionableException("Specify at least one property to update.");
+    }
+
+    if (newDatasetPath != null) {
+      if (newProjectId != null || newDatasetId != null) {
+        throw new UserActionableException(
+            "No need to specify --new-project-id and/or --new-dataset-id when --new-path is specified.");
+      }
+      String[] parsePath = newDatasetPath.split("[.]");
+      if (parsePath.length != 2) {
+        throw new UserActionableException("Specify a legal path, like 'project_id.dataset_id'.");
+      }
+      newProjectId = parsePath[0];
+      newDatasetId = parsePath[1];
     }
 
     // get the resource and make sure it's the right type

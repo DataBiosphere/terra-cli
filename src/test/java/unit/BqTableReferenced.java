@@ -38,12 +38,12 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
   private String externalDataTableName2 = "testTable2";
 
   /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * Helper method to call `terra resource list` and filter the results on the specified resource
    * name on current workspace.
    */
   private static List<UFBqTable> listDataTableResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    // `terra resources list --type=BQ_TABLE --format=json`
+    // `terra resource list --type=BQ_TABLE --format=json`
     List<UFBqTable> listedResources =
         TestCommand.runAndParseCommandExpectSuccess(
             new TypeReference<>() {}, "resource", "list", "--type=BQ_TABLE");
@@ -113,6 +113,29 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "Specify at least one path to update.",
         stdErr,
         CoreMatchers.containsString("Specify at least one path to update."));
+
+    // call add by specifying multiple paths
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
+    // --path=$projectId.datasetId.tableId --format=json`
+    String stdErr1 =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resource",
+            "add-ref",
+            "bq-table",
+            "--name=" + name,
+            "--project-id=" + externalDataset.getProjectId(),
+            "--path="
+                + externalDataset.getProjectId()
+                + "."
+                + externalDataset.getDatasetId()
+                + "."
+                + externalDataTableName);
+    assertThat(
+        "Specify either --path or all of --project-id, --dataset-id and --table-id.",
+        stdErr1,
+        CoreMatchers.containsString(
+            "Specify either --path or all of --project-id, --dataset-id and --table-id."));
 
     // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId --table-id=$dataTableId --format=json`
@@ -188,8 +211,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource add-ref bq-table --name=$name
-    // --table-path==$projectId.$datasetId.$dataTableId --format=json`
+    // `terra resource add-ref bq-table --name=$name --path==$projectId.$datasetId.$dataTableId
+    // --format=json`
     String name = "listReflectsDelete";
     TestCommand.runAndParseCommandExpectSuccess(
         UFBqTable.class,
@@ -197,7 +220,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "add-ref",
         "bq-table",
         "--name=" + name,
-        "--table-path="
+        "--path="
             + externalDataset.getProjectId()
             + "."
             + externalDataset.getDatasetId()
@@ -364,7 +387,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
 
-    // `terra resources delete --name=$name`
+    // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
   }
 
@@ -376,7 +399,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resources add-ref bq-table --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
     String name = "updateIndividualProperties";
     String description = "updateDescription";
@@ -391,7 +414,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "--table-id=" + externalDataTableName);
 
     // update just the name
-    // `terra resources update bq-table --name=$name --new-name=$newName`
+    // `terra resource update bq-table --name=$name --new-name=$newName`
     String newName = "updateIndividualProperties_NEW";
     UFBqTable updatedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -404,7 +427,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(newName, updatedDataTable.name);
     assertEquals(description, updatedDataTable.description);
 
-    // `terra resources describe --name=$newName`
+    // `terra resource describe --name=$newName`
     UFBqTable describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
@@ -412,7 +435,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(CloningInstructionsEnum.REFERENCE, describedDataTable.cloningInstructions);
 
     // update description and cloning instructions
-    // `terra resources update bq-table --name=$newName --new-description=$newDescription
+    // `terra resource update bq-table --name=$newName --new-description=$newDescription
     // --new-cloning=$CloningInstructionsEnum.NOTHING`
     String newDescription = "updateDescription_NEW";
     updatedDataTable =
@@ -427,7 +450,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(newName, updatedDataTable.name);
     assertEquals(newDescription, updatedDataTable.description);
 
-    // `terra resources describe --name=$newName`
+    // `terra resource describe --name=$newName`
     describedDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
@@ -485,7 +508,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         createdDataset.datasetId,
         tableInControlledDataset);
 
-    // `terra resources add-ref bq-table --name=$name --project-id=$projectId
+    // `terra resource add-ref bq-table --name=$name --project-id=$projectId
     // --dataset-id=$datasetId  --description=$description`
     String name = "updateMultipleOrNoProperties";
     String description = "updateDescription";
@@ -500,7 +523,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         "--table-id=" + externalDataTableName);
 
     // call update without specifying any properties to modify
-    // `terra resources update bq-table --name=$name`
+    // `terra resource update bq-table --name=$name`
     String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "update", "bq-table", "--name=" + name);
     assertThat(
@@ -509,8 +532,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         CoreMatchers.containsString("Specify at least one property to update"));
 
     // call update by specify multiple table path
-    // `terra resources update bq-table --name=$name --new-table-id=$newTableName
-    // --new-table-path=$newProjectId.$newDatasetId.$newTableId`
+    // `terra resource update bq-table --name=$name --new-table-id=$newTableName
+    // --new-path=$newProjectId.$newDatasetId.$newTableId`
     String stdErr2 =
         TestCommand.runCommandExpectExitCode(
             1,
@@ -519,19 +542,36 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "bq-table",
             "--name=" + name,
             "--new-table-id=" + externalDataTableName,
-            "--new-table-path="
+            "--new-path="
                 + createdDataset.projectId
                 + "."
                 + createdDataset.datasetId
                 + "."
                 + externalDataTableName);
     assertThat(
-        "Specify only one path to add reference.",
+        "No need to specify --new-project-id and/or --new-dataset-id and/or --new-table-id when --new-path is specified.",
         stdErr2,
-        CoreMatchers.containsString("Specify only one path to add reference."));
+        CoreMatchers.containsString(
+            "No need to specify --new-project-id and/or --new-dataset-id and/or --new-table-id when --new-path is specified."));
+
+    // call update by specifying an illegal path
+    // `terra resource update bq-table --name=$name --new-path=gs://$newBucketName --format=json`
+    String stdErr3 =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resource",
+            "update",
+            "bq-table",
+            "--name=" + name,
+            "--new-path=" + createdDataset.projectId + "." + createdDataset.datasetId);
+    assertThat(
+        "Specify a legal path, like 'project_id.dataset_id.table_id'.",
+        stdErr3,
+        CoreMatchers.containsString(
+            "Specify a legal path, like 'project_id.dataset_id.table_id'."));
 
     // update both the name and description
-    // `terra resources update bq-table --name=$newName --new-name=$newName
+    // `terra resource update bq-table --name=$newName --new-name=$newName
     // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";
@@ -553,7 +593,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(createdDataset.projectId, updateDataTable.projectId);
     assertEquals(tableInControlledDataset, updateDataTable.dataTableId);
 
-    // `terra resources describe --name=$newName`
+    // `terra resource describe --name=$newName`
     UFBqTable describeDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class, "resource", "describe", "--name=" + newName);
@@ -564,8 +604,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
     assertEquals(tableInControlledDataset, describeDataTable.dataTableId);
 
     // update both the table path
-    // `terra resources update bq-table --name=$newName
-    // --new-table-path=$newProjectId.$newDatasetId.$newTableId`
+    // `terra resource update bq-table --name=$newName --new-path=$newProjectId.$newDatasetId`
     UFBqTable newDataTable =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqTable.class,
@@ -573,7 +612,7 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
             "update",
             "bq-table",
             "--name=" + newName,
-            "--new-table-path="
+            "--new-path="
                 + externalDataset.getProjectId()
                 + "."
                 + externalDataset.getDatasetId()

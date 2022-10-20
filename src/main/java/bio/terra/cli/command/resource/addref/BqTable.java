@@ -26,7 +26,7 @@ public class BqTable extends BaseCommand {
   private String bigQueryTableId;
 
   @CommandLine.Option(
-      names = "--table-path",
+      names = "--path",
       description = "Path of the big query table (e.g. 'project_id.dataset_id.table_id').")
   public String tablePath;
 
@@ -47,16 +47,20 @@ public class BqTable extends BaseCommand {
     // parsing the path as project id, database id and table id
     if (tablePath != null) {
       if (datasetId != null || projectId != null || bigQueryTableId != null) {
-        throw new UserActionableException("Specify only one path to add reference.");
-      } else {
-        String[] parsePath = tablePath.split("[.]");
-        projectId = parsePath[0];
-        datasetId = parsePath[1];
-        bigQueryTableId = parsePath[2];
+        throw new UserActionableException(
+            "Specify either --path or all of --project-id, --dataset-id and --table-id.");
       }
+      String[] parsePath = tablePath.split("[.]");
+      if (parsePath.length != 3) {
+        throw new UserActionableException(
+            "Specify a legal path, like 'project_id.dataset_id.table_id'.");
+      }
+      projectId = parsePath[0];
+      datasetId = parsePath[1];
+      bigQueryTableId = parsePath[2];
     } else {
       if (datasetId == null || projectId == null || bigQueryTableId == null) {
-        throw new UserActionableException("Specify at least one path to update.");
+        throw new UserActionableException("Specify at least one path to add.");
       }
     }
 

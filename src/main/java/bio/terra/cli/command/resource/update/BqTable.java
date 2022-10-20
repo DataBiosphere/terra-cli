@@ -30,7 +30,7 @@ public class BqTable extends BaseCommand {
   private String newBqTableId;
 
   @CommandLine.Option(
-      names = "--new-table-path",
+      names = "--new-path",
       description = "New path of the big query table (e.g. 'project_id.dataset_id.table_id').")
   public String newTablePath;
 
@@ -48,27 +48,31 @@ public class BqTable extends BaseCommand {
     String newDatasetId = bqDatasetNewIds.getNewBqDatasetId();
     String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
 
-    // parsing the path as project id, database id and table id
-    if (newTablePath != null) {
-      if (newProjectId != null || newDatasetId != null || newBqTableId != null) {
-        throw new UserActionableException("Specify only one path to add reference.");
-      } else {
-        String[] parsePath = newTablePath.split("[.]");
-        newProjectId = parsePath[0];
-        newDatasetId = parsePath[1];
-        newBqTableId = parsePath[2];
-      }
-    } else {
-      if (newProjectId == null || newDatasetId == null || newBqTableId == null) {
-        throw new UserActionableException("Specify at least one path to update.");
-      }
-    }
-
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
         && newBqTableId == null) {
       throw new UserActionableException("Specify at least one property to update.");
+    }
+
+    // parsing the path as project id, database id and table id
+    if (newTablePath != null) {
+      if (newProjectId != null || newDatasetId != null || newBqTableId != null) {
+        throw new UserActionableException(
+            "No need to specify --new-project-id and/or --new-dataset-id and/or --new-table-id when --new-path is specified.");
+      }
+      String[] parsePath = newTablePath.split("[.]");
+      if (parsePath.length != 3) {
+        throw new UserActionableException(
+            "Specify a legal path, like 'project_id.dataset_id.table_id'.");
+      }
+      newProjectId = parsePath[0];
+      newDatasetId = parsePath[1];
+      newBqTableId = parsePath[2];
+    } else {
+      if (newProjectId == null || newDatasetId == null || newBqTableId == null) {
+        throw new UserActionableException("Specify at least one path to update.");
+      }
     }
 
     // get the resource and make sure it's the right type
