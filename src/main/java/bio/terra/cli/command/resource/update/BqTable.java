@@ -32,7 +32,7 @@ public class BqTable extends BaseCommand {
   @CommandLine.Option(
       names = "--new-path",
       description = "New path of the big query table (e.g. 'project_id.dataset_id.table_id').")
-  public String newTablePath;
+  public String newPath;
 
   /** Print this command's output in text format. */
   private static void printText(UFBqTable returnValue) {
@@ -51,17 +51,18 @@ public class BqTable extends BaseCommand {
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
-        && newBqTableId == null) {
+        && newBqTableId == null
+        && newPath == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
     // parsing the path as project id, database id and table id
-    if (newTablePath != null) {
+    if (newPath != null) {
       if (newProjectId != null || newDatasetId != null || newBqTableId != null) {
         throw new UserActionableException(
             "No need to specify --new-project-id and/or --new-dataset-id and/or --new-table-id when --new-path is specified.");
       }
-      String[] parsePath = newTablePath.split("[.]");
+      String[] parsePath = newPath.split("[.]");
       if (parsePath.length != 3) {
         throw new UserActionableException(
             "Specify a legal path, like 'project_id.dataset_id.table_id'.");

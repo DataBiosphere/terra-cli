@@ -34,7 +34,7 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Option(
       names = "--new-path",
       description = "New path of the bucket (e.g. 'project_id.dataset_name').")
-  public String newDatasetPath;
+  public String newPath;
 
   /** Print this command's output in text format. */
   private static void printText(UFBqDataset returnValue) {
@@ -48,22 +48,23 @@ public class BqDataset extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
-    String newDatasetId = bqDatasetNewIds.getNewGcpProjectId();
+    String newDatasetId = bqDatasetNewIds.getNewBqDatasetId();
 
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetLifetimeOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
-        && !newCloningInstructionsOption.isDefined()) {
+        && !newCloningInstructionsOption.isDefined()
+        && newPath == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    if (newDatasetPath != null) {
+    if (newPath != null) {
       if (newProjectId != null || newDatasetId != null) {
         throw new UserActionableException(
             "No need to specify --new-project-id and/or --new-dataset-id when --new-path is specified.");
       }
-      String[] parsePath = newDatasetPath.split("[.]");
+      String[] parsePath = newPath.split("[.]");
       if (parsePath.length != 2) {
         throw new UserActionableException("Specify a legal path, like 'project_id.dataset_id'.");
       }

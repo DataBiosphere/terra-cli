@@ -28,7 +28,7 @@ public class BqTable extends BaseCommand {
   @CommandLine.Option(
       names = "--path",
       description = "Path of the big query table (e.g. 'project_id.dataset_id.table_id').")
-  public String tablePath;
+  public String path;
 
   /** Print this command's output in text format. */
   private static void printText(UFBqTable returnValue) {
@@ -45,12 +45,12 @@ public class BqTable extends BaseCommand {
     String projectId = bqDatasetsIds.getGcpProjectId();
 
     // parsing the path as project id, database id and table id
-    if (tablePath != null) {
+    if (path != null) {
       if (datasetId != null || projectId != null || bigQueryTableId != null) {
         throw new UserActionableException(
             "Specify either --path or all of --project-id, --dataset-id and --table-id.");
       }
-      String[] parsePath = tablePath.split("[.]");
+      String[] parsePath = path.split("[.]");
       if (parsePath.length != 3) {
         throw new UserActionableException(
             "Specify a legal path, like 'project_id.dataset_id.table_id'.");

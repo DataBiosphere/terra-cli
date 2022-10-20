@@ -75,7 +75,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         stdErr,
         CoreMatchers.containsString("Specify at least one path to add."));
 
-    // call add by specifying multiple paths
+    // call add-ref by specifying multiple paths
     // `terra resource add-ref gcs-object --name=$name --project-id=$projectId
     // --path=$projectId.$datasetId`
     String stdErr1 =

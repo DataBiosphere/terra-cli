@@ -25,7 +25,7 @@ public class BqDataset extends BaseCommand {
   @CommandLine.Option(
       names = "--path",
       description = "Path of the dataset (e.g. 'project_id.dataset_id').")
-  public String datasetPath;
+  public String path;
 
   /** Print this command's output in text format. */
   private static void printText(UFBqDataset returnValue) {
@@ -41,12 +41,12 @@ public class BqDataset extends BaseCommand {
     String datasetId = bigQueryIds.getBigQueryDatasetId();
 
     // parsing the path as project id, database id
-    if (datasetPath != null) {
+    if (path != null) {
       if (projectId != null || datasetId != null) {
         throw new UserActionableException(
             "Specify either --path or both --project-id and --dataset-id.");
       }
-      String[] parsePath = datasetPath.split("[.]");
+      String[] parsePath = path.split("[.]");
       if (parsePath.length != 2) {
         throw new UserActionableException("Specify a legal path, like 'project_id.dataset_id'.");
       }

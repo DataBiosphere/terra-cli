@@ -1,9 +1,6 @@
 package bio.terra.cli.app;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.resource.DataCollection;
 import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import com.google.common.annotations.VisibleForTesting;
@@ -85,8 +82,14 @@ public abstract class CommandRunner {
 
     // add Terra global and workspace context information as environment variables
     Map<String, String> terraEnvVars = buildMapOfTerraReferences();
+
+    // Keep in sync with notebook instance environment variables:
+    // https://github.com/DataBiosphere/terra-workspace-manager/blob/42a96e3efe78908d2969d1ac826cd84a11a16714/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L165
+
+    terraEnvVars.put("TERRA_USER_EMAIL", Context.requireUser().getEmail().toLowerCase());
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
     terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
+
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
         throw new SystemException(
@@ -139,32 +142,8 @@ public abstract class CommandRunner {
         .getResources()
         .forEach(
             resource -> {
-              if (Resource.Type.DATA_COLLECTION != resource.getResourceType()) {
-                String envVariable = convertToEnvironmentVariable(resource.getName());
-                terraReferences.put(envVariable, resource.resolve());
-              } else {
-                Workspace dataCollectionWorkspace = null;
-                try {
-                  dataCollectionWorkspace =
-                      ((DataCollection) resource).getDataCollectionWorkspace();
-                } catch (SystemException e) {
-                  logger.warn(
-                      String.format("Failed to get the data collection %s", resource.getName()), e);
-                }
-                if (dataCollectionWorkspace != null) {
-                  dataCollectionWorkspace.getResources().stream()
-                      .filter(
-                          // This should NEVER happen but check here to prevent endless resolve.
-                          r -> Resource.Type.DATA_COLLECTION != r.getResourceType())
-                      .forEach(
-                          r -> {
-                            String envVariable =
-                                convertToEnvironmentVariable(
-                                    resource.getName() + "_" + r.getName());
-                            terraReferences.put(envVariable, r.resolve());
-                          });
-                }
-              }
+              String envVariable = convertToEnvironmentVariable(resource.getName());
+              terraReferences.put(envVariable, resource.resolve());
             });
 
     return terraReferences;
