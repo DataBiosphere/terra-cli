@@ -29,6 +29,11 @@ public class BqTable extends BaseCommand {
   @CommandLine.Option(names = "--new-table-id", description = "New BigQuery table id.")
   private String newBqTableId;
 
+  @CommandLine.Option(
+      names = "--new-path",
+      description = "New path of the big query table (e.g. 'project_id.dataset_id.table_id').")
+  public String newPath;
+
   /** Print this command's output in text format. */
   private static void printText(UFBqTable returnValue) {
     OUT.println("Successfully updated BigQuery data table.");
@@ -40,11 +45,31 @@ public class BqTable extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
+    String newDatasetId = bqDatasetNewIds.getNewBqDatasetId();
+    String newProjectId = bqDatasetNewIds.getNewGcpProjectId();
+
     // all update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && !bqDatasetNewIds.isDefined()
-        && newBqTableId == null) {
+        && newBqTableId == null
+        && newPath == null) {
       throw new UserActionableException("Specify at least one property to update.");
+    }
+
+    // parsing the path as project id, database id and table id
+    if (newPath != null) {
+      if (newProjectId != null || newDatasetId != null || newBqTableId != null) {
+        throw new UserActionableException(
+            "No need to specify --new-project-id and/or --new-dataset-id and/or --new-table-id when --new-path is specified.");
+      }
+      String[] parsePath = newPath.split("[.]");
+      if (parsePath.length != 3) {
+        throw new UserActionableException(
+            "Specify a legal path, like 'project_id.dataset_id.table_id'.");
+      }
+      newProjectId = parsePath[0];
+      newDatasetId = parsePath[1];
+      newBqTableId = parsePath[2];
     }
 
     // get the resource and make sure it's the right type
@@ -57,8 +82,8 @@ public class BqTable extends BaseCommand {
         new UpdateReferencedBqTableParams.Builder()
             .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
             .tableId(newBqTableId)
-            .datasetId(bqDatasetNewIds.getNewBqDatasetId())
-            .projectId(bqDatasetNewIds.getNewGcpProjectId())
+            .datasetId(newDatasetId)
+            .projectId(newProjectId)
             .cloningInstructions(newCloningInstructionsOption.getCloning());
 
     resource.updateReferenced(bqTableParams.build());
