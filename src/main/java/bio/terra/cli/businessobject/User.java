@@ -77,7 +77,8 @@ public class User {
   /** Build an instance of this class from the serialized format on disk. */
   public User(PDUser configFromDisk) {
     this.id = configFromDisk.id;
-    this.email = configFromDisk.email;
+    // PDUser email should already be lower-case, but lower-case just in case.
+    this.email = configFromDisk.email.toLowerCase();
     this.proxyGroupEmail = configFromDisk.proxyGroupEmail;
     this.petSAEmail = configFromDisk.petSAEmail;
     this.logInMode = configFromDisk.useApplicationDefaultCredentials;
