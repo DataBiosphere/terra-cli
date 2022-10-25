@@ -1561,6 +1561,9 @@ public class WorkspaceManagerService {
   }
 
   public List<Property> buildProperties(Map<String, String> propertyMap) {
+    if (propertyMap == null) {
+      return new ArrayList<>();
+    }
     return propertyMap.entrySet().stream()
         .map(
             entry -> {
