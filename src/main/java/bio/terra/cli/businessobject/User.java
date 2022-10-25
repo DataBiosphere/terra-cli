@@ -267,7 +267,7 @@ public class User {
     SamService samService = SamService.forUser(this);
     UserStatusInfo userInfo = samService.getUserInfoOrRegisterUser();
     id = userInfo.getUserSubjectId();
-    email = userInfo.getUserEmail();
+    email = userInfo.getUserEmail().toLowerCase();
     proxyGroupEmail = samService.getProxyGroupEmail(email);
   }
 

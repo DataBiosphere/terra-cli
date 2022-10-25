@@ -27,7 +27,7 @@ public class WorkspaceUser {
   private UUID workspaceId;
 
   private WorkspaceUser(String email, List<Role> roles) {
-    this.email = email;
+    this.email = email.toLowerCase();
     this.roles = roles;
   }
 
