@@ -11,6 +11,8 @@
   "verily.json",
   "verily-autopush.json",
   "verily-devel.json",
+  "verily-mc-dev.json",
+  "verily-mc-flagged.json",
   "verily-preprod.json",
   "verily-staging.json"
 ]
