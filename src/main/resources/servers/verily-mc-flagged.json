@@ -1,0 +1,11 @@
+{
+  "name": "verily-mc-flagged",
+  "clientCredentialsFile": "verily_secret.json",
+  "description": "Verily mc-flagged environment",
+  "samUri": "https://terra-mc-flagged-sam.api.verily.com",
+  "samInviteRequiresAdmin": true,
+  "workspaceManagerUri": "https://terra-mc-flagged-wsm.api.verily.com",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://terra-mc-flagged-ecm.api.verily.com",
+  "supportsIdToken": true
+}
