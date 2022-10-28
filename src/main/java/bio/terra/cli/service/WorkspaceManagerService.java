@@ -1560,7 +1560,7 @@ public class WorkspaceManagerService {
     }
   }
 
-  public List<Property> buildProperties(Map<String, String> propertyMap) {
+  private static List<Property> buildProperties(@Nullable Map<String, String> propertyMap) {
     if (propertyMap == null) {
       return new ArrayList<>();
     }
