@@ -265,6 +265,15 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         resolved.get(name),
         "default resolve include full path");
 
+    // `terra resource resolve --name=$name --format=json --bq-path=FULL_PATH_SQL`
+    JSONObject resolved =
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
+    assertEquals(
+        ExternalBQDatasets.getDataTableFullPathSql(
+            externalDataset.getProjectId(), externalDataset.getDatasetId(), externalDataTableName),
+        resolved.get(name),
+        "sql-compatible resolve includes SQL delimeter");
+
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     JSONObject resolvedProjectIdOnly =
         TestCommand.runAndGetJsonObjectExpectSuccess(
