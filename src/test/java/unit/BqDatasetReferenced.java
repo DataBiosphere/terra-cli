@@ -196,8 +196,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalBQDatasets.getDatasetFullPath(
-            externalDataset.getProjectId(), externalDataset.getDatasetId()),
+        externalDataset.getProjectId() + ":" + externalDataset.getDatasetId(),
         resolved.get(name),
         "default resolve includes [project id]:[dataset id]");
 
@@ -206,8 +205,7 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "resource", "resolve", "--name=" + name, "--bq-path=FULL_PATH_SQL");
     assertEquals(
-        ExternalBQDatasets.getDatasetFullPathSql(
-            externalDataset.getProjectId(), externalDataset.getDatasetId()),
+        externalDataset.getProjectId() + "." + externalDataset.getDatasetId(),
         resolvedFullPathSql.get(name),
         "resolve with FULL_PATH_SQL includes [project id].[dataset id]");
 

@@ -221,9 +221,18 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
-        workspace.googleProjectId + "." + datasetId,
+        workspace.googleProjectId + ":" + datasetId,
         resolved.get(name),
-        "default resolve includes [project id].[dataset id]");
+        "default resolve includes [project id]:[dataset id]");
+
+    // `terra resource resolve --name=$name --format=json --bq-path=FULL_PATH_SQL`
+    JSONObject resolvedFullSql =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=FULL_PATH_SQL");
+    assertEquals(
+        workspace.googleProjectId + "." + datasetId,
+        resolvedFullSql.get(name),
+        "sql-compatible path includes [project id].[dataset id]");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     JSONObject resolvedProjectIdOnly =
