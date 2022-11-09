@@ -32,6 +32,7 @@ public class Server {
   // (e.g. broad-dev)
   private final String name;
   private final String clientCredentialsFile;
+  private final boolean cloudBuildEnabled;
   // free-form text field that indicates what the server is used for
   // (e.g. Terra for development purposes)
   private final String description;
@@ -51,6 +52,7 @@ public class Server {
   public Server(PDServer configFromDisk) {
     this.name = configFromDisk.name;
     this.clientCredentialsFile = configFromDisk.clientCredentialsFile;
+    this.cloudBuildEnabled = configFromDisk.cloudBuildEnabled;
     this.description = configFromDisk.description;
     this.samUri = configFromDisk.samUri;
     this.samInviteRequiresAdmin = configFromDisk.samInviteRequiresAdmin;
@@ -176,8 +178,12 @@ public class Server {
     return name;
   }
 
-  public String getclientCredentialsFile() {
+  public String getClientCredentialsFile() {
     return clientCredentialsFile;
+  }
+
+  public boolean getCloudBuildEnabled() {
+    return cloudBuildEnabled;
   }
 
   public String getDescription() {
