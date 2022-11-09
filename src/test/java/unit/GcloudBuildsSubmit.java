@@ -13,7 +13,6 @@ import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +46,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // create a dockerfile
+    // create a dockerfile as building source
     new File("./Dockerfile").createNewFile();
   }
 
@@ -58,7 +57,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     ExternalGCSBuckets.deleteBucket(externalSharedBucket);
     externalSharedBucket = null;
 
-    // create dockerfile as building source
+    // delete the dockerfile
     new File("./Dockerfile").delete();
   }
 
@@ -74,11 +73,9 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
+    // `terra resource create gcs-bucket --name=$name --format=json`
     String name = "resourceName";
-    String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+    TestCommand.runCommandExpectSuccess("resource", "create", "gcs-bucket", "--name=" + name);
 
     // `builds submit --gcs-bucket=bucketName`
     TestCommand.runCommandExpectSuccess("gcloud", "builds", "submit", "--gcs-bucket=" + name);
