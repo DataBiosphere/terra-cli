@@ -89,9 +89,12 @@ public class Main implements Runnable {
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
     // Terra CLI, we want to pass those through to the app instead
+    //
+    // Note: One exception is the gcloud pass-through app. We want to add additional option like
+    // "--gcs-bucket" as a helper to fill in parameters for the user. Mixing is required for this to
+    // work.
     Map<String, CommandLine> subcommands = cmd.getSubcommands();
     subcommands.get("bq").setStopAtPositional(true);
-    subcommands.get("gcloud").setStopAtPositional(true);
     subcommands.get("gsutil").setStopAtPositional(true);
     subcommands.get("nextflow").setStopAtPositional(true);
     subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);

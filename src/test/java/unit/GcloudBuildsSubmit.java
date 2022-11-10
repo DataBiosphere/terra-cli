@@ -4,13 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
-import com.google.cloud.Identity;
-import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
-import harness.utils.Auth;
-import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
@@ -22,29 +18,18 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra gcloud builds submit` commands. */
 @Tag("unit")
 public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-
-  // external bucket to use for creating GCS bucket references in the workspace
-  private BucketInfo externalSharedBucket;
   private TestUser shareUser;
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
-
-    // grant the user's proxy group access to the bucket so that it will pass WSM's access check
-    // when adding it as a referenced resource
-    ExternalGCSBuckets.grantWriteAccess(
-        externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
 
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     shareUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareUser.email, "--role=WRITER");
     shareUser.login();
-    ExternalGCSBuckets.grantReadAccess(
-        externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
 
     // create a dockerfile as building source
     new File("./Dockerfile").createNewFile();
@@ -54,8 +39,6 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
   @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
-    ExternalGCSBuckets.deleteBucket(externalSharedBucket);
-    externalSharedBucket = null;
 
     // delete the dockerfile
     new File("./Dockerfile").delete();
@@ -74,15 +57,23 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --format=json`
-    String name = "resourceName";
-    TestCommand.runCommandExpectSuccess("resource", "create", "gcs-bucket", "--name=" + name);
+    String bucketResourceName = "resourceName";
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
 
-    // `builds submit --gcs-bucket=bucketName`
-    TestCommand.runCommandExpectSuccess("gcloud", "builds", "submit", "--gcs-bucket=" + name);
+    // `builds submit --async --gcs-bucket=bucketName --tag`
+    TestCommand.runCommandExpectSuccess(
+        "gcloud",
+        "builds",
+        "submit",
+        "--async",
+        "--gcs-bucket=" + bucketResourceName,
+        "--tag=us-central1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ml4h/papermill:`date +'%Y%m%d'`");
 
     // `terra resource delete --name=$name`
+    // TODO:remove the timeout after PF-2205 done.
     TestCommand.Result cmd =
-        TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
+        TestCommand.runCommand("resource", "delete", "--name=" + bucketResourceName, "--quiet");
 
     boolean cliTimedOut =
         cmd.exitCode == 1

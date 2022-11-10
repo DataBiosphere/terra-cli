@@ -32,6 +32,9 @@ public class Server {
   // (e.g. broad-dev)
   private final String name;
   private final String clientCredentialsFile;
+  // Whether workspace GCP projects have cloudbuild.googleapis.com and
+  // containerregistry.googleapis.com permissions.
+  // After all deployments have Cloud Build enabled, this setting should be removed.
   private final boolean cloudBuildEnabled;
   // free-form text field that indicates what the server is used for
   // (e.g. Terra for development purposes)

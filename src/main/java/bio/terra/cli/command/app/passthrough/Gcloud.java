@@ -2,7 +2,6 @@ package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.UserActionableException;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -15,18 +14,13 @@ import picocli.CommandLine.Command;
 @Command(name = "gcloud", description = "Call gcloud in the Terra workspace.")
 public class Gcloud extends ToolCommand {
 
-  private static final Logger logger = LoggerFactory.getLogger(Git.class);
+  private static final Logger logger = LoggerFactory.getLogger(Gcloud.class);
 
   @CommandLine.Option(
       names = "--gcs-bucket",
-      description = "specify the gcs buket for gcloud builds")
-  public String bucketName;
-
-  @CommandLine.Option(names = "builds", description = "")
-  public boolean builds;
-
-  @CommandLine.Option(names = "submit", description = "")
-  public boolean submit;
+      description =
+          "Resource name (not bucket name) of GCS bucket resource. Required for (and only used for) `gcloud builds submit`.")
+  public String gcsBucketResourceName;
 
   @Override
   public String getExecutableName() {
@@ -41,45 +35,27 @@ public class Gcloud extends ToolCommand {
   @Override
   protected void executeImpl() {
     workspaceOption.overrideIfSpecified();
+    command.add(0, getExecutableName());
 
-    if (bucketName != null && builds && submit) {
-      var resource = Context.requireWorkspace().getResource(bucketName);
+    if (gcsBucketResourceName != null) {
+      var resource = Context.requireWorkspace().getResource(gcsBucketResourceName);
       if (Resource.Type.GCS_BUCKET != resource.getResourceType()) {
         throw new UserActionableException(
             String.format(
-                "%s %s cannot be cloned because it is not a gcs-bucket",
+                "%s %s cannot builds submit because it is not a gcs-bucket",
                 resource.getResourceType(), resource.getName()));
       }
-      ArrayList<String> cloneCommands =
+      ArrayList<String> autoCommands =
           new ArrayList<>(
               ImmutableList.of(
-                  "gcloud",
-                  "builds",
-                  "submit",
-                  "--async",
-                  "--timeout=2h",
                   "--gcs-source-staging-dir=" + resource.resolve() + "/cloudbuild_source",
-                  "--gcs-log-dir=" + resource.resolve() + "/cloudbuild_logs",
-                  "--tag="
-                      + "us-central1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ml4h/papermill:`date +'%Y%m%d'`"));
-      cloneCommands.addAll(command);
+                  "--gcs-log-dir=" + resource.resolve() + "/cloudbuild_logs"));
 
-      try {
-        Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);
-      } catch (PassthroughException e) {
-        ERR.println("gcloud builds submit for " + resource.getName() + " failed");
-      }
-      return;
+      logger.info("run command: " + command + autoCommands);
+      command.addAll(autoCommands);
     }
     // If user doesn't specify gcs-bucket, we still need to add back the digested `builds` and
     // `submit` commands
-    if (submit) {
-      command.add(0, "submit");
-    }
-    if (builds) {
-      command.add(0, "builds");
-    }
-    command.add(0, getExecutableName());
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 }
