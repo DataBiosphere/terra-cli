@@ -69,7 +69,7 @@ public class List extends BaseCommand {
 
   /** Column information for table output with `terra workspace list` */
   private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
-    ID("ID", w -> w.id, 36, LEFT),
+    ID("ID", w -> w.id, 40, LEFT),
     NAME("NAME", w -> w.name, 30, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
