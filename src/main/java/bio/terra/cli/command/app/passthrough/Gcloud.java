@@ -11,8 +11,20 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra gcloud" command. */
-@Command(name = "gcloud", description = "Call gcloud in the Terra workspace.")
+@Command(
+    name = "gcloud",
+    description = "Call gcloud in the Terra workspace.",
+    modelTransformer = Gcloud.SubCmdFilter.class)
 public class Gcloud extends ToolCommand {
+
+  static class SubCmdFilter implements CommandLine.IModelTransformer {
+    public CommandLine.Model.CommandSpec transform(CommandLine.Model.CommandSpec commandSpec) {
+      if (!Context.getServer().getCloudBuildEnabled()) {
+        commandSpec.removeSubcommand("--gcs-bucket");
+      }
+      return commandSpec;
+    }
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(Gcloud.class);
 
