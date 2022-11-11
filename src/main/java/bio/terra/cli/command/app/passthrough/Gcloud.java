@@ -2,6 +2,7 @@ package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -19,8 +20,12 @@ public class Gcloud extends ToolCommand {
 
   static class SubCmdFilter implements CommandLine.IModelTransformer {
     public CommandLine.Model.CommandSpec transform(CommandLine.Model.CommandSpec commandSpec) {
-      if (!Context.getServer().getCloudBuildEnabled()) {
-        commandSpec.removeSubcommand("--gcs-bucket");
+      try {
+        if (!Context.getServer().getCloudBuildEnabled()) {
+          commandSpec.removeSubcommand("--gcs-bucket");
+        }
+      } catch (SystemException e) {
+        return commandSpec;
       }
       return commandSpec;
     }
