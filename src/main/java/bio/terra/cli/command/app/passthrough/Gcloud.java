@@ -22,7 +22,7 @@ public class Gcloud extends ToolCommand {
     public CommandLine.Model.CommandSpec transform(CommandLine.Model.CommandSpec commandSpec) {
       try {
         if (!Context.getServer().getCloudBuildEnabled()) {
-          commandSpec.removeSubcommand("--gcs-bucket");
+          commandSpec.removeSubcommand("--gcs-bucket-resource");
         }
       } catch (SystemException e) {
         return commandSpec;
@@ -34,9 +34,9 @@ public class Gcloud extends ToolCommand {
   private static final Logger logger = LoggerFactory.getLogger(Gcloud.class);
 
   @CommandLine.Option(
-      names = "--gcs-bucket",
+      names = "--gcs-bucket-resource",
       description =
-          "Resource name (not bucket name) of GCS bucket resource. Required for (and only used for) `gcloud builds submit`.")
+          "Optional flag only used for `terra gcloud builds submit`. Resource name (not bucket name) of GCS bucket where Cloud Build source and logs will be stored.")
   public String gcsBucketResourceName;
 
   @Override
@@ -59,7 +59,7 @@ public class Gcloud extends ToolCommand {
       if (Resource.Type.GCS_BUCKET != resource.getResourceType()) {
         throw new UserActionableException(
             String.format(
-                "%s %s cannot builds submit because it is not a gcs-bucket",
+                "--Resource %s was passed into --gcs-bucket-resource, but it is not a GCS bucket. It is %s",
                 resource.getResourceType(), resource.getName()));
       }
       ArrayList<String> autoCommands =
@@ -68,11 +68,10 @@ public class Gcloud extends ToolCommand {
                   "--gcs-source-staging-dir=" + resource.resolve() + "/cloudbuild_source",
                   "--gcs-log-dir=" + resource.resolve() + "/cloudbuild_logs"));
 
-      logger.info("run command: " + command + autoCommands);
+      logger.info("Final gcloud command: " + command + autoCommands);
       command.addAll(autoCommands);
     }
-    // If user doesn't specify gcs-bucket, we still need to add back the digested `builds` and
-    // `submit` commands
+
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }
 }

@@ -114,6 +114,7 @@ instructions are for MacOS or Linux.
   archive file from
   the [installation page](https://cloud.google.com/sdk/docs/install).
   Run `gcloud version` to verify the installation.
+  - `gcloud builds submit` has `--gcs-bucket-resource` option to specify the `--gcs-source-staging-dir` and `--gcs-log-dir` options as default.
 - `gsutil` - included in
   the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install), or available
   separately [here](https://cloud.google.com/storage/docs/gsutil_install).

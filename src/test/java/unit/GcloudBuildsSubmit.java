@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import harness.TestCommand;
-import harness.TestUser;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.File;
 import java.io.IOException;
@@ -18,20 +17,11 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra gcloud builds submit` commands. */
 @Tag("unit")
 public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-  private TestUser shareUser;
 
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {
     super.setupOnce();
-
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-    shareUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + shareUser.email, "--role=WRITER");
-    shareUser.login();
-
-    // create a dockerfile as building source
     new File("./Dockerfile").createNewFile();
   }
 
@@ -61,14 +51,17 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
 
-    // `builds submit --async --gcs-bucket=bucketName --tag`
+    // `builds submit --async --gcs-bucket-resource=bucketName --tag=$tag`
     TestCommand.runCommandExpectSuccess(
         "gcloud",
         "builds",
         "submit",
+        // --async is required only for test environment without the access of creating repo
         "--async",
-        "--gcs-bucket=" + bucketResourceName,
-        "--tag=us-central1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ml4h/papermill:`date +'%Y%m%d'`");
+        "--gcs-bucket-resource=" + bucketResourceName,
+        // gcloud builds submit requires --tag flag and follows the format in
+        // https://cloud.google.com/sdk/gcloud/reference/builds/submit#--tag.
+        "--tag=us-central1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/image_`date +'%Y%m%d'`");
 
     // `terra resource delete --name=$name`
     // TODO:remove the timeout after PF-2205 done.
