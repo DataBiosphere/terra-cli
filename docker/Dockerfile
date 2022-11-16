@@ -1,5 +1,6 @@
 # Java 17 base image
-FROM eclipse-temurin:17.0.4_8-jre-focal
+# see https://github.com/broadinstitute/dsp-appsec-blessed-images/tree/main/jre
+FROM us.gcr.io/broad-dsp-gcr-public/base/jre:17-debian
 
 # working directory when the docker is run
 WORKDIR /usr
