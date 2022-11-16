@@ -1,6 +1,7 @@
 {
   "name": "verily-preprod",
   "clientCredentialsFile": "verily_secret.json",
+  "cloudBuildEnabled": true,
   "description": "Verily pre-prod environment",
   "samUri": "https://terra-preprod-sam.api.verily.com",
   "samInviteRequiresAdmin": true,

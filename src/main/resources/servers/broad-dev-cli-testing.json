@@ -1,6 +1,7 @@
 {
   "name": "broad-dev-cli-testing",
   "clientCredentialsFile": "broad_secret.json",
+  "cloudBuildEnabled": false,
   "description": "Broad development environment for CLI testing. More stable and updated less frequently than the main development environment.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
   "samUri": "https://sam.dsde-dev.broadinstitute.org",

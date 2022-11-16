@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class PDServer {
   public final String name;
   public final String clientCredentialsFile;
+  public final boolean cloudBuildEnabled;
   public final String description;
   public final String samUri;
   public final boolean samInviteRequiresAdmin;
@@ -27,7 +28,8 @@ public class PDServer {
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
     this.name = internalObj.getName();
-    this.clientCredentialsFile = internalObj.getclientCredentialsFile();
+    this.clientCredentialsFile = internalObj.getClientCredentialsFile();
+    this.cloudBuildEnabled = internalObj.getCloudBuildEnabled();
     this.description = internalObj.getDescription();
     this.samUri = internalObj.getSamUri();
     this.samInviteRequiresAdmin = internalObj.getSamInviteRequiresAdmin();
@@ -41,6 +43,7 @@ public class PDServer {
   private PDServer(PDServer.Builder builder) {
     this.name = builder.name;
     this.clientCredentialsFile = builder.clientCredentialsFile;
+    this.cloudBuildEnabled = builder.cloudBuildEnabled;
     this.description = builder.description;
     this.samUri = builder.samUri;
     this.samInviteRequiresAdmin = builder.samInviteRequiresAdmin;
@@ -55,6 +58,7 @@ public class PDServer {
   public static class Builder {
     private String name;
     private String clientCredentialsFile;
+    private boolean cloudBuildEnabled;
     private String description;
     private String samUri;
     private boolean samInviteRequiresAdmin;
@@ -74,6 +78,11 @@ public class PDServer {
 
     public Builder clientCredentialsFile(String clientCredentialsFile) {
       this.clientCredentialsFile = clientCredentialsFile;
+      return this;
+    }
+
+    public Builder cloudBuildEnabled(boolean cloudBuildEnabled) {
+      this.cloudBuildEnabled = cloudBuildEnabled;
       return this;
     }
 
