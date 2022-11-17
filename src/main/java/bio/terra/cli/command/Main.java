@@ -91,7 +91,6 @@ public class Main implements Runnable {
     // Terra CLI, we want to pass those through to the app instead
     Map<String, CommandLine> subcommands = cmd.getSubcommands();
     subcommands.get("bq").setStopAtPositional(true);
-    subcommands.get("gcloud").setStopAtPositional(true);
     subcommands.get("gsutil").setStopAtPositional(true);
     subcommands.get("nextflow").setStopAtPositional(true);
     subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);

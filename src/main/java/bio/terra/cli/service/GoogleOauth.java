@@ -62,9 +62,9 @@ public final class GoogleOauth {
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
     String clientCredentialsFileName =
-        StringUtils.isEmpty(Context.getServer().getclientCredentialsFile())
+        StringUtils.isEmpty(Context.getServer().getClientCredentialsFile())
             ? "broad_secret.json"
-            : Context.getServer().getclientCredentialsFile();
+            : Context.getServer().getClientCredentialsFile();
 
     try (InputStream inputStream =
         GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
