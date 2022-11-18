@@ -2,71 +2,63 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.persisted.resource.PDAwsBucket;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
+import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
+import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
-import bio.terra.workspace.model.AwsBucketResource;
+import bio.terra.workspace.model.GcpGcsBucketResource;
 import bio.terra.workspace.model.ResourceDescription;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a AWS bucket workspace resource. Instances of this class are part of
+ * Internal representation of a GCS bucket workspace resource. Instances of this class are part of
  * the current context or state.
  */
 public class AwsBucket extends Resource {
-  // prefix for AWS bucket to make a valid URL.
-  protected static final String AWS_BUCKET_URL_PREFIX = "s3://";
+  // prefix for GCS bucket to make a valid URL.
+  protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
   private static final Logger logger = LoggerFactory.getLogger(AwsBucket.class);
   private String bucketName;
-  private String bucketPrefix;
-  private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public AwsBucket(PDAwsBucket configFromDisk) {
+  public AwsBucket(PDGcsBucket configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
-    this.bucketPrefix = configFromDisk.bucketPrefix;
-    this.location = configFromDisk.location;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
   public AwsBucket(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.AWS_BUCKET;
-    this.bucketName = wsmObject.getResourceAttributes().getAwsBucket().getS3BucketName();
-    this.bucketPrefix = wsmObject.getResourceAttributes().getAwsBucket().getPrefix();
-    this.location = wsmObject.getResourceAttributes().getAwsBucket().getRegion();
+    this.resourceType = Type.GCS_BUCKET;
+    this.bucketName = wsmObject.getResourceAttributes().getGcpGcsBucket().getBucketName();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AwsBucket(AwsBucketResource wsmObject) {
+  public AwsBucket(GcpGcsBucketResource wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.AWS_BUCKET;
-    this.bucketName = wsmObject.getAttributes().getS3BucketName();
-    this.bucketPrefix = wsmObject.getAttributes().getPrefix();
-    this.location = wsmObject.getAttributes().getRegion();
+    this.resourceType = Type.GCS_BUCKET;
+    this.bucketName = wsmObject.getAttributes().getBucketName();
   }
 
   /**
-   * Add a AWS bucket as a referenced resource in the workspace.
+   * Add a GCS bucket as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
-  public static AwsBucket addReferenced(CreateAwsBucketParams createParams) {
+  public static AwsBucket addReferenced(CreateGcsBucketParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
-    AwsBucketResource addedResource =
+    GcpGcsBucketResource addedResource =
         WorkspaceManagerService.fromContext()
-            .createReferencedAwsBucket(Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created AWS bucket: {}", addedResource);
+            .createReferencedGcsBucket(Context.requireWorkspace().getUuid(), createParams);
+    logger.info("Created GCS bucket: {}", addedResource);
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
@@ -74,18 +66,18 @@ public class AwsBucket extends Resource {
   }
 
   /**
-   * Create a AWS bucket as a controlled resource in the workspace.
+   * Create a GCS bucket as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
-  public static AwsBucket createControlled(CreateAwsBucketParams createParams) {
+  public static AwsBucket createControlled(CreateGcsBucketParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    AwsBucketResource createdResource =
+    GcpGcsBucketResource createdResource =
         WorkspaceManagerService.fromContext()
-            .createControlledAwsBucket(Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created AWS bucket: {}", createdResource);
+            .createControlledGcsBucket(Context.requireWorkspace().getUuid(), createParams);
+    logger.info("Created GCS bucket: {}", createdResource);
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
@@ -95,76 +87,69 @@ public class AwsBucket extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public UFAwsBucket serializeToCommand() {
-    return new UFAwsBucket(this);
+  public UFGcsBucket serializeToCommand() {
+    return new UFGcsBucket(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDAwsBucket serializeToDisk() {
-    return new PDAwsBucket(this);
+  public PDGcsBucket serializeToDisk() {
+    return new PDGcsBucket(this);
   }
 
-  /** Update a AWS bucket referenced resource in the workspace. */
-  public void updateReferenced(UpdateReferencedAwsBucketParams updateParams) {
+  /** Update a GCS bucket referenced resource in the workspace. */
+  public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
     if (updateParams.resourceParams.name != null) {
       validateResourceName(updateParams.resourceParams.name);
+    }
+    if (updateParams.bucketName != null) {
+      this.bucketName = updateParams.bucketName;
     }
     if (updateParams.cloningInstructions != null) {
       this.cloningInstructions = updateParams.cloningInstructions;
     }
     WorkspaceManagerService.fromContext()
-        .updateReferencedAwsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
+        .updateReferencedGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
-  /** Update a AWS bucket controlled resource in the workspace. */
-  public void updateControlled(UpdateControlledAwsBucketParams updateParams) {
+  /** Update a GCS bucket controlled resource in the workspace. */
+  public void updateControlled(UpdateControlledGcsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
     WorkspaceManagerService.fromContext()
-        .updateControlledAwsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
+        .updateControlledGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
-  /** Delete a AWS bucket referenced resource in the workspace. */
+  /** Delete a GCS bucket referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
-        .deleteReferencedAwsBucket(Context.requireWorkspace().getUuid(), id);
+        .deleteReferencedGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
-  /** Delete a AWS bucket controlled resource in the workspace. */
+  /** Delete a GCS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
-        .deleteControlledAwsBucket(Context.requireWorkspace().getUuid(), id);
+        .deleteControlledGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
-  /** Resolve a AWS bucket resource to its cloud identifier. */
+  /** Resolve a GCS bucket resource to its cloud identifier. */
   public String resolve() {
     return resolve(true);
   }
 
   /**
-   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
+   * Resolve a GCS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
    */
-  public String resolve(boolean includeUrlPrefix) {
-    return resolve(bucketName, bucketPrefix, includeUrlPrefix);
-  }
-
-  /**
-   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
-   */
-  public static String resolve(
-      String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {
-    String resolvedPath = String.format("%s/%s", awsBucketName, awsBucketPrefix);
-    return includeUrlPrefix ? AWS_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
+  public String resolve(boolean includePrefix) {
+    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
   }
 
   /** Query the cloud for information about the bucket. */
   public Optional<BucketCow> getBucket() {
-    // TODO(TERRA-206) change to AWS BucketCow
     try {
       StorageCow storageCow =
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials());
@@ -180,13 +165,5 @@ public class AwsBucket extends Resource {
 
   public String getBucketName() {
     return bucketName;
-  }
-
-  public String getBucketPrefix() {
-    return bucketPrefix;
-  }
-
-  public String getLocation() {
-    return location;
   }
 }

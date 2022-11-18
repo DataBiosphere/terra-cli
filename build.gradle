@@ -44,7 +44,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.82.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     //implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.406-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mcterra-wsm-client-11222022-1'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mcterra-wsm-client-11182022-1'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates

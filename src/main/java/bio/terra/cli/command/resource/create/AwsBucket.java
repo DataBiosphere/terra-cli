@@ -4,9 +4,8 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -17,8 +16,17 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class AwsBucket extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+  // @CommandLine.Mixin GcsBucketStorageClass storageClassOption; // TODO
+  // @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions; //
+  // TODO
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
+
+  @CommandLine.Option(
+      names = "--bucket-name",
+      description =
+          "Name of the AWS bucket, without the prefix. (e.g. 'my-bucket', not 'S3://my-bucket'). If not provided, a unique bucket name will be generated.")
+  private String bucketName;
 
   @CommandLine.Option(
       names = "--location",
@@ -27,7 +35,7 @@ public class AwsBucket extends BaseCommand {
   private String location;
 
   /** Print this command's output in text format. */
-  private static void printText(UFAwsBucket returnValue) {
+  private static void printText(UFGcsBucket returnValue) { // TODO
     OUT.println("Successfully added controlled AWS bucket.");
     returnValue.print();
   }
@@ -42,16 +50,16 @@ public class AwsBucket extends BaseCommand {
         controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED);
-
-    CreateAwsBucketParams.Builder createParams =
-        new CreateAwsBucketParams.Builder()
-            .resourceFields(createResourceParams.build())
-            .location(location);
+    /*CreateGcsBucketParams.Builder createParams =
+    new CreateGcsBucketParams.Builder()
+        .resourceFields(createResourceParams.build())
+        .bucketName(bucketName)
+        .defaultStorageClass(storageClassOption.storageClass)
+        .location(location)
+        .lifecycle(lifecycleOptions.buildLifecycleObject()); */
 
     bio.terra.cli.businessobject.resource.AwsBucket createdResource =
         bio.terra.cli.businessobject.resource.AwsBucket.createControlled(createParams.build());
-    formatOption.printReturnValue(
-        new UFAwsBucket(createdResource),
-        bio.terra.cli.command.resource.create.AwsBucket::printText);
+    formatOption.printReturnValue(new UFGcsBucket(createdResource), GcsBucket::printText);
   }
 }

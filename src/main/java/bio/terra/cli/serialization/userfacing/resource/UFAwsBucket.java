@@ -1,18 +1,21 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.AwsBucket;
+import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.cloudres.google.storage.BucketCow;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
- * External representation of a workspace AWS bucket resource for command input/output.
+ * External representation of a workspace GCS bucket resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link AwsBucket} class for a bucket's internal representation.
+ * <p>See the {@link GcsBucket} class for a bucket's internal representation.
  */
 @JsonDeserialize(builder = UFAwsBucket.Builder.class)
 public class UFAwsBucket extends UFResource {
@@ -20,34 +23,27 @@ public class UFAwsBucket extends UFResource {
   // if there are more, we just add a "+" at the end for display
   private static final long MAX_NUM_OBJECTS = 100;
   public final String bucketName;
-  public final String bucketPrefix;
   public final String location;
   public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFAwsBucket(AwsBucket internalObj) {
+  public UFAwsBucket(GcsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
-    this.bucketPrefix = internalObj.getBucketPrefix();
-    this.location = internalObj.getLocation();
 
-    this.numObjects = 1;
-    /*
-    // TODO(TERRA-207) add AWS account info - SA scope, proxy
-    AmazonCloudStorage storage = AmazonCloudStorage.fromContextForPetSa();
-    // TODO(TERRA-206) change to AWS BucketCow
+    GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
+    this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
     this.numObjects =
         bucket
             .map((bucketCow) -> storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1))
-            .orElse(null);*/
+            .orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
   private UFAwsBucket(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
-    this.bucketPrefix = builder.bucketPrefix;
     this.location = builder.location;
     this.numObjects = builder.numObjects;
   }
@@ -57,7 +53,7 @@ public class UFAwsBucket extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "AWS bucket name: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
+    OUT.println(prefix + "GCS bucket name: " + bucketName);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(
         prefix
@@ -70,7 +66,6 @@ public class UFAwsBucket extends UFResource {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;
-    private String bucketPrefix;
     private String location;
     private Integer numObjects;
 
@@ -79,11 +74,6 @@ public class UFAwsBucket extends UFResource {
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
-      return this;
-    }
-
-    public Builder bucketPrefix(String bucketPrefix) {
-      this.bucketPrefix = bucketPrefix;
       return this;
     }
 
