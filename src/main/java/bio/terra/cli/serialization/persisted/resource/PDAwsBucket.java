@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.persisted.resource;
 
+import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -19,7 +20,7 @@ public class PDAwsBucket extends PDResource {
   public final String bucketName;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public PDAwsBucket(GcsBucket internalObj) {
+  public PDAwsBucket(AwsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
   }
