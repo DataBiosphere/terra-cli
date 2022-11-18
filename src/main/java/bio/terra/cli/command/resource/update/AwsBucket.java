@@ -15,7 +15,6 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
 import bio.terra.workspace.model.StewardshipType;
-import com.google.api.client.util.Strings;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update aws-bucket" command. */
@@ -47,7 +46,7 @@ public class AwsBucket extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
         && !lifecycleOptions.isDefined()
-        && Strings.isNullOrEmpty(newBucketName.getNewBucketName())
+        && newBucketName.getNewBucketName() == null
         && newCloningInstructionsOption.getCloning() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
