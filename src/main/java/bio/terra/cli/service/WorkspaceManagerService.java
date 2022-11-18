@@ -8,15 +8,18 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
@@ -982,9 +985,9 @@ public class WorkspaceManagerService {
    * @param createParams creation parameters
    * @return the AWS bucket resource object
    */
-  /* TODO(TERRA-196)
-  public GcpGcsBucketResource createReferencedAwsBucket(
+  public AwsBucketResource createReferencedAwsBucket(
       UUID workspaceId, CreateAwsBucketParams createParams) {
+    /* TODO(TERRA-196)
     // convert the CLI object to a WSM request object
     CreateAwssBucketReferenceRequestBody createRequest =
         new CreateAwsBucketReferenceRequestBody()
@@ -995,8 +998,9 @@ public class WorkspaceManagerService {
             new ReferencedAwsResourceApi(apiClient)
                 .createBucketReference(createRequest, workspaceId),
         "Error creating referenced AWS bucket in the workspace.");
+     */
+    return new AwsBucketResource();
   }
-   */
 
   private ReferenceResourceCommonFields getReferencedResourceMetadata(
       CreateResourceParams resourceFields) {
@@ -1144,7 +1148,7 @@ public class WorkspaceManagerService {
    * @return the AWS bucket resource object
    */
   public AwsBucketResource createControlledAwsBucket(
-      UUID workspaceId, CreateGcsBucketParams createParams) {
+      UUID workspaceId, CreateAwsBucketParams createParams) {
     // convert the CLI object to a WSM request object
     CreateControlledAwsBucketRequestBody createRequest =
         new CreateControlledAwsBucketRequestBody()
@@ -1251,9 +1255,9 @@ public class WorkspaceManagerService {
    * @param resourceId the resource id
    * @param updateParams resource properties to update
    */
-  /* TODO(TERRA-193)
   public void updateReferencedAwsBucket(
       UUID workspaceId, UUID resourceId, UpdateReferencedAwsBucketParams updateParams) {
+    /* TODO(TERRA-193)
     // convert the CLI object to a WSM request object
     UpdateAwsBucketReferenceRequestBody updateRequest =
         new UpdateAwsBucketReferenceRequestBody()
@@ -1266,8 +1270,8 @@ public class WorkspaceManagerService {
             new ReferencedAwsResourceApi(apiClient)
                 .updateBucketReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced AWS bucket in the workspace.");
+     */
   }
-   */
 
   /**
    * Call the Workspace Manager POST
@@ -1338,9 +1342,9 @@ public class WorkspaceManagerService {
    * @param resourceId the resource id
    * @param updateParams resource properties to update
    */
-  /* TODO(TERRA-193)
   public void updateControlledAwsBucket(
       UUID workspaceId, UUID resourceId, UpdateControlledAwsBucketParams updateParams) {
+    /* TODO(TERRA-193)
     // convert the CLI object to a WSM request object
     UpdateControlledAwsBucketRequestBody updateRequest =
         new UpdateControlledAwsBucketRequestBody()
@@ -1356,8 +1360,8 @@ public class WorkspaceManagerService {
             new ControlledAwsResourceApi(apiClient)
                 .updateAwsBucket(updateRequest, workspaceId, resourceId),
         "Error updating controlled AWS bucket in the workspace.");
+     */
   }
-  */
 
   /**
    * Call the Workspace Manager PATCH
@@ -1528,14 +1532,14 @@ public class WorkspaceManagerService {
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
    */
-  /* TODO(TERRA-196)
   public void deleteReferencedAwsBucket(UUID workspaceId, UUID resourceId) {
+    /* TODO(TERRA-196)
     callWithRetries(
         () ->
             new ReferencedAwsResourceApi(apiClient).deleteBucketReference(workspaceId, resourceId),
         "Error deleting referenced AWS bucket in the workspace.");
+     */
   }
-   */
 
   /**
    * Call the Workspace Manager POST
@@ -1639,8 +1643,8 @@ public class WorkspaceManagerService {
    * @throws SystemException if the job to delete the bucket fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
-  /* TODO(TERRA_194)
   public void deleteControlledAwsBucket(UUID workspaceId, UUID resourceId) {
+    /* TODO(TERRA_194)
     ControlledAwsResourceApi controlledAwsResourceApi = new ControlledAwsResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
     DeleteControlledAwsBucketRequest deleteRequest =
@@ -1665,8 +1669,8 @@ public class WorkspaceManagerService {
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
         },
         "Error deleting controlled AWS bucket in the workspace.");
+     */
   }
-  */
 
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
