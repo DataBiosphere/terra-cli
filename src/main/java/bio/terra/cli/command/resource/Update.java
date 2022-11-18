@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resource;
 
+import bio.terra.cli.command.resource.update.AwsBucket;
 import bio.terra.cli.command.resource.update.BqDataset;
 import bio.terra.cli.command.resource.update.BqTable;
 import bio.terra.cli.command.resource.update.GcpNotebook;
@@ -21,6 +22,7 @@ import picocli.CommandLine;
       GcpNotebook.class,
       GcsBucket.class,
       GcsObject.class,
-      GitRepo.class
+      GitRepo.class,
+      AwsBucket.class
     })
 public class Update {}
