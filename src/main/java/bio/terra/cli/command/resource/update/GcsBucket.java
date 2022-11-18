@@ -15,6 +15,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.StewardshipType;
+import com.google.api.client.util.Strings;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource update gcs-bucket" command. */
@@ -28,7 +29,6 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -47,7 +47,7 @@ public class GcsBucket extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
         && !lifecycleOptions.isDefined()
-        && newBucketName.getNewBucketName() == null
+        && Strings.isNullOrEmpty(newBucketName.getNewBucketName())
         && newCloningInstructionsOption.getCloning() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
