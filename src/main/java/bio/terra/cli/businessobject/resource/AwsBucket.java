@@ -3,9 +3,9 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDGcsBucket;
-import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -52,7 +52,7 @@ public class AwsBucket extends Resource {
    *
    * @return the resource that was added
    */
-  public static AwsBucket addReferenced(CreateGcsBucketParams createParams) {
+  public static AwsBucket addReferenced(CreateAwsBucketParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     GcpGcsBucketResource addedResource =
@@ -70,7 +70,7 @@ public class AwsBucket extends Resource {
    *
    * @return the resource that was created
    */
-  public static AwsBucket createControlled(CreateGcsBucketParams createParams) {
+  public static AwsBucket createControlled(CreateAwsBucketParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
@@ -97,7 +97,7 @@ public class AwsBucket extends Resource {
   }
 
   /** Update a GCS bucket referenced resource in the workspace. */
-  public void updateReferenced(UpdateReferencedGcsBucketParams updateParams) {
+  public void updateReferenced(UpdateReferencedAwsBucketParams updateParams) {
     if (updateParams.resourceParams.name != null) {
       validateResourceName(updateParams.resourceParams.name);
     }
@@ -113,7 +113,7 @@ public class AwsBucket extends Resource {
   }
 
   /** Update a GCS bucket controlled resource in the workspace. */
-  public void updateControlled(UpdateControlledGcsBucketParams updateParams) {
+  public void updateControlled(UpdateControlledAwsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
