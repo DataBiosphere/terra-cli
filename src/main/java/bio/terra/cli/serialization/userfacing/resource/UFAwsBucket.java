@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.utils.UserIO;
@@ -27,7 +27,7 @@ public class UFAwsBucket extends UFResource {
   public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFAwsBucket(GcsBucket internalObj) {
+  public UFAwsBucket(AwsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
 
