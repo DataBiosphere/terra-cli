@@ -11,11 +11,11 @@ import java.io.PrintStream;
 import java.util.Optional;
 
 /**
- * External representation of a workspace GCS bucket resource for command input/output.
+ * External representation of a workspace AWS bucket resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link GcsBucket} class for a bucket's internal representation.
+ * <p>See the {@link AwsBucket} class for a bucket's internal representation.
  */
 @JsonDeserialize(builder = UFAwsBucket.Builder.class)
 public class UFAwsBucket extends UFResource {
@@ -53,7 +53,7 @@ public class UFAwsBucket extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "GCS bucket name: " + bucketName);
+    OUT.println(prefix + "AWS bucket name: " + bucketName);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(
         prefix
