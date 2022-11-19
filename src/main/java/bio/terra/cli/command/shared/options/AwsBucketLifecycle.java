@@ -19,7 +19,7 @@ public class AwsBucketLifecycle {
   public LifecycleArgGroup lifecycleArgGroup;
 
   /** Helper method to build the lifecycle object . */
-  public bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle buildLifecycleObject() {
+  public bio.terra.cli.serialization.userfacing.input.AwsBucketLifecycle buildLifecycleObject() {
     if (lifecycleArgGroup == null) {
       // empty lifecycle rule object
       return new bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle();

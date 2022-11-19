@@ -1,18 +1,17 @@
 package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.workspace.model.GcpGcsBucketLifecycleRuleActionType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This POJO class specifies a list of GCS bucket lifecycle rules. Its structure mimics the one used
+ * This POJO class specifies a list of AWS bucket lifecycle rules. Its structure mimics the one used
  * by the `gsutil lifecycle` command.
  *
  * <p>Command ref: https://cloud.google.com/storage/docs/gsutil/commands/lifecycle
  *
- * <p>GCS bucket JSON format ref: https://cloud.google.com/storage/docs/json_api/v1/buckets#resource
+ * <p>AWS bucket JSON format ref: https://cloud.google.com/storage/docs/json_api/v1/buckets#resource
  *
  * <p>This class is intended for passing throughout the CLI codebase, and also for exposing to users
  * so that they can specify the lifecycle rules in a JSON file and pass that to the CLI.
@@ -49,12 +48,12 @@ public class AwsBucketLifecycle {
 
   /**
    * This enum defines the possible ActionTypes for bucket lifecycle rules, and maps these types to
-   * the corresponding {@link GcpGcsBucketLifecycleRuleActionType} enum in the WSM client library.
-   * The CLI defines its own version of this enum so that:
+   * the corresponding {@link AwsBucketLifecycleRuleActionType} enum in the WSM client library. The
+   * CLI defines its own version of this enum so that:
    *
-   * <p>- The CLI can use different enum names. In this case, the publicly documented GCS resource
+   * <p>- The CLI can use different enum names. In this case, the publicly documented AWS resource
    * definition uses a slightly different casing of the enum values. In an effort to mimic the
-   * similar `gsutil lifecycle` command as closely as possible, the CLI will use the GCS casing,
+   * similar `gsutil lifecycle` command as closely as possible, the CLI will use the AWS casing,
    * instead of the WSM client library version.
    * (https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle)
    *
@@ -66,16 +65,16 @@ public class AwsBucketLifecycle {
    * sensitive, and the CLI may want to allow case insensitive deserialization.
    */
   public enum ActionType {
-    Delete(GcpGcsBucketLifecycleRuleActionType.DELETE),
-    SetStorageClass(GcpGcsBucketLifecycleRuleActionType.SET_STORAGE_CLASS);
+    Delete(AwsBucketLifecycleRuleActionType.DELETE),
+    SetStorageClass(AwsBucketLifecycleRuleActionType.SET_STORAGE_CLASS);
 
-    private GcpGcsBucketLifecycleRuleActionType wsmEnumVal;
+    private AwsBucketLifecycleRuleActionType wsmEnumVal;
 
-    ActionType(GcpGcsBucketLifecycleRuleActionType wsmEnumVal) {
+    ActionType(AwsBucketLifecycleRuleActionType wsmEnumVal) {
       this.wsmEnumVal = wsmEnumVal;
     }
 
-    public GcpGcsBucketLifecycleRuleActionType toWSMEnum() {
+    public AwsBucketLifecycleRuleActionType toWSMEnum() {
       return this.wsmEnumVal;
     }
   }
@@ -87,7 +86,7 @@ public class AwsBucketLifecycle {
 
   public static class Action {
     public ActionType type;
-    public GcsStorageClass storageClass;
+    public AwsStorageClass storageClass;
   }
 
   public static class Condition {
@@ -97,7 +96,7 @@ public class AwsBucketLifecycle {
     public Integer daysSinceCustomTime;
     public Integer daysSinceNoncurrentTime;
     public Boolean isLive;
-    public List<GcsStorageClass> matchesStorageClass = new ArrayList<>();
+    public List<AwsStorageClass> matchesStorageClass = new ArrayList<>();
     public LocalDate noncurrentTimeBefore;
     public Integer numNewerVersions;
   }
