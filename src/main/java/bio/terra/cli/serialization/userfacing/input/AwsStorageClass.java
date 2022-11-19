@@ -1,10 +1,8 @@
 package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
-
 /**
  * This enum defines the possible storage classes for buckets, and maps these classes to the
- * corresponding {@link GcpGcsBucketDefaultStorageClass} enum in the WSM client library. The CLI
+ * corresponding {@link AwsBucketDefaultStorageClass} enum in the WSM client library. The CLI
  * defines its own version of this enum so that:
  *
  * <p>- The CLI syntax does not change when WSM API changes. In this case, the syntax affected is
@@ -15,18 +13,21 @@ import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
  * sensitive, and the CLI may want to allow case insensitive deserialization.
  */
 public enum AwsStorageClass {
-  STANDARD(GcpGcsBucketDefaultStorageClass.STANDARD),
-  NEARLINE(GcpGcsBucketDefaultStorageClass.NEARLINE),
-  COLDLINE(GcpGcsBucketDefaultStorageClass.COLDLINE),
-  ARCHIVE(GcpGcsBucketDefaultStorageClass.ARCHIVE);
+  STANDARD(AwsBucketDefaultStorageClass.STANDARD),
+  INTELLIGENT_TIERING(AwsBucketDefaultStorageClass.INTELLIGENT_TIERING),
+  STANDARD_INFREQUENT_ACCESS(AwsBucketDefaultStorageClass.STANDARD_INFREQUENT_ACCESS),
+  ONE_ZONE_INFREQUENT_ACCESS(AwsBucketDefaultStorageClass.ONE_ZONE_INFREQUENT_ACCESS),
+  GLACIER_INSTANT_RETRIEVAL(AwsBucketDefaultStorageClass.GLACIER_INSTANT_RETRIEVAL),
+  GLACIER_FLEXIBLE_RETRIEVAL(AwsBucketDefaultStorageClass.GLACIER_FLEXIBLE_RETRIEVAL),
+  GLACIER_DEEP_ARCHIVE(AwsBucketDefaultStorageClass.GLACIER_DEEP_ARCHIVE);
 
-  private GcpGcsBucketDefaultStorageClass wsmEnumVal;
+  private AwsBucketDefaultStorageClass wsmEnumVal;
 
-  AwsStorageClass(GcpGcsBucketDefaultStorageClass wsmEnumVal) {
+  AwsStorageClass(AwsBucketDefaultStorageClass wsmEnumVal) {
     this.wsmEnumVal = wsmEnumVal;
   }
 
-  public GcpGcsBucketDefaultStorageClass toWSMEnum() {
+  public AwsBucketDefaultStorageClass toWSMEnum() {
     return this.wsmEnumVal;
   }
 }

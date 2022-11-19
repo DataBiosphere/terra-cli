@@ -1,12 +1,11 @@
 package bio.terra.cli.serialization.userfacing.input;
 
-import bio.terra.workspace.model.GcpGcsBucketDefaultStorageClass;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating a GCS bucket workspace resource. This class is not currently user-facing,
+ * Parameters for creating a AWS bucket workspace resource. This class is not currently user-facing,
  * but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -14,8 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class CreateAwsBucketParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
-  public final GcsBucketLifecycle lifecycle;
-  public final GcpGcsBucketDefaultStorageClass defaultStorageClass;
+  public final AwsBucketLifecycle lifecycle;
+  public final AwsBucketDefaultStorageClass defaultStorageClass;
   public final String location;
 
   protected CreateAwsBucketParams(CreateAwsBucketParams.Builder builder) {
@@ -30,8 +29,8 @@ public class CreateAwsBucketParams {
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String bucketName;
-    private GcsBucketLifecycle lifecycle;
-    private GcpGcsBucketDefaultStorageClass defaultStorageClass;
+    private AwsBucketLifecycle lifecycle;
+    private AwsBucketDefaultStorageClass defaultStorageClass;
     private String location;
 
     /** Default constructor for Jackson. */
@@ -47,12 +46,12 @@ public class CreateAwsBucketParams {
       return this;
     }
 
-    public Builder lifecycle(GcsBucketLifecycle lifecycle) {
+    public Builder lifecycle(AwsBucketLifecycle lifecycle) {
       this.lifecycle = lifecycle;
       return this;
     }
 
-    public Builder defaultStorageClass(GcpGcsBucketDefaultStorageClass defaultStorageClass) {
+    public Builder defaultStorageClass(AwsBucketDefaultStorageClass defaultStorageClass) {
       this.defaultStorageClass = defaultStorageClass;
       return this;
     }

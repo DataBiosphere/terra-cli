@@ -1,18 +1,17 @@
 package bio.terra.cli.serialization.persisted.resource;
 
 import bio.terra.cli.businessobject.resource.AwsBucket;
-import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * External representation of a workspace GCS bucket resource for writing to disk.
+ * External representation of a workspace AWS bucket resource for writing to disk.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link GcsBucket} class for a bucket's internal representation.
+ * <p>See the {@link AwsBucket} class for a bucket's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = PDAwsBucket.Builder.class)
@@ -31,8 +30,8 @@ public class PDAwsBucket extends PDResource {
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public GcsBucket deserializeToInternal() {
-    return new GcsBucket(this);
+  public AwsBucket deserializeToInternal() {
+    return new AwsBucket(this);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
