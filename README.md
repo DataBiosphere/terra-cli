@@ -609,8 +609,7 @@ example) to pick up any changes that your collaborators have made.
 ##### GCS bucket lifecycle rules
 
 GCS bucket lifecycle rules are specified by passing a JSON-formatted file path
-to the
-`terra resource create gcs-bucket` command. The expected JSON structure matches
+to the `terra resource create gcs-bucket` command. The expected JSON structure matches
 the one used by the `gsutil lifecycle`
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This
 structure is a subset of the GCS

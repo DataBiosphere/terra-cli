@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.userfacing.input;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+// TODO(TERRA-204) Move this to WSM client
 public enum AwsBucketLifecycleRuleActionType {
   DELETE("DELETE"),
   SET_STORAGE_CLASS("SET_STORAGE_CLASS");
