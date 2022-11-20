@@ -10,7 +10,7 @@ import picocli.CommandLine;
 
 /**
  * Command helper class that defines the --lifecycle option for `terra resource` commands that
- * handle GCS bucket controlled resources.
+ * handle AWS bucket controlled resources.
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
@@ -22,17 +22,17 @@ public class AwsBucketLifecycle {
   public bio.terra.cli.serialization.userfacing.input.AwsBucketLifecycle buildLifecycleObject() {
     if (lifecycleArgGroup == null) {
       // empty lifecycle rule object
-      return new bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle();
+      return new bio.terra.cli.serialization.userfacing.input.AwsBucketLifecycle();
     } else if (lifecycleArgGroup.autoDelete != null) {
       // build an auto-delete lifecycle rule and set the number of days
-      return bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle.buildAutoDeleteRule(
+      return bio.terra.cli.serialization.userfacing.input.AwsBucketLifecycle.buildAutoDeleteRule(
           lifecycleArgGroup.autoDelete);
     } else {
       // read in the lifecycle rules from a file
       try {
         return JacksonMapper.readFileIntoJavaObject(
             lifecycleArgGroup.pathToLifecycleFile.toFile(),
-            bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle.class,
+            bio.terra.cli.serialization.userfacing.input.AwsBucketLifecycle.class,
             Collections.singletonList(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
       } catch (IOException ioEx) {
         throw new UserActionableException("Error reading lifecycle rules from file.", ioEx);
@@ -45,10 +45,11 @@ public class AwsBucketLifecycle {
   }
 
   static class LifecycleArgGroup {
+    // TODO(TERRA-205) Add example in README.md (similar to 'GCS bucket lifecycle rules')
     @CommandLine.Option(
         names = "--lifecycle",
         description =
-            "Lifecycle rules (https://cloud.google.com/storage/docs/lifecycle) specified in a JSON-formatted file. See the README for the expected JSON format.")
+            "Lifecycle rules (https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html) specified in a JSON-formatted file. See the README for the expected JSON format.")
     private Path pathToLifecycleFile;
 
     @CommandLine.Option(
