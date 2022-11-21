@@ -2,7 +2,6 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.time.OffsetDateTime;
@@ -16,8 +15,8 @@ public class UFWorkspaceLight {
   public String id;
   public String name;
   public String description;
-  public CloudPlatform cloudPlatform;
   public String googleProjectId;
+  public String awsAccountNumber;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -34,8 +33,8 @@ public class UFWorkspaceLight {
     this.id = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
-    this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.awsAccountNumber = internalObj.getAwsAccountNumber();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -48,8 +47,8 @@ public class UFWorkspaceLight {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
-    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountNumber = builder.awsAccountNumber;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -62,8 +61,8 @@ public class UFWorkspaceLight {
     this.id = null;
     this.name = null;
     this.description = null;
-    this.cloudPlatform = null;
     this.googleProjectId = null;
+    this.awsAccountNumber = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -79,12 +78,18 @@ public class UFWorkspaceLight {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
-    if (cloudPlatform == CloudPlatform.GCP) {
+
+    if (googleProjectId != null) {
       OUT.println("Google project:    " + googleProjectId);
       OUT.println(
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
+    } else if (awsAccountNumber != null) {
+      OUT.println("AWS account:    " + awsAccountNumber);
+      OUT.println(
+          "Cloud console:     https://" + awsAccountNumber + ".signin.aws.amazon.com/console/");
     }
+
     if (properties == null) {
       return;
     }
@@ -101,8 +106,8 @@ public class UFWorkspaceLight {
     private String id;
     private String name;
     private String description;
-    private CloudPlatform cloudPlatform;
     private String googleProjectId;
+    private String awsAccountNumber;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -127,13 +132,13 @@ public class UFWorkspaceLight {
       return this;
     }
 
-    public UFWorkspaceLight.Builder cloudPlatform(CloudPlatform cloudPlatform) {
-      this.cloudPlatform = cloudPlatform;
+    public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
+      this.googleProjectId = googleProjectId;
       return this;
     }
 
-    public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
-      this.googleProjectId = googleProjectId;
+    public UFWorkspaceLight.Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
       return this;
     }
 
