@@ -24,6 +24,7 @@ public class PDWorkspace {
   public final String name;
   public final String description;
   public final String googleProjectId;
+  public final String awsAccountNumber;
   public final Map<String, String> properties;
   public final String serverName;
   public final String userEmail;
@@ -38,6 +39,7 @@ public class PDWorkspace {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.awsAccountNumber = internalObj.getAwsAccountNumber();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -55,6 +57,7 @@ public class PDWorkspace {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountNumber = builder.awsAccountNumber;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -70,6 +73,7 @@ public class PDWorkspace {
     private String name;
     private String description;
     private String googleProjectId;
+    private String awsAccountNumber;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -102,6 +106,11 @@ public class PDWorkspace {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
       return this;
     }
 

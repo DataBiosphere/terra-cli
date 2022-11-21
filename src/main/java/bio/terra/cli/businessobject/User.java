@@ -12,6 +12,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdToken;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
@@ -211,10 +212,12 @@ public class User {
     // will succeed and the user can delete the corrupted workspace
     Workspace currentWorkspace = Context.requireWorkspace();
     String googleProjectId = currentWorkspace.getGoogleProjectId();
-    if (googleProjectId == null || googleProjectId.isEmpty()) {
+    if (Strings.isNullOrEmpty(googleProjectId)) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
     }
+
+    // TODO(TERRA-204) get SaEmail for AWS
 
     // ask SAM for the project-specific pet SA email and persist it on disk
     petSAEmail = SamService.forUser(this).getPetSaEmailForProject(googleProjectId);
@@ -347,6 +350,7 @@ public class User {
 
   /** Get the access token for the pet SA credentials. */
   public AccessToken getPetSaAccessToken() {
+    // TODO(TERRA-204) get SaToken for AWS
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String accessTokenStr =
         SamService.forUser(this).getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
