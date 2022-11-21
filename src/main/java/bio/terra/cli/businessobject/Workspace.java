@@ -48,6 +48,7 @@ public class Workspace {
   private String description;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
+  // TODO(TERRA-201) add AWS account info
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
