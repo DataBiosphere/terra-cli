@@ -1,5 +1,6 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.AwsBucketDefaultStorageClass;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

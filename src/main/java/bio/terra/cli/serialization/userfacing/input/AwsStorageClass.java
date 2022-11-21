@@ -1,5 +1,7 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.AwsBucketDefaultStorageClass;
+
 /**
  * This enum defines the possible storage classes for buckets, and maps these classes to the
  * corresponding {@link AwsBucketDefaultStorageClass} enum in the WSM client library. The CLI
