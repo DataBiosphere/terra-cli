@@ -46,6 +46,7 @@ public class Workspace {
   private String name; // not unique
   private String description;
   private String googleProjectId;
+  // TODO(TERRA-201) add AWS account info
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
