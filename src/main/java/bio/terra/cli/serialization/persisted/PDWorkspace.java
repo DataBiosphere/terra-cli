@@ -2,7 +2,6 @@ package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.OffsetDateTime;
@@ -24,10 +23,8 @@ public class PDWorkspace {
   public final String userFacingId;
   public final String name;
   public final String description;
-  public final CloudPlatform cloudPlatform;
   public final String googleProjectId;
   public final String awsAccountNumber;
-  public final String landingZoneId;
   public final Map<String, String> properties;
   public final String serverName;
   public final String userEmail;
@@ -41,10 +38,8 @@ public class PDWorkspace {
     this.userFacingId = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
-    this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.awsAccountNumber = internalObj.getAwsAccountNumber();
-    this.landingZoneId = internalObj.getLandingZoneId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -61,10 +56,8 @@ public class PDWorkspace {
     this.userFacingId = builder.userFacingId;
     this.name = builder.name;
     this.description = builder.description;
-    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountNumber = builder.awsAccountNumber;
-    this.landingZoneId = builder.landingZoneId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -79,10 +72,8 @@ public class PDWorkspace {
     private String userFacingId;
     private String name;
     private String description;
-    private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String awsAccountNumber;
-    private String landingZoneId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -113,11 +104,6 @@ public class PDWorkspace {
       return this;
     }
 
-    public Builder cloudPlatform(CloudPlatform cloudPlatform) {
-      this.cloudPlatform = cloudPlatform;
-      return this;
-    }
-
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
       return this;
@@ -125,11 +111,6 @@ public class PDWorkspace {
 
     public Builder awsAccountNumber(String awsAccountNumber) {
       this.awsAccountNumber = awsAccountNumber;
-      return this;
-    }
-
-    public Builder landingZoneId(String landingZoneId) {
-      this.landingZoneId = landingZoneId;
       return this;
     }
 
