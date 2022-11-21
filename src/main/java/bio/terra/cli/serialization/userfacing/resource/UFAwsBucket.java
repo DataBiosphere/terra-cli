@@ -2,7 +2,7 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.GoogleCloudStorage;
+import bio.terra.cli.service.AmazonCloudStorage;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.cloudres.google.storage.BucketCow;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,8 +31,9 @@ public class UFAwsBucket extends UFResource {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
 
-    GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
-    Optional<BucketCow> bucket = storage.getBucket(bucketName);
+    AmazonCloudStorage storage = AmazonCloudStorage.fromContextForPetSa();
+    Optional<BucketCow> bucket =
+        storage.getBucket(bucketName); // TODO(TERRA-206) change to AWS BucketCow
     this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
     this.numObjects =
         bucket
