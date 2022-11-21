@@ -572,9 +572,10 @@ public class WorkspaceManagerService {
           workspaceWithContext.getGcpContext().getProjectId());
     } else if (workspaceWithContext.getAwsContext() != null) {
       logger.info(
-          "Workspace context: userFacingId: {}, account number: {}",
+          "Workspace context: userFacingId: {}, account number: {}, landing zone id: {}",
           workspaceWithContext.getUserFacingId(),
-          workspaceWithContext.getAwsContext().getAccountNumber());
+          workspaceWithContext.getAwsContext().getAccountNumber(),
+          workspaceWithContext.getAwsContext().getLandingZoneId());
     }
 
     return workspaceWithContext;
@@ -599,9 +600,10 @@ public class WorkspaceManagerService {
           workspaceWithContext.getGcpContext().getProjectId());
     } else if (workspaceWithContext.getAwsContext() != null) {
       logger.info(
-          "Workspace context: userFacingId: {}, account number: {}",
+          "Workspace context: userFacingId: {}, account number: {}, landing zone id: {}",
           workspaceWithContext.getUserFacingId(),
-          workspaceWithContext.getAwsContext().getAccountNumber());
+          workspaceWithContext.getAwsContext().getAccountNumber(),
+          workspaceWithContext.getAwsContext().getLandingZoneId());
     }
 
     return workspaceWithContext;

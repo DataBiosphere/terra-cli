@@ -17,6 +17,7 @@ public class UFWorkspaceLight {
   public String description;
   public String googleProjectId;
   public String awsAccountNumber;
+  public String landingZoneId;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -35,6 +36,7 @@ public class UFWorkspaceLight {
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.awsAccountNumber = internalObj.getAwsAccountNumber();
+    this.landingZoneId = internalObj.getLandingZoneId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -49,6 +51,7 @@ public class UFWorkspaceLight {
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountNumber = builder.awsAccountNumber;
+    this.landingZoneId = builder.landingZoneId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -63,6 +66,7 @@ public class UFWorkspaceLight {
     this.description = null;
     this.googleProjectId = null;
     this.awsAccountNumber = null;
+    this.landingZoneId = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -85,7 +89,8 @@ public class UFWorkspaceLight {
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
     } else if (awsAccountNumber != null) {
-      OUT.println("AWS account:    " + awsAccountNumber);
+      OUT.println("AWS account:       " + awsAccountNumber);
+      OUT.println("Landing Zone Id:   " + landingZoneId);
       OUT.println(
           "Cloud console:     https://" + awsAccountNumber + ".signin.aws.amazon.com/console/");
     }
@@ -108,6 +113,7 @@ public class UFWorkspaceLight {
     private String description;
     private String googleProjectId;
     private String awsAccountNumber;
+    private String landingZoneId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -139,6 +145,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder awsAccountNumber(String awsAccountNumber) {
       this.awsAccountNumber = awsAccountNumber;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder landingZoneId(String landingZoneId) {
+      this.landingZoneId = landingZoneId;
       return this;
     }
 

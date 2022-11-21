@@ -27,6 +27,7 @@ public class PDWorkspace {
   public final CloudPlatform cloudPlatform;
   public final String googleProjectId;
   public final String awsAccountNumber;
+  public final String landingZoneId;
   public final Map<String, String> properties;
   public final String serverName;
   public final String userEmail;
@@ -43,6 +44,7 @@ public class PDWorkspace {
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.awsAccountNumber = internalObj.getAwsAccountNumber();
+    this.landingZoneId = internalObj.getLandingZoneId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -62,6 +64,7 @@ public class PDWorkspace {
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountNumber = builder.awsAccountNumber;
+    this.landingZoneId = builder.landingZoneId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -79,6 +82,7 @@ public class PDWorkspace {
     private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String awsAccountNumber;
+    private String landingZoneId;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -121,6 +125,11 @@ public class PDWorkspace {
 
     public Builder awsAccountNumber(String awsAccountNumber) {
       this.awsAccountNumber = awsAccountNumber;
+      return this;
+    }
+
+    public Builder landingZoneId(String landingZoneId) {
+      this.landingZoneId = landingZoneId;
       return this;
     }
 
