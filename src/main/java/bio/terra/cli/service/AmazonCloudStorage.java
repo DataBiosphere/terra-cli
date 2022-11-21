@@ -24,7 +24,7 @@ public class AmazonCloudStorage {
   // default value for the maximum number of times to retry HTTP requests to AWS
   public static final int AWS_MAXIMUM_RETRIES = 5;
   private static final Logger logger = LoggerFactory.getLogger(AmazonCloudStorage.class);
-  private final StorageCow storage; // TODO(TERRA-206) change to AWS *Cow
+  private final StorageCow storage;
 
   private AmazonCloudStorage(
       GoogleCredentials credentials) { // TODO(TERRA-204) change to AWS credentials
