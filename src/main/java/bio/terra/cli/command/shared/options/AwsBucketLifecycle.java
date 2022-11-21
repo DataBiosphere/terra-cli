@@ -45,7 +45,6 @@ public class AwsBucketLifecycle {
   }
 
   static class LifecycleArgGroup {
-    // TODO(TERRA-205) Add example in README.md (similar to 'GCS bucket lifecycle rules')
     @CommandLine.Option(
         names = "--lifecycle",
         description =

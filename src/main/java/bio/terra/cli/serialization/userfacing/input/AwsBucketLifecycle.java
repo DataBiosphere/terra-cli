@@ -11,7 +11,8 @@ import java.util.List;
  *
  * <p>Command ref: https://cloud.google.com/storage/docs/gsutil/commands/lifecycle
  *
- * <p>AWS bucket JSON format ref: https://cloud.google.com/storage/docs/json_api/v1/buckets#resource
+ * <p>AWS lifecycle JSON format ref:
+ * https://docs.aws.amazon.com/AmazonS3/latest/userguide/how-to-set-lifecycle-configuration-intro.html
  *
  * <p>This class is intended for passing throughout the CLI codebase, and also for exposing to users
  * so that they can specify the lifecycle rules in a JSON file and pass that to the CLI.
@@ -55,7 +56,7 @@ public class AwsBucketLifecycle {
    * definition uses a slightly different casing of the enum values. In an effort to mimic the
    * similar `gsutil lifecycle` command as closely as possible, the CLI will use the AWS casing,
    * instead of the WSM client library version.
-   * (https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle)
+   * (https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html)
    *
    * <p>- The CLI syntax does not change when WSM API changes. In this case, the syntax affected is
    * the structure of the user-provided JSON file to specify a lifecycle rule.
