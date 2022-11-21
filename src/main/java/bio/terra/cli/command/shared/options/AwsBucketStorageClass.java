@@ -1,6 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.serialization.userfacing.input.AwsBucketDefaultStorageClass;
+import bio.terra.workspace.model.AwsBucketDefaultStorageClass;
 import picocli.CommandLine;
 
 /**
