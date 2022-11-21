@@ -10,7 +10,6 @@ import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
-import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.Folder;
 import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.Property;
@@ -46,10 +45,8 @@ public class Workspace {
   private String userFacingId;
   private String name; // not unique
   private String description;
-  private CloudPlatform cloudPlatform;
   private String googleProjectId;
-  private String awsAccountNumber;
-  private String landingZoneId;
+  // TODO(TERRA-201) add AWS account info
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -70,17 +67,8 @@ public class Workspace {
     this.userFacingId = wsmObject.getUserFacingId();
     this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
-    if (wsmObject.getGcpContext() != null) {
-      this.cloudPlatform = CloudPlatform.GCP;
-    } else if (wsmObject.getAzureContext() != null) {
-      this.cloudPlatform = CloudPlatform.AZURE;
-    }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
-    this.awsAccountNumber =
-        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getAccountNumber();
-    this.landingZoneId =
-        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getLandingZoneId();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -95,10 +83,7 @@ public class Workspace {
     this.userFacingId = configFromDisk.userFacingId;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
-    this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
-    this.awsAccountNumber = configFromDisk.awsAccountNumber;
-    this.landingZoneId = configFromDisk.landingZoneId;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
@@ -112,15 +97,11 @@ public class Workspace {
 
   /** Create a new workspace and set it as the current workspace. */
   public static Workspace create(
-      String userFacingId,
-      CloudPlatform cloudPlatform,
-      String name,
-      String description,
-      Map<String, String> properties) {
+      String userFacingId, String name, String description, Map<String, String> properties) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(userFacingId, cloudPlatform, name, description, properties);
+            .createWorkspace(userFacingId, name, description, properties);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -371,7 +352,7 @@ public class Workspace {
    *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public String grantBreakGlass( // TODO(TERRA-211) support breakglass
+  public String grantBreakGlass(
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
@@ -425,20 +406,8 @@ public class Workspace {
     return description;
   }
 
-  public CloudPlatform getCloudPlatform() {
-    return cloudPlatform;
-  }
-
   public String getGoogleProjectId() {
     return googleProjectId;
-  }
-
-  public String getAwsAccountNumber() {
-    return awsAccountNumber;
-  }
-
-  public String getLandingZoneId() {
-    return landingZoneId;
   }
 
   public Map<String, String> getProperties() {
