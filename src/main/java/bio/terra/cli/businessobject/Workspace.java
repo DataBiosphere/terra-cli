@@ -47,6 +47,7 @@ public class Workspace {
   private String description;
   private String googleProjectId;
   private String awsAccountNumber;
+  private String landingZoneId;
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -71,6 +72,8 @@ public class Workspace {
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
     this.awsAccountNumber =
         wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getAccountNumber();
+    this.landingZoneId =
+        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getLandingZoneId();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -87,6 +90,7 @@ public class Workspace {
     this.description = configFromDisk.description;
     this.googleProjectId = configFromDisk.googleProjectId;
     this.awsAccountNumber = configFromDisk.awsAccountNumber;
+    this.landingZoneId = configFromDisk.landingZoneId;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
@@ -355,7 +359,7 @@ public class Workspace {
    *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public String grantBreakGlass( // TODO-Dex
+  public String grantBreakGlass( // TODO(TERRA-211) support breakglass
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
@@ -415,6 +419,10 @@ public class Workspace {
 
   public String getAwsAccountNumber() {
     return awsAccountNumber;
+  }
+
+  public String getLandingZoneId() {
+    return landingZoneId;
   }
 
   public Map<String, String> getProperties() {

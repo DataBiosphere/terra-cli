@@ -90,6 +90,7 @@ public abstract class CommandRunner {
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
     terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
     terraEnvVars.put("AWS_ACCOUNT_NUMBER", Context.requireWorkspace().getAwsAccountNumber());
+    terraEnvVars.put("LANDING_ZONE_ID", Context.requireWorkspace().getLandingZoneId());
 
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
