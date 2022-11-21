@@ -16,6 +16,7 @@ public class UFWorkspaceLight {
   public String name;
   public String description;
   public String googleProjectId;
+  public String awsAccountNumber;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -33,6 +34,7 @@ public class UFWorkspaceLight {
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
     this.googleProjectId = internalObj.getGoogleProjectId();
+    this.awsAccountNumber = internalObj.getAwsAccountNumber();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
     this.userEmail = internalObj.getUserEmail();
@@ -46,6 +48,7 @@ public class UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountNumber = builder.awsAccountNumber;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -59,6 +62,7 @@ public class UFWorkspaceLight {
     this.name = null;
     this.description = null;
     this.googleProjectId = null;
+    this.awsAccountNumber = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -74,10 +78,17 @@ public class UFWorkspaceLight {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
-    OUT.println("Google project:    " + googleProjectId);
-    OUT.println(
-        "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
-            + googleProjectId);
+
+    if (googleProjectId != null) {
+      OUT.println("Google project:    " + googleProjectId);
+      OUT.println(
+          "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
+              + googleProjectId);
+    } else if (awsAccountNumber != null) {
+      OUT.println("AWS account:    " + awsAccountNumber);
+      OUT.println(
+          "Cloud console:     https://" + awsAccountNumber + ".signin.aws.amazon.com/console/");
+    }
 
     if (properties == null) {
       return;
@@ -96,6 +107,7 @@ public class UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private String awsAccountNumber;
     private Map<String, String> properties;
     private String serverName;
     private String userEmail;
@@ -122,6 +134,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
       return this;
     }
 

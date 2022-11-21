@@ -564,14 +564,19 @@ public class WorkspaceManagerService {
         callWithRetries(
             () -> new WorkspaceApi(apiClient).getWorkspace(uuid, /*minimumHighestRole=*/ null),
             "Error fetching workspace");
-    String googleProjectId =
-        (workspaceWithContext.getGcpContext() == null)
-            ? null
-            : workspaceWithContext.getGcpContext().getProjectId();
-    logger.info(
-        "Workspace context: userFacingId {}, project id: {}",
-        workspaceWithContext.getUserFacingId(),
-        googleProjectId);
+
+    if (workspaceWithContext.getGcpContext() != null) {
+      logger.info(
+          "Workspace context: userFacingId: {}, project id: {}",
+          workspaceWithContext.getUserFacingId(),
+          workspaceWithContext.getGcpContext().getProjectId());
+    } else if (workspaceWithContext.getAwsContext() != null) {
+      logger.info(
+          "Workspace context: userFacingId: {}, account number: {}",
+          workspaceWithContext.getUserFacingId(),
+          workspaceWithContext.getAwsContext().getAccountNumber());
+    }
+
     return workspaceWithContext;
   }
 
@@ -586,14 +591,19 @@ public class WorkspaceManagerService {
                 new WorkspaceApi(apiClient)
                     .getWorkspaceByUserFacingId(userFacingId, /*minimumHighestRole=*/ null),
             "Error fetching workspace");
-    String googleProjectId =
-        (workspaceWithContext.getGcpContext() == null)
-            ? null
-            : workspaceWithContext.getGcpContext().getProjectId();
-    logger.info(
-        "Workspace context: {}, project id: {}",
-        workspaceWithContext.getUserFacingId(),
-        googleProjectId);
+
+    if (workspaceWithContext.getGcpContext() != null) {
+      logger.info(
+          "Workspace context: userFacingId: {}, project id: {}",
+          workspaceWithContext.getUserFacingId(),
+          workspaceWithContext.getGcpContext().getProjectId());
+    } else if (workspaceWithContext.getAwsContext() != null) {
+      logger.info(
+          "Workspace context: userFacingId: {}, account number: {}",
+          workspaceWithContext.getUserFacingId(),
+          workspaceWithContext.getAwsContext().getAccountNumber());
+    }
+
     return workspaceWithContext;
   }
 

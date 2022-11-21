@@ -36,6 +36,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.name = builder.name;
     this.description = builder.description;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountNumber = builder.awsAccountNumber;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
     this.properties = builder.properties;
@@ -59,6 +60,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String name;
     private String description;
     private String googleProjectId;
+    private String awsAccountNumber;
     private String serverName;
     private String userEmail;
     private Map<String, String> properties;
@@ -86,6 +88,11 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
       return this;
     }
 

@@ -487,6 +487,8 @@ public class SamService {
         "Error getting pet SA access token for project from SAM.");
   }
 
+  // TODO(TERRA-204) set up getPetSaEmailForProject & getPetSaAccessTokenForProject for AWS
+
   /**
    * Execute a function that includes hitting SAM endpoints. Retry if the function throws an {@link
    * #isRetryable} exception. If an exception is thrown by the SAM client or the retries, make sure

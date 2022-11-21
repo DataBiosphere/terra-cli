@@ -48,7 +48,7 @@ public class Workspace {
   private String description;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
-  // TODO(TERRA-201) add AWS account info
+  private String awsAccountNumber;
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -76,6 +76,8 @@ public class Workspace {
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
+    this.awsAccountNumber =
+        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getAccountNumber();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -92,6 +94,7 @@ public class Workspace {
     this.description = configFromDisk.description;
     this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.awsAccountNumber = configFromDisk.awsAccountNumber;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
@@ -364,7 +367,7 @@ public class Workspace {
    *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public String grantBreakGlass(
+  public String grantBreakGlass( // TODO-Dex
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
@@ -424,6 +427,10 @@ public class Workspace {
 
   public String getGoogleProjectId() {
     return googleProjectId;
+  }
+
+  public String getAwsAccountNumber() {
+    return awsAccountNumber;
   }
 
   public Map<String, String> getProperties() {
