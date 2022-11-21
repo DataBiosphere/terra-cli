@@ -73,6 +73,7 @@ public class List extends BaseCommand {
     NAME("NAME", w -> w.name, 30, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
     AWS_ACCOUNT("AWS_ACCOUNT", w -> w.awsAccountNumber, 15, LEFT),
+    LANDING_ZONE_ID("LANDING_ZONE_ID", w -> w.landingZoneId, 20, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;
