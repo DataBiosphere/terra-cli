@@ -13,15 +13,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class CreateAwsBucketParams {
   public final CreateResourceParams resourceFields;
   public final String bucketName;
-  public final AwsBucketLifecycle lifecycle;
-  public final AwsBucketDefaultStorageClass defaultStorageClass;
   public final String location;
 
   protected CreateAwsBucketParams(CreateAwsBucketParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.bucketName = builder.bucketName;
-    this.lifecycle = builder.lifecycle;
-    this.defaultStorageClass = builder.defaultStorageClass;
     this.location = builder.location;
   }
 
@@ -29,8 +25,6 @@ public class CreateAwsBucketParams {
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String bucketName;
-    private AwsBucketLifecycle lifecycle;
-    private AwsBucketDefaultStorageClass defaultStorageClass;
     private String location;
 
     /** Default constructor for Jackson. */
@@ -43,16 +37,6 @@ public class CreateAwsBucketParams {
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
-      return this;
-    }
-
-    public Builder lifecycle(AwsBucketLifecycle lifecycle) {
-      this.lifecycle = lifecycle;
-      return this;
-    }
-
-    public Builder defaultStorageClass(AwsBucketDefaultStorageClass defaultStorageClass) {
-      this.defaultStorageClass = defaultStorageClass;
       return this;
     }
 
