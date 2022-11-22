@@ -1170,8 +1170,6 @@ public class WorkspaceManagerService {
                 new AwsBucketCreationParameters()
                     /* TODO(TERRA-197)
                     .name(createParams.bucketName)
-                    .defaultStorageClass(createParams.defaultStorageClass)
-                    .lifecycle(new GcpGcsBucketLifecycle(fromCLIObject(createParams.lifecycle)))
                     */
                     .location(createParams.location));
     return callWithRetries(
