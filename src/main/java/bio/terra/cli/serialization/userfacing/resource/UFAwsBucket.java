@@ -30,7 +30,7 @@ public class UFAwsBucket extends UFResource {
     this.location = internalObj.getLocation();
 
     this.numObjects = 1;
-/*
+    /*
     // TODO(TERRA-207) add AWS account info - SA scope, proxy
     AmazonCloudStorage storage = AmazonCloudStorage.fromContextForPetSa();
     // TODO(TERRA-206) change to AWS BucketCow
