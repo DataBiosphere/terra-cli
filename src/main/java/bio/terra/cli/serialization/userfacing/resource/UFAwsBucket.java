@@ -2,13 +2,10 @@ package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.AmazonCloudStorage;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.cloudres.google.storage.BucketCow;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.Optional;
 
 /**
  * External representation of a workspace AWS bucket resource for command input/output.
@@ -30,15 +27,18 @@ public class UFAwsBucket extends UFResource {
   public UFAwsBucket(AwsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
+    this.location = internalObj.getLocation();
 
+    this.numObjects = 1;
+/*
+    // TODO(TERRA-207) add AWS account info - SA scope, proxy
     AmazonCloudStorage storage = AmazonCloudStorage.fromContextForPetSa();
-    Optional<BucketCow> bucket =
-        storage.getBucket(bucketName); // TODO(TERRA-206) change to AWS BucketCow
-    this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
+    // TODO(TERRA-206) change to AWS BucketCow
+    Optional<BucketCow> bucket = storage.getBucket(bucketName);
     this.numObjects =
         bucket
             .map((bucketCow) -> storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1))
-            .orElse(null);
+            .orElse(null);*/
   }
 
   /** Constructor for Jackson deserialization during testing. */

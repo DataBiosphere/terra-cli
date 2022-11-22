@@ -1,7 +1,6 @@
 package bio.terra.cli.command.resource.addref;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.AwsBucketName;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -17,7 +16,6 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class AwsBucket extends BaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
-  @CommandLine.Mixin AwsBucketName bucketNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -35,12 +33,9 @@ public class AwsBucket extends BaseCommand {
     CreateResourceParams.Builder createResourceParams =
         referencedResourceCreationOptions.populateMetadataFields();
     CreateAwsBucketParams.Builder createParams =
-        new CreateAwsBucketParams.Builder()
-            .resourceFields(createResourceParams.build())
-            .bucketName(bucketNameOption.getBucketName());
+        new CreateAwsBucketParams.Builder().resourceFields(createResourceParams.build());
 
-    bio.terra.cli.businessobject.resource.AwsBucket addedResource =
-        bio.terra.cli.businessobject.resource.AwsBucket.addReferenced(createParams.build());
-    formatOption.printReturnValue(new UFAwsBucket(addedResource), AwsBucket::printText);
+    bio.terra.cli.businessobject.resource.AwsBucket addedResource = bio.terra.cli.businessobject.resource.AwsBucket.addReferenced(createParams.build());
+    formatOption.printReturnValue(new UFAwsBucket(addedResource), bio.terra.cli.command.resource.addref.AwsBucket::printText);
   }
 }

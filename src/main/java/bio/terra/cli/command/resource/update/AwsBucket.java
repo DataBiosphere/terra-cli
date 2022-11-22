@@ -4,7 +4,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.AwsBucketLifecycle;
-import bio.terra.cli.command.shared.options.AwsBucketNewName;
 import bio.terra.cli.command.shared.options.AwsBucketStorageClass;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
@@ -23,7 +22,6 @@ import picocli.CommandLine;
     description = "Update a AWS bucket.",
     showDefaultValues = true)
 public class AwsBucket extends BaseCommand {
-  @CommandLine.Mixin AwsBucketNewName newBucketName;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin AwsBucketStorageClass storageClassOption;
   @CommandLine.Mixin AwsBucketLifecycle lifecycleOptions;
@@ -46,7 +44,6 @@ public class AwsBucket extends BaseCommand {
     if (!resourceUpdateOptions.isDefined()
         && !storageClassOption.isDefined()
         && !lifecycleOptions.isDefined()
-        && newBucketName.getNewBucketName() == null
         && newCloningInstructionsOption.getCloning() == null) {
       throw new UserActionableException("Specify at least one property to update.");
     }
@@ -66,7 +63,6 @@ public class AwsBucket extends BaseCommand {
       UpdateReferencedAwsBucketParams.Builder awsBucketParams =
           new UpdateReferencedAwsBucketParams.Builder()
               .resourceParams(resourceUpdateOptions.populateMetadataFields().build())
-              .bucketName(newBucketName.getNewBucketName())
               .cloningInstructions(newCloningInstructionsOption.getCloning());
       resource.updateReferenced(awsBucketParams.build());
     } else {
@@ -81,6 +77,6 @@ public class AwsBucket extends BaseCommand {
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AWS_BUCKET);
-    formatOption.printReturnValue(new UFAwsBucket(resource), AwsBucket::printText);
+    formatOption.printReturnValue(new UFAwsBucket(resource), bio.terra.cli.command.resource.update.AwsBucket::printText);
   }
 }

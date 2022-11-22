@@ -21,12 +21,6 @@ public class AwsBucket extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-      names = "--bucket-name",
-      description =
-          "Name of the AWS bucket, without the prefix. (e.g. 'my-bucket', not 'S3://my-bucket'). If not provided, a unique bucket name will be generated.")
-  private String bucketName;
-
-  @CommandLine.Option(
       names = "--location",
       defaultValue = "us-east-1",
       description = "Bucket location (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
@@ -52,11 +46,9 @@ public class AwsBucket extends BaseCommand {
     CreateAwsBucketParams.Builder createParams =
         new CreateAwsBucketParams.Builder()
             .resourceFields(createResourceParams.build())
-            .bucketName(bucketName)
             .location(location);
 
-    bio.terra.cli.businessobject.resource.AwsBucket createdResource =
-        bio.terra.cli.businessobject.resource.AwsBucket.createControlled(createParams.build());
-    formatOption.printReturnValue(new UFAwsBucket(createdResource), AwsBucket::printText);
+    bio.terra.cli.businessobject.resource.AwsBucket createdResource = bio.terra.cli.businessobject.resource.AwsBucket.createControlled(createParams.build());
+    formatOption.printReturnValue(new UFAwsBucket(createdResource), bio.terra.cli.command.resource.create.AwsBucket::printText);
   }
 }
