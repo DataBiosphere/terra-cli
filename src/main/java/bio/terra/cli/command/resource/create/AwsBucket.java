@@ -1,8 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.command.shared.BaseCommand;
-import bio.terra.cli.command.shared.options.AwsBucketLifecycle;
-import bio.terra.cli.command.shared.options.AwsBucketStorageClass;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -19,8 +17,6 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class AwsBucket extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
-  @CommandLine.Mixin AwsBucketStorageClass storageClassOption;
-  @CommandLine.Mixin AwsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -57,9 +53,7 @@ public class AwsBucket extends BaseCommand {
         new CreateAwsBucketParams.Builder()
             .resourceFields(createResourceParams.build())
             .bucketName(bucketName)
-            .defaultStorageClass(storageClassOption.storageClass)
-            .location(location)
-            .lifecycle(lifecycleOptions.buildLifecycleObject());
+            .location(location);
 
     bio.terra.cli.businessobject.resource.AwsBucket createdResource =
         bio.terra.cli.businessobject.resource.AwsBucket.createControlled(createParams.build());
