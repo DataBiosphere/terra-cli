@@ -35,7 +35,9 @@ public class AwsBucket extends BaseCommand {
     CreateAwsBucketParams.Builder createParams =
         new CreateAwsBucketParams.Builder().resourceFields(createResourceParams.build());
 
-    bio.terra.cli.businessobject.resource.AwsBucket addedResource = bio.terra.cli.businessobject.resource.AwsBucket.addReferenced(createParams.build());
-    formatOption.printReturnValue(new UFAwsBucket(addedResource), bio.terra.cli.command.resource.addref.AwsBucket::printText);
+    bio.terra.cli.businessobject.resource.AwsBucket addedResource =
+        bio.terra.cli.businessobject.resource.AwsBucket.addReferenced(createParams.build());
+    formatOption.printReturnValue(
+        new UFAwsBucket(addedResource), bio.terra.cli.command.resource.addref.AwsBucket::printText);
   }
 }
