@@ -26,11 +26,13 @@ public class AwsBucket extends Resource {
   protected static final String AWS_BUCKET_URL_PREFIX = "S3://";
   private static final Logger logger = LoggerFactory.getLogger(AwsBucket.class);
   private String bucketName;
+  private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsBucket(PDAwsBucket configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
+    this.location = configFromDisk.location;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -38,6 +40,7 @@ public class AwsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
     this.bucketName = wsmObject.getResourceAttributes().getAwsBucket().getS3BucketName();
+    this.location = wsmObject.getResourceAttributes().getAwsBucket().getRegion();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
@@ -45,6 +48,7 @@ public class AwsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
     this.bucketName = wsmObject.getAttributes().getS3BucketName();
+    this.location = wsmObject.getAttributes().getRegion();
   }
 
   /**
@@ -100,9 +104,6 @@ public class AwsBucket extends Resource {
   public void updateReferenced(UpdateReferencedAwsBucketParams updateParams) {
     if (updateParams.resourceParams.name != null) {
       validateResourceName(updateParams.resourceParams.name);
-    }
-    if (updateParams.bucketName != null) {
-      this.bucketName = updateParams.bucketName;
     }
     if (updateParams.cloningInstructions != null) {
       this.cloningInstructions = updateParams.cloningInstructions;
@@ -165,5 +166,9 @@ public class AwsBucket extends Resource {
 
   public String getBucketName() {
     return bucketName;
+  }
+
+  public String getLocation() {
+    return location;
   }
 }

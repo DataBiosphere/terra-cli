@@ -13,20 +13,16 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateReferencedAwsBucketParams {
   public final UpdateResourceParams resourceParams;
-  public final String bucketName;
   public final CloningInstructionsEnum cloningInstructions;
 
   protected UpdateReferencedAwsBucketParams(UpdateReferencedAwsBucketParams.Builder builder) {
     this.resourceParams = builder.resourceFields;
-    this.bucketName = builder.bucketName;
     this.cloningInstructions = builder.cloningInstructions;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-
     private UpdateResourceParams resourceFields;
-    private String bucketName;
     private CloningInstructionsEnum cloningInstructions;
 
     /** Default constructor for Jackson. */
@@ -35,11 +31,6 @@ public class UpdateReferencedAwsBucketParams {
     public UpdateReferencedAwsBucketParams.Builder resourceParams(
         UpdateResourceParams resourceFields) {
       this.resourceFields = resourceFields;
-      return this;
-    }
-
-    public UpdateReferencedAwsBucketParams.Builder bucketName(String bucketName) {
-      this.bucketName = bucketName;
       return this;
     }
 
