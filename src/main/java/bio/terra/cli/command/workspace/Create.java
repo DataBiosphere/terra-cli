@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -28,12 +29,19 @@ public class Create extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
+  @CommandLine.Option(
+      names = "--platform",
+      required = true,
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
+  private CloudPlatform cloudPlatform;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
     Workspace workspace =
         Workspace.create(
             id,
+            cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);
