@@ -77,6 +77,7 @@ public class AwsBucket extends BaseCommand {
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AWS_BUCKET);
-    formatOption.printReturnValue(new UFAwsBucket(resource), bio.terra.cli.command.resource.update.AwsBucket::printText);
+    formatOption.printReturnValue(
+        new UFAwsBucket(resource), bio.terra.cli.command.resource.update.AwsBucket::printText);
   }
 }
