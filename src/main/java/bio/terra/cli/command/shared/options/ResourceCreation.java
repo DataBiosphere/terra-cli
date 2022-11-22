@@ -11,7 +11,6 @@ import picocli.CommandLine;
  */
 public class ResourceCreation {
   @CommandLine.Mixin ResourceName resourceNameOption;
-
   @CommandLine.Mixin ResourceDescription resourceDescriptionOption;
 
   /**

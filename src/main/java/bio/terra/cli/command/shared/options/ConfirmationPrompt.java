@@ -17,7 +17,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class ConfirmationPrompt {
-
   @CommandLine.Option(names = "--quiet", description = "Suppress interactive prompt.")
   private boolean quiet;
 

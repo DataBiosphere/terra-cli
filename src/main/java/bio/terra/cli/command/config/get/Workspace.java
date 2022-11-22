@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config get workspace" command. */
 @Command(name = "workspace", description = "Get the current Terra workspace.")
 public class Workspace extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */
