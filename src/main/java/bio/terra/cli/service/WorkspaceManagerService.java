@@ -490,7 +490,7 @@ public class WorkspaceManagerService {
               () -> workspaceApi.createWorkspace(workspaceRequestBody),
               WorkspaceManagerService::isRetryable);
 
-          // create the Google project that backs the Terra workspace object
+          // create the cloud project / landing zone that backs the Terra workspace object
           UUID jobId = UUID.randomUUID();
           CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
           cloudContextRequest.setCloudPlatform(cloudPlatform);

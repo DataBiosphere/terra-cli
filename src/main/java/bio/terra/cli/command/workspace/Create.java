@@ -28,13 +28,19 @@ public class Create extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
+  @CommandLine.Option(
+      names = "--platform",
+      required = true,
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
+  private CloudPlatform cloudPlatform;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
     Workspace workspace =
         Workspace.create(
             id,
-            CloudPlatform.GCP, // moved from terra/cli/service/WorkspaceManagerService.java
+            cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);
