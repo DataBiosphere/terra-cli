@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
+import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
@@ -42,6 +43,7 @@ import java.util.UUID;
   @Type(value = UFGcsObject.class, name = "GCS_OBJECT"),
   @Type(value = UFGitRepo.class, name = "GIT_REPO"),
   @Type(value = UFAwsBucket.class, name = "AWS_BUCKET"),
+  @Type(value = UFAwsNotebook.class, name = "AWS_SAGEMAKER_NOTEBOOK"),
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {
