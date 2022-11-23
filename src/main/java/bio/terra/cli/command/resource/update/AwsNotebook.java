@@ -12,11 +12,12 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookP
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import picocli.CommandLine;
 
+// TODO-Dex
 @CommandLine.Command(
-    name = "gcp-notebook",
-    description = "Update the GCP notebook.",
+    name = "aws-notebook",
+    description = "Update the AWS notebook.",
     showDefaultValues = true)
-public class GcpNotebook extends BaseCommand {
+public class AwsNotebook extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -53,6 +54,6 @@ public class GcpNotebook extends BaseCommand {
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AI_NOTEBOOK);
-    formatOption.printReturnValue(new UFGcpNotebook(resource), GcpNotebook::printText);
+    formatOption.printReturnValue(new UFGcpNotebook(resource), AwsNotebook::printText);
   }
 }

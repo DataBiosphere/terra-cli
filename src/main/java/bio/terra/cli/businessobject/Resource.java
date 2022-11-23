@@ -1,6 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.AwsBucket;
+import bio.terra.cli.businessobject.resource.AwsSagemakerNotebook;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
@@ -114,6 +115,8 @@ public abstract class Resource {
         return new GitRepo(wsmObject);
       case AWS_BUCKET:
         return new AwsBucket(wsmObject);
+      case AWS_SAGEMAKER_NOTEBOOK:
+        return new AwsSagemakerNotebook(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
@@ -254,6 +257,7 @@ public abstract class Resource {
     BQ_TABLE,
     AI_NOTEBOOK,
     GIT_REPO,
-    AWS_BUCKET;
+    AWS_BUCKET,
+    AWS_SAGEMAKER_NOTEBOOK;
   }
 }

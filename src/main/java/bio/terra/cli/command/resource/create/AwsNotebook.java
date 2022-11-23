@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import picocli.CommandLine;
 
+// TODO-Dex
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
 @CommandLine.Command(
     name = "gcp-notebook",
@@ -22,7 +23,7 @@ import picocli.CommandLine;
             + "For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.",
     showDefaultValues = true,
     sortOptions = false)
-public class GcpNotebook extends BaseCommand {
+public class AwsNotebook extends BaseCommand {
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
 
@@ -31,31 +32,31 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-  GcpNotebook.VmOrContainerImage vmOrContainerImage;
+  AwsNotebook.VmOrContainerImage vmOrContainerImage;
   // TODO(PF-767): Consider how to improve usability & validation of these parameters.
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "The hardware accelerator used on this instance.%n")
-  GcpNotebook.AcceleratorConfig acceleratorConfig;
+  AwsNotebook.AcceleratorConfig acceleratorConfig;
 
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "GPU driver configurations.%n")
-  GcpNotebook.GpuDriverConfiguration gpuDriverConfiguration;
+  AwsNotebook.GpuDriverConfiguration gpuDriverConfiguration;
 
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "Boot disk configurations.%n")
-  GcpNotebook.BootDiskConfiguration bootDiskConfiguration;
+  AwsNotebook.BootDiskConfiguration bootDiskConfiguration;
 
   @CommandLine.ArgGroup(
       exclusive = false,
       multiplicity = "0..1",
       heading = "Data disk configurations.%n")
-  GcpNotebook.DataDiskConfiguration dataDiskConfiguration;
+  AwsNotebook.DataDiskConfiguration dataDiskConfiguration;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -163,7 +164,7 @@ public class GcpNotebook extends BaseCommand {
 
     bio.terra.cli.businessobject.resource.GcpNotebook createdResource =
         bio.terra.cli.businessobject.resource.GcpNotebook.createControlled(createParams.build());
-    formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
+    formatOption.printReturnValue(new UFGcpNotebook(createdResource), AwsNotebook::printText);
   }
 
   static class VmOrContainerImage {
