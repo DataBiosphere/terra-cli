@@ -23,15 +23,17 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsBucket extends Resource {
   // prefix for AWS bucket to make a valid URL.
-  protected static final String AWS_BUCKET_URL_PREFIX = "S3://";
+  protected static final String AWS_BUCKET_URL_PREFIX = "s3://";
   private static final Logger logger = LoggerFactory.getLogger(AwsBucket.class);
   private String bucketName;
+  private String bucketPrefix;
   private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsBucket(PDAwsBucket configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
+    this.bucketPrefix = configFromDisk.bucketPrefix;
     this.location = configFromDisk.location;
   }
 
@@ -40,6 +42,7 @@ public class AwsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
     this.bucketName = wsmObject.getResourceAttributes().getAwsBucket().getS3BucketName();
+    this.bucketPrefix = wsmObject.getResourceAttributes().getAwsBucket().getPrefix();
     this.location = wsmObject.getResourceAttributes().getAwsBucket().getRegion();
   }
 
@@ -48,6 +51,7 @@ public class AwsBucket extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
     this.bucketName = wsmObject.getAttributes().getS3BucketName();
+    this.bucketPrefix = wsmObject.getAttributes().getPrefix();
     this.location = wsmObject.getAttributes().getRegion();
   }
 
@@ -143,14 +147,24 @@ public class AwsBucket extends Resource {
   }
 
   /**
-   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
+   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix ? AWS_BUCKET_URL_PREFIX + bucketName : bucketName;
+  public String resolve(boolean includeUrlPrefix) {
+    return resolve(bucketName, bucketPrefix, includeUrlPrefix);
+  }
+
+  /**
+   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
+   */
+  public static String resolve(
+      String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {
+    String resolvedPath = String.format("%s/%s", awsBucketName, awsBucketPrefix);
+    return includeUrlPrefix ? AWS_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
   /** Query the cloud for information about the bucket. */
   public Optional<BucketCow> getBucket() {
+    // TODO(TERRA-206) change to AWS BucketCow
     try {
       StorageCow storageCow =
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials());
@@ -166,6 +180,10 @@ public class AwsBucket extends Resource {
 
   public String getBucketName() {
     return bucketName;
+  }
+
+  public String getBucketPrefix() {
+    return bucketPrefix;
   }
 
   public String getLocation() {

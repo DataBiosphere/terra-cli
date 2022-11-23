@@ -120,8 +120,8 @@ public class GcsObject extends Resource {
    * Resolve a GCS bucket object resource to its cloud identifier. Optionally include the 'gs://'
    * prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix
+  public String resolve(boolean includeUrlPrefix) {
+    return includeUrlPrefix
         ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + objectName
         : bucketName + "/" + objectName;
   }

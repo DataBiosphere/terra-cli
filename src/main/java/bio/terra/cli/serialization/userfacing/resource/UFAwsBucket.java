@@ -20,6 +20,7 @@ public class UFAwsBucket extends UFResource {
   // if there are more, we just add a "+" at the end for display
   private static final long MAX_NUM_OBJECTS = 100;
   public final String bucketName;
+  public final String bucketPrefix;
   public final String location;
   public final Integer numObjects;
 
@@ -27,6 +28,7 @@ public class UFAwsBucket extends UFResource {
   public UFAwsBucket(AwsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
+    this.bucketPrefix = internalObj.getBucketPrefix();
     this.location = internalObj.getLocation();
 
     this.numObjects = 1;
@@ -45,6 +47,7 @@ public class UFAwsBucket extends UFResource {
   private UFAwsBucket(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
+    this.bucketPrefix = builder.bucketPrefix;
     this.location = builder.location;
     this.numObjects = builder.numObjects;
   }
@@ -54,7 +57,7 @@ public class UFAwsBucket extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "AWS bucket name: " + bucketName);
+    OUT.println(prefix + "AWS bucket name: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(
         prefix
@@ -67,6 +70,7 @@ public class UFAwsBucket extends UFResource {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String bucketName;
+    private String bucketPrefix;
     private String location;
     private Integer numObjects;
 
@@ -75,6 +79,11 @@ public class UFAwsBucket extends UFResource {
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
+      return this;
+    }
+
+    public Builder bucketPrefix(String bucketPrefix) {
+      this.bucketPrefix = bucketPrefix;
       return this;
     }
 
