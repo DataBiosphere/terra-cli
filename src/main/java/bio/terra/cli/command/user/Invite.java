@@ -1,10 +1,12 @@
 package bio.terra.cli.command.user;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService;
+import java.util.Optional;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -17,9 +19,10 @@ public class Invite extends BaseCommand {
 
   @CommandLine.Option(
       names = "--enable-spend",
-      defaultValue = "false",
-      description = "Also enable the email as a user on the default spend profile.")
-  private boolean enableSpend;
+      arity = "0..1",
+      description =
+          "Also enable the email as a user on a spend profile, or the default if none is specified.")
+  private Optional<String> spendProfile;
 
   /** Invite a new user. */
   @Override
@@ -27,10 +30,16 @@ public class Invite extends BaseCommand {
     TerraUser.invite(email);
     OUT.println("Successfully invited user.");
 
-    if (enableSpend) {
+    if (spendProfile.isPresent()) {
+      final String profile =
+          spendProfile.get().isEmpty()
+              ? Context.getServer().getWsmDefaultSpendProfile()
+              : spendProfile.get();
+
       SpendProfileUser spendProfileUser =
-          SpendProfileUser.enable(email, SpendProfileManagerService.SpendProfilePolicy.USER);
-      OUT.println("User enabled on the default spend profile.");
+          SpendProfileUser.enable(
+              email, SpendProfileManagerService.SpendProfilePolicy.USER, profile);
+      OUT.println("User enabled on the spend profile.");
       new UFSpendProfileUser(spendProfileUser).print();
     }
   }

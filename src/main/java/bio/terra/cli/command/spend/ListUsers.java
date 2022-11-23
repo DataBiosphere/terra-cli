@@ -1,5 +1,6 @@
 package bio.terra.cli.command.spend;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -7,6 +8,7 @@ import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.utils.UserIO;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,6 +20,9 @@ public class ListUsers extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
 
+  @CommandLine.Option(names = "--profile", description = "Name of the spend profile.")
+  private String spendProfile;
+
   /** Print this command's output in text format. */
   private static void printText(List<UFSpendProfileUser> returnValue) {
     for (UFSpendProfileUser spendProfileUser : returnValue) {
@@ -25,12 +30,15 @@ public class ListUsers extends BaseCommand {
     }
   }
 
-  /** List all users that have access to the WSM default spend profile. */
+  /** List all users that have access to a default spend profile. */
   @Override
   protected void execute() {
+    final String profile =
+        ObjectUtils.firstNonNull(spendProfile, Context.getServer().getWsmDefaultSpendProfile());
+
     formatOption.printReturnValue(
         UserIO.sortAndMap(
-            SpendProfileUser.list(),
+            SpendProfileUser.list(profile),
             Comparator.comparing(SpendProfileUser::getEmail),
             UFSpendProfileUser::new),
         ListUsers::printText);

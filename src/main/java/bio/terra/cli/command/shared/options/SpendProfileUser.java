@@ -20,4 +20,7 @@ public class SpendProfileUser {
       required = true,
       description = "Spend policy: ${COMPLETION-CANDIDATES}.")
   public SpendProfileManagerService.SpendProfilePolicy policy;
+
+  @CommandLine.Option(names = "--profile", description = "Name of the spend profile.")
+  public String spendProfile;
 }

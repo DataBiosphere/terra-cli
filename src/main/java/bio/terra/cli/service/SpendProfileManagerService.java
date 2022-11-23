@@ -34,39 +34,37 @@ public class SpendProfileManagerService {
   }
 
   /**
-   * Add the specified email to the WSM default spend profile resource in SAM.
+   * Add the specified email to a spend profile resource in SAM.
    *
    * @param email email of the user or group to add
+   * @param spendProfile name of the spend profile resource
    */
-  public void enableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
+  public void enableUserForSpendProfile(
+      SpendProfilePolicy policy, String email, String spendProfile) {
     samService.addUserToResourceOrInviteUser(
-        SPEND_PROFILE_RESOURCE_TYPE,
-        Context.getServer().getWsmDefaultSpendProfile(),
-        policy.getSamPolicy(),
-        email);
+        SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policy.getSamPolicy(), email);
   }
 
   /**
-   * Remove the specified email from the WSM default spend profile resource in SAM.
+   * Remove the specified email from a spend profile resource in SAM.
    *
    * @param email email of the user or group to remove
+   * @param spendProfile name of the spend profile resource
    */
-  public void disableUserForDefaultSpendProfile(SpendProfilePolicy policy, String email) {
+  public void disableUserForSpendProfile(
+      SpendProfilePolicy policy, String email, String spendProfile) {
     samService.removeUserFromResource(
-        SPEND_PROFILE_RESOURCE_TYPE,
-        Context.getServer().getWsmDefaultSpendProfile(),
-        policy.getSamPolicy(),
-        email);
+        SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policy.getSamPolicy(), email);
   }
 
   /**
-   * List the members of the WSM default spend profile resource in SAM.
+   * List the members of a spend profile resource in SAM.
    *
+   * @param spendProfile name of the spend profile resource
    * @return a list of policies with their member emails
    */
-  public List<AccessPolicyResponseEntry> listUsersOfDefaultSpendProfile() {
-    return samService.listPoliciesForResource(
-        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
+  public List<AccessPolicyResponseEntry> listUsersOfSpendProfile(String spendProfile) {
+    return samService.listPoliciesForResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile);
   }
 
   /** Create a new SAM resource for the WSM default spend profile of the current server. */
