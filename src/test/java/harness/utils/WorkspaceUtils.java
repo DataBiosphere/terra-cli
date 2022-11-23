@@ -2,6 +2,7 @@ package harness.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.CRLJanitor;
 import harness.TestCommand;
@@ -23,12 +24,16 @@ public class WorkspaceUtils {
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.
    */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
+  public static UFWorkspace createWorkspace(TestUser workspaceCreator, CloudPlatform platform)
       throws JsonProcessingException {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--id=" + createUserFacingId());
+            UFWorkspace.class,
+            "workspace",
+            "create",
+            "--platform=" + platform,
+            "--id=" + createUserFacingId());
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
@@ -41,7 +46,11 @@ public class WorkspaceUtils {
    *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
-      TestUser workspaceCreator, String name, String description, String properties)
+      TestUser workspaceCreator,
+      CloudPlatform platform,
+      String name,
+      String description,
+      String properties)
       throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
     UFWorkspace workspace =
@@ -49,6 +58,7 @@ public class WorkspaceUtils {
             UFWorkspace.class,
             "workspace",
             "create",
+            "--platform=" + platform,
             "--id=" + createUserFacingId(),
             "--name=" + name,
             "--description=" + description,
