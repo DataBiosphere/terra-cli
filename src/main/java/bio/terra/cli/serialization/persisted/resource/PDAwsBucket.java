@@ -17,18 +17,21 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = PDAwsBucket.Builder.class)
 public class PDAwsBucket extends PDResource {
   public final String bucketName;
+  public final String bucketPrefix;
   public final String location;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDAwsBucket(AwsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
+    this.bucketPrefix = internalObj.getBucketPrefix();
     this.location = internalObj.getLocation();
   }
 
   private PDAwsBucket(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
+    this.bucketPrefix = builder.bucketPrefix;
     this.location = builder.location;
   }
 
@@ -40,6 +43,7 @@ public class PDAwsBucket extends PDResource {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends PDResource.Builder {
     private String bucketName;
+    private String bucketPrefix;
     private String location;
 
     /** Default constructor for Jackson. */
@@ -47,6 +51,11 @@ public class PDAwsBucket extends PDResource {
 
     public Builder bucketName(String bucketName) {
       this.bucketName = bucketName;
+      return this;
+    }
+
+    public Builder bucketPrefix(String bucketPrefix) {
+      this.bucketPrefix = bucketPrefix;
       return this;
     }
 
