@@ -9,9 +9,8 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -27,8 +26,9 @@ public class Logger {
   private static final String LOG_FORMAT =
       "%d{yyyy-MM-dd HH:mm:ss.SSS zz} [%thread] %-5level %logger{50} - %msg%n";
 
-  private static final long MAX_FILE_SIZE = 5 * FileSize.MB_COEFFICIENT; // 5 MB
-  private static final int MAX_NUM_FILES = 5;
+  private static final long MAX_PER_FILE_SIZE = 10 * FileSize.MB_COEFFICIENT;
+  private static final long MAX_TOTAL_LOG_SIZE = 100 * FileSize.MB_COEFFICIENT;
+  private static final int MAX_HISTORY_FILES = 30;
 
   /**
    * Setup a file and console appender for the root logger. Each may use a different logging level,
@@ -48,46 +48,28 @@ public class Logger {
     StatusPrinter.printIfErrorsOccured(loggerContext);
 
     // build the rolling file appender
-    RollingFileAppender rollingFileAppender = new RollingFileAppender();
-    rollingFileAppender.setName("RollingFileAppender");
-    rollingFileAppender.setContext(loggerContext);
-    rollingFileAppender.setFile(Context.getLogFile().toString());
+    RollingFileAppender fileAppender = new RollingFileAppender();
+    fileAppender.setName("RollingFileAppender");
+    fileAppender.setContext(loggerContext);
 
-    // trigger a file rollover based on the log file size
-    SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
-    triggeringPolicy.setContext(loggerContext);
-    triggeringPolicy.setMaxFileSize(new FileSize(MAX_FILE_SIZE));
-    rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
-
-    // maintain a window of logs (e.g. the last 5 files worth)
-    // this means that once the maximum amount of logs are stored (i.e. max # of files, max size
-    // each), the oldest logs will be overwritten
-    FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+    SizeAndTimeBasedRollingPolicy rollingPolicy = new SizeAndTimeBasedRollingPolicy();
     rollingPolicy.setContext(loggerContext);
+    rollingPolicy.setParent(fileAppender);
+    // Log files will be stored at "~/.terra/logs/terra-2021-01-01.0.log", etc.
     rollingPolicy.setFileNamePattern(
-        Context.getLogFile()
-            .getParent()
-            .resolve("%i." + Context.getLogFile().getFileName())
-            .toString());
-    rollingPolicy.setParent(rollingFileAppender);
-
-    // the base file name (e.g. terra.log) is not included in rollingPolicy's count, so subtract one
-    // here to account for that
-    // e.g. MAX_NUM_FILES=3: terra.log, 1.terra.log, 2.terra.log
-    if (MAX_NUM_FILES < 1) {
-      throw new IllegalArgumentException("Maximum number of log files must be >= 1");
-    }
-    rollingPolicy.setMinIndex(1);
-    rollingPolicy.setMaxIndex(MAX_NUM_FILES - 1);
-    rollingFileAppender.setRollingPolicy(rollingPolicy);
+        Context.getLogFile().getParent().resolve("terra-%d{yyyy-MM-dd}.%i.log").toString());
+    rollingPolicy.setMaxHistory(MAX_HISTORY_FILES);
+    rollingPolicy.setTotalSizeCap(new FileSize(MAX_TOTAL_LOG_SIZE));
+    rollingPolicy.setMaxFileSize(new FileSize(MAX_PER_FILE_SIZE));
+    fileAppender.setRollingPolicy(rollingPolicy);
+    fileAppender.setTriggeringPolicy(rollingPolicy);
 
     // make sure to start the policies after the cross-references between the policy and appender
     // have been set
-    triggeringPolicy.start();
     rollingPolicy.start();
 
-    setupEncoderAndFilter(rollingFileAppender, loggerContext, fileLoggingLevel.getLogLevelImpl());
-    rollingFileAppender.start();
+    setupEncoderAndFilter(fileAppender, loggerContext, fileLoggingLevel.getLogLevelImpl());
+    fileAppender.start();
 
     // build the console appender
     ConsoleAppender consoleAppender = new ConsoleAppender();
@@ -103,7 +85,7 @@ public class Logger {
     ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.ALL);
     rootLogger.detachAndStopAllAppenders();
-    rootLogger.addAppender(rollingFileAppender);
+    rootLogger.addAppender(fileAppender);
     rootLogger.addAppender(consoleAppender);
 
     // if a process is too short-lived, then the policy may not check if it should rollover.
@@ -111,8 +93,8 @@ public class Logger {
     // so, include an additional manual check here on startup, to see if we should roll over the
     // file based on its size.
     File activeFile = new File(rollingPolicy.getActiveFileName());
-    if (activeFile.length() > MAX_FILE_SIZE) {
-      rollingFileAppender.rollover();
+    if (activeFile.length() > MAX_PER_FILE_SIZE) {
+      fileAppender.rollover();
     }
 
     // StatusPrinter.print(loggerContext); // helpful for debugging
