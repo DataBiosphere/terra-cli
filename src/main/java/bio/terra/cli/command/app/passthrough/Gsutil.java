@@ -5,7 +5,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the second-level "terra gsutil" command. */
 @Command(name = "gsutil", description = "Call gsutil in the Terra workspace.")
 public class Gsutil extends ToolCommand {
-
   @Override
   public String getExecutableName() {
     return "gsutil";

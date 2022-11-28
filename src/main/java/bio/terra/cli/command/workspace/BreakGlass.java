@@ -38,6 +38,7 @@ public class BreakGlass extends BaseCommand {
   // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
   private static String BQ_DATASET_NAME = "break_glass_requests";
   private static String BQ_TABLE_NAME = "requests";
+
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   @CommandLine.Option(

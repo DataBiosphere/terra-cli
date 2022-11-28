@@ -5,7 +5,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the second-level "terra bq" command. */
 @Command(name = "bq", description = "Call bq in the Terra workspace.")
 public class Bq extends ToolCommand {
-
   @Override
   public String getExecutableName() {
     return "bq";

@@ -127,8 +127,8 @@ public class GcpNotebook extends Resource {
     InstanceName instanceName =
         InstanceName.builder()
             .projectId(projectId)
-            .location(location)
             .instanceId(instanceId)
+            .location(location)
             .build();
     GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
     try {

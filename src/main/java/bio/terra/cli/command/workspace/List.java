@@ -71,7 +71,7 @@ public class List extends BaseCommand {
   private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
     ID("ID", w -> w.id, 40, LEFT),
     NAME("NAME", w -> w.name, 30, LEFT),
-    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
+    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 15, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;

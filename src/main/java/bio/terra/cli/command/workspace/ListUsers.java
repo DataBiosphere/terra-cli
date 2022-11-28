@@ -14,7 +14,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace list-users" command. */
 @Command(name = "list-users", description = "List the users of the workspace.")
 public class ListUsers extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

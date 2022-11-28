@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the second-level "terra status" command. */
 @Command(name = "status", description = "Print details about the current workspace and server.")
 public class Status extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Build the return value from the global and workspace context. */
