@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.time.OffsetDateTime;
@@ -15,6 +16,7 @@ public class UFWorkspaceLight {
   public String id;
   public String name;
   public String description;
+  public CloudPlatform cloudPlatform;
   public String googleProjectId;
   public String awsAccountNumber;
   public String landingZoneId;
@@ -34,6 +36,7 @@ public class UFWorkspaceLight {
     this.id = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
+    this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.awsAccountNumber = internalObj.getAwsAccountNumber();
     this.landingZoneId = internalObj.getLandingZoneId();
@@ -49,6 +52,7 @@ public class UFWorkspaceLight {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
+    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountNumber = builder.awsAccountNumber;
     this.landingZoneId = builder.landingZoneId;
@@ -64,6 +68,7 @@ public class UFWorkspaceLight {
     this.id = null;
     this.name = null;
     this.description = null;
+    this.cloudPlatform = null;
     this.googleProjectId = null;
     this.awsAccountNumber = null;
     this.landingZoneId = null;
@@ -83,12 +88,12 @@ public class UFWorkspaceLight {
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
 
-    if (googleProjectId != null) {
+    if (cloudPlatform == CloudPlatform.GCP) {
       OUT.println("Google project:    " + googleProjectId);
       OUT.println(
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
-    } else if (awsAccountNumber != null) {
+    } else if (cloudPlatform == CloudPlatform.AWS) {
       OUT.println("AWS account:       " + awsAccountNumber);
       OUT.println("Landing Zone Id:   " + landingZoneId);
       OUT.println(
@@ -111,6 +116,7 @@ public class UFWorkspaceLight {
     private String id;
     private String name;
     private String description;
+    private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String awsAccountNumber;
     private String landingZoneId;
@@ -135,6 +141,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder description(String description) {
       this.description = description;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder cloudPlatform(CloudPlatform cloudPlatform) {
+      this.cloudPlatform = cloudPlatform;
       return this;
     }
 

@@ -5,7 +5,6 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDContext;
 import bio.terra.cli.utils.JacksonMapper;
-import bio.terra.workspace.model.CloudPlatform;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,7 +32,6 @@ public class Context {
   private static Config currentConfig;
   private static Server currentServer;
   @Nullable private static User currentUser;
-  @Nullable private static CloudPlatform currentCloudPlatform;
   @Nullable private static Workspace currentWorkspace;
   @Nullable private static VersionCheck currentVersionCheck;
   // functions as the current workspace for this command execution only
@@ -58,7 +56,6 @@ public class Context {
       currentConfig = new Config(diskContext.config);
       currentServer = new Server(diskContext.server);
       currentUser = diskContext.user == null ? null : new User(diskContext.user);
-      currentCloudPlatform = diskContext.cloudPlatform;
       currentWorkspace =
           diskContext.workspace == null ? null : new Workspace(diskContext.workspace);
       currentVersionCheck =
@@ -81,7 +78,6 @@ public class Context {
     currentConfig = new Config();
     currentServer = new Server();
     currentUser = null;
-    currentCloudPlatform = null;
     currentWorkspace = null;
     currentVersionCheck = null;
   }
@@ -93,13 +89,7 @@ public class Context {
   public static void synchronizeToDisk() {
     try {
       PDContext diskContext =
-          new PDContext(
-              currentConfig,
-              currentServer,
-              currentUser,
-              currentCloudPlatform,
-              currentWorkspace,
-              currentVersionCheck);
+          new PDContext(currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
       logger.debug("Wrote context to disk: \n{}", diskContext);
     } catch (IOException ioEx) {
@@ -205,23 +195,6 @@ public class Context {
         .orElseThrow(
             () -> {
               throw new UserActionableException("User not logged in.");
-            });
-  }
-
-  public static Optional<CloudPlatform> getCloudPlatform() {
-    return Optional.ofNullable(currentCloudPlatform);
-  }
-
-  public static void setCloudPlatform(CloudPlatform cloudPlatform) {
-    currentCloudPlatform = cloudPlatform;
-    synchronizeToDisk();
-  }
-
-  public static CloudPlatform requireCloudPlatform() {
-    return getCloudPlatform()
-        .orElseThrow(
-            () -> {
-              throw new UserActionableException("No cloud platform set.");
             });
   }
 
