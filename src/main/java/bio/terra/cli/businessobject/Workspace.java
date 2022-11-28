@@ -10,6 +10,7 @@ import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.Folder;
 import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.Property;
@@ -45,6 +46,7 @@ public class Workspace {
   private String userFacingId;
   private String name; // not unique
   private String description;
+  private CloudPlatform cloudPlatform;
   private String googleProjectId;
   private Map<String, String> properties;
 
@@ -66,6 +68,11 @@ public class Workspace {
     this.userFacingId = wsmObject.getUserFacingId();
     this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
+    if (wsmObject.getGcpContext() != null) {
+      this.cloudPlatform = CloudPlatform.GCP;
+    } else if (wsmObject.getAzureContext() != null) {
+      this.cloudPlatform = CloudPlatform.AZURE;
+    }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
@@ -82,6 +89,7 @@ public class Workspace {
     this.userFacingId = configFromDisk.userFacingId;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
+    this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
@@ -96,11 +104,15 @@ public class Workspace {
 
   /** Create a new workspace and set it as the current workspace. */
   public static Workspace create(
-      String userFacingId, String name, String description, Map<String, String> properties) {
+      String userFacingId,
+      CloudPlatform cloudPlatform,
+      String name,
+      String description,
+      Map<String, String> properties) {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(userFacingId, name, description, properties);
+            .createWorkspace(userFacingId, cloudPlatform, name, description, properties);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -403,6 +415,10 @@ public class Workspace {
 
   public String getDescription() {
     return description;
+  }
+
+  public CloudPlatform getCloudPlatform() {
+    return cloudPlatform;
   }
 
   public String getGoogleProjectId() {
