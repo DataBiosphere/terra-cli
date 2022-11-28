@@ -41,7 +41,6 @@ public class UpdateReferencedBqDatasetParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-
     private UpdateResourceParams resourceFields;
     private String datasetId;
     private String projectId;

@@ -17,7 +17,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class Format {
-
   @CommandLine.Option(
       names = "--format",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,

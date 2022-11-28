@@ -12,7 +12,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace add-user" command. */
 @Command(name = "add-user", description = "Add a user or group to the workspace.")
 public class AddUser extends WsmBaseCommand {
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

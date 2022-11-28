@@ -3,13 +3,12 @@ package bio.terra.cli.command.shared.options;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import picocli.CommandLine;
 
+/**
+ * Use this --new-cloning flag when updating resources.
+ *
+ * <p>This class is meant to be used as a @CommandLine.Mixin.
+ */
 public class CloningInstructionsForUpdate {
-  /**
-   * Use this --new-cloning flag when updating resources.
-   *
-   * <p>This class is meant to be used as a @CommandLine.Mixin.
-   */
-
   // Can't have a default. This is used for update. Need `null` in case user does not want to
   // update cloning instructions.
   @CommandLine.Option(

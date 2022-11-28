@@ -28,7 +28,6 @@ public class GcsBucket extends WsmBaseCommand {
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

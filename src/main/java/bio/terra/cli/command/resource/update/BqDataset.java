@@ -27,7 +27,6 @@ public class BqDataset extends WsmBaseCommand {
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
