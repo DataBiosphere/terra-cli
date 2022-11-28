@@ -6,7 +6,6 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.businessobject.VersionCheck;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import javax.annotation.Nullable;
@@ -23,7 +22,6 @@ public class PDContext {
   public final PDConfig config;
   public final PDServer server;
   public final PDUser user;
-  public final CloudPlatform cloudPlatform;
   public final PDWorkspace workspace;
   public final PDVersionCheck versionCheck;
 
@@ -32,13 +30,11 @@ public class PDContext {
       Config internalConfig,
       Server internalServer,
       @Nullable User internalUser,
-      @Nullable CloudPlatform internalCloudPlatform,
       @Nullable Workspace internalWorkspace,
       @Nullable VersionCheck versionCheck) {
     this.config = new PDConfig(internalConfig);
     this.server = new PDServer(internalServer);
     this.user = internalUser == null ? null : new PDUser(internalUser);
-    this.cloudPlatform = internalCloudPlatform;
     this.workspace = internalWorkspace == null ? null : new PDWorkspace(internalWorkspace);
     this.versionCheck = versionCheck == null ? null : new PDVersionCheck(versionCheck);
   }
@@ -47,7 +43,6 @@ public class PDContext {
     this.config = builder.config;
     this.server = builder.server;
     this.user = builder.user;
-    this.cloudPlatform = builder.cloudPlatform;
     this.workspace = builder.workspace;
     this.versionCheck = builder.versionCheck;
   }
@@ -57,7 +52,6 @@ public class PDContext {
     private PDConfig config;
     private PDServer server;
     private PDUser user;
-    private CloudPlatform cloudPlatform;
     private PDWorkspace workspace;
     private PDVersionCheck versionCheck;
 
@@ -76,11 +70,6 @@ public class PDContext {
 
     public Builder user(PDUser user) {
       this.user = user;
-      return this;
-    }
-
-    public Builder cloudPlatform(CloudPlatform cloudPlatform) {
-      this.cloudPlatform = cloudPlatform;
       return this;
     }
 
