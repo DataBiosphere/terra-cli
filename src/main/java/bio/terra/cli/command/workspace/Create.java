@@ -34,7 +34,7 @@ public class Create extends WsmBaseCommand {
     Workspace workspace =
         Workspace.create(
             id,
-            CloudPlatform.GCP, // moved from terra/cli/service/WorkspaceManagerService.java
+            CloudPlatform.GCP, // Currently only GCP is supported
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);
