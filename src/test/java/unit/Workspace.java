@@ -70,7 +70,6 @@ public class Workspace extends ClearContextUnit {
         equalToIgnoringCase(testUser.email));
 
     // check the created workspace has cloud platform set
-
     assertThat(
         "workspace cloudPlatform matches GCP",
         CloudPlatform.GCP,
