@@ -32,7 +32,7 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Option(
       names = "--location",
       defaultValue = "US-CENTRAL1",
-      description = "Bucket location (https://cloud.google.com/storage/docs/locations).")
+      description = "The Google Cloud location of the bucket (https://cloud.google.com/storage/docs/locations).")
   private String location;
 
   /** Print this command's output in text format. */

@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
-
   private String email;
   private List<Role> roles;
   private UUID workspaceId;

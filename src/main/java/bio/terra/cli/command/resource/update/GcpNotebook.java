@@ -38,8 +38,6 @@ public class GcpNotebook extends BaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    // get the resource and make sure it's the right type, only type use AI_NOTEBOOK, otherwise use
-    // GCP_NOTEBOOK
     bio.terra.cli.businessobject.resource.GcpNotebook resource =
         Context.requireWorkspace()
             .getResource(resourceUpdateOptions.resourceNameOption.name)
@@ -50,6 +48,7 @@ public class GcpNotebook extends BaseCommand {
             .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
             .notebookUpdateParameters(notebookMetadataOption.getUpdateMetadata())
             .build());
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AI_NOTEBOOK);

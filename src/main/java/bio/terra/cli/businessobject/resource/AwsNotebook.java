@@ -21,21 +21,20 @@ import org.slf4j.LoggerFactory;
  * Internal representation of a AWS notebook workspace resource. Instances of this class are part of
  * the current context or state.
  */
-public class AwsSagemakerNotebook extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(AwsSagemakerNotebook.class);
-
+public class AwsNotebook extends Resource {
+  private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
   private String instanceId;
   private String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public AwsSagemakerNotebook(PDAwsNotebook configFromDisk) {
+  public AwsNotebook(PDAwsNotebook configFromDisk) {
     super(configFromDisk);
     this.instanceId = configFromDisk.instanceId;
     this.location = configFromDisk.location;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
-  public AwsSagemakerNotebook(ResourceDescription wsmObject) {
+  public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceId = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceId();
@@ -43,7 +42,7 @@ public class AwsSagemakerNotebook extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AwsSagemakerNotebook(AwsSageMakerNotebookResource wsmObject) {
+  public AwsNotebook(AwsSageMakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceId = wsmObject.getAttributes().getInstanceId();
@@ -51,7 +50,7 @@ public class AwsSagemakerNotebook extends Resource {
   }
 
   /** Add a AWS notebook as a referenced resource in the workspace. Currently unsupported. */
-  public static AwsSagemakerNotebook addReferenced(CreateAwsNotebookParams createParams) {
+  public static AwsNotebook addReferenced(CreateAwsNotebookParams createParams) {
     throw new UserActionableException("Referenced resources not supported for AWS notebooks.");
   }
 
@@ -60,7 +59,7 @@ public class AwsSagemakerNotebook extends Resource {
    *
    * @return the resource that was created
    */
-  public static AwsSagemakerNotebook createControlled(CreateAwsNotebookParams createParams) {
+  public static AwsNotebook createControlled(CreateAwsNotebookParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
@@ -72,7 +71,7 @@ public class AwsSagemakerNotebook extends Resource {
 
     // convert the WSM object to a CLI object
     Context.requireWorkspace().listResourcesAndSync();
-    return new AwsSagemakerNotebook(createdResource);
+    return new AwsNotebook(createdResource);
   }
 
   /**

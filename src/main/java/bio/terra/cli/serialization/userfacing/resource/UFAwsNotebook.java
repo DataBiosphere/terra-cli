@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.AwsSagemakerNotebook;
+import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,7 +12,7 @@ import java.io.PrintStream;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link AwsSagemakerNotebook} class for a notebook's internal representation.
+ * <p>See the {@link AwsNotebook} class for a notebook's internal representation.
  */
 @JsonDeserialize(builder = UFAwsNotebook.Builder.class)
 public class UFAwsNotebook extends UFResource {
@@ -20,7 +20,7 @@ public class UFAwsNotebook extends UFResource {
   public final String location;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFAwsNotebook(AwsSagemakerNotebook internalObj) {
+  public UFAwsNotebook(AwsNotebook internalObj) {
     super(internalObj);
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();

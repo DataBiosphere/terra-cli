@@ -95,6 +95,7 @@ public class GcsObject extends BaseCommand {
             .cloningInstructions(newCloningInstructionsOption.getCloning())
             .build();
     resource.updateReferenced(gcsObjectParams);
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_OBJECT);

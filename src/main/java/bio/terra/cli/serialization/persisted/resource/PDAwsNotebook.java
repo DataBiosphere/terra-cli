@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.persisted.resource;
 
-import bio.terra.cli.businessobject.resource.AwsSagemakerNotebook;
+import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link AwsSagemakerNotebook} class for a notebook's internal representation.
+ * <p>See the {@link AwsNotebook} class for a notebook's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = PDAwsNotebook.Builder.class)
@@ -20,7 +20,7 @@ public class PDAwsNotebook extends PDResource {
   public final String location;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public PDAwsNotebook(AwsSagemakerNotebook internalObj) {
+  public PDAwsNotebook(AwsNotebook internalObj) {
     super(internalObj);
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
@@ -33,8 +33,8 @@ public class PDAwsNotebook extends PDResource {
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public AwsSagemakerNotebook deserializeToInternal() {
-    return new AwsSagemakerNotebook(this);
+  public AwsNotebook deserializeToInternal() {
+    return new AwsNotebook(this);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

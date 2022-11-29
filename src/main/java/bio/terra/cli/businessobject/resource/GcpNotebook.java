@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GcpNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
-
   private String projectId;
   private String instanceId;
   private String location;
