@@ -46,6 +46,7 @@ public class Workspace {
   private String userFacingId;
   private String name; // not unique
   private String description;
+  private CloudPlatform cloudPlatform;
   private String googleProjectId;
   private String awsAccountNumber;
   private String landingZoneId;
@@ -69,6 +70,13 @@ public class Workspace {
     this.userFacingId = wsmObject.getUserFacingId();
     this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
     this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
+    if (wsmObject.getGcpContext() != null) {
+      this.cloudPlatform = CloudPlatform.GCP;
+    } else if (wsmObject.getAzureContext() != null) {
+      this.cloudPlatform = CloudPlatform.AZURE;
+    } else if (wsmObject.getAwsContext() != null) {
+      this.cloudPlatform = CloudPlatform.AWS;
+    }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
     this.awsAccountNumber =
@@ -89,6 +97,7 @@ public class Workspace {
     this.userFacingId = configFromDisk.userFacingId;
     this.name = configFromDisk.name;
     this.description = configFromDisk.description;
+    this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
     this.awsAccountNumber = configFromDisk.awsAccountNumber;
     this.landingZoneId = configFromDisk.landingZoneId;
@@ -416,6 +425,10 @@ public class Workspace {
 
   public String getDescription() {
     return description;
+  }
+
+  public CloudPlatform getCloudPlatform() {
+    return cloudPlatform;
   }
 
   public String getGoogleProjectId() {

@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.OffsetDateTime;
@@ -23,6 +24,7 @@ public class PDWorkspace {
   public final String userFacingId;
   public final String name;
   public final String description;
+  public final CloudPlatform cloudPlatform;
   public final String googleProjectId;
   public final String awsAccountNumber;
   public final String landingZoneId;
@@ -39,6 +41,7 @@ public class PDWorkspace {
     this.userFacingId = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
+    this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.awsAccountNumber = internalObj.getAwsAccountNumber();
     this.landingZoneId = internalObj.getLandingZoneId();
@@ -58,6 +61,7 @@ public class PDWorkspace {
     this.userFacingId = builder.userFacingId;
     this.name = builder.name;
     this.description = builder.description;
+    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountNumber = builder.awsAccountNumber;
     this.landingZoneId = builder.landingZoneId;
@@ -75,6 +79,7 @@ public class PDWorkspace {
     private String userFacingId;
     private String name;
     private String description;
+    private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String awsAccountNumber;
     private String landingZoneId;
@@ -108,18 +113,12 @@ public class PDWorkspace {
       return this;
     }
 
+    public Builder cloudPlatform(CloudPlatform cloudPlatform) {
+      this.cloudPlatform = cloudPlatform;
+    }
+
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
-      return this;
-    }
-
-    public Builder awsAccountNumber(String awsAccountNumber) {
-      this.awsAccountNumber = awsAccountNumber;
-      return this;
-    }
-
-    public Builder landingZoneId(String landingZoneId) {
-      this.landingZoneId = landingZoneId;
       return this;
     }
 

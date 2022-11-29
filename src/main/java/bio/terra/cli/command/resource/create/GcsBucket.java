@@ -3,6 +3,7 @@ package bio.terra.cli.command.resource.create;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.GcsBucketStorageClass;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -17,6 +18,7 @@ import picocli.CommandLine;
     showDefaultValues = true)
 public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+  @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
