@@ -7,7 +7,7 @@ import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -17,7 +17,7 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resource resolve" command. */
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
-public class Resolve extends BaseCommand {
+public class Resolve extends WsmBaseCommand {
 
   @CommandLine.Mixin ResourceName resourceNameOption;
 
