@@ -96,7 +96,7 @@ public class SpendProfileUser {
    * @return a map of email -> spend profile user object
    */
   private static Map<String, SpendProfileUser> listUsersInMap(String spendProfile) {
-    // call SAM to get the users + policies for the WSM default spend profile resource
+    // call SAM to get the users + policies for a profile resource
     List<AccessPolicyResponseEntry> accessPolicies =
         SpendProfileManagerService.fromContext().listUsersOfSpendProfile(spendProfile);
 

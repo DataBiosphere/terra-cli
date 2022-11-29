@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra spend list-users" command. */
 @Command(
     name = "list-users",
-    description = "List the users enabled on the Workspace Manager default spend profile.")
+    description = "List the users enabled on a spend profile.")
 public class ListUsers extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
@@ -30,7 +30,7 @@ public class ListUsers extends BaseCommand {
     }
   }
 
-  /** List all users that have access to a default spend profile. */
+  /** List all users that have access to a spend profile. */
   @Override
   protected void execute() {
     final String profile =

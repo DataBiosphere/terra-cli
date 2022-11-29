@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for talking to the future Spend Profile Manager service. */
 public class SpendProfileManagerService {
   private static final Logger logger = LoggerFactory.getLogger(SamService.class);
-  // these are the resource type and id of the default spend profile used by WSM. currently there is
+  // these are the resource type and id of the spend profile used by WSM. currently there is
   // only one SAM resource used. in the future, if this varies per environment, move this resource
   // id into the server specification
   private static final String SPEND_PROFILE_RESOURCE_TYPE = "spend-profile";
@@ -87,7 +87,7 @@ public class SpendProfileManagerService {
   }
 
   /**
-   * These are the policies for the WSM default spend profile resource. They can be looked up
+   * These are the policies for the WSM spend profile resource. They can be looked up
    * dynamically by calling the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/policies" GET
    * endpoint. They are hard-coded here to show the possible values in the CLI usage help. (And in
    * the eventual SPM service, this may be an enum in their API?)

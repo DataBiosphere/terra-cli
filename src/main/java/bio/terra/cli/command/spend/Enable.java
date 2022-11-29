@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra spend enable" command. */
 @Command(
     name = "enable",
-    description = "Enable use of the Workspace Manager default spend profile for a user or group.")
+    description = "Enable use of a spend profile for a user or group.")
 public class Enable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
   @CommandLine.Mixin Format formatOption;
