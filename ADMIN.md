@@ -18,14 +18,11 @@
 Usage: terra spend [COMMAND]
 Manage spend profiles.
 Commands:
-  create-profile  Create the Workspace Manager default spend profile.
-  enable          Enable use of the Workspace Manager default spend profile for
-                    a user or group.
-  delete-profile  Delete the Workspace Manager default spend profile.
-  disable         Disable use of the Workspace Manager default spend profile
-                    for a user or group.
-  list-users      List the users enabled on the Workspace Manager default spend
-                    profile.
+  create-profile  Create a spend profile.
+  enable          Enable use of a spend profile for a user or group.
+  delete-profile  Delete a spend profile.
+  disable         Disable use of a spend profile for a user or group.
+  list-users      List the users enabled on a spend profile.
 ```
 
 In order to spend money (e.g. by creating a project and resources within it) in
@@ -34,16 +31,15 @@ there will be a dedicated Spend Profile Manager service that will allow users to
 setup different profiles that map to different billing accounts, and to grant
 access to users.
 
-Until that new service is build, Workspace Manager recognizes a single spend
-profile per deployment. This single spend profile corresponds to a SAM resource.
-The name of this resource is specified in the Workspace Manager deployment
-configuration (e.g. Helm charts) but needs to be setup and managed manually in
-SAM (i.e. there are no WSM endpoints for managing spend profiles, you have to
-talk to SAM directly). The CLI provides convenience commands for this setup and
-management.
+Until that new service is build, Workspace Manager must hardcode spend profiles
+in its deployment. Each spend profile corresponds to a SAM resource, where the
+name of the resource is specified in the Workspace Manager deployment configuration
+(e.g. Helm charts) but needs to be setup and managed manually in SAM (i.e. there
+are no WSM endpoints for managing spend profiles, you have to talk to SAM directly).
+The CLI provides convenience commands for this setup and management.
 
 Note that these commands are intended for admin users. In the context of spend,
-admin means a user who is an owner of the default spend profile resource.
+admin means a user who is an owner of the target spend profile resource.
 
 #### Grant spend access
 
@@ -52,17 +48,20 @@ admin means a user who is an owner of the default spend profile resource.
   instead.
   `terra group add-user --name=enterprise-pilot-testers --policy=MEMBER --email=testuser@gmail.com`
 
-- Add a user directly to the spend profile. To also grant permission to add new
-  users to the spend profile, user `policy=OWNER` instead.
+- Add a user directly to a spend profile. To also grant permission to add new
+  users to the spend profile, user `policy=OWNER` instead. This will target the 
+  WSM default spend profile.
   `terra spend enable --policy=USER --email=testuser@gmail.com`
+
+  To use an alternative spend profile, add the `--profile` option.
+  `terra spend enable --policy=USER --email=testuser@gmail.com --profile=wm-alt-spend-profile`
 
 #### Setup spend profile
 
 To create the spend profile:
 `terra spend create-profile`
-This command uses the spend profile name specified in
-the `src/main/resources/servers` file for the current server. For most servers,
-the name is `wm-default-spend-profile`.
+This command uses the `wm-default-spend-profile` by default, or the name specified
+by the `--profile` option.
 
 The user who runs the create command will automatically be added as an OWNER of
 the spend profile, with permissions to add new users. You should also make sure
