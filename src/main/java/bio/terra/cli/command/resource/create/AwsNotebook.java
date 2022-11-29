@@ -14,8 +14,7 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resource create aws-notebook" command. */
 @CommandLine.Command(
     name = "aws-notebook",
-    description =
-        "Add a controlled AWS notebook instance.",
+    description = "Add a controlled AWS notebook instance.",
     showDefaultValues = true,
     sortOptions = false)
 public class AwsNotebook extends BaseCommand {
@@ -43,7 +42,8 @@ public class AwsNotebook extends BaseCommand {
   @CommandLine.Option(
       names = "--instance-type",
       defaultValue = "ml.t2.medium",
-      description = "The Compute Engine instance type of this instance (https://docs.aws.amazon.com/sagemaker/latest/dg/notebooks-available-instance-types.html).")
+      description =
+          "The Compute Engine instance type of this instance (https://docs.aws.amazon.com/sagemaker/latest/dg/notebooks-available-instance-types.html).")
   private String instanceType;
 
   // TODO(TERRA-228) add additional parameters

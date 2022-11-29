@@ -40,7 +40,10 @@ public class AwsNotebook extends BaseCommand {
             .build());
 
     // re-load the resource so we display all properties with up-to-date values
-    resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.AWS_SAGEMAKER_NOTEBOOK);
+    resource =
+        Context.requireWorkspace()
+            .getResource(resource.getName())
+            .castToType(Type.AWS_SAGEMAKER_NOTEBOOK);
     formatOption.printReturnValue(new UFAwsNotebook(resource), AwsNotebook::printText);
   }
 }

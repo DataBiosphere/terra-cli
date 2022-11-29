@@ -78,7 +78,8 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Option(
       names = "--machine-type",
       defaultValue = "n1-standard-4",
-      description = "The Compute Engine machine type of this instance (https://cloud.google.com/compute/docs/general-purpose-machines).")
+      description =
+          "The Compute Engine machine type of this instance (https://cloud.google.com/compute/docs/general-purpose-machines).")
   private String machineType;
 
   @CommandLine.Option(

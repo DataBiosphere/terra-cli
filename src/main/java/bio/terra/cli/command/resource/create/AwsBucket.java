@@ -23,7 +23,8 @@ public class AwsBucket extends BaseCommand {
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-east-1",
-      description = "The AWS location of the bucket (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
+      description =
+          "The AWS location of the bucket (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
   private String location;
 
   /** Print this command's output in text format. */
