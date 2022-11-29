@@ -87,10 +87,10 @@ public class SpendProfileManagerService {
   }
 
   /**
-   * These are the policies for the WSM spend profile resource. They can be looked up
-   * dynamically by calling the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/policies" GET
-   * endpoint. They are hard-coded here to show the possible values in the CLI usage help. (And in
-   * the eventual SPM service, this may be an enum in their API?)
+   * These are the policies for the WSM spend profile resource. They can be looked up dynamically by
+   * calling the SAM "/api/resources/v1/{resourceTypeName}/{resourceId}/policies" GET endpoint. They
+   * are hard-coded here to show the possible values in the CLI usage help. (And in the eventual SPM
+   * service, this may be an enum in their API?)
    */
   public enum SpendProfilePolicy {
     OWNER,

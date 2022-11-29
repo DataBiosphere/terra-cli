@@ -21,6 +21,9 @@ public class SpendProfileUser {
       description = "Spend policy: ${COMPLETION-CANDIDATES}.")
   public SpendProfileManagerService.SpendProfilePolicy policy;
 
-  @CommandLine.Option(names = "--profile", description = "Name of the spend profile.")
+  @CommandLine.Option(
+      names = "--profile",
+      defaultValue = "wm-default-spend-profile",
+      description = "The spend profile.")
   public String spendProfile;
 }

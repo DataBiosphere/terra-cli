@@ -205,6 +205,7 @@ public class Server {
     return workspaceManagerUri;
   }
 
+  // TODO(PF-2257): Delete wsmDefaultSpendProfile. Profile option default is used instead.
   public String getWsmDefaultSpendProfile() {
     return wsmDefaultSpendProfile;
   }
