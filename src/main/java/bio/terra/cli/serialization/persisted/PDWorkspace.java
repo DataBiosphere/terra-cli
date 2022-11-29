@@ -123,6 +123,16 @@ public class PDWorkspace {
       return this;
     }
 
+    public Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
+      return this;
+    }
+
+    public Builder landingZoneId(String landingZoneId) {
+      this.landingZoneId = landingZoneId;
+      return this;
+    }
+
     public Builder properties(Map<String, String> properties) {
       this.properties = properties;
       return this;
