@@ -78,6 +78,7 @@ public class GcsBucket extends WsmBaseCommand {
               .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_BUCKET);

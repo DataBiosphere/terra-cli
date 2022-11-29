@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
-
   private UUID uuid;
   private String userFacingId;
   private String name; // not unique

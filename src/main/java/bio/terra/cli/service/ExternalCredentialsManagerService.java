@@ -23,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 public class ExternalCredentialsManagerService {
   private static final Logger logger =
       LoggerFactory.getLogger(ExternalCredentialsManagerService.class);
-
   // the client object used for talking to ECM
   private final ApiClient apiClient;
 

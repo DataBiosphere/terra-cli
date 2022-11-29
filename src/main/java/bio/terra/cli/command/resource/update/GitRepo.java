@@ -57,6 +57,7 @@ public class GitRepo extends WsmBaseCommand {
             .gitRepoUrl(newRepoUrl)
             .cloningInstructions(newCloningInstructionsOption.getCloning());
     resource.updateReferenced(gitRepoUpdateParams.build());
+
     // re-load the resource so we display all properties with up-to-date values
     resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GIT_REPO);
     formatOption.printReturnValue(new UFGitRepo(resource), GitRepo::printText);
