@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.command.resource.create.AwsBucket;
+import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
