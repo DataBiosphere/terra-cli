@@ -89,7 +89,8 @@ public class Context {
   public static void synchronizeToDisk() {
     try {
       PDContext diskContext =
-          new PDContext(currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
+          new PDContext(
+              currentConfig, currentServer, currentUser, currentWorkspace, currentVersionCheck);
       JacksonMapper.writeJavaObjectToFile(getContextFile().toFile(), diskContext);
       logger.debug("Wrote context to disk: \n{}", diskContext);
     } catch (IOException ioEx) {

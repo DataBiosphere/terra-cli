@@ -100,11 +100,10 @@ public class UFWorkspaceLight {
           "Cloud console:     https://" + awsAccountNumber + ".signin.aws.amazon.com/console/");
     }
 
-    if (properties == null) {
-      return;
+    if (properties != null && !properties.isEmpty()) {
+      OUT.println("Properties:");
+      properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     }
-    OUT.println("Properties:");
-    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println("Created:           " + createdDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
     OUT.println("Last updated:      " + lastUpdatedDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
