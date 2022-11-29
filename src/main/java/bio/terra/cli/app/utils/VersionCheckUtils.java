@@ -1,11 +1,9 @@
 package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.VersionCheck;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.SystemVersion;
 import java.lang.module.ModuleDescriptor.Version;
-import java.time.OffsetDateTime;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +13,6 @@ public class VersionCheckUtils {
 
   /** Query Workspace Manager for the oldest supported */
   public static boolean isObsolete() {
-    // update last checked time in the context file
-    VersionCheck updatedVersionCheck = new VersionCheck(OffsetDateTime.now());
-    Context.setVersionCheck(updatedVersionCheck);
-
     // The oldest supported version is exposed on the main WSM /version endpoint
     SystemVersion wsmVersion =
         WorkspaceManagerService.unauthenticated(Context.getServer()).getVersion();
