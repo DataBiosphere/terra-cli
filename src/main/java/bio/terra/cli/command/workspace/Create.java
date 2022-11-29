@@ -1,6 +1,5 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -38,15 +37,6 @@ public class Create extends BaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    CloudPlatform prevCloudPlatform = Context.getCloudPlatform().orElse(null);
-    Context.setCloudPlatform(cloudPlatform);
-    OUT.println(
-        "Cloud platform is "
-            + cloudPlatform
-            + " ("
-            + (prevCloudPlatform == cloudPlatform ? "UNCHANGED" : "CHANGED")
-            + ").");
-
     Workspace workspace =
         Workspace.create(
             id,

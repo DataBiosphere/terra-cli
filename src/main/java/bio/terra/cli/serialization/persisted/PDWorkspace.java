@@ -115,6 +115,7 @@ public class PDWorkspace {
 
     public Builder cloudPlatform(CloudPlatform cloudPlatform) {
       this.cloudPlatform = cloudPlatform;
+      return this;
     }
 
     public Builder googleProjectId(String googleProjectId) {

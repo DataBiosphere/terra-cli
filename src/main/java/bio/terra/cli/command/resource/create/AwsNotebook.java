@@ -17,7 +17,7 @@ import picocli.CommandLine;
 // TODO-Dex
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
 @CommandLine.Command(
-    name = "gcp-notebook",
+    name = "aws-notebook",
     description =
         "Add a controlled GCP notebook instance resource.\n"
             + "For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.",
