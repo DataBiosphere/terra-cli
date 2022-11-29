@@ -7,17 +7,21 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra spend delete-profile" command. */
-@Command(
-    name = "delete-profile",
-    description = "Delete the Workspace Manager default spend profile.")
+@Command(name = "delete-profile", description = "Delete a spend profile.")
 public class DeleteProfile extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
 
-  /** Delete the WSM default spend profile. */
+  @CommandLine.Option(
+      names = "--profile",
+      defaultValue = "wm-default-spend-profile",
+      description = "The spend profile.")
+  private String spendProfile;
+
+  /** Delete a spend profile. */
   @Override
   protected void execute() {
     deletePromptOption.confirmOrThrow();
-    SpendProfileManagerService.fromContext().deleteDefaultSpendProfile();
-    OUT.println("Default WSM spend profile deleted successfully.");
+    SpendProfileManagerService.fromContext().deleteSpendProfile(spendProfile);
+    OUT.println(spendProfile + " spend profile deleted successfully.");
   }
 }

@@ -67,8 +67,8 @@ public class SpendProfileManagerService {
     return samService.listPoliciesForResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile);
   }
 
-  /** Create a new SAM resource for the WSM default spend profile of the current server. */
-  public void createDefaultSpendProfile() {
+  /** Create a new SAM resource for a spend profile. */
+  public void createSpendProfile(String spendProfile) {
     // create two policies (owner, user) and make sure the current user is an owner
     Map<String, AccessPolicyMembershipV2> policies = new HashMap<>();
     policies.put(
@@ -78,14 +78,12 @@ public class SpendProfileManagerService {
             .addMemberEmailsItem(Context.requireUser().getEmail()));
     policies.put("user", new AccessPolicyMembershipV2().addRolesItem("user"));
 
-    samService.createResource(
-        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile(), policies);
+    samService.createResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policies);
   }
 
-  /** Delete the SAM resource for the WSM default spend profile of the current server. */
-  public void deleteDefaultSpendProfile() {
-    samService.deleteResource(
-        SPEND_PROFILE_RESOURCE_TYPE, Context.getServer().getWsmDefaultSpendProfile());
+  /** Delete the SAM resource for a spend profile. */
+  public void deleteSpendProfile(String spendProfile) {
+    samService.deleteResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile);
   }
 
   /**
