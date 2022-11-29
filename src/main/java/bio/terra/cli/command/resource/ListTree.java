@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.workspace.model.Folder;
@@ -17,7 +17,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "list-tree",
     description = "List all resources and folders in tree view.")
-public class ListTree extends WsmBaseCommand {
+public class ListTree extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   private static final HashMap<UUID, ArrayList<UUID>> EDGES = new HashMap<>();

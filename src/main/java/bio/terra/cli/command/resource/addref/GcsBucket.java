@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.addref;
 
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketName;
 import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     name = "gcs-bucket",
     description = "Add a referenced GCS bucket.",
     showDefaultValues = true)
-public class GcsBucket extends WsmBaseCommand {
+public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin GcsBucketName bucketNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

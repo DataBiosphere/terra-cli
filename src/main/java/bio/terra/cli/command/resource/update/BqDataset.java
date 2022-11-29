@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
 import bio.terra.cli.command.shared.options.BqDatasetNewIds;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
@@ -22,7 +22,7 @@ import picocli.CommandLine;
     name = "bq-dataset",
     description = "Update a BigQuery dataset.",
     showDefaultValues = true)
-public class BqDataset extends WsmBaseCommand {
+public class BqDataset extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;

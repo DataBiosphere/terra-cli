@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -21,7 +21,7 @@ import picocli.CommandLine;
     name = "gcs-object",
     description = "Update a GCS bucket object.",
     showDefaultValues = true)
-public class GcsObject extends WsmBaseCommand {
+public class GcsObject extends BaseCommand {
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

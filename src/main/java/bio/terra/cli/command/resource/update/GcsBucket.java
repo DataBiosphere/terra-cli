@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.GcsBucketNewName;
@@ -22,7 +22,7 @@ import picocli.CommandLine;
     name = "gcs-bucket",
     description = "Update a GCS bucket.",
     showDefaultValues = true)
-public class GcsBucket extends WsmBaseCommand {
+public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin GcsBucketNewName newBucketName;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
