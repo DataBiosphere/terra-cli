@@ -32,7 +32,9 @@ public class Invite extends BaseCommand {
     if (enableSpend) {
       SpendProfileUser spendProfileUser =
           SpendProfileUser.enable(
-              email, SpendProfileManagerService.SpendProfilePolicy.USER, spendProfileOption.spendProfile);
+              email,
+              SpendProfileManagerService.SpendProfilePolicy.USER,
+              spendProfileOption.spendProfile);
       OUT.println("User enabled on the spend profile.");
       new UFSpendProfileUser(spendProfileUser).print();
     }
