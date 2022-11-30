@@ -11,6 +11,7 @@ import picocli.CommandLine.Command;
 @Command(name = "enable", description = "Enable use of a spend profile for a user or group.")
 public class Enable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */
@@ -26,7 +27,7 @@ public class Enable extends BaseCommand {
         SpendProfileUser.enable(
             spendProfileUserOption.email,
             spendProfileUserOption.policy,
-            spendProfileUserOption.spendProfile);
+            spendProfileOption.spendProfile);
     formatOption.printReturnValue(new UFSpendProfileUser(spendProfileUser), Enable::printText);
   }
 }

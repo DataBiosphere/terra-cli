@@ -12,6 +12,8 @@ import picocli.CommandLine.Command;
 @Command(name = "invite", description = "Invite a new user.")
 public class Invite extends BaseCommand {
 
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
+
   @CommandLine.Option(names = "--email", required = true, description = "User email.")
   private String email;
 
@@ -20,12 +22,6 @@ public class Invite extends BaseCommand {
       defaultValue = "false",
       description = "Also enable the email as a user on the default spend profile.")
   private boolean enableSpend;
-
-  @CommandLine.Option(
-      names = "--profile",
-      defaultValue = "wm-default-spend-profile",
-      description = "The spend profile.")
-  private String spendProfile;
 
   /** Invite a new user. */
   @Override
@@ -36,7 +32,7 @@ public class Invite extends BaseCommand {
     if (enableSpend) {
       SpendProfileUser spendProfileUser =
           SpendProfileUser.enable(
-              email, SpendProfileManagerService.SpendProfilePolicy.USER, spendProfile);
+              email, SpendProfileManagerService.SpendProfilePolicy.USER, spendProfileOption.spendProfile);
       OUT.println("User enabled on the spend profile.");
       new UFSpendProfileUser(spendProfileUser).print();
     }

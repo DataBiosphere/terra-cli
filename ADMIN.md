@@ -31,12 +31,10 @@ there will be a dedicated Spend Profile Manager service that will allow users to
 setup different profiles that map to different billing accounts, and to grant
 access to users.
 
-Until that new service is build, Workspace Manager must hardcode spend profiles
-in its deployment. Each spend profile corresponds to a SAM resource, where the
-name of the resource is specified in the Workspace Manager deployment configuration
-(e.g. Helm charts) but needs to be setup and managed manually in SAM (i.e. there
-are no WSM endpoints for managing spend profiles, you have to talk to SAM directly).
-The CLI provides convenience commands for this setup and management.
+Until that new service is built, setting up a new spend profile entails:
+
+* Adding WSM configuration (helm charts) which associates spend profile name with a billing account ID
+* Creating the SAM spend profile resource with `terra spend create-profile`
 
 Note that these commands are intended for admin users. In the context of spend,
 admin means a user who is an owner of the target spend profile resource.

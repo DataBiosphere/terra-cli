@@ -14,13 +14,8 @@ import picocli.CommandLine.Command;
 @Command(name = "list-users", description = "List the users enabled on a spend profile.")
 public class ListUsers extends BaseCommand {
 
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
   @CommandLine.Mixin Format formatOption;
-
-  @CommandLine.Option(
-      names = "--profile",
-      defaultValue = "wm-default-spend-profile",
-      description = "The spend profile.")
-  private String spendProfile;
 
   /** Print this command's output in text format. */
   private static void printText(List<UFSpendProfileUser> returnValue) {
@@ -34,7 +29,7 @@ public class ListUsers extends BaseCommand {
   protected void execute() {
     formatOption.printReturnValue(
         UserIO.sortAndMap(
-            SpendProfileUser.list(spendProfile),
+            SpendProfileUser.list(spendProfileOption.spendProfile),
             Comparator.comparing(SpendProfileUser::getEmail),
             UFSpendProfileUser::new),
         ListUsers::printText);

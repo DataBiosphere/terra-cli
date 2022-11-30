@@ -9,6 +9,7 @@ import picocli.CommandLine.Command;
 @Command(name = "disable", description = "Disable use of a spend profile for a user or group.")
 public class Disable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
 
   /** Remove access to a spend profile for the given email. */
   @Override
@@ -16,12 +17,12 @@ public class Disable extends BaseCommand {
     SpendProfileUser.disable(
         spendProfileUserOption.email,
         spendProfileUserOption.policy,
-        spendProfileUserOption.spendProfile);
+        spendProfileOption.spendProfile);
     OUT.println(
         "User ("
             + spendProfileUserOption.email
             + ") disabled on the ("
-            + spendProfileUserOption.spendProfile
+            + spendProfileOption.spendProfile
             + ") spend profile ("
             + spendProfileUserOption.policy
             + ").");

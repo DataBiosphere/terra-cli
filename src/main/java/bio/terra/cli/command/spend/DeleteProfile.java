@@ -10,18 +10,13 @@ import picocli.CommandLine.Command;
 @Command(name = "delete-profile", description = "Delete a spend profile.")
 public class DeleteProfile extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
-
-  @CommandLine.Option(
-      names = "--profile",
-      defaultValue = "wm-default-spend-profile",
-      description = "The spend profile.")
-  private String spendProfile;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
 
   /** Delete a spend profile. */
   @Override
   protected void execute() {
     deletePromptOption.confirmOrThrow();
-    SpendProfileManagerService.fromContext().deleteSpendProfile(spendProfile);
-    OUT.println(spendProfile + " spend profile deleted successfully.");
+    SpendProfileManagerService.fromContext().deleteSpendProfile(spendProfileOption.spendProfile);
+    OUT.println(spendProfileOption.spendProfile + " spend profile deleted successfully.");
   }
 }

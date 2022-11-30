@@ -9,16 +9,12 @@ import picocli.CommandLine.Command;
 @Command(name = "create-profile", description = "Create a spend profile.")
 public class CreateProfile extends BaseCommand {
 
-  @CommandLine.Option(
-      names = "--profile",
-      defaultValue = "wm-default-spend-profile",
-      description = "The spend profile.")
-  private String spendProfile;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
 
   /** Create a spend profile. */
   @Override
   protected void execute() {
-    SpendProfileManagerService.fromContext().createSpendProfile(spendProfile);
-    OUT.println(spendProfile + " spend profile created successfully.");
+    SpendProfileManagerService.fromContext().createSpendProfile(spendProfileOption.spendProfile);
+    OUT.println(spendProfileOption.spendProfile + " spend profile created successfully.");
   }
 }
