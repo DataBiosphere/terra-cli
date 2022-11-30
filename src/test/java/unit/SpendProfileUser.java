@@ -132,13 +132,6 @@ public class SpendProfileUser extends ClearContextUnit {
 
     // create test profile if it doesn't exist already
     TestCommand.runCommand("spend", "create-profile", "--profile=" + TEST_SPEND_PROFILE);
-    // ensure cli spend owners have access
-    TestCommand.runCommand(
-        "spend",
-        "enable",
-        "--email=" + TestUser.CLI_TEST_USERS_GROUP_NAME + "@verily-bvdp.com",
-        "--policy=OWNER",
-        "--profile=" + TEST_SPEND_PROFILE);
 
     // `terra spend enable --email=$testEmail --policy=USER --profile=TEST_SPEND_PROFILE`
     TestCommand.runCommandExpectSuccess(
