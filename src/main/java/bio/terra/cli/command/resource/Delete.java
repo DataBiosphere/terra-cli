@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.DeletePrompt;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -10,7 +10,7 @@ import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource delete" command. */
 @CommandLine.Command(name = "delete", description = "Delete a resource from the workspace.")
-public class Delete extends WsmBaseCommand {
+public class Delete extends BaseCommand {
   @CommandLine.Mixin DeletePrompt deletePromptOption;
   @CommandLine.Mixin ResourceName resourceNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

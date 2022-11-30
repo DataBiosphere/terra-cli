@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -22,7 +22,8 @@ import picocli.CommandLine;
             + "For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.",
     showDefaultValues = true,
     sortOptions = false)
-public class GcpNotebook extends WsmBaseCommand {
+public class GcpNotebook extends BaseCommand {
+
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
 

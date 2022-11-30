@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.NotebookMetadata;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -16,7 +16,7 @@ import picocli.CommandLine;
     name = "gcp-notebook",
     description = "Update the GCP notebook.",
     showDefaultValues = true)
-public class GcpNotebook extends WsmBaseCommand {
+public class GcpNotebook extends BaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
