@@ -9,7 +9,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class BqDatasetNewIds {
-
   @CommandLine.Option(
       names = "--new-project-id",
       description = "New GCP project id of the dataset.")

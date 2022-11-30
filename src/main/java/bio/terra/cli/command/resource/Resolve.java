@@ -18,7 +18,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra resource resolve" command. */
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
 public class Resolve extends WsmBaseCommand {
-
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(

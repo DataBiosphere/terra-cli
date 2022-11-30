@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.time.OffsetDateTime;
@@ -15,6 +16,7 @@ public class UFWorkspaceLight {
   public String id;
   public String name;
   public String description;
+  public CloudPlatform cloudPlatform;
   public String googleProjectId;
   public Map<String, String> properties;
   public String serverName;
@@ -32,6 +34,7 @@ public class UFWorkspaceLight {
     this.id = internalObj.getUserFacingId();
     this.name = internalObj.getName();
     this.description = internalObj.getDescription();
+    this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId();
     this.properties = internalObj.getProperties();
     this.serverName = internalObj.getServerName();
@@ -45,6 +48,7 @@ public class UFWorkspaceLight {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
+    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
@@ -58,6 +62,7 @@ public class UFWorkspaceLight {
     this.id = null;
     this.name = null;
     this.description = null;
+    this.cloudPlatform = null;
     this.googleProjectId = null;
     this.properties = null;
     this.serverName = null;
@@ -74,11 +79,12 @@ public class UFWorkspaceLight {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
-    OUT.println("Google project:    " + googleProjectId);
-    OUT.println(
-        "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
-            + googleProjectId);
-
+    if (cloudPlatform == CloudPlatform.GCP) {
+      OUT.println("Google project:    " + googleProjectId);
+      OUT.println(
+          "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
+              + googleProjectId);
+    }
     if (properties == null) {
       return;
     }
@@ -95,6 +101,7 @@ public class UFWorkspaceLight {
     private String id;
     private String name;
     private String description;
+    private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private Map<String, String> properties;
     private String serverName;
@@ -117,6 +124,11 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder description(String description) {
       this.description = description;
+      return this;
+    }
+
+    public UFWorkspaceLight.Builder cloudPlatform(CloudPlatform cloudPlatform) {
+      this.cloudPlatform = cloudPlatform;
       return this;
     }
 

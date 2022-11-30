@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GitRepo extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GitRepo.class);
-
   private String gitRepoUrl;
 
   /** Deserialize an instance of the disk format to the internal object. */

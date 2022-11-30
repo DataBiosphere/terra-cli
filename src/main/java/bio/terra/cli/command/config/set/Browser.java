@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
     name = "browser",
     description = "Configure whether a browser is launched automatically during the login process.")
 public class Browser extends BaseCommand {
-
   @CommandLine.Parameters(
       index = "0",
       description = "Browser launch mode: ${COMPLETION-CANDIDATES}.")

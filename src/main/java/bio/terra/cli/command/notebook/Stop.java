@@ -14,7 +14,6 @@ import picocli.CommandLine;
     description = "Stop a running GCP Notebook instance within your workspace.",
     showDefaultValues = true)
 public class Stop extends BaseCommand {
-
   @CommandLine.Mixin NotebookInstance instanceOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 

@@ -24,7 +24,6 @@ public class UpdateReferencedGcsBucketParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-
     private UpdateResourceParams resourceFields;
     private String bucketName;
     private CloningInstructionsEnum cloningInstructions;

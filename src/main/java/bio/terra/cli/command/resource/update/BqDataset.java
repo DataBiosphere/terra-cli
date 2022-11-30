@@ -27,7 +27,6 @@ public class BqDataset extends WsmBaseCommand {
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin BqDatasetNewIds bqDatasetNewIds;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -102,6 +101,7 @@ public class BqDataset extends WsmBaseCommand {
               .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_DATASET);

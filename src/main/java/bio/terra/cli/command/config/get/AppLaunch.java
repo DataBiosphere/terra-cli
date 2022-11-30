@@ -9,7 +9,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config get app-launch" command. */
 @Command(name = "app-launch", description = "Check the way apps are launched.")
 public class AppLaunch extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Return the command runner option property of the global context. */

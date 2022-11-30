@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
     name = "browser",
     description = "Check whether a browser is launched automatically during the login process.")
 public class Browser extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Return the browser launch option property of the global context. */
