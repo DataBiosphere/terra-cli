@@ -12,7 +12,6 @@ import picocli.CommandLine.Command;
     name = "resource-limit",
     description = "Set the maximum number of resources allowed per workspace.")
 public class ResourceLimit extends BaseCommand {
-
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ResourceLimitArgGroup argGroup;
 

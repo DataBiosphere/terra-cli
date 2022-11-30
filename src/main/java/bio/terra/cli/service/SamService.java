@@ -39,13 +39,10 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for calling SAM endpoints. */
 public class SamService {
   private static final Logger logger = LoggerFactory.getLogger(SamService.class);
-
   // the Terra environment where the SAM service lives
   private final Server server;
-
   // access token to use for authenticated requests
   private final AccessToken accessToken;
-
   // the client object used for talking to SAM
   private final ApiClient apiClient;
 

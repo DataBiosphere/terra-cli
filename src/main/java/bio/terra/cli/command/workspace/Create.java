@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -34,6 +35,7 @@ public class Create extends BaseCommand {
     Workspace workspace =
         Workspace.create(
             id,
+            CloudPlatform.GCP, // Currently only GCP is supported
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);

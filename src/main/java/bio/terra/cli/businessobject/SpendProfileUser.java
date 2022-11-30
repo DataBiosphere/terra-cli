@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SpendProfileUser {
   private static final Logger logger = LoggerFactory.getLogger(SpendProfileUser.class);
-
   private String email;
   private List<SpendProfilePolicy> policies;
 

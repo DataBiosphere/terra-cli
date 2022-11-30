@@ -17,7 +17,6 @@ import picocli.CommandLine;
     name = "list",
     description = "List all configuration properties and their values.")
 public class List extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */

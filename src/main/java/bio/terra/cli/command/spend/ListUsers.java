@@ -15,7 +15,6 @@ import picocli.CommandLine.Command;
     name = "list-users",
     description = "List the users enabled on the Workspace Manager default spend profile.")
 public class ListUsers extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */

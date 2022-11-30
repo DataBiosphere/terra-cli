@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 /** This class provides utility methods for running Docker containers. */
 public class DockerClientWrapper {
   private static final Logger logger = LoggerFactory.getLogger(DockerClientWrapper.class);
-
   private final DockerClient dockerClient;
   private String containerId;
 

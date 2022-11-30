@@ -144,8 +144,8 @@ public class GcsBucket extends Resource {
   /**
    * Resolve a GCS bucket resource to its cloud identifier. Optionally include the 'gs://' prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
+  public String resolve(boolean includeUrlPrefix) {
+    return includeUrlPrefix ? GCS_BUCKET_URL_PREFIX + bucketName : bucketName;
   }
 
   /** Query the cloud for information about the bucket. */

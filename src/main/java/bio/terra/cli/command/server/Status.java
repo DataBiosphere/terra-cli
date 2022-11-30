@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra server status" command. */
 @Command(name = "status", description = "Print status and details of the Terra server context.")
 public class Status extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Update the Terra environment to which the CLI is pointing. */

@@ -18,7 +18,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra server list" command. */
 @Command(name = "list", description = "List all available Terra servers.")
 public class List extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** List all Terra environments. */

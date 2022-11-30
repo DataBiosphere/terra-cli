@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config set image" command. */
 @Command(name = "image", description = "Set the Docker image to use for launching applications.")
 public class Image extends BaseCommand {
-
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ImageIdArgGroup argGroup;
 

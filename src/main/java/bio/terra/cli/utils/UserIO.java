@@ -18,7 +18,6 @@ import picocli.CommandLine;
  */
 public class UserIO {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UserIO.class);
-
   private static final PrintStream DEFAULT_OUT_STREAM = System.out;
   private static final PrintStream DEFAULT_ERR_STREAM = System.err;
   private static final InputStream DEFAULT_IN_STREAM = System.in;

@@ -15,7 +15,6 @@ import picocli.CommandLine;
     description = "Check if you have access to a referenced resource.")
 public class CheckAccess extends BaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

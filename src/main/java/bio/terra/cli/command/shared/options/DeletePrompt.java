@@ -11,7 +11,6 @@ import bio.terra.cli.exception.UserActionableException;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class DeletePrompt extends ConfirmationPrompt {
-
   /**
    * Helper method to generate an interactive confirmation prompt if the `--quiet` option is not
    * specified. Throws a {@link UserActionableException} if the prompt response is negative.

@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for calling Data Repo endpoints. */
 public class DataRepoService {
   private static final Logger logger = LoggerFactory.getLogger(DataRepoService.class);
-
   // the client object used for talking to Data Repo
   private final ApiClient apiClient;
 

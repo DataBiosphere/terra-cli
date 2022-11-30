@@ -8,7 +8,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the second-level "terra nextflow" command. */
 @Command(name = "nextflow", description = "Call nextflow in the Terra workspace.")
 public class Nextflow extends ToolCommand {
-
   @Override
   public String getExecutableName() {
     return "nextflow";
