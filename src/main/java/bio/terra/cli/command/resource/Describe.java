@@ -13,7 +13,6 @@ import picocli.CommandLine;
 @CommandLine.Command(name = "describe", description = "Describe a resource.")
 public class Describe extends BaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

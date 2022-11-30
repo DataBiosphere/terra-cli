@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config set app-launch" command. */
 @Command(name = "app-launch", description = "Configure the ways apps are launched.")
 public class AppLaunch extends BaseCommand {
-
   @CommandLine.Parameters(index = "0", description = "App launch mode: ${COMPLETION-CANDIDATES}.")
   private Config.CommandRunnerOption mode;
 

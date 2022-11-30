@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra user status" command. */
 @Command(name = "status", description = "Check the registration status of a user.")
 public class Status extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(names = "--email", required = true, description = "User email.")

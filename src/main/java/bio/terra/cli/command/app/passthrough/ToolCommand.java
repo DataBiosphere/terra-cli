@@ -17,6 +17,7 @@ import picocli.CommandLine;
 
 public abstract class ToolCommand extends BaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(ToolCommand.class);
+
   @CommandLine.Unmatched protected final List<String> command = new ArrayList<>();
   @CommandLine.Mixin protected WorkspaceOverride workspaceOption;
 

@@ -13,7 +13,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra spend list-users" command. */
 @Command(name = "list-users", description = "List the users enabled on a spend profile.")
 public class ListUsers extends BaseCommand {
-
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
   @CommandLine.Mixin Format formatOption;
 

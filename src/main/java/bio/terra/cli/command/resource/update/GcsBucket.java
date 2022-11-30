@@ -28,7 +28,6 @@ public class GcsBucket extends BaseCommand {
   @CommandLine.Mixin GcsBucketStorageClass storageClassOption;
   @CommandLine.Mixin bio.terra.cli.command.shared.options.GcsBucketLifecycle lifecycleOptions;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -79,6 +78,7 @@ public class GcsBucket extends BaseCommand {
               .cloningInstructions(newCloningInstructionsOption.getCloning())
               .build());
     }
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_BUCKET);

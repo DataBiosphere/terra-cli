@@ -85,8 +85,8 @@ public class BqTable extends BaseCommand {
             .datasetId(newDatasetId)
             .projectId(newProjectId)
             .cloningInstructions(newCloningInstructionsOption.getCloning());
-
     resource.updateReferenced(bqTableParams.build());
+
     // re-load the resource so we display all properties with up-to-date values
     resource = Context.requireWorkspace().getResource(resource.getName()).castToType(Type.BQ_TABLE);
     formatOption.printReturnValue(new UFBqTable(resource), BqTable::printText);

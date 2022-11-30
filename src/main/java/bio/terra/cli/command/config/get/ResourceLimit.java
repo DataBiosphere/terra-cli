@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
     name = "resource-limit",
     description = "Get the maximum number of resources allowed per workspace.")
 public class ResourceLimit extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Return the resources cache size property of the global context. */

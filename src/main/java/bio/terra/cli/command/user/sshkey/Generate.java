@@ -15,7 +15,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra user ssh-key generate" command. */
 @Command(name = "generate", description = "Generate a terra managed ssh key.")
 public class Generate extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(

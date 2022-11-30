@@ -12,7 +12,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra auth status" command. */
 @Command(name = "status", description = "Print details about the currently authorized account.")
 public class Status extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /**
