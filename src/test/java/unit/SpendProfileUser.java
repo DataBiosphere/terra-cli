@@ -26,18 +26,16 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra spend` commands. */
 @Tag("unit")
 public class SpendProfileUser extends ClearContextUnit {
+  public static final String TEST_SPEND_PROFILE = "test-spend-profile";
+
   // only an owner on the spend profile can disable emails
   TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
 
   SamGroups trackedGroups = new SamGroups();
 
-  /**
-   * Helper method to check that a spend profile user is included in the list with the specified
-   * policies.
-   */
-  private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
-      throws JsonProcessingException {
-    Optional<UFSpendProfileUser> spendUser = listUsersWithEmail(email);
+  private static void expectListedUserWithPolicies(
+      String email, String profile, SpendProfilePolicy... policies) throws JsonProcessingException {
+    Optional<UFSpendProfileUser> spendUser = listUsersWithEmail(email, profile);
     assertTrue(spendUser.isPresent(), "test user is in spend users list");
     assertEquals(
         policies.length,
@@ -49,18 +47,32 @@ public class SpendProfileUser extends ClearContextUnit {
   }
 
   /**
+   * Helper method to check that a spend profile user is included in the list with the specified
+   * policies.
+   */
+  private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
+      throws JsonProcessingException {
+    expectListedUserWithPolicies(email, "wm-default-spend-profile", policies);
+  }
+
+  static Optional<UFSpendProfileUser> listUsersWithEmail(String email, String profile)
+      throws JsonProcessingException {
+    // `terra spend list-users --format=json`
+    List<UFSpendProfileUser> listSpendUsers =
+        TestCommand.runAndParseCommandExpectSuccess(
+            new TypeReference<>() {}, "spend", "list-users", "--profile=" + profile);
+
+    // find the user in the list
+    return listSpendUsers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
+  }
+
+  /**
    * Helper method to call `terra spend list-users` and filter the results on the specified user
    * email.
    */
   static Optional<UFSpendProfileUser> listUsersWithEmail(String email)
       throws JsonProcessingException {
-    // `terra spend list-users --format=json`
-    List<UFSpendProfileUser> listSpendUsers =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "spend", "list-users");
-
-    // find the user in the list
-    return listSpendUsers.stream().filter(user -> user.email.equalsIgnoreCase(email)).findAny();
+    return listUsersWithEmail(email, "wm-default-spend-profile");
   }
 
   @AfterAll
@@ -103,6 +115,53 @@ public class SpendProfileUser extends ClearContextUnit {
 
     // check that the test email is not included in the list-users output
     Optional<UFSpendProfileUser> listUsersOutput = listUsersWithEmail(testEmail);
+    assertTrue(
+        listUsersOutput.isEmpty(),
+        "user is not included in the test-users output after having their spend access disabled");
+  }
+
+  @Test
+  @DisplayName("enable, disable, and list-users with an alternate profile")
+  void commandsWithAltProfile() throws IOException {
+    // get an email to try and add
+    String testEmail = generateSamGroupForEmail();
+
+    // use a test user that is an owner to grant spend access to the test email
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+    spendProfileOwner.login();
+
+    // create test profile if it doesn't exist already
+    TestCommand.runCommand("spend", "create-profile", "--profile=" + TEST_SPEND_PROFILE);
+    // ensure cli spend owners have access
+    TestCommand.runCommand(
+        "spend",
+        "enable",
+        "--email=" + TestUser.CLI_TEST_USERS_GROUP_NAME + "@verily-bvdp.com",
+        "--policy=OWNER",
+        "--profile=" + TEST_SPEND_PROFILE);
+
+    // `terra spend enable --email=$testEmail --policy=USER --profile=TEST_SPEND_PROFILE`
+    TestCommand.runCommandExpectSuccess(
+        "spend",
+        "enable",
+        "--email=" + testEmail,
+        "--policy=USER",
+        "--profile=" + TEST_SPEND_PROFILE);
+
+    // check that the test email is included in the list-users output
+    expectListedUserWithPolicies(testEmail, TEST_SPEND_PROFILE, SpendProfilePolicy.USER);
+
+    // `terra spend disable --email=$testEmail --policy=USER --profile=TEST_SPEND_PROFILE`
+    TestCommand.runCommandExpectSuccess(
+        "spend",
+        "disable",
+        "--email=" + testEmail,
+        "--policy=USER",
+        "--profile=" + TEST_SPEND_PROFILE);
+
+    // check that the test email is not included in the list-users output
+    Optional<UFSpendProfileUser> listUsersOutput =
+        listUsersWithEmail(testEmail, TEST_SPEND_PROFILE);
     assertTrue(
         listUsersOutput.isEmpty(),
         "user is not included in the test-users output after having their spend access disabled");
