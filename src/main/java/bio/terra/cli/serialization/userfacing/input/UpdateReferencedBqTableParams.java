@@ -54,7 +54,7 @@ public class UpdateReferencedBqTableParams {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
-    private UpdateResourceParams resourceParams;
+    public UpdateResourceParams resourceParams;
     private @Nullable String datasetId;
     private @Nullable String projectId;
     private @Nullable String tableId;

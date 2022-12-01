@@ -13,7 +13,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace create" command. */
 @Command(name = "create", description = "Create a new workspace.")
 public class Create extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
   @CommandLine.Mixin Format formatOption;
 
@@ -29,13 +28,19 @@ public class Create extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
+  @CommandLine.Option(
+      names = "--platform",
+      required = true,
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
+  private CloudPlatform cloudPlatform;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
     Workspace workspace =
         Workspace.create(
             id,
-            CloudPlatform.GCP, // Currently only GCP is supported
+            cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);

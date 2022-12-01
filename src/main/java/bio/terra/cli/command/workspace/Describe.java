@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace describe" command. */
 @Command(name = "describe", description = "Describe the workspace.", showDefaultValues = true)
 public class Describe extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Group {
   private static final Logger logger = LoggerFactory.getLogger(Group.class);
-
   private String name;
   private String email;
   private List<GroupPolicy> currentUserPolicies;
