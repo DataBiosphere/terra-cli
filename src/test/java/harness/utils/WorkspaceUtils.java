@@ -24,7 +24,7 @@ public class WorkspaceUtils {
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.
    */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator, CloudPlatform platform)
+  public static UFWorkspace createWorkspace(TestUser workspaceCreator, CloudPlatform cloudPlatform)
       throws JsonProcessingException {
     // `terra workspace create --format=json`
     UFWorkspace workspace =
@@ -32,7 +32,7 @@ public class WorkspaceUtils {
             UFWorkspace.class,
             "workspace",
             "create",
-            "--platform=" + platform,
+            "--platform=" + cloudPlatform,
             "--id=" + createUserFacingId());
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
@@ -47,7 +47,7 @@ public class WorkspaceUtils {
    */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator,
-      CloudPlatform platform,
+      CloudPlatform cloudPlatform,
       String name,
       String description,
       String properties)
@@ -58,7 +58,7 @@ public class WorkspaceUtils {
             UFWorkspace.class,
             "workspace",
             "create",
-            "--platform=" + platform,
+            "--platform=" + cloudPlatform,
             "--id=" + createUserFacingId(),
             "--name=" + name,
             "--description=" + description,
