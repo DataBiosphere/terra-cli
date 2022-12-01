@@ -23,6 +23,7 @@ public class PDServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final String externalCredsUri;
+  public final String userManagerUri;
   public final boolean supportsIdToken;
 
   /** Serialize an instance of the internal class to the disk format. */
@@ -37,6 +38,7 @@ public class PDServer {
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.externalCredsUri = internalObj.getExternalCredsUri();
+    this.userManagerUri = internalObj.getUserManagerUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
   }
 
@@ -51,6 +53,7 @@ public class PDServer {
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
     this.externalCredsUri = builder.externalCredsUri;
+    this.userManagerUri = builder.userManagerUri;
     this.supportsIdToken = builder.supportsIdToken;
   }
 
@@ -66,6 +69,7 @@ public class PDServer {
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
     private String externalCredsUri;
+    private String userManagerUri;
     private boolean supportsIdToken;
 
     /** Default constructor for Jackson. */
@@ -118,6 +122,11 @@ public class PDServer {
 
     public Builder externalCredsUri(String externalCredsUri) {
       this.externalCredsUri = externalCredsUri;
+      return this;
+    }
+
+    public Builder userManagerUri(String userManagerUri) {
+      this.userManagerUri = userManagerUri;
       return this;
     }
 
