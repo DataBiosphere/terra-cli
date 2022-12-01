@@ -6,7 +6,7 @@ import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.utils.UserIO;
@@ -21,7 +21,7 @@ import picocli.CommandLine.Command;
     name = "list",
     description = "List all workspaces the current user can access.",
     showDefaultValues = true)
-public class List extends WsmBaseCommand {
+public class List extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
@@ -70,9 +70,7 @@ public class List extends WsmBaseCommand {
   private enum Columns implements ColumnDefinition<UFWorkspaceLight> {
     ID("ID", w -> w.id, 40, LEFT),
     NAME("NAME", w -> w.name, 30, LEFT),
-    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 15, LEFT),
-    AWS_ACCOUNT("AWS_ACCOUNT", w -> w.awsAccountNumber, 15, LEFT),
-    LANDING_ZONE_ID("LANDING_ZONE_ID", w -> w.landingZoneId, 40, LEFT),
+    GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;

@@ -2,13 +2,12 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqResolvedOptions;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
-import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -18,14 +17,12 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra resource resolve" command. */
 @Command(name = "resolve", description = "Resolve a resource to its cloud id or path.")
-public class Resolve extends WsmBaseCommand {
+public class Resolve extends BaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
       names = "--exclude-bucket-prefix",
-      description =
-          "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix, "
-              + "[For AWS_BUCKET] Exclude the 's3://' prefix.")
+      description = "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
@@ -59,9 +56,6 @@ public class Resolve extends WsmBaseCommand {
         break;
       case BQ_TABLE:
         cloudId = ((BqTable) resource).resolve(bqPathFormat);
-        break;
-      case AWS_BUCKET:
-        cloudId = ((AwsBucket) resource).resolve(!excludeBucketPrefix);
         break;
       default:
         cloudId = resource.resolve();
