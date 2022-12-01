@@ -10,6 +10,6 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "notebook",
-    description = "Use GCP Notebooks in the workspace.",
+    description = "Use Notebooks in the workspace.",
     subcommands = {Start.class, Stop.class})
 public class Notebook {}
