@@ -23,7 +23,6 @@ import picocli.CommandLine;
     showDefaultValues = true,
     sortOptions = false)
 public class GcpNotebook extends BaseCommand {
-
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
 

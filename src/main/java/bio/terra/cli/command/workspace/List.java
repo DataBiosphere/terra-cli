@@ -22,7 +22,6 @@ import picocli.CommandLine.Command;
     description = "List all workspaces the current user can access.",
     showDefaultValues = true)
 public class List extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(

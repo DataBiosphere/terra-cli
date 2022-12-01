@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace remove-user" command. */
 @Command(name = "remove-user", description = "Remove a user or group from the workspace.")
 public class RemoveUser extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   @CommandLine.Option(names = "--email", required = true, description = "User or group email.")

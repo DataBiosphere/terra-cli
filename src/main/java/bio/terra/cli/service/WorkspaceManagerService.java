@@ -126,7 +126,6 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling Workspace Manager endpoints. */
 public class WorkspaceManagerService {
-
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;

@@ -13,7 +13,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra workspace create" command. */
 @Command(name = "create", description = "Create a new workspace.")
 public class Create extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
   @CommandLine.Mixin Format formatOption;
 
