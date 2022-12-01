@@ -41,25 +41,18 @@ import org.slf4j.LoggerFactory;
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
-  private UUID uuid;
-  private String userFacingId;
-  private String name; // not unique
-  private String description;
-  private CloudPlatform cloudPlatform;
-  private String googleProjectId;
-  private Map<String, String> properties;
-
-  // name of the server where this workspace exists
-  private String serverName;
-
-  // email of the user that loaded the workspace to this machine
-  private String userEmail;
-
-  // list of resources (controlled & referenced)
-  private List<Resource> resources;
-
-  private OffsetDateTime createdDate;
-  private OffsetDateTime lastUpdatedDate;
+  private final UUID uuid;
+  private final String userFacingId;
+  private final String name; // not unique
+  private final String description;
+  private final CloudPlatform cloudPlatform;
+  private final String googleProjectId;
+  private final Map<String, String> properties;
+  private final String serverName; // name of the server where this workspace exists
+  private final String userEmail; // email of the user that loaded the workspace to this machine
+  private List<Resource> resources; // list of resources (controlled & referenced)
+  private final OffsetDateTime createdDate;
+  private final OffsetDateTime lastUpdatedDate;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
@@ -71,6 +64,8 @@ public class Workspace {
       this.cloudPlatform = CloudPlatform.GCP;
     } else if (wsmObject.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
+    } else {
+      this.cloudPlatform = null;
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
@@ -278,11 +273,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -317,10 +308,8 @@ public class Workspace {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    List<Resource> resources =
+    this.resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
-
-    this.resources = resources;
   }
 
   /**
