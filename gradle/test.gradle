@@ -37,7 +37,7 @@ task runTestsWithTag(type: Test) {
             // used to get the default docker image id.
             systemProperty("TERRA_JAR_IMPLEMENTATION_VERSION",
                     "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
-            systemProperty("TERRA_VERSION", "${project.version}")
+            systemProperty("TERRA_CLI_VERSION", "${project.version}")
         } else if (testTag == "integration") {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)

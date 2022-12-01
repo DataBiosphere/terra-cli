@@ -9,6 +9,6 @@ public class Version {
     if (version != null) {
       return version;
     }
-    return System.getProperty("TERRA_VERSION");
+    return System.getProperty("TERRA_CLI_VERSION");
   }
 }
