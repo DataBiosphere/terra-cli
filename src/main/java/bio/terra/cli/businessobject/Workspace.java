@@ -47,6 +47,8 @@ public class Workspace {
   private String description;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
+  private String awsAccountNumber;
+  private String landingZoneId;
   private Map<String, String> properties;
 
   // name of the server where this workspace exists
@@ -71,11 +73,15 @@ public class Workspace {
       this.cloudPlatform = CloudPlatform.GCP;
     } else if (wsmObject.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
-    } else {
-      throw new SystemException("CloudPlatform not initialized.");
+    } else if (wsmObject.getAwsContext() != null) {
+      this.cloudPlatform = CloudPlatform.AWS;
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
+    this.awsAccountNumber =
+        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getAccountNumber();
+    this.landingZoneId =
+        wsmObject.getAwsContext() == null ? null : wsmObject.getAwsContext().getLandingZoneId();
     this.properties = propertiesToStringMap(wsmObject.getProperties());
     this.serverName = Context.getServer().getName();
     this.userEmail = Context.requireUser().getEmail();
@@ -92,6 +98,8 @@ public class Workspace {
     this.description = configFromDisk.description;
     this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.awsAccountNumber = configFromDisk.awsAccountNumber;
+    this.landingZoneId = configFromDisk.landingZoneId;
     this.properties = configFromDisk.properties;
     this.serverName = configFromDisk.serverName;
     this.userEmail = configFromDisk.userEmail;
@@ -364,7 +372,7 @@ public class Workspace {
    *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public String grantBreakGlass(
+  public String grantBreakGlass( // TODO(TERRA-211) support breakglass
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
@@ -426,6 +434,14 @@ public class Workspace {
     return googleProjectId;
   }
 
+  public String getAwsAccountNumber() {
+    return awsAccountNumber;
+  }
+
+  public String getLandingZoneId() {
+    return landingZoneId;
+  }
+
   public Map<String, String> getProperties() {
     return properties;
   }
@@ -442,7 +458,6 @@ public class Workspace {
     return userEmail;
   }
 
-  /** Calls listResourceAndSync instead if you care about the freshness of the resource list. */
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
   }
