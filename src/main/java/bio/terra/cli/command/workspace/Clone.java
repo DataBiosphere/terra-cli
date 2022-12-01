@@ -2,7 +2,6 @@ package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -41,7 +40,7 @@ public class Clone extends BaseCommand {
     String spendProfile =
         Context.getServer().getUserManagerUri() != null
             ? SpendProfileManagerService.fromContext().getDefaultSpendProfile(null)
-            : Server.DEFAULT_SPEND_PROFILE;
+            : null;
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
