@@ -233,7 +233,7 @@ public class WorkspaceManagerService {
     return new AwsSageMakerNotebookCreationParameters()
         .instanceId(createParams.instanceId)
         .location(createParams.location)
-        .instanceType(createParams.instanceId);
+        .instanceType(createParams.instanceType);
   }
 
   /**
@@ -1212,6 +1212,7 @@ public class WorkspaceManagerService {
       UUID workspaceId, CreateAwsNotebookParams createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
+
     CreateControlledAwsSageMakerNotebookRequestBody createRequest =
         new CreateControlledAwsSageMakerNotebookRequestBody()
             .common(createCommonFields(createParams.resourceFields))

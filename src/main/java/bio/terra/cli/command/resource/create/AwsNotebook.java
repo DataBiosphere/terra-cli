@@ -23,18 +23,8 @@ public class AwsNotebook extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-      names = "--instance-id",
-      description =
-          "The unique name to give to the notebook instance. Cannot be changed later. "
-              + "The instance name must be 1 to 63 characters long and contain only lowercase "
-              + "letters, numeric characters, and dashes. The first character must be a lowercase "
-              + "letter and the last character cannot be a dash. If not specified, an "
-              + "auto-generated name based on your email address and time will be used.")
-  private String instanceId;
-
-  @CommandLine.Option(
       names = "--location",
-      defaultValue = "us-central1-a",
+      defaultValue = "us-east-1",
       description =
           "The AWS location of the instance (https://docs.aws.amazon.com/general/latest/gr/sagemaker.html).")
   private String location;
@@ -60,15 +50,17 @@ public class AwsNotebook extends BaseCommand {
     workspaceOption.overrideIfSpecified();
 
     // build the resource object to create. force the resource to be private
-    CreateResourceParams.Builder createResourceParams =
+    CreateResourceParams createResourceParams =
         controlledResourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
-            .accessScope(AccessScope.PRIVATE_ACCESS);
+            .accessScope(AccessScope.PRIVATE_ACCESS)
+            .build();
+
     CreateAwsNotebookParams.Builder createParams =
         new CreateAwsNotebookParams.Builder()
-            .resourceFields(createResourceParams.build())
-            .instanceId(instanceId)
+            .resourceFields(createResourceParams)
+            .instanceId(createResourceParams.name)
             .location(location)
             .instanceType(instanceType);
 

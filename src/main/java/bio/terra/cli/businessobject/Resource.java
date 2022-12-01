@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * sub-classes are part of the current context or state.
  */
 public abstract class Resource {
-  // Copied from WSM
+  // Copied from WSM: ResourceType specific validation performed in WSM
   private static final Pattern RESOURCE_NAME_VALIDATION_PATTERN =
       Pattern.compile("^[a-zA-Z0-9][-_a-zA-Z0-9]{0,1023}$");
 
