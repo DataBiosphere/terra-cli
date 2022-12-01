@@ -1,6 +1,7 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
 import bio.terra.user.model.AnyObject;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +111,7 @@ public class SpendProfileManagerService {
   public String getDefaultSpendProfile(@Nullable String email) {
     return ObjectUtils.firstNonNull(
         (String) userService.getUserProfile(USER_PROFILE_SPEND_CHOICE_PATH, email).getValue(),
-        "wm-default-spend-profile");
+        Server.DEFAULT_SPEND_PROFILE);
   }
 
   /**

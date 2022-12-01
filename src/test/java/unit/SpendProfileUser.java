@@ -3,6 +3,7 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.serialization.userfacing.UFGroup;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService.SpendProfilePolicy;
@@ -52,7 +53,7 @@ public class SpendProfileUser extends ClearContextUnit {
    */
   private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
       throws JsonProcessingException {
-    expectListedUserWithPolicies(email, "wm-default-spend-profile", policies);
+    expectListedUserWithPolicies(email, Server.DEFAULT_SPEND_PROFILE, policies);
   }
 
   static Optional<UFSpendProfileUser> listUsersWithEmail(String email, String profile)
@@ -72,7 +73,7 @@ public class SpendProfileUser extends ClearContextUnit {
    */
   static Optional<UFSpendProfileUser> listUsersWithEmail(String email)
       throws JsonProcessingException {
-    return listUsersWithEmail(email, "wm-default-spend-profile");
+    return listUsersWithEmail(email, Server.DEFAULT_SPEND_PROFILE);
   }
 
   @AfterAll

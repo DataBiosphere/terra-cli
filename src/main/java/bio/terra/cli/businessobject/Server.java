@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public class Server {
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
   @VisibleForTesting public static final String ALL_SERVERS_FILENAME = "all-servers.json";
+  public static final String DEFAULT_SPEND_PROFILE = "wm-default-spend-profile";
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   // unique identifier that matches the JSON file name under resources/servers.

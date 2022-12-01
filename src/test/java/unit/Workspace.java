@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
@@ -162,7 +163,7 @@ public class Workspace extends ClearContextUnit {
     // check that the workspace is the WSM default
     assertEquals(
         createdWorkspace.spendProfile,
-        "wm-default-spend-profile",
+        Server.DEFAULT_SPEND_PROFILE,
         "workspace spend profile is the WSM default");
 
     // set the default in the user manager
