@@ -15,7 +15,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.time.Duration;
 
-public class AmazonNotebooks { // TODO-Dex
+public class AmazonNotebooks { // TODO(TERRA-197)
   private final AIPlatformNotebooksCow notebooks;
 
   public AmazonNotebooks(GoogleCredentials credentials) {

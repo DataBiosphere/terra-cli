@@ -113,7 +113,7 @@ public class AwsNotebook extends Resource {
    *
    * @return full name of the instance
    */
-  public String resolve() { // TODO-Dex
+  public String resolve() { // TODO(TERRA-197)
     return String.format("locations/%s/instances/%s", location, instanceId);
   }
 
