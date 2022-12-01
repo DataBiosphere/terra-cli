@@ -7,5 +7,6 @@
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
   "workspaceManagerUri": "https://workspace.verilycli.integ.envs.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
-  "externalCredsUri": "https://terra-devel-ecm.api.verily.com"
+  "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
+  "supportedCloudPlatforms": ["GCP"]
 }

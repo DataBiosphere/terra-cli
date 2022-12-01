@@ -2,9 +2,11 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * External representation of a server for command input/output.
@@ -23,6 +25,7 @@ public class UFServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final boolean supportsIdToken;
+  public List<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {
@@ -34,6 +37,7 @@ public class UFServer {
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
+    this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -46,6 +50,7 @@ public class UFServer {
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
     this.supportsIdToken = builder.supportsIdToken;
+    this.supportedCloudPlatforms = builder.supportedCloudPlatforms;
   }
 
   /** Print out this object in text format. */
@@ -64,6 +69,7 @@ public class UFServer {
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
     private boolean supportsIdToken;
+    private List<CloudPlatform> supportedCloudPlatforms;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -105,6 +111,11 @@ public class UFServer {
 
     public Builder supportsIdToken(boolean supportsIdToken) {
       this.supportsIdToken = supportsIdToken;
+      return this;
+    }
+
+    public Builder supportedCloudPlatforms(List<CloudPlatform> supportedCloudPlatforms) {
+      this.supportedCloudPlatforms = supportedCloudPlatforms;
       return this;
     }
 

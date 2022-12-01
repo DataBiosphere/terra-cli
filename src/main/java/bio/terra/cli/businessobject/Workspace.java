@@ -41,18 +41,21 @@ import org.slf4j.LoggerFactory;
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
-  private final UUID uuid;
-  private final String userFacingId;
-  private final String name; // not unique
-  private final String description;
-  private final CloudPlatform cloudPlatform;
-  private final String googleProjectId;
-  private final Map<String, String> properties;
-  private final String serverName; // name of the server where this workspace exists
-  private final String userEmail; // email of the user that loaded the workspace to this machine
-  private List<Resource> resources; // list of resources (controlled & referenced)
-  private final OffsetDateTime createdDate;
-  private final OffsetDateTime lastUpdatedDate;
+  private UUID uuid;
+  private String userFacingId;
+  private String name; // not unique
+  private String description;
+  private CloudPlatform cloudPlatform;
+  private String googleProjectId;
+  private Map<String, String> properties;
+  // name of the server where this workspace exists
+  private String serverName;
+  // email of the user that loaded the workspace to this machine
+  private String userEmail;
+  // list of resources (controlled & referenced)
+  private List<Resource> resources;
+  private OffsetDateTime createdDate;
+  private OffsetDateTime lastUpdatedDate;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {

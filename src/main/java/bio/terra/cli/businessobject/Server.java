@@ -8,6 +8,7 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import bio.terra.workspace.model.CloudPlatform;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,6 +51,7 @@ public class Server {
   // Terra services in the service instance are configured to accept JWT ID tokens for
   // authentication.
   private final boolean supportsIdToken;
+  private final List<CloudPlatform> supportedCloudPlatforms;
 
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
@@ -64,12 +66,13 @@ public class Server {
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
     this.supportsIdToken = configFromDisk.supportsIdToken;
+    this.supportedCloudPlatforms = configFromDisk.supportedCloudPlatforms;
   }
 
   /** Return an instance of this class with default values. */
   public Server() {
     this(fromJsonFile(DEFAULT_SERVER_FILENAME));
-  }
+  } // TODO-Dex
 
   /** Return an instance of this class from the given server name. */
   public static Server get(String name) {
@@ -125,6 +128,11 @@ public class Server {
     } catch (IOException ioEx) {
       throw new SystemException("Error reading in server file: " + fileName, ioEx);
     }
+
+    logger.debug(
+        "TEST--> server: {}, SupportedCloudPlatforms: {}",
+        server.name,
+        server.supportedCloudPlatforms);
 
     return server;
   }
@@ -219,5 +227,9 @@ public class Server {
 
   public boolean getSupportsIdToken() {
     return supportsIdToken;
+  }
+
+  public List<CloudPlatform> getSupportedCloudPlatforms() {
+    return supportedCloudPlatforms;
   }
 }
