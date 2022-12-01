@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.ObjectUtils;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
@@ -107,7 +108,9 @@ public class SpendProfileManagerService {
    * email.
    */
   public String getDefaultSpendProfile(@Nullable String email) {
-    return (String) userService.getUserProfile(USER_PROFILE_SPEND_CHOICE_PATH, email).getValue();
+    return ObjectUtils.firstNonNull(
+        (String) userService.getUserProfile(USER_PROFILE_SPEND_CHOICE_PATH, email).getValue(),
+        "wm-default-spend-profile");
   }
 
   /**
