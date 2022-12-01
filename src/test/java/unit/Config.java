@@ -12,6 +12,7 @@ import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
 import bio.terra.cli.serialization.userfacing.UFServer;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.Logger;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.TestCommand.Result;
@@ -144,7 +145,7 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
 
     // `terra config get workspace`
     UFWorkspace getValue =

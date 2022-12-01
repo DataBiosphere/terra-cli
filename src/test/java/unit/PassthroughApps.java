@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
@@ -426,7 +427,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gcloudAppExecute() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`

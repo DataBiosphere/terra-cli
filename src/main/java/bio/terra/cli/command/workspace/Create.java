@@ -28,6 +28,11 @@ public class Create extends BaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
+  @CommandLine.Option(
+      names = "--platform",
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
+  private CloudPlatform cloudPlatform;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
