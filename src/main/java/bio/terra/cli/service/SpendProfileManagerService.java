@@ -1,9 +1,11 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.user.model.AnyObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
@@ -19,9 +21,13 @@ public class SpendProfileManagerService {
   // there currently is no SPM service, so this class just wraps calls to SAM
   // keep a reference to the SAM service instance here
   private final SamService samService;
+  // The user service is used to store the default spend profile for a user.
+  private final UserManagerService userService;
+  private static final String USER_PROFILE_SPEND_CHOICE_PATH = "spend_profile";
 
-  private SpendProfileManagerService(SamService samService) {
+  private SpendProfileManagerService(SamService samService, UserManagerService userService) {
     this.samService = samService;
+    this.userService = userService;
   }
 
   /**
@@ -30,7 +36,8 @@ public class SpendProfileManagerService {
    * uses the current context's server and user.
    */
   public static SpendProfileManagerService fromContext() {
-    return new SpendProfileManagerService(SamService.fromContext());
+    return new SpendProfileManagerService(
+        SamService.fromContext(), UserManagerService.fromContext());
   }
 
   /**
@@ -84,6 +91,23 @@ public class SpendProfileManagerService {
   /** Delete the SAM resource for a spend profile. */
   public void deleteSpendProfile(String spendProfile) {
     samService.deleteResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile);
+  }
+
+  /**
+   * Set the default spend profile in the User Manager profile. Must be SAM admin to supply an
+   * email.
+   */
+  public void setDefaultSpendProfile(@Nullable String email, String spendProfile) {
+    userService.setUserProfile(
+        USER_PROFILE_SPEND_CHOICE_PATH, new AnyObject().value(spendProfile), email);
+  }
+
+  /**
+   * Get the default spend profile in the User Manager profile. Must be SAM admin to supply an
+   * email.
+   */
+  public String getDefaultSpendProfile(@Nullable String email) {
+    return (String) userService.getUserProfile(USER_PROFILE_SPEND_CHOICE_PATH, email).getValue();
   }
 
   /**

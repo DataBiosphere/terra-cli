@@ -1,10 +1,12 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.service.SpendProfileManagerService;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
@@ -32,13 +34,19 @@ public class Create extends BaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
+    String spendProfile =
+        Context.getServer().getUserManagerUri() != null
+            ? SpendProfileManagerService.fromContext().getDefaultSpendProfile(null)
+            : "wm-default-spend-profile";
+
     Workspace workspace =
         Workspace.create(
             id,
             CloudPlatform.GCP, // Currently only GCP is supported
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
-            workspaceProperties);
+            workspaceProperties,
+            spendProfile);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 

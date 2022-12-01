@@ -10,6 +10,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.service.SpendProfileManagerService;
 import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceCloneDetails;
@@ -36,9 +37,17 @@ public class Clone extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace sourceWorkspace = Context.requireWorkspace();
 
+    String spendProfile =
+        Context.getServer().getUserManagerUri() != null
+            ? SpendProfileManagerService.fromContext().getDefaultSpendProfile(null)
+            : "wm-default-spend-profile";
+
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(
-            id, workspaceNameAndDescription.name, workspaceNameAndDescription.description);
+            id,
+            workspaceNameAndDescription.name,
+            workspaceNameAndDescription.description,
+            spendProfile);
     Workspace destinationWorkspaceHydrated =
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 

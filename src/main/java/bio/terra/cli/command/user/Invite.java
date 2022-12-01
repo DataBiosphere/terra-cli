@@ -1,5 +1,6 @@
 package bio.terra.cli.command.user;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.SpendProfileUser;
 import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -36,6 +37,11 @@ public class Invite extends BaseCommand {
               spendProfileOption.spendProfile);
       OUT.println("User enabled on the spend profile.");
       new UFSpendProfileUser(spendProfileUser).print();
+
+      if (Context.getServer().getUserManagerUri() != null) {
+        SpendProfileManagerService.fromContext()
+            .setDefaultSpendProfile(email, spendProfileOption.spendProfile);
+      }
     }
   }
 }
