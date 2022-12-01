@@ -11,7 +11,7 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra notebook stop" command. */
 @CommandLine.Command(
     name = "stop",
-    description = "Stop a running GCP Notebook instance within your workspace.",
+    description = "Stop a running Notebook instance within your workspace.",
     showDefaultValues = true)
 public class Stop extends BaseCommand {
   @CommandLine.Mixin NotebookInstance instanceOption;

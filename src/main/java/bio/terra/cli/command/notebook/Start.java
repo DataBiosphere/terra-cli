@@ -12,7 +12,7 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra notebook start" command. */
 @CommandLine.Command(
     name = "start",
-    description = "Start a stopped GCP Notebook instance within your workspace.",
+    description = "Start a stopped Notebook instance within your workspace.",
     showDefaultValues = true)
 public class Start extends BaseCommand {
   @CommandLine.Mixin NotebookInstance instanceOption;
