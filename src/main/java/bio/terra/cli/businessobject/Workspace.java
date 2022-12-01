@@ -61,6 +61,8 @@ public class Workspace {
   private OffsetDateTime createdDate;
   private OffsetDateTime lastUpdatedDate;
 
+  private String spendProfile;
+
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.uuid = wsmObject.getId();
@@ -80,6 +82,7 @@ public class Workspace {
     this.resources = new ArrayList<>();
     this.createdDate = wsmObject.getCreatedDate();
     this.lastUpdatedDate = wsmObject.getLastUpdatedDate();
+    this.spendProfile = wsmObject.getSpendProfile();
   }
 
   /** Build an instance of this class from the serialized format on disk. */
@@ -99,6 +102,7 @@ public class Workspace {
             .collect(Collectors.toList());
     this.createdDate = configFromDisk.createdDate;
     this.lastUpdatedDate = configFromDisk.lastUpdatedDate;
+    this.spendProfile = configFromDisk.spendProfile;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -459,5 +463,9 @@ public class Workspace {
 
   public OffsetDateTime getLastUpdatedDate() {
     return lastUpdatedDate;
+  }
+
+  public String getSpendProfile() {
+    return spendProfile;
   }
 }

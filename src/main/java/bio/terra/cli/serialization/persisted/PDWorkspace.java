@@ -32,6 +32,7 @@ public class PDWorkspace {
   public final List<PDResource> resources;
   public final OffsetDateTime createdDate;
   public final OffsetDateTime lastUpdatedDate;
+  public final String spendProfile;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
@@ -50,6 +51,7 @@ public class PDWorkspace {
             .collect(Collectors.toList());
     this.createdDate = internalObj.getCreatedDate();
     this.lastUpdatedDate = internalObj.getLastUpdatedDate();
+    this.spendProfile = internalObj.getSpendProfile();
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
@@ -65,6 +67,7 @@ public class PDWorkspace {
     this.resources = builder.resources;
     this.createdDate = builder.createdDate;
     this.lastUpdatedDate = builder.lastUpdatedDate;
+    this.spendProfile = builder.spendProfile;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -81,6 +84,7 @@ public class PDWorkspace {
     private List<PDResource> resources;
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
+    private String spendProfile;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -142,6 +146,11 @@ public class PDWorkspace {
 
     public Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
       this.lastUpdatedDate = lastUpdatedDate;
+      return this;
+    }
+
+    public Builder spendProfile(String spendProfile) {
+      this.spendProfile = spendProfile;
       return this;
     }
 
