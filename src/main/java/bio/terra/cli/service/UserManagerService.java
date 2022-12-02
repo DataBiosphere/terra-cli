@@ -79,8 +79,7 @@ public class UserManagerService {
    * @param anyObject the value to set
    * @param email user profile to target (admin only)
    */
-  private AnyObject setUserProfile(
-      String path, @Nullable AnyObject anyObject, @Nullable String email) {
+  private AnyObject setUserProfile(String path, AnyObject anyObject, @Nullable String email) {
     ProfileApi profileApi = new ProfileApi(apiClient);
     return callWithRetries(
         () -> profileApi.setUserProfile(anyObject, path, email), "Failed to set user profile");
