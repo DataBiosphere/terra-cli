@@ -62,7 +62,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     logger.debug("[COMMAND RUN] terra " + String.join(" ", Main.getArgList()));
     execute();
 
-    //     optionally check if this version of the CLI is out of date
+    // optionally check if this version of the CLI is out of date
     if (VersionCheckUtils.isObsolete()) {
       ERR.printf(
           "Warning: Version %s of the CLI has expired. Functionality may not work as expected. To install the latest version: curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash ./terra\n"

@@ -72,7 +72,7 @@ public class Server {
   /** Return an instance of this class with default values. */
   public Server() {
     this(fromJsonFile(DEFAULT_SERVER_FILENAME));
-  } // TODO-Dex
+  }
 
   /** Return an instance of this class from the given server name. */
   public static Server get(String name) {
@@ -124,6 +124,9 @@ public class Server {
             "Server file ({}) not found in resource directory, now trying as absolute path.",
             fileName);
         server = JacksonMapper.readFileIntoJavaObject(new File(fileName), PDServer.class);
+
+        // third set up completion candidates for the command line
+        // TODO-Dex
       }
     } catch (IOException ioEx) {
       throw new SystemException("Error reading in server file: " + fileName, ioEx);

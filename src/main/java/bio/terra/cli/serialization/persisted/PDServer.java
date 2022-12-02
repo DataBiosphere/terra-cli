@@ -26,7 +26,6 @@ public class PDServer {
   public final String dataRepoUri;
   public final String externalCredsUri;
   public final boolean supportsIdToken;
-  // public final String supportedCloudPlatforms;
   public final List<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the disk format. */
