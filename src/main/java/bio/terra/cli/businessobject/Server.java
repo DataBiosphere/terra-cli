@@ -15,7 +15,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,18 +127,18 @@ public class Server {
             "Server file ({}) not found in resource directory, now trying as absolute path.",
             fileName);
         server = JacksonMapper.readFileIntoJavaObject(new File(fileName), PDServer.class);
-
-        // third set up completion candidates for the command line
-        // TODO-Dex
       }
     } catch (IOException ioEx) {
-      throw new SystemException("Error reading in server file: " + fileName, ioEx);
+      throw new SystemException("Error reading server file: " + fileName, ioEx);
     }
 
     logger.debug(
         "TEST--> server: {}, SupportedCloudPlatforms: {}",
         server.name,
         server.supportedCloudPlatforms);
+
+    // third set up completion candidates for the command line
+    CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
 
     return server;
   }
@@ -234,5 +237,19 @@ public class Server {
 
   public List<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
+  }
+
+  public static class CloudPlatformCandidates implements Iterable<String> {
+    static java.util.List<String> supportedCloudPlatforms = new ArrayList<>();
+
+    public static void setSupportedCloudPlatforms(List<CloudPlatform> cloudPlatforms) {
+      supportedCloudPlatforms =
+          cloudPlatforms.stream().map(Objects::toString).collect(Collectors.toList());
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+      return supportedCloudPlatforms.iterator();
+    }
   }
 }

@@ -13,6 +13,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 /**
  * Internal representation of the current context or state. This class maintains singleton instances
@@ -28,6 +29,8 @@ public class Context {
   private static final String CONTEXT_DIRNAME = ".terra";
   private static final String CONTEXT_FILENAME = "context.json";
   private static final String LOG_FILENAME = "terra.log";
+  // reference to command object that initialized this context
+  private static CommandLine currentCmd;
   // singleton objects that define the current context or state
   private static Config currentConfig;
   private static Server currentServer;
@@ -163,11 +166,26 @@ public class Context {
 
   // ====================================================
   // Singleton get/setters.
+  public static CommandLine getCommandLine() {
+    if (currentCmd == null) {
+      throw new SystemException("Command not set.");
+    }
+    return currentCmd;
+  }
+
+  public static void setCommandLine(CommandLine cmd) {
+    currentCmd = cmd;
+  }
+
   public static Config getConfig() {
     if (currentConfig == null) {
       throw new SystemException("Config not initialized.");
     }
     return currentConfig;
+  }
+
+  public static boolean isSetServer() {
+    return currentServer != null;
   }
 
   public static Server getServer() {
