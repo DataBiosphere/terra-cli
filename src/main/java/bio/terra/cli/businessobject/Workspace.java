@@ -112,7 +112,7 @@ public class Workspace {
       String name,
       String description,
       Map<String, String> properties,
-      @Nullable String spendProfile) {
+      String spendProfile) {
 
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
@@ -358,7 +358,7 @@ public class Workspace {
       String userFacingId,
       @Nullable String name,
       @Nullable String description,
-      @Nullable String spendProfile) {
+      String spendProfile) {
 
     CloneWorkspaceResult result =
         WorkspaceManagerService.fromContext()

@@ -10,7 +10,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.cli.service.SpendProfileManagerService;
+import bio.terra.cli.service.UserManagerService;
 import bio.terra.workspace.model.CloneResourceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.ResourceCloneDetails;
@@ -37,10 +37,7 @@ public class Clone extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace sourceWorkspace = Context.requireWorkspace();
 
-    String spendProfile =
-        Context.getServer().getUserManagerUri() != null
-            ? SpendProfileManagerService.fromContext().getDefaultSpendProfile(null)
-            : null;
+    String spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
 
     ClonedWorkspace clonedWorkspace =
         sourceWorkspace.clone(

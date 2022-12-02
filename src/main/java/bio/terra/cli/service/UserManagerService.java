@@ -9,9 +9,9 @@ import bio.terra.user.api.PublicApi;
 import bio.terra.user.client.ApiClient;
 import bio.terra.user.client.ApiException;
 import bio.terra.user.model.AnyObject;
-import bio.terra.user.model.VersionProperties;
 import com.google.auth.oauth2.AccessToken;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
@@ -19,13 +19,15 @@ import org.slf4j.LoggerFactory;
 
 /** Utility methods for calling User Manager endpoints. */
 public class UserManagerService {
-  private static final Logger logger = LoggerFactory.getLogger(DataRepoService.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserManagerService.class);
   // the client object used for talking to User Manager
   private final ApiClient apiClient;
 
+  public static final String SPEND_PROFILE_PATH = "spend_profile";
+
   /**
-   * Constructor for class that talks to User Manager. If the user is null, only unauthenticated
-   * endpoints can be called.
+   * Constructor for class that talks to User Manager. If the accessToken is null, only
+   * unauthenticated endpoints can be called.
    */
   private UserManagerService(@Nullable AccessToken accessToken, Server server) {
     this.apiClient = new ApiClient();
@@ -48,21 +50,6 @@ public class UserManagerService {
     return new UserManagerService(null, server);
   }
 
-  /**
-   * Call the User Manager "/version" endpoint to get the version of the server that is currently
-   * running.
-   *
-   * @return the User Manager VersionProperties object
-   */
-  public VersionProperties getVersion() {
-    PublicApi publicApi = new PublicApi(apiClient);
-    try {
-      return publicApi.serviceVersion();
-    } catch (ApiException ex) {
-      throw new SystemException("Error getting User Manager version", ex);
-    }
-  }
-
   /** Call the User Manager "/status" endpoint to get the status of the server. */
   public void getStatus() {
     PublicApi publicApi = new PublicApi(apiClient);
@@ -79,7 +66,7 @@ public class UserManagerService {
    * @param path the path in the profile object
    * @param email user profile to target (admin only)
    */
-  public AnyObject getUserProfile(@Nullable String path, @Nullable String email) {
+  private AnyObject getUserProfile(@Nullable String path, @Nullable String email) {
     ProfileApi profileApi = new ProfileApi(apiClient);
     return callWithRetries(
         () -> profileApi.getUserProfile(path, email), "Failed to get user profile");
@@ -92,11 +79,30 @@ public class UserManagerService {
    * @param anyObject the value to set
    * @param email user profile to target (admin only)
    */
-  public AnyObject setUserProfile(
+  private AnyObject setUserProfile(
       String path, @Nullable AnyObject anyObject, @Nullable String email) {
     ProfileApi profileApi = new ProfileApi(apiClient);
     return callWithRetries(
         () -> profileApi.setUserProfile(anyObject, path, email), "Failed to set user profile");
+  }
+
+  /** Set the default spend profile in the User Manager profile. Caller must be SAM admin. */
+  public void setDefaultSpendProfile(String email, String spendProfile) {
+    setUserProfile(SPEND_PROFILE_PATH, new AnyObject().value(spendProfile), email);
+  }
+
+  /**
+   * Get the default spend profile in the User Manager profile. Must be SAM admin to supply an
+   * email.
+   */
+  public String getDefaultSpendProfile(@Nullable String email) {
+    if (Context.getServer().getUserManagerUri() == null) {
+      return Server.DEFAULT_SPEND_PROFILE;
+    }
+
+    return ObjectUtils.firstNonNull(
+        (String) getUserProfile(SPEND_PROFILE_PATH, email).getValue(),
+        Server.DEFAULT_SPEND_PROFILE);
   }
 
   /**

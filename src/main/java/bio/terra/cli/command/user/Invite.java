@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.TerraUser;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService;
+import bio.terra.cli.service.UserManagerService;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -39,7 +40,7 @@ public class Invite extends BaseCommand {
       new UFSpendProfileUser(spendProfileUser).print();
 
       if (Context.getServer().getUserManagerUri() != null) {
-        SpendProfileManagerService.fromContext()
+        UserManagerService.fromContext()
             .setDefaultSpendProfile(email, spendProfileOption.spendProfile);
       }
     }

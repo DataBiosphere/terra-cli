@@ -18,7 +18,7 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
-import bio.terra.cli.service.SpendProfileManagerService;
+import bio.terra.cli.service.UserManagerService;
 import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -121,60 +121,60 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace create uses spend profile stored in user manager")
-  void workspaceCreateWithUserManager() throws IOException {
+  void create_spendProfileFromUserManager() throws IOException {
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
-    // use the spend owner account
+    // Use the spend owner account
     TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();
 
-    // set the default in the user manager
-    SpendProfileManagerService.fromContext().setDefaultSpendProfile(null, "wm-alt-spend-profile");
+    // Set the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, "wm-alt-spend-profile");
 
-    // create the workspace using the spend profile
+    // Create the workspace using the spend profile
     WorkspaceUtils.createWorkspace(spendProfileOwner);
-
-    // remove the default in the user manager
-    SpendProfileManagerService.fromContext().setDefaultSpendProfile(null, null);
 
     // `terra workspace describe --format=json`
     UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
-    // check if the spend profile on the workspace is correct
+    // Check if the spend profile on the workspace is correct
     assertEquals(
         describedWorkspace.spendProfile,
         "wm-alt-spend-profile",
         "workspace spend profile is the selected default");
+
+    // Remove the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, /*spendProfile=*/ null);
   }
 
   @Test
   @DisplayName("workspace clone uses spend profile stored in user manager")
-  void workspaceCloneWithUserManager() throws IOException {
+  void clone_spendProfileFromUserManager() throws IOException {
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
-    // use the spend owner account
+    // Use the spend owner account
     TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
     spendProfileOwner.login();
 
-    // create a workspace without a chosne default
+    // Create a workspace without a chosen default
     UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(spendProfileOwner);
 
-    // check that the workspace is the WSM default
+    // Check that the workspace is the WSM default
     assertEquals(
         createdWorkspace.spendProfile,
         Server.DEFAULT_SPEND_PROFILE,
         "workspace spend profile is the WSM default");
 
-    // set the default in the user manager
-    SpendProfileManagerService.fromContext().setDefaultSpendProfile(null, "wm-alt-spend-profile");
+    // Set the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, "wm-alt-spend-profile");
 
-    // clone the workspace using the spend profile
+    // Clone the workspace using the spend profile
     TestCommand.runCommandExpectSuccess(
         "workspace", "clone", "--new-id=" + createdWorkspace.id + "-clone");
-
-    // remove the default in the user manager
-    SpendProfileManagerService.fromContext().setDefaultSpendProfile(null, null);
 
     // `terra workspace describe --workspace=cloneid --format=json`
     UFWorkspace describedWorkspace =
@@ -184,11 +184,15 @@ public class Workspace extends ClearContextUnit {
             "describe",
             "--workspace=" + createdWorkspace.id + "-clone");
 
-    // check if the spend profile on the workspace is correct
+    // Check if the spend profile on the workspace is correct
     assertEquals(
         describedWorkspace.spendProfile,
         "wm-alt-spend-profile",
         "workspace spend profile is the selected default");
+
+    // Remove the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, /*spendProfile=*/ null);
   }
 
   @Test
