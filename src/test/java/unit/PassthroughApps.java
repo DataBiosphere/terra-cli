@@ -454,13 +454,13 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         CoreMatchers.containsString(workspace2.googleProjectId));
 
     String gitResourceName = createAGitRepoReferenceByCallingWsmEndpoint();
-    TestCommand.Result gitCommand =
-        TestCommand.runCommand("app", "execute", "echo", "$TERRA_" + gitResourceName);
+    TestCommand.Result gitCommand = TestCommand.runCommand("app", "execute", "env", "list");
 
     // check that the google cloud project id matches workspace 2
     assertThat(
         gitCommand.stdOut,
-        CoreMatchers.containsString("https://github.com/DataBiosphere/terra.git"));
+        CoreMatchers.containsString(
+            "TERRA_" + gitResourceName + "=" + "https://github.com/DataBiosphere/terra.git"));
   }
 
   /** This is to re-create a scenario when a resource is created through UI. */
