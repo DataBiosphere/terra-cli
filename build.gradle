@@ -90,7 +90,6 @@ dependencies {
 
     // Swagger deps
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
-    implementation 'com.flagsmith:flagsmith-java-client:5.1.1'
 
     // Test deps
     testImplementation platform('org.junit:junit-bom:5.9.0')
