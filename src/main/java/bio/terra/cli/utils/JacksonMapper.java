@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 public class JacksonMapper {
   private static final Logger logger = LoggerFactory.getLogger(JacksonMapper.class);
-
   private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */

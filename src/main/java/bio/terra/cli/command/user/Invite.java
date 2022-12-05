@@ -11,6 +11,7 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra user invite" command. */
 @Command(name = "invite", description = "Invite a new user.")
 public class Invite extends BaseCommand {
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
 
   @CommandLine.Option(names = "--email", required = true, description = "User email.")
   private String email;
@@ -29,8 +30,11 @@ public class Invite extends BaseCommand {
 
     if (enableSpend) {
       SpendProfileUser spendProfileUser =
-          SpendProfileUser.enable(email, SpendProfileManagerService.SpendProfilePolicy.USER);
-      OUT.println("User enabled on the default spend profile.");
+          SpendProfileUser.enable(
+              email,
+              SpendProfileManagerService.SpendProfilePolicy.USER,
+              spendProfileOption.spendProfile);
+      OUT.println("User enabled on the spend profile.");
       new UFSpendProfileUser(spendProfileUser).print();
     }
   }

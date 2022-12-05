@@ -85,7 +85,6 @@ public class UFGcsObject extends UFResource {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
-
     private String bucketName;
     private String contentType;
     private String objectName;

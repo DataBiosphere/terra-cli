@@ -20,7 +20,6 @@ import picocli.CommandLine.Command;
 @Command(name = "list-users", description = "List the users in a group.")
 public class ListUsers extends BaseCommand {
   @CommandLine.Mixin GroupName groupNameOption;
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */

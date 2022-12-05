@@ -12,7 +12,6 @@ import picocli.CommandLine.Command;
     description = "Authorize the CLI to access Terra APIs and data with user credentials.",
     showDefaultValues = true)
 public class Login extends BaseCommand {
-
   @CommandLine.Option(
       names = "--mode",
       description = "Set the log in mode: ${COMPLETION-CANDIDATES}. Default to BROWSER",

@@ -20,7 +20,6 @@ import picocli.CommandLine.Command;
     description = "Call gcloud in the Terra workspace.",
     modelTransformer = Gcloud.SubCmdFilter.class)
 public class Gcloud extends ToolCommand {
-
   static class SubCmdFilter implements CommandLine.IModelTransformer {
     public CommandLine.Model.CommandSpec transform(CommandLine.Model.CommandSpec commandSpec) {
       try {

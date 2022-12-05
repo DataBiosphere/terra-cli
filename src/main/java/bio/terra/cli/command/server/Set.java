@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra server set" command. */
 @Command(name = "set", description = "Set the Terra server to connect to.")
 public class Set extends BaseCommand {
-
   @CommandLine.Mixin ConfirmationPrompt confirmationPromptOption;
 
   @CommandLine.Option(

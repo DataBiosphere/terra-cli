@@ -13,7 +13,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class WorkspaceOverride {
-
   @CommandLine.Option(
       names = "--workspace",
       description = "Workspace id to use for this command only.")

@@ -2,6 +2,7 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -35,6 +36,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.id = builder.id;
     this.name = builder.name;
     this.description = builder.description;
+    this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -58,6 +60,7 @@ public class UFWorkspace extends UFWorkspaceLight {
     private String id;
     private String name;
     private String description;
+    private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String serverName;
     private String userEmail;
@@ -81,6 +84,11 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder description(String description) {
       this.description = description;
+      return this;
+    }
+
+    public Builder cloudPlatform(CloudPlatform cloudPlatform) {
+      this.cloudPlatform = cloudPlatform;
       return this;
     }
 

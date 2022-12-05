@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config get server" command. */
 @Command(name = "server", description = "Get the Terra server the CLI connects to.")
 public class Server extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */

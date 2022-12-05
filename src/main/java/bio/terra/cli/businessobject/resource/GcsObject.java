@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GcsObject extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcsObject.class);
-
   private String bucketName;
   private String objectName;
 
@@ -113,15 +112,15 @@ public class GcsObject extends Resource {
 
   /** Resolve a GCS bucket object resource to its cloud identifier. */
   public String resolve() {
-    return resolve(/*includePrefix=*/ true);
+    return resolve(/*includeUrlPrefix=*/ true);
   }
 
   /**
    * Resolve a GCS bucket object resource to its cloud identifier. Optionally include the 'gs://'
    * prefix.
    */
-  public String resolve(boolean includePrefix) {
-    return includePrefix
+  public String resolve(boolean includeUrlPrefix) {
+    return includeUrlPrefix
         ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + objectName
         : bucketName + "/" + objectName;
   }

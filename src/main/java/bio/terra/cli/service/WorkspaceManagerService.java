@@ -421,6 +421,7 @@ public class WorkspaceManagerService {
    */
   public WorkspaceDescription createWorkspace(
       String userFacingId,
+      CloudPlatform cloudPlatform,
       @Nullable String name,
       @Nullable String description,
       @Nullable Map<String, String> properties) {
@@ -446,7 +447,7 @@ public class WorkspaceManagerService {
           // create the Google project that backs the Terra workspace object
           UUID jobId = UUID.randomUUID();
           CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
-          cloudContextRequest.setCloudPlatform(CloudPlatform.GCP);
+          cloudContextRequest.setCloudPlatform(cloudPlatform);
           cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
 
           // make the initial create context request

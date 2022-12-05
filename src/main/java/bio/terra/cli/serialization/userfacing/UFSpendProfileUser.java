@@ -22,16 +22,19 @@ import java.util.List;
 public class UFSpendProfileUser {
   public final String email;
   public final List<SpendProfilePolicy> policies;
+  public final String spendProfile;
 
   public UFSpendProfileUser(SpendProfileUser internalObj) {
     this.email = internalObj.getEmail();
     this.policies = internalObj.getPolicies();
+    this.spendProfile = internalObj.getSpendProfile();
   }
 
   /** Constructor for Jackson deserialization during testing. */
   private UFSpendProfileUser(Builder builder) {
     this.email = builder.email;
     this.policies = builder.policies;
+    this.spendProfile = builder.spendProfile;
   }
 
   /** Print out this object in text format. */
@@ -40,13 +43,14 @@ public class UFSpendProfileUser {
     List<String> policiesStr =
         UserIO.sortAndMap(
             policies, Comparator.comparing(SpendProfilePolicy::name), SpendProfilePolicy::toString);
-    OUT.println(email + ": " + String.join(", ", policiesStr));
+    OUT.println(email + ": " + spendProfile + "(" + String.join(", ", policiesStr) + ")");
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private String email;
     private List<SpendProfilePolicy> policies;
+    private String spendProfile;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -58,6 +62,11 @@ public class UFSpendProfileUser {
 
     public Builder policies(List<SpendProfilePolicy> policies) {
       this.policies = policies;
+      return this;
+    }
+
+    public Builder spendProfile(String spendProfile) {
+      this.spendProfile = spendProfile;
       return this;
     }
 

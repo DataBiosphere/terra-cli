@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GcpNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
-
   private String projectId;
   private String instanceId;
   private String location;
@@ -127,8 +126,8 @@ public class GcpNotebook extends Resource {
     InstanceName instanceName =
         InstanceName.builder()
             .projectId(projectId)
-            .location(location)
             .instanceId(instanceId)
+            .location(location)
             .build();
     GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
     try {

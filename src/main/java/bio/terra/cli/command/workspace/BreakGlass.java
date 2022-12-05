@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
@@ -32,12 +32,13 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace break-glass" command. */
 @Command(name = "break-glass", description = "Grant break-glass access to a workspace user.")
-public class BreakGlass extends BaseCommand {
+public class BreakGlass extends WsmBaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(BreakGlass.class);
   // pointers to the central BQ dataset where break-glass requests are logged
   // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
   private static String BQ_DATASET_NAME = "break_glass_requests";
   private static String BQ_TABLE_NAME = "requests";
+
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   @CommandLine.Option(
