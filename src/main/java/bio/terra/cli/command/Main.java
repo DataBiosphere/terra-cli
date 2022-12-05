@@ -46,7 +46,8 @@ import picocli.CommandLine.ParseResult;
       Status.class,
       User.class,
       Version.class,
-      Workspace.class
+      Workspace.class,
+      Flag.class
     },
     description = "Terra CLI")
 public class Main implements Runnable {
