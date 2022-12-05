@@ -15,7 +15,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class NotebookInstance {
-
   @CommandLine.Option(
       names = "--location",
       defaultValue = "us-central1-a",

@@ -11,11 +11,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra spend list-users" command. */
-@Command(
-    name = "list-users",
-    description = "List the users enabled on the Workspace Manager default spend profile.")
+@Command(name = "list-users", description = "List the users enabled on a spend profile.")
 public class ListUsers extends BaseCommand {
-
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */
@@ -25,12 +23,12 @@ public class ListUsers extends BaseCommand {
     }
   }
 
-  /** List all users that have access to the WSM default spend profile. */
+  /** List all users that have access to a spend profile. */
   @Override
   protected void execute() {
     formatOption.printReturnValue(
         UserIO.sortAndMap(
-            SpendProfileUser.list(),
+            SpendProfileUser.list(spendProfileOption.spendProfile),
             Comparator.comparing(SpendProfileUser::getEmail),
             UFSpendProfileUser::new),
         ListUsers::printText);

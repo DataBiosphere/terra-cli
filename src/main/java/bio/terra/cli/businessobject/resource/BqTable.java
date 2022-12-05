@@ -19,9 +19,7 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class BqTable extends Resource {
-
   private static final Logger logger = LoggerFactory.getLogger(BqTable.class);
-
   private String projectId;
   private String datasetId;
   private String dataTableId;

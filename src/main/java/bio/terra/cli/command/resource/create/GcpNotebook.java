@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -18,17 +18,14 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "gcp-notebook",
     description =
-        "Add a controlled GCP notebook instance resource.\n"
+        "Add a controlled GCP notebook instance.\n"
             + "For a detailed explanation of some parameters, see https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances#Instance.",
     showDefaultValues = true,
     sortOptions = false)
-public class GcpNotebook extends BaseCommand {
-
+public class GcpNotebook extends WsmBaseCommand {
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
 
-  // Use CreateResource instead of createControlledResource because only private notebooks are
-  // supported and we don't want to provide options that are not useful.
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
@@ -81,7 +78,8 @@ public class GcpNotebook extends BaseCommand {
   @CommandLine.Option(
       names = "--machine-type",
       defaultValue = "n1-standard-4",
-      description = "The Compute Engine machine type of this instance.")
+      description =
+          "The Compute Engine machine type of this instance (https://cloud.google.com/compute/docs/general-purpose-machines).")
   private String machineType;
 
   @CommandLine.Option(
@@ -114,6 +112,7 @@ public class GcpNotebook extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
     // build the resource object to create. force the resource to be private
     CreateResourceParams.Builder createResourceParams =
         controlledResourceCreationOptions

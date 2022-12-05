@@ -9,7 +9,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the fourth-level "terra config get image" command. */
 @Command(name = "image", description = "Get the Docker image used for launching applications.")
 public class Image extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Return the docker image id property of the global context. */

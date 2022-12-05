@@ -11,7 +11,6 @@ import picocli.CommandLine.Command;
 /** This class corresponds to the third-level "terra app list" command. */
 @Command(name = "list", description = "List the supported applications.")
 public class List extends BaseCommand {
-
   @CommandLine.Mixin Format formatOption;
 
   /** Print this command's output in text format. */

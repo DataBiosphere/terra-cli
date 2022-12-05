@@ -1,7 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import picocli.CommandLine;
@@ -9,7 +9,7 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace set" command. */
 @Command(name = "set", description = "Set the workspace to an existing one.")
-public class Set extends BaseCommand {
+public class Set extends WsmBaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(names = "--id", required = true, description = "Workspace id.")

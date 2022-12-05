@@ -3,14 +3,13 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +20,7 @@ import picocli.CommandLine;
     name = "gcs-object",
     description = "Update a GCS bucket object.",
     showDefaultValues = true)
-public class GcsObject extends BaseCommand {
+public class GcsObject extends WsmBaseCommand {
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -85,16 +84,15 @@ public class GcsObject extends BaseCommand {
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Resource.Type.GCS_OBJECT);
 
-    UpdateResourceParams updateResourceParams =
-        resourceUpdateOptions.populateMetadataFields().build();
     UpdateReferencedGcsObjectParams gcsObjectParams =
         new UpdateReferencedGcsObjectParams.Builder()
-            .resourceFields(updateResourceParams)
+            .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
             .bucketName(newBucketName)
             .objectName(newObjectName)
             .cloningInstructions(newCloningInstructionsOption.getCloning())
             .build();
     resource.updateReferenced(gcsObjectParams);
+
     // re-load the resource so we display all properties with up-to-date values
     resource =
         Context.requireWorkspace().getResource(resource.getName()).castToType(Type.GCS_OBJECT);

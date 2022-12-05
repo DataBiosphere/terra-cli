@@ -13,7 +13,6 @@ import picocli.CommandLine.Command;
     description =
         "[FOR DEBUG] Execute a command in the application container for the Terra workspace, with no setup.")
 public class Execute extends BaseCommand {
-
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   @CommandLine.Parameters(
