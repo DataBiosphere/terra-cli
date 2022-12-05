@@ -21,68 +21,83 @@ public class SpendProfileUser {
   private static final Logger logger = LoggerFactory.getLogger(SpendProfileUser.class);
   private String email;
   private List<SpendProfilePolicy> policies;
+  private String spendProfile;
 
-  private SpendProfileUser(String email, List<SpendProfilePolicy> policies) {
+  private SpendProfileUser(String email, List<SpendProfilePolicy> policies, String spendProfile) {
     this.email = email;
     this.policies = policies;
+    this.spendProfile = spendProfile;
   }
 
   /**
-   * Enable a user on the default WSM spend profile.
+   * Enable a user on a spend profile.
    *
    * @param email email of the user to add
    * @param policy policy to assign the user
+   * @param spendProfile name of the spend profile
    */
-  public static SpendProfileUser enable(String email, SpendProfilePolicy policy) {
-    // call SAM to add a policy + email to the WSM default spend profile resource
-    SpendProfileManagerService.fromContext().enableUserForDefaultSpendProfile(policy, email);
-    logger.info("Enabled user on spend profile: email={}, policy={}", email, policy);
+  public static SpendProfileUser enable(
+      String email, SpendProfilePolicy policy, String spendProfile) {
+    // call SAM to add a policy + email to a spend profile resource
+    SpendProfileManagerService.fromContext().enableUserForSpendProfile(policy, email, spendProfile);
+    logger.info(
+        "Enabled user on spend profile: email={}, policy={}, spendProfile={}",
+        email,
+        policy,
+        spendProfile);
 
     // return a SpendProfileUser = email + all policies (not just the one that was added here)
-    return getUser(email);
+    return getUser(email, spendProfile);
   }
 
   /**
-   * Disable a user on the default WSM spend profile.
+   * Disable a user on a spend profile.
    *
    * @param email email of the user to remove
    * @param policy policy to remove from the user
+   * @param spendProfile name of the spend profile
    */
-  public static SpendProfileUser disable(String email, SpendProfilePolicy policy) {
-    // call SAM to remove a policy + email from the WSM default spend profile resource
-    SpendProfileManagerService.fromContext().disableUserForDefaultSpendProfile(policy, email);
-    logger.info("Disabled user on spend profile: email={}, policy={}", email, policy);
+  public static SpendProfileUser disable(
+      String email, SpendProfilePolicy policy, String spendProfile) {
+    // call SAM to remove a policy + email from a spend profile resource
+    SpendProfileManagerService.fromContext()
+        .disableUserForSpendProfile(policy, email, spendProfile);
+    logger.info(
+        "Disabled user on spend profile: email={}, policy={}, spendProfile={}",
+        email,
+        policy,
+        spendProfile);
 
     // return a SpendProfileUser = email + all policies (not just the one that was removed here)
-    return getUser(email);
+    return getUser(email, spendProfile);
   }
 
   /** Get the spend profile user object. */
-  private static SpendProfileUser getUser(String email) {
+  private static SpendProfileUser getUser(String email, String spendProfile) {
     // lowercase the email so there is a consistent way of looking up the email address
     // the email address casing in SAM may not match the case of what is provided by the user
-    return listUsersInMap().get(email.toLowerCase());
+    return listUsersInMap(spendProfile).get(email.toLowerCase());
   }
 
   /**
-   * List the users of the default WSM spend profile.
+   * List the users of a spend profile.
    *
+   * @param spendProfile name of the spend profile
    * @return a list of spend profile users
    */
-  public static List<SpendProfileUser> list() {
-    return listUsersInMap().values().stream().collect(Collectors.toList());
+  public static List<SpendProfileUser> list(String spendProfile) {
+    return listUsersInMap(spendProfile).values().stream().collect(Collectors.toList());
   }
 
   /**
-   * Get the users of the default WSM spend profile in a map, to make it easy to lookup a particular
-   * user.
+   * Get the users of as pend profile in a map, to make it easy to lookup a particular user.
    *
    * @return a map of email -> spend profile user object
    */
-  private static Map<String, SpendProfileUser> listUsersInMap() {
-    // call SAM to get the users + policies for the WSM default spend profile resource
+  private static Map<String, SpendProfileUser> listUsersInMap(String spendProfile) {
+    // call SAM to get the users + policies for a profile resource
     List<AccessPolicyResponseEntry> accessPolicies =
-        SpendProfileManagerService.fromContext().listUsersOfDefaultSpendProfile();
+        SpendProfileManagerService.fromContext().listUsersOfSpendProfile(spendProfile);
 
     // convert the SAM objects (policy -> list of emails) to CLI objects (email -> list of policies)
     Map<String, SpendProfileUser> spendProfileUsers = new HashMap<>();
@@ -97,7 +112,8 @@ public class SpendProfileUser {
             String emailLowercase = email.toLowerCase();
             SpendProfileUser spendProfileUser = spendProfileUsers.get(emailLowercase);
             if (spendProfileUser == null) {
-              spendProfileUser = new SpendProfileUser(emailLowercase, new ArrayList<>());
+              spendProfileUser =
+                  new SpendProfileUser(emailLowercase, new ArrayList<>(), spendProfile);
               spendProfileUsers.put(emailLowercase, spendProfileUser);
             }
             spendProfileUser.policies.add(spendPolicy);
@@ -115,5 +131,9 @@ public class SpendProfileUser {
 
   public List<SpendProfilePolicy> getPolicies() {
     return policies;
+  }
+
+  public String getSpendProfile() {
+    return spendProfile;
   }
 }
