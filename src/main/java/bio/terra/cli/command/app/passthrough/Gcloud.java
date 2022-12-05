@@ -4,9 +4,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import com.flagsmith.FlagsmithClient;
-import com.flagsmith.exceptions.FlagsmithApiError;
-import com.flagsmith.models.Flags;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -20,22 +17,14 @@ import picocli.CommandLine.Command;
     description = "Call gcloud in the Terra workspace.",
     modelTransformer = Gcloud.SubCmdFilter.class)
 public class Gcloud extends ToolCommand {
+
   static class SubCmdFilter implements CommandLine.IModelTransformer {
     public CommandLine.Model.CommandSpec transform(CommandLine.Model.CommandSpec commandSpec) {
       try {
-        FlagsmithClient flagsmith =
-            FlagsmithClient.newBuilder().setApiKey("38bPsuqpMxsKU33QshiHSx").build();
-
-        Flags flags = flagsmith.getEnvironmentFlags();
-
         if (!Context.getServer().getCloudBuildEnabled()) {
-          // && !flags.isFeatureEnabled("terra__cloud_build_enabled")) {
           commandSpec.removeSubcommand("--gcs-bucket-resource");
         }
       } catch (SystemException e) {
-        return commandSpec;
-      } catch (FlagsmithApiError e) {
-        commandSpec.removeSubcommand("--gcs-bucket-resource");
         return commandSpec;
       }
       return commandSpec;
