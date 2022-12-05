@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource.update;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -18,7 +18,7 @@ import picocli.CommandLine;
     name = "git-repo",
     description = "Update a Git Repo.",
     showDefaultValues = true)
-public class GitRepo extends BaseCommand {
+public class GitRepo extends WsmBaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin CloningInstructionsForUpdate newCloningInstructionsOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
