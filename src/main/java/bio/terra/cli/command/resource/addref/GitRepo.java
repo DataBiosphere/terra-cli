@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.addref;
 
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -14,7 +14,7 @@ import picocli.CommandLine;
     name = "git-repo",
     description = "Add a referenced git repository.",
     showDefaultValues = true)
-public class GitRepo extends BaseCommand {
+public class GitRepo extends WsmBaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

@@ -1,7 +1,7 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace describe" command. */
 @Command(name = "describe", description = "Describe the workspace.", showDefaultValues = true)
-public class Describe extends BaseCommand {
+public class Describe extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 

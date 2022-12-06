@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -20,7 +20,7 @@ import picocli.CommandLine.Command;
 
 /** This corresponds to the third-level "terra workspace clone" command. */
 @Command(name = "clone", description = "Clone an existing workspace.")
-public class Clone extends BaseCommand {
+public class Clone extends WsmBaseCommand {
   @CommandLine.Option(names = "--new-id", required = true, description = "ID for new workspace")
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace clone`
   private String id;
