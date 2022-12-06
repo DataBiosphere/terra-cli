@@ -460,7 +460,10 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     assertThat(
         gitCommand.stdOut,
         CoreMatchers.containsString(
-            "TERRA_" + gitResourceName + "=" + "https://github.com/DataBiosphere/terra.git"));
+            "TERRA_"
+                + gitResourceName.replace("-", "_")
+                + "="
+                + "https://github.com/DataBiosphere/terra.git"));
   }
 
   /** This is to re-create a scenario when a resource is created through UI. */
