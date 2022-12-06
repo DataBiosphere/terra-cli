@@ -454,7 +454,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         CoreMatchers.containsString(workspace2.googleProjectId));
 
     String gitResourceName = createAGitRepoReferenceByCallingWsmEndpoint();
-    TestCommand.Result gitCommand = TestCommand.runCommand("app", "execute", "env", "list");
+    TestCommand.Result gitCommand = TestCommand.runCommand("app", "execute", "env");
 
     // check that the google cloud project id matches workspace 2
     assertThat(
