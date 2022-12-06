@@ -23,12 +23,16 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
-  private String instanceId;
-  private String location;
+  private final String awsAccountNumber;
+  private final String landingZoneId;
+  private final String instanceId;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsNotebook(PDAwsNotebook configFromDisk) {
     super(configFromDisk);
+    this.awsAccountNumber = configFromDisk.awsAccountNumber;
+    this.landingZoneId = configFromDisk.landingZoneId;
     this.instanceId = configFromDisk.instanceId;
     this.location = configFromDisk.location;
   }
@@ -37,7 +41,9 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.instanceId = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceId();
+    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString();
+    this.instanceId = wsmObject.getMetadata().getResourceId().toString();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
 
@@ -45,6 +51,8 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(AwsSageMakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
+    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString();
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getRegion();
   }
@@ -133,6 +141,14 @@ public class AwsNotebook extends Resource {
 
   // ====================================================
   // Property getters.
+
+  public String getAwsAccountNumber() {
+    return awsAccountNumber;
+  }
+
+  public String getLandingZoneId() {
+    return landingZoneId;
+  }
 
   public String getInstanceId() {
     return instanceId;

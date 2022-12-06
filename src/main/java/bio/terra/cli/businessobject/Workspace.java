@@ -47,8 +47,8 @@ public class Workspace {
   private final String description;
   private final CloudPlatform cloudPlatform;
   private final String googleProjectId;
-  private String awsAccountNumber;
-  private String landingZoneId;
+  private final String awsAccountNumber;
+  private final String landingZoneId;
   private final Map<String, String> properties;
   private final String serverName; // name of the server where this workspace exists
   private final String userEmail; // email of the user that loaded the workspace to this machine
