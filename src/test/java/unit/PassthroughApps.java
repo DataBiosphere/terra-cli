@@ -5,8 +5,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
+import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.workspace.model.CloudPlatform;
+import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.CloningInstructionsEnum;
+import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
@@ -275,12 +280,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "git-repo",
         "--name=" + resource1Name,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "add-ref",
-        "git-repo",
-        "--name=" + resource2Name,
-        "--repo-url=https://github.com/DataBiosphere/terra.git");
+    String resource2Name = createAGitRepoReferenceByCallingWsmEndpoint();
 
     // `terra git clone --all`
     TestCommand.runCommandExpectSuccess("git", "clone", "--all");
@@ -454,5 +454,37 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "gcloud project = workspace2's project",
         cmd.stdOut,
         CoreMatchers.containsString(workspace2.googleProjectId));
+
+    String gitResourceName = createAGitRepoReferenceByCallingWsmEndpoint();
+    TestCommand.Result gitCommand = TestCommand.runCommand("app", "execute", "env");
+
+    assertThat(
+        gitCommand.stdOut,
+        CoreMatchers.containsString(
+            "TERRA_"
+                + gitResourceName.replace("-", "_")
+                + "="
+                + "https://github.com/DataBiosphere/terra.git"));
+  }
+
+  /** This is to re-create a scenario when a resource is created through UI. */
+  private String createAGitRepoReferenceByCallingWsmEndpoint() {
+    String gitResourceName = TestUtils.appendRandomNumber("git-referenced-url");
+    UUID workspaceUuid =
+        WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(getUserFacingId()).getId();
+    WorkspaceManagerService.fromContext()
+        .createReferencedGitRepo(
+            workspaceUuid,
+            new AddGitRepoParams.Builder()
+                .gitRepoUrl("https://github.com/DataBiosphere/terra.git")
+                .resourceFields(
+                    new CreateResourceParams.Builder()
+                        .name(gitResourceName)
+                        .description("This is a referenced resource created through UI")
+                        .cloningInstructions(CloningInstructionsEnum.REFERENCE)
+                        .stewardshipType(StewardshipType.REFERENCED)
+                        .build())
+                .build());
+    return gitResourceName;
   }
 }
