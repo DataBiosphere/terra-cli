@@ -91,19 +91,11 @@ public class Main implements Runnable {
 
     // store a reference to command in the context, used to control options at runtime
     Context.setCommandLine(cmd);
+    // configSubcommands(cmd);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     int exitCode = cmd.execute(args);
 
-    configSubcommands(cmd);
-    if (args.length == 0) {
-      cmd.usage(cmd.getOut());
-    }
-
-    return exitCode;
-  }
-
-  private static void configSubcommands(CommandLine cmd) {
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
     // Terra CLI, we want to pass those through to the app instead
@@ -113,30 +105,46 @@ public class Main implements Runnable {
     subcommands.get("nextflow").setStopAtPositional(true);
     subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);
 
-    // logger.debug("TEST--> in function 3");
+    if (args.length == 0) {
+      cmd.usage(cmd.getOut());
+    }
+
+    return exitCode;
+  }
+
+  private static void configSubcommands2(CommandLine cmd) {
+    Map<String, CommandLine> subcommands = cmd.getSubcommands();
 
     CommandSpec workspaceCreateSpec =
         subcommands.get("workspace").getSubcommands().get("create").getCommandSpec();
     OptionSpec platformSpec = workspaceCreateSpec.findOption("--platform");
+
     java.util.List<CloudPlatform> supportedCloudPlatforms =
         Context.isSetServer() ? Context.getServer().getSupportedCloudPlatforms() : null;
     try {
-      if (Context.isSetServer() && supportedCloudPlatforms != null) {
-        logger.debug("TEST--> in function 3 - " + supportedCloudPlatforms.size());
-        throw new Exception("dex test - " + supportedCloudPlatforms.size());
-      }
+      throw new Exception("TEST--> in function 3 - " + supportedCloudPlatforms.size());
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     boolean hidePlatform = supportedCloudPlatforms == null || supportedCloudPlatforms.size() < 2;
+
     if (platformSpec.hidden() != hidePlatform) {
-      logger.debug("TEST--> in function 4a - " + platformSpec.hidden());
+      try {
+        throw new Exception("TEST--> in function 4a - " + platformSpec.hidden());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
       OptionSpec newPlatformSpec = OptionSpec.builder(platformSpec).hidden(hidePlatform).build();
       workspaceCreateSpec.remove(platformSpec);
       workspaceCreateSpec.addOption(newPlatformSpec);
-      logger.debug(
-          "TEST--> in function 4b - " + workspaceCreateSpec.findOption("--platform").hidden());
+      try {
+        throw new Exception(
+            "TEST--> in function 4b - " + workspaceCreateSpec.findOption("--platform").hidden());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 
