@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
@@ -35,6 +36,8 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
+    CommandUtils.checkPlatformSupport(cloudPlatform);
+
     Workspace workspace =
         Workspace.create(
             id,
