@@ -269,7 +269,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
     String resource1Name = TestUtils.appendRandomNumber("repo1");
-    String resource2Name = TestUtils.appendRandomNumber("repo1");
 
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
     // `terra workspace set --id=$id`

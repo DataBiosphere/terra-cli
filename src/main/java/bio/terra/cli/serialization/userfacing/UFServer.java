@@ -6,7 +6,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.List;
+import java.util.Set;
 
 /**
  * External representation of a server for command input/output.
@@ -25,7 +25,7 @@ public class UFServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final boolean supportsIdToken;
-  public List<CloudPlatform> supportedCloudPlatforms;
+  public Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {
@@ -69,7 +69,7 @@ public class UFServer {
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
     private boolean supportsIdToken;
-    private List<CloudPlatform> supportedCloudPlatforms;
+    private Set<CloudPlatform> supportedCloudPlatforms;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -114,7 +114,7 @@ public class UFServer {
       return this;
     }
 
-    public Builder supportedCloudPlatforms(List<CloudPlatform> supportedCloudPlatforms) {
+    public Builder supportedCloudPlatforms(Set<CloudPlatform> supportedCloudPlatforms) {
       this.supportedCloudPlatforms = supportedCloudPlatforms;
       return this;
     }

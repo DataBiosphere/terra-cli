@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class Server {
   // Terra services in the service instance are configured to accept JWT ID tokens for
   // authentication.
   private final boolean supportsIdToken;
-  private final List<CloudPlatform> supportedCloudPlatforms;
+  private final Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
@@ -225,7 +226,7 @@ public class Server {
     return supportsIdToken;
   }
 
-  public List<CloudPlatform> getSupportedCloudPlatforms() {
+  public Set<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
   }
 }

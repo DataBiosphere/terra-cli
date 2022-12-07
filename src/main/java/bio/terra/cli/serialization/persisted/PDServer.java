@@ -4,7 +4,7 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.List;
+import java.util.Set;
 
 /**
  * External representation of a server for writing to disk.
@@ -26,7 +26,7 @@ public class PDServer {
   public final String dataRepoUri;
   public final String externalCredsUri;
   public final boolean supportsIdToken;
-  public final List<CloudPlatform> supportedCloudPlatforms;
+  public final Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -72,7 +72,7 @@ public class PDServer {
     private String dataRepoUri;
     private String externalCredsUri;
     private boolean supportsIdToken;
-    private List<CloudPlatform> supportedCloudPlatforms;
+    private Set<CloudPlatform> supportedCloudPlatforms;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -132,7 +132,7 @@ public class PDServer {
       return this;
     }
 
-    public Builder supportedCloudPlatforms(List<CloudPlatform> supportedCloudPlatforms) {
+    public Builder supportedCloudPlatforms(Set<CloudPlatform> supportedCloudPlatforms) {
       this.supportedCloudPlatforms = supportedCloudPlatforms;
       return this;
     }
