@@ -43,7 +43,6 @@ public class UFWorkspace extends UFWorkspaceLight {
     this.properties = builder.properties;
     this.createdDate = builder.createdDate;
     this.lastUpdatedDate = builder.lastUpdatedDate;
-    this.spendProfile = builder.spendProfile;
     this.numResources = builder.numResources;
   }
 
@@ -68,7 +67,6 @@ public class UFWorkspace extends UFWorkspaceLight {
     private Map<String, String> properties;
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
-    private String spendProfile;
     private long numResources;
 
     /** Default constructor for Jackson. */
@@ -121,11 +119,6 @@ public class UFWorkspace extends UFWorkspaceLight {
 
     public Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
       this.lastUpdatedDate = lastUpdatedDate;
-      return this;
-    }
-
-    public Builder spendProfile(String spendProfile) {
-      this.spendProfile = spendProfile;
       return this;
     }
 

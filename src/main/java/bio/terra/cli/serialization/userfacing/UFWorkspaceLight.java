@@ -23,7 +23,6 @@ public class UFWorkspaceLight {
   public String userEmail;
   public OffsetDateTime createdDate;
   public OffsetDateTime lastUpdatedDate;
-  public String spendProfile;
 
   /**
    * It's expected that the workspace passed into this constructor does not have its resources
@@ -42,7 +41,6 @@ public class UFWorkspaceLight {
     this.userEmail = internalObj.getUserEmail();
     this.createdDate = internalObj.getCreatedDate();
     this.lastUpdatedDate = internalObj.getLastUpdatedDate();
-    this.spendProfile = internalObj.getSpendProfile();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -57,7 +55,6 @@ public class UFWorkspaceLight {
     this.userEmail = builder.userEmail;
     this.createdDate = builder.createdDate;
     this.lastUpdatedDate = builder.lastUpdatedDate;
-    this.spendProfile = builder.spendProfile;
   }
 
   /** Default constructor for subclass Builder constructor */
@@ -72,7 +69,6 @@ public class UFWorkspaceLight {
     this.userEmail = null;
     this.createdDate = null;
     this.lastUpdatedDate = null;
-    this.spendProfile = null;
   }
 
   /** Print out a workspace object in text format. */
@@ -96,10 +92,6 @@ public class UFWorkspaceLight {
     properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println("Created:           " + createdDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
     OUT.println("Last updated:      " + lastUpdatedDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
-    if (spendProfile == null) {
-      return;
-    }
-    OUT.println("Spend profile:     " + spendProfile);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -116,7 +108,6 @@ public class UFWorkspaceLight {
     private String userEmail;
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
-    private String spendProfile;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -168,11 +159,6 @@ public class UFWorkspaceLight {
 
     public UFWorkspaceLight.Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
       this.lastUpdatedDate = lastUpdatedDate;
-      return this;
-    }
-
-    public UFWorkspaceLight.Builder spendProfile(String spendProfile) {
-      this.spendProfile = spendProfile;
       return this;
     }
 
