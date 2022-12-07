@@ -86,16 +86,6 @@ public class Main implements Runnable {
     // codebase without passing them around
     UserIO.setupPrinting(cmd);
 
-    // store a reference to command in the context, used to control options at runtime
-    Context.setCommandLine(cmd);
-    // configSubcommands(cmd);
-    // configSubcommands2(cmd);
-
-    // delegate to the appropriate command class, or print the usage if no command was specified
-    int exitCode = cmd.execute(args);
-
-    // CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
-
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
     // Terra CLI, we want to pass those through to the app instead
@@ -105,56 +95,14 @@ public class Main implements Runnable {
     subcommands.get("nextflow").setStopAtPositional(true);
     subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);
 
-    /* TODO: issue:
-    Help text is build before server is set up and hence static.
-    Similar issue is seen if -- server is switched; aws options should not be visible if the server does not support AWS
-    Fix - dynamically update th help
-
-    This is more complicated and will be handled separately
-     */
-
+    // delegate to the appropriate command class, or print the usage if no command was specified
+    int exitCode = cmd.execute(args);
     if (args.length == 0) {
       cmd.usage(cmd.getOut());
     }
 
     return exitCode;
   }
-
-  /*
-
-    OptionSpec platformSpec = workspaceCreateSpec.findOption("--platform");
-
-
-
-    java.util.List<CloudPlatform> supportedCloudPlatforms =
-        Context.isSetServer() ? Context.getServer().getSupportedCloudPlatforms() : null;
-    try {
-      throw new Exception("TEST--> in function 3 - " + supportedCloudPlatforms.size());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    boolean hidePlatform = supportedCloudPlatforms == null || supportedCloudPlatforms.size() < 2;
-
-    if (platformSpec.hidden() != hidePlatform) {
-      try {
-        throw new Exception("TEST--> in function 4a - " + platformSpec.hidden());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-
-      OptionSpec newPlatformSpec = OptionSpec.builder(platformSpec).hidden(hidePlatform).build();
-      workspaceCreateSpec.remove(platformSpec);
-      workspaceCreateSpec.addOption(newPlatformSpec);
-      try {
-        throw new Exception(
-            "TEST--> in function 4b - " + workspaceCreateSpec.findOption("--platform").hidden());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-  }
-  */
 
   /**
    * Main entry point into the CLI application. This creates and executes the top-level command,

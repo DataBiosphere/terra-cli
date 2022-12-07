@@ -129,14 +129,6 @@ public class Server {
       throw new SystemException("Error reading server file: " + fileName, ioEx);
     }
 
-    logger.debug(
-        "TEST--> server: {}, SupportedCloudPlatforms: {}",
-        server.name,
-        server.supportedCloudPlatforms);
-
-    // third set up completion candidates for the command line
-    // CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
-
     return server;
   }
 
@@ -236,21 +228,4 @@ public class Server {
   public List<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
   }
-
-  /*
-  public static class CloudPlatformCandidates implements Iterable<String> {
-    static java.util.List<String> supportedCloudPlatforms = new ArrayList<>();
-
-    public static void setSupportedCloudPlatforms(List<CloudPlatform> cloudPlatforms) {
-      supportedCloudPlatforms =
-          cloudPlatforms.stream().map(Objects::toString).collect(Collectors.toList());
-    }
-
-    @Override
-    public Iterator<String> iterator() {
-      return supportedCloudPlatforms.iterator();
-    }
-  }
-
-   */
 }

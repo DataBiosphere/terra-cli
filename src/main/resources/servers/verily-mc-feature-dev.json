@@ -8,5 +8,5 @@
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-mc-feature-dev-ecm.api.verily.com",
   "supportsIdToken": true,
-  "supportedCloudPlatforms": ["GCP", "AZURE"]
+  "supportedCloudPlatforms": ["GCP", "AWS"]
 }
