@@ -440,6 +440,7 @@ public class Workspace {
     return userEmail;
   }
 
+  /** Calls listResourceAndSync instead if you care about the freshness of the resource list. */
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
   }

@@ -139,7 +139,7 @@ public abstract class CommandRunner {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
     Context.requireWorkspace()
-        .getResources()
+        .listResourcesAndSync()
         .forEach(
             resource -> {
               String envVariable = convertToEnvironmentVariable(resource.getName());
