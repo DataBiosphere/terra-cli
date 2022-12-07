@@ -1,11 +1,11 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.businessobject.Server.CloudPlatformCandidates;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.CloudPlatformCandidates1;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
@@ -30,7 +30,7 @@ public class Create extends WsmBaseCommand {
 
   @CommandLine.Option(
       names = "--platform",
-      completionCandidates = CloudPlatformCandidates.class,
+      completionCandidates = CloudPlatformCandidates1.class,
       description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
   private CloudPlatform cloudPlatform;
 

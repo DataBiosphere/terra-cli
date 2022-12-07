@@ -135,7 +135,7 @@ public class Server {
         server.supportedCloudPlatforms);
 
     // third set up completion candidates for the command line
-    CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
+    // CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
 
     return server;
   }
@@ -237,6 +237,7 @@ public class Server {
     return supportedCloudPlatforms;
   }
 
+  /*
   public static class CloudPlatformCandidates implements Iterable<String> {
     static java.util.List<String> supportedCloudPlatforms = new ArrayList<>();
 
@@ -250,4 +251,6 @@ public class Server {
       return supportedCloudPlatforms.iterator();
     }
   }
+
+   */
 }

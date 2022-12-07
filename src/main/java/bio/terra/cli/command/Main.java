@@ -10,7 +10,6 @@ import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.CloudPlatform;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +19,6 @@ import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Model.OptionSpec;
 import picocli.CommandLine.ParseResult;
 
 /**
@@ -92,9 +89,12 @@ public class Main implements Runnable {
     // store a reference to command in the context, used to control options at runtime
     Context.setCommandLine(cmd);
     // configSubcommands(cmd);
+    // configSubcommands2(cmd);
 
     // delegate to the appropriate command class, or print the usage if no command was specified
     int exitCode = cmd.execute(args);
+
+    // CloudPlatformCandidates.setSupportedCloudPlatforms(server.supportedCloudPlatforms);
 
     // allow mixing options and parameters for all commands except the pass-through app commands.
     // this is because any options that follow the app command name should NOT be interpreted by the
@@ -105,6 +105,14 @@ public class Main implements Runnable {
     subcommands.get("nextflow").setStopAtPositional(true);
     subcommands.get("app").getSubcommands().get("execute").setStopAtPositional(true);
 
+    /* TODO: issue:
+    Help text is build before server is set up and hence static.
+    Similar issue is seen if -- server is switched; aws options should not be visible if the server does not support AWS
+    Fix - dynamically update th help
+
+    This is more complicated and will be handled separately
+     */
+
     if (args.length == 0) {
       cmd.usage(cmd.getOut());
     }
@@ -112,12 +120,11 @@ public class Main implements Runnable {
     return exitCode;
   }
 
-  private static void configSubcommands2(CommandLine cmd) {
-    Map<String, CommandLine> subcommands = cmd.getSubcommands();
+  /*
 
-    CommandSpec workspaceCreateSpec =
-        subcommands.get("workspace").getSubcommands().get("create").getCommandSpec();
     OptionSpec platformSpec = workspaceCreateSpec.findOption("--platform");
+
+
 
     java.util.List<CloudPlatform> supportedCloudPlatforms =
         Context.isSetServer() ? Context.getServer().getSupportedCloudPlatforms() : null;
@@ -147,6 +154,7 @@ public class Main implements Runnable {
       }
     }
   }
+  */
 
   /**
    * Main entry point into the CLI application. This creates and executes the top-level command,

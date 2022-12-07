@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.ConfirmationPrompt;
+import bio.terra.cli.utils.CloudPlatformCandidates1;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -44,6 +45,7 @@ public class Set extends BaseCommand {
       Context.setWorkspace(null);
     }
     Context.setServer(newServer);
+    CloudPlatformCandidates1.setSupportedCloudPlatforms(newServer.getSupportedCloudPlatforms());
 
     OUT.println(
         "Terra server is set to "
