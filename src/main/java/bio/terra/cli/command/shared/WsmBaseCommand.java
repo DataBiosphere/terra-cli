@@ -2,6 +2,7 @@ package bio.terra.cli.command.shared;
 
 import bio.terra.cli.app.utils.VersionCheckUtils;
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.utils.Logger;
 import bio.terra.cli.utils.UserIO;
 import java.io.PrintStream;
 
@@ -24,6 +25,8 @@ public abstract class WsmBaseCommand extends BaseCommand {
 
     // read in the global context and setup logging
     Context.initializeFromDisk();
+    Logger.setupLogging(
+        Context.getConfig().getConsoleLoggingLevel(), Context.getConfig().getFileLoggingLevel());
 
     // Check if this version of the CLI is out of date
     if (VersionCheckUtils.isObsolete()) {
