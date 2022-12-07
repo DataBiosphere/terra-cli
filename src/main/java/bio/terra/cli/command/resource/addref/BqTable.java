@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.addref;
 
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetsIds;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
@@ -16,7 +16,7 @@ import picocli.CommandLine;
     name = "bq-table",
     description = "Add a referenced BigQuery Data Table.",
     showDefaultValues = true)
-public class BqTable extends BaseCommand {
+public class BqTable extends WsmBaseCommand {
   @CommandLine.Mixin ReferencedResourceCreation referencedResourceCreationOptions;
   @CommandLine.Mixin BqDatasetsIds bqDatasetsIds;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;

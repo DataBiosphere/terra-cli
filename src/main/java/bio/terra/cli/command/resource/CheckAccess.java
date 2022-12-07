@@ -3,7 +3,7 @@ package bio.terra.cli.command.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -13,7 +13,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "check-access",
     description = "Check if you have access to a referenced resource.")
-public class CheckAccess extends BaseCommand {
+public class CheckAccess extends WsmBaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

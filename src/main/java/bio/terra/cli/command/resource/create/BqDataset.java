@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.BqDatasetLifetime;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
@@ -16,7 +16,7 @@ import picocli.CommandLine;
     name = "bq-dataset",
     description = "Add a controlled BigQuery dataset.",
     showDefaultValues = true)
-public class BqDataset extends BaseCommand {
+public class BqDataset extends WsmBaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin BqDatasetLifetime bqDatasetLifetimeOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
