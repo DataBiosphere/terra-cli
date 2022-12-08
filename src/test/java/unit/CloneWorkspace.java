@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
+
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
   private static final String GIT_REPO_REF_NAME = "gitrepo_ref";
