@@ -48,12 +48,16 @@ public class Workspace {
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
   private Map<String, String> properties;
+
   // name of the server where this workspace exists
   private String serverName;
+
   // email of the user that loaded the workspace to this machine
   private String userEmail;
+
   // list of resources (controlled & referenced)
   private List<Resource> resources;
+
   private OffsetDateTime createdDate;
   private OffsetDateTime lastUpdatedDate;
 
@@ -67,8 +71,9 @@ public class Workspace {
       this.cloudPlatform = CloudPlatform.GCP;
     } else if (wsmObject.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
+      ///
     } else {
-      this.cloudPlatform = null;
+      throw new SystemException("CloudPlatform not initialized.");
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
@@ -276,7 +281,11 @@ public class Workspace {
     return workspace;
   }
 
-  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
+  /**
+   * Enable the current user and their pet to impersonate their pet SA in this workspace.
+   *
+   * @return Email identifier of the pet SA the current user can now actAs.
+   */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -311,8 +320,10 @@ public class Workspace {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    this.resources =
+    List<Resource> resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
+
+    this.resources = resources;
   }
 
   /**

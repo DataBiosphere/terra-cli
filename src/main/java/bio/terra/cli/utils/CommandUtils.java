@@ -9,11 +9,9 @@ public class CommandUtils {
       throws UserActionableException {
     if (!Context.getServer().getSupportedCloudPlatforms().contains(cloudPlatform)) {
       throw new UserActionableException(
-          "CloudPlatform "
+          "Cloud platform "
               + cloudPlatform
-              + " not supported for current user "
-              + Context.getUser().get().getEmail()
-              + " on the current server "
+              + " not supported for server "
               + Context.getServer().getName());
     }
   }
