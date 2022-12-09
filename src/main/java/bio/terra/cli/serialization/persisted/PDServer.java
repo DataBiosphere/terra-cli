@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Server;
 import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -56,7 +57,10 @@ public class PDServer {
     this.dataRepoUri = builder.dataRepoUri;
     this.externalCredsUri = builder.externalCredsUri;
     this.supportsIdToken = builder.supportsIdToken;
-    this.supportedCloudPlatforms = builder.supportedCloudPlatforms;
+    this.supportedCloudPlatforms =
+        builder.supportedCloudPlatforms != null
+            ? builder.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

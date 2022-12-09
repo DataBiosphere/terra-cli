@@ -6,6 +6,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -50,7 +51,10 @@ public class UFServer {
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
     this.supportsIdToken = builder.supportsIdToken;
-    this.supportedCloudPlatforms = builder.supportedCloudPlatforms;
+    this.supportedCloudPlatforms =
+        builder.supportedCloudPlatforms != null
+            ? builder.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   /** Print out this object in text format. */

@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
@@ -67,7 +68,10 @@ public class Server {
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
     this.supportsIdToken = configFromDisk.supportsIdToken;
-    this.supportedCloudPlatforms = configFromDisk.supportedCloudPlatforms;
+    this.supportedCloudPlatforms =
+        configFromDisk.supportedCloudPlatforms != null
+            ? configFromDisk.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   /** Return an instance of this class with default values. */
@@ -228,5 +232,9 @@ public class Server {
 
   public Set<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
+
+    // this.supportedCloudPlatforms = builder.supportedCloudPlatforms != null ?
+    // builder.supportedCloudPlatforms : Collections.EMPTY_SET;
+
   }
 }

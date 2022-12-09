@@ -31,7 +31,8 @@ public class Create extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--platform",
       description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.",
-      defaultValue = "GCP")
+      defaultValue = "GCP",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private CloudPlatform cloudPlatform;
 
   /** Create a new workspace. */
