@@ -313,6 +313,17 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
+  /**
+   * Get a resource by id.
+   *
+   * @throws UserActionableException if there is no resource with that id
+   */
+  public Resource getResource(UUID id) {
+    Optional<Resource> resourceOpt =
+        resources.stream().filter(resource -> resource.id.equals(id)).findFirst();
+    return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
+  }
+
   /** Populate the list of resources for this workspace. Does not sync to disk. */
   private void populateResources() {
     List<ResourceDescription> wsmObjects =

@@ -1,11 +1,14 @@
 package bio.terra.cli.command.notebook;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
+import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook stop" command. */
@@ -20,9 +23,24 @@ public class Stop extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    InstanceName instanceName = instanceOption.toInstanceName();
-    GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
-    notebooks.stop(instanceName);
+    Workspace workspace = Context.requireWorkspace();
+
+    if (workspace.getCloudPlatform() == CloudPlatform.GCP) {
+      InstanceName instanceName = instanceOption.toGcpNotebookInstanceName();
+      GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
+      notebooks.stop(instanceName);
+
+    } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) { // TODO(TERRA-197)
+      AwsNotebookInstanceName instanceName = instanceOption.toAwsNotebookInstanceName();
+      //  AmazonNotebooks notebooks = new
+      // AmazonNotebooks(Context.requireUser().getPetSACredentials());
+      // notebooks.start(AwsNotebookInstanceName);
+
+    } else {
+      throw new UserActionableException(
+          "Notebooks not supported on workspace cloud platform " + workspace.getCloudPlatform());
+    }
+
     OUT.println("Notebook instance stopped");
   }
 }
