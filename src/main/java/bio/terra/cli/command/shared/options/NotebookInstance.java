@@ -9,8 +9,6 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 
-// TODO(TERRA-197)
-
 /**
  * Command helper class for identifying a notebook by either the workspace resource name or the GCP
  * instance name in `terra notebook` commands.
@@ -18,51 +16,51 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class NotebookInstance {
-  @CommandLine.Option(
-      names = "--location",
-      defaultValue = "us-central1-a", // TODO-Dex
-      description = "The Google Cloud location of the instance (if using --instance-id).")
-  public String location;
-
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
 
-  public InstanceName toInstanceName() {
+  public InstanceName toGcpNotebookInstanceName() {
     Workspace workspace = Context.requireWorkspace();
+    Resource resource =
+        (argGroup.resourceName != null)
+            ? workspace.getResource(argGroup.resourceName)
+            : workspace.getResource(argGroup.instanceId);
 
-    if (argGroup.resourceName != null) { // provided resourceName
-      Resource resource = workspace.getResource(argGroup.resourceName);
-      Resource.Type resourceType = resource.getResourceType();
-
-      if (resourceType.equals(Resource.Type.AI_NOTEBOOK)) {
-        GcpNotebook gcpNotebook = (GcpNotebook) resource;
-        return InstanceName.builder()
-            .projectId(gcpNotebook.getProjectId())
-            .location(gcpNotebook.getLocation())
-            .instanceId(gcpNotebook.getInstanceId())
-            .build();
-
-      } else if (resourceType.equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
-
-        AwsNotebook awsNotebook = (AwsNotebook) resource;
-        return InstanceName.builder()
-            //   .projectId(gcpNotebook.getProjectId())
-            .location(awsNotebook.getLocation())
-            .instanceId(awsNotebook.getInstanceId())
-            .build();
-
-      } else {
-        throw new UserActionableException(
-            "Only able to use notebook commands on notebook resources, but specified resource is "
-                + resource.getResourceType());
-      }
-
-    } else { // provided instanceId
+    if (resource.getResourceType().equals(Resource.Type.AI_NOTEBOOK)) {
+      GcpNotebook gcpNotebook = (GcpNotebook) resource;
       return InstanceName.builder()
           .projectId(workspace.getGoogleProjectId())
-          .location(location)
-          .instanceId(argGroup.instanceId)
+          .location(gcpNotebook.getLocation())
+          .instanceId(gcpNotebook.getInstanceId())
           .build();
+
+    } else {
+      throw new UserActionableException(
+          "Only able to use notebook commands on AI Notebook resources, but specified resource is "
+              + resource.getResourceType());
+    }
+  }
+
+  public AwsNotebookInstanceName toAwsNotebookInstanceName() {
+    Workspace workspace = Context.requireWorkspace();
+    Resource resource =
+        (argGroup.resourceName != null)
+            ? workspace.getResource(argGroup.resourceName)
+            : workspace.getResource(argGroup.instanceId);
+
+    if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
+      AwsNotebook awsNotebook = (AwsNotebook) resource;
+      return AwsNotebookInstanceName.builder()
+          .awsAccountNumber(workspace.getAwsAccountNumber())
+          .landingZoneId(workspace.getLandingZoneId())
+          .location(awsNotebook.getLocation())
+          .instanceId(awsNotebook.getInstanceId())
+          .build();
+
+    } else {
+      throw new UserActionableException(
+          "Only able to use notebook commands on SageMaker Notebook resources, but specified resource is "
+              + resource.getResourceType());
     }
   }
 

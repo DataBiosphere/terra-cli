@@ -9,7 +9,6 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookP
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.api.services.notebooks.v1.model.Instance;
@@ -42,7 +41,7 @@ public class AwsNotebook extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
-    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString();
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
     this.instanceId = wsmObject.getMetadata().getResourceId().toString();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
@@ -52,7 +51,7 @@ public class AwsNotebook extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
-    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString();
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getRegion();
   }
@@ -128,8 +127,8 @@ public class AwsNotebook extends Resource {
   /** Query the cloud for information about the notebook VM. */
   public Optional<Instance> getInstance() {
     // TODO(TERRA-225) add AWS Notebook instance
-    InstanceName instanceName =
-        InstanceName.builder().instanceId(instanceId).location(location).build();
+    AwsNotebookInstanceName instanceName =
+        AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
     AmazonNotebooks notebooks = new AmazonNotebooks(Context.requireUser().getPetSACredentials());
     try {
       return Optional.of(notebooks.get(instanceName));
