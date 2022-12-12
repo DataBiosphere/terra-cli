@@ -8,6 +8,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.StewardshipType;
@@ -425,7 +426,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gcloudAppExecute() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`

@@ -23,6 +23,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.workspace.model.CloudPlatform;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
@@ -79,8 +80,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     ExternalBQDatasets.grantReadAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
-    workspace1 = WorkspaceUtils.createWorkspace(workspaceCreator);
-    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    workspace1 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
+    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
   }
 
   /** Delete the two workspaces. */
@@ -337,7 +338,7 @@ public class WorkspaceOverride extends ClearContextUnit {
   void workspace() throws IOException {
     workspaceCreator.login();
 
-    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
 
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
@@ -391,7 +392,7 @@ public class WorkspaceOverride extends ClearContextUnit {
   void matchingCurrentWorkspace() throws IOException {
     workspaceCreator.login();
 
-    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
 
     // `terra workspace set --id=$id3`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace3.id);

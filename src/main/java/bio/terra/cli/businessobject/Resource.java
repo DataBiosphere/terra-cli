@@ -1,5 +1,7 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.AwsBucket;
+import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
@@ -31,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * sub-classes are part of the current context or state.
  */
 public abstract class Resource {
-  // Copied from WSM
+  // Copied from WSM: ResourceType specific validation performed in WSM
   private static final Pattern RESOURCE_NAME_VALIDATION_PATTERN =
       Pattern.compile("^[a-zA-Z0-9][-_a-zA-Z0-9]{0,1023}$");
 
@@ -111,6 +113,10 @@ public abstract class Resource {
         return new GcpNotebook(wsmObject);
       case GIT_REPO:
         return new GitRepo(wsmObject);
+      case AWS_BUCKET:
+        return new AwsBucket(wsmObject);
+      case AWS_SAGEMAKER_NOTEBOOK:
+        return new AwsNotebook(wsmObject);
       default:
         throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     }
@@ -250,6 +256,8 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO;
+    GIT_REPO,
+    AWS_BUCKET,
+    AWS_SAGEMAKER_NOTEBOOK;
   }
 }
