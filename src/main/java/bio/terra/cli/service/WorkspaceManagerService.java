@@ -40,6 +40,8 @@ import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.AwsBucketCreationParameters;
 import bio.terra.workspace.model.AwsBucketResource;
+import bio.terra.workspace.model.AwsCredential;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookCreationParameters;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
@@ -904,6 +906,23 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () -> new ResourceApi(apiClient).checkReferenceAccess(workspaceId, resourceId),
         "Error checking access to resource.");
+  }
+
+  /**
+   * Call the Workspace Manager
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getCredential"
+   * endpoint to get AWS credentials to access the controlled notebook
+   *
+   * @param workspaceId the workspace that contains the resource
+   * @param resourceId the resource id
+   * @param accessScope the access scope (READ_ONLY, WRITE_READ)
+   * @param duration the duration for credential in seconds
+   * @return AWS sagemaker notebook access credentials
+   */
+  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
+    return callWithRetries(
+        () -> new ControlledAwsResourceApi(apiClient).getAwsSageMakerNotebookCredential(workspaceId, resourceId, accessScope, duration),
+        "Error getting AWS SageMaker Notebook credential.");
   }
 
   /**

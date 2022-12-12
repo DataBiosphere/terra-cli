@@ -48,14 +48,12 @@ dependencies {
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mcterra-crl-client-12092022-1'
-/*
-    implementation platform('bio.terra.cloud-resource-lib:platform:mcterra-crl-client-12092022-1')
+    implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
- */
+
 
     // hk2 is required to use WSM client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.36'
