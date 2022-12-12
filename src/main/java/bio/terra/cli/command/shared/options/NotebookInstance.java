@@ -42,7 +42,7 @@ public class NotebookInstance {
     }
   }
 
-  public AwsNotebookInstanceName toAwsNotebookInstanceName() {
+  public AwsNotebook toAwsNotebookResource() {
     Workspace workspace = Context.requireWorkspace();
     Resource resource =
         (argGroup.resourceName != null)
@@ -50,19 +50,22 @@ public class NotebookInstance {
             : workspace.getResource(argGroup.instanceId);
 
     if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
-      AwsNotebook awsNotebook = (AwsNotebook) resource;
-      return AwsNotebookInstanceName.builder()
-          .awsAccountNumber(workspace.getAwsAccountNumber())
-          .landingZoneId(workspace.getLandingZoneId())
-          .location(awsNotebook.getLocation())
-          .instanceId(awsNotebook.getInstanceId())
-          .build();
+      return  (AwsNotebook) resource;
 
     } else {
       throw new UserActionableException(
           "Only able to use notebook commands on SageMaker Notebook resources, but specified resource is "
               + resource.getResourceType());
     }
+  }
+
+  public AwsNotebookInstanceName toAwsNotebookInstanceName(Workspace workspace, AwsNotebook awsNotebook) {
+      return AwsNotebookInstanceName.builder()
+          .awsAccountNumber(workspace.getAwsAccountNumber())
+          .landingZoneId(workspace.getLandingZoneId())
+          .location(awsNotebook.getLocation())
+          .instanceId(awsNotebook.getInstanceId())
+          .build();
   }
 
   static class ArgGroup {

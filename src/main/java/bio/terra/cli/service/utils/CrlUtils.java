@@ -6,6 +6,7 @@ import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
 import bio.terra.cloudres.google.storage.StorageCow;
+import bio.terra.workspace.model.AwsCredential;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
@@ -49,4 +50,14 @@ public class CrlUtils {
       throw new SystemException("Error creating Big Query client.", ex);
     }
   }
+
+
+  public static AIPlatformNotebooksCow createNotebooksCow(AwsCredential awsCredential) { // TODO-Dex
+    try {
+      return AIPlatformNotebooksCow.create(clientConfig, awsCredential);
+    } catch (GeneralSecurityException | IOException e) {
+      throw new SystemException("Error creating notebooks client.", e);
+    }
+  }
+
 }
