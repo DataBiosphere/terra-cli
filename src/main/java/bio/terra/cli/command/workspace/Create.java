@@ -1,10 +1,11 @@
 package bio.terra.cli.command.workspace;
 
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
@@ -12,13 +13,12 @@ import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra workspace create" command. */
 @Command(name = "create", description = "Create a new workspace.")
-public class Create extends BaseCommand {
+public class Create extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceNameAndDescription workspaceNameAndDescription;
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
       names = "--properties",
-      required = false,
       split = ",",
       description =
           "Workspace properties. Example: --properties=key=value. For multiple properties, use \",\": --properties=key1=value1,key2=value2")
@@ -30,16 +30,20 @@ public class Create extends BaseCommand {
 
   @CommandLine.Option(
       names = "--platform",
-      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.")
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.",
+      defaultValue = "GCP",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private CloudPlatform cloudPlatform;
 
   /** Create a new workspace. */
   @Override
   protected void execute() {
+    CommandUtils.checkPlatformSupport(cloudPlatform);
+
     Workspace workspace =
         Workspace.create(
             id,
-            CloudPlatform.GCP, // Currently only GCP is supported
+            cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);

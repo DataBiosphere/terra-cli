@@ -37,10 +37,16 @@ public class Stop extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      AwsNotebookInstanceName instanceName = instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
-      AmazonNotebooks notebooks = new AmazonNotebooks(WorkspaceManagerService.fromContext()
-          .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId(),
-              AwsCredentialAccessScope.READ_ONLY, null));
+      AwsNotebookInstanceName instanceName =
+          instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
+      AmazonNotebooks notebooks =
+          new AmazonNotebooks(
+              WorkspaceManagerService.fromContext()
+                  .getAwsSageMakerNotebookCredential(
+                      workspace.getUuid(),
+                      awsNotebook.getId(),
+                      AwsCredentialAccessScope.READ_ONLY,
+                      null));
       notebooks.stop(instanceName);
 
     } else {

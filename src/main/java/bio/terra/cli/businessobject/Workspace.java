@@ -50,9 +50,12 @@ public class Workspace {
   private final String awsAccountNumber;
   private final String landingZoneId;
   private final Map<String, String> properties;
-  private final String serverName; // name of the server where this workspace exists
-  private final String userEmail; // email of the user that loaded the workspace to this machine
-  private List<Resource> resources; // list of resources (controlled & referenced)
+  // name of the server where this workspace exists
+  private final String serverName;
+  // email of the user that loaded the workspace to this machine
+  private final String userEmail;
+  // list of resources (controlled & referenced)
+  private List<Resource> resources;
   private final OffsetDateTime createdDate;
   private final OffsetDateTime lastUpdatedDate;
 
@@ -69,7 +72,7 @@ public class Workspace {
     } else if (wsmObject.getAwsContext() != null) {
       this.cloudPlatform = CloudPlatform.AWS;
     } else {
-      this.cloudPlatform = null;
+      throw new SystemException("CloudPlatform not initialized.");
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
@@ -458,6 +461,7 @@ public class Workspace {
     return userEmail;
   }
 
+  /** Call listResourceAndSync instead if you care about the freshness of the resource list. */
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
   }

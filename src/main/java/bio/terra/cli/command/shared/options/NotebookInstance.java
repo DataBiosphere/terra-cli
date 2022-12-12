@@ -50,7 +50,7 @@ public class NotebookInstance {
             : workspace.getResource(argGroup.instanceId);
 
     if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
-      return  (AwsNotebook) resource;
+      return (AwsNotebook) resource;
 
     } else {
       throw new UserActionableException(
@@ -59,13 +59,14 @@ public class NotebookInstance {
     }
   }
 
-  public AwsNotebookInstanceName toAwsNotebookInstanceName(Workspace workspace, AwsNotebook awsNotebook) {
-      return AwsNotebookInstanceName.builder()
-          .awsAccountNumber(workspace.getAwsAccountNumber())
-          .landingZoneId(workspace.getLandingZoneId())
-          .location(awsNotebook.getLocation())
-          .instanceId(awsNotebook.getInstanceId())
-          .build();
+  public AwsNotebookInstanceName toAwsNotebookInstanceName(
+      Workspace workspace, AwsNotebook awsNotebook) {
+    return AwsNotebookInstanceName.builder()
+        .awsAccountNumber(workspace.getAwsAccountNumber())
+        .landingZoneId(workspace.getLandingZoneId())
+        .location(awsNotebook.getLocation())
+        .instanceId(awsNotebook.getInstanceId())
+        .build();
   }
 
   static class ArgGroup {

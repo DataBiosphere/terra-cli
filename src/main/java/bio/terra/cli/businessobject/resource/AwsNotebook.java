@@ -3,7 +3,6 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
@@ -14,7 +13,6 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
-import com.google.api.services.notebooks.v1.model.Instance;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,14 +132,13 @@ public class AwsNotebook extends Resource {
         AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
 
     Optional<AwsNotebook> awsNotebook = getResource(instanceId);
-    if (awsNotebook.isPresent()) {
+    if (awsNotebook.isPresent()) {}
 
-
-    }
-
-    AmazonNotebooks notebooks = new AmazonNotebooks(WorkspaceManagerService.fromContext()
-        .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId(),
-            AwsCredentialAccessScope.READ_ONLY));
+    AmazonNotebooks notebooks =
+        new AmazonNotebooks(
+            WorkspaceManagerService.fromContext()
+                .getAwsSageMakerNotebookCredential(
+                    workspace.getUuid(), awsNotebook.getId(), AwsCredentialAccessScope.READ_ONLY));
     try {
       return Optional.of(notebooks.get(instanceName));
     } catch (Exception ex) {
@@ -155,9 +152,10 @@ public class AwsNotebook extends Resource {
     Resource resource = Context.requireWorkspace().getResource(instanceId);
 
     if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
-      return Optional.of((AwsNotebook)resource);
+      return Optional.of((AwsNotebook) resource);
     } else {
-      logger.error("Specified resource is not a SageMaker notebook, but " + resource.getResourceType());
+      logger.error(
+          "Specified resource is not a SageMaker notebook, but " + resource.getResourceType());
       return Optional.empty();
     }
   }

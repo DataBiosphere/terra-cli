@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -14,7 +14,7 @@ import picocli.CommandLine;
     name = "aws-notebook",
     description = "Update the AWS notebook.",
     showDefaultValues = true)
-public class AwsNotebook extends BaseCommand {
+public class AwsNotebook extends WsmBaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

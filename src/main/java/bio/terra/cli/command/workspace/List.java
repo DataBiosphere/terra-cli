@@ -6,7 +6,7 @@ import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.utils.UserIO;
@@ -21,7 +21,7 @@ import picocli.CommandLine.Command;
     name = "list",
     description = "List all workspaces the current user can access.",
     showDefaultValues = true)
-public class List extends BaseCommand {
+public class List extends WsmBaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(

@@ -51,7 +51,6 @@ public class CrlUtils {
     }
   }
 
-
   public static AIPlatformNotebooksCow createNotebooksCow(AwsCredential awsCredential) { // TODO-Dex
     try {
       return AIPlatformNotebooksCow.create(clientConfig, awsCredential);
@@ -59,5 +58,4 @@ public class CrlUtils {
       throw new SystemException("Error creating notebooks client.", e);
     }
   }
-
 }

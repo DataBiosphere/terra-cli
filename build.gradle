@@ -16,7 +16,7 @@ plugins {
 
 // TODO(PF-1981) - Move version to settings.gradle
 // The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.277.0'
+version = '0.284.0'
 group = 'terra-cli'
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
@@ -53,7 +53,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
-    
+
     // hk2 is required to use WSM client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.36'
 
