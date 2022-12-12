@@ -73,6 +73,8 @@ public class Workspace {
       this.cloudPlatform = CloudPlatform.GCP;
     } else if (wsmObject.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
+    } else {
+      throw new SystemException("CloudPlatform not initialized.");
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
@@ -453,6 +455,7 @@ public class Workspace {
     return userEmail;
   }
 
+  /** Calls listResourceAndSync instead if you care about the freshness of the resource list. */
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
   }
