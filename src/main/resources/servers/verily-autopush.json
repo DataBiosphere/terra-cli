@@ -8,5 +8,6 @@
   "workspaceManagerUri": "https://terra-autopush-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-autopush-ecm.api.verily.com",
-  "supportsIdToken": true
+  "supportsIdToken": true,
+  "supportedCloudPlatforms": ["GCP"]
 }

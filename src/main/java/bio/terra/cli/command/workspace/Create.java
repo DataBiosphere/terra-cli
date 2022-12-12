@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
 import picocli.CommandLine;
@@ -18,7 +19,6 @@ public class Create extends WsmBaseCommand {
 
   @CommandLine.Option(
       names = "--properties",
-      required = false,
       split = ",",
       description =
           "Workspace properties. Example: --properties=key=value. For multiple properties, use \",\": --properties=key1=value1,key2=value2")
@@ -28,13 +28,22 @@ public class Create extends WsmBaseCommand {
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace create`
   private String id;
 
+  @CommandLine.Option(
+      names = "--platform",
+      description = "Set the Cloud platform: ${COMPLETION-CANDIDATES}.",
+      defaultValue = "GCP",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+  private CloudPlatform cloudPlatform;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
+    CommandUtils.checkPlatformSupport(cloudPlatform);
+
     Workspace workspace =
         Workspace.create(
             id,
-            CloudPlatform.GCP, // Currently only GCP is supported
+            cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties);

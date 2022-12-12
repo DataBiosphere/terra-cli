@@ -8,13 +8,16 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.datarepo.model.RepositoryStatusModel;
+import bio.terra.workspace.model.CloudPlatform;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.broadinstitute.dsde.workbench.client.sam.model.SystemStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,7 @@ public class Server {
   // Terra services in the service instance are configured to accept JWT ID tokens for
   // authentication.
   private final boolean supportsIdToken;
+  private final Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
@@ -64,6 +68,10 @@ public class Server {
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
     this.supportsIdToken = configFromDisk.supportsIdToken;
+    this.supportedCloudPlatforms =
+        configFromDisk.supportedCloudPlatforms != null
+            ? configFromDisk.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   /** Return an instance of this class with default values. */
@@ -123,7 +131,7 @@ public class Server {
         server = JacksonMapper.readFileIntoJavaObject(new File(fileName), PDServer.class);
       }
     } catch (IOException ioEx) {
-      throw new SystemException("Error reading in server file: " + fileName, ioEx);
+      throw new SystemException("Error reading server file: " + fileName, ioEx);
     }
 
     return server;
@@ -220,5 +228,9 @@ public class Server {
 
   public boolean getSupportsIdToken() {
     return supportsIdToken;
+  }
+
+  public Set<CloudPlatform> getSupportedCloudPlatforms() {
+    return supportedCloudPlatforms;
   }
 }

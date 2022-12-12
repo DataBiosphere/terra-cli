@@ -7,5 +7,6 @@
   "samUri": "https://sam.dsde-dev.broadinstitute.org",
   "workspaceManagerUri": "https://workspace.zloery.integ.envs.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
-  "externalCredsUri": "https://externalcreds.dsde-dev.broadinstitute.org"
+  "externalCredsUri": "https://externalcreds.dsde-dev.broadinstitute.org",
+  "supportedCloudPlatforms": ["GCP"]
 }
