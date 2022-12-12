@@ -1,8 +1,11 @@
 package bio.terra.cli.serialization.persisted;
 
 import bio.terra.cli.businessobject.Server;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * External representation of a server for writing to disk.
@@ -24,6 +27,7 @@ public class PDServer {
   public final String dataRepoUri;
   public final String externalCredsUri;
   public final boolean supportsIdToken;
+  public final Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -38,6 +42,7 @@ public class PDServer {
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.externalCredsUri = internalObj.getExternalCredsUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
+    this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
   }
 
   private PDServer(PDServer.Builder builder) {
@@ -52,6 +57,10 @@ public class PDServer {
     this.dataRepoUri = builder.dataRepoUri;
     this.externalCredsUri = builder.externalCredsUri;
     this.supportsIdToken = builder.supportsIdToken;
+    this.supportedCloudPlatforms =
+        builder.supportedCloudPlatforms != null
+            ? builder.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -67,6 +76,7 @@ public class PDServer {
     private String dataRepoUri;
     private String externalCredsUri;
     private boolean supportsIdToken;
+    private Set<CloudPlatform> supportedCloudPlatforms;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -123,6 +133,11 @@ public class PDServer {
 
     public Builder supportsIdToken(boolean supportsIdToken) {
       this.supportsIdToken = supportsIdToken;
+      return this;
+    }
+
+    public Builder supportedCloudPlatforms(Set<CloudPlatform> supportedCloudPlatforms) {
+      this.supportedCloudPlatforms = supportedCloudPlatforms;
       return this;
     }
 

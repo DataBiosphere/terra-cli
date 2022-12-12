@@ -6,20 +6,24 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the third-level "terra spend disable" command. */
-@Command(
-    name = "disable",
-    description = "Disable use of the Workspace Manager default spend profile for a user or group.")
+@Command(name = "disable", description = "Disable use of a spend profile for a user or group.")
 public class Disable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfileUser spendProfileUserOption;
+  @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
 
-  /** Remove access to the WSM default spend profile for the given email. */
+  /** Remove access to a spend profile for the given email. */
   @Override
   protected void execute() {
-    SpendProfileUser.disable(spendProfileUserOption.email, spendProfileUserOption.policy);
+    SpendProfileUser.disable(
+        spendProfileUserOption.email,
+        spendProfileUserOption.policy,
+        spendProfileOption.spendProfile);
     OUT.println(
         "User ("
             + spendProfileUserOption.email
-            + ") disabled on the default spend profile ("
+            + ") disabled on the ("
+            + spendProfileOption.spendProfile
+            + ") spend profile ("
             + spendProfileUserOption.policy
             + ").");
   }

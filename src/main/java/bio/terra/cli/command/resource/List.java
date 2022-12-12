@@ -6,7 +6,7 @@ import bio.terra.cli.app.utils.tables.ColumnDefinition;
 import bio.terra.cli.app.utils.tables.TablePrinter;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -18,7 +18,7 @@ import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource list" command. */
 @CommandLine.Command(name = "list", description = "List all resources.")
-public class List extends BaseCommand {
+public class List extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
