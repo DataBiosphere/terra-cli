@@ -1,5 +1,6 @@
 package bio.terra.cli.command.notebook;
 
+import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
@@ -32,6 +33,12 @@ public class Start extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) { // TODO(TERRA-197)
       AwsNotebookInstanceName instanceName = instanceOption.toAwsNotebookInstanceName();
+      /*
+      Get AWS Credential from WSM
+      in AWS Util / file,
+
+       */
+
       //  AmazonNotebooks notebooks = new
       // AmazonNotebooks(Context.requireUser().getPetSACredentials());
       // notebooks.start(AwsNotebookInstanceName);

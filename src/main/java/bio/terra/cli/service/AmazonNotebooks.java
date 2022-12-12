@@ -1,5 +1,6 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.CrlUtils;
