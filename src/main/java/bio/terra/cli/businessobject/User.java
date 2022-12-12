@@ -24,8 +24,6 @@ import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO(TERRA-207) add AWS account info - SA scope, proxy
-
 /**
  * Internal representation of a user. An instance of this class is part of the current context or
  * state.
@@ -217,8 +215,6 @@ public class User {
       return;
     }
 
-    // TODO(TERRA-204) get SaEmail for AWS
-
     // ask SAM for the project-specific pet SA email and persist it on disk
     petSAEmail = SamService.forUser(this).getPetSaEmailForProject(googleProjectId);
     Context.setUser(this);
@@ -350,7 +346,6 @@ public class User {
 
   /** Get the access token for the pet SA credentials. */
   public AccessToken getPetSaAccessToken() {
-    // TODO(TERRA-204) get SaToken for AWS
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String accessTokenStr =
         SamService.forUser(this).getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);

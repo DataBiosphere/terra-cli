@@ -144,6 +144,8 @@ public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
+  // default credential expiration duration
+  private static final int DEFAULT_AWS_CREDENTIAL_EXPIRATION_SECONDS = 900;
   // the Terra environment where the WSM service lives
   private final Server server;
   // the client object used for talking to WSM
@@ -919,9 +921,9 @@ public class WorkspaceManagerService {
    * @param duration the duration for credential in seconds
    * @return AWS sagemaker notebook access credentials
    */
-  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
+  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope) {
     return callWithRetries(
-        () -> new ControlledAwsResourceApi(apiClient).getAwsSageMakerNotebookCredential(workspaceId, resourceId, accessScope, duration),
+        () -> new ControlledAwsResourceApi(apiClient).getAwsSageMakerNotebookCredential(workspaceId, resourceId, accessScope, DEFAULT_AWS_CREDENTIAL_EXPIRATION_SECONDS),
         "Error getting AWS SageMaker Notebook credential.");
   }
 

@@ -3,12 +3,16 @@ package bio.terra.cli.command.notebook;
 import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.GoogleNotebooks;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
@@ -31,11 +35,13 @@ public class Stop extends BaseCommand {
       GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
       notebooks.stop(instanceName);
 
-    } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) { // TODO(TERRA-197)
-      AwsNotebookInstanceName instanceName = instanceOption.toAwsNotebookInstanceName();
-      //  AmazonNotebooks notebooks = new
-      // AmazonNotebooks(Context.requireUser().getPetSACredentials());
-      // notebooks.start(AwsNotebookInstanceName);
+    } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
+      AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
+      AwsNotebookInstanceName instanceName = instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
+      AmazonNotebooks notebooks = new AmazonNotebooks(WorkspaceManagerService.fromContext()
+          .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId(),
+              AwsCredentialAccessScope.READ_ONLY, null));
+      notebooks.stop(instanceName);
 
     } else {
       throw new UserActionableException(

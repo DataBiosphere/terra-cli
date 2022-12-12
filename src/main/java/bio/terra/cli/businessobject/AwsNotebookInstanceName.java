@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO-dex move to CRL
+
 /**
  * Convenience class for formatting the project/location/instanceId of a notebooks instance for
  * {@link com.google.api.services.notebooks.v1.AIPlatformNotebooks.Projects.Locations.Instances}.
@@ -12,14 +14,14 @@ import java.util.regex.Pattern;
 @AutoValue
 public abstract class AwsNotebookInstanceName {
   private static final Pattern NAME_PATTERN =
-      Pattern.compile("^projects/([^/]+)/locations/([^/]+)/instances/([^/]+)$");
+      Pattern.compile("^projects/([^/]+)/locations/([^/]+)/instances/([^/]+)$"); // TODO-Dex needed
   private static final Pattern PARENT_PATTERN =
-      Pattern.compile("^projects/([^/]+)/locations/([^/]+)$");
+      Pattern.compile("^projects/([^/]+)/locations/([^/]+)$"); // TODO-Dex needed
 
   /** The AWS Account Number that contains this instance. */
-  public abstract String awsAccountNumber();
+  public abstract String awsAccountNumber(); // TODO-Dex needed
   /** The landing zone id that contains this instance. */
-  public abstract String landingZoneId();
+  public abstract String landingZoneId(); // TODO-Dex needed
   /** The location where the instance is, e.g. "us-west1-b". */
   public abstract String location();
   /** The user specified id for the instance. */
