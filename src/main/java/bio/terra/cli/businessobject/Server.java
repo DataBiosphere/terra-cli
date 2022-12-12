@@ -232,9 +232,5 @@ public class Server {
 
   public Set<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
-
-    // this.supportedCloudPlatforms = builder.supportedCloudPlatforms != null ?
-    // builder.supportedCloudPlatforms : Collections.EMPTY_SET;
-
   }
 }
