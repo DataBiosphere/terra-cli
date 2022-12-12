@@ -10,7 +10,6 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookP
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
 import java.util.Optional;
@@ -127,27 +126,21 @@ public class AwsNotebook extends Resource {
 
   /** Query the cloud for information about the notebook VM. */
   public Optional<AwsNotebookInstanceName> getInstance() {
-    // TODO(TERRA-225) add AWS Notebook instance
-    AwsNotebookInstanceName instanceName =
-        AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
-
     Optional<AwsNotebook> awsNotebook = getResource(instanceId);
-    if (awsNotebook.isPresent()) {}
-
-    AmazonNotebooks notebooks =
-        new AmazonNotebooks(
-            WorkspaceManagerService.fromContext()
-                .getAwsSageMakerNotebookCredential(
-                    workspace.getUuid(), awsNotebook.getId(), AwsCredentialAccessScope.READ_ONLY));
-    try {
+    if (awsNotebook.isPresent()) {
+      AwsNotebookInstanceName instanceName =
+          AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
+      AmazonNotebooks notebooks =
+          new AmazonNotebooks(
+              WorkspaceManagerService.fromContext()
+                  .getAwsSageMakerNotebookCredential(
+                      Context.requireWorkspace().getUuid(), awsNotebook.get().getId()));
       return Optional.of(notebooks.get(instanceName));
-    } catch (Exception ex) {
-      logger.error("Caught exception looking up notebook instance", ex);
-      return Optional.empty();
     }
+    return Optional.empty();
   }
 
-  /** Find the resource from instance id. */
+  /** Find the resource by instance id. */
   public Optional<AwsNotebook> getResource(String instanceId) {
     Resource resource = Context.requireWorkspace().getResource(instanceId);
 

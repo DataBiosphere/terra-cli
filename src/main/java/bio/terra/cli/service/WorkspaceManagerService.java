@@ -917,20 +917,33 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the resource id
+   * @return AWS sagemaker notebook access credentials
+   */
+  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId) {
+    return getAwsSageMakerNotebookCredential(
+        workspaceId,
+        resourceId,
+        AwsCredentialAccessScope.READ_ONLY,
+        DEFAULT_AWS_CREDENTIAL_EXPIRATION_SECONDS);
+  }
+
+  /**
+   * Call the Workspace Manager
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getCredential"
+   * endpoint to get AWS credentials to access the controlled notebook
+   *
+   * @param workspaceId the workspace that contains the resource
+   * @param resourceId the resource id
    * @param accessScope the access scope (READ_ONLY, WRITE_READ)
    * @param duration the duration for credential in seconds
    * @return AWS sagemaker notebook access credentials
    */
   public AwsCredential getAwsSageMakerNotebookCredential(
-      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope) {
+      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
     return callWithRetries(
         () ->
             new ControlledAwsResourceApi(apiClient)
-                .getAwsSageMakerNotebookCredential(
-                    workspaceId,
-                    resourceId,
-                    accessScope,
-                    DEFAULT_AWS_CREDENTIAL_EXPIRATION_SECONDS),
+                .getAwsSageMakerNotebookCredential(workspaceId, resourceId, accessScope, duration),
         "Error getting AWS SageMaker Notebook credential.");
   }
 

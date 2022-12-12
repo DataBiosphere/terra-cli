@@ -10,7 +10,6 @@ import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
 import bio.terra.workspace.model.AwsCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpStatusCodes;
-import com.google.api.services.notebooks.v1.model.Instance;
 import com.google.api.services.notebooks.v1.model.Operation;
 import java.io.IOException;
 import java.time.Duration;
@@ -22,7 +21,7 @@ public class AmazonNotebooks { // TODO(TERRA-197)
     notebooks = CrlUtils.createNotebooksCow(credentials);
   }
 
-  public Instance get(AwsNotebookInstanceName instanceName) {
+  public AwsNotebookInstanceName get(AwsNotebookInstanceName instanceName) {
     try {
       return notebooks.instances().get(String.valueOf(instanceName)).execute();
     } catch (IOException e) {

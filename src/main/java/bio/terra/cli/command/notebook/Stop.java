@@ -12,7 +12,6 @@ import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
-import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
@@ -42,11 +41,7 @@ public class Stop extends BaseCommand {
       AmazonNotebooks notebooks =
           new AmazonNotebooks(
               WorkspaceManagerService.fromContext()
-                  .getAwsSageMakerNotebookCredential(
-                      workspace.getUuid(),
-                      awsNotebook.getId(),
-                      AwsCredentialAccessScope.READ_ONLY,
-                      null));
+                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()));
       notebooks.stop(instanceName);
 
     } else {

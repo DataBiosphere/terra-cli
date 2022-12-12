@@ -34,7 +34,6 @@ public class NotebookInstance {
           .location(gcpNotebook.getLocation())
           .instanceId(gcpNotebook.getInstanceId())
           .build();
-
     } else {
       throw new UserActionableException(
           "Only able to use notebook commands on AI Notebook resources, but specified resource is "
@@ -51,7 +50,6 @@ public class NotebookInstance {
 
     if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
       return (AwsNotebook) resource;
-
     } else {
       throw new UserActionableException(
           "Only able to use notebook commands on SageMaker Notebook resources, but specified resource is "
