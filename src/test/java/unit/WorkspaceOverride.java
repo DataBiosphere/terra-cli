@@ -23,9 +23,14 @@ import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
+import com.google.api.gax.paging.Page;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
@@ -432,6 +437,18 @@ public class WorkspaceOverride extends ClearContextUnit {
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
+
+    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
+    // This is a hack to get around IAM permission delay.
+    Storage localProjectStorageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(workspace2.googleProjectId)
+            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .build()
+            .getService();
+    Page<Bucket> createdBucketOnCloud =
+        CrlUtils.callGcpWithRetries(localProjectStorageClient::list);
+
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`

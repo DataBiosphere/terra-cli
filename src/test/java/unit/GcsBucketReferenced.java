@@ -6,8 +6,10 @@ import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestUser;
@@ -55,6 +57,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     shareeUser.login();
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
+
+    // Poll until the test user can fetch the actual GCS bucket, which may be delayed.
+    Bucket createdBucketOnCloud =
+        CrlUtils.callGcpWithRetries(
+            () ->
+                ExternalGCSBuckets.getStorageClient(
+                        shareeUser.getCredentialsWithCloudPlatformScope())
+                    .get(externalSharedBucket.getName()));
   }
 
   @AfterAll

@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
+import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
@@ -36,7 +40,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("builds submit --gcs-bucket")
-  void build() throws IOException {
+  void build() throws IOException, InterruptedException {
     Server server = Context.getServer();
     if (!server.getCloudBuildEnabled()) {
       return;
@@ -48,8 +52,17 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
     // `terra resource create gcs-bucket --name=$name --format=json`
     String bucketResourceName = "resourceName";
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
+    UFGcsBucket createdBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
+
+    // Poll until the test user can fetch the bucket, which may be delayed.
+    Bucket createdBucketOnCloud =
+        CrlUtils.callGcpWithRetries(
+            () ->
+                ExternalGCSBuckets.getStorageClient(
+                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                    .get(createdBucket.bucketName));
 
     // `builds submit --async --gcs-bucket-resource=bucketName --tag=$tag`
     TestCommand.runCommandExpectSuccess(
