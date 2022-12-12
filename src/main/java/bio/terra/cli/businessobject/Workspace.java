@@ -41,27 +41,23 @@ import org.slf4j.LoggerFactory;
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
-  private UUID uuid;
-  private String userFacingId;
-  private String name; // not unique
-  private String description;
-  private CloudPlatform cloudPlatform;
-  private String googleProjectId;
-  private String awsAccountNumber;
-  private String landingZoneId;
+  private final UUID uuid;
+  private final String userFacingId;
+  private final String name; // not unique
+  private final String description;
+  private final CloudPlatform cloudPlatform;
+  private final String googleProjectId;
+  private final String awsAccountNumber;
+  private final String landingZoneId;
   private Map<String, String> properties;
-
   // name of the server where this workspace exists
-  private String serverName;
-
+  private final String serverName;
   // email of the user that loaded the workspace to this machine
-  private String userEmail;
-
+  private final String userEmail;
   // list of resources (controlled & referenced)
   private List<Resource> resources;
-
-  private OffsetDateTime createdDate;
-  private OffsetDateTime lastUpdatedDate;
+  private final OffsetDateTime createdDate;
+  private final OffsetDateTime lastUpdatedDate;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
@@ -290,11 +286,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -324,12 +316,23 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
+  /**
+   * Get a resource by id.
+   *
+   * @throws UserActionableException if there is no resource with that id
+   */
+  public Resource getResource(UUID id) {
+    Optional<Resource> resourceOpt =
+        resources.stream().filter(resource -> resource.id.equals(id)).findFirst();
+    return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
+  }
+
   /** Populate the list of resources for this workspace. Does not sync to disk. */
   private void populateResources() {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    List<Resource> resources =
+    this.resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
 
     this.resources = resources;

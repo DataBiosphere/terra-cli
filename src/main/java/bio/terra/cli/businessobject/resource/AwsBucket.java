@@ -25,9 +25,9 @@ public class AwsBucket extends Resource {
   // prefix for AWS bucket to make a valid URL.
   protected static final String AWS_BUCKET_URL_PREFIX = "s3://";
   private static final Logger logger = LoggerFactory.getLogger(AwsBucket.class);
-  private String bucketName;
-  private String bucketPrefix;
-  private String location;
+  private final String bucketName;
+  private final String bucketPrefix;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsBucket(PDAwsBucket configFromDisk) {

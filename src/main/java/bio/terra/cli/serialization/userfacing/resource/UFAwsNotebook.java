@@ -16,12 +16,16 @@ import java.io.PrintStream;
  */
 @JsonDeserialize(builder = UFAwsNotebook.Builder.class)
 public class UFAwsNotebook extends UFResource {
+  public final String awsAccountNumber;
+  public final String landingZoneId;
   public final String instanceId;
   public final String location;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFAwsNotebook(AwsNotebook internalObj) {
     super(internalObj);
+    this.awsAccountNumber = internalObj.getAwsAccountNumber();
+    this.landingZoneId = internalObj.getLandingZoneId();
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
   }
@@ -29,6 +33,8 @@ public class UFAwsNotebook extends UFResource {
   /** Constructor for Jackson deserialization during testing. */
   private UFAwsNotebook(Builder builder) {
     super(builder);
+    this.awsAccountNumber = builder.awsAccountNumber;
+    this.landingZoneId = builder.landingZoneId;
     this.instanceId = builder.instanceId;
     this.location = builder.location;
   }
@@ -38,17 +44,31 @@ public class UFAwsNotebook extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
+    OUT.println("AWS account:       " + awsAccountNumber);
+    OUT.println("Landing Zone Id:   " + landingZoneId);
     OUT.println(prefix + "Instance id:   " + instanceId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
+    private String awsAccountNumber;
+    private String landingZoneId;
     private String instanceId;
     private String location;
 
     /** Default constructor for Jackson. */
     public Builder() {}
+
+    public Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
+      return this;
+    }
+
+    public Builder landingZoneId(String landingZoneId) {
+      this.landingZoneId = landingZoneId;
+      return this;
+    }
 
     public Builder instanceId(String instanceId) {
       this.instanceId = instanceId;

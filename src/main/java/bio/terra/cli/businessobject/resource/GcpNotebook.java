@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
  */
 public class GcpNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
-  private String projectId;
-  private String instanceId;
-  private String location;
+  private final String projectId;
+  private final String instanceId;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcpNotebook(PDGcpNotebook configFromDisk) {

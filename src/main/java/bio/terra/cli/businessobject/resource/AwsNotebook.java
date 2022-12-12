@@ -1,7 +1,9 @@
 package bio.terra.cli.businessobject.resource;
 
+import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
@@ -9,7 +11,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookP
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cloudres.google.notebooks.InstanceName;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.api.services.notebooks.v1.model.Instance;
@@ -23,12 +25,16 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
-  private String instanceId;
-  private String location;
+  private final String awsAccountNumber; // TODO-Dex needed?
+  private final String landingZoneId; // TODO-Dex needed?
+  private final String instanceId;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsNotebook(PDAwsNotebook configFromDisk) {
     super(configFromDisk);
+    this.awsAccountNumber = configFromDisk.awsAccountNumber;
+    this.landingZoneId = configFromDisk.landingZoneId;
     this.instanceId = configFromDisk.instanceId;
     this.location = configFromDisk.location;
   }
@@ -37,7 +43,9 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.instanceId = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceId();
+    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
+    this.instanceId = wsmObject.getMetadata().getResourceId().toString();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
 
@@ -45,6 +53,8 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(AwsSageMakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
+    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
+    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getRegion();
   }
@@ -118,11 +128,20 @@ public class AwsNotebook extends Resource {
   }
 
   /** Query the cloud for information about the notebook VM. */
-  public Optional<Instance> getInstance() {
+  public Optional<AwsNotebookInstanceName> getInstance() {
     // TODO(TERRA-225) add AWS Notebook instance
-    InstanceName instanceName =
-        InstanceName.builder().instanceId(instanceId).location(location).build();
-    AmazonNotebooks notebooks = new AmazonNotebooks(Context.requireUser().getPetSACredentials());
+    AwsNotebookInstanceName instanceName =
+        AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
+
+    Optional<AwsNotebook> awsNotebook = getResource(instanceId);
+    if (awsNotebook.isPresent()) {
+
+
+    }
+
+    AmazonNotebooks notebooks = new AmazonNotebooks(WorkspaceManagerService.fromContext()
+        .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId(),
+            AwsCredentialAccessScope.READ_ONLY));
     try {
       return Optional.of(notebooks.get(instanceName));
     } catch (Exception ex) {
@@ -131,8 +150,28 @@ public class AwsNotebook extends Resource {
     }
   }
 
+  /** Find the resource from instance id. */
+  public Optional<AwsNotebook> getResource(String instanceId) {
+    Resource resource = Context.requireWorkspace().getResource(instanceId);
+
+    if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
+      return Optional.of((AwsNotebook)resource);
+    } else {
+      logger.error("Specified resource is not a SageMaker notebook, but " + resource.getResourceType());
+      return Optional.empty();
+    }
+  }
+
   // ====================================================
   // Property getters.
+
+  public String getAwsAccountNumber() {
+    return awsAccountNumber;
+  }
+
+  public String getLandingZoneId() {
+    return landingZoneId;
+  }
 
   public String getInstanceId() {
     return instanceId;

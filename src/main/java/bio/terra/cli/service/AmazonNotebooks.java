@@ -1,38 +1,39 @@
 package bio.terra.cli.service;
 
+import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
-import bio.terra.cloudres.google.notebooks.InstanceName;
+import bio.terra.workspace.model.AwsCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.services.notebooks.v1.model.Instance;
 import com.google.api.services.notebooks.v1.model.Operation;
-import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.time.Duration;
 
 public class AmazonNotebooks { // TODO(TERRA-197)
   private final AIPlatformNotebooksCow notebooks;
 
-  public AmazonNotebooks(GoogleCredentials credentials) {
+  public AmazonNotebooks(AwsCredential credentials) {
     notebooks = CrlUtils.createNotebooksCow(credentials);
   }
 
-  public Instance get(InstanceName instanceName) {
+  public Instance get(AwsNotebookInstanceName instanceName) {
     try {
-      return notebooks.instances().get(instanceName).execute();
+      return notebooks.instances().get(String.valueOf(instanceName)).execute();
     } catch (IOException e) {
       throw new SystemException("Error getting notebook instance", e);
     }
   }
 
-  public void start(InstanceName instanceName) {
+  public void start(AwsNotebookInstanceName instanceName) {
     try {
-      Operation startOperation = notebooks.instances().start(instanceName).execute();
+      Operation startOperation =
+          notebooks.instances().start(String.valueOf(instanceName)).execute();
       pollForSuccess(startOperation, "Error starting notebook instance: ");
     } catch (InterruptedException | IOException e) {
       checkFor409BadState(e);
@@ -40,9 +41,9 @@ public class AmazonNotebooks { // TODO(TERRA-197)
     }
   }
 
-  public void stop(InstanceName instanceName) {
+  public void stop(AwsNotebookInstanceName instanceName) {
     try {
-      Operation stopOperation = notebooks.instances().stop(instanceName).execute();
+      Operation stopOperation = notebooks.instances().stop(String.valueOf(instanceName)).execute();
       pollForSuccess(stopOperation, "Error stopping notebook instance: ");
     } catch (InterruptedException | IOException e) {
       checkFor409BadState(e);
