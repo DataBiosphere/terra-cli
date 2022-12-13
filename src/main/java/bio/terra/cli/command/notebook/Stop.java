@@ -12,7 +12,6 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.CloudPlatform;
-import com.google.api.client.util.Strings;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook stop" command. */
@@ -39,13 +38,6 @@ public class Stop extends BaseCommand {
       AwsCredential awsCredential =
           WorkspaceManagerService.fromContext()
               .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId());
-
-      OUT.println(
-          String.format(
-              "TEST log: (stop) Fetched awsCredential with nonEmpty fields - keyId: %b, accessKey: %b, sessionToken: %b",
-              !Strings.isNullOrEmpty(awsCredential.getAccessKeyId()),
-              !Strings.isNullOrEmpty(awsCredential.getSecretAccessKey()),
-              !Strings.isNullOrEmpty(awsCredential.getSessionToken())));
 
       /*
       AwsNotebookInstanceName instanceName =

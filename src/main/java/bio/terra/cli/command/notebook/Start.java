@@ -12,7 +12,6 @@ import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.CloudPlatform;
-import com.google.api.client.util.Strings;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook start" command. */
@@ -40,12 +39,6 @@ public class Start extends BaseCommand {
           WorkspaceManagerService.fromContext()
               .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId());
 
-      OUT.println(
-          String.format(
-              "TEST log: (start) Fetched awsCredential with nonEmpty fields - keyId: %b, accessKey: %b, sessionToken: %b",
-              !Strings.isNullOrEmpty(awsCredential.getAccessKeyId()),
-              !Strings.isNullOrEmpty(awsCredential.getSecretAccessKey()),
-              !Strings.isNullOrEmpty(awsCredential.getSessionToken())));
       /*
       AwsNotebookInstanceName instanceName =
           instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
