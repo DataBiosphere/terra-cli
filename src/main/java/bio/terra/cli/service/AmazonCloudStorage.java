@@ -26,8 +26,7 @@ public class AmazonCloudStorage {
   private static final Logger logger = LoggerFactory.getLogger(AmazonCloudStorage.class);
   private final StorageCow storage; // TODO(TERRA-206) change to AWS *Cow
 
-  private AmazonCloudStorage(
-      GoogleCredentials credentials) { // TODO(TERRA-204) change to AWS credentials
+  private AmazonCloudStorage(GoogleCredentials credentials) {
     storage = CrlUtils.createStorageCow(credentials);
   }
 
