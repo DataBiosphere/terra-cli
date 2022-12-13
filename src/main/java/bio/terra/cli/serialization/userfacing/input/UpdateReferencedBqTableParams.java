@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateReferencedBqTableParams {
-
   public final UpdateResourceParams resourceParams;
   /**
    * New datasetId to be updated to.

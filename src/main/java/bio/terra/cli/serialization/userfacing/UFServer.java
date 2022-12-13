@@ -2,9 +2,12 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * External representation of a server for command input/output.
@@ -23,6 +26,7 @@ public class UFServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final boolean supportsIdToken;
+  public Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {
@@ -34,6 +38,7 @@ public class UFServer {
     this.wsmDefaultSpendProfile = internalObj.getWsmDefaultSpendProfile();
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
+    this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -46,6 +51,10 @@ public class UFServer {
     this.wsmDefaultSpendProfile = builder.wsmDefaultSpendProfile;
     this.dataRepoUri = builder.dataRepoUri;
     this.supportsIdToken = builder.supportsIdToken;
+    this.supportedCloudPlatforms =
+        builder.supportedCloudPlatforms != null
+            ? builder.supportedCloudPlatforms
+            : Collections.EMPTY_SET;
   }
 
   /** Print out this object in text format. */
@@ -64,6 +73,7 @@ public class UFServer {
     private String wsmDefaultSpendProfile;
     private String dataRepoUri;
     private boolean supportsIdToken;
+    private Set<CloudPlatform> supportedCloudPlatforms;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -105,6 +115,11 @@ public class UFServer {
 
     public Builder supportsIdToken(boolean supportsIdToken) {
       this.supportsIdToken = supportsIdToken;
+      return this;
+    }
+
+    public Builder supportedCloudPlatforms(Set<CloudPlatform> supportedCloudPlatforms) {
+      this.supportedCloudPlatforms = supportedCloudPlatforms;
       return this;
     }
 
