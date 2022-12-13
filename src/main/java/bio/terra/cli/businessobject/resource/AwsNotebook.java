@@ -135,7 +135,7 @@ public class AwsNotebook extends Resource {
               WorkspaceManagerService.fromContext()
                   .getAwsSageMakerNotebookCredential(
                       Context.requireWorkspace().getUuid(), awsNotebook.get().getId()));
-      return Optional.of(notebooks.get(instanceName));
+      // return Optional.of(notebooks.get(instanceName));
     }
     return Optional.empty();
   }

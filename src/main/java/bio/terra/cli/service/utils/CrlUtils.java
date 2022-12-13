@@ -1,5 +1,6 @@
 package bio.terra.cli.service.utils;
 
+import bio.terra.cli.businessobject.SageMakerNotebooksCow;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
@@ -51,9 +52,9 @@ public class CrlUtils {
     }
   }
 
-  public static AIPlatformNotebooksCow createNotebooksCow(AwsCredential awsCredential) { // TODO-Dex
+  public static SageMakerNotebooksCow createNotebooksCow(AwsCredential awsCredential) {
     try {
-      return AIPlatformNotebooksCow.create(clientConfig, awsCredential);
+      return SageMakerNotebooksCow.create(awsCredential);
     } catch (GeneralSecurityException | IOException e) {
       throw new SystemException("Error creating notebooks client.", e);
     }

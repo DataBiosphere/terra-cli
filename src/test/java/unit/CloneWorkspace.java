@@ -15,7 +15,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.workspace.model.CloneResourceResult;
-import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
@@ -124,7 +123,7 @@ public class CloneWorkspace extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
+    sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =

@@ -59,7 +59,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
 
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
@@ -122,7 +122,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
 
     // `terra workspace delete --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -149,8 +149,7 @@ public class Workspace extends ClearContextUnit {
     String initialProperties = "key=value,key1=value1,foo=bar";
 
     // create a workspace with 3 properties
-    WorkspaceUtils.createWorkspace(
-        testUser, CloudPlatform.GCP, "propertyDeleteTest", "", initialProperties);
+    WorkspaceUtils.createWorkspace(testUser, "propertyDeleteTest", "", initialProperties);
 
     // call `terra workspace delete-property` for 2 properties
     TestCommand.runCommandExpectSuccess("workspace", "delete-property", "--keys=key,key1");
@@ -179,7 +178,7 @@ public class Workspace extends ClearContextUnit {
     String property = key + "=" + value;
 
     UFWorkspace createdWorkspace =
-        WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP, name, description, property);
+        WorkspaceUtils.createWorkspace(testUser, name, description, property);
 
     // check the created workspace name, description, property are set
     assertEquals(name, createdWorkspace.name);
@@ -245,8 +244,7 @@ public class Workspace extends ClearContextUnit {
     String initialProperties = "key=value,key1=value1";
 
     // create a workspace with 2 properties key=value, key1=value1
-    WorkspaceUtils.createWorkspace(
-        testUser, CloudPlatform.GCP, "propertyUpdateTest", "", initialProperties);
+    WorkspaceUtils.createWorkspace(testUser, "propertyUpdateTest", "", initialProperties);
 
     // call `terra workspace set-property` for 2 properties, key=valueUpdate, foo=bar
     TestCommand.runCommandExpectSuccess(
@@ -272,8 +270,8 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace1 = WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP);
-    UFWorkspace createdWorkspace2 = WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP);
+    UFWorkspace createdWorkspace1 = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace2 = WorkspaceUtils.createWorkspace(testUser);
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =
@@ -369,7 +367,7 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, CloudPlatform.GCP);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`

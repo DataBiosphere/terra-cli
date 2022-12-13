@@ -42,7 +42,7 @@ public class Stop extends BaseCommand {
           new AmazonNotebooks(
               WorkspaceManagerService.fromContext()
                   .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()));
-      notebooks.stop(instanceName);
+      // notebooks.stop(instanceName);
 
     } else {
       throw new UserActionableException(
