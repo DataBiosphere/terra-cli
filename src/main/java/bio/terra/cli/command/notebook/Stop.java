@@ -1,6 +1,5 @@
 package bio.terra.cli.command.notebook;
 
-import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsNotebook;
@@ -36,13 +35,11 @@ public class Stop extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      AwsNotebookInstanceName instanceName =
-          instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
       AmazonNotebooks notebooks =
           new AmazonNotebooks(
               WorkspaceManagerService.fromContext()
                   .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()));
-      // notebooks.stop(instanceName);
+      notebooks.stop(awsNotebook.getInstanceId());
 
     } else {
       throw new UserActionableException(

@@ -1,6 +1,5 @@
 package bio.terra.cli.command.shared.options;
 
-import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
@@ -55,16 +54,6 @@ public class NotebookInstance {
           "Only able to use notebook commands on SageMaker Notebook resources, but specified resource is "
               + resource.getResourceType());
     }
-  }
-
-  public AwsNotebookInstanceName toAwsNotebookInstanceName(
-      Workspace workspace, AwsNotebook awsNotebook) {
-    return AwsNotebookInstanceName.builder()
-        .awsAccountNumber(workspace.getAwsAccountNumber())
-        .landingZoneId(workspace.getLandingZoneId())
-        .location(awsNotebook.getLocation())
-        .instanceId(awsNotebook.getInstanceId())
-        .build();
   }
 
   static class ArgGroup {

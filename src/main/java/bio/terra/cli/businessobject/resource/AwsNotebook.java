@@ -1,6 +1,5 @@
 package bio.terra.cli.businessobject.resource;
 
-import bio.terra.cli.businessobject.AwsNotebookInstanceName;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
@@ -8,7 +7,6 @@ import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
-import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -22,8 +20,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
-  private final String awsAccountNumber; // TODO-Dex needed?
-  private final String landingZoneId; // TODO-Dex needed?
+  private final String awsAccountNumber;
+  private final String landingZoneId;
   private final String instanceId;
   private final String location;
 
@@ -124,21 +122,16 @@ public class AwsNotebook extends Resource {
     return String.format("locations/%s/instances/%s", location, instanceId);
   }
 
-  /** Query the cloud for information about the notebook VM. */
-  public Optional<AwsNotebookInstanceName> getInstance() {
-    Optional<AwsNotebook> awsNotebook = getResource(instanceId);
-    if (awsNotebook.isPresent()) {
-      AwsNotebookInstanceName instanceName =
-          AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
-      AmazonNotebooks notebooks =
-          new AmazonNotebooks(
-              WorkspaceManagerService.fromContext()
-                  .getAwsSageMakerNotebookCredential(
-                      Context.requireWorkspace().getUuid(), awsNotebook.get().getId()));
-      // return Optional.of(notebooks.get(instanceName));
-    }
-    return Optional.empty();
-  }
+  /**
+   * Query the cloud for information about the notebook VM. * / public
+   * Optional<AwsNotebookInstanceName> getInstance() { Optional<AwsNotebook> awsNotebook =
+   * getResource(instanceId); if (awsNotebook.isPresent()) { AwsNotebookInstanceName instanceName =
+   * AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
+   * AmazonNotebooks notebooks = new AmazonNotebooks( WorkspaceManagerService.fromContext()
+   * .getAwsSageMakerNotebookCredential( Context.requireWorkspace().getUuid(),
+   * awsNotebook.get().getId())); // return Optional.of(notebooks.get(instanceName)); } return
+   * Optional.empty(); }
+   */
 
   /** Find the resource by instance id. */
   public Optional<AwsNotebook> getResource(String instanceId) {
