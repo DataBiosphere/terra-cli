@@ -12,6 +12,7 @@ import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
+import java.util.function.Predicate;
 import org.apache.http.HttpStatus;
 
 /** Utilities for working with the Terra Cloud Resource Library. */
@@ -70,6 +71,17 @@ public class CrlUtils {
       HttpUtils.SupplierWithCheckedException<T, E> makeRequest) throws E, InterruptedException {
     return HttpUtils.callWithRetries(
         makeRequest,
+        CrlUtils::isGcpPermissionsError,
+        CrlUtils.GCP_RETRY_COUNT,
+        CrlUtils.GCP_RETRY_SLEEP_DURATION);
+  }
+
+  public static <T, E extends Exception> T callGcpWithRetries(
+      HttpUtils.SupplierWithCheckedException<T, E> makeRequest, Predicate<T> isDone)
+      throws E, InterruptedException {
+    return HttpUtils.pollWithRetries(
+        makeRequest,
+        isDone,
         CrlUtils::isGcpPermissionsError,
         CrlUtils.GCP_RETRY_COUNT,
         CrlUtils.GCP_RETRY_SLEEP_DURATION);
