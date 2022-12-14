@@ -23,10 +23,10 @@ public class SageMakerNotebooksCow {
   }
 
   /** Create a {@link SageMakerNotebooksCow} with some default configurations for convenience. */
-  public static SageMakerNotebooksCow create(AwsCredential awsCredential) {
+  public static SageMakerNotebooksCow create(AwsCredential awsCredential, String location) {
     return new SageMakerNotebooksCow(
         SageMakerClient.builder()
-            .region(Region.of("region-dex"))
+            .region(Region.of(location))
             .credentialsProvider(
                 StaticCredentialsProvider.create(
                     AwsSessionCredentials.create(

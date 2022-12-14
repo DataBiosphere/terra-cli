@@ -13,14 +13,15 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 public class AmazonNotebooks {
   private final SageMakerNotebooksCow notebooks;
 
-  public AmazonNotebooks(AwsCredential credentials) {
-    notebooks = CrlUtils.createNotebooksCow(credentials);
+  public AmazonNotebooks(AwsCredential credentials, String location) {
+    notebooks = CrlUtils.createNotebooksCow(credentials, location);
   }
 
   public DescribeNotebookInstanceResponse get(String instanceName) {
     try {
       return notebooks.get(instanceName);
     } catch (SdkException e) {
+      checkException(e);
       throw new SystemException("Error getting notebook instance", e);
     }
   }
@@ -35,6 +36,7 @@ public class AmazonNotebooks {
       }
       checkNotebookStatus(instanceName, NotebookInstanceStatus.IN_SERVICE);
     } catch (SdkException e) {
+      checkException(e);
       throw new SystemException("Error starting notebook instance", e);
     }
   }
@@ -49,6 +51,7 @@ public class AmazonNotebooks {
       }
       checkNotebookStatus(instanceName, NotebookInstanceStatus.STOPPED);
     } catch (SdkException e) {
+      checkException(e);
       throw new SystemException("Error stopping notebook instance", e);
     }
   }
@@ -72,6 +75,16 @@ public class AmazonNotebooks {
       }
     } catch (SdkException e) {
       throw new SystemException("Error getting notebook instance", e);
+    }
+  }
+
+  private void checkException(Exception ex) {
+    if (ex instanceof SdkException) {
+      SdkException sdkException = (SdkException) ex;
+      if (sdkException.getMessage().contains("not authorized to perform")) {
+        throw new UserActionableException(
+            "User not authorized to perform operation on cloud platform");
+      }
     }
   }
 }

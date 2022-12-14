@@ -38,7 +38,8 @@ public class Start extends BaseCommand {
       AmazonNotebooks notebooks =
           new AmazonNotebooks(
               WorkspaceManagerService.fromContext()
-                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()));
+                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
+              awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());
 
     } else {

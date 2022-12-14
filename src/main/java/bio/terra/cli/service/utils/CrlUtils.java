@@ -52,9 +52,10 @@ public class CrlUtils {
     }
   }
 
-  public static SageMakerNotebooksCow createNotebooksCow(AwsCredential awsCredential) {
+  public static SageMakerNotebooksCow createNotebooksCow(
+      AwsCredential awsCredential, String location) {
     try {
-      return SageMakerNotebooksCow.create(awsCredential);
+      return SageMakerNotebooksCow.create(awsCredential, location);
     } catch (Exception e) {
       throw new SystemException("Error creating notebooks client.", e);
     }
