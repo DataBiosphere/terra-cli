@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Checkout current code
       id: checkout_code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
     - name: Set up JDK 17
@@ -25,7 +25,7 @@ jobs:
         java-version: 17
     - name: Cache Gradle packages
       id: cache_gradle
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -105,7 +105,7 @@ jobs:
     - name: Archive logs and context file for all test runs
       id: archive_logs_and_context
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logs-and-context-${{ matrix.testServer }}
         path: |
@@ -125,9 +125,9 @@ jobs:
         else
           text=":no_entry: $text"
         fi
-        echo ::set-output name=status-title::$title
-        echo ::set-output name=status-bold::$bold
-        echo ::set-output name=status-text::$text
+        echo "status-title=$title" >> $GITHUB_OUTPUT
+        echo "status-bold=$bold" >> $GITHUB_OUTPUT
+        echo "status-text=$text" >> $GITHUB_OUTPUT
     - name: Notify PF alerts slack channel
       # don't notify manually triggered runs
       if: always() && github.event_name != 'workflow_dispatch'
