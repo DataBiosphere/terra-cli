@@ -77,7 +77,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '1.116.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.7.2'
 
-    // AWS // TODO-dex
+    // AWS
     implementation platform('software.amazon.awssdk:bom:2.18.34')
     implementation 'software.amazon.awssdk:auth'
     implementation 'software.amazon.awssdk:sagemaker'

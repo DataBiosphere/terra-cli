@@ -19,17 +19,14 @@ import org.slf4j.LoggerFactory;
  * the current context or state.
  */
 public class AwsNotebook extends Resource {
+  protected static final String AWS_NOTEBOOK_URL_PREFIX = "https://";
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
-  private final String awsAccountNumber;
-  private final String landingZoneId;
   private final String instanceId;
   private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsNotebook(PDAwsNotebook configFromDisk) {
     super(configFromDisk);
-    this.awsAccountNumber = configFromDisk.awsAccountNumber;
-    this.landingZoneId = configFromDisk.landingZoneId;
     this.instanceId = configFromDisk.instanceId;
     this.location = configFromDisk.location;
   }
@@ -38,8 +35,6 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
-    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
     this.instanceId = wsmObject.getMetadata().getResourceId().toString();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
@@ -48,8 +43,6 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(AwsSageMakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.awsAccountNumber = wsmObject.getMetadata().getResourceId().toString(); // TODO-Dex
-    this.landingZoneId = wsmObject.getMetadata().getWorkspaceId().toString(); // TODO-Dex
     this.instanceId = wsmObject.getAttributes().getInstanceId();
     this.location = wsmObject.getAttributes().getRegion();
   }
@@ -112,26 +105,31 @@ public class AwsNotebook extends Resource {
         .deleteControlledAwsNotebookInstance(Context.requireWorkspace().getUuid(), id);
   }
 
-  /**
-   * Resolve a AWS notebook resource to its cloud identifier. Return the instance name
-   * projects/[project_id]/locations/[location]/instances/[instanceId].
-   *
-   * @return full name of the instance
-   */
-  public String resolve() { // TODO(TERRA-197)
-    return String.format("locations/%s/instances/%s", location, instanceId);
+  /** Resolve a AWS notebook resource to its cloud identifier. */
+  public String resolve() {
+    return resolve(true);
   }
 
   /**
-   * Query the cloud for information about the notebook VM. * / public
-   * Optional<AwsNotebookInstanceName> getInstance() { Optional<AwsNotebook> awsNotebook =
-   * getResource(instanceId); if (awsNotebook.isPresent()) { AwsNotebookInstanceName instanceName =
-   * AwsNotebookInstanceName.builder().instanceId(instanceId).location(location).build();
-   * AmazonNotebooks notebooks = new AmazonNotebooks( WorkspaceManagerService.fromContext()
-   * .getAwsSageMakerNotebookCredential( Context.requireWorkspace().getUuid(),
-   * awsNotebook.get().getId())); // return Optional.of(notebooks.get(instanceName)); } return
-   * Optional.empty(); }
+   * Resolve a AWS notebook resource to its cloud identifier. Optionally include the 's3://' prefix.
    */
+  public String resolve(boolean includeUrlPrefix) {
+    return resolve(location, instanceId, includeUrlPrefix);
+  }
+
+  /**
+   * Resolve a AWS notebook resource to its cloud identifier. Return the instance name
+   * https://[location].console.aws.amazon.com/sagemaker/home?region=[location]#/notebook-instances/[instance-id]
+   *
+   * @return full name of the instance
+   */
+  public static String resolve(String location, String instanceId, boolean includeUrlPrefix) {
+    String resolvedPath =
+        String.format(
+            "%s.console.aws.amazon.com/sagemaker/home?region=%s#/notebook-instances/%s",
+            location, location, instanceId);
+    return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
+  }
 
   /** Find the resource by instance id. */
   public Optional<AwsNotebook> getResource(String instanceId) {
@@ -148,14 +146,6 @@ public class AwsNotebook extends Resource {
 
   // ====================================================
   // Property getters.
-
-  public String getAwsAccountNumber() {
-    return awsAccountNumber;
-  }
-
-  public String getLandingZoneId() {
-    return landingZoneId;
-  }
 
   public String getInstanceId() {
     return instanceId;

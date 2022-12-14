@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.sagemaker.model.DescribeNotebookInstanceR
 import software.amazon.awssdk.services.sagemaker.model.StartNotebookInstanceRequest;
 import software.amazon.awssdk.services.sagemaker.model.StopNotebookInstanceRequest;
 
-// TODO-dex move to CRL
+// TODO(TERRA-225) move to CRL
 
 /** A Cloud Object Wrapper(COW) for AWS SageMakerClient Library: {@link SageMakerClient} */
 public class SageMakerNotebooksCow {
