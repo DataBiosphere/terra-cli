@@ -43,6 +43,7 @@ public class Start extends BaseCommand {
               awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());
       OUT.println("Notebook instance started");
+      OUT.println("AWS Notebook: " + awsNotebook.resolve());
 
     } else {
       throw new UserActionableException(

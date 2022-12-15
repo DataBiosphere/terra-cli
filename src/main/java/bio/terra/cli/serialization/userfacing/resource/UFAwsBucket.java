@@ -57,7 +57,7 @@ public class UFAwsBucket extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "AWS bucket name: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
+    OUT.println(prefix + "AWS bucket: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(
         prefix
