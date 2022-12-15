@@ -32,6 +32,7 @@ public class Start extends BaseCommand {
       InstanceName instanceName = instanceOption.toGcpNotebookInstanceName();
       GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
       notebooks.start(instanceName);
+      OUT.println("Notebook instance starting. It may take a few minutes before it is available");
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
@@ -41,12 +42,11 @@ public class Start extends BaseCommand {
                   .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
               awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());
+      OUT.println("Notebook instance started");
 
     } else {
       throw new UserActionableException(
           "Notebooks not supported on workspace cloud platform " + workspace.getCloudPlatform());
     }
-
-    OUT.println("Notebook instance starting. It may take a few minutes before it is available");
   }
 }
