@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GcsBucket extends Resource {
   // prefix for GCS bucket to make a valid URL.
-  protected static final String GCS_BUCKET_URL_PREFIX = "gs://";
+  private static final String GCS_BUCKET_URL_PREFIX = "gs://";
   private static final Logger logger = LoggerFactory.getLogger(GcsBucket.class);
   private String bucketName;
 

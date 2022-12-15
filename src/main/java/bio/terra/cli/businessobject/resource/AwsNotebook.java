@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * the current context or state.
  */
 public class AwsNotebook extends Resource {
-  protected static final String AWS_NOTEBOOK_URL_PREFIX = "https://";
+  private static final String AWS_NOTEBOOK_URL_PREFIX = "https://";
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
   private final String instanceId;
   private final String location;
@@ -35,7 +35,7 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.instanceId = wsmObject.getMetadata().getResourceId().toString();
+    this.instanceId = wsmObject.getMetadata().getName();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
 

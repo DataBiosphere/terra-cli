@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsBucket extends Resource {
   // prefix for AWS bucket to make a valid URL.
-  protected static final String AWS_BUCKET_URL_PREFIX = "s3://";
+  private static final String AWS_BUCKET_URL_PREFIX = "s3://";
   private static final Logger logger = LoggerFactory.getLogger(AwsBucket.class);
   private final String bucketName;
   private final String bucketPrefix;
