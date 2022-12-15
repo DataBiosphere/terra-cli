@@ -7,12 +7,9 @@ import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
-import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
-import com.google.api.services.notebooks.v1.model.Instance;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +19,10 @@ import org.slf4j.LoggerFactory;
  * the current context or state.
  */
 public class AwsNotebook extends Resource {
+  private static final String AWS_NOTEBOOK_URL_PREFIX = "https://";
   private static final Logger logger = LoggerFactory.getLogger(AwsNotebook.class);
-  private String instanceId;
-  private String location;
+  private final String instanceId;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsNotebook(PDAwsNotebook configFromDisk) {
@@ -37,7 +35,7 @@ public class AwsNotebook extends Resource {
   public AwsNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
-    this.instanceId = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceId();
+    this.instanceId = wsmObject.getMetadata().getName();
     this.location = wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getRegion();
   }
 
@@ -107,26 +105,41 @@ public class AwsNotebook extends Resource {
         .deleteControlledAwsNotebookInstance(Context.requireWorkspace().getUuid(), id);
   }
 
+  /** Resolve a AWS notebook resource to its cloud identifier. */
+  public String resolve() {
+    return resolve(true);
+  }
+
+  /**
+   * Resolve a AWS notebook resource to its cloud identifier. Optionally include the 's3://' prefix.
+   */
+  public String resolve(boolean includeUrlPrefix) {
+    return resolve(location, instanceId, includeUrlPrefix);
+  }
+
   /**
    * Resolve a AWS notebook resource to its cloud identifier. Return the instance name
-   * projects/[project_id]/locations/[location]/instances/[instanceId].
+   * https://[location].console.aws.amazon.com/sagemaker/home?region=[location]#/notebook-instances/[instance-id]
    *
    * @return full name of the instance
    */
-  public String resolve() { // TODO(TERRA-197)
-    return String.format("locations/%s/instances/%s", location, instanceId);
+  public static String resolve(String location, String instanceId, boolean includeUrlPrefix) {
+    String resolvedPath =
+        String.format(
+            "%s.console.aws.amazon.com/sagemaker/home?region=%s#/notebook-instances/%s",
+            location, location, instanceId);
+    return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
-  /** Query the cloud for information about the notebook VM. */
-  public Optional<Instance> getInstance() {
-    // TODO(TERRA-225) add AWS Notebook instance
-    InstanceName instanceName =
-        InstanceName.builder().instanceId(instanceId).location(location).build();
-    AmazonNotebooks notebooks = new AmazonNotebooks(Context.requireUser().getPetSACredentials());
-    try {
-      return Optional.of(notebooks.get(instanceName));
-    } catch (Exception ex) {
-      logger.error("Caught exception looking up notebook instance", ex);
+  /** Find the resource by instance id. */
+  public Optional<AwsNotebook> getResource(String instanceId) {
+    Resource resource = Context.requireWorkspace().getResource(instanceId);
+
+    if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
+      return Optional.of((AwsNotebook) resource);
+    } else {
+      logger.error(
+          "Specified resource is not a SageMaker notebook, but " + resource.getResourceType());
       return Optional.empty();
     }
   }

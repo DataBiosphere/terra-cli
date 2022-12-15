@@ -283,7 +283,7 @@ public class WorkspaceManagerService {
    *
    * @return list of lifecycle rules in the format expected by the WSM client library
    */
-  /* TODO(TERRA-197)
+  /* TODO(TERRA-203)
   private static List<AwsBucketLifecycleRule> fromCLIObject(AwsBucketLifecycle lifecycle) {
     List<AwsBucketLifecycleRule> wsmLifecycleRules = new ArrayList<>();
     for (AwsBucketLifecycle.Rule rule : lifecycle.rule) {
@@ -1228,7 +1228,7 @@ public class WorkspaceManagerService {
             .common(createCommonFields(createParams.resourceFields))
             .awsBucket(
                 new AwsBucketCreationParameters()
-                    /* TODO(TERRA-197)
+                    /* TODO(TERRA-229)
                     .name(createParams.bucketName)
                     */
                     .location(createParams.location));

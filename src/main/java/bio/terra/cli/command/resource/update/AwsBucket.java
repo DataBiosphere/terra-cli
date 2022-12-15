@@ -2,7 +2,7 @@ package bio.terra.cli.command.resource.update;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.AwsBucketLifecycle;
 import bio.terra.cli.command.shared.options.AwsBucketStorageClass;
 import bio.terra.cli.command.shared.options.CloningInstructionsForUpdate;
@@ -21,7 +21,7 @@ import picocli.CommandLine;
     name = "aws-bucket",
     description = "Update a AWS bucket.",
     showDefaultValues = true)
-public class AwsBucket extends BaseCommand {
+public class AwsBucket extends WsmBaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;
   @CommandLine.Mixin AwsBucketStorageClass storageClassOption;
   @CommandLine.Mixin AwsBucketLifecycle lifecycleOptions;

@@ -1,6 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
-import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -15,7 +15,7 @@ import picocli.CommandLine;
     name = "aws-bucket",
     description = "Add a controlled AWS bucket.",
     showDefaultValues = true)
-public class AwsBucket extends BaseCommand {
+public class AwsBucket extends WsmBaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

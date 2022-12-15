@@ -56,18 +56,6 @@ public class NotebookInstance {
     }
   }
 
-  /*
-  public AwsNotebookInstanceName toAwsNotebookInstanceName(
-      Workspace workspace, AwsNotebook awsNotebook) {
-    return AwsNotebookInstanceName.builder()
-        .awsAccountNumber(workspace.getAwsAccountNumber())
-        .landingZoneId(workspace.getLandingZoneId())
-        .location(awsNotebook.getLocation())
-        .instanceId(awsNotebook.getInstanceId())
-        .build();
-  }
-   */
-
   static class ArgGroup {
     @CommandLine.Option(
         names = "--name",

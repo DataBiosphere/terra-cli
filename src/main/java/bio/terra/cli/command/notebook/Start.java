@@ -7,10 +7,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
-import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
@@ -32,26 +32,22 @@ public class Start extends BaseCommand {
       InstanceName instanceName = instanceOption.toGcpNotebookInstanceName();
       GoogleNotebooks notebooks = new GoogleNotebooks(Context.requireUser().getPetSACredentials());
       notebooks.start(instanceName);
+      OUT.println("Notebook instance starting. It may take a few minutes before it is available");
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      AwsCredential awsCredential =
-          WorkspaceManagerService.fromContext()
-              .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId());
-
-      /*
-      AwsNotebookInstanceName instanceName =
-          instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
       AmazonNotebooks notebooks =
-          new AmazonNotebooks(awsCredential);
-      notebooks.start(instanceName);
-       */
+          new AmazonNotebooks(
+              WorkspaceManagerService.fromContext()
+                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
+              awsNotebook.getLocation());
+      notebooks.start(awsNotebook.getInstanceId());
+      OUT.println("Notebook instance started");
+      OUT.println("AWS Notebook: " + awsNotebook.resolve());
 
     } else {
       throw new UserActionableException(
           "Notebooks not supported on workspace cloud platform " + workspace.getCloudPlatform());
     }
-
-    OUT.println("Notebook instance starting. It may take a few minutes before it is available");
   }
 }

@@ -7,10 +7,10 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.AmazonNotebooks;
 import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
-import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
@@ -35,17 +35,12 @@ public class Stop extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      AwsCredential awsCredential =
-          WorkspaceManagerService.fromContext()
-              .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId());
-
-      /*
-      AwsNotebookInstanceName instanceName =
-          instanceOption.toAwsNotebookInstanceName(Context.requireWorkspace(), awsNotebook);
       AmazonNotebooks notebooks =
-          new AmazonNotebooks(awsCredential);
-      notebooks.stop(instanceName);
-       */
+          new AmazonNotebooks(
+              WorkspaceManagerService.fromContext()
+                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
+              awsNotebook.getLocation());
+      notebooks.stop(awsNotebook.getInstanceId());
 
     } else {
       throw new UserActionableException(

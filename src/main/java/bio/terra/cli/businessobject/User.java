@@ -24,8 +24,6 @@ import org.broadinstitute.dsde.workbench.client.sam.model.UserStatusInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO(TERRA-207) add AWS account info - SA scope, proxy
-
 /**
  * Internal representation of a user. An instance of this class is part of the current context or
  * state.

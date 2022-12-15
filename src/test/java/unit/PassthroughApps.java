@@ -10,7 +10,6 @@ import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.Identity;
@@ -426,7 +425,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gcloudAppExecute() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, CloudPlatform.GCP);
+    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`
