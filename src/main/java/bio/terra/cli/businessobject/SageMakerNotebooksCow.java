@@ -8,7 +8,9 @@ import java.util.Set;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
+import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sagemaker.SageMakerClient;
@@ -80,7 +82,7 @@ public class SageMakerNotebooksCow {
       }
       pollForNotebookStatus(instanceName, NotebookInstanceStatus.IN_SERVICE);
 
-    } catch (SdkException e) {
+    } catch (Throwable e) {
       checkException(e);
       throw new SystemException("Error starting notebook instance", e);
     }
@@ -102,49 +104,65 @@ public class SageMakerNotebooksCow {
       }
       pollForNotebookStatus(instanceName, NotebookInstanceStatus.STOPPED);
 
-    } catch (SdkException e) {
+    } catch (Throwable e) {
       checkException(e);
       throw new SystemException("Error starting notebook instance", e);
     }
   }
 
-  public void pollForNotebookStatus(String instanceName, NotebookInstanceStatus status) {
-    //  try{
-    //  var test =notebooksWaiter.waitUntilNotebookInstanceInService();
-    // }
+  private void pollForNotebookStatus(String instanceName, NotebookInstanceStatus status)
+      throws Throwable {
+    WaiterResponse<DescribeNotebookInstanceResponse> waiterResponse;
+    DescribeNotebookInstanceRequest describeRequest =
+        DescribeNotebookInstanceRequest.builder().notebookInstanceName(instanceName).build();
 
-    // TODO-Dex
-    // if (operationCow.getOperation().getError() != null) {
-    // throw new SystemException(errorMessage +
-    // operationCow.getOperation().getError().getMessage());
-    // }
+    if (status == NotebookInstanceStatus.IN_SERVICE) {
+      waiterResponse = notebooksWaiter.waitUntilNotebookInstanceInService(describeRequest);
+    } else if (status == NotebookInstanceStatus.STOPPED) {
+      waiterResponse = notebooksWaiter.waitUntilNotebookInstanceStopped(describeRequest);
+    } else {
+      throw new UnsupportedOperationException();
+    }
+
+    ResponseOrException<DescribeNotebookInstanceResponse> responseOrException =
+        waiterResponse.matched();
+    if (responseOrException.response().isPresent()) {
+      checkNotebookStatus(responseOrException.response().get(), Set.of(status));
+    } else {
+      throw responseOrException
+          .exception()
+          .orElse(new SystemException("Error polling notebook instance status"));
+    }
   }
 
   public void checkNotebookStatus(String instanceName, Set<NotebookInstanceStatus> statusSet) {
     try {
-      DescribeNotebookInstanceResponse response = get(instanceName);
-      if (!response.sdkHttpResponse().isSuccessful()) {
-        throw new SystemException(
-            "Error getting notebook instance status, "
-                + response
-                    .sdkHttpResponse()
-                    .statusText()
-                    .orElse(String.valueOf(response.sdkHttpResponse().statusCode())));
-
-      } else if (statusSet.contains(response.notebookInstanceStatus())) {
-        throw new UserActionableException(
-            "Expected notebook instance status is "
-                + statusSet
-                + " but current status is "
-                + response.notebookInstanceStatus());
-      }
-
+      checkNotebookStatus(get(instanceName), statusSet);
     } catch (SdkException e) {
       throw new SystemException("Error checking notebook instance status", e);
     }
   }
 
-  public void checkException(Exception ex) {
+  private void checkNotebookStatus(
+      DescribeNotebookInstanceResponse response, Set<NotebookInstanceStatus> statusSet) {
+    if (!response.sdkHttpResponse().isSuccessful()) {
+      throw new SystemException(
+          "Error getting notebook instance status, "
+              + response
+                  .sdkHttpResponse()
+                  .statusText()
+                  .orElse(String.valueOf(response.sdkHttpResponse().statusCode())));
+
+    } else if (statusSet.contains(response.notebookInstanceStatus())) {
+      throw new UserActionableException(
+          "Expected notebook instance status is "
+              + statusSet
+              + " but current status is "
+              + response.notebookInstanceStatus());
+    }
+  }
+
+  public void checkException(Throwable ex) {
     if (ex instanceof SdkException) {
       String message = ex.getMessage();
       if (message.contains("not authorized to perform")) {
