@@ -3,7 +3,7 @@ package bio.terra.cli.command.notebook;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsNotebook;
-import bio.terra.cli.cloud.aws.AmazonNotebooks;
+import bio.terra.cli.cloud.aws.SageMakerNotebooksCow;
 import bio.terra.cli.cloud.gcp.GoogleNotebooks;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
@@ -36,8 +36,8 @@ public class Start extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      AmazonNotebooks notebooks =
-          new AmazonNotebooks(
+      SageMakerNotebooksCow notebooks =
+          SageMakerNotebooksCow.create(
               WorkspaceManagerService.fromContext()
                   .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
               awsNotebook.getLocation());
