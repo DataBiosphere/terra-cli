@@ -1,4 +1,4 @@
-package bio.terra.cli.businessobject;
+package bio.terra.cli.cloud.aws;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
@@ -24,8 +24,6 @@ import software.amazon.awssdk.services.sagemaker.model.StartNotebookInstanceRequ
 import software.amazon.awssdk.services.sagemaker.model.StopNotebookInstanceRequest;
 import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 
-// TODO(TERRA-225) move to CRL
-
 /** A Cloud Object Wrapper(COW) for AWS SageMakerClient Library: {@link SageMakerClient} */
 public class SageMakerNotebooksCow {
   private static final Duration AWS_NOTEBOOK_WAITER_TIMEOUT_DURATION = Duration.ofSeconds(900);
@@ -44,25 +42,29 @@ public class SageMakerNotebooksCow {
 
   /** Create a {@link SageMakerNotebooksCow} with some default configurations for convenience. */
   public static SageMakerNotebooksCow create(AwsCredential awsCredential, String location) {
-    SageMakerClient notebooksClient =
-        SageMakerClient.builder()
-            .region(Region.of(location))
-            .credentialsProvider(
-                StaticCredentialsProvider.create(
-                    AwsSessionCredentials.create(
-                        awsCredential.getAccessKeyId(),
-                        awsCredential.getSecretAccessKey(),
-                        awsCredential.getSessionToken())))
-            .build();
-    return new SageMakerNotebooksCow(
-        notebooksClient,
-        SageMakerWaiter.builder()
-            .client(notebooksClient)
-            .overrideConfiguration(
-                WaiterOverrideConfiguration.builder()
-                    .waitTimeout(AWS_NOTEBOOK_WAITER_TIMEOUT_DURATION)
-                    .build())
-            .build());
+    try {
+      SageMakerClient notebooksClient =
+          SageMakerClient.builder()
+              .region(Region.of(location))
+              .credentialsProvider(
+                  StaticCredentialsProvider.create(
+                      AwsSessionCredentials.create(
+                          awsCredential.getAccessKeyId(),
+                          awsCredential.getSecretAccessKey(),
+                          awsCredential.getSessionToken())))
+              .build();
+      return new SageMakerNotebooksCow(
+          notebooksClient,
+          SageMakerWaiter.builder()
+              .client(notebooksClient)
+              .overrideConfiguration(
+                  WaiterOverrideConfiguration.builder()
+                      .waitTimeout(AWS_NOTEBOOK_WAITER_TIMEOUT_DURATION)
+                      .build())
+              .build());
+    } catch (Exception e) {
+      throw new SystemException("Error creating notebooks client.", e);
+    }
   }
 
   private NotebookInstanceSummary get(String instanceName) {
