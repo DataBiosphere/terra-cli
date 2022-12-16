@@ -1,4 +1,4 @@
-package bio.terra.cli.businessobject;
+package bio.terra.cli.cloud.aws;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
@@ -23,8 +23,6 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceSummary;
 import software.amazon.awssdk.services.sagemaker.model.StartNotebookInstanceRequest;
 import software.amazon.awssdk.services.sagemaker.model.StopNotebookInstanceRequest;
 import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
-
-// TODO(TERRA-225) move to CRL
 
 /** A Cloud Object Wrapper(COW) for AWS SageMakerClient Library: {@link SageMakerClient} */
 public class SageMakerNotebooksCow {

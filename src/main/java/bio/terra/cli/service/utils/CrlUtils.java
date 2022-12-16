@@ -1,6 +1,6 @@
 package bio.terra.cli.service.utils;
 
-import bio.terra.cli.businessobject.SageMakerNotebooksCow;
+import bio.terra.cli.cloud.aws.SageMakerNotebooksCow;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;

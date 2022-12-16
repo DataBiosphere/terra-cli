@@ -1,6 +1,5 @@
-package bio.terra.cli.service;
+package bio.terra.cli.cloud.aws;
 
-import bio.terra.cli.businessobject.SageMakerNotebooksCow;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AwsCredential;
 
