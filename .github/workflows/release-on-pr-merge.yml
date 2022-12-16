@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: Checkout current code
       id: checkout_code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         ref: main

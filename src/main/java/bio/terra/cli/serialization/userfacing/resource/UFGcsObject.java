@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.GcsObject;
+import bio.terra.cli.cloud.gcp.GoogleCloudStorage;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.GoogleCloudStorage;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.cloudres.google.storage.BlobCow;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
