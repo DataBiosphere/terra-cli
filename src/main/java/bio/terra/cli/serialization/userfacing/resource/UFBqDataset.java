@@ -1,8 +1,8 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
 import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.cloud.gcp.GoogleBigQuery;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.GoogleBigQuery;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

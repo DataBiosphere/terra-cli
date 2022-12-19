@@ -1,10 +1,10 @@
 package bio.terra.cli.command.notebook;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.cloud.gcp.GoogleNotebooks;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.NotebookInstance;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import picocli.CommandLine;
 

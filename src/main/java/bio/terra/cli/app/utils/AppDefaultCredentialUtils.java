@@ -1,9 +1,9 @@
 package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.cloud.gcp.GoogleOauth;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.utils.TerraCredentials;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
