@@ -1,11 +1,16 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.UUID;
 
 /**
  * External representation of a workspace AWS notebook resource for command input/output.
@@ -41,6 +46,23 @@ public class UFAwsNotebook extends UFResource {
     OUT.println(prefix + "AWS Notebook: " + AwsNotebook.resolve(location, instanceId, true));
     OUT.println(prefix + "Instance id:   " + instanceId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
+
+    Workspace workspace = Context.requireWorkspace();
+    UUID workspaceId = workspace.getUuid();
+    UUID resourceId = workspace.getResource(instanceId).getId();
+    OUT.println(
+        prefix
+            + "ProxyUrl (JUPYTER): "
+            + WorkspaceManagerService.fromContext()
+                .getAwsSageMakerProxyUrl(workspaceId, resourceId, AwsSageMakerProxyUrlView.JUPYTER)
+                .getUrl());
+    OUT.println(
+        prefix
+            + "ProxyUrl (JUPYTERLAB): "
+            + WorkspaceManagerService.fromContext()
+                .getAwsSageMakerProxyUrl(
+                    workspaceId, resourceId, AwsSageMakerProxyUrlView.JUPYTERLAB)
+                .getUrl());
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
