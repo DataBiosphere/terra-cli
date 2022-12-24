@@ -14,7 +14,17 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resource create gcs-bucket" command. */
 @CommandLine.Command(
     name = "gcs-bucket",
-    description = "Add a controlled GCS bucket.",
+    header = "Add a controlled GCS bucket.",
+    description =
+        "Adds a controlled GCS bucket resource. \n\n"
+            + "== Lifecycle rules \n\n"
+            + "GCS bucket lifecycle rules are specified by passing a JSON-formatted file path to the `terra resource create gcs-bucket` command. \n\n"
+            + "The expected JSON structure matches the one used by the https://cloud.google.com/storage/docs/gsutil/commands/lifecycle[gsutil lifecycle command]. "
+            + "This structure is a subset of the https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle[GCS resource specification]. \n\n"
+            + "There is a command shortcut for specifying a lifecycle rule which deletes any objects more than N days old: \n\n"
+            + ".... \n\n"
+            + "terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365 \n\n"
+            + ".... \n\n",
     showDefaultValues = true)
 public class GcsBucket extends WsmBaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
