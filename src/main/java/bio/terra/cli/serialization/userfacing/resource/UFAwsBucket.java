@@ -7,6 +7,7 @@ import bio.terra.cli.cloud.aws.AwsStorageBucketsCow;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -69,8 +70,11 @@ public class UFAwsBucket extends UFResource {
     AwsStorageBucketsCow buckets =
         AwsStorageBucketsCow.create(
             WorkspaceManagerService.fromContext()
-                .getAwsResourceCredential(
-                    workspace.getUuid(), workspace.getResource(bucketPrefix).getId()),
+                .getAwsBucketCredential(
+                    workspace.getUuid(),
+                    workspace.getResource(bucketPrefix).getId(),
+                    AwsCredentialAccessScope.READ_ONLY,
+                    WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
             location);
 
     OUT.println(prefix + "DUMP: " + buckets.get(bucketName, bucketPrefix));
