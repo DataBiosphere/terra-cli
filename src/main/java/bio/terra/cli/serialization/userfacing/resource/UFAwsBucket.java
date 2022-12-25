@@ -1,7 +1,11 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
+import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsBucket;
+import bio.terra.cli.cloud.aws.AwsStorageBucketsCow;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -59,6 +63,18 @@ public class UFAwsBucket extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "AWS bucket: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
+
+    Workspace workspace = Context.requireWorkspace();
+
+    AwsStorageBucketsCow buckets =
+        AwsStorageBucketsCow.create(
+            WorkspaceManagerService.fromContext()
+                .getAwsResourceCredential(
+                    workspace.getUuid(), workspace.getResource(bucketPrefix).getId()),
+            location);
+
+    OUT.println(prefix + "DUMP: " + buckets.get(bucketName, bucketPrefix));
+
     OUT.println(
         prefix
             + "# Objects: "

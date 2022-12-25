@@ -148,7 +148,7 @@ public class WorkspaceManagerService {
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
   // default credential expiration duration
   private static final int AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
-  private static final int AWS_CREDENTIAL_EXPIRATION_SECONDS_PROXY_URL = 1800;
+  private static final int AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT = 43200;
   // the Terra environment where the WSM service lives
   private final Server server;
   // the client object used for talking to WSM
@@ -922,8 +922,8 @@ public class WorkspaceManagerService {
    * @param resourceId the resource id
    * @return AWS sagemaker notebook access credentials
    */
-  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId) {
-    return getAwsSageMakerNotebookCredential(
+  public AwsCredential getAwsResourceCredential(UUID workspaceId, UUID resourceId) {
+    return getAwsResourceCredential(
         workspaceId,
         resourceId,
         AwsCredentialAccessScope.READ_ONLY,
@@ -941,7 +941,7 @@ public class WorkspaceManagerService {
    * @param duration the duration for credential in seconds
    * @return AWS sagemaker notebook access credentials
    */
-  public AwsCredential getAwsSageMakerNotebookCredential(
+  public AwsCredential getAwsResourceCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
     return callWithRetries(
         () ->
@@ -1304,7 +1304,7 @@ public class WorkspaceManagerService {
   public AwsConsoleLink getAwsSageMakerProxyUrl(
       UUID workspaceId, UUID resourceId, AwsSageMakerProxyUrlView urlView) {
     return getAwsSageMakerProxyUrl(
-        workspaceId, resourceId, urlView, AWS_CREDENTIAL_EXPIRATION_SECONDS_PROXY_URL);
+        workspaceId, resourceId, urlView, AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT);
   }
 
   /**

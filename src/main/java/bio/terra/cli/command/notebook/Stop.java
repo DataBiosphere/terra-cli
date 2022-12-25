@@ -38,7 +38,7 @@ public class Stop extends BaseCommand {
       SageMakerNotebooksCow notebooks =
           SageMakerNotebooksCow.create(
               WorkspaceManagerService.fromContext()
-                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
+                  .getAwsResourceCredential(workspace.getUuid(), awsNotebook.getId()),
               awsNotebook.getLocation());
       notebooks.stop(awsNotebook.getInstanceId());
 

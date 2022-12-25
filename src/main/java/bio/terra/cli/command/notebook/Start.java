@@ -39,7 +39,7 @@ public class Start extends BaseCommand {
       SageMakerNotebooksCow notebooks =
           SageMakerNotebooksCow.create(
               WorkspaceManagerService.fromContext()
-                  .getAwsSageMakerNotebookCredential(workspace.getUuid(), awsNotebook.getId()),
+                  .getAwsResourceCredential(workspace.getUuid(), awsNotebook.getId()),
               awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());
       OUT.println("Notebook instance started");
