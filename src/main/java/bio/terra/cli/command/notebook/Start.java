@@ -11,6 +11,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
@@ -39,7 +40,11 @@ public class Start extends BaseCommand {
       SageMakerNotebooksCow notebooks =
           SageMakerNotebooksCow.create(
               WorkspaceManagerService.fromContext()
-                  .getAwsResourceCredential(workspace.getUuid(), awsNotebook.getId()),
+                  .getAwsSageMakerNotebookCredential(
+                      workspace.getUuid(),
+                      awsNotebook.getId(),
+                      AwsCredentialAccessScope.WRITE_READ,
+                      WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
               awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());
       OUT.println("Notebook instance started");
