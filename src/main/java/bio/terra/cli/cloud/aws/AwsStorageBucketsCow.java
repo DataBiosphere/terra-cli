@@ -6,8 +6,6 @@ import bio.terra.workspace.model.AwsCredential;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Iterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -28,7 +26,6 @@ import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 public class AwsStorageBucketsCow {
   private static final Duration AWS_STORAGE_BUCKET_WAITER_TIMEOUT_DURATION =
       Duration.ofSeconds(900);
-  private static final Logger logger = LoggerFactory.getLogger(AwsStorageBucketsCow.class);
   private final S3Client bucketsClient;
   private final S3Waiter bucketsWaiter;
 
@@ -140,15 +137,7 @@ public class AwsStorageBucketsCow {
     }
   }
 
-  public class AwsS3Blob {
-    private byte[] bytes;
-    private String encoding;
-
-    public AwsS3Blob(byte[] bytes, String encoding) {
-      this.bytes = bytes;
-      this.encoding = encoding;
-    }
-
+  public record AwsS3Blob(byte[] bytes, String encoding) {
     public String toString() {
       try {
         return new String(bytes, encoding);
