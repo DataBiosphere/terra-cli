@@ -30,17 +30,7 @@ public class UFAwsBucket extends UFResource {
     this.bucketName = internalObj.getBucketName();
     this.bucketPrefix = internalObj.getBucketPrefix();
     this.location = internalObj.getLocation();
-
-    this.numObjects = 1;
-    /*
-    // TODO(TERRA-207) add AWS account info - SA scope, proxy
-    AmazonCloudStorage storage = AmazonCloudStorage.fromContextForPetSa();
-    // TODO(TERRA-206) change to AWS BucketCow
-    Optional<BucketCow> bucket = storage.getBucket(bucketName);
-    this.numObjects =
-        bucket
-            .map((bucketCow) -> storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1))
-            .orElse(null);*/
+    this.numObjects = internalObj.numObjects(MAX_NUM_OBJECTS + 1);
   }
 
   /** Constructor for Jackson deserialization during testing. */

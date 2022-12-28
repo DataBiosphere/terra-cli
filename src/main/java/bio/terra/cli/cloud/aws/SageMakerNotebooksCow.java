@@ -26,7 +26,8 @@ import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 
 /** A Cloud Object Wrapper(COW) for AWS SageMakerClient Library: {@link SageMakerClient} */
 public class SageMakerNotebooksCow {
-  private static final Duration AWS_NOTEBOOK_WAITER_TIMEOUT_DURATION = Duration.ofSeconds(900);
+  private static final Duration SAGEMAKER_NOTEBOOK_WAITER_TIMEOUT_DURATION =
+      Duration.ofSeconds(900);
   private final Set<NotebookInstanceStatus> startableStatusSet =
       Set.of(NotebookInstanceStatus.STOPPED, NotebookInstanceStatus.FAILED);
   private final Set<NotebookInstanceStatus> stoppableStatusSet =
@@ -59,7 +60,8 @@ public class SageMakerNotebooksCow {
               .client(notebooksClient)
               .overrideConfiguration(
                   WaiterOverrideConfiguration.builder()
-                      .waitTimeout(AWS_NOTEBOOK_WAITER_TIMEOUT_DURATION)
+                      .maxAttempts(AwsClient.AWS_CLIENT_MAXIMUM_RETRIES)
+                      .waitTimeout(SAGEMAKER_NOTEBOOK_WAITER_TIMEOUT_DURATION)
                       .build())
               .build());
     } catch (Exception e) {
@@ -153,7 +155,8 @@ public class SageMakerNotebooksCow {
     } else if (status == NotebookInstanceStatus.STOPPED) {
       waiterResponse = notebooksWaiter.waitUntilNotebookInstanceStopped(describeRequest);
     } else {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException(
+          "Unsupported poll on notebook status " + status.toString());
     }
 
     ResponseOrException<DescribeNotebookInstanceResponse> responseOrException =

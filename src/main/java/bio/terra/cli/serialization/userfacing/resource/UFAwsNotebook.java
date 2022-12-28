@@ -54,14 +54,21 @@ public class UFAwsNotebook extends UFResource {
         prefix
             + "ProxyUrl (JUPYTER): "
             + WorkspaceManagerService.fromContext()
-                .getAwsSageMakerProxyUrl(workspaceId, resourceId, AwsSageMakerProxyUrlView.JUPYTER)
+                .getAwsSageMakerProxyUrl(
+                    workspaceId,
+                    resourceId,
+                    AwsSageMakerProxyUrlView.JUPYTER,
+                    WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
                 .getUrl());
     OUT.println(
         prefix
             + "ProxyUrl (JUPYTERLAB): "
             + WorkspaceManagerService.fromContext()
                 .getAwsSageMakerProxyUrl(
-                    workspaceId, resourceId, AwsSageMakerProxyUrlView.JUPYTERLAB)
+                    workspaceId,
+                    resourceId,
+                    AwsSageMakerProxyUrlView.JUPYTERLAB,
+                    WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
                 .getUrl());
   }
 

@@ -748,9 +748,6 @@ There is also a command shortcut for specifying this type of lifecycle rule (3).
 terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
 ```
 
-
-
-
 ##### GCS bucket object reference
 
 A reference to an GCS bucket object can be created by calling

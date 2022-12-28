@@ -146,9 +146,8 @@ public class WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerService.class);
   // maximum number of resources to fetch per call to the enumerate endpoint
   private static final int MAX_RESOURCES_PER_ENUMERATE_REQUEST = 100;
-  // default credential expiration duration
-  private static final int AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
-  private static final int AWS_CREDENTIAL_EXPIRATION_SECONDS_PROXY_URL = 1800;
+  public static final int AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
+  public static final int AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT = 43200;
   // the Terra environment where the WSM service lives
   private final Server server;
   // the client object used for talking to WSM
@@ -915,24 +914,27 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getCredential"
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}/credential"
    * endpoint to get AWS credentials to access the controlled notebook
    *
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the resource id
-   * @return AWS sagemaker notebook access credentials
+   * @param accessScope the access scope (READ_ONLY, WRITE_READ)
+   * @param duration the duration for credential in seconds
+   * @return AWS Bucket access credentials
    */
-  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId) {
-    return getAwsSageMakerNotebookCredential(
-        workspaceId,
-        resourceId,
-        AwsCredentialAccessScope.READ_ONLY,
-        AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT);
+  public AwsCredential getAwsBucketCredential(
+      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .getAwsBucketCredential(workspaceId, resourceId, accessScope, duration),
+        "Error getting AWS Storage Bucket credential.");
   }
 
   /**
    * Call the Workspace Manager
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getCredential"
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/credential"
    * endpoint to get AWS credentials to access the controlled notebook
    *
    * @param workspaceId the workspace that contains the resource
@@ -1293,23 +1295,7 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getProxyUrl"
-   * endpoint to get a proxy URL for direct access to the AWS SageMaker Notebook
-   *
-   * @param workspaceId the workspace to add the resource to
-   * @param resourceId the resource id
-   * @param urlView the url view (JUPYTER, JUPYTERLAB)
-   * @return the proxy URL for direct access to the AWS SageMaker Notebook
-   */
-  public AwsConsoleLink getAwsSageMakerProxyUrl(
-      UUID workspaceId, UUID resourceId, AwsSageMakerProxyUrlView urlView) {
-    return getAwsSageMakerProxyUrl(
-        workspaceId, resourceId, urlView, AWS_CREDENTIAL_EXPIRATION_SECONDS_PROXY_URL);
-  }
-
-  /**
-   * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/getProxyUrl"
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}/proxyUrl"
    * endpoint to get a proxy URL for direct access to the AWS SageMaker Notebook
    *
    * @param workspaceId the workspace to add the resource to
