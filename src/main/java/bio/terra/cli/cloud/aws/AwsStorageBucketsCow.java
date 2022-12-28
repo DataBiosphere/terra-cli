@@ -6,6 +6,8 @@ import bio.terra.workspace.model.AwsCredential;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -26,6 +28,7 @@ import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 public class AwsStorageBucketsCow {
   private static final Duration AWS_STORAGE_BUCKET_WAITER_TIMEOUT_DURATION =
       Duration.ofSeconds(900);
+  private final Logger logger = LoggerFactory.getLogger(AwsStorageBucketsCow.class);
   private final S3Client bucketsClient;
   private final S3Waiter bucketsWaiter;
 
@@ -97,13 +100,6 @@ public class AwsStorageBucketsCow {
    * error looking it up. This behavior is useful for display purposes.
    */
   public Integer getNumObjects(String bucketName, String bucketPrefix, long limit) {
-    /* TODO(TERRA-279)
-    numObjects: not supported for AWS
-    Terra bucket -> S3://<bucketName>/<bucketPrefix>
-    <bucketName> is shared across workspaces. Hence 's3:ListBucket' is not permitted
-    Subsequently objects with <bucketPrefix> cannot be listed / counted
-     */
-
     try {
       Iterator<ListObjectsV2Response> listIterator =
           bucketsClient
@@ -117,7 +113,11 @@ public class AwsStorageBucketsCow {
 
       int numObjectsCtr = 0;
       while (listIterator.hasNext() && (numObjectsCtr < limit)) {
-        numObjectsCtr += listIterator.next().keyCount();
+        numObjectsCtr +=
+            listIterator.next().contents().stream()
+                .filter(s3Object -> !s3Object.key().endsWith("/"))
+                .limit(limit - numObjectsCtr)
+                .count();
       }
       return numObjectsCtr;
 
