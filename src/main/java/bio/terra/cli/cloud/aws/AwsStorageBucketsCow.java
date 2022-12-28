@@ -138,11 +138,12 @@ public class AwsStorageBucketsCow {
   }
 
   public record AwsS3Blob(byte[] bytes, String encoding) {
-    public String toString() {
+    public String print() throws UnsupportedEncodingException {
       try {
         return new String(bytes, encoding);
       } catch (UnsupportedEncodingException e) {
-        throw new SystemException("Error getting object contents " + e.getClass().getName(), e);
+        throw new UnsupportedEncodingException(
+            "Error getting object contents - unsupported content type");
       }
     }
   }
