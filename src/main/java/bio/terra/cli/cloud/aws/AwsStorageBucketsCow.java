@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
+import software.amazon.awssdk.services.sagemaker.endpoints.internal.Value.Str;
 
 /** A Cloud Object Wrapper(COW) for AWS S3Client Library: {@link S3Client} */
 public class AwsStorageBucketsCow {
@@ -60,125 +62,63 @@ public class AwsStorageBucketsCow {
     }
   }
 
-  public String get(String bucketName, String bucketPrefix) {
+  public byte[] get(String bucketName, String bucketPrefix, boolean isFolder) { // todo-206
     try {
+      String objectKey = bucketPrefix;
+      if (isFolder) {
+        objectKey += "/";
+      }
+
       GetObjectResponse getResponse =
           bucketsClient
-              .getObject(GetObjectRequest.builder().bucket(bucketName).key(bucketPrefix).build())
+              .getObjectAsBytes(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build())
               .response();
 
       SdkHttpResponse httpResponse = getResponse.sdkHttpResponse();
-
       if (!httpResponse.isSuccessful()) {
         throw new SystemException(
             "Error getting storage bucket, "
                 + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
       }
-      // return TODO
-      logger.debug("TEST --> " + getResponse);
-      return getResponse.toString();
 
+      if (getResponse.deleteMarker() != null && getResponse.deleteMarker()) {
+        throw new UserActionableException("Cannot access storage bucket marked for deletion");
+      }
+
+      getResponse
+
+
+      logger.error("TEST 1 --> " + test.asByteArray());
+      // return TODO
+      return test.response().toString();
     } catch (Exception e) {
       checkException(e);
-      throw new SystemException("Error getting storage bucket", e);
+      throw new SystemException("Error getting storage bucket " + e.getClass().getName(), e);
     }
   }
 
+  /**
+   * Returns the number of objects in the bucket, up to the given limit, or null if there was an
+   * error looking it up. This behavior is useful for display purposes.
+   */
+  public Integer getNumObjects(String bucketName, String bucketPrefix, long limit) {
+    /*
+    numObjects: not supported for AWS
+    Terra bucket -> S3://<bucketName>/<bucketPrefix>
+    <bucketName> is shared across workspaces. Hence 's3:ListBucket' is not permitted
+    Subsequently objects with <bucketPrefix> cannot be listed / counted
+     */
+    throw new UnsupportedOperationException(
+        "Operation GetNumObjects not supported on platform AWS");
+  }
+
   public void checkException(Exception ex) {
-    if (ex instanceof NoSuchKeyException) {
+    if (ex instanceof NoSuchKeyException
+        || (ex instanceof SdkException && ex.getMessage().contains("Access Denied"))) {
       throw new UserActionableException(
           "Error accessing storage bucket, check the bucket name / permissions and retry");
     } else if (ex instanceof InvalidObjectStateException) {
       throw new UserActionableException("Cannot access archived storage bucket until restored");
     }
   }
-
-  /**
-   * Returns the number of objects in the bucket, up to the given limit, or null if there was an
-   * error looking it up. This behavior is useful for display purposes. / public Integer
-   * getNumObjects(BucketCow bucket, long limit) { try { Page<BlobCow> objList = callWithRetries( ()
-   * -> bucket.list(Storage.BlobListOption.pageSize(limit)), "Error looking up objects in bucket.");
-   * Iterator<BlobCow> objItr = objList.getValues().iterator();
-   *
-   * <p>int numObjectsCtr = 0; while (objItr.hasNext()) { numObjectsCtr++; objItr.next(); } return
-   * numObjectsCtr; } catch (Exception ex) { return null; } }
-   */
-
-  /**
-   * Utility method that checks if an exception thrown by the AWS client is retryable.
-   *
-   * @param ex exception to test
-   * @return true if the exception is retryable
-   */
-  /*
-   static boolean isRetryable(Exception ex) {
-     if (ex instanceof SocketTimeoutException) {
-       return true;
-     }
-     if (!(ex instanceof StorageException)) {
-       return false;
-     }
-     logger.error("Caught a AWS error.", ex);
-     int statusCode = ((StorageException) ex).getCode();
-
-     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-         || statusCode == HttpStatus.SC_BAD_GATEWAY
-         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
-         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-
-         // retry forbidden errors because we often see propagation delays when a user is just
-         // granted access
-         || statusCode == HttpStatus.SC_FORBIDDEN;
-   }
-
-   public Optional<BlobCow> getBlob(String bucketName, String blobPath) {
-     try {
-       BlobId blobId = BlobId.of(bucketName, blobPath);
-       BlobCow blobCow = callWithRetries(() -> storage.get(blobId), "Error looking up blob.");
-       return Optional.ofNullable(blobCow);
-     } catch (Exception e) {
-       return Optional.empty();
-     }
-   }
-
-  */
-
-  /**
-   * Execute a function that includes hitting AWS endpoints. Retry if the function throws an {@link
-   * #isRetryable} exception. If an exception is thrown by the AWS client or the retries, make sure
-   * the HTTP status code and error message are logged.
-   *
-   * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the AWS client or the retries
-   */
-  /* private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, StorageException> makeRequest, String errorMsg) {
-    return handleClientExceptions(
-        () ->
-            HttpUtils.callWithRetries(
-                makeRequest,
-                AwsStorageBucketsCow::isRetryable,
-                AWS_MAXIMUM_RETRIES,
-                HttpUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
-        errorMsg);
-  } */
-
-  /**
-   * Execute a function that includes hitting AWS endpoints. If an exception is thrown by the AWS
-   * client or the retries, make sure the HTTP status code and error message are logged.
-   *
-   * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the AWS client or the retries
-   */
-  /* private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, StorageException> makeRequest, String errorMsg) {
-    try {
-      return makeRequest.makeRequest();
-    } catch (StorageException | InterruptedException ex) {
-      // wrap the AWS exception and re-throw it
-      throw new SystemException(errorMsg, ex);
-    }
-  }*/
 }

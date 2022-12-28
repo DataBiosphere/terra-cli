@@ -156,7 +156,8 @@ public class SageMakerNotebooksCow {
     } else if (status == NotebookInstanceStatus.STOPPED) {
       waiterResponse = notebooksWaiter.waitUntilNotebookInstanceStopped(describeRequest);
     } else {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException(
+          "Unsupported poll on notebook status " + status.toString());
     }
 
     ResponseOrException<DescribeNotebookInstanceResponse> responseOrException =

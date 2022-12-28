@@ -158,12 +158,12 @@ public class AwsBucket extends Resource {
    */
   public static String resolve(
       String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {
-    String resolvedPath = String.format("%s/%s", awsBucketName, awsBucketPrefix);
+    String resolvedPath = String.format("%s/%s/", awsBucketName, awsBucketPrefix);
     return includeUrlPrefix ? AWS_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
   /** Query the cloud for information about the bucket. */
-  public Optional<BucketCow> getBucket() {
+  public Optional<byte[]> getBucket() {
     // TODO(TERRA-206) change to AWS BucketCow
     try {
       StorageCow storageCow =
