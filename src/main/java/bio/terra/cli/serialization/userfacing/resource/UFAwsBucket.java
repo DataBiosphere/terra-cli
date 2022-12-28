@@ -1,13 +1,8 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsBucket;
-import bio.terra.cli.cloud.aws.AwsStorageBucketsCow;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.workspace.model.AwsCredentialAccessScope;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -21,9 +16,13 @@ import java.io.PrintStream;
  */
 @JsonDeserialize(builder = UFAwsBucket.Builder.class)
 public class UFAwsBucket extends UFResource {
+  // the maximum number of objects to iterate through in the bucket.
+  // if there are more, we just add a "+" at the end for display
+  private static final long MAX_NUM_OBJECTS = 100;
   public final String bucketName;
   public final String bucketPrefix;
   public final String location;
+  public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFAwsBucket(AwsBucket internalObj) {
@@ -31,6 +30,7 @@ public class UFAwsBucket extends UFResource {
     this.bucketName = internalObj.getBucketName();
     this.bucketPrefix = internalObj.getBucketPrefix();
     this.location = internalObj.getLocation();
+    this.numObjects = internalObj.numObjects(MAX_NUM_OBJECTS + 1);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -39,6 +39,7 @@ public class UFAwsBucket extends UFResource {
     this.bucketName = builder.bucketName;
     this.bucketPrefix = builder.bucketPrefix;
     this.location = builder.location;
+    this.numObjects = builder.numObjects;
   }
 
   /** Print out this object in text format. */
@@ -48,20 +49,12 @@ public class UFAwsBucket extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "AWS bucket: " + AwsBucket.resolve(bucketName, bucketPrefix, true));
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-    // numObjects: not supported for AWS
-
-    Workspace workspace = Context.requireWorkspace();
-    AwsStorageBucketsCow buckets =
-        AwsStorageBucketsCow.create(
-            WorkspaceManagerService.fromContext()
-                .getAwsBucketCredential(
-                    workspace.getUuid(),
-                    workspace.getResource(bucketPrefix).getId(),
-                    AwsCredentialAccessScope.READ_ONLY,
-                    WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
-            location);
-
-    OUT.println(prefix + "DUMP: " + buckets.get(bucketName, bucketPrefix));
+    OUT.println(
+        prefix
+            + "# Objects: "
+            + (numObjects == null
+                ? "(unknown)"
+                : (numObjects > MAX_NUM_OBJECTS ? MAX_NUM_OBJECTS + "+" : numObjects)));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -69,6 +62,7 @@ public class UFAwsBucket extends UFResource {
     private String bucketName;
     private String bucketPrefix;
     private String location;
+    private Integer numObjects;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -85,6 +79,11 @@ public class UFAwsBucket extends UFResource {
 
     public Builder location(String location) {
       this.location = location;
+      return this;
+    }
+
+    public Builder numObjects(Integer numObjects) {
+      this.numObjects = numObjects;
       return this;
     }
 

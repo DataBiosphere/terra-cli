@@ -929,7 +929,7 @@ public class WorkspaceManagerService {
         () ->
             new ControlledAwsResourceApi(apiClient)
                 .getAwsBucketCredential(workspaceId, resourceId, accessScope, duration),
-        "Error getting AWS SageMaker Notebook credential.");
+        "Error getting AWS Storage Bucket credential.");
   }
 
   /**

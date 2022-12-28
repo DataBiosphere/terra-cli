@@ -3,11 +3,14 @@ package bio.terra.cli.cloud.aws;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.workspace.model.AwsCredential;
+import java.io.UnsupportedEncodingException;
 import java.time.Duration;
+import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.http.SdkHttpResponse;
@@ -16,13 +19,13 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
-import software.amazon.awssdk.services.sagemaker.endpoints.internal.Value.Str;
 
 /** A Cloud Object Wrapper(COW) for AWS S3Client Library: {@link S3Client} */
 public class AwsStorageBucketsCow {
-  private static final int AWS_CLIENT_MAXIMUM_RETRIES = 5;
   private static final Duration AWS_STORAGE_BUCKET_WAITER_TIMEOUT_DURATION =
       Duration.ofSeconds(900);
   private static final Logger logger = LoggerFactory.getLogger(AwsStorageBucketsCow.class);
@@ -53,7 +56,7 @@ public class AwsStorageBucketsCow {
               .client(bucketsClient)
               .overrideConfiguration(
                   WaiterOverrideConfiguration.builder()
-                      .maxAttempts(AWS_CLIENT_MAXIMUM_RETRIES)
+                      .maxAttempts(AwsClient.AWS_CLIENT_MAXIMUM_RETRIES)
                       .waitTimeout(AWS_STORAGE_BUCKET_WAITER_TIMEOUT_DURATION)
                       .build())
               .build());
@@ -62,18 +65,17 @@ public class AwsStorageBucketsCow {
     }
   }
 
-  public byte[] get(String bucketName, String bucketPrefix, boolean isFolder) { // todo-206
+  public AwsS3Blob get(String bucketName, String bucketPrefix) {
+    if (bucketPrefix.endsWith("/")) {
+      throw new UserActionableException("Get operation not supported on folder objects.");
+    }
+
     try {
-      String objectKey = bucketPrefix;
-      if (isFolder) {
-        objectKey += "/";
-      }
+      ResponseInputStream<GetObjectResponse> getResponseStream =
+          bucketsClient.getObject(
+              GetObjectRequest.builder().bucket(bucketName).key(bucketPrefix).build());
 
-      GetObjectResponse getResponse =
-          bucketsClient
-              .getObjectAsBytes(GetObjectRequest.builder().bucket(bucketName).key(objectKey).build())
-              .response();
-
+      GetObjectResponse getResponse = getResponseStream.response();
       SdkHttpResponse httpResponse = getResponse.sdkHttpResponse();
       if (!httpResponse.isSuccessful()) {
         throw new SystemException(
@@ -85,12 +87,8 @@ public class AwsStorageBucketsCow {
         throw new UserActionableException("Cannot access storage bucket marked for deletion");
       }
 
-      getResponse
+      return new AwsS3Blob(getResponseStream.readAllBytes(), getResponse.contentType());
 
-
-      logger.error("TEST 1 --> " + test.asByteArray());
-      // return TODO
-      return test.response().toString();
     } catch (Exception e) {
       checkException(e);
       throw new SystemException("Error getting storage bucket " + e.getClass().getName(), e);
@@ -102,14 +100,34 @@ public class AwsStorageBucketsCow {
    * error looking it up. This behavior is useful for display purposes.
    */
   public Integer getNumObjects(String bucketName, String bucketPrefix, long limit) {
-    /*
+    /* TODO(TERRA-279)
     numObjects: not supported for AWS
     Terra bucket -> S3://<bucketName>/<bucketPrefix>
     <bucketName> is shared across workspaces. Hence 's3:ListBucket' is not permitted
     Subsequently objects with <bucketPrefix> cannot be listed / counted
      */
-    throw new UnsupportedOperationException(
-        "Operation GetNumObjects not supported on platform AWS");
+
+    try {
+      Iterator<ListObjectsV2Response> listIterator =
+          bucketsClient
+              .listObjectsV2Paginator(
+                  ListObjectsV2Request.builder()
+                      .bucket(bucketName)
+                      .prefix(bucketPrefix + "/")
+                      .maxKeys(AwsClient.AWS_CLIENT_MAXIMUM_RESULTS_PER_CALL)
+                      .build())
+              .iterator();
+
+      int numObjectsCtr = 0;
+      while (listIterator.hasNext() && (numObjectsCtr < limit)) {
+        numObjectsCtr += listIterator.next().keyCount();
+      }
+      return numObjectsCtr;
+
+    } catch (Exception e) {
+      checkException(e);
+      throw new SystemException("Error getting storage bucket " + e.getClass().getName(), e);
+    }
   }
 
   public void checkException(Exception ex) {
@@ -119,6 +137,24 @@ public class AwsStorageBucketsCow {
           "Error accessing storage bucket, check the bucket name / permissions and retry");
     } else if (ex instanceof InvalidObjectStateException) {
       throw new UserActionableException("Cannot access archived storage bucket until restored");
+    }
+  }
+
+  public class AwsS3Blob {
+    private byte[] bytes;
+    private String encoding;
+
+    public AwsS3Blob(byte[] bytes, String encoding) {
+      this.bytes = bytes;
+      this.encoding = encoding;
+    }
+
+    public String toString() {
+      try {
+        return new String(bytes, encoding);
+      } catch (UnsupportedEncodingException e) {
+        throw new SystemException("Error getting object contents " + e.getClass().getName(), e);
+      }
     }
   }
 }

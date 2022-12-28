@@ -2,18 +2,17 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.cloud.aws.AwsStorageBucketsCow;
 import bio.terra.cli.serialization.persisted.resource.PDAwsBucket;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cli.service.utils.CrlUtils;
-import bio.terra.cloudres.google.storage.BucketCow;
-import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.workspace.model.AwsBucketResource;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.ResourceDescription;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,17 +161,21 @@ public class AwsBucket extends Resource {
     return includeUrlPrefix ? AWS_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
-  /** Query the cloud for information about the bucket. */
-  public Optional<byte[]> getBucket() {
-    // TODO(TERRA-206) change to AWS BucketCow
-    try {
-      StorageCow storageCow =
-          CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials());
-      return Optional.of(storageCow.get(bucketName));
-    } catch (Exception ex) {
-      logger.error("Caught exception looking up bucket", ex);
-      return Optional.empty();
-    }
+  /**
+   * Returns the number of objects in the bucket, up to the given limit, or null if there was an
+   * error looking it up. This behavior is useful for display purposes.
+   */
+  public Integer numObjects(long limit) {
+    Workspace workspace = Context.requireWorkspace();
+    return AwsStorageBucketsCow.create(
+            WorkspaceManagerService.fromContext()
+                .getAwsBucketCredential(
+                    workspace.getUuid(),
+                    workspace.getResource(bucketPrefix).getId(),
+                    AwsCredentialAccessScope.READ_ONLY,
+                    WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            location)
+        .getNumObjects(bucketName, bucketPrefix, limit);
   }
 
   // ====================================================

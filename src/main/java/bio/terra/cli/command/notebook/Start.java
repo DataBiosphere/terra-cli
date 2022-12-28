@@ -43,7 +43,7 @@ public class Start extends BaseCommand {
                   .getAwsSageMakerNotebookCredential(
                       workspace.getUuid(),
                       awsNotebook.getId(),
-                      AwsCredentialAccessScope.WRITE_READ,
+                      AwsCredentialAccessScope.READ_ONLY,
                       WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
               awsNotebook.getLocation());
       notebooks.start(awsNotebook.getInstanceId());

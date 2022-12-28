@@ -10,7 +10,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,19 +128,6 @@ public class AwsNotebook extends Resource {
             "%s.console.aws.amazon.com/sagemaker/home?region=%s#/notebook-instances/%s",
             location, location, instanceId);
     return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
-  }
-
-  /** Find the resource by instance id. */
-  public Optional<AwsNotebook> getResource(String instanceId) {
-    Resource resource = Context.requireWorkspace().getResource(instanceId);
-
-    if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
-      return Optional.of((AwsNotebook) resource);
-    } else {
-      logger.error(
-          "Specified resource is not a SageMaker notebook, but " + resource.getResourceType());
-      return Optional.empty();
-    }
   }
 
   // ====================================================

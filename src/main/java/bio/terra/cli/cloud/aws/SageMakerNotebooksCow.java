@@ -26,7 +26,6 @@ import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 
 /** A Cloud Object Wrapper(COW) for AWS SageMakerClient Library: {@link SageMakerClient} */
 public class SageMakerNotebooksCow {
-  private static final int AWS_CLIENT_MAXIMUM_RETRIES = 5;
   private static final Duration SAGEMAKER_NOTEBOOK_WAITER_TIMEOUT_DURATION =
       Duration.ofSeconds(900);
   private final Set<NotebookInstanceStatus> startableStatusSet =
@@ -61,7 +60,7 @@ public class SageMakerNotebooksCow {
               .client(notebooksClient)
               .overrideConfiguration(
                   WaiterOverrideConfiguration.builder()
-                      .maxAttempts(AWS_CLIENT_MAXIMUM_RETRIES)
+                      .maxAttempts(AwsClient.AWS_CLIENT_MAXIMUM_RETRIES)
                       .waitTimeout(SAGEMAKER_NOTEBOOK_WAITER_TIMEOUT_DURATION)
                       .build())
               .build());
