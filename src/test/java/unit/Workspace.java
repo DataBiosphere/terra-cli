@@ -48,7 +48,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("default platform is GCP on workspace create")
-  void statusDescribeListReflectCreateGcp() throws IOException { // TODO-dex
+  void statusDescribeListReflectCreateGcp() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
