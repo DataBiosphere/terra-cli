@@ -9,9 +9,9 @@ import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 import static unit.GcpNotebookControlled.listNotebookResourcesWithName;
 import static unit.GcpNotebookControlled.listOneNotebookResourceWithName;
 import static unit.GcpNotebookControlled.pollDescribeForNotebookState;
+import static unit.GcpWorkspace.listWorkspacesWithId;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
-import static unit.Workspace.listWorkspacesWithId;
 import static unit.WorkspaceUser.expectListedUserWithRoles;
 import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
