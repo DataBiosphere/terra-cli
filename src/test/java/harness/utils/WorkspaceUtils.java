@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,12 +43,14 @@ public class WorkspaceUtils {
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, Optional<CloudPlatform> platform) throws JsonProcessingException {
     // `terra workspace create --format=json`
-    String[] args = new String[] {"workspace", "create", "--id=" + createUserFacingId(), ""};
+    List<String> argsList = Arrays.asList("workspace", "create", "--id=" + createUserFacingId());
     if (platform.isPresent()) { // defaults to GCP otherwise
-      args[3] = "--platform=" + platform.get();
+      argsList.add("--platform=" + platform.get());
     }
 
-    UFWorkspace workspace = TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, args);
+    UFWorkspace workspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, argsList.toArray(new String[0]));
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
@@ -79,21 +83,21 @@ public class WorkspaceUtils {
       Optional<CloudPlatform> platform)
       throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
-    String[] args =
-        new String[] {
-          "workspace",
-          "create",
-          "--id=" + createUserFacingId(),
-          "--name=" + name,
-          "--description=" + description,
-          "--properties=" + properties,
-          ""
-        };
+    List<String> argsList =
+        Arrays.asList(
+            "workspace",
+            "create",
+            "--id=" + createUserFacingId(),
+            "--name=" + name,
+            "--description=" + description,
+            "--properties=" + properties);
     if (platform.isPresent()) { // defaults to GCP otherwise
-      args[3] = "--platform=" + platform.get();
+      argsList.add("--platform=" + platform.get());
     }
 
-    UFWorkspace workspace = TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, args);
+    UFWorkspace workspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, argsList.toArray(new String[0]));
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
