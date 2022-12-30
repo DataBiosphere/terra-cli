@@ -2,10 +2,12 @@ package harness.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
+import java.util.Optional;
 import java.util.UUID;
 
 /** Utilities for working with workspaces in CLI tests. */
@@ -25,10 +27,26 @@ public class WorkspaceUtils {
    */
   public static UFWorkspace createWorkspace(TestUser workspaceCreator)
       throws JsonProcessingException {
+    return createWorkspace(workspaceCreator, Optional.empty());
+  }
+
+  /**
+   * Create a new workspace and register it with Janitor if this test is running in an environment
+   * where Janitor is enabled. Tests must use this method in order to register workspaces with
+   * Janitor, direct calls to `terra workspace create` will potentially leak workspaces.
+   *
+   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
+   *     the WSM workspaceDelete request.
+   */
+  public static UFWorkspace createWorkspace(
+      TestUser workspaceCreator, Optional<CloudPlatform> platform) throws JsonProcessingException {
     // `terra workspace create --format=json`
-    UFWorkspace workspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "create", "--id=" + createUserFacingId());
+    String[] args = new String[] {"workspace", "create", "--id=" + createUserFacingId(), ""};
+    if (platform.isPresent()) { // defaults to GCP otherwise
+      args[3] = "--platform=" + platform.get();
+    }
+
+    UFWorkspace workspace = TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, args);
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
@@ -43,16 +61,39 @@ public class WorkspaceUtils {
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description, String properties)
       throws JsonProcessingException {
+    return createWorkspace(workspaceCreator, name, description, properties, Optional.empty());
+  }
+
+  /**
+   * Create a new workspace and register it with Janitor if this test is running in an environment
+   * where Janitor is enabled.
+   *
+   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
+   *     the WSM workspaceDelete request.
+   */
+  public static UFWorkspace createWorkspace(
+      TestUser workspaceCreator,
+      String name,
+      String description,
+      String properties,
+      Optional<CloudPlatform> platform)
+      throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
-    UFWorkspace workspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class,
-            "workspace",
-            "create",
-            "--id=" + createUserFacingId(),
-            "--name=" + name,
-            "--description=" + description,
-            "--properties=" + properties);
+    String[] args =
+        new String[] {
+          "workspace",
+          "create",
+          "--id=" + createUserFacingId(),
+          "--name=" + name,
+          "--description=" + description,
+          "--properties=" + properties,
+          ""
+        };
+    if (platform.isPresent()) { // defaults to GCP otherwise
+      args[3] = "--platform=" + platform.get();
+    }
+
+    UFWorkspace workspace = TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, args);
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
     return workspace;
   }
