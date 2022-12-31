@@ -72,7 +72,7 @@ public class Workspace {
     } else if (wsmObject.getAwsContext() != null) {
       this.cloudPlatform = CloudPlatform.AWS;
     } else {
-      throw new SystemException("CloudPlatform not initialized.");
+      this.cloudPlatform = null;
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
