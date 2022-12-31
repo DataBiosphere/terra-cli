@@ -72,7 +72,7 @@ public class Workspace {
     } else if (wsmObject.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
     } else {
-      throw new SystemException("CloudPlatform not initialized.");
+      this.cloudPlatform = null;
     }
     this.googleProjectId =
         wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();

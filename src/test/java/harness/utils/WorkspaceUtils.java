@@ -9,11 +9,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
@@ -46,7 +46,9 @@ public class WorkspaceUtils {
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, Optional<CloudPlatform> platform) throws JsonProcessingException {
     // `terra workspace create --format=json`
-    List<String> argsList = Arrays.asList("workspace", "create", "--id=" + createUserFacingId());
+    List<String> argsList =
+        Stream.of("workspace", "create", "--id=" + createUserFacingId())
+            .collect(Collectors.toList());
     if (platform.isPresent()) { // defaults to GCP otherwise
       argsList.add("--platform=" + platform.get());
     }
@@ -87,13 +89,15 @@ public class WorkspaceUtils {
       throws JsonProcessingException {
     // `terra workspace create --format=json --name=$name --description=$description`
     List<String> argsList =
-        Arrays.asList(
-            "workspace",
-            "create",
-            "--id=" + createUserFacingId(),
-            "--name=" + name,
-            "--description=" + description,
-            "--properties=" + properties);
+        Stream.of(
+                "workspace",
+                "create",
+                "--id=" + createUserFacingId(),
+                "--name=" + name,
+                "--description=" + description,
+                "--properties=" + properties)
+            .collect(Collectors.toList());
+    ;
     if (platform.isPresent()) { // defaults to GCP otherwise
       argsList.add("--platform=" + platform.get());
     }
