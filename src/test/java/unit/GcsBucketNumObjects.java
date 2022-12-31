@@ -10,7 +10,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for including the number of objects in a GCS bucket resource's description. */
 @Tag("unit")
-public class GcsBucketNumObjects extends SingleWorkspaceUnit {
+public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
 
