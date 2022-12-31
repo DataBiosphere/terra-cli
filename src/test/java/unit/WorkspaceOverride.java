@@ -11,7 +11,6 @@ import static unit.GcpNotebookControlled.listOneNotebookResourceWithName;
 import static unit.GcpNotebookControlled.pollDescribeForNotebookState;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
-import static unit.Workspace.listWorkspacesWithId;
 import static unit.WorkspaceUser.expectListedUserWithRoles;
 import static unit.WorkspaceUser.workspaceListUsersWithEmail;
 
@@ -378,11 +377,11 @@ public class WorkspaceOverride extends ClearContextUnit {
         "workspace", "delete", "--workspace=" + workspace3.id, "--quiet");
 
     // `terra workspace list`
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(workspace3.id);
+    List<UFWorkspaceLight> matchingWorkspaces = WorkspaceUtils.listWorkspacesWithId(workspace3.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace 3 is not included in list");
 
     // `terra workspace list`
-    matchingWorkspaces = listWorkspacesWithId(workspace1.id);
+    matchingWorkspaces = WorkspaceUtils.listWorkspacesWithId(workspace1.id);
     assertEquals(1, matchingWorkspaces.size(), "workspace 1 is still included in list");
   }
 

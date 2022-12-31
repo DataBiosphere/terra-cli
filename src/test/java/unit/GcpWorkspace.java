@@ -16,6 +16,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestCommand.Result;
 import harness.TestUser;
+import harness.baseclasses.ClearContextUnit;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.GCP. */
 @Tag("unit")
-public class GcpWorkspace extends Workspace {
+public class GcpWorkspace extends ClearContextUnit {
   private static final Optional<CloudPlatform> platformGcp = Optional.of(CloudPlatform.GCP);
 
   @Test
@@ -80,7 +81,8 @@ public class GcpWorkspace extends Workspace {
         "workspace gcp project matches that in describe");
 
     // check the new workspace is included in the list
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createdWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces =
+        WorkspaceUtils.listWorkspacesWithId(createdWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
     assertEquals(
         createdWorkspace.id, matchingWorkspaces.get(0).id, "workspace id matches that in list");
