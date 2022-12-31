@@ -12,7 +12,6 @@ import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.workspace.model.CloudPlatform;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -20,7 +19,6 @@ import harness.baseclasses.ClearContextUnit;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,26 +27,9 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
-  /**
-   * Helper method to call `terra workspace list` and filter the results on the specified workspace
-   * id. Use a high limit to ensure that leaked workspaces in the list don't cause the one we care
-   * about to page out.
-   */
-  static List<UFWorkspaceLight> listWorkspacesWithId(String userFacingId)
-      throws JsonProcessingException {
-    // `terra workspace list --format=json --limit=500`
-    List<UFWorkspaceLight> listWorkspaces =
-        TestCommand.runAndParseCommandExpectSuccess(
-            new TypeReference<>() {}, "workspace", "list", "--limit=500");
-
-    return listWorkspaces.stream()
-        .filter(workspace -> workspace.id.equals(userFacingId))
-        .collect(Collectors.toList());
-  }
-
   @Test
   @DisplayName("default platform is GCP on workspace create")
-  void statusDescribeListReflectCreateGcp() throws IOException {
+  void defaultPlatformSetOnCreate() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -91,7 +72,8 @@ public class Workspace extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "workspace", "describe");
 
     // check the deleted workspace is not included in the list
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(createdWorkspace.id);
+    List<UFWorkspaceLight> matchingWorkspaces =
+        WorkspaceUtils.listWorkspacesWithId(createdWorkspace.id);
     assertEquals(0, matchingWorkspaces.size(), "deleted workspace is not included in list");
   }
 
@@ -176,7 +158,7 @@ public class Workspace extends ClearContextUnit {
         "describe matches updated workspace description");
 
     // check the workspace list reflects the update
-    List<UFWorkspaceLight> matchingWorkspaces = listWorkspacesWithId(newId);
+    List<UFWorkspaceLight> matchingWorkspaces = WorkspaceUtils.listWorkspacesWithId(newId);
     assertEquals(
         1, matchingWorkspaces.size(), "updated workspace is included exactly once in list");
     assertEquals(
