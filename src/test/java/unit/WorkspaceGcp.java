@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.GCP. */
 @Tag("unit")
-public class GcpWorkspace extends ClearContextUnit {
+public class WorkspaceGcp extends ClearContextUnit {
   private static final Optional<CloudPlatform> platformGcp = Optional.of(CloudPlatform.GCP);
 
   @Test

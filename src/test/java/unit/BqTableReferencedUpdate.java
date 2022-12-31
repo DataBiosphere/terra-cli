@@ -6,7 +6,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
+public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
 
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;

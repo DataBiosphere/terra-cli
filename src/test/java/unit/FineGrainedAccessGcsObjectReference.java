@@ -14,7 +14,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.WorkspaceUtils;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /** Test for CLI command on GCS objects in a fine-grained access GCS bucket. */
 @Tag("unit")
-public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnit {
+public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp {
 
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
