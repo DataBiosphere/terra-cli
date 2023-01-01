@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra gcloud builds submit` commands. */
 @Tag("unit")
-public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
+public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
   @BeforeAll
   @Override

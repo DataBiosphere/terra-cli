@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled BQ datasets. */
 @Tag("unit")
-public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
+public class BqDatasetControlled extends SingleWorkspaceUnit {
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
