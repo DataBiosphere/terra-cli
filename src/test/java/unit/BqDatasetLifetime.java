@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.time.Duration;
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying default lifetimes for controlled BQ Datasets. */
 @Tag("unit")
-public class BqDatasetLifetime extends SingleWorkspaceUnitGcp {
+public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   /** Helper to covert a Duration in seconds to a String */
   private static String toSecondsString(Duration duration) {

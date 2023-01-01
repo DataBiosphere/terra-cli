@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("unit")
-public class BqTableReferenced extends SingleWorkspaceUnitGcp {
+public class BqTableReferenced extends SingleWorkspaceUnit {
 
   DatasetReference externalDataset;
   DatasetReference externalDataset2;
