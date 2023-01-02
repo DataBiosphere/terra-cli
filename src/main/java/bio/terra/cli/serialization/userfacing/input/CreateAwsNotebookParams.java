@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating a AWS notebook workspace resource. This class is not currently
+ * Parameters for creating an AWS notebook workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

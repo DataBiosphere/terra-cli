@@ -25,7 +25,7 @@ public class AwsNotebook extends WsmBaseCommand {
     returnValue.print();
   }
 
-  /** Update a AWS notebook in the workspace. */
+  /** Update an AWS notebook in the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
