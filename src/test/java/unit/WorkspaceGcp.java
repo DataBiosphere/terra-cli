@@ -119,7 +119,7 @@ public class WorkspaceGcp extends ClearContextUnit {
     UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        1, describedWorkspace.numResources, "worksapce has 1 resource after creating bucket");
+        1, describedWorkspace.numResources, "workspace has 1 resource after creating bucket");
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
     String datasetResourceName = "describeReflectsNumResourcesBQ";
@@ -146,7 +146,7 @@ public class WorkspaceGcp extends ClearContextUnit {
     UFWorkspace describedWorkspace3 =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        2, describedWorkspace3.numResources, "worksapce has 2 resources after creating dataset");
+        2, describedWorkspace3.numResources, "workspace has 2 resources after creating dataset");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
