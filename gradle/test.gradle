@@ -88,8 +88,8 @@ task runTestsWithTag(type: Test) {
     environment "TERRA_SERVER", terraServer
 
     // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigFileName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
-    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigFileName
+    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
+    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
 
     // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
     String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
