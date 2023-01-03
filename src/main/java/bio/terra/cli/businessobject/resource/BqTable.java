@@ -1,7 +1,5 @@
 package bio.terra.cli.businessobject.resource;
 
-import static bio.terra.cli.businessobject.resource.BqResolvedOptions.BQ_PROJECT_DATA_TABLE_DELIMITER;
-
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.persisted.resource.PDBqTable;
@@ -131,9 +129,15 @@ public class BqTable extends Resource {
     switch (resolveOption) {
       case FULL_PATH:
         return projectId
-            + BQ_PROJECT_DATA_TABLE_DELIMITER
+            + BqResolvedOptions.BQ_PROJECT_DELIMITER
             + datasetId
-            + BQ_PROJECT_DATA_TABLE_DELIMITER
+            + BqResolvedOptions.BQ_TABLE_DELIMITER
+            + dataTableId;
+      case FULL_PATH_SQL:
+        return projectId
+            + BqResolvedOptions.BQ_PROJECT_DELIMITER_SQL
+            + datasetId
+            + BqResolvedOptions.BQ_TABLE_DELIMITER
             + dataTableId;
       case TABLE_ID_ONLY:
         return dataTableId;

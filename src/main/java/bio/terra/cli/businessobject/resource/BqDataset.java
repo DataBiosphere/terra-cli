@@ -23,13 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BqDataset extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(BqDataset.class);
-  /**
-   * Delimiter between the project id and dataset id for a BigQuery dataset.
-   *
-   * <p>The choice is somewhat arbitrary. BigQuery Datatsets do not have true URIs. The '.'
-   * delimiter allows the path to be used directly in SQL calls with a BigQuery extension.
-   */
-  private static final char BQ_PROJECT_DATASET_DELIMITER = '.';
 
   private String projectId;
   private String datasetId;
@@ -164,7 +157,9 @@ public class BqDataset extends Resource {
   public String resolve(BqResolvedOptions resolveOption) {
     switch (resolveOption) {
       case FULL_PATH:
-        return projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;
+        return projectId + BqResolvedOptions.BQ_PROJECT_DELIMITER + datasetId;
+      case FULL_PATH_SQL:
+        return projectId + BqResolvedOptions.BQ_PROJECT_DELIMITER_SQL + datasetId;
       case DATASET_ID_ONLY:
         return datasetId;
       case PROJECT_ID_ONLY:

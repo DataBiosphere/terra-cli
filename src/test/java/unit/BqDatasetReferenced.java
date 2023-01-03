@@ -196,10 +196,18 @@ public class BqDatasetReferenced extends SingleWorkspaceUnit {
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertEquals(
-        ExternalBQDatasets.getDatasetFullPath(
-            externalDataset.getProjectId(), externalDataset.getDatasetId()),
+        externalDataset.getProjectId() + ":" + externalDataset.getDatasetId(),
         resolved.get(name),
-        "default resolve includes [project id].[dataset id]");
+        "default resolve includes [project id]:[dataset id]");
+
+    // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
+    JSONObject resolvedFullPathSql =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + name, "--bq-path=FULL_PATH_SQL");
+    assertEquals(
+        externalDataset.getProjectId() + "." + externalDataset.getDatasetId(),
+        resolvedFullPathSql.get(name),
+        "resolve with FULL_PATH_SQL includes [project id].[dataset id]");
 
     // `terra resource resolve --name=$name --bq-path=PROJECT_ID_ONLY --format=json`
     JSONObject resolvedProjectIdOnly =

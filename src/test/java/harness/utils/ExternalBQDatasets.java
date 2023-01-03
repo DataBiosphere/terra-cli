@@ -217,13 +217,24 @@ public class ExternalBQDatasets {
         .getService();
   }
 
-  /** Gets cloud identifier for Dataset in full-path: [project id].[dataset id] */
+  /** Gets cloud identifier for Dataset in full-path: [project id]:[dataset id] */
   public static String getDatasetFullPath(String projectId, String datasetId) {
+    return projectId + ":" + datasetId;
+  }
+
+  /** Gets cloud identifier for Dataset in full-path SQL: [project id].[dataset id] */
+  public static String getDatasetFullPathSql(String projectId, String datasetId) {
     return projectId + "." + datasetId;
   }
 
   /** Gets cloud identifier for data table in full-path: [project id].[dataset id].[table id] */
   public static String getDataTableFullPath(
+      String projectId, String datasetId, String dataTableId) {
+    return projectId + ":" + datasetId + "." + dataTableId;
+  }
+
+  /** Gets cloud identifier for data table in full-path: [project id].[dataset id].[table id] */
+  public static String getDataTableFullPathSql(
       String projectId, String datasetId, String dataTableId) {
     return projectId + "." + datasetId + "." + dataTableId;
   }
