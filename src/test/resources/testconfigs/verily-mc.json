@@ -1,0 +1,32 @@
+{
+  "testUsers": [
+    {
+      "email": "Penelope.TwilightsHammer@test.firecloud.org",
+      "spendEnabled": "OWNER"
+    },
+    {
+      "email": "John.Whiteclaw@test.firecloud.org",
+      "spendEnabled": "CLI_TEST_USERS_GROUP"
+    },
+    {
+      "email": "Lily.Shadowmoon@test.firecloud.org",
+      "spendEnabled": "CLI_TEST_USERS_GROUP"
+    },
+    {
+      "email": "Brooklyn.Thunderlord@test.firecloud.org",
+      "spendEnabled": "DIRECTLY"
+    },
+    {
+      "email": "Noah.Frostwolf@test.firecloud.org",
+      "spendEnabled": "DIRECTLY"
+    },
+    {
+      "email": "Ethan.Bonechewer@test.firecloud.org",
+      "spendEnabled": "NO"
+    }
+  ],
+  "projectForExternalResources": "terra-cli-test",
+  "useJanitor": true,
+  "janitorPubSubTopic": "crljanitor-tools-pubsub-topic",
+  "janitorPubSubProjectId": "terra-kernel-k8s"
+}

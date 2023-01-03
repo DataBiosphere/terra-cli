@@ -1,10 +1,7 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,7 +11,6 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
-import harness.TestCommand.Result;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.WorkspaceUtils;
@@ -29,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit")
 public class WorkspaceAws extends ClearContextUnit {
-  private static final Optional<CloudPlatform> platformGcp = Optional.of(CloudPlatform.AWS);
+  private static final Optional<CloudPlatform> platformAws = Optional.of(CloudPlatform.AWS);
 
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
@@ -38,11 +34,12 @@ public class WorkspaceAws extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformAws);
 
-    // check the created workspace has an id and a google project
+    // check the created workspace has an id and an aws landing zone
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
-    assertNotNull(createdWorkspace.googleProjectId, "create workspace created a gcp project");
+    assertNotNull(createdWorkspace.awsAccountNumber, "create workspace with an aws account");
+    assertNotNull(createdWorkspace.landingZoneId, "create workspace created a landing zone");
     assertThat(
         "workspace email matches test user",
         createdWorkspace.userEmail,
@@ -50,8 +47,8 @@ public class WorkspaceAws extends ClearContextUnit {
 
     // check the created workspace has cloud platform set
     assertThat(
-        "workspace cloudPlatform matches GCP",
-        CloudPlatform.GCP,
+        "workspace cloudPlatform matches AWS",
+        CloudPlatform.AWS,
         equalTo(createdWorkspace.cloudPlatform));
 
     // `terra status --format=json`
@@ -64,9 +61,13 @@ public class WorkspaceAws extends ClearContextUnit {
         equalToIgnoringCase(status.server.name));
     assertEquals(createdWorkspace.id, status.workspace.id, "workspace id matches current status");
     assertEquals(
-        createdWorkspace.googleProjectId,
-        status.workspace.googleProjectId,
-        "workspace gcp project matches current status");
+        createdWorkspace.awsAccountNumber,
+        status.workspace.awsAccountNumber,
+        "workspace aws account matches current status");
+    assertEquals(
+        createdWorkspace.landingZoneId,
+        status.workspace.landingZoneId,
+        "workspace landing zone matches current status");
 
     // `terra workspace describe --format=json`
     UFWorkspace describedWorkspace =
@@ -76,9 +77,13 @@ public class WorkspaceAws extends ClearContextUnit {
     assertEquals(
         createdWorkspace.id, describedWorkspace.id, "workspace id matches that in describe");
     assertEquals(
-        createdWorkspace.googleProjectId,
-        describedWorkspace.googleProjectId,
-        "workspace gcp project matches that in describe");
+        createdWorkspace.awsAccountNumber,
+        describedWorkspace.awsAccountNumber,
+        "workspace aws account matches that in describe");
+    assertEquals(
+        createdWorkspace.landingZoneId,
+        describedWorkspace.landingZoneId,
+        "workspace landing zone matches that in describe");
 
     // check the new workspace is included in the list
     List<UFWorkspaceLight> matchingWorkspaces =
@@ -87,9 +92,13 @@ public class WorkspaceAws extends ClearContextUnit {
     assertEquals(
         createdWorkspace.id, matchingWorkspaces.get(0).id, "workspace id matches that in list");
     assertEquals(
-        createdWorkspace.googleProjectId,
-        matchingWorkspaces.get(0).googleProjectId,
-        "workspace gcp project matches that in list");
+        createdWorkspace.awsAccountNumber,
+        matchingWorkspaces.get(0).awsAccountNumber,
+        "workspace aws account matches that in list");
+    assertEquals(
+        createdWorkspace.landingZoneId,
+        matchingWorkspaces.get(0).landingZoneId,
+        "workspace landing zone matches that in list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -102,16 +111,16 @@ public class WorkspaceAws extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformAws);
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
-    String bucketResourceName = "describeReflectsNumResourcesGCS";
+    // `terra resource create aws-bucket --name=$name --bucket-name=$bucketName`
+    String bucketResourceName = "describeReflectsNumResourcesS3";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
-        "gcs-bucket",
+        "aws-bucket",
         "--name=" + bucketResourceName,
         "--bucket-name=" + bucketName);
 
@@ -119,34 +128,7 @@ public class WorkspaceAws extends ClearContextUnit {
     UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        1, describedWorkspace.numResources, "worksapce has 1 resource after creating bucket");
-
-    // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
-    String datasetResourceName = "describeReflectsNumResourcesBQ";
-    String datasetId = "bq1";
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "bq-dataset",
-        "--name=" + datasetResourceName,
-        "--dataset-id=" + datasetId);
-
-    // `terra workspace describe`
-    Result describeResult2 = TestCommand.runCommand("workspace", "describe");
-    assertEquals(0, describeResult2.exitCode, "Describe was successful.");
-    assertThat(
-        "workspace has 2 resources after creating dataset",
-        describeResult2.stdOut,
-        containsString("# Resources:       2"));
-    assertThat(
-        "No error message is displayed on second describe.",
-        describeResult2.stdErr,
-        is(emptyString()));
-
-    UFWorkspace describedWorkspace3 =
-        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
-    assertEquals(
-        2, describedWorkspace3.numResources, "worksapce has 2 resources after creating dataset");
+        1, describedWorkspace.numResources, "workspace has 1 resource after creating bucket");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
