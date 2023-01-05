@@ -53,6 +53,7 @@ public class Workspace {
     } else if (wsmObject.getAzureContext() != null) {
       cloudPlatform = CloudPlatform.AZURE;
     }
+    }
   }
 
   /** Build an instance of this class from the serialized format on disk. */
