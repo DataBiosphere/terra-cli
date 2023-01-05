@@ -20,6 +20,8 @@ terra status
 # Bucket names must be globally unique, so use a random UUID with the dashes removed for the bucket name.
 # Terra resource names must only be unique within the workspace, so use a fixed string for the resource name.
 
+terra workspace describe
+
 resourceName="terraclitesting"
 bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
 echo "resourceName: $resourceName, bucketName: $bucketName"
