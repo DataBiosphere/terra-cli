@@ -275,7 +275,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create a controlled dataset, specifying all options")
-  void createWithAllOptions() throws IOException {
+  void createWithAllOptions() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -318,8 +318,9 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "create output matches private user name");
 
     Dataset createdDatasetOnCloud =
-        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .getDataset(DatasetId.of(workspace.googleProjectId, datasetId));
+        ExternalBQDatasets.getDataset(
+            workspaceCreator.getCredentialsWithCloudPlatformScope(),
+            DatasetId.of(workspace.googleProjectId, datasetId));
     assertNotNull(createdDatasetOnCloud, "looking up dataset via BQ API succeeded");
     assertEquals(
         location, createdDatasetOnCloud.getLocation(), "dataset location matches create input");

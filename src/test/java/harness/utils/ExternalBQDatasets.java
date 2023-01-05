@@ -12,6 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
@@ -189,6 +190,25 @@ public class ExternalBQDatasets {
                 && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
         5,
         Duration.ofMinutes(1));
+  }
+
+  /** Utility method to get an arbitrary dataset. */
+  public static com.google.cloud.bigquery.Dataset getDataset(
+      GoogleCredentials credentials, DatasetId datasetId) throws InterruptedException {
+    BigQuery bqClient = getBQClient(credentials);
+
+    // retry forbidden errors because we often see propagation delays when a user is just granted
+    // access
+    HttpUtils.callWithRetries(
+        () -> {
+          return bqClient.getDataset(datasetId);
+        },
+        (ex) ->
+            (ex instanceof BigQueryException)
+                && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+        5,
+        Duration.ofMinutes(1));
+    return null;
   }
 
   /**

@@ -44,7 +44,8 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with default partition lifetime only")
-  void createWithDefaultPartitionLifetime(TestInfo testInfo) throws IOException {
+  void createWithDefaultPartitionLifetime(TestInfo testInfo)
+      throws IOException, InterruptedException {
 
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration lifetime = Duration.ofSeconds(9600);
@@ -58,7 +59,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with default table lifetime only")
-  void createWithDefaultTableLifetime(TestInfo testInfo) throws IOException {
+  void createWithDefaultTableLifetime(TestInfo testInfo) throws IOException, InterruptedException {
 
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration lifetime = Duration.ofHours(2);
@@ -72,7 +73,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with both default lifetimes")
-  void createWithBothDefaultLifetimes(TestInfo testInfo) throws IOException {
+  void createWithBothDefaultLifetimes(TestInfo testInfo) throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration partitionLifetime = Duration.ofSeconds(9600);
     final Duration tableLifetime = Duration.ofSeconds(4800);
@@ -88,7 +89,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with no default lifetimes and test update calls")
-  void updateDefaultLifetimes(TestInfo testInfo) throws IOException {
+  void updateDefaultLifetimes(TestInfo testInfo) throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration partitionLifetime = Duration.ofSeconds(9600);
     final Duration tableLifetime = Duration.ofSeconds(4800);
@@ -179,13 +180,13 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
       UFBqDataset bqDataset,
       @Nullable Long defaultPartitionLifetimeMilliseconds,
       @Nullable Long defaultTableLifetimeMilliseconds)
-      throws IOException {
+      throws IOException, InterruptedException {
 
     DatasetId datasetId = DatasetId.of(bqDataset.projectId, bqDataset.datasetId);
 
     Dataset dataset =
-        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .getDataset(datasetId);
+        ExternalBQDatasets.getDataset(
+            workspaceCreator.getCredentialsWithCloudPlatformScope(), datasetId);
 
     assertNotNull(dataset, "looking up dataset via BQ API succeeded");
     assertEquals(dataset.getDefaultPartitionExpirationMs(), defaultPartitionLifetimeMilliseconds);
