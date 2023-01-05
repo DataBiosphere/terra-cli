@@ -88,7 +88,10 @@ public abstract class CommandRunner {
 
     terraEnvVars.put("TERRA_USER_EMAIL", Context.requireUser().getEmail());
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
-    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
+    if (Context.requireWorkspace().getGoogleProjectId().isPresent()) {
+      terraEnvVars.put(
+          "GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId().get());
+    }
 
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
@@ -139,7 +142,7 @@ public abstract class CommandRunner {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
     Context.requireWorkspace()
-        .listResourcesAndSync()
+        .listResources()
         .forEach(
             resource -> {
               String envVariable = convertToEnvironmentVariable(resource.getName());

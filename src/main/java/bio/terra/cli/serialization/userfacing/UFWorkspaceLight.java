@@ -1,13 +1,18 @@
 package bio.terra.cli.serialization.userfacing;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.CloudPlatform;
+import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
+import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** This is used instead of UFWorkspace, if workspace resources aren't needed. */
 public class UFWorkspaceLight {
@@ -32,15 +37,17 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
-    this.name = internalObj.getName();
-    this.description = internalObj.getDescription();
+    this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.cloudPlatform = internalObj.getCloudPlatform();
-    this.googleProjectId = internalObj.getGoogleProjectId();
-    this.properties = internalObj.getProperties();
-    this.serverName = internalObj.getServerName();
-    this.userEmail = internalObj.getUserEmail();
-    this.createdDate = internalObj.getCreatedDate();
-    this.lastUpdatedDate = internalObj.getLastUpdatedDate();
+
+    WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
+    this.name = workspaceDescription.getDisplayName();
+    this.description = workspaceDescription.getDescription();
+    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.userEmail = Context.requireUser().getEmail();
+    this.serverName = Context.getServer().getName();
+    this.createdDate = workspaceDescription.getCreatedDate();
+    this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -85,11 +92,10 @@ public class UFWorkspaceLight {
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
     }
-    if (properties == null) {
-      return;
+    if (properties != null) {
+      OUT.println("Properties:");
+      properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     }
-    OUT.println("Properties:");
-    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println("Created:           " + createdDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
     OUT.println("Last updated:      " + lastUpdatedDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
@@ -166,5 +172,9 @@ public class UFWorkspaceLight {
     public UFWorkspaceLight build() {
       return new UFWorkspaceLight(this);
     }
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 }
