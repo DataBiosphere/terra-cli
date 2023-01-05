@@ -365,9 +365,10 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
     pollDescribeForNotebookState(name, "ACTIVE");
 
-    // Poll until the test user can get the notebook directly to confirm cloud permissions have
-    // synced. The UFGcpNotebook object is not fully populated at creation time, so we need an
-    // additional
+    // Poll until the test user can get the notebook IAM bindings directly to confirm cloud
+    // permissions have
+    // synced. This works because we give "notebooks.instances.getIamPolicy" to notebook editors.
+    // The UFGcpNotebook object is not fully populated at creation time, so we need an additional
     // `describe` call here.
     UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -376,7 +377,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         () ->
             CrlUtils.createNotebooksCow(workspaceCreator.getCredentialsWithCloudPlatformScope())
                 .instances()
-                .get(createdNotebook.instanceName)
+                .getIamPolicy(createdNotebook.instanceName)
                 .execute(),
         Objects::nonNull);
 

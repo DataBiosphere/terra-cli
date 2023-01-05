@@ -2,28 +2,24 @@ package harness.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.workspace.model.CloudPlatform;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
 import java.io.IOException;
-import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
-import bio.terra.workspace.model.CloudPlatform;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import harness.CRLJanitor;
-import harness.TestCommand;
-import harness.TestUser;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
@@ -42,8 +38,7 @@ public class WorkspaceUtils {
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.
    */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
-      throws IOException {
+  public static UFWorkspace createWorkspace(TestUser workspaceCreator) throws IOException {
     return createWorkspace(workspaceCreator, Optional.empty());
   }
 
