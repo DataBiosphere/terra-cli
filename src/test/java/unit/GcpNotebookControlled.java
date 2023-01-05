@@ -13,7 +13,7 @@ import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
 @Tag("unit")
-public class GcpNotebookControlled extends SingleWorkspaceUnit {
+public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to poll `terra resources describe` until the notebook state equals that
    * specified. Uses the current workspace.

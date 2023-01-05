@@ -39,7 +39,7 @@ public final class TestConfig {
     if (INSTANCE == null) {
       String testConfigFileName = getTestConfigName() + ".json";
       if (testConfigFileName == null || testConfigFileName.isEmpty()) {
-        throw new SystemException("TERRA_TEST_CONFIG_FILE_NAME must be set");
+        throw new SystemException("TERRA_TEST_CONFIG_NAME must be set");
       }
       TestConfig testConfig = fromJsonFile(testConfigFileName);
       validateTestConfig(testConfig, testConfigFileName);

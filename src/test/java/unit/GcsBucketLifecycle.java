@@ -10,7 +10,7 @@ import com.google.api.client.util.DateTime;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageClass;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying lifecycle rules for controlled GCS buckets. */
 @Tag("unit")
-public class GcsBucketLifecycle extends SingleWorkspaceUnit {
+public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   /**
    * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for

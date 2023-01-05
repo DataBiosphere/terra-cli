@@ -13,7 +13,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle referenced GCS buckets. */
 @Tag("unit")
-public class GcsBucketReferenced extends SingleWorkspaceUnit {
+public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
 
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalSharedBucket;
