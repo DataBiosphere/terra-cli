@@ -6,7 +6,9 @@ import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.api.services.bigquery.model.Dataset;
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * External representation of a workspace BigQuery dataset resource for command input/output.
@@ -27,9 +29,10 @@ public class UFBqDataset extends UFResource {
     super(internalObj);
     this.projectId = internalObj.getProjectId();
     this.datasetId = internalObj.getDatasetId();
-    this.location = internalObj.getRegion();
 
     GoogleBigQuery bigQuery = GoogleBigQuery.fromContextForPetSa();
+    Optional<Dataset> dataset = bigQuery.getDataset(projectId, datasetId);
+    this.location = dataset.map(Dataset::getLocation).orElse(null);
     this.numTables = bigQuery.getNumTables(projectId, datasetId).orElse(null);
   }
 
@@ -49,7 +52,7 @@ public class UFBqDataset extends UFResource {
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCP project id: " + projectId);
     OUT.println(prefix + "BigQuery dataset id: " + datasetId);
-    OUT.println(prefix + "Region: " + (location == null ? "(undefined)" : location));
+    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(prefix + "# Tables: " + (numTables == null ? "(unknown)" : numTables));
   }
 
