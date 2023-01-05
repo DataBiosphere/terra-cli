@@ -54,6 +54,7 @@ public abstract class UFResource {
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
   public final Properties properties;
+  public final String region;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {
@@ -68,6 +69,7 @@ public abstract class UFResource {
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
     this.properties = internalObj.getProperties();
+    this.region = internalObj.getRegion();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -83,6 +85,7 @@ public abstract class UFResource {
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
     this.properties = builder.properties;
+    this.region = builder.region;
   }
 
   /**
@@ -101,6 +104,7 @@ public abstract class UFResource {
     if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
       OUT.println(prefix + "Access scope: " + accessScope);
       OUT.println(prefix + "Managed by:   " + managedBy);
+      OUT.println(prefix + "Region:       " + (region == null ? "Undefined" : region));
 
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
         OUT.println(prefix + "Private user: " + privateUserName);
@@ -127,6 +131,7 @@ public abstract class UFResource {
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
     private Properties properties;
+    private String region;
 
     /** Default constructor for Jackson. */
     public Builder() {}

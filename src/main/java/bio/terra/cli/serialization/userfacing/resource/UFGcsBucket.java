@@ -30,10 +30,10 @@ public class UFGcsBucket extends UFResource {
   public UFGcsBucket(GcsBucket internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
+    this.location = internalObj.getRegion();
 
     GoogleCloudStorage storage = GoogleCloudStorage.fromContextForPetSa();
     Optional<BucketCow> bucket = storage.getBucket(bucketName);
-    this.location = bucket.map((bucketCow) -> bucketCow.getBucketInfo().getLocation()).orElse(null);
     this.numObjects =
         bucket
             .map((bucketCow) -> storage.getNumObjects(bucket.get(), MAX_NUM_OBJECTS + 1))
@@ -54,7 +54,6 @@ public class UFGcsBucket extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "GCS bucket name: " + bucketName);
-    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
     OUT.println(
         prefix
             + "# Objects: "
