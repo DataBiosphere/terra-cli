@@ -53,6 +53,8 @@ public abstract class Resource {
 
   protected Properties properties;
 
+  protected String region;
+
   /** Deserialize an instance of the disk format to the internal object. */
   protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
@@ -66,6 +68,7 @@ public abstract class Resource {
     this.privateUserName = configFromDisk.privateUserName;
     this.privateUserRole = configFromDisk.privateUserRole;
     this.properties = configFromDisk.properties;
+    this.region = configFromDisk.region;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -80,6 +83,7 @@ public abstract class Resource {
       ControlledResourceMetadata controlledMetadata = metadata.getControlledResourceMetadata();
       this.accessScope = controlledMetadata.getAccessScope();
       this.managedBy = controlledMetadata.getManagedBy();
+      this.region = controlledMetadata.getRegion();
 
       PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
@@ -234,6 +238,10 @@ public abstract class Resource {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public String getRegion() {
+    return region;
   }
 
   /**
