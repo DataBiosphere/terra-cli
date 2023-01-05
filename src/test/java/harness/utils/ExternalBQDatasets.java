@@ -199,16 +199,13 @@ public class ExternalBQDatasets {
 
     // retry forbidden errors because we often see propagation delays when a user is just granted
     // access
-    HttpUtils.callWithRetries(
-        () -> {
-          return bqClient.getDataset(datasetId);
-        },
+    return HttpUtils.callWithRetries(
+        () -> bqClient.getDataset(datasetId),
         (ex) ->
             (ex instanceof BigQueryException)
                 && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
         5,
         Duration.ofMinutes(1));
-    return null;
   }
 
   /**
