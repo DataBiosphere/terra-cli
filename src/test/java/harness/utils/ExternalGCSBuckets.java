@@ -161,6 +161,22 @@ public class ExternalGCSBuckets {
         Duration.ofMinutes(1));
   }
 
+  /** Utility method to get an arbitrary bucket. */
+  public static Bucket getBucket(GoogleCredentials credentials, String bucketName)
+      throws InterruptedException {
+    Storage storageClient = getStorageClient(credentials);
+
+    // retry forbidden errors because we often see propagation delays when a user is just granted
+    // access
+    return HttpUtils.callWithRetries(
+        () -> storageClient.get(bucketName),
+        (ex) ->
+            (ex instanceof StorageException)
+                && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+        5,
+        Duration.ofSeconds(30));
+  }
+
   /**
    * Helper method to build the CRL wrapper around the GCS client object with SA credentials that
    * have permissions on the external (to WSM) project.
@@ -198,10 +214,9 @@ public class ExternalGCSBuckets {
 
   /** Helper method to get the lifecycle rules on the bucket by querying GCS directly. */
   public static List<? extends LifecycleRule> getLifecycleRulesFromCloud(
-      String bucketName, TestUser workspaceCreator) throws IOException {
+      String bucketName, TestUser workspaceCreator) throws IOException, InterruptedException {
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        getBucket(workspaceCreator.getCredentialsWithCloudPlatformScope(), bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =

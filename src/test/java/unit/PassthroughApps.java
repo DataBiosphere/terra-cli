@@ -389,7 +389,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
-  void sameFormatForExternalBucket() throws IOException {
+  void sameFormatForExternalBucket() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());

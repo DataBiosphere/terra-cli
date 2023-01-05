@@ -249,7 +249,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("create a controlled bucket, specifying all options except lifecycle")
-  void createWithAllOptionsExceptLifecycle() throws IOException {
+  void createWithAllOptionsExceptLifecycle() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -291,8 +291,9 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
         "create output matches private user name");
 
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        ExternalGCSBuckets.getBucket(
+            workspaceCreator.getCredentialsWithCloudPlatformScope(), bucketName);
+
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         location, createdBucketOnCloud.getLocation(), "bucket location matches create input");

@@ -205,7 +205,7 @@ public class ExternalBQDatasets {
             (ex instanceof BigQueryException)
                 && ((BigQueryException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
         5,
-        Duration.ofMinutes(1));
+        Duration.ofSeconds(30));
   }
 
   /**
