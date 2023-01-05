@@ -1,10 +1,12 @@
 package harness.baseclasses;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
 import harness.utils.WorkspaceUtils;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -29,7 +31,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     workspaceCreator.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator, getPlatform());
     userFacingId = createdWorkspace.id;
   }
 
@@ -46,5 +48,9 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  protected Optional<CloudPlatform> getPlatform() {
+    return Optional.empty(); // defaults to GCP during create
   }
 }
