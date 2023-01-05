@@ -132,15 +132,15 @@ public class WorkspaceGcp extends ClearContextUnit {
         "--dataset-id=" + datasetId);
 
     // `terra workspace describe`
-    Result describeResult2 = TestCommand.runCommand("workspace", "describe");
-    assertEquals(0, describeResult2.exitCode, "Describe was successful.");
+    Result describeResult = TestCommand.runCommand("workspace", "describe");
+    assertEquals(0, describeResult.exitCode, "Describe was successful.");
     assertThat(
         "workspace has 2 resources after creating dataset",
-        describeResult2.stdOut,
+        describeResult.stdOut,
         containsString("# Resources:       2"));
     assertThat(
         "No error message is displayed on second describe.",
-        describeResult2.stdErr,
+        describeResult.stdErr,
         is(emptyString()));
 
     UFWorkspace describedWorkspace3 =

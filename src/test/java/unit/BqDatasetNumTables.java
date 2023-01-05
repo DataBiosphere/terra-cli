@@ -74,8 +74,13 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
             "--name=" + name,
             "--dataset-id=" + datasetId);
 
+    // `terra resource describe --name=$name`
+    UFBqDataset describedDataset =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFBqDataset.class, "resource", "describe", "--name=" + name);
+
     // check that there are initially 0 tables reported in the dataset
-    assertEquals(0, createdDataset.numTables, "created dataset contains 0 tables");
+    assertEquals(0, describedDataset.numTables, "created dataset contains 0 tables");
 
     // create a table in the dataset
     String tableName = "testTable";
@@ -86,7 +91,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
         tableName);
 
     // `terra resource describe --name=$name`
-    UFBqDataset describedDataset =
+    describedDataset =
         TestCommand.runAndParseCommandExpectSuccess(
             UFBqDataset.class, "resource", "describe", "--name=" + name);
 
