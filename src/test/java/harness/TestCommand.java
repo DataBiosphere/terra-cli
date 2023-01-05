@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,6 +121,21 @@ public class TestCommand {
   public static Result runAndGetResultExpectSuccess(String... args) {
     Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd;
+  }
+
+  /** Helper method to run a command, parse stdout for error strings and retry upto the limit */
+  public static Result runAndGetResultWithRetries(
+      String retryString, int maxTries, Duration sleepDuration, String... args)
+      throws InterruptedException {
+    Result cmd = null;
+    do {
+      cmd = runCommand(args);
+      if ((cmd.exitCode == 0) || !cmd.stdOut.contains(retryString)) {
+        return cmd;
+      }
+      Thread.sleep(sleepDuration.toMillis());
+    } while (maxTries-- > 1);
     return cmd;
   }
 

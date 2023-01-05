@@ -88,8 +88,13 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
             "--name=" + name,
             "--bucket-name=" + bucketName);
 
+    // `terra resource describe --name=$name`
+    UFGcsBucket describedBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "describe", "--name=" + name);
+
     // check that there are initially 0 objects reported in the bucket
-    assertEquals(0, createdBucket.numObjects, "created bucket contains 0 objects");
+    assertEquals(0, describedBucket.numObjects, "created bucket contains 0 objects");
 
     // write a blob to the bucket
     String blobName = "testBlob";
@@ -97,7 +102,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
         workspaceCreator.getCredentialsWithCloudPlatformScope(), bucketName, blobName);
 
     // `terra resource describe --name=$name`
-    UFGcsBucket describedBucket =
+    describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + name);
 

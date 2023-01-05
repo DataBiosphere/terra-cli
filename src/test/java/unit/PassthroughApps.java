@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -186,7 +187,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
-  void gsutilGcloudAlphaStorageLs() throws IOException {
+  void gsutilGcloudAlphaStorageLs() throws IOException, InterruptedException {
 
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
@@ -200,13 +201,27 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
     // `terra gsutil ls`
-    TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");
+    TestCommand.Result cmd =
+        TestCommand.runAndGetResultWithRetries(
+            "Permission 'storage.buckets.list' denied on resource",
+            5,
+            Duration.ofSeconds(30),
+            "gsutil",
+            "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gsutil ls` returns bucket");
 
     // `terra gcloud alpha storage ls`
-    cmd = TestCommand.runCommand("gcloud", "alpha", "storage", "ls");
+    cmd =
+        TestCommand.runAndGetResultWithRetries(
+            "Permission 'storage.buckets.list' denied on resource",
+            5,
+            Duration.ofSeconds(30),
+            "gcloud",
+            "alpha",
+            "storage",
+            "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gcloud alpha storage ls` returns bucket");
