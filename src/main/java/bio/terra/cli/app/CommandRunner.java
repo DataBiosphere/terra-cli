@@ -27,7 +27,7 @@ public abstract class CommandRunner {
    *
    * @param command the command and arguments (e.g. {gsutil, ls, gs://my-bucket})
    */
-  protected static String buildFullCommand(List<String> command) {
+  public static String buildFullCommand(List<String> command) {
     String fullCommand = "";
     if (command != null && command.size() > 0) {
       final String argSeparator = " ";
@@ -37,7 +37,7 @@ public abstract class CommandRunner {
   }
 
   // Note: `foo-bar` and `foo_bar` will have the same env variable. PF-1907 will fix this.
-  public static final String convertToEnvironmentVariable(String string) {
+  public static String convertToEnvironmentVariable(String string) {
     return "TERRA_" + string.replace("-", "_");
   }
 
