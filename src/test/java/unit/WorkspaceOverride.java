@@ -338,7 +338,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace commands respect workspace override")
-  void workspace() throws IOException {
+  void workspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
@@ -392,7 +392,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace commands ignore workspace override when it matches current workspace")
-  void matchingCurrentWorkspace() throws IOException {
+  void matchingCurrentWorkspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);

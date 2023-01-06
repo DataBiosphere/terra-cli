@@ -440,7 +440,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
-  void gcloudAppExecute() throws IOException {
+  void gcloudAppExecute() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);

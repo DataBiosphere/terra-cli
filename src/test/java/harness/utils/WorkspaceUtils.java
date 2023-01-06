@@ -18,13 +18,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
-
-  private static final Logger logger = LoggerFactory.getLogger(WorkspaceUtils.class);
 
   public static String createUserFacingId() {
     return "a-" + UUID.randomUUID().toString();
@@ -38,7 +34,8 @@ public class WorkspaceUtils {
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.
    */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator) throws IOException {
+  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
+      throws IOException, InterruptedException {
     return createWorkspace(workspaceCreator, Optional.empty());
   }
 
@@ -51,7 +48,8 @@ public class WorkspaceUtils {
    *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
-      TestUser workspaceCreator, Optional<CloudPlatform> platform) throws IOException {
+      TestUser workspaceCreator, Optional<CloudPlatform> platform)
+      throws IOException, InterruptedException {
     // `terra workspace create --format=json`
     List<String> argsList =
         Stream.of("workspace", "create", "--id=" + createUserFacingId())
@@ -77,7 +75,7 @@ public class WorkspaceUtils {
    */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description, String properties)
-      throws IOException {
+      throws IOException, InterruptedException {
     return createWorkspace(workspaceCreator, name, description, properties, Optional.empty());
   }
 
@@ -94,7 +92,7 @@ public class WorkspaceUtils {
       String description,
       String properties,
       Optional<CloudPlatform> platform)
-      throws IOException {
+      throws IOException, InterruptedException {
     // `terra workspace create --format=json --name=$name --description=$description`
     List<String> argsList =
         Stream.of(
@@ -123,7 +121,7 @@ public class WorkspaceUtils {
    * buckets in this case). This helps hide delay in syncing cloud IAM bindings.
    */
   private static void waitForCloudSync(TestUser workspaceCreator, UFWorkspace workspace)
-      throws IOException {
+      throws IOException, InterruptedException {
     var creatorCredentials = workspaceCreator.getCredentialsWithCloudPlatformScope();
     Storage storageClient =
         StorageOptions.newBuilder()
@@ -131,11 +129,7 @@ public class WorkspaceUtils {
             .setCredentials(creatorCredentials)
             .build()
             .getService();
-    try {
-      CrlUtils.callGcpWithRetries(storageClient::list);
-    } catch (InterruptedException e) {
-      logger.info("Interrupted exception!");
-    }
+    CrlUtils.callGcpWithRetries(storageClient::list);
   }
 
   /**

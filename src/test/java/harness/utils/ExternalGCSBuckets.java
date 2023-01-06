@@ -179,12 +179,8 @@ public class ExternalGCSBuckets {
    * wrapped by CRL because this is what we expect most users to use.
    */
   public static Storage getStorageClient(GoogleCredentials credentials) {
-    return getStorageClient(credentials, TestConfig.get().getProjectForExternalResources());
-  }
-
-  public static Storage getStorageClient(GoogleCredentials credentials, String googleProjectId) {
     return StorageOptions.newBuilder()
-        .setProjectId(googleProjectId)
+        .setProjectId(TestConfig.get().getProjectForExternalResources())
         .setCredentials(credentials)
         .build()
         .getService();
