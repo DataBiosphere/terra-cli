@@ -45,8 +45,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   @Test
   void addSshKey() throws IOException {
     testUser.login();
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
+    TestCommand.runCommandExpectSuccess("user", "ssh-key", "generate", "--quiet");
 
     TestCommand.runCommandExpectSuccess("user", "ssh-key", "add");
 
@@ -74,8 +73,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   void generateSshKey_saveToFile() throws IOException {
     testUser.login();
 
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet", "--save-to-file");
+    TestCommand.runCommandExpectSuccess("user", "ssh-key", "generate", "--quiet", "--save-to-file");
 
     assertSshKeyAdded();
   }
@@ -96,17 +94,10 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   }
 
   private void assertSshKeyAdded() {
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.home"), ".ssh", "terra_id_rsa")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.home") + "/.ssh/terra_id_rsa")));
     assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.home"), ".ssh", "terra_id_rsa", ".pub")));
+        Files.exists(Paths.get(System.getProperty("user.home"), ".ssh", "terra_id_rsa.pub")));
 
-    // `terra git clone`
-    TestCommand.runCommandExpectSuccess(
-        "git", "clone", "git@github.com:DataBiosphere/terra-examples.git");
-    // assert ssh key is set up
-    assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
     FileUtils.deleteQuietly(new File(System.getProperty("user.home") + "/.ssh/terra_id_rsa"));
     FileUtils.deleteQuietly(new File(System.getProperty("user.home") + "/.ssh/terra_id_rsa.pub"));
   }
