@@ -28,11 +28,19 @@ task runTestsWithTag(type: Test) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
 
-        //
+        def allTestTags = [testTag]
+        String cloudPlatform = project.findProperty("platform");
+         if (cloudPlatform == "gcp") {
+            allTestTags.add("unit-gcp")
+        } else if (cloudPlatform == "aws") {
+            allTestTags.add("unit-aws")
+        } else {  // run all tests
+             allTestTags.addAll(["unit-gcp", "unit-aws"])
+         }
 
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
-            includeTags testTag
+            includeTags allTestTags as String[]
         }
         if (testTag == "unit") {
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
