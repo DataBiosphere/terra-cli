@@ -27,6 +27,38 @@ import picocli.CommandLine.ParseResult;
  */
 @Command(
     name = "terra",
+    header = "Terra command-line interface.",
+    exitCodeListHeading = "Exit codes: \n",
+    exitCodeList = {
+      "0 : Successful program execution",
+      "1 : User-actionable error (e.g. missing parameter, workspace not defined in the current context)",
+      "2 : System or internal error (e.g. error response from the Terra server)",
+      "3 : Unexpected error (e.g. Java exception)",
+      "other : Third-party application exit codes will be passed through to the caller. For example, if "
+          + "`gcloud --malformedOption` returns exit code `2`, then `terra gcloud --malformedOption` will also return exit code `2`."
+    },
+    description =
+        "The Terra CLI allows advanced users to interact with Terra workspaces and resources, and to perform administrative actions. \n\n"
+            + "Example usage: \n"
+            + "- Fetch the user's credentials and check the authentication status. \n"
+            + "    terra auth login \n"
+            + "    terra auth status \n"
+            + "\n"
+            + "- Ping the Terra server. \n"
+            + "    terra server status \n"
+            + "\n"
+            + "- Create a new Terra workspace and backing Google project. Check the current context to confirm it was created successfully. \n"
+            + "    terra workspace create \n"
+            + "    terra status \n"
+            + "\n"
+            + "- List all workspaces the user has read or write access to. \n"
+            + "    terra workspace list \n"
+            + "\n"
+            + "- To use an existing Terra workspace, use the set command instead of create. \n"
+            + "    terra workspace set --id=<workspace-id> \n"
+            + "\n"
+            + "- Create a Terra-managed bucket for temporary data storage. \n"
+            + "    terra resource create gcs-bucket --name=<name> --bucket-name=<name> \n",
     subcommands = {
       App.class,
       Auth.class,
@@ -47,8 +79,7 @@ import picocli.CommandLine.ParseResult;
       User.class,
       Version.class,
       Workspace.class
-    },
-    description = "Terra CLI")
+    })
 public class Main implements Runnable {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
 

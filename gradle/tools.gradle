@@ -19,3 +19,13 @@ task getDockerImageTag {
         println("${project.properties['dockerImageTag']}")
     }
 }
+
+task generateDocs (type: JavaExec) {
+    dependsOn(classes)
+    group = "Documentation"
+    description = "Generate Terra CLI docs"
+    classpath(configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
+    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
+    args 'bio.terra.cli.command.Main', "--outdir=${project.buildDir}/docs/commands/"
+}
+assemble.dependsOn tasks.generateDocs

@@ -10,6 +10,10 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "app",
-    description = "Run applications in the workspace.",
+    header = "Run applications in the workspace.",
+    description =
+        "The Terra CLI allows running supported third-party applications within the context of a workspace. "
+            + "The `app-launch` config property controls how tools are run: either in a Docker container, or as a child process. \n\n"
+            + "Nextflow and the `gcloud` SDK are the first examples of supported third-party applications.",
     subcommands = {Execute.class, List.class})
 public class App {}
