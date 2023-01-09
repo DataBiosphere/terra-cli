@@ -11,6 +11,9 @@ import picocli.CommandLine.Command;
  */
 @Command(
     name = "config",
-    description = "Configure the CLI.",
+    header = "Commands to configure the CLI.",
+    description =
+        "These commands are property getters and setters for configuring the Terra CLI. \n\n"
+            + "See the `get` and `set` subcommands for a list of available properties.",
     subcommands = {Get.class, List.class, Set.class})
 public class Config {}
