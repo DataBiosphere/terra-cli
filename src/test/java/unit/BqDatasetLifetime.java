@@ -186,7 +186,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
     DatasetId datasetId = DatasetId.of(bqDataset.projectId, bqDataset.datasetId);
 
     Dataset dataset =
-        CrlUtils.callGcpWithRetries(
+        CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
                 ExternalBQDatasets.getBQClient(
                         workspaceCreator.getCredentialsWithCloudPlatformScope())

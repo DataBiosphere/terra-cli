@@ -446,7 +446,7 @@ public class WorkspaceOverride extends ClearContextUnit {
             .build()
             .getService();
     Page<Bucket> createdBucketOnCloud =
-        CrlUtils.callGcpWithRetries(localProjectStorageClient::list);
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
 
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 

@@ -58,7 +58,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
     // Poll until the test user can fetch the bucket, which may be delayed.
     Bucket createdBucketOnCloud =
-        CrlUtils.callGcpWithRetries(
+        CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
                 ExternalGCSBuckets.getStorageClient(
                         workspaceCreator.getCredentialsWithCloudPlatformScope())

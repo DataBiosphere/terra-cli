@@ -292,7 +292,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
         "create output matches private user name");
 
     Bucket createdBucketOnCloud =
-        CrlUtils.callGcpWithRetries(
+        CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
                 ExternalGCSBuckets.getStorageClient(
                         workspaceCreator.getCredentialsWithCloudPlatformScope())

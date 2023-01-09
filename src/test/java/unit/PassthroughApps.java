@@ -215,7 +215,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
     Page<Bucket> createdBucketOnCloud =
-        CrlUtils.callGcpWithRetries(localProjectStorageClient::list);
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
 
     // `terra gsutil ls`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");

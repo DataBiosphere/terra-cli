@@ -319,7 +319,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "create output matches private user name");
 
     Dataset createdDatasetOnCloud =
-        CrlUtils.callGcpWithRetries(
+        CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
                 ExternalBQDatasets.getBQClient(
                         workspaceCreator.getCredentialsWithCloudPlatformScope())

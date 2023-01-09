@@ -129,7 +129,7 @@ public class WorkspaceUtils {
             .setCredentials(creatorCredentials)
             .build()
             .getService();
-    CrlUtils.callGcpWithRetries(storageClient::list);
+    CrlUtils.callGcpWithPermissionExceptionRetries(storageClient::list);
   }
 
   /**

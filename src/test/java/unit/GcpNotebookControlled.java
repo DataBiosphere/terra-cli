@@ -373,7 +373,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpNotebook.class, "resource", "describe", "--name=" + name);
-    CrlUtils.callGcpWithRetries(
+    CrlUtils.callGcpWithPermissionExceptionRetries(
         () ->
             CrlUtils.createNotebooksCow(workspaceCreator.getCredentialsWithCloudPlatformScope())
                 .instances()

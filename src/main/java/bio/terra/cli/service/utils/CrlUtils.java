@@ -67,7 +67,7 @@ public class CrlUtils {
                 == HttpStatus.SC_FORBIDDEN));
   }
 
-  public static <T, E extends Exception> T callGcpWithRetries(
+  public static <T, E extends Exception> T callGcpWithPermissionExceptionRetries(
       HttpUtils.SupplierWithCheckedException<T, E> makeRequest) throws E, InterruptedException {
     return HttpUtils.callWithRetries(
         makeRequest,
@@ -76,7 +76,7 @@ public class CrlUtils {
         CrlUtils.GCP_RETRY_SLEEP_DURATION);
   }
 
-  public static <T, E extends Exception> T callGcpWithRetries(
+  public static <T, E extends Exception> T callGcpWithPermissionExceptionRetries(
       HttpUtils.SupplierWithCheckedException<T, E> makeRequest, Predicate<T> isDone)
       throws E, InterruptedException {
     return HttpUtils.pollWithRetries(
