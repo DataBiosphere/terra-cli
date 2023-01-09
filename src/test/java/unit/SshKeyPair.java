@@ -94,11 +94,13 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   }
 
   private void assertSshKeyAdded() {
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.home") + "/.ssh/terra_id_rsa")));
-    assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.home"), ".ssh", "terra_id_rsa.pub")));
+    String privateKey = System.getProperty("user.home") + "/.ssh/terra_id_rsa";
+    String publicKey = System.getProperty("user.home") + "/.ssh/terra_id_rsa.pub";
+    assertTrue(Files.exists(Paths.get(privateKey)));
+    assertTrue(Files.exists(Paths.get(publicKey)));
 
-    FileUtils.deleteQuietly(new File(System.getProperty("user.home") + "/.ssh/terra_id_rsa"));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.home") + "/.ssh/terra_id_rsa.pub"));
+    // clean up
+    FileUtils.deleteQuietly(new File(privateKey));
+    FileUtils.deleteQuietly(new File(publicKey));
   }
 }

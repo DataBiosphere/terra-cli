@@ -5,6 +5,8 @@ import static org.apache.commons.io.FilenameUtils.concat;
 
 import bio.terra.cli.app.LocalProcessCommandRunner;
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
 import bio.terra.cli.service.ExternalCredentialsManagerService;
 import bio.terra.externalcreds.model.SshKeyPair;
 import bio.terra.externalcreds.model.SshKeyPairType;
@@ -12,16 +14,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "add", description = "Save your Terra SSH key to ~/.ssh and add it to ssh agent.")
 public class Add extends BaseCommand {
+
+  @CommandLine.Mixin Format formatOption;
 
   @Override
   protected void execute() {
     ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
     var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
     saveKeyFileAndSshAdd(sshKeyPair);
+    formatOption.printReturnValue(UFSshKeyPair.createUFSshKey(sshKeyPair), UFSshKeyPair::print);
   }
 
   protected static void saveKeyFileAndSshAdd(SshKeyPair sshKeyPair) {

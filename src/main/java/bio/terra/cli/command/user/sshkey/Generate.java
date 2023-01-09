@@ -26,7 +26,7 @@ public class Generate extends BaseCommand {
     confirmationPrompt.confirmOrThrow(
         "Generating a new Terra SSH key will replace the old Terra SSH key if it exists. "
             + "You must associate the new SSH public key with your GitHub account using "
-            + "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent. "
+            + "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account "
             + "Are you sure you want to proceed (y/N)?",
         "Generating new SSH key is aborted");
     var sshKeyPair =

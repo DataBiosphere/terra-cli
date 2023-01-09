@@ -747,6 +747,24 @@ for more details.
 
 #### User
 
+#### ssh-key
+
+`terra user ssh-key` is how Terra do source control in a notebook environment. 
+It handles the ssh key of the current user. There is one single Terra ssh key
+per user in a given server (e.g. broad-dev). With this SSH key, you can perform
+source control in a terra-managed notebook instance using git.
+
+To set up an ssh key, run `terra user ssh-key add` to add the terra ssh key
+to your local machine. You should see in the output an ssh public key starting 
+with `ssh-rsa`. Then copy the public key from the command output and 
+add it to GitHub. [Github instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+
+If you think your key is compromised (e.g. the private key on your local machine
+is leaked to other user), you must delete the key from your Github account and
+run `terra user ssh-key generate` to generate a new Terra ssh key. Once a new 
+key is generated, you need to associate this new key with your GitHub account
+again. [Github instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+
 These commands are intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#users)
 for more details.
