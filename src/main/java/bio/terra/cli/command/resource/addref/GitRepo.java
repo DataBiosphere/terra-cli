@@ -4,9 +4,15 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ReferencedResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
+import bio.terra.cli.service.ExternalCredentialsManagerService;
+import bio.terra.externalcreds.model.SshKeyPairType;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref git-repo" command. */
@@ -46,5 +52,17 @@ public class GitRepo extends WsmBaseCommand {
     bio.terra.cli.businessobject.resource.GitRepo addedResource =
         bio.terra.cli.businessobject.resource.GitRepo.addReferenced(createParams.build());
     formatOption.printReturnValue(new UFGitRepo(addedResource), GitRepo::printText);
+    ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
+    try {
+      ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
+    } catch (SystemException e) {
+      if (e.getCause() instanceof HttpStatusCodeException
+          && ((HttpStatusCodeException) e.getCause()).getStatusCode() == HttpStatus.NOT_FOUND) {
+        throw new UserActionableException(
+            "You do not have a Terra ssh key, cloning the git repo in the GCP notebook will"
+                + " fail. Please run `terra user ssh-key generate` and store the output (public key) in"
+                + " your GitHub account https://github.com/settings/keys.");
+      }
+    }
   }
 }

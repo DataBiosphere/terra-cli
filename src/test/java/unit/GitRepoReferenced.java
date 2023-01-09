@@ -48,6 +48,9 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
   void listDescribeReflectAdd() throws IOException {
     workspaceCreator.login();
 
+    // Generate ssh key to avoid prompt about ssh key
+    TestCommand.runCommandExpectSuccess("user", "ssh-key", "generate", "--quiet");
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -103,13 +106,8 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl
     String name = "resolve";
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFGitRepo.class,
-        "resource",
-        "add-ref",
-        "git-repo",
-        "--name=" + name,
-        "--repo-url=" + GIT_REPO_SSH_URL);
+    TestCommand.runCommandExpectSuccess(
+        "resource", "add-ref", "git-repo", "--name=" + name, "--repo-url=" + GIT_REPO_SSH_URL);
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
@@ -130,13 +128,8 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
 
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl
     String name = "listReflectsDelete";
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFGitRepo.class,
-        "resource",
-        "add-ref",
-        "git-repo",
-        "--name=" + name,
-        "--repo-url=" + GIT_REPO_SSH_URL);
+    TestCommand.runCommandExpectSuccess(
+        "resource", "add-ref", "git-repo", "--name=" + name, "--repo-url=" + GIT_REPO_SSH_URL);
 
     // `terra resource delete --name=$name --format=json`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
@@ -206,8 +199,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     // `terra resource add-ref git-repo --name=$name --repo-url=$repoUrl --description=$description`
     String name = "updateIndividualProperties";
     String description = "updateDescription";
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFGitRepo.class,
+    TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
@@ -286,8 +278,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
     // --repo-url=$gitUrl
     String name = "updateMultipleOrNoProperties";
     String description = "updateDescription";
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFGitRepo.class,
+    TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
