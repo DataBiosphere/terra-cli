@@ -97,7 +97,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
     // `terra app execute sh -c "echo Hello World"`
     TestCommand.Result cmd =
-        TestCommand.runCommand("app", "execute", "sh", "-c", "\"echo Hello World\"");
+        TestCommand.runCommand("app", "execute", "sh", "-c", "echo Hello World");
 
     // Check that the output was printed
     assertThat("Output is correct", cmd.stdOut, CoreMatchers.containsString("Hello World"));
