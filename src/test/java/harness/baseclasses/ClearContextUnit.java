@@ -1,12 +1,16 @@
 package harness.baseclasses;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
+import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -17,6 +21,10 @@ import org.junit.jupiter.api.TestInstance;
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
+  protected CloudPlatform getPlatform() {
+    return CloudPlatform.GCP; // default platform
+  }
+
   /**
    * Reset the global context for a unit test. This setup includes logging, setting the server, and
    * setting the docker image id.
@@ -50,6 +58,11 @@ public class ClearContextUnit {
     }
   }
 
+  @BeforeAll
+  public void checkPlatformSupport() {
+    assumeTrue(Context.getServer().getSupportedCloudPlatforms().contains(getPlatform()));
+  }
+
   @BeforeEach
   /**
    * Clear the context before each test method. For sub-classes, it's best to call this at the end
@@ -70,7 +83,7 @@ public class ClearContextUnit {
 
     TestContext.clearGlobalContextDir();
     resetContext();
-    // Do not clear gcloud config. Only PassthroughApps tests clear this, and that class manages
+    // Do not clear gcloud config. Only Passthrough Apps tests clear this, and that class manages
     // the directory itself to avoid clobbering across runners.
   }
 }

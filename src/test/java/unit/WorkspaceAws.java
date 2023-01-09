@@ -25,7 +25,10 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit")
 public class WorkspaceAws extends ClearContextUnit {
-  private static final Optional<CloudPlatform> platformAws = Optional.of(CloudPlatform.AWS);
+  @Override
+  protected CloudPlatform getPlatform() {
+    return CloudPlatform.AWS;
+  }
 
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
@@ -34,7 +37,8 @@ public class WorkspaceAws extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformAws);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
 
     // check the created workspace has an id and an aws landing zone
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
@@ -111,7 +115,8 @@ public class WorkspaceAws extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformAws);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create aws-bucket --name=$name --bucket-name=$bucketName`

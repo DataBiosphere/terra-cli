@@ -29,8 +29,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.GCP. */
 @Tag("unit")
 public class WorkspaceGcp extends ClearContextUnit {
-  private static final Optional<CloudPlatform> platformGcp = Optional.of(CloudPlatform.GCP);
-
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreateGcp() throws IOException {
@@ -38,7 +36,8 @@ public class WorkspaceGcp extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
 
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
@@ -102,7 +101,8 @@ public class WorkspaceGcp extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
