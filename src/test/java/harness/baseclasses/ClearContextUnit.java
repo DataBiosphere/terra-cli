@@ -10,7 +10,6 @@ import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -58,11 +57,6 @@ public class ClearContextUnit {
     }
   }
 
-  @BeforeAll
-  public void checkPlatformSupport() {
-    assumeTrue(Context.getServer().getSupportedCloudPlatforms().contains(getPlatform()));
-  }
-
   @BeforeEach
   /**
    * Clear the context before each test method. For sub-classes, it's best to call this at the end
@@ -85,5 +79,10 @@ public class ClearContextUnit {
     resetContext();
     // Do not clear gcloud config. Only Passthrough Apps tests clear this, and that class manages
     // the directory itself to avoid clobbering across runners.
+
+    // check platform support (requires server to be set)
+    assumeTrue(
+        Context.getServer().getSupportedCloudPlatforms().contains(getPlatform()),
+        "server " + Context.getServer().getName() + " does not support platform " + getPlatform());
   }
 }

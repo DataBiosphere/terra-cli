@@ -27,8 +27,31 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.GCP. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class WorkspaceGcp extends ClearContextUnit {
+  @Test
+  @DisplayName("default platform is GCP on workspace create")
+  void defaultPlatformSetOnCreate() throws IOException {
+    // select a test user and login
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
+
+    // check the created workspace has an id and a google project
+    assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
+    assertNotNull(createdWorkspace.googleProjectId, "create workspace created a gcp project");
+
+    // check the created workspace has cloud platform set
+    assertThat(
+        "workspace cloudPlatform matches GCP",
+        CloudPlatform.GCP,
+        equalTo(createdWorkspace.cloudPlatform));
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreateGcp() throws IOException {

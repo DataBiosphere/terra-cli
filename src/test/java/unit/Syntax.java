@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for syntax variations */
 @Tag("unit")
 public class Syntax extends ClearContextUnit {
-
   @Test
   @DisplayName("format options are accepted in any case")
   void formatOptions() {

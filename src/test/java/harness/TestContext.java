@@ -15,7 +15,6 @@ import java.util.function.Consumer;
         "Ignore return value of File.delete. This is just a best effort cleanup method. If delete fails, then the next test will likely fail anyway.")
 /** Utility methods for manipulating the context during testing. */
 public class TestContext {
-
   private TestContext() {}
 
   /**

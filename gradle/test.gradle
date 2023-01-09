@@ -27,6 +27,9 @@ task runTestsWithTag(type: Test) {
         if (testTag == null) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
+
+        //
+
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
             includeTags testTag

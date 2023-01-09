@@ -25,9 +25,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle referenced GCS buckets. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
-
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalSharedBucket;
   private BucketInfo externalPrivateBucket;

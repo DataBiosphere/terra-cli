@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
-@Tag("unit")
+@Tag("unit-aws")
 public class WorkspaceAws extends ClearContextUnit {
   @Override
   protected CloudPlatform getPlatform() {
