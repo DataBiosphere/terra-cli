@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 @Tag("unit")
 public class SshKeyPair extends SingleWorkspaceUnit {
-
   private TestUser testUser = TestUser.chooseTestUser();
   private TestUser testUser2 = TestUser.chooseTestUserWhoIsNot(testUser);
 

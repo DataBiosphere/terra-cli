@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for including the number of objects in a GCS bucket resource's description. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;

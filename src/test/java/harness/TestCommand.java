@@ -26,7 +26,6 @@ import org.json.JSONObject;
  * intended for unit tests because it calls the commands directly in Java.
  */
 public class TestCommand {
-
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper().registerModule(new JavaTimeModule());
 

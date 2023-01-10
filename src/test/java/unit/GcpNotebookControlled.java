@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to poll `terra resources describe` until the notebook state equals that

@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a AWS notebook workspace resource. Instances of this class are part of
- * the current context or state.
+ * Internal representation of an AWS notebook workspace resource. Instances of this class are part
+ * of the current context or state.
  */
 public class AwsNotebook extends Resource {
   private static final String AWS_NOTEBOOK_URL_PREFIX = "https://";
@@ -46,13 +46,13 @@ public class AwsNotebook extends Resource {
     this.location = wsmObject.getAttributes().getRegion();
   }
 
-  /** Add a AWS notebook as a referenced resource in the workspace. Currently unsupported. */
+  /** Add an AWS notebook as a referenced resource in the workspace. Currently unsupported. */
   public static AwsNotebook addReferenced(CreateAwsNotebookParams createParams) {
     throw new UserActionableException("Referenced resources not supported for AWS notebooks.");
   }
 
   /**
-   * Create a AWS notebook as a controlled resource in the workspace.
+   * Create an AWS notebook as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
@@ -92,32 +92,33 @@ public class AwsNotebook extends Resource {
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
-  /** Delete a AWS notebook referenced resource in the workspace. Currently unsupported. */
+  /** Delete an AWS notebook referenced resource in the workspace. Currently unsupported. */
   protected void deleteReferenced() {
     throw new UserActionableException("Referenced resources not supported for AWS notebooks.");
   }
 
-  /** Delete a AWS notebook controlled resource in the workspace. */
+  /** Delete an AWS notebook controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
         .deleteControlledAwsNotebookInstance(Context.requireWorkspace().getUuid(), id);
   }
 
-  /** Resolve a AWS notebook resource to its cloud identifier. */
+  /** Resolve an AWS notebook resource to its cloud identifier. */
   public String resolve() {
     return resolve(true);
   }
 
   /**
-   * Resolve a AWS notebook resource to its cloud identifier. Optionally include the 's3://' prefix.
+   * Resolve an AWS notebook resource to its cloud identifier. Optionally include the 's3://'
+   * prefix.
    */
   public String resolve(boolean includeUrlPrefix) {
     return resolve(location, instanceId, includeUrlPrefix);
   }
 
   /**
-   * Resolve a AWS notebook resource to its cloud identifier. Return the instance name
+   * Resolve an AWS notebook resource to its cloud identifier. Return the instance name
    * https://[location].console.aws.amazon.com/sagemaker/home?region=[location]#/notebook-instances/[instance-id]
    *
    * @return full name of the instance

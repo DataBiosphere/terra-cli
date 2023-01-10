@@ -19,7 +19,7 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resource update aws-bucket" command. */
 @CommandLine.Command(
     name = "aws-bucket",
-    description = "Update a AWS bucket.",
+    description = "Update an AWS bucket.",
     showDefaultValues = true)
 public class AwsBucket extends WsmBaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;

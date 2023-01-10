@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a AWS bucket workspace resource. Instances of this class are part of
+ * Internal representation of an AWS bucket workspace resource. Instances of this class are part of
  * the current context or state.
  */
 public class AwsBucket extends Resource {
@@ -55,7 +55,7 @@ public class AwsBucket extends Resource {
   }
 
   /**
-   * Add a AWS bucket as a referenced resource in the workspace.
+   * Add an AWS bucket as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
@@ -73,7 +73,7 @@ public class AwsBucket extends Resource {
   }
 
   /**
-   * Create a AWS bucket as a controlled resource in the workspace.
+   * Create an AWS bucket as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
@@ -103,7 +103,7 @@ public class AwsBucket extends Resource {
     return new PDAwsBucket(this);
   }
 
-  /** Update a AWS bucket referenced resource in the workspace. */
+  /** Update an AWS bucket referenced resource in the workspace. */
   public void updateReferenced(UpdateReferencedAwsBucketParams updateParams) {
     if (updateParams.resourceParams.name != null) {
       validateResourceName(updateParams.resourceParams.name);
@@ -116,7 +116,7 @@ public class AwsBucket extends Resource {
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
 
-  /** Update a AWS bucket controlled resource in the workspace. */
+  /** Update an AWS bucket controlled resource in the workspace. */
   public void updateControlled(UpdateControlledAwsBucketParams updateParams) {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
@@ -126,34 +126,34 @@ public class AwsBucket extends Resource {
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
-  /** Delete a AWS bucket referenced resource in the workspace. */
+  /** Delete an AWS bucket referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
     WorkspaceManagerService.fromContext()
         .deleteReferencedAwsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
-  /** Delete a AWS bucket controlled resource in the workspace. */
+  /** Delete an AWS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerService.fromContext()
         .deleteControlledAwsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
-  /** Resolve a AWS bucket resource to its cloud identifier. */
+  /** Resolve an AWS bucket resource to its cloud identifier. */
   public String resolve() {
     return resolve(true);
   }
 
   /**
-   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
+   * Resolve an AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
    */
   public String resolve(boolean includeUrlPrefix) {
     return resolve(bucketName, bucketPrefix, includeUrlPrefix);
   }
 
   /**
-   * Resolve a AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
+   * Resolve an AWS bucket resource to its cloud identifier. Optionally include the 's3://' prefix.
    */
   public static String resolve(
       String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {

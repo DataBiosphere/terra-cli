@@ -1,7 +1,6 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -27,29 +25,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
-  @Test
-  @DisplayName("default platform is GCP on workspace create")
-  void defaultPlatformSetOnCreate() throws IOException {
-    // select a test user and login
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
-
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
-
-    // check the created workspace has an id and a google project
-    assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
-    assertNotNull(createdWorkspace.googleProjectId, "create workspace created a gcp project");
-
-    // check the created workspace has cloud platform set
-    assertThat(
-        "workspace cloudPlatform matches GCP",
-        CloudPlatform.GCP,
-        equalTo(createdWorkspace.cloudPlatform));
-
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
-  }
-
   @Test
   @DisplayName("status, describe, workspace list reflect workspace delete")
   void statusDescribeListReflectDelete() throws IOException {

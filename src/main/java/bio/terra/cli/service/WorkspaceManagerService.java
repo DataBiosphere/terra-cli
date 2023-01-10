@@ -1084,7 +1084,65 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/aws/buckets" endpoint to add a AWS
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/aws/buckets" endpoint to add an AWS
+   * bucket as a referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams creation parameters
+   * @return the AWS bucket resource object
+   */
+  public AwsBucketResource createReferencedAwsBucket(
+      UUID workspaceId, CreateAwsBucketParams createParams) {
+    /* TODO(TERRA-196)
+    // convert the CLI object to a WSM request object
+    CreateAwssBucketReferenceRequestBody createRequest =
+        new CreateAwsBucketReferenceRequestBody()
+            .metadata(getReferencedResourceMetadata(createParams.resourceFields))
+            .bucket(new AwsBucketAttributes().bucketName(createParams.bucketName));
+    return callWithRetries(
+        () ->
+            new ReferencedAwsResourceApi(apiClient)
+                .createBucketReference(createRequest, workspaceId),
+        "Error creating referenced AWS bucket in the workspace.");
+     */
+    return new AwsBucketResource();
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
+   * bucket as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams creation parameters
+   * @return the GCS bucket resource object
+   */
+  public GcpGcsBucketResource createControlledGcsBucket(
+      UUID workspaceId, CreateGcsBucketParams createParams) {
+    // convert the CLI lifecycle rule object into the WSM request objects
+    List<GcpGcsBucketLifecycleRule> lifecycleRules = fromCLIObject(createParams.lifecycle);
+
+    // convert the CLI object to a WSM request object
+    CreateControlledGcpGcsBucketRequestBody createRequest =
+        new CreateControlledGcpGcsBucketRequestBody()
+            .common(createCommonFields(createParams.resourceFields))
+            .gcsBucket(
+                new GcpGcsBucketCreationParameters()
+                    .name(createParams.bucketName)
+                    .defaultStorageClass(createParams.defaultStorageClass)
+                    .lifecycle(new GcpGcsBucketLifecycle().rules(lifecycleRules))
+                    .location(createParams.location));
+    return callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .createBucket(createRequest, workspaceId)
+                .getGcpBucket(),
+        "Error creating controlled GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/aws/buckets" endpoint to add an AWS
    * bucket as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
@@ -1218,7 +1276,7 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets" endpoint to add a AWS
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets" endpoint to add an AWS
    * bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
@@ -1248,7 +1306,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks" endpoint to add
-   * a AWS notebook instance as a controlled resource in the workspace.
+   * an AWS notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to create
@@ -1283,7 +1341,7 @@ public class WorkspaceManagerService {
                           workspaceId, jobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  // Creating a AWS notebook instance should take less than ~10 minutes.
+                  // Creating an AWS notebook instance should take less than ~10 minutes.
                   60,
                   Duration.ofSeconds(10));
           logger.debug("Create controlled AWS notebook result {}", createResult);
@@ -1447,7 +1505,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager PATCH
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/aws/buckets/{resourceId}" endpoint to
-   * update a AWS bucket referenced resource in the workspace.
+   * update an AWS bucket referenced resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -1563,7 +1621,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}" endpoint to
-   * update a AWS bucket controlled resource in the workspace.
+   * update an AWS bucket controlled resource in the workspace.
    *
    * @param workspaceId the workspace where the resource exists
    * @param resourceId the resource id
@@ -1699,7 +1757,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager DELETE
    * "/api/workspaces/v1/{workspaceId}/resources/referenced/aws/buckets/{resourceId}" endpoint to
-   * delete a AWS bucket as a referenced resource in the workspace.
+   * delete an AWS bucket as a referenced resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
@@ -1808,7 +1866,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/swc/buckets/{resourceId}" endpoint to
-   * delete a AWS bucket as a controlled resource in the workspace.
+   * delete an AWS bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
@@ -1847,7 +1905,7 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/sagemaker-notebooks/{resourceId}"
-   * endpoint to delete a GCP notebook instance as a controlled resource in the workspace.
+   * endpoint to delete an AWS SageMaker notebook instance as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id

@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
-
   public static String createUserFacingId() {
     return "a-" + UUID.randomUUID().toString();
   }
