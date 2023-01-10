@@ -1,11 +1,16 @@
 package harness.baseclasses;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
 import harness.utils.WorkspaceUtils;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -23,15 +28,31 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     return userFacingId;
   }
 
+  private String platformStorageName;
+
   @BeforeAll
   protected void setupOnce() throws Exception {
     TestContext.clearGlobalContextDir();
     resetContext();
 
+    Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
+    assumeTrue(
+        supportedPlatforms != null && !supportedPlatforms.isEmpty(),
+        "No cloud platforms supported on server " + Context.getServer().getName());
+
+    // retain default platform if supported, otherwise replace
+    if (!supportedPlatforms.contains(getCloudPlatform())) {
+      setCloudPlatform(supportedPlatforms.iterator().next());
+    }
+
+    if (getCloudPlatform() == CloudPlatform.GCP) {
+      platformStorageName = "gcs-bucket";
+    }
+
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =
-        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getPlatform()));
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     userFacingId = createdWorkspace.id;
   }
 
@@ -48,5 +69,16 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  // Use any supported platform
+  protected void createBucket(String resourceName, String bucketName) {
+    // `terra resource create [bucket-type] --name=$name --bucket-name=$bucketName --format=json`
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        platformStorageName,
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName);
   }
 }

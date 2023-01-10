@@ -60,7 +60,7 @@ public class WorkspaceGcp extends ClearContextUnit {
     testUser.login();
 
     UFWorkspace createdWorkspace =
-        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
@@ -125,7 +125,7 @@ public class WorkspaceGcp extends ClearContextUnit {
     testUser.login();
 
     UFWorkspace createdWorkspace =
-        WorkspaceUtils.createWorkspace(testUser, Optional.of(getPlatform()));
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`

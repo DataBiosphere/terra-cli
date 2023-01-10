@@ -1,5 +1,6 @@
 package harness.baseclasses;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.app.CommandRunner;
@@ -10,6 +11,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -20,8 +22,14 @@ import org.junit.jupiter.api.TestInstance;
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
-  protected CloudPlatform getPlatform() {
-    return CloudPlatform.GCP; // default platform
+  private CloudPlatform cloudPlatform = CloudPlatform.GCP; // default platform
+
+  protected void setCloudPlatform(CloudPlatform cloudPlatform) {
+    this.cloudPlatform = cloudPlatform;
+  }
+
+  protected CloudPlatform getCloudPlatform() {
+    return cloudPlatform;
   }
 
   /**
@@ -79,8 +87,14 @@ public class ClearContextUnit {
     // Do not clear gcloud config. Only Passthrough Apps tests clear this, and that class manages
     // the directory itself to avoid clobbering across runners.
     // check platform support (requires server to be set)
+
+    Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
+    assertTrue(
+        supportedPlatforms != null && !supportedPlatforms.isEmpty(),
+        "No cloud platforms supported on server " + Context.getServer().getName());
+
     assumeTrue(
-        Context.getServer().getSupportedCloudPlatforms().contains(getPlatform()),
-        "server " + Context.getServer().getName() + " does not support platform " + getPlatform());
+        supportedPlatforms.contains(cloudPlatform),
+        "server " + Context.getServer().getName() + " does not support platform " + cloudPlatform);
   }
 }

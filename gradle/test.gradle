@@ -1,6 +1,6 @@
 // install the CLI, either from source code directly or from a GH release, before starting tests
 task runInstallForTesting(type: Exec) {
-    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
+    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub")
     String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
     commandLine "bash", "./tools/install-for-testing.sh", installMode, "${project.version}"
 
@@ -22,14 +22,14 @@ task runTestsWithTag(type: Test) {
         // if the runTestsWithTag task isn't involved!
 
         // gradle project properties define which tests to run and how to do the install before running them
-        String testTag = project.findProperty("testTag");
+        String testTag = project.findProperty("testTag")
         // if the test tag is not defined, then throw an error. we don't know what tests to run
         if (testTag == null) {
             throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
         }
 
-        def allTestTags = [testTag]
-        String cloudPlatform = project.findProperty("platform");
+        def allTestTags = [testTag] // non-platform specific tests
+        String cloudPlatform = project.findProperty("platform")
 
         if (testTag == "unit") {
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
@@ -50,7 +50,7 @@ task runTestsWithTag(type: Test) {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
-            boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
+            boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub")
             String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
             systemProperty "TERRA_INSTALL_DIR", installDir
 
