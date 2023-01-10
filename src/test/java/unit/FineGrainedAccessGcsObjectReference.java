@@ -27,15 +27,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test for CLI command on GCS objects in a fine-grained access GCS bucket. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp {
-
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
 
   // name of blobs in external bucket
-  private String sharedExternalBlobName = "foo/text.txt";
-  private String privateExternalBlobName = "foo/";
+  private final String sharedExternalBlobName = "foo/text.txt";
+  private final String privateExternalBlobName = "foo/";
 
   private TestUser shareeUser;
   private Blob sharedBlob;

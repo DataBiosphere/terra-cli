@@ -6,23 +6,24 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-public class BqTableReferencedUpdate extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;
 
   // name of tables in external dataset
-  private String privateExternalTable = "testTable";
-  private String sharedExternalTable = "testTable2";
+  private final String privateExternalTable = "testTable";
+  private final String sharedExternalTable = "testTable2";
 
   private TestUser shareeUser;
 

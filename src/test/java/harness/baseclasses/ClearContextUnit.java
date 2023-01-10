@@ -1,9 +1,12 @@
 package harness.baseclasses;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.Logger;
+import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import java.io.IOException;
@@ -17,6 +20,10 @@ import org.junit.jupiter.api.TestInstance;
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
+  protected CloudPlatform getPlatform() {
+    return CloudPlatform.GCP; // default platform
+  }
+
   /**
    * Reset the global context for a unit test. This setup includes logging, setting the server, and
    * setting the docker image id.
@@ -50,27 +57,30 @@ public class ClearContextUnit {
     }
   }
 
-  @BeforeEach
   /**
    * Clear the context before each test method. For sub-classes, it's best to call this at the end
    * of the setupEachTime method so that each test method starts off with a clean context.
    */
+  @BeforeEach
   protected void setupEachTime(TestInfo testInfo) throws IOException {
     TestCommand.runCommandExpectSuccess("config", "set", "logging", "--console", "--level=DEBUG");
     String workerNumber = System.getProperty("org.gradle.test.worker");
     System.setProperty(CommandRunner.IS_TEST, "true");
     // Print directly to System.out rather than using a Logger, as most tests redirect logs to
     // files instead of the console.
-    System.out.println(
-        String.format(
-            "Running \"%s\" on worker %s. Logs will be in %s",
-            testInfo.getTestClass().orElse(null) + ": " + testInfo.getDisplayName(),
-            workerNumber,
-            Context.getContextDir().toAbsolutePath().resolve(Context.LOGS_DIRNAME)));
+    System.out.printf(
+        "Running \"%s\" on worker %s. Logs will be in %s%n",
+        testInfo.getTestClass().orElse(null) + ": " + testInfo.getDisplayName(),
+        workerNumber,
+        Context.getContextDir().toAbsolutePath().resolve(Context.LOGS_DIRNAME));
 
     TestContext.clearGlobalContextDir();
     resetContext();
-    // Do not clear gcloud config. Only PassthroughApps tests clear this, and that class manages
+    // Do not clear gcloud config. Only Passthrough Apps tests clear this, and that class manages
     // the directory itself to avoid clobbering across runners.
+    // check platform support (requires server to be set)
+    assumeTrue(
+        Context.getServer().getSupportedCloudPlatforms().contains(getPlatform()),
+        "server " + Context.getServer().getName() + " does not support platform " + getPlatform());
   }
 }

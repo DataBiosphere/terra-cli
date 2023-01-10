@@ -16,7 +16,7 @@ import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
@@ -46,9 +46,8 @@ import org.junit.jupiter.api.Test;
  * global state in various places, and they will clobber eachother if they run in multiple test
  * runners at once.
  */
-@Tag("unit")
-public class PassthroughApps extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class PassthroughApps extends SingleWorkspaceUnitGcp {
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
 

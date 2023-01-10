@@ -17,9 +17,8 @@ import java.util.stream.Stream;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
-
   public static String createUserFacingId() {
-    return "a-" + UUID.randomUUID().toString();
+    return "a-" + UUID.randomUUID();
   }
 
   /**
@@ -49,9 +48,9 @@ public class WorkspaceUtils {
     List<String> argsList =
         Stream.of("workspace", "create", "--id=" + createUserFacingId())
             .collect(Collectors.toList());
-    if (platform.isPresent()) { // defaults to GCP otherwise
-      argsList.add("--platform=" + platform.get());
-    }
+
+    // defaults to GCP otherwise
+    platform.ifPresent(cloudPlatform -> argsList.add("--platform=" + cloudPlatform));
 
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -97,10 +96,9 @@ public class WorkspaceUtils {
                 "--description=" + description,
                 "--properties=" + properties)
             .collect(Collectors.toList());
-    ;
-    if (platform.isPresent()) { // defaults to GCP otherwise
-      argsList.add("--platform=" + platform.get());
-    }
+
+    // defaults to GCP otherwise
+    platform.ifPresent(cloudPlatform -> argsList.add("--platform=" + cloudPlatform));
 
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(

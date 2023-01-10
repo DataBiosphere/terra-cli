@@ -15,9 +15,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra gcloud builds submit` commands. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-
   @BeforeAll
   @Override
   protected void setupOnce() throws Exception {

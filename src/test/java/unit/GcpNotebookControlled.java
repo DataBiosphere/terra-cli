@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to poll `terra resources describe` until the notebook state equals that
@@ -266,7 +266,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-central1-b";
-    String instanceId = "a" + UUID.randomUUID().toString(); // instance id must start with a letter
+    String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
     UFGcpNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpNotebook.class,

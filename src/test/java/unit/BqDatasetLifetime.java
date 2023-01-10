@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.time.Duration;
@@ -24,9 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying default lifetimes for controlled BQ Datasets. */
-@Tag("unit")
-public class BqDatasetLifetime extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class BqDatasetLifetime extends SingleWorkspaceUnitGcp {
   /** Helper to covert a Duration in seconds to a String */
   private static String toSecondsString(Duration duration) {
     return Long.valueOf(duration.toSeconds()).toString();
@@ -156,8 +155,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
   }
 
   /** Updates a dataset with a given name using the passed arguments. */
-  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments)
-      throws JsonProcessingException {
+  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments) {
     List<String> arguments =
         new ArrayList<>(Arrays.asList("resource", "update", "bq-dataset", "--name=" + name));
 
@@ -173,7 +171,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
    *     or null if lifetime expected to be unset
    * @param defaultTableLifetimeMilliseconds expected lifetime for partitions in milliseconds, or
    *     null if lifetime expected to be unset
-   * @throws IOException
+   * @throws IOException IOException
    */
   private void validateDefaultLifetimes(
       UFBqDataset bqDataset,

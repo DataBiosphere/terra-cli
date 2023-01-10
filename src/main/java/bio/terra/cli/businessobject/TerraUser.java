@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
  */
 public class TerraUser {
   private static final Logger logger = LoggerFactory.getLogger(TerraUser.class);
-  private String email;
-  private String subjectId;
-  private boolean isRegistered;
-  private boolean isEnabled;
+  private final String email;
+  private final String subjectId;
+  private final boolean isRegistered;
+  private final boolean isEnabled;
 
   private TerraUser(String email, String subjectId, boolean isRegistered, boolean isEnabled) {
     this.email = email;

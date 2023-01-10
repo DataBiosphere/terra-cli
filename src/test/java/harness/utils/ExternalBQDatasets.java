@@ -40,7 +40,6 @@ import org.apache.http.HttpStatus;
  * information from the cloud as a user may do should use the unwrapped client object.
  */
 public class ExternalBQDatasets {
-
   /** Helper method to generate a random dataset id. */
   public static String randomDatasetId() {
     return UUID.randomUUID().toString().replace('-', '_');
@@ -235,6 +234,6 @@ public class ExternalBQDatasets {
    */
   public enum IamMemberType {
     USER,
-    GROUP;
+    GROUP
   }
 }
