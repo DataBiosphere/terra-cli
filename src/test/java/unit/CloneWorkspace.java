@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
-
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
   private static final String GIT_REPO_REF_NAME = "gitrepo_ref";
@@ -234,6 +233,9 @@ public class CloneWorkspace extends ClearContextUnit {
         CloneResourceResult.SUCCEEDED,
         datasetRefClonedResource.result,
         "Dataset reference clone succeeded.");
+    assertNotNull(
+        datasetRefClonedResource.destinationResource,
+        "Dataset reference destination resource null.");
     assertEquals(
         StewardshipType.REFERENCED,
         datasetRefClonedResource.destinationResource.stewardshipType,
@@ -246,6 +248,8 @@ public class CloneWorkspace extends ClearContextUnit {
                 .findFirst());
     assertEquals(
         CloneResourceResult.SUCCEEDED, datasetClonedResource.result, "Dataset clone succeeded.");
+    assertNotNull(
+        datasetClonedResource.destinationResource, "Dataset clone destination resource null.");
     assertEquals(
         "The first dataset.",
         datasetClonedResource.destinationResource.description,
@@ -258,6 +262,8 @@ public class CloneWorkspace extends ClearContextUnit {
                 .findFirst());
     assertEquals(
         CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
+    assertNotNull(
+        gitRepoClonedResource.destinationResource, "Git repo clone destination resource null.");
     assertEquals(
         GIT_REPO_REF_NAME,
         gitRepoClonedResource.destinationResource.name,

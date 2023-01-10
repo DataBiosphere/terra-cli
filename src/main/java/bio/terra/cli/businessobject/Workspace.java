@@ -280,11 +280,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -314,15 +310,24 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
+  /**
+   * Get a resource by id.
+   *
+   * @throws UserActionableException if there is no resource with that id
+   */
+  public Resource getResource(UUID id) {
+    Optional<Resource> resourceOpt =
+        resources.stream().filter(resource -> resource.id.equals(id)).findFirst();
+    return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
+  }
+
   /** Populate the list of resources for this workspace. Does not sync to disk. */
   private void populateResources() {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    List<Resource> resources =
+    this.resources =
         wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
-
-    this.resources = resources;
   }
 
   /**
@@ -442,7 +447,7 @@ public class Workspace {
     return userEmail;
   }
 
-  /** Calls listResourceAndSync instead if you care about the freshness of the resource list. */
+  /** Call listResourceAndSync instead if you care about the freshness of the resource list. */
   public List<Resource> getResources() {
     return Collections.unmodifiableList(resources);
   }
