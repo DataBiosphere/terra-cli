@@ -21,6 +21,10 @@ distributions {
         contents {
             from 'tools/install.sh'
             from 'README.md'
+            from("${project.buildDir}/docs/commands/") {
+                include '*.adoc'
+                into 'docs/commands'
+            }
         }
     }
 }
