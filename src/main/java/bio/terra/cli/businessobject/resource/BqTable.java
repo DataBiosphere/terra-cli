@@ -112,7 +112,7 @@ public class BqTable extends Resource {
   /** Delete a BigQuery data table controlled resource in the workspace. */
   protected void deleteControlled() {
     throw new UnsupportedOperationException(
-        "Unsupport this operation because workspace manager does not support creating a controlled BigQuery data table");
+        "This operation is unsupported because workspace manager does not support creating a controlled BigQuery data table");
   }
 
   /**

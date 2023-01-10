@@ -46,6 +46,7 @@ public class GenerateConfig extends BaseCommand {
       return;
     }
 
+    // TODO(TERRA-210) Add AWS specs into cromwell config
     String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
 

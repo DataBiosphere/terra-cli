@@ -26,6 +26,7 @@
     * [Workspace](#workspace)
     * [Resources](#resources)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
+        * [AWS bucket lifecycle rules](#aws-bucket-lifecycle-rules)
         * [GCS bucket object reference](#gcs-bucket-object-reference)
             * [Reference to a file or folder](#reference-to-a-file-or-folder)
             * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
@@ -609,8 +610,7 @@ example) to pick up any changes that your collaborators have made.
 ##### GCS bucket lifecycle rules
 
 GCS bucket lifecycle rules are specified by passing a JSON-formatted file path
-to the
-`terra resource create gcs-bucket` command. The expected JSON structure matches
+to the `terra resource create gcs-bucket` command. The expected JSON structure matches
 the one used by the `gsutil lifecycle`
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This
 structure is a subset of the GCS
@@ -649,6 +649,75 @@ December 3, 2007.
         "createdBefore": "2007-12-03",
         "matchesStorageClass": [
           "STANDARD"
+        ]
+      }
+    }
+  ]
+}
+```
+
+(3) Delete any objects that are more than 365 days old.
+
+```json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "Delete"
+      },
+      "condition": {
+        "age": 365
+      }
+    }
+  ]
+}
+```
+
+There is also a command shortcut for specifying this type of lifecycle rule (3).
+
+```
+terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
+```
+
+##### AWS bucket lifecycle rules
+
+AWS bucket lifecycle rules are specified by passing a JSON-formatted file path
+to the `terra resource create aws-bucket` command. This structure is a subset of
+the AWS S3 Bucket lifecycle [configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/how-to-set-lifecycle-configuration-intro.html).
+Below are some example file contents for specifying a lifecycle rule.
+
+(1) Change the storage class to `INTELLIGENT_TIERING` after 10 days.
+
+```json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "INTELLIGENT_TIERING"
+      },
+      "condition": {
+        "age": 10
+      }
+    }
+  ]
+}
+```
+
+(2) Delete any objects with storage class `ONE_ZONE_INFREQUENT_ACCESS` that were created before
+December 3, 2007.
+
+```json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "Delete"
+      },
+      "condition": {
+        "createdBefore": "2007-12-03",
+        "matchesStorageClass": [
+          "ONE_ZONE_INFREQUENT_ACCESS"
         ]
       }
     }
