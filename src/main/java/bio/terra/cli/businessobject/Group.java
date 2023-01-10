@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +16,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Group {
   private static final Logger logger = LoggerFactory.getLogger(Group.class);
-
-  private String name;
-  private String email;
-  private List<GroupPolicy> currentUserPolicies;
+  private final String name;
+  private final String email;
+  private final List<GroupPolicy> currentUserPolicies;
 
   private Group(String name, String email, List<GroupPolicy> currentUserPolicies) {
     this.name = name;
@@ -54,7 +52,7 @@ public class Group {
    * @return a list of groups
    */
   public static List<Group> list() {
-    return listGroupsInMap().values().stream().collect(Collectors.toList());
+    return new ArrayList<>(listGroupsInMap().values());
   }
 
   /**
@@ -135,7 +133,7 @@ public class Group {
 
   /** List the members of the group. */
   public List<Member> getMembers() {
-    return listMembersByEmail().values().stream().collect(Collectors.toList());
+    return new ArrayList<>(listMembersByEmail().values());
   }
 
   /**
@@ -191,8 +189,8 @@ public class Group {
    * current context or state.
    */
   public static class Member {
-    private String email;
-    private List<GroupPolicy> policies;
+    private final String email;
+    private final List<GroupPolicy> policies;
 
     private Member(String email, List<GroupPolicy> policies) {
       this.email = email;
