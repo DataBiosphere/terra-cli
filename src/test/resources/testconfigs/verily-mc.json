@@ -26,5 +26,5 @@
     }
   ],
   "projectForExternalResources": "verily-bvdp-cli-test",
-\  "useJanitor": false
+  "useJanitor": false
 }

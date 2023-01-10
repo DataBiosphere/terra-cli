@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         testTag: [ "unit"]
-        testServer: [ "mc-feature-dev" ]
+        testServer: [ "verily-mc-feature-dev" ]
         platform: [ "aws" ]
       fail-fast: false
     runs-on: ubuntu-latest
