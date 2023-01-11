@@ -33,7 +33,7 @@ public class WorkspaceGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
-  void statusDescribeListReflectCreateGcp() throws IOException {
+  void statusDescribeListReflectCreateGcp() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -97,7 +97,7 @@ public class WorkspaceGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace describe reflects the number of resources")
-  void describeReflectsNumResourcesGcp() throws IOException {
+  void describeReflectsNumResourcesGcp() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();

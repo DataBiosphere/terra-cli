@@ -9,11 +9,16 @@ import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.api.gax.paging.Page;
 import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.baseclasses.SingleWorkspaceUnit;
@@ -186,18 +191,31 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
-  void gsutilGcloudAlphaStorageLs() throws IOException {
+  void gsutilGcloudAlphaStorageLs() throws IOException, InterruptedException {
 
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    UFWorkspace createdWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceName";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+
+    Storage localProjectStorageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(createdWorkspace.googleProjectId)
+            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .build()
+            .getService();
+
+    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
+    Page<Bucket> createdBucketOnCloud =
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
 
     // `terra gsutil ls`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");
@@ -422,7 +440,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
-  void gcloudAppExecute() throws IOException {
+  void gcloudAppExecute() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
