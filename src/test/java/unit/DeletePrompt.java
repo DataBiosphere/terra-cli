@@ -3,7 +3,6 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.SamGroups;
@@ -34,8 +33,8 @@ public class DeletePrompt extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
   }
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     // try to delete each group that was created by a method in this class
     trackedGroups.deleteAllTrackedGroups();
@@ -85,7 +84,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("prompt response is checked for groups delete")
-  void promptResponseCheckedByGroups() throws JsonProcessingException {
+  void promptResponseCheckedByGroups() {
     // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
     TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);

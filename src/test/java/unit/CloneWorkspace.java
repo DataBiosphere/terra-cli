@@ -19,7 +19,6 @@ import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
-import harness.TestContext;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
@@ -56,12 +55,10 @@ public class CloneWorkspace extends ClearContextUnit {
   private UFWorkspace sourceWorkspace;
   private UFWorkspace destinationWorkspace;
 
+  @Override
   @BeforeAll
-  public static void setupOnce() throws IOException {
-    TestContext.clearGlobalContextDir();
-    resetContext();
-
-    workspaceCreator.login(); // login needed to get user's proxy group
+  public void setupOnce() throws Exception {
+    super.setupOnce();
 
     // create an external dataset to use for a referenced resource
     externalDataset = ExternalBQDatasets.createDataset();

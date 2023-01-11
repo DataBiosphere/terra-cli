@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
@@ -32,6 +33,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   @Test
   @DisplayName("default platform is GCP on workspace create")
   void defaultPlatformSetOnCreate() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -56,6 +58,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   @Test
   @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreateGcp() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -121,6 +124,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   @Test
   @DisplayName("workspace describe reflects the number of resources")
   void describeReflectsNumResourcesGcp() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();

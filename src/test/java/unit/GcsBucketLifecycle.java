@@ -3,6 +3,7 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -93,6 +94,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle action delete (condition age)")
   void deleteAction() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "delete_age";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -104,6 +106,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle action set storage class (condition age)")
   void setStorageClassAction() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "setStorageClass_age";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -115,6 +118,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition created before (action delete)")
   void createdBeforeCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "delete_createdBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -129,6 +133,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition custom time before (action delete)")
   void customTimeBeforeCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "delete_customTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -143,6 +148,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition days since custom time (action delete)")
   void daysSinceCustomTimeCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "delete_daysSinceCustomTime";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -157,6 +163,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition days since noncurrent time (action delete)")
   void daysSinceNoncurrentTimeCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "delete_daysSinceNoncurrentTime";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -171,6 +178,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition is live (action set storage class)")
   void isLiveCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "setStorageClass_isLive";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -182,6 +190,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition matches storage class (action set storage class)")
   void matchesStorageClassCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "setStorageClass_matchesStorageClass";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -196,9 +205,10 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("lifecycle condition noncurrent time before (action set storage class)")
+  @DisplayName("lifecycle condition non-current time before (action set storage class)")
   void noncurrentTimeBeforeCondition() throws IOException {
-    String name = "setStorageClass_noncurrentTimeBefore";
+    assumeTrue(onSupportedPlatform);
+    String name = "setStorageClass_non-currentTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
 
@@ -212,6 +222,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition number of newer versions (action set storage class)")
   void numberOfNewerVerionsCondition() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "setStorageClass_numNewerVersions";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -226,6 +237,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("auto-delete option")
   void autoDeleteOption() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String resourceName = "autodelete";
     String bucketName = UUID.randomUUID().toString();
     int autoDeleteAgeDays = 24;
@@ -254,6 +266,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("multiple lifecycle conditions in one rule")
   void multipleConditions() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "multipleConditions";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -275,6 +288,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("multiple lifecycle rules")
   void multipleRules() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String name = "multipleRules";
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createBucketWithLifecycleRules(name, name + ".json");
@@ -284,6 +298,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update the bucket lifecycle rule")
   void update() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --lifecycle=$lifecycle1 --cloning=COPY_DEFINITION`
     String resourceName = "bucketToUpdate";
@@ -327,6 +342,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("remove the bucket lifecycle rule")
   void remove() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName
     // --lifecycle=$lifecycle1`
     String resourceName = "remove";

@@ -3,6 +3,7 @@ package unit;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import harness.TestCommand;
 import harness.TestCommand.Result;
@@ -18,6 +19,7 @@ public class ConfigGcp extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("app-launch config affects how apps are launched")
   void appLaunchGcp() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String badImageError = "No such image: badimageid";
 
     workspaceCreator.login();

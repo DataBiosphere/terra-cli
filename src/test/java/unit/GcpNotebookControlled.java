@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -153,6 +154,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect creating and deleting a controlled notebook")
   void listDescribeReflectCreateDelete() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -225,6 +227,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve and check-access for a controlled notebook")
   void resolveAndCheckAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -254,6 +257,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("override the default location and instance id")
   void overrideLocationAndInstanceId() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -353,6 +357,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   @Test // NOTE: This test takes ~10 minutes to run.
   @DisplayName("start, stop a notebook and poll until they complete")
   void startStop() throws IOException, InterruptedException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

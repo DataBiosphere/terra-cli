@@ -42,7 +42,7 @@ task runTestsWithTag(type: Test) {
 
             if (cloudPlatform == "gcp") {
                 allTestTags.add("unit-gcp")
-            } else {  // run all tests
+            } else if (cloudPlatform == null) {  // run all tests
                 allTestTags.addAll(["unit-gcp"])
             }
 

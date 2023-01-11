@@ -4,6 +4,7 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
@@ -86,6 +87,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect creating a new controlled dataset")
   void listDescribeReflectCreate() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -137,6 +139,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("create a new dataset but not specify dataset id")
   void createDatasetWithoutSpecifyingDatasetId() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -182,6 +185,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a controlled dataset")
   void listReflectsDelete() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -204,6 +208,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a controlled dataset")
   void resolve() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -250,6 +255,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a controlled dataset")
   void checkAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -276,6 +282,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("create a controlled dataset, specifying all options")
   void createWithAllOptions() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -348,6 +355,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a controlled dataset, one property at a time")
   void updateIndividualProperties() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -407,6 +415,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a controlled dataset, specifying multiple properties")
   void updateMultipleProperties() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

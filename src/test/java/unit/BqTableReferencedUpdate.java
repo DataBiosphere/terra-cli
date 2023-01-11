@@ -1,6 +1,7 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import com.google.api.services.bigquery.model.DatasetReference;
@@ -27,8 +28,8 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
 
   private TestUser shareeUser;
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
@@ -76,6 +77,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("Attempt to update table reference but the user has no access.")
   void updateTableReferenceWithNoAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -110,6 +112,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   @DisplayName(
       "Attempt to update table reference when the user only have access to sharedExternalTable.")
   void updateTableReferenceWithPartialAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
@@ -157,7 +160,9 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   @DisplayName(
       "Attempt to add a reference to tables when the user only has access to sharedExternalTable.")
   void addTableReferenceWithPartialAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     shareeUser.login();
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 

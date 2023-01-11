@@ -3,6 +3,7 @@ package unit;
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
@@ -48,7 +49,7 @@ import org.junit.jupiter.api.Test;
  * runners at once.
  */
 @Tag("unit-gcp")
-public class PassthroughApps extends SingleWorkspaceUnitGcp {
+public class PassthroughAppsGcp extends SingleWorkspaceUnitGcp {
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
 
@@ -67,8 +68,8 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
     TestContext.clearGcloudConfigDirectory();
   }
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
     ExternalGCSBuckets.deleteBucket(externalBucket);
@@ -78,6 +79,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("app list returns all pass-through apps")
   void appList() throws IOException {
+    assumeTrue(onSupportedPlatform);
     // `terra app list --format=json`
     List<String> appList =
         TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "app", "list");
@@ -89,6 +91,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("env vars include terra user and workspace cloud project")
   void workspaceEnvVars() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -118,6 +121,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("env vars include a resolved workspace resource")
   void resourceEnvVars() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -147,6 +151,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("gcloud is configured with the workspace project and user")
   void gcloudConfigured() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -187,7 +192,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
   void gsutilGcloudAlphaStorageLs() throws IOException {
-
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -218,7 +223,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
-
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -251,6 +256,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check nextflow version")
   void nextflowVersion() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -267,6 +273,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
+    assumeTrue(onSupportedPlatform);
     String resource1Name = TestUtils.appendRandomNumber("repo1");
 
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
@@ -295,7 +302,9 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     String repo1 = TestUtils.appendRandomNumber("repo");
@@ -337,6 +346,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("exit code is passed through to CLI caller in docker container")
   void exitCodePassedThroughDockerContainer() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -363,6 +373,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("exit code is passed through to CLI caller in local process")
   void exitCodePassedThroughLocalProcess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -390,7 +401,9 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -423,6 +436,7 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
   void gcloudAppExecute() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     UFWorkspace workspace2 =

@@ -2,6 +2,7 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
@@ -33,8 +34,8 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
 
   private TestUser shareeUser;
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
@@ -69,6 +70,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect adding a new referenced bucket")
   void listDescribeReflectAdd() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -124,6 +126,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a referenced bucket")
   void listReflectsDelete() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -149,6 +152,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a referenced bucket")
   void resolve() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -187,6 +191,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a referenced bucket")
   void checkAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -211,6 +216,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("add a referenced bucket, specifying all options")
   void addWithAllOptions() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -262,6 +268,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced bucket, one property at a time")
   void updateIndividualProperties() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -342,6 +349,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced bucket, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -399,6 +407,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   @DisplayName(
       "Attempt to update the gcs bucket while the user only have access to the externalSharedBucket")
   void updateGcsBucketWithPartialAccess() throws IOException {
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

@@ -1,16 +1,11 @@
 package harness.baseclasses;
 
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUser;
 import harness.utils.WorkspaceUtils;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -21,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static String userFacingId;
 
   protected static String getUserFacingId() {
@@ -32,19 +26,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
   @BeforeAll
   protected void setupOnce() throws Exception {
-    TestContext.clearGlobalContextDir();
-    resetContext();
-
-    Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    assumeTrue(
-        supportedPlatforms != null && !supportedPlatforms.isEmpty(),
-        "No cloud platforms supported on server " + Context.getServer().getName());
-
-    // retain default platform if supported, otherwise replace
-    if (!supportedPlatforms.contains(getCloudPlatform())) {
-      setCloudPlatform(supportedPlatforms.iterator().next());
-    }
-
+    super.setupOnce();
     if (getCloudPlatform() == CloudPlatform.GCP) {
       platformStorageName = "gcs-bucket";
     }

@@ -1,11 +1,12 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
@@ -16,9 +17,9 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra gcloud builds submit` commands. */
 @Tag("unit-gcp")
-public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-  @BeforeAll
+public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     new File("./Dockerfile").createNewFile();
@@ -40,6 +41,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
     if (!server.getCloudBuildEnabled()) {
       return;
     }
+    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

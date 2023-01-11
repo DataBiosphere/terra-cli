@@ -49,7 +49,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `--workspace` option to override the current workspace just for this command. */
 @Tag("unit")
 public class WorkspaceOverride extends ClearContextUnit {
-  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static UFWorkspace workspace1;
   private static UFWorkspace workspace2;
 
@@ -62,12 +61,10 @@ public class WorkspaceOverride extends ClearContextUnit {
   /**
    * Create two workspaces for tests to use, so we can switch between them with the override option.
    */
+  @Override
   @BeforeAll
   protected void setupOnce() throws Exception {
-    TestContext.clearGlobalContextDir();
-    resetContext();
-
-    workspaceCreator.login();
+    super.setupOnce();
 
     // grant the user's proxy group access to the bucket and dataset so that they will pass WSM's
     // access check when adding them as referenced resources

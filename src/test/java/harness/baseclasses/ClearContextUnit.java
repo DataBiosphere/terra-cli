@@ -1,17 +1,17 @@
 package harness.baseclasses;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.Logger;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
+import harness.TestUser;
 import java.io.IOException;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -22,7 +22,9 @@ import org.junit.jupiter.api.TestInstance;
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
+  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private CloudPlatform cloudPlatform = CloudPlatform.GCP; // default platform
+  protected boolean onSupportedPlatform;
 
   protected void setCloudPlatform(CloudPlatform cloudPlatform) {
     this.cloudPlatform = cloudPlatform;
@@ -65,6 +67,27 @@ public class ClearContextUnit {
     }
   }
 
+  @BeforeAll
+  protected void setupOnce() throws Exception {
+    TestContext.clearGlobalContextDir();
+    resetContext();
+
+    Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
+    if (supportedPlatforms == null || supportedPlatforms.isEmpty()) {
+      throw new UserActionableException(
+          "No cloud platforms supported on server " + Context.getServer().getName());
+    }
+
+    // retain default platform if supported, otherwise replace
+    if (!supportedPlatforms.contains(getCloudPlatform())) {
+      setCloudPlatform(supportedPlatforms.iterator().next());
+    }
+
+    this.onSupportedPlatform = supportedPlatforms.contains(cloudPlatform); // TODO-dex Always true
+
+    workspaceCreator.login();
+  }
+
   /**
    * Clear the context before each test method. For sub-classes, it's best to call this at the end
    * of the setupEachTime method so that each test method starts off with a clean context.
@@ -88,13 +111,12 @@ public class ClearContextUnit {
     // the directory itself to avoid clobbering across runners.
     // check platform support (requires server to be set)
 
-    Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    assertTrue(
-        supportedPlatforms != null && !supportedPlatforms.isEmpty(),
-        "No cloud platforms supported on server " + Context.getServer().getName());
+    /*Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
+    this.onSupportedPlatform =
+        supportedPlatforms != null
+            && !supportedPlatforms.isEmpty()
+            && supportedPlatforms.contains(cloudPlatform);
 
-    assumeTrue(
-        supportedPlatforms.contains(cloudPlatform),
-        "server " + Context.getServer().getName() + " does not support platform " + cloudPlatform);
+     */
   }
 }
