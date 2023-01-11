@@ -59,12 +59,14 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
 
-            // tell junit to run tests with this tag: unit or integration
-            useJUnitPlatform {
-                includeTags allTestTags as String[]
-            }
-
+            // TODO(TERRA-303) Add platform specific Integration Test tag support in CLI
         }
+
+        // tell junit to run tests with this tag: unit or integration
+        useJUnitPlatform {
+            includeTags allTestTags as String[]
+        }
+
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
         // work, but that's not a concern for dedicated CI machines.
         int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
