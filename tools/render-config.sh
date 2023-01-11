@@ -60,7 +60,7 @@ readFromVault "$EXT_PROJECT_SA_VAULT_PATH" "external-project-account.json"
 
 # used for cleaning up external (to WSM) test resources with Janitor
 echo "Reading the Janitor client service account key file from Vault"
-readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json" "base64"
+readFromVault "$JANITOR_CLIENT_SA_VAULT_PATH" "janitor-client.json"
 
 # used for granting break-glass access to a workspace in the verilycli deployment
 echo "Reading the WSM app service account key file for the verilycli deployment from Vault"
