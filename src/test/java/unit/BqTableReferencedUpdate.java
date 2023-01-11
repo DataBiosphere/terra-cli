@@ -25,7 +25,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   private final String privateExternalTable = "testTable";
   private final String sharedExternalTable = "testTable2";
 
-  private TestUser sharedUser;
+  private TestUser shareeUser;
 
   @Override
   @BeforeAll
@@ -50,14 +50,14 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
         externalDataset.getDatasetId(),
         sharedExternalTable);
 
-    sharedUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
-    sharedUser.login();
+    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
+    shareeUser.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra workspace add-user --email=$email --role=WRITER`
     TestCommand.runCommandExpectSuccess(
-        "workspace", "add-user", "--email=" + sharedUser.email, "--role=WRITER");
+        "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
 
     ExternalBQDatasets.grantReadAccessToTable(
         externalDataset.getProjectId(),
@@ -92,7 +92,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
         "--dataset-id=" + externalDataset.getDatasetId(),
         "--table-id=" + privateExternalTable);
 
-    sharedUser.login();
+    shareeUser.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -127,7 +127,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
         "--dataset-id=" + externalDataset.getDatasetId(),
         "--table-id=" + sharedExternalTable);
 
-    sharedUser.login();
+    shareeUser.login();
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -158,7 +158,7 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
   @DisplayName(
       "Attempt to add a reference to tables when the user only has access to sharedExternalTable.")
   void addTableReferenceWithPartialAccess() throws IOException {
-    sharedUser.login();
+    shareeUser.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
