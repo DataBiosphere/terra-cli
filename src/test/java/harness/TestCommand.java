@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.command.Main;
 import bio.terra.cli.service.utils.CrlUtils;
-import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -109,16 +108,17 @@ public class TestCommand {
   /** Helper method to run a command until its exit code is 0=success. */
   public static void runCommandExpectSuccessWithRetries(String... args) {
     int curRetries = 0;
-    while(curRetries < CrlUtils.GCP_RETRY_COUNT) {
+    while (curRetries < CrlUtils.GCP_RETRY_COUNT) {
       Result cmd = runCommand(args);
-      if(cmd.exitCode == 0) {
+      if (cmd.exitCode == 0) {
         return;
       } else {
         try {
           Thread.sleep(CrlUtils.GCP_RETRY_SLEEP_DURATION.toMillis());
         } catch (InterruptedException e) {
           // If the thread is interrupted, exit immediately.
-          throw new AssertionError("InterruptedException while retrying test command: " + Arrays.toString(args));
+          throw new AssertionError(
+              "InterruptedException while retrying test command: " + Arrays.toString(args));
         }
         curRetries++;
       }
