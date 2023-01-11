@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
@@ -424,7 +425,8 @@ public class PassthroughApps extends SingleWorkspaceUnitGcp {
   void gcloudAppExecute() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`

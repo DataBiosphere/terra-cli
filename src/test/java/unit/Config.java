@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -95,7 +96,8 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // `terra config get workspace`
     UFWorkspace getValue =

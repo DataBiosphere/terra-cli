@@ -36,7 +36,8 @@ public class WorkspaceGcp extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");

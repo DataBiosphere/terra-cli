@@ -29,19 +29,6 @@ public class WorkspaceUtils {
    * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
    *     the WSM workspaceDelete request.
    */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
-      throws JsonProcessingException {
-    return createWorkspace(workspaceCreator, Optional.empty());
-  }
-
-  /**
-   * Create a new workspace and register it with Janitor if this test is running in an environment
-   * where Janitor is enabled. Tests must use this method in order to register workspaces with
-   * Janitor, direct calls to `terra workspace create` will potentially leak workspaces.
-   *
-   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
-   *     the WSM workspaceDelete request.
-   */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, Optional<CloudPlatform> platform) throws JsonProcessingException {
     // `terra workspace create --format=json`

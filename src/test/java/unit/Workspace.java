@@ -16,6 +16,7 @@ import harness.baseclasses.ClearContextUnit;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +32,8 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // `terra workspace delete --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -180,8 +182,10 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace1 = WorkspaceUtils.createWorkspace(testUser);
-    UFWorkspace createdWorkspace2 = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace1 =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
+    UFWorkspace createdWorkspace2 =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =

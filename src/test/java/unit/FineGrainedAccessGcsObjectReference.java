@@ -19,6 +19,7 @@ import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -185,7 +186,8 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
   void updatePrivateBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
@@ -240,7 +242,8 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
       "user with partial access updates reference to a private object, updates reference's name and description")
   void userWithPartialAccessUpdateSharedBucketObject() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -297,7 +300,8 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("describe the reference to a bucket object that the user has no access to")
   void describeObjectReferenceWhenUserHasNoAccess() throws IOException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
