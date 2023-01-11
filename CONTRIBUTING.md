@@ -217,6 +217,7 @@ Both types of tests:
 
 By default, tests are run against all cloud platforms supported by the CLI server. Add the platform to target tests for a single platform
 - CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp`
+- CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp`
 
 #### Docker and Tests
 

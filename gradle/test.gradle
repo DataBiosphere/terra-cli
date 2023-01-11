@@ -59,7 +59,11 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
 
-            // TODO(TERRA-303) Add platform specific Integration Test tag support in CLI
+            if (cloudPlatform == "gcp") {
+                allTestTags.add("integration-gcp")
+            } else if (cloudPlatform == null) {  // run all tests
+                allTestTags.addAll(["integration-gcp"])
+            }
         }
 
         // tell junit to run tests with this tag: unit or integration
