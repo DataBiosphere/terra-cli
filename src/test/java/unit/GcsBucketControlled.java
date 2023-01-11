@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
@@ -86,7 +85,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect creating a new controlled bucket")
   void listDescribeReflectCreate() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -130,7 +128,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("create a new controlled gcs bucket without specifying the bucket name")
   void createGcsBucketWithoutSpecifyingBucketName() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -170,7 +167,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a controlled bucket")
   void listReflectsDelete() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -193,7 +189,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a controlled bucket")
   void resolve() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -229,7 +224,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a controlled bucket")
   void checkAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -256,7 +250,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("create a controlled bucket, specifying all options except lifecycle")
   void createWithAllOptionsExceptLifecycle() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -332,7 +325,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a controlled bucket, one property at a time, except for lifecycle")
   void updateIndividualProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -415,7 +407,6 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a controlled bucket, specifying multiple properties, except for lifecycle")
   void updateMultipleProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

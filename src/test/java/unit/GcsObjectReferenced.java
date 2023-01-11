@@ -2,7 +2,6 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -110,7 +109,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect adding a new referenced bucket object")
   void listDescribeReflectAdd() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -175,7 +173,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect adding a new referenced bucket object")
   void addRefToGcsFolder() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -308,7 +305,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a referenced bucket object")
   void resolve() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -350,7 +346,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a referenced object")
   void listReflectsDelete() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -379,7 +374,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a referenced object")
   void checkAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -407,7 +401,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("add a referenced object, specifying all options")
   void addWithAllOptions() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -469,7 +462,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced object, one property at a time")
   void updateIndividualProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -574,7 +566,6 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced object, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

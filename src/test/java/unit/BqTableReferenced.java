@@ -4,7 +4,6 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
@@ -99,7 +98,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect adding a new referenced data table")
   void listDescribeReflectAdd() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -207,7 +205,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a referenced data table")
   void listReflectsDelete() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -240,7 +237,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a referenced data table")
   void resolve() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -301,7 +297,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a referenced data table")
   void checkAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -330,7 +325,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("add a referenced data table, specifying all options")
   void addWithAllOptions() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -399,7 +393,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced dataset, one property at a time")
   void updateIndividualProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -491,7 +484,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced data table, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException, InterruptedException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -639,7 +631,6 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("referenced dataset with no access does not fail the describe command")
   void numRowsForReferencedWithNoAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

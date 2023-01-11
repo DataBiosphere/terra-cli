@@ -24,7 +24,6 @@ import org.junit.jupiter.api.TestInstance;
 public class ClearContextUnit {
   protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private CloudPlatform cloudPlatform = CloudPlatform.GCP; // default platform
-  protected boolean onSupportedPlatform;
 
   protected void setCloudPlatform(CloudPlatform cloudPlatform) {
     this.cloudPlatform = cloudPlatform;
@@ -83,9 +82,6 @@ public class ClearContextUnit {
       setCloudPlatform(supportedPlatforms.iterator().next());
     }
 
-    this.onSupportedPlatform = true;
-    // this.onSupportedPlatform = supportedPlatforms.contains(cloudPlatform); // TODO-dex
-
     workspaceCreator.login();
   }
 
@@ -110,14 +106,5 @@ public class ClearContextUnit {
     resetContext();
     // Do not clear gcloud config. Only Passthrough Apps tests clear this, and that class manages
     // the directory itself to avoid clobbering across runners.
-    // check platform support (requires server to be set)
-
-    /*Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    this.onSupportedPlatform =
-        supportedPlatforms != null
-            && !supportedPlatforms.isEmpty()
-            && supportedPlatforms.contains(cloudPlatform);
-
-     */
   }
 }

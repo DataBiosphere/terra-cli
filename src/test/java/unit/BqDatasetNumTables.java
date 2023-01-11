@@ -3,7 +3,6 @@ package unit;
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.google.api.services.bigquery.model.DatasetReference;
@@ -58,7 +57,6 @@ public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("controlled dataset displays the number of tables")
   void numTablesForControlled() throws IOException, InterruptedException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -101,7 +99,6 @@ public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("referenced dataset displays the number of tables")
   void numTablesForReferenced() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -129,7 +126,6 @@ public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("referenced dataset with no access does not fail the describe command")
   void numTablesForReferencedWithNoAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

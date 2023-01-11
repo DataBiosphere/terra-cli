@@ -1,7 +1,6 @@
 package unit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
@@ -41,7 +40,6 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
     if (!server.getCloudBuildEnabled()) {
       return;
     }
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

@@ -2,7 +2,6 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import com.google.cloud.Identity;
@@ -72,7 +71,6 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("controlled bucket displays the number of objects")
   void numObjectsForControlled() throws IOException, InterruptedException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -110,7 +108,6 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("referenced bucket displays the number of objects")
   void numObjectsForReferenced() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -134,7 +131,6 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("referenced bucket with no access does not fail the describe command")
   void numObjectsForReferencedWithNoAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

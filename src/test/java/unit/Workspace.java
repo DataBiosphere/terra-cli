@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
@@ -29,7 +28,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("status, describe, workspace list reflect workspace delete")
   void statusDescribeListReflectDelete() throws IOException {
-    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -58,7 +56,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("delete property")
   void deleteProperty() throws IOException {
-    assumeTrue(onSupportedPlatform);
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
     String initialProperties = "key=value,key1=value1,foo=bar";
@@ -82,7 +79,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("status, describe, workspace list reflect workspace update")
   void statusDescribeListReflectUpdate() throws IOException {
-    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -155,7 +151,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("update properties in workspace")
   void updateProperty() throws IOException {
-    assumeTrue(onSupportedPlatform);
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
     String initialProperties = "key=value,key1=value1";
@@ -183,7 +178,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("status, describe reflect workspace set")
   void statusDescribeReflectsSet() throws IOException {
-    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -246,7 +240,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace create fails without spend profile access")
   void createFailsWithoutSpendAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithoutSpendAccess();
     testUser.login();
@@ -271,7 +264,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace create fails without userFacing id")
   void createFailsWithoutUserFacingId() throws IOException {
-    assumeTrue(onSupportedPlatform);
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 

@@ -3,7 +3,6 @@ package unit;
 import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
 
@@ -60,7 +59,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect adding a new referenced dataset")
   void listDescribeReflectAdd() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -150,7 +148,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list reflects deleting a referenced dataset")
   void listReflectsDelete() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -178,7 +175,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve a referenced dataset")
   void resolve() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -229,7 +225,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("check-access for a referenced dataset")
   void checkAccess() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -256,7 +251,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("add a referenced dataset, specifying all options")
   void addWithAllOptions() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -318,7 +312,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced dataset, one property at a time")
   void updateIndividualProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -402,7 +395,6 @@ public class BqDatasetReferenced extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("update a referenced dataset, specifying multiple or none of the properties")
   void updateMultipleOrNoProperties() throws IOException {
-    assumeTrue(onSupportedPlatform);
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
