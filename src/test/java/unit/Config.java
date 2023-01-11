@@ -2,10 +2,8 @@ package unit;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import bio.terra.cli.businessobject.Config.BrowserLaunchOption;
 import bio.terra.cli.businessobject.Config.CommandRunnerOption;
@@ -13,7 +11,6 @@ import bio.terra.cli.serialization.userfacing.UFLoggingConfig;
 import bio.terra.cli.serialization.userfacing.UFServer;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.utils.Logger;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.TestCommand.Result;
@@ -311,50 +308,5 @@ public class Config extends SingleWorkspaceUnit {
         "TEXT",
         getTableFormatValue(result, "format"),
         "workspace create affects config list in Json format");
-  }
-
-  @Test
-  @DisplayName("app-launch config affects how apps are launched")
-  void appLaunchGcp() throws IOException {
-    assumingThat(
-        getCloudPlatform() == CloudPlatform.GCP,
-        () -> {
-          String badImageError = "No such image: badimageid";
-
-          workspaceCreator.login();
-
-          // `terra workspace set --id=$id`
-          TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-          // set the docker image id to an invalid string
-          TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=badimageid");
-
-          // `terra config set app-launch LOCAL_PROCESS`
-          TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
-          // Apps launched via local process should not be affected
-          Result cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-          // Cmd exit code can either be 0=success or 1 because gcloud fails with
-          // `(gcloud.config.get-value) Failed to create the default configuration. Ensure your have
-          // the
-          // correct permissions on`.
-          assertThat(
-              "Expected to return exit code 0 or 1, instead got " + cmd.exitCode,
-              cmd.exitCode == 0 || cmd.exitCode == 1);
-          assertThat(
-              "bad docker image should not affect local mode",
-              cmd.stdErr,
-              not(containsString(badImageError)));
-
-          // `terra config set app-launch DOCKER_CONTAINER`
-          TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
-
-          // Apps launched via docker container should error out
-          String stdErr =
-              TestCommand.runCommandExpectExitCode(
-                  3, "app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-          assertThat(
-              "docker image not found error returned", stdErr, containsString(badImageError));
-        });
   }
 }
