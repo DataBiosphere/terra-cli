@@ -44,6 +44,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+// TODO-Dex
+
 /** Tests for the `--workspace` option to override the current workspace just for this command. */
 @Tag("unit")
 public class WorkspaceOverride extends ClearContextUnit {
@@ -78,8 +80,8 @@ public class WorkspaceOverride extends ClearContextUnit {
     ExternalBQDatasets.grantReadAccess(
         externalDataset, Auth.getProxyGroupEmail(), ExternalBQDatasets.IamMemberType.GROUP);
 
-    workspace1 = WorkspaceUtils.createWorkspace(workspaceCreator);
-    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    workspace1 = WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
+    workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
   }
 
   /** Delete the two workspaces. */
@@ -336,7 +338,8 @@ public class WorkspaceOverride extends ClearContextUnit {
   void workspace() throws IOException {
     workspaceCreator.login();
 
-    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace3 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // `terra workspace set --id=$id1`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
@@ -390,7 +393,8 @@ public class WorkspaceOverride extends ClearContextUnit {
   void matchingCurrentWorkspace() throws IOException {
     workspaceCreator.login();
 
-    UFWorkspace workspace3 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace3 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // `terra workspace set --id=$id3`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace3.id);

@@ -71,7 +71,6 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
-  // Use any supported platform
   protected void createBucket(String resourceName, String bucketName) {
     // `terra resource create [bucket-type] --name=$name --bucket-name=$bucketName --format=json`
     TestCommand.runCommandExpectSuccess(

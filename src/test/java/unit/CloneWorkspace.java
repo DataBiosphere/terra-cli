@@ -40,6 +40,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO-Dex
 @Tag("unit")
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
@@ -124,7 +125,8 @@ public class CloneWorkspace extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    sourceWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =
@@ -234,6 +236,8 @@ public class CloneWorkspace extends ClearContextUnit {
         CloneResourceResult.SUCCEEDED,
         datasetRefClonedResource.result,
         "Dataset reference clone succeeded.");
+    assertNotNull(
+        datasetRefClonedResource.destinationResource, "Dataset reference cloned resource null.");
     assertEquals(
         StewardshipType.REFERENCED,
         datasetRefClonedResource.destinationResource.stewardshipType,
@@ -246,6 +250,7 @@ public class CloneWorkspace extends ClearContextUnit {
                 .findFirst());
     assertEquals(
         CloneResourceResult.SUCCEEDED, datasetClonedResource.result, "Dataset clone succeeded.");
+    assertNotNull(datasetClonedResource.destinationResource, "Dataset cloned resource null.");
     assertEquals(
         "The first dataset.",
         datasetClonedResource.destinationResource.description,
@@ -258,6 +263,7 @@ public class CloneWorkspace extends ClearContextUnit {
                 .findFirst());
     assertEquals(
         CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
+    assertNotNull(gitRepoClonedResource.destinationResource, "GitRepo cloned resource null.");
     assertEquals(
         GIT_REPO_REF_NAME,
         gitRepoClonedResource.destinationResource.name,
