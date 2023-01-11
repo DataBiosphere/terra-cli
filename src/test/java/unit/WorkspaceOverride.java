@@ -437,17 +437,6 @@ public class WorkspaceOverride extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
 
-    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
-    // This is a hack to get around IAM permission delay.
-    Storage localProjectStorageClient =
-        StorageOptions.newBuilder()
-            .setProjectId(workspace2.googleProjectId)
-            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .build()
-            .getService();
-    Page<Bucket> createdBucketOnCloud =
-        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
-
     pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
@@ -459,11 +448,11 @@ public class WorkspaceOverride extends ClearContextUnit {
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runCommandExpectSuccessWithRetries(
         "notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
 
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runCommandExpectSuccessWithRetries(
         "notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
   }
 }
