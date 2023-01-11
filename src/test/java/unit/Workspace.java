@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("default platform is GCP on workspace create")
-  void defaultPlatformSetOnCreate() throws IOException {
+  void defaultPlatformSetOnCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -52,7 +52,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("status, describe, workspace list reflect workspace delete")
-  void statusDescribeListReflectDelete() throws IOException {
+  void statusDescribeListReflectDelete() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -79,7 +79,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("delete property")
-  void deleteProperty() throws IOException {
+  void deleteProperty() throws IOException, InterruptedException {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
     String initialProperties = "key=value,key1=value1,foo=bar";
@@ -102,7 +102,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("status, describe, workspace list reflect workspace update")
-  void statusDescribeListReflectUpdate() throws IOException {
+  void statusDescribeListReflectUpdate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -174,7 +174,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("update properties in workspace")
-  void updateProperty() throws IOException {
+  void updateProperty() throws IOException, InterruptedException {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
     String initialProperties = "key=value,key1=value1";
@@ -201,7 +201,7 @@ public class Workspace extends ClearContextUnit {
 
   @Test
   @DisplayName("status, describe reflect workspace set")
-  void statusDescribeReflectsSet() throws IOException {
+  void statusDescribeReflectsSet() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();

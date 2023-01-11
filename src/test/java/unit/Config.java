@@ -140,7 +140,7 @@ public class Config extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("config workspace set and workspace set are equivalent")
-  void workspace() throws IOException {
+  void workspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace create`
