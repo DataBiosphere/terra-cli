@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
  * runners at once.
  */
 @Tag("unit-gcp")
-public class PassthroughAppsGcp extends SingleWorkspaceUnitGcp {
+public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
 

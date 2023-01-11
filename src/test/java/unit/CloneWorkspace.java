@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import bio.terra.cli.serialization.userfacing.UFClonedResource;
 import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
@@ -15,6 +16,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.serialization.userfacing.resource.UFGitRepo;
 import bio.terra.workspace.model.CloneResourceResult;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
@@ -33,13 +35,12 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO-Dex
 @Tag("unit")
 public class CloneWorkspace extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
@@ -97,6 +98,7 @@ public class CloneWorkspace extends ClearContextUnit {
   @AfterEach
   public void cleanupEachTime() throws IOException {
     workspaceCreator.login();
+
     if (sourceWorkspace != null) {
       TestCommand.Result result =
           TestCommand.runCommand(
@@ -106,6 +108,7 @@ public class CloneWorkspace extends ClearContextUnit {
         logger.error("Failed to delete source workspace. exit code = {}", result.exitCode);
       }
     }
+
     if (destinationWorkspace != null) {
       TestCommand.Result result =
           TestCommand.runCommand(
@@ -118,166 +121,7 @@ public class CloneWorkspace extends ClearContextUnit {
   }
 
   @Test
-  public void cloneWorkspace(TestInfo testInfo) throws Exception {
-    workspaceCreator.login();
-
-    // create a workspace
-    sourceWorkspace =
-        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
-
-    // Add a bucket resource
-    UFGcsBucket sourceBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "create",
-            "gcs-bucket",
-            "--name=" + "bucket_1",
-            "--bucket-name=" + UUID.randomUUID()); // cloning defaults  to COPY_RESOURCE
-
-    // Add another bucket resource with COPY_NOTHING
-    UFGcsBucket copyNothingBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "create",
-            "gcs-bucket",
-            "--name=" + "bucket_2",
-            "--bucket-name=" + UUID.randomUUID(),
-            "--cloning=COPY_NOTHING");
-
-    // Add a dataset resource
-    UFBqDataset sourceDataset =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
-            "resource",
-            "create",
-            "bq-dataset",
-            "--name=dataset_1",
-            "--dataset-id=dataset_1",
-            "--description=The first dataset.",
-            "--cloning=COPY_RESOURCE");
-
-    UFBqDataset datasetReference =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
-            "resource",
-            "add-ref",
-            "bq-dataset",
-            "--name=dataset_ref",
-            "--project-id=" + externalDataset.getProjectId(),
-            "--dataset-id=" + externalDataset.getDatasetId(),
-            "--cloning=COPY_REFERENCE");
-
-    UFGitRepo gitRepositoryReference =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGitRepo.class,
-            "resource",
-            "add-ref",
-            "git-repo",
-            "--name=" + GIT_REPO_REF_NAME,
-            "--repo-url=" + GIT_REPO_HTTPS_URL,
-            "--cloning=COPY_REFERENCE");
-
-    // Update workspace name. This is for testing PF-1623.
-    TestCommand.runAndParseCommandExpectSuccess(
-        UFWorkspace.class, "workspace", "update", "--new-name=update_name");
-
-    // Clone the workspace
-    UFClonedWorkspace clonedWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFClonedWorkspace.class,
-            "workspace",
-            "clone",
-            "--new-id=" + TestUtils.appendRandomNumber("cloned-workspace-id"),
-            "--name=cloned_workspace",
-            "--description=A clone.");
-
-    assertEquals(
-        sourceWorkspace.id,
-        clonedWorkspace.sourceWorkspace.id,
-        "Correct source workspace ID for clone.");
-    destinationWorkspace = clonedWorkspace.destinationWorkspace;
-    assertThat(
-        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
-
-    UFClonedResource bucketClonedResource =
-        getOrFail(
-            clonedWorkspace.resources.stream()
-                .filter(cr -> sourceBucket.id.equals(cr.sourceResource.id))
-                .findFirst());
-    assertEquals(
-        CloneResourceResult.SUCCEEDED, bucketClonedResource.result, "bucket clone succeeded");
-    assertNotNull(
-        bucketClonedResource.destinationResource, "Destination bucket resource was created");
-
-    UFClonedResource copyNothingBucketClonedResource =
-        getOrFail(
-            clonedWorkspace.resources.stream()
-                .filter(cr -> copyNothingBucket.id.equals(cr.sourceResource.id))
-                .findFirst());
-    assertEquals(
-        CloneResourceResult.SKIPPED,
-        copyNothingBucketClonedResource.result,
-        "COPY_NOTHING resource was skipped.");
-    assertNull(
-        copyNothingBucketClonedResource.destinationResource,
-        "Skipped resource has no destination resource.");
-
-    UFClonedResource datasetRefClonedResource =
-        getOrFail(
-            clonedWorkspace.resources.stream()
-                .filter(cr -> datasetReference.id.equals(cr.sourceResource.id))
-                .findFirst());
-    assertEquals(
-        CloneResourceResult.SUCCEEDED,
-        datasetRefClonedResource.result,
-        "Dataset reference clone succeeded.");
-    assertNotNull(
-        datasetRefClonedResource.destinationResource, "Dataset reference cloned resource null.");
-    assertEquals(
-        StewardshipType.REFERENCED,
-        datasetRefClonedResource.destinationResource.stewardshipType,
-        "Dataset reference has correct stewardship type.");
-
-    UFClonedResource datasetClonedResource =
-        getOrFail(
-            clonedWorkspace.resources.stream()
-                .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
-                .findFirst());
-    assertEquals(
-        CloneResourceResult.SUCCEEDED, datasetClonedResource.result, "Dataset clone succeeded.");
-    assertNotNull(datasetClonedResource.destinationResource, "Dataset cloned resource null.");
-    assertEquals(
-        "The first dataset.",
-        datasetClonedResource.destinationResource.description,
-        "Dataset description matches.");
-
-    UFClonedResource gitRepoClonedResource =
-        getOrFail(
-            clonedWorkspace.resources.stream()
-                .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
-                .findFirst());
-    assertEquals(
-        CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
-    assertNotNull(gitRepoClonedResource.destinationResource, "GitRepo cloned resource null.");
-    assertEquals(
-        GIT_REPO_REF_NAME,
-        gitRepoClonedResource.destinationResource.name,
-        "Resource type matches GIT_REPO");
-
-    // Switch to the new workspace from the clone
-    TestCommand.runCommandExpectSuccess(
-        "workspace", "set", "--id=" + clonedWorkspace.destinationWorkspace.id);
-
-    // Validate resources
-    List<UFResource> resources =
-        TestCommand.runAndParseCommandExpectSuccess(new TypeReference<>() {}, "resource", "list");
-    assertThat(
-        "Destination workspace has three resources.", resources, hasSize(DESTINATION_RESOURCE_NUM));
-  }
-
-  @Test
+  @DisplayName("clone workspace fails without new-id")
   public void cloneFailsWithoutNewUserFacingId() throws IOException {
     workspaceCreator.login();
 
@@ -287,5 +131,180 @@ public class CloneWorkspace extends ClearContextUnit {
         "error message indicate user must set ID",
         stdErr,
         CoreMatchers.containsString("Missing required option: '--new-id=<id>'"));
+  }
+
+  @Test
+  @DisplayName("clone workspace with platform GCP")
+  public void cloneWorkspaceGcp() {
+    assumingThat(
+        getCloudPlatform() == CloudPlatform.GCP,
+        () -> {
+          workspaceCreator.login();
+
+          // create a workspace
+          sourceWorkspace =
+              WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
+
+          // Add a bucket resource
+          UFGcsBucket sourceBucket =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFGcsBucket.class,
+                  "resource",
+                  "create",
+                  "gcs-bucket",
+                  "--name=" + "bucket_1",
+                  "--bucket-name=" + UUID.randomUUID()); // cloning defaults to COPY_RESOURCE
+
+          // Add another bucket resource with COPY_NOTHING
+          UFGcsBucket copyNothingBucket =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFGcsBucket.class,
+                  "resource",
+                  "create",
+                  "gcs-bucket",
+                  "--name=" + "bucket_2",
+                  "--bucket-name=" + UUID.randomUUID(),
+                  "--cloning=COPY_NOTHING");
+
+          // Add a dataset resource
+          UFBqDataset sourceDataset =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFBqDataset.class,
+                  "resource",
+                  "create",
+                  "bq-dataset",
+                  "--name=dataset_1",
+                  "--dataset-id=dataset_1",
+                  "--description=The first dataset.",
+                  "--cloning=COPY_RESOURCE");
+
+          UFBqDataset datasetReference =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFBqDataset.class,
+                  "resource",
+                  "add-ref",
+                  "bq-dataset",
+                  "--name=dataset_ref",
+                  "--project-id=" + externalDataset.getProjectId(),
+                  "--dataset-id=" + externalDataset.getDatasetId(),
+                  "--cloning=COPY_REFERENCE");
+
+          UFGitRepo gitRepositoryReference =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFGitRepo.class,
+                  "resource",
+                  "add-ref",
+                  "git-repo",
+                  "--name=" + GIT_REPO_REF_NAME,
+                  "--repo-url=" + GIT_REPO_HTTPS_URL,
+                  "--cloning=COPY_REFERENCE");
+
+          // Update workspace name. This is for testing PF-1623.
+          TestCommand.runAndParseCommandExpectSuccess(
+              UFWorkspace.class, "workspace", "update", "--new-name=update_name");
+
+          // Clone the workspace
+          UFClonedWorkspace clonedWorkspace =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  UFClonedWorkspace.class,
+                  "workspace",
+                  "clone",
+                  "--new-id=" + TestUtils.appendRandomNumber("cloned-workspace-id"),
+                  "--name=cloned_workspace",
+                  "--description=A clone.");
+
+          assertEquals(
+              sourceWorkspace.id,
+              clonedWorkspace.sourceWorkspace.id,
+              "Correct source workspace ID for clone.");
+          destinationWorkspace = clonedWorkspace.destinationWorkspace;
+          assertThat(
+              "There are 5 cloned resources",
+              clonedWorkspace.resources,
+              hasSize(SOURCE_RESOURCE_NUM));
+
+          UFClonedResource bucketClonedResource =
+              getOrFail(
+                  clonedWorkspace.resources.stream()
+                      .filter(cr -> sourceBucket.id.equals(cr.sourceResource.id))
+                      .findFirst());
+          assertEquals(
+              CloneResourceResult.SUCCEEDED, bucketClonedResource.result, "bucket clone succeeded");
+          assertNotNull(
+              bucketClonedResource.destinationResource, "Destination bucket resource was created");
+
+          UFClonedResource copyNothingBucketClonedResource =
+              getOrFail(
+                  clonedWorkspace.resources.stream()
+                      .filter(cr -> copyNothingBucket.id.equals(cr.sourceResource.id))
+                      .findFirst());
+          assertEquals(
+              CloneResourceResult.SKIPPED,
+              copyNothingBucketClonedResource.result,
+              "COPY_NOTHING resource was skipped.");
+          assertNull(
+              copyNothingBucketClonedResource.destinationResource,
+              "Skipped resource has no destination resource.");
+
+          UFClonedResource datasetRefClonedResource =
+              getOrFail(
+                  clonedWorkspace.resources.stream()
+                      .filter(cr -> datasetReference.id.equals(cr.sourceResource.id))
+                      .findFirst());
+          assertEquals(
+              CloneResourceResult.SUCCEEDED,
+              datasetRefClonedResource.result,
+              "Dataset reference clone succeeded.");
+          assertNotNull(
+              datasetRefClonedResource.destinationResource,
+              "Dataset reference cloned resource null.");
+          assertEquals(
+              StewardshipType.REFERENCED,
+              datasetRefClonedResource.destinationResource.stewardshipType,
+              "Dataset reference has correct stewardship type.");
+
+          UFClonedResource datasetClonedResource =
+              getOrFail(
+                  clonedWorkspace.resources.stream()
+                      .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
+                      .findFirst());
+          assertEquals(
+              CloneResourceResult.SUCCEEDED,
+              datasetClonedResource.result,
+              "Dataset clone succeeded.");
+          assertNotNull(datasetClonedResource.destinationResource, "Dataset cloned resource null.");
+          assertEquals(
+              "The first dataset.",
+              datasetClonedResource.destinationResource.description,
+              "Dataset description matches.");
+
+          UFClonedResource gitRepoClonedResource =
+              getOrFail(
+                  clonedWorkspace.resources.stream()
+                      .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
+                      .findFirst());
+          assertEquals(
+              CloneResourceResult.SUCCEEDED,
+              gitRepoClonedResource.result,
+              "Git repo clone succeeded");
+          assertNotNull(gitRepoClonedResource.destinationResource, "GitRepo cloned resource null.");
+          assertEquals(
+              GIT_REPO_REF_NAME,
+              gitRepoClonedResource.destinationResource.name,
+              "Resource type matches GIT_REPO");
+
+          // Switch to the new workspace from the clone
+          TestCommand.runCommandExpectSuccess(
+              "workspace", "set", "--id=" + clonedWorkspace.destinationWorkspace.id);
+
+          // Validate resources
+          List<UFResource> resources =
+              TestCommand.runAndParseCommandExpectSuccess(
+                  new TypeReference<>() {}, "resource", "list");
+          assertThat(
+              "Destination workspace has three resources.",
+              resources,
+              hasSize(DESTINATION_RESOURCE_NUM));
+        });
   }
 }

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit-gcp")
 public class WorkspaceGcp extends ClearContextUnit {
   @Test
-  @DisplayName("default platform is GCP on workspace create")
+  @DisplayName("default platform is GCP on workspace create") // TODO-Dex
   void defaultPlatformSetOnCreate() throws IOException {
     assumeTrue(onSupportedPlatform);
     // select a test user and login
@@ -56,7 +56,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("status, describe, workspace list reflect workspace create")
+  @DisplayName("status, describe, GCP workspace list reflect workspace create")
   void statusDescribeListReflectCreateGcp() throws IOException {
     assumeTrue(onSupportedPlatform);
     // select a test user and login
@@ -122,7 +122,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("workspace describe reflects the number of resources")
+  @DisplayName("GCP workspace describe reflects the number of resources")
   void describeReflectsNumResourcesGcp() throws IOException {
     assumeTrue(onSupportedPlatform);
     // select a test user and login

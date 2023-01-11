@@ -83,7 +83,8 @@ public class ClearContextUnit {
       setCloudPlatform(supportedPlatforms.iterator().next());
     }
 
-    this.onSupportedPlatform = supportedPlatforms.contains(cloudPlatform); // TODO-dex Always true
+    this.onSupportedPlatform = true;
+    // this.onSupportedPlatform = supportedPlatforms.contains(cloudPlatform); // TODO-dex
 
     workspaceCreator.login();
   }

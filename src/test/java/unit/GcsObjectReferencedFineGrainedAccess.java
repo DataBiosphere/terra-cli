@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /** Test for CLI command on GCS objects in a fine-grained access GCS bucket. */
 @Tag("unit-gcp")
-public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp {
+public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
 
