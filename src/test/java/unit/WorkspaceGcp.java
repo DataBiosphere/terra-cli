@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit-gcp")
 public class WorkspaceGcp extends ClearContextUnit {
   @Test
-  @DisplayName("default platform is GCP on workspace create") // TODO-Dex
+  @DisplayName("default platform is GCP on workspace create")
   void defaultPlatformSetOnCreate() throws IOException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
