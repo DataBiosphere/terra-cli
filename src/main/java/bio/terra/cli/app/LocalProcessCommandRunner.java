@@ -78,6 +78,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
       }
     }
 
+    return runBashCommand(command, envVars);
+  }
+
+  public static int runBashCommand(String command, Map<String, String> envVars) {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
     processCommand.add("-ce");
