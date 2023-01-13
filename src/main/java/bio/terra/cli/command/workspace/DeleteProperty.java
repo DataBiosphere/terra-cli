@@ -29,7 +29,7 @@ public class DeleteProperty extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace = Context.requireWorkspace().deleteProperties(propertyKeys);
-    updatedWorkspace.listResourcesAndSync();
+    updatedWorkspace.listResources();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
 

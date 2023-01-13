@@ -28,7 +28,7 @@ public class Update extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace =
         Context.requireWorkspace().update(argGroup.id, argGroup.name, argGroup.description);
-    updatedWorkspace.listResourcesAndSync();
+    updatedWorkspace.listResources();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
 

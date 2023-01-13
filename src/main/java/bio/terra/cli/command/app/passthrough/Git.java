@@ -68,7 +68,7 @@ public class Git extends ToolCommand {
   }
 
   private Set<String> getGitReposInWorkspace() {
-    return Context.requireWorkspace().listResourcesAndSync().stream()
+    return Context.requireWorkspace().listResources().stream()
         .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
         .map(Resource::resolve)
         .collect(Collectors.toSet());

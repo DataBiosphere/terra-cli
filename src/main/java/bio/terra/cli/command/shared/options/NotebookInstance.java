@@ -41,7 +41,7 @@ public class NotebookInstance {
           .build();
     } else {
       return InstanceName.builder()
-          .projectId(workspace.getGoogleProjectId())
+          .projectId(workspace.getRequiredGoogleProjectId())
           .location(location)
           .instanceId(argGroup.instanceId)
           .build();

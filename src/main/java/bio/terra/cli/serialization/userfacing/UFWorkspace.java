@@ -28,7 +28,7 @@ public class UFWorkspace extends UFWorkspaceLight {
    */
   public UFWorkspace(Workspace internalObj) {
     super(internalObj);
-    this.numResources = internalObj.getResources().size();
+    this.numResources = internalObj.listResources().size();
   }
 
   /** Constructor for Jackson deserialization during testing. */
