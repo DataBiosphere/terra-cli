@@ -74,7 +74,7 @@ public class GcpNotebook extends Resource {
     logger.info("Created GCP notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new GcpNotebook(createdResource);
   }
 

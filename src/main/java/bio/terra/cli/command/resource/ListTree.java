@@ -33,7 +33,7 @@ public class ListTree extends WsmBaseCommand {
 
     // Get all resources and folders in the workspace and sort by name
     List<UFResource> resources =
-        Context.requireWorkspace().listResourcesAndSync().stream()
+        Context.requireWorkspace().listResources().stream()
             .sorted(Comparator.comparing(Resource::getName))
             .map(Resource::serializeToCommand)
             .toList();
