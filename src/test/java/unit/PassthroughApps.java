@@ -92,6 +92,23 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   }
 
   @Test
+  @DisplayName("app execute respects arguments with spaces")
+  void appExecuteSpace() throws IOException {
+    workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
+    // `terra workspace set --id=$id`
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra app execute sh -c "echo Hello World"`
+    TestCommand.Result cmd =
+        TestCommand.runCommand("app", "execute", "sh", "-c", "\"echo Hello World\"");
+
+    // Check that the output was printed
+    assertThat("Output is correct", cmd.stdOut, CoreMatchers.containsString("Hello World"));
+  }
+
+  @Test
   @DisplayName("env vars include terra user and workspace cloud project")
   void workspaceEnvVars() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);

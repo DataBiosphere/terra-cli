@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,13 @@ public abstract class CommandRunner {
     String fullCommand = "";
     if (command != null && command.size() > 0) {
       final String argSeparator = " ";
-      fullCommand += argSeparator + String.join(argSeparator, command);
+      fullCommand +=
+          argSeparator
+              + String.join(
+                  argSeparator,
+                  command.stream()
+                      .map(i -> "\"" + i.replace("\"", "\\\"") + "\"")
+                      .collect(Collectors.toList()));
     }
     return fullCommand;
   }
