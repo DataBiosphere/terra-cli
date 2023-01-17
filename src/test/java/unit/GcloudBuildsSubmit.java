@@ -9,7 +9,6 @@ import bio.terra.cli.service.utils.CrlUtils;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
-import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;

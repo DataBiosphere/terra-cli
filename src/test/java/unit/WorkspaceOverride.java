@@ -11,15 +11,10 @@ import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
-import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
-import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
 import com.google.api.gax.paging.Page;
-import com.google.api.services.bigquery.model.DatasetReference;
-import com.google.cloud.Identity;
 import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
@@ -208,7 +203,7 @@ public class WorkspaceOverride extends ClearContextUnit {
     assertNull(clearedStatus.workspace);
   }
 
-  //-dex
+  // -dex
   @Test
   @DisplayName("notebook commands respect workspace override")
   void notebooks() throws IOException, InterruptedException {
