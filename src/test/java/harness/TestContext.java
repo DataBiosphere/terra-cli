@@ -85,7 +85,7 @@ public class TestContext {
    * @param root starting node
    * @param processChildPath lambda to process each node
    * @param skipRoot true to skip the root node and only process child nodes
-   * @throws IOException IOException
+   * @throws IOException IO Exception
    */
   private static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
       throws IOException {

@@ -171,8 +171,8 @@ public class BqDatasetLifetime extends SingleWorkspaceUnitGcp {
    *     or null if lifetime expected to be unset
    * @param defaultTableLifetimeMilliseconds expected lifetime for partitions in milliseconds, or
    *     null if lifetime expected to be unset
-   * @throws IOException IOException
-   * @throws InterruptedException InterruptedException
+   * @throws IOException IO Exception
+   * @throws InterruptedException Interrupted Exception
    */
   private void validateDefaultLifetimes(
       UFBqDataset bqDataset,

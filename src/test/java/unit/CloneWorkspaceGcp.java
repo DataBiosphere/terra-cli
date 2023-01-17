@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -49,6 +50,8 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
   private static final int DESTINATION_RESOURCE_NUM = 4;
 
   private static DatasetReference externalDataset;
+  private UFWorkspace sourceWorkspace;
+  private UFWorkspace destinationWorkspace;
 
   @Override
   @BeforeAll
@@ -76,6 +79,30 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
     }
   }
 
+  @AfterEach
+  public void cleanupEachTime() throws IOException {
+    workspaceCreator.login();
+    if (sourceWorkspace != null) {
+      TestCommand.Result result =
+          TestCommand.runCommand(
+              "workspace", "delete", "--quiet", "--workspace=" + sourceWorkspace.id);
+      sourceWorkspace = null;
+      if (0 != result.exitCode) {
+        logger.error("Failed to delete source workspace. exit code = {}", result.exitCode);
+      }
+    }
+
+    if (destinationWorkspace != null) {
+      TestCommand.Result result =
+          TestCommand.runCommand(
+              "workspace", "delete", "--quiet", "--workspace=" + destinationWorkspace.id);
+      destinationWorkspace = null;
+      if (0 != result.exitCode) {
+        logger.error("Failed to delete destination workspace. exit code = {}", result.exitCode);
+      }
+    }
+  }
+
   /**
    * Check Optional's value is present and return it, or else fail an assertion.
    *
@@ -95,8 +122,7 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-    UFWorkspace sourceWorkspace =
-        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
+     sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =
@@ -170,6 +196,7 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
         sourceWorkspace.id,
         clonedWorkspace.sourceWorkspace.id,
         "Correct source workspace ID for clone.");
+    destinationWorkspace = clonedWorkspace.destinationWorkspace;
     assertThat(
         "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
 

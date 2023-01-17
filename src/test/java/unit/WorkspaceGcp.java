@@ -119,7 +119,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("gcp workspace describe reflects the number of resources")
+  @DisplayName("GCP workspace describe reflects the number of resources")
   void describeReflectsNumResourcesGcp() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();

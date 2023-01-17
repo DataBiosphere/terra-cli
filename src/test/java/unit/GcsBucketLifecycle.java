@@ -198,7 +198,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("lifecycle condition non-current time before (action set storage class)")
   void noncurrentTimeBeforeCondition() throws IOException {
-    String name = "setStorageClass_non-currentTimeBefore";
+    String name = "setStorageClass_noncurrentTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
 
