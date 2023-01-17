@@ -27,7 +27,7 @@ public abstract class CommandRunner {
    *
    * @param command the command and arguments (e.g. {gsutil, ls, gs://my-bucket})
    */
-  protected static String buildFullCommand(List<String> command) {
+  public static String buildFullCommand(List<String> command) {
     String fullCommand = "";
     if (command != null && command.size() > 0) {
       final String argSeparator = " ";
@@ -37,7 +37,7 @@ public abstract class CommandRunner {
   }
 
   // Note: `foo-bar` and `foo_bar` will have the same env variable. PF-1907 will fix this.
-  public static final String convertToEnvironmentVariable(String string) {
+  public static String convertToEnvironmentVariable(String string) {
     return "TERRA_" + string.replace("-", "_");
   }
 
@@ -88,7 +88,10 @@ public abstract class CommandRunner {
 
     terraEnvVars.put("TERRA_USER_EMAIL", Context.requireUser().getEmail());
     terraEnvVars.put("GOOGLE_SERVICE_ACCOUNT_EMAIL", Context.requireUser().getPetSaEmail());
-    terraEnvVars.put("GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId());
+    if (Context.requireWorkspace().getGoogleProjectId().isPresent()) {
+      terraEnvVars.put(
+          "GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId().get());
+    }
 
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {
@@ -139,7 +142,7 @@ public abstract class CommandRunner {
     // build a map of reference string -> resolved value
     Map<String, String> terraReferences = new HashMap<>();
     Context.requireWorkspace()
-        .listResourcesAndSync()
+        .listResources()
         .forEach(
             resource -> {
               String envVariable = convertToEnvironmentVariable(resource.getName());

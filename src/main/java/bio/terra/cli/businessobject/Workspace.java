@@ -2,7 +2,6 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;
@@ -23,9 +22,7 @@ import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,64 +40,27 @@ public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
   private UUID uuid;
   private String userFacingId;
-  private String name; // not unique
-  private String description;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
-  private Map<String, String> properties;
-
-  // name of the server where this workspace exists
-  private String serverName;
-
-  // email of the user that loaded the workspace to this machine
-  private String userEmail;
-
-  // list of resources (controlled & referenced)
-  private List<Resource> resources;
-
-  private OffsetDateTime createdDate;
-  private OffsetDateTime lastUpdatedDate;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.uuid = wsmObject.getId();
     this.userFacingId = wsmObject.getUserFacingId();
-    this.name = wsmObject.getDisplayName() == null ? "" : wsmObject.getDisplayName();
-    this.description = wsmObject.getDescription() == null ? "" : wsmObject.getDescription();
     if (wsmObject.getGcpContext() != null) {
-      this.cloudPlatform = CloudPlatform.GCP;
+      cloudPlatform = CloudPlatform.GCP;
+      googleProjectId = wsmObject.getGcpContext().getProjectId();
     } else if (wsmObject.getAzureContext() != null) {
-      this.cloudPlatform = CloudPlatform.AZURE;
-    } else {
-      this.cloudPlatform = null;
+      cloudPlatform = CloudPlatform.AZURE;
     }
-    this.googleProjectId =
-        wsmObject.getGcpContext() == null ? null : wsmObject.getGcpContext().getProjectId();
-    this.properties = propertiesToStringMap(wsmObject.getProperties());
-    this.serverName = Context.getServer().getName();
-    this.userEmail = Context.requireUser().getEmail();
-    this.resources = new ArrayList<>();
-    this.createdDate = wsmObject.getCreatedDate();
-    this.lastUpdatedDate = wsmObject.getLastUpdatedDate();
   }
 
   /** Build an instance of this class from the serialized format on disk. */
   public Workspace(PDWorkspace configFromDisk) {
     this.uuid = configFromDisk.uuid;
     this.userFacingId = configFromDisk.userFacingId;
-    this.name = configFromDisk.name;
-    this.description = configFromDisk.description;
-    this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
-    this.properties = configFromDisk.properties;
-    this.serverName = configFromDisk.serverName;
-    this.userEmail = configFromDisk.userEmail;
-    this.resources =
-        configFromDisk.resources.stream()
-            .map(PDResource::deserializeToInternal)
-            .collect(Collectors.toList());
-    this.createdDate = configFromDisk.createdDate;
-    this.lastUpdatedDate = configFromDisk.lastUpdatedDate;
+    this.cloudPlatform = configFromDisk.cloudPlatform;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -152,7 +112,7 @@ public class Workspace {
     // call WSM to fetch the existing workspace object and backing Google context
     WorkspaceDescription loadedWorkspace = WorkspaceManagerService.fromContext().getWorkspace(id);
     logger.info("Loaded workspace: {}", loadedWorkspace);
-    return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
+    return new Workspace(loadedWorkspace);
   }
 
   /** Fetch an existing workspace by userFacingId, with resources populated */
@@ -161,15 +121,7 @@ public class Workspace {
     WorkspaceDescription loadedWorkspace =
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(userFacingId);
     logger.info("Loaded workspace: {}", loadedWorkspace);
-    return convertWorkspaceDescriptionToWorkspace(loadedWorkspace);
-  }
-
-  /** Convert what's returned from WSM API to CLI object. */
-  private static Workspace convertWorkspaceDescriptionToWorkspace(
-      WorkspaceDescription workspaceDescription) {
-    Workspace workspace = new Workspace(workspaceDescription);
-    workspace.populateResources();
-    return workspace;
+    return new Workspace(loadedWorkspace);
   }
 
   /**
@@ -290,49 +242,23 @@ public class Workspace {
   }
 
   /**
-   * Get a resource by name and expect a specific type.
-   *
-   * @throws UserActionableException if the resource is not found or is the wrong type
-   */
-  public <T extends Resource> T getResourceOfType(String name, Resource.Type type) {
-    Resource resource = getResource(name);
-    if (!resource.getResourceType().equals(type)) {
-      throw new UserActionableException("Invalid resource type: " + resource.getResourceType());
-    }
-    return (T) resource;
-  }
-
-  /**
    * Get a resource by name.
    *
    * @throws UserActionableException if there is no resource with that name
    */
   public Resource getResource(String name) {
     Optional<Resource> resourceOpt =
-        resources.stream().filter(resource -> resource.name.equals(name)).findFirst();
+        listResources().stream().filter(resource -> resource.name.equals(name)).findFirst();
     return resourceOpt.orElseThrow(
         () -> new UserActionableException("Resource not found: " + name));
   }
 
-  /** Populate the list of resources for this workspace. Does not sync to disk. */
-  private void populateResources() {
+  /** Fetch the list of resources for the current workspace. */
+  public List<Resource> listResources() {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    List<Resource> resources =
-        wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
-
-    this.resources = resources;
-  }
-
-  /**
-   * Fetch the list of resources for the current workspace. Sync the cached list of resources to
-   * disk.
-   */
-  public List<Resource> listResourcesAndSync() {
-    populateResources();
-    Context.synchronizeToDisk();
-    return resources;
+    return wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
   }
 
   /** Fetch the list of folders for this workspace */
@@ -410,48 +336,22 @@ public class Workspace {
     return userFacingId;
   }
 
-  public String getName() {
-    return name;
+  public Optional<String> getGoogleProjectId() {
+    return Optional.ofNullable(googleProjectId);
   }
 
-  public String getDescription() {
-    return description;
+  public String getRequiredGoogleProjectId() {
+    return getGoogleProjectId()
+        .orElseThrow(
+            () ->
+                new UserActionableException("No GCP project available in the current workspace."));
   }
 
   public CloudPlatform getCloudPlatform() {
     return cloudPlatform;
   }
 
-  public String getGoogleProjectId() {
-    return googleProjectId;
-  }
-
-  public Map<String, String> getProperties() {
-    return properties;
-  }
-
-  public Optional<String> getProperty(String key) {
-    return Optional.ofNullable(properties.get(key));
-  }
-
-  public String getServerName() {
-    return serverName;
-  }
-
-  public String getUserEmail() {
-    return userEmail;
-  }
-
-  /** Calls listResourceAndSync instead if you care about the freshness of the resource list. */
-  public List<Resource> getResources() {
-    return Collections.unmodifiableList(resources);
-  }
-
-  public OffsetDateTime getCreatedDate() {
-    return createdDate;
-  }
-
-  public OffsetDateTime getLastUpdatedDate() {
-    return lastUpdatedDate;
+  public WorkspaceDescription getWorkspaceDescription() {
+    return WorkspaceManagerService.fromContext().getWorkspace(uuid);
   }
 }

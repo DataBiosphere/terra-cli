@@ -186,7 +186,7 @@ public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp
 
   @Test
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
-  void updatePrivateBucketObject() throws IOException {
+  void updatePrivateBucketObject() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =
@@ -243,7 +243,7 @@ public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp
   @Test
   @DisplayName(
       "user with partial access updates reference to a private object, updates reference's name and description")
-  void userWithPartialAccessUpdateSharedBucketObject() throws IOException {
+  void userWithPartialAccessUpdateSharedBucketObject() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =
@@ -302,7 +302,7 @@ public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp
 
   @Test
   @DisplayName("describe the reference to a bucket object that the user has no access to")
-  void describeObjectReferenceWhenUserHasNoAccess() throws IOException {
+  void describeObjectReferenceWhenUserHasNoAccess() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =

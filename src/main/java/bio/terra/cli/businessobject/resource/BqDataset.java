@@ -71,7 +71,7 @@ public class BqDataset extends Resource {
     logger.info("Created BQ dataset: {}", addedResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new BqDataset(addedResource);
   }
 
@@ -90,7 +90,7 @@ public class BqDataset extends Resource {
     logger.info("Created BQ dataset: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new BqDataset(createdResource);
   }
 

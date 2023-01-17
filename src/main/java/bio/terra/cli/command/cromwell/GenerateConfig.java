@@ -46,7 +46,7 @@ public class GenerateConfig extends BaseCommand {
       return;
     }
 
-    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    String googleProjectId = Context.requireWorkspace().getRequiredGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
 
     // Force local process runner, so the generated file exists on local filesystem (as opposed to

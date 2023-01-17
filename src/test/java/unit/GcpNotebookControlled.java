@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -16,6 +17,7 @@ import harness.baseclasses.SingleWorkspaceUnitGcp;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
@@ -362,6 +364,22 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
     pollDescribeForNotebookState(name, "ACTIVE");
+
+    // Poll until the test user can get the notebook IAM bindings directly to confirm cloud
+    // permissions have
+    // synced. This works because we give "notebooks.instances.getIamPolicy" to notebook editors.
+    // The UFGcpNotebook object is not fully populated at creation time, so we need an additional
+    // `describe` call here.
+    UFGcpNotebook createdNotebook =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
+    CrlUtils.callGcpWithPermissionExceptionRetries(
+        () ->
+            CrlUtils.createNotebooksCow(workspaceCreator.getCredentialsWithCloudPlatformScope())
+                .instances()
+                .getIamPolicy(createdNotebook.instanceName)
+                .execute(),
+        Objects::nonNull);
 
     // `terra notebook stop --name=$name`
     TestCommand.Result cmd = TestCommand.runCommand("notebook", "stop", "--name=" + name);

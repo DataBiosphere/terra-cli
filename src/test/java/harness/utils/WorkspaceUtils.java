@@ -3,12 +3,16 @@ package harness.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.CRLJanitor;
 import harness.TestCommand;
 import harness.TestUser;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +34,8 @@ public class WorkspaceUtils {
    *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
-      TestUser workspaceCreator, Optional<CloudPlatform> platform) throws JsonProcessingException {
+      TestUser workspaceCreator, Optional<CloudPlatform> platform)
+      throws IOException, InterruptedException {
     // `terra workspace create --format=json`
     List<String> argsList =
         Stream.of("workspace", "create", "--id=" + createUserFacingId())
@@ -43,6 +48,7 @@ public class WorkspaceUtils {
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, argsList.toArray(new String[0]));
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
+    waitForCloudSync(workspaceCreator, workspace);
     return workspace;
   }
 
@@ -55,7 +61,7 @@ public class WorkspaceUtils {
    */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description, String properties)
-      throws JsonProcessingException {
+      throws IOException, InterruptedException {
     return createWorkspace(workspaceCreator, name, description, properties, Optional.empty());
   }
 
@@ -72,7 +78,7 @@ public class WorkspaceUtils {
       String description,
       String properties,
       Optional<CloudPlatform> platform)
-      throws JsonProcessingException {
+      throws IOException, InterruptedException {
     // `terra workspace create --format=json --name=$name --description=$description`
     List<String> argsList =
         Stream.of(
@@ -91,7 +97,24 @@ public class WorkspaceUtils {
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, argsList.toArray(new String[0]));
     CRLJanitor.registerWorkspaceForCleanup(getUuidFromCurrentWorkspace(), workspaceCreator);
+    waitForCloudSync(workspaceCreator, workspace);
     return workspace;
+  }
+
+  /**
+   * Poll the underlying workspace GCP project until the test user has a token permission (list GCS
+   * buckets in this case). This helps hide delay in syncing cloud IAM bindings.
+   */
+  private static void waitForCloudSync(TestUser workspaceCreator, UFWorkspace workspace)
+      throws IOException, InterruptedException {
+    var creatorCredentials = workspaceCreator.getCredentialsWithCloudPlatformScope();
+    Storage storageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(workspace.googleProjectId)
+            .setCredentials(creatorCredentials)
+            .build()
+            .getService();
+    CrlUtils.callGcpWithPermissionExceptionRetries(storageClient::list);
   }
 
   /**

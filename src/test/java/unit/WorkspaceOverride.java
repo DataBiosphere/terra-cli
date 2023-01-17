@@ -11,6 +11,17 @@ import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceUser;
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
+import com.google.api.gax.paging.Page;
+import com.google.api.services.bigquery.model.DatasetReference;
+import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.TestUser;
@@ -109,7 +120,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace commands respect workspace override")
-  void workspace() throws IOException {
+  void workspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace workspace3 =
@@ -164,7 +175,7 @@ public class WorkspaceOverride extends ClearContextUnit {
 
   @Test
   @DisplayName("workspace commands ignore workspace override when it matches current workspace")
-  void matchingCurrentWorkspace() throws IOException {
+  void matchingCurrentWorkspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     UFWorkspace workspace3 =
@@ -195,5 +206,49 @@ public class WorkspaceOverride extends ClearContextUnit {
     // Confirm current workspace status was cleared, despite the --workspace flag.
     UFStatus clearedStatus = TestCommand.runAndParseCommandExpectSuccess(UFStatus.class, "status");
     assertNull(clearedStatus.workspace);
+  }
+
+  //-dex
+  @Test
+  @DisplayName("notebook commands respect workspace override")
+  void notebooks() throws IOException, InterruptedException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id1`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + workspace1.id);
+
+    // `terra resources create gcp-notebook --name=$name`
+    String name = "notebooks";
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
+
+    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
+    // This is a hack to get around IAM permission delay.
+    Storage localProjectStorageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(workspace2.googleProjectId)
+            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .build()
+            .getService();
+    Page<Bucket> createdBucketOnCloud =
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
+
+    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
+
+    // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
+    UFGcpNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
+    assertEquals(name, matchedNotebook.name, "list output for workspace 2 matches notebook name");
+
+    // `terra resources list --type=AI_NOTEBOOK`
+    List<UFGcpNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
+    assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
+
+    // `terra notebook start --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
+
+    // `terra notebook stop --name=$name`
+    TestCommand.runCommandExpectSuccess(
+        "notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
   }
 }
