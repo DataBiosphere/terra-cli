@@ -50,14 +50,11 @@ public class BqTableReferencedUpdate extends SingleWorkspaceUnitGcp {
         externalDataset.getDatasetId(),
         sharedExternalTable);
 
-    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
-    shareeUser.login();
-
-    // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-    // `terra workspace add-user --email=$email --role=WRITER`
+    shareeUser = TestUser.chooseTestUserWhoIsNot(workspaceCreator);
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
+    shareeUser.login();
 
     ExternalBQDatasets.grantReadAccessToTable(
         externalDataset.getProjectId(),
