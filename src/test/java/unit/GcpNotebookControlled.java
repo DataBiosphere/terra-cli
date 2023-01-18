@@ -7,19 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.CrlUtils;
-import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.utils.GcpNotebookUtils;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -30,128 +26,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
 @Tag("unit-gcp")
 public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
-  /**
-   * Helper method to poll `terra resources describe` until the notebook state equals that
-   * specified. Uses the current workspace.
-   */
-  static void pollDescribeForNotebookState(String resourceName, String notebookState)
-      throws InterruptedException, JsonProcessingException {
-    pollDescribeForNotebookState(resourceName, notebookState, null);
-  }
-
-  /**
-   * Helper method to poll `terra resources describe` until the notebook state equals that
-   * specified. Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  static void pollDescribeForNotebookState(
-      String resourceName, String notebookState, String workspaceUserFacingId)
-      throws InterruptedException, JsonProcessingException {
-    HttpUtils.pollWithRetries(
-        () ->
-            workspaceUserFacingId == null
-                ? TestCommand.runAndParseCommandExpectSuccess(
-                    UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
-                : TestCommand.runAndParseCommandExpectSuccess(
-                    UFGcpNotebook.class,
-                    "resource",
-                    "describe",
-                    "--name=" + resourceName,
-                    "--workspace=" + workspaceUserFacingId),
-        (result) -> notebookState.equals(result.state),
-        (ex) -> false, // no retries
-        2 * 20, // up to 20 minutes
-        Duration.ofSeconds(30)); // every 30 seconds
-
-    assertNotebookState(resourceName, notebookState, workspaceUserFacingId);
-  }
-
-  /**
-   * Helper method to call `terra resource describe` and assert that the notebook state matches that
-   * given. Uses the current workspace.
-   */
-  private static void assertNotebookState(String resourceName, String notebookState)
-      throws JsonProcessingException {
-    assertNotebookState(resourceName, notebookState, null);
-  }
-
-  /**
-   * Helper method to call `terra resource describe` and assert that the notebook state matches that
-   * given. Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  private static void assertNotebookState(
-      String resourceName, String notebookState, String workspaceUserFacingId)
-      throws JsonProcessingException {
-    UFGcpNotebook describeNotebook =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                UFGcpNotebook.class, "resource", "describe", "--name=" + resourceName)
-            : TestCommand.runAndParseCommandExpectSuccess(
-                UFGcpNotebook.class,
-                "resource",
-                "describe",
-                "--name=" + resourceName,
-                "--workspace=" + workspaceUserFacingId);
-    assertEquals(notebookState, describeNotebook.state, "notebook state matches");
-    if (!notebookState.equals("PROVISIONING")) {
-      assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
-    }
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
-   * current workspace.
-   */
-  static UFGcpNotebook listOneNotebookResourceWithName(String resourceName)
-      throws JsonProcessingException {
-    return listOneNotebookResourceWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
-   * the specified workspace id; Uses the current workspace if null.
-   */
-  static UFGcpNotebook listOneNotebookResourceWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    List<UFGcpNotebook> matchedResources =
-        listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
-
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    return matchedResources.get(0);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Uses the current workspace.
-   */
-  static List<UFGcpNotebook> listNotebookResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    return listNotebookResourcesWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  static List<UFGcpNotebook> listNotebookResourcesWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AI_NOTEBOOK --format=json`
-    List<UFGcpNotebook> listedResources =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AI_NOTEBOOK")
-            : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {},
-                "resource",
-                "list",
-                "--type=AI_NOTEBOOK",
-                "--workspace=" + workspaceUserFacingId);
-
-    // find the matching notebook in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
-  }
-
   @Test
   @DisplayName("list and describe reflect creating and deleting a controlled notebook")
   void listDescribeReflectCreateDelete() throws IOException {
@@ -184,7 +58,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         "create output matches private user name");
 
     // check that the notebook is in the list
-    UFGcpNotebook matchedResource = listOneNotebookResourceWithName(name);
+    UFGcpNotebook matchedResource = GcpNotebookUtils.listOneNotebookResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
 
     // `terra resource describe --name=$name --format=json`
@@ -216,7 +90,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
     if (!cliTimedOut) {
       // confirm it no longer appears in the resources list
-      List<UFGcpNotebook> listedNotebooks = listNotebookResourcesWithName(name);
+      List<UFGcpNotebook> listedNotebooks = GcpNotebookUtils.listNotebookResourcesWithName(name);
       assertThat(
           "deleted notebook no longer appears in the resources list",
           listedNotebooks,
@@ -363,7 +237,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     // `terra resource create gcp-notebook --name=$name`
     String name = "startStop";
     TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
-    pollDescribeForNotebookState(name, "ACTIVE");
+    GcpNotebookUtils.pollDescribeForNotebookState(name, "ACTIVE");
 
     // Poll until the test user can get the notebook IAM bindings directly to confirm cloud
     // permissions have
@@ -389,7 +263,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         cmd.exitCode == 0 || badState409,
         "stop either succeeds or fails with a 409 bad state error");
     if (!badState409) {
-      assertNotebookState(name, "STOPPED");
+      GcpNotebookUtils.assertNotebookState(name, "STOPPED");
     }
 
     // `terra notebook start --name=$name`
@@ -399,7 +273,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         cmd.exitCode == 0 || badState409,
         "start either succeeds or fails with a 409 bad state error");
     if (!badState409) {
-      assertNotebookState(name, "ACTIVE");
+      GcpNotebookUtils.assertNotebookState(name, "ACTIVE");
     }
   }
 }

@@ -122,7 +122,8 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
     workspaceCreator.login();
 
     // create a workspace
-     sourceWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
+    sourceWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Add a bucket resource
     UFGcsBucket sourceBucket =

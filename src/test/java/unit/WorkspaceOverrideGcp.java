@@ -4,9 +4,6 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
-import static unit.GcpNotebookControlled.listNotebookResourcesWithName;
-import static unit.GcpNotebookControlled.listOneNotebookResourceWithName;
-import static unit.GcpNotebookControlled.pollDescribeForNotebookState;
 import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
@@ -14,15 +11,21 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
+import com.google.api.gax.paging.Page;
 import com.google.api.services.bigquery.model.DatasetReference;
 import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import harness.utils.ExternalGCSBuckets;
+import harness.utils.GcpNotebookUtils;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -292,14 +295,27 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
     String name = "notebooks";
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcp-notebook", "--name=" + name, "--workspace=" + workspace2.id);
-    pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
+
+    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
+    // This is a hack to get around IAM permission delay.
+    Storage localProjectStorageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(workspace2.googleProjectId)
+            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .build()
+            .getService();
+    Page<Bucket> createdBucketOnCloud =
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
+
+    GcpNotebookUtils.pollDescribeForNotebookState(name, "ACTIVE", workspace2.id);
 
     // `terra resources list --type=AI_NOTEBOOK --workspace=$id2`
-    UFGcpNotebook matchedNotebook = listOneNotebookResourceWithName(name, workspace2.id);
+    UFGcpNotebook matchedNotebook =
+        GcpNotebookUtils.listOneNotebookResourceWithName(name, workspace2.id);
     assertEquals(name, matchedNotebook.name, "list output for workspace 2 matches notebook name");
 
     // `terra resources list --type=AI_NOTEBOOK`
-    List<UFGcpNotebook> matchedNotebooks = listNotebookResourcesWithName(name);
+    List<UFGcpNotebook> matchedNotebooks = GcpNotebookUtils.listNotebookResourcesWithName(name);
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
     // `terra notebook start --name=$name`
