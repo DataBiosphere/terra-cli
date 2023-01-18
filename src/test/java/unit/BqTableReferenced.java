@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
@@ -28,14 +28,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("unit")
-public class BqTableReferenced extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class BqTableReferenced extends SingleWorkspaceUnitGcp {
   DatasetReference externalDataset;
   DatasetReference externalDataset2;
   // name of table in external dataset
-  private String externalDataTableName = "testTable";
-  private String externalDataTableName2 = "testTable2";
+  private final String externalDataTableName = "testTable";
+  private final String externalDataTableName2 = "testTable2";
 
   /**
    * Helper method to call `terra resource list` and filter the results on the specified resource
@@ -54,8 +53,8 @@ public class BqTableReferenced extends SingleWorkspaceUnit {
         .collect(Collectors.toList());
   }
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();

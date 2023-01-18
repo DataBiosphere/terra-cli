@@ -2,7 +2,6 @@ package unit;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -30,42 +30,14 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra config` commands. */
 @Tag("unit")
 public class Config extends SingleWorkspaceUnit {
-  @Test
-  @DisplayName("app-launch config affects how apps are launched")
-  void appLaunch() throws IOException {
-    String badImageError = "No such image: badimageid";
-
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // set the docker image id to an invalid string
-    TestCommand.runCommandExpectSuccess("config", "set", "image", "--image=badimageid");
-
-    // `terra config set app-launch LOCAL_PROCESS`
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "LOCAL_PROCESS");
-
-    // Apps launched via local process should not be affected
-    Result cmd = TestCommand.runCommand("app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-    // Cmd exit code can either be 0=success or 1 because gcloud fails with
-    // `(gcloud.config.get-value) Failed to create the default configuration. Ensure your have the
-    // correct permissions on`.
-    assertThat(
-        "Expected to return exit code 0 or 1, instead got " + cmd.exitCode,
-        cmd.exitCode == 0 || cmd.exitCode == 1);
-    assertThat(
-        "bad docker image should not affect local mode",
-        cmd.stdErr,
-        not(containsString(badImageError)));
-
-    // `terra config set app-launch DOCKER_CONTAINER`
-    TestCommand.runCommandExpectSuccess("config", "set", "app-launch", "DOCKER_CONTAINER");
-
-    // Apps launched via docker container should error out
-    String stdErr =
-        TestCommand.runCommandExpectExitCode(3, "app", "execute", "echo", "$GOOGLE_CLOUD_PROJECT");
-    assertThat("docker image not found error returned", stdErr, containsString(badImageError));
+  private String getTableFormatValue(List<HashMap> result, String Option) {
+    var res =
+        result.stream()
+            .filter(x -> (x.get("option").equals(Option)))
+            .findFirst()
+            .orElse(new HashMap<>(Map.of("value", "")))
+            .get("value");
+    return res != null ? res.toString() : null;
   }
 
   @Test
@@ -77,18 +49,8 @@ public class Config extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // Create 2 resources
-
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name1 = "resourceLimit_1";
-    String bucketName1 = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + name1, "--bucket-name=" + bucketName1);
-
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
-    String name2 = "resourceLimit_2";
-    String bucketName2 = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + name2, "--bucket-name=" + bucketName2);
+    createBucket("resourceLimit_1", UUID.randomUUID().toString());
+    createBucket("resourceLimit_2", UUID.randomUUID().toString());
 
     // Set the resource limit to 1
     TestCommand.runCommandExpectSuccess("config", "set", "resource-limit", "--max=1");
@@ -144,7 +106,8 @@ public class Config extends SingleWorkspaceUnit {
     workspaceCreator.login();
 
     // `terra workspace create`
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // `terra config get workspace`
     UFWorkspace getValue =
@@ -190,7 +153,7 @@ public class Config extends SingleWorkspaceUnit {
     assertEquals(
         workspace2.id,
         getTableFormatValue(configItemList, "workspace"),
-        "confg set workspace affects config list");
+        "config set workspace affects config list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -345,15 +308,5 @@ public class Config extends SingleWorkspaceUnit {
         "TEXT",
         getTableFormatValue(result, "format"),
         "workspace create affects config list in Json format");
-  }
-
-  private String getTableFormatValue(List<HashMap> result, String Option) {
-    var res =
-        result.stream()
-            .filter(x -> (x.get("option").equals(Option)))
-            .findFirst()
-            .orElse(new HashMap<>(Map.of("value", "")))
-            .get("value");
-    return res != null ? res.toString() : null;
   }
 }

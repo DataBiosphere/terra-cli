@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCS buckets. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the

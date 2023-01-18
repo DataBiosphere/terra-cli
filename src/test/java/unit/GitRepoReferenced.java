@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 @Tag("unit")
 public class GitRepoReferenced extends SingleWorkspaceUnit {
-
   private static final String GIT_REPO_SSH_URL =
       "git@github.com:DataBiosphere/terra-workspace-manager.git";
   private static final String GIT_REPO_HTTPS_URL =
@@ -305,7 +304,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
         CoreMatchers.containsString("Specify at least one property to update."));
 
     // update the name and description
-    // `terra resources update gcs-object --name=$name --new-name=$newName
+    // `terra resources update git-repo --name=$name --new-name=$newName
     // --new-description=$newDescription`
     String newName = "updateMultipleOrNoProperties_NEW";
     String newDescription = "updateDescription_NEW";

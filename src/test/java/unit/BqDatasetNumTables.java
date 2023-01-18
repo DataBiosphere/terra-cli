@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
@@ -19,16 +19,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for including the number of tables in a BQ dataset resource's description. */
-@Tag("unit")
-public class BqDatasetNumTables extends SingleWorkspaceUnit {
+@Tag("unit-gcp")
+public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;
 
   // name of tables in external dataset
-  private String externalTable = "testTable";
+  private final String externalTable = "testTable";
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();

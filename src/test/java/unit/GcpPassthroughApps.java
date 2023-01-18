@@ -21,7 +21,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
@@ -51,9 +52,8 @@ import org.junit.jupiter.api.Test;
  * global state in various places, and they will clobber eachother if they run in multiple test
  * runners at once.
  */
-@Tag("unit")
-public class PassthroughApps extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
 
@@ -72,8 +72,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     TestContext.clearGcloudConfigDirectory();
   }
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
     ExternalGCSBuckets.deleteBucket(externalBucket);
@@ -192,7 +192,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
   void gsutilGcloudAlphaStorageLs() throws IOException, InterruptedException {
-
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -236,7 +235,6 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @Test
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
-
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -314,6 +312,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     String repo1 = TestUtils.appendRandomNumber("repo");
@@ -409,6 +408,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -443,7 +443,8 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   void gcloudAppExecute() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`

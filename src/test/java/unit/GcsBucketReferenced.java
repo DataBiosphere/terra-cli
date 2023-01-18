@@ -27,17 +27,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle referenced GCS buckets. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
-
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalSharedBucket;
   private BucketInfo externalPrivateBucket;
 
   private TestUser shareeUser;
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
@@ -55,6 +54,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
     shareeUser.login();
+
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
 
