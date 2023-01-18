@@ -34,12 +34,12 @@ startScripts {
     doLast {
         // add the -PforRelease flag to update the APP_HOME in preparation for install
         // default is to not update APP_HOME, so that ./gradlew install still works for development
-        if (project.hasProperty("forRelease")) {
-            println("Updating APP_HOME")
+        if (project.hasProperty('forRelease')) {
+            println('Updating APP_HOME')
             unixScript.text = unixScript.text.replace('APP_HOME=$( cd "${APP_HOME:-./}.." && pwd -P ) || exit', 'APP_HOME="$HOME/.terra"')
             windowsScript.text = windowsScript.text.replace('set APP_HOME=%DIRNAME%..', 'set APP_HOME=%USERPROFILE%\\.terra')
         } else {
-            println("Skipping APP_HOME update")
+            println('Skipping APP_HOME update')
         }
     }
 }
