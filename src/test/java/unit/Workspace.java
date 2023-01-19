@@ -1,17 +1,14 @@
 package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
-import bio.terra.workspace.model.CloudPlatform;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -19,6 +16,7 @@ import harness.baseclasses.ClearContextUnit;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -28,36 +26,14 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
   @Test
-  @DisplayName("default platform is GCP on workspace create")
-  void defaultPlatformSetOnCreate() throws IOException, InterruptedException {
-    // select a test user and login
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
-
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
-
-    // check the created workspace has an id and a google project
-    assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
-    assertNotNull(createdWorkspace.googleProjectId, "create workspace created a gcp project");
-
-    // check the created workspace has cloud platform set
-    assertThat(
-        "workspace cloudPlatform matches GCP",
-        CloudPlatform.GCP,
-        equalTo(createdWorkspace.cloudPlatform));
-
-    // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
-  }
-
-  @Test
   @DisplayName("status, describe, workspace list reflect workspace delete")
   void statusDescribeListReflectDelete() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // `terra workspace delete --format=json`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
@@ -206,8 +182,10 @@ public class Workspace extends ClearContextUnit {
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace1 = WorkspaceUtils.createWorkspace(testUser);
-    UFWorkspace createdWorkspace2 = WorkspaceUtils.createWorkspace(testUser);
+    UFWorkspace createdWorkspace1 =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
+    UFWorkspace createdWorkspace2 =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // set current workspace = workspace 1
     UFWorkspace setWorkspace1 =

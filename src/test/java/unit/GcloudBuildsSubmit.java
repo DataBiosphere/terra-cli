@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
 import com.google.cloud.storage.Bucket;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +19,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra gcloud builds submit` commands. */
-@Tag("unit")
-public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-
-  @BeforeAll
+@Tag("unit-gcp")
+public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     new File("./Dockerfile").createNewFile();

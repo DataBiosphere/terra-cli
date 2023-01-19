@@ -27,7 +27,6 @@ import org.json.JSONObject;
  * intended for unit tests because it calls the commands directly in Java.
  */
 public class TestCommand {
-
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -189,10 +188,9 @@ public class TestCommand {
    * @param filename name of a file in the test/resources/testinputs directory
    */
   public static Path getPathForTestInput(String filename) {
-    Path filePath =
-        Path.of(TestCommand.class.getClassLoader().getResource("testinputs/" + filename).getPath())
-            .toAbsolutePath();
-    return filePath;
+    return Path.of(
+            TestCommand.class.getClassLoader().getResource("testinputs/" + filename).getPath())
+        .toAbsolutePath();
   }
 
   /** Helper class to return all outputs of a command: exit code, standard out, standard error. */

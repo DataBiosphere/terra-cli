@@ -19,6 +19,7 @@ import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,21 +28,20 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test for CLI command on GCS objects in a fine-grained access GCS bucket. */
-@Tag("unit")
-public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp {
-
+@Tag("unit-gcp")
+public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
 
   // name of blobs in external bucket
-  private String sharedExternalBlobName = "foo/text.txt";
-  private String privateExternalBlobName = "foo/";
+  private final String sharedExternalBlobName = "foo/text.txt";
+  private final String privateExternalBlobName = "foo/";
 
   private TestUser shareeUser;
   private Blob sharedBlob;
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithFineGrainedAccess();
@@ -95,6 +95,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("add reference to a bucket object that the user has bucket-level access to")
   void addObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -145,6 +146,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("user with bucket level access updates object reference")
   void updateObjectReferenceWithBucketLevelAccess() throws IOException {
     workspaceCreator.login();
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -186,7 +188,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("user tries to update reference of a bucket object that they don't have access to")
   void updatePrivateBucketObject() throws IOException, InterruptedException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
@@ -241,7 +245,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
       "user with partial access updates reference to a private object, updates reference's name and description")
   void userWithPartialAccessUpdateSharedBucketObject() throws IOException, InterruptedException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName
@@ -298,7 +304,9 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("describe the reference to a bucket object that the user has no access to")
   void describeObjectReferenceWhenUserHasNoAccess() throws IOException, InterruptedException {
     workspaceCreator.login();
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + createdWorkspace.id);
     TestCommand.runCommandExpectSuccess(
@@ -347,6 +355,7 @@ public class FineGrainedAccessGcsObjectReference extends SingleWorkspaceUnitGcp 
   @DisplayName("describe the reference to a bucket object that the user has bucket level access to")
   void describeObjectReferenceWhenUserHasBucketLevelAccess() throws IOException {
     workspaceCreator.login();
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     // `terra resource add-ref gcs-object --name=$name --bucket-name=$bucketName

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +18,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SpendProfileUser {
   private static final Logger logger = LoggerFactory.getLogger(SpendProfileUser.class);
-  private String email;
-  private List<SpendProfilePolicy> policies;
-  private String spendProfile;
+  private final String email;
+  private final List<SpendProfilePolicy> policies;
+  private final String spendProfile;
 
   private SpendProfileUser(String email, List<SpendProfilePolicy> policies, String spendProfile) {
     this.email = email;
@@ -86,7 +85,7 @@ public class SpendProfileUser {
    * @return a list of spend profile users
    */
   public static List<SpendProfileUser> list(String spendProfile) {
-    return listUsersInMap(spendProfile).values().stream().collect(Collectors.toList());
+    return new ArrayList<>(listUsersInMap(spendProfile).values());
   }
 
   /**

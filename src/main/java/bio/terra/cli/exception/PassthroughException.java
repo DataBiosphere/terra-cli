@@ -10,7 +10,7 @@ package bio.terra.cli.exception;
  * <p>-use a normal font when printing to the terminal (e.g. same as other app output).
  */
 public class PassthroughException extends RuntimeException {
-  private int exitCode;
+  private final int exitCode;
 
   /**
    * Constructs an exception with the given exit code. The cause is set to null.

@@ -9,13 +9,12 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
+/** Utility methods for manipulating the context during testing. */
 @SuppressFBWarnings(
     value = {"RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"},
     justification =
         "Ignore return value of File.delete. This is just a best effort cleanup method. If delete fails, then the next test will likely fail anyway.")
-/** Utility methods for manipulating the context during testing. */
 public class TestContext {
-
   private TestContext() {}
 
   /**
@@ -86,7 +85,7 @@ public class TestContext {
    * @param root starting node
    * @param processChildPath lambda to process each node
    * @param skipRoot true to skip the root node and only process child nodes
-   * @throws IOException
+   * @throws IOException IO Exception
    */
   private static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
       throws IOException {

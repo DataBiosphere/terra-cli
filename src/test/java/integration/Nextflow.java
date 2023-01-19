@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("integration")
+@Tag("integration-gcp")
 public class Nextflow extends ClearContextIntegration {
   @Test
   @DisplayName("nextflow run hello")

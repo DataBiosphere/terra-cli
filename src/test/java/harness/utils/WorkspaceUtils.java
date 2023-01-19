@@ -21,22 +21,8 @@ import java.util.stream.Stream;
 
 /** Utilities for working with workspaces in CLI tests. */
 public class WorkspaceUtils {
-
   public static String createUserFacingId() {
-    return "a-" + UUID.randomUUID().toString();
-  }
-
-  /**
-   * Create a new workspace and register it with Janitor if this test is running in an environment
-   * where Janitor is enabled. Tests must use this method in order to register workspaces with
-   * Janitor, direct calls to `terra workspace create` will potentially leak workspaces.
-   *
-   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
-   *     the WSM workspaceDelete request.
-   */
-  public static UFWorkspace createWorkspace(TestUser workspaceCreator)
-      throws IOException, InterruptedException {
-    return createWorkspace(workspaceCreator, Optional.empty());
+    return "a-" + UUID.randomUUID();
   }
 
   /**
@@ -54,9 +40,9 @@ public class WorkspaceUtils {
     List<String> argsList =
         Stream.of("workspace", "create", "--id=" + createUserFacingId())
             .collect(Collectors.toList());
-    if (platform.isPresent()) { // defaults to GCP otherwise
-      argsList.add("--platform=" + platform.get());
-    }
+
+    // defaults to GCP otherwise
+    platform.ifPresent(cloudPlatform -> argsList.add("--platform=" + cloudPlatform));
 
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -103,10 +89,9 @@ public class WorkspaceUtils {
                 "--description=" + description,
                 "--properties=" + properties)
             .collect(Collectors.toList());
-    ;
-    if (platform.isPresent()) { // defaults to GCP otherwise
-      argsList.add("--platform=" + platform.get());
-    }
+
+    // defaults to GCP otherwise
+    platform.ifPresent(cloudPlatform -> argsList.add("--platform=" + cloudPlatform));
 
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(

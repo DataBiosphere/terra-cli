@@ -13,7 +13,6 @@ import java.util.Objects;
  * <p>-use a less scary font when printing to the terminal (e.g. regular blue text).
  */
 public class UserActionableException extends RuntimeException {
-
   private static final String DEFAULT_ERROR_MESSAGE = "No error message available.";
 
   /**
