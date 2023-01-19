@@ -40,8 +40,8 @@ public class UFWorkspaceLight {
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
-    this.awsAccountNumber = internalObj.getAwsAccountNumber();
-    this.landingZoneId = internalObj.getLandingZoneId();
+    this.awsAccountNumber = internalObj.getAwsAccountNumber().orElse(null);
+    this.landingZoneId = internalObj.getLandingZoneId().orElse(null);
     this.cloudPlatform = internalObj.getCloudPlatform();
 
     WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();

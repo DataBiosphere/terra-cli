@@ -68,7 +68,7 @@ public class AwsBucket extends Resource {
     logger.info("Created AWS bucket: {}", addedResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new AwsBucket(addedResource);
   }
 
@@ -87,7 +87,7 @@ public class AwsBucket extends Resource {
     logger.info("Created AWS bucket: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new AwsBucket(createdResource);
   }
 

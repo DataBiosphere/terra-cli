@@ -67,7 +67,7 @@ public class AwsNotebook extends Resource {
     logger.info("Created AWS notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new AwsNotebook(createdResource);
   }
 

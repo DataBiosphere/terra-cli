@@ -92,9 +92,13 @@ public abstract class CommandRunner {
       terraEnvVars.put(
           "GOOGLE_CLOUD_PROJECT", Context.requireWorkspace().getGoogleProjectId().get());
     }
-    //TODO-Dex
-    terraEnvVars.put("AWS_ACCOUNT_NUMBER", Context.requireWorkspace().getAwsAccountNumber());
-    terraEnvVars.put("LANDING_ZONE_ID", Context.requireWorkspace().getLandingZoneId());
+    if (Context.requireWorkspace().getAwsAccountNumber().isPresent()) {
+      terraEnvVars.put(
+          "AWS_ACCOUNT_NUMBER", Context.requireWorkspace().getAwsAccountNumber().get());
+    }
+    if (Context.requireWorkspace().getLandingZoneId().isPresent()) {
+      terraEnvVars.put("LANDING_ZONE_ID", Context.requireWorkspace().getLandingZoneId().get());
+    }
 
     for (Map.Entry<String, String> workspaceReferenceEnvVar : terraEnvVars.entrySet()) {
       if (envVars.get(workspaceReferenceEnvVar.getKey()) != null) {

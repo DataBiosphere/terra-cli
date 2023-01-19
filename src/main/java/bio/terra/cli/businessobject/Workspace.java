@@ -41,8 +41,8 @@ public class Workspace {
   private UUID uuid;
   private String userFacingId;
   private String googleProjectId;
-  private final String awsAccountNumber;
-  private final String landingZoneId;
+  private String awsAccountNumber;
+  private String landingZoneId;
   private CloudPlatform cloudPlatform;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
@@ -264,7 +264,7 @@ public class Workspace {
    */
   public Resource getResource(UUID id) {
     Optional<Resource> resourceOpt =
-        resources.stream().filter(resource -> resource.id.equals(id)).findFirst();
+        listResources().stream().filter(resource -> resource.id.equals(id)).findFirst();
     return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
   }
 
