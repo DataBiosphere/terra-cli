@@ -25,9 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying lifecycle rules for controlled GCS buckets. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
-
   /**
    * Assert that the bucket lifecycle rules retrieved from GCS directly match what's expected for
    * the multipleRules.json file.
@@ -197,7 +196,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("lifecycle condition noncurrent time before (action set storage class)")
+  @DisplayName("lifecycle condition non-current time before (action set storage class)")
   void noncurrentTimeBeforeCondition() throws IOException {
     String name = "setStorageClass_noncurrentTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =

@@ -42,7 +42,6 @@ import org.apache.http.HttpStatus;
  * Fetching information from the cloud as a user may do should use the unwrapped client object.
  */
 public class ExternalGCSBuckets {
-
   public static BucketInfo createBucketWithFineGrainedAccess() throws IOException {
     return createBucket(/*isUniformBucketLevelAccessEnabled=*/ false);
   }

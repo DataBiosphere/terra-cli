@@ -28,8 +28,8 @@ import java.util.Optional;
  * defined, so it's easier to loop through them here.
  */
 public class CleanupTestUserWorkspaces {
-  private static List<String> deletedWorkspaces = new ArrayList<>();
-  private static List<String> failedWorkspaces = new ArrayList<>();
+  private static final List<String> deletedWorkspaces = new ArrayList<>();
+  private static final List<String> failedWorkspaces = new ArrayList<>();
 
   /**
    * List all workspaces the test user has access to and try to delete each one that the test user
@@ -84,7 +84,6 @@ public class CleanupTestUserWorkspaces {
             "Error deleting workspace: id=" + workspace.id + ", testuser=" + testUser.email);
         ex.printStackTrace();
         failedWorkspaces.add(workspace.id);
-        continue;
       }
     }
 
@@ -122,14 +121,8 @@ public class CleanupTestUserWorkspaces {
             });
 
     System.out.println("Deleted workspaces:");
-    deletedWorkspaces.forEach(
-        workspaceId -> {
-          System.out.println("  " + workspaceId);
-        });
+    deletedWorkspaces.forEach(workspaceId -> System.out.println("  " + workspaceId));
     System.out.println("Failed workspaces:");
-    failedWorkspaces.forEach(
-        workspaceId -> {
-          System.out.println("  " + workspaceId);
-        });
+    failedWorkspaces.forEach(workspaceId -> System.out.println("  " + workspaceId));
   }
 }

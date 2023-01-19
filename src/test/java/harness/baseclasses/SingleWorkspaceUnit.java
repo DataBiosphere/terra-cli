@@ -1,10 +1,10 @@
 package harness.baseclasses;
 
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUser;
 import harness.utils.WorkspaceUtils;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
@@ -17,21 +17,27 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static String userFacingId;
 
   protected static String getUserFacingId() {
     return userFacingId;
   }
 
+  private String platformStorageName;
+
   @BeforeAll
   protected void setupOnce() throws Exception {
-    TestContext.clearGlobalContextDir();
-    resetContext();
+    super.setupOnce();
+    if (getCloudPlatform() == CloudPlatform.GCP) {
+      platformStorageName = "gcs-bucket";
+    } else {
+      throw new UserActionableException("Unsupported cloud platform " + getCloudPlatform());
+    }
 
     workspaceCreator.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator, getPlatform());
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     userFacingId = createdWorkspace.id;
   }
 
@@ -50,7 +56,13 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
-  protected Optional<CloudPlatform> getPlatform() {
-    return Optional.empty(); // defaults to GCP during create
+  protected void createBucket(String resourceName, String bucketName) {
+    // `terra resource create [bucket-type] --name=$name --bucket-name=$bucketName --format=json`
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        platformStorageName,
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName);
   }
 }

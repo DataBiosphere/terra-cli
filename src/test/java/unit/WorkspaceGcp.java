@@ -27,18 +27,41 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.GCP. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class WorkspaceGcp extends ClearContextUnit {
-  private static final Optional<CloudPlatform> platformGcp = Optional.of(CloudPlatform.GCP);
-
   @Test
-  @DisplayName("status, describe, workspace list reflect workspace create")
-  void statusDescribeListReflectCreateGcp() throws IOException {
+  @DisplayName("default platform is GCP on workspace create")
+  void defaultPlatformSetOnCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
+
+    // check the created workspace has an id and a google project
+    assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
+    assertNotNull(createdWorkspace.googleProjectId, "create workspace created a gcp project");
+
+    // check the created workspace has cloud platform set
+    assertThat(
+        "workspace cloudPlatform matches GCP",
+        CloudPlatform.GCP,
+        equalTo(createdWorkspace.cloudPlatform));
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
+  @DisplayName("status, describe, GCP workspace list reflect workspace create")
+  void statusDescribeListReflectCreateGcp() throws IOException, InterruptedException {
+    // select a test user and login
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
@@ -96,13 +119,14 @@ public class WorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("workspace describe reflects the number of resources")
-  void describeReflectsNumResourcesGcp() throws IOException {
+  @DisplayName("GCP workspace describe reflects the number of resources")
+  void describeReflectsNumResourcesGcp() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(testUser, platformGcp);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`

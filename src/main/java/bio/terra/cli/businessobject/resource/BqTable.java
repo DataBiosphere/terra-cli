@@ -64,7 +64,7 @@ public class BqTable extends Resource {
     logger.info("Created BQ data table: {}", addedResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new BqTable(addedResource);
   }
 

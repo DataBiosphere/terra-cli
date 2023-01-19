@@ -140,7 +140,7 @@ public abstract class Resource {
   protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
     this.name = updateParams.name == null ? name : updateParams.name;
     this.description = updateParams.description == null ? description : updateParams.description;
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
   }
 
   /** Delete an existing resource in the workspace. */
@@ -155,7 +155,7 @@ public abstract class Resource {
       default:
         throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
   }
 
   /** Call WSM to delete a referenced resource. */

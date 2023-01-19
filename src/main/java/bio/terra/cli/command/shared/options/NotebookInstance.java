@@ -29,7 +29,7 @@ public class NotebookInstance {
     if (resource.getResourceType().equals(Resource.Type.AI_NOTEBOOK)) {
       GcpNotebook gcpNotebook = (GcpNotebook) resource;
       return InstanceName.builder()
-          .projectId(workspace.getGoogleProjectId())
+          .projectId(workspace.getRequiredGoogleProjectId())
           .location(gcpNotebook.getLocation())
           .instanceId(gcpNotebook.getInstanceId())
           .build();

@@ -15,8 +15,6 @@ import java.util.Map;
 /** This class provides utility methods for launching local child processes. */
 public class LocalProcessLauncher {
   private Process process;
-  private Thread stdOutThread;
-  private Thread stdErrThread;
 
   public LocalProcessLauncher() {}
 
@@ -82,11 +80,11 @@ public class LocalProcessLauncher {
   public void streamOutputForProcess() {
     // getInputStream() is confusingly named; it returns process stdout (what we want).
     Runnable streamStdOut = () -> streamOutput(process.getInputStream(), UserIO.getOut());
-    stdOutThread = new Thread(streamStdOut);
+    Thread stdOutThread = new Thread(streamStdOut);
     stdOutThread.start();
 
     Runnable streamStdErr = () -> streamOutput(process.getErrorStream(), UserIO.getErr());
-    stdErrThread = new Thread(streamStdErr);
+    Thread stdErrThread = new Thread(streamStdErr);
     stdErrThread.start();
   }
 

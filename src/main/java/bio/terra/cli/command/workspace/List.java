@@ -45,7 +45,7 @@ public class List extends WsmBaseCommand {
     formatOption.printReturnValue(
         UserIO.sortAndMap(
             Workspace.list(offset, limit),
-            Comparator.comparing(Workspace::getName),
+            Comparator.comparing(Workspace::getUserFacingId),
             UFWorkspaceLight::new),
         this::printText);
   }

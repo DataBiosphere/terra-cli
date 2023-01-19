@@ -1,8 +1,8 @@
 // install the CLI, either from source code directly or from a GH release, before starting tests
 task runInstallForTesting(type: Exec) {
-    boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
-    String installMode = testInstallFromGitHub ? "GITHUB_RELEASE" : "SOURCE_CODE"
-    commandLine "bash", "./tools/install-for-testing.sh", installMode, "${project.version}"
+    boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
+    String installMode = testInstallFromGitHub ? 'GITHUB_RELEASE' : 'SOURCE_CODE'
+    commandLine 'bash', './tools/install-for-testing.sh', installMode, "${project.version}"
 
     dependsOn installDist
 }
@@ -22,45 +22,72 @@ task runTestsWithTag(type: Test) {
         // if the runTestsWithTag task isn't involved!
 
         // gradle project properties define which tests to run and how to do the install before running them
-        String testTag = project.findProperty("testTag");
+        String testTag = project.findProperty('testTag')
         // if the test tag is not defined, then throw an error. we don't know what tests to run
         if (testTag == null) {
-            throw new GradleException("The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)")
+            throw new GradleException('The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)')
         }
-        // tell junit to run tests with this tag: unit or integration
-        useJUnitPlatform {
-            includeTags testTag
-        }
-        if (testTag == "unit") {
+
+        def allTestTags = [testTag] // non-platform specific tests
+        String cloudPlatform = project.findProperty('platform')
+
+        if (testTag == 'unit') {
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.
-            systemProperty("TERRA_JAR_IMPLEMENTATION_VERSION",
+            systemProperty('TERRA_JAR_IMPLEMENTATION_VERSION',
                     "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
             // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
-            systemProperty("TERRA_CLI_VERSION", "${project.version}")
-        } else if (testTag == "integration") {
+            systemProperty('TERRA_CLI_VERSION', "${project.version}")
+
+            if (cloudPlatform == 'gcp') {
+                allTestTags.add('unit-gcp')
+            } else if (cloudPlatform == 'aws') {
+                allTestTags.add('unit-aws')
+            } else if (cloudPlatform == 'azure') {
+                allTestTags.add('unit-azure')
+            } else if (cloudPlatform == null) {  // run all tests
+                allTestTags.addAll(['unit-gcp', 'unit-aws', 'unit-azure'])
+            }
+
+        } else if (testTag == 'integration') {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
-            boolean testInstallFromGitHub = project.hasProperty("testInstallFromGitHub");
+            boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
             String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
-            systemProperty "TERRA_INSTALL_DIR", installDir
+            systemProperty 'TERRA_INSTALL_DIR', installDir
 
             // [for integration tests] specify the working directory to use when running scripts. this makes
             // it easier to clean up after tests (./gradlew clean) that generate files.
             mkdir "${project.buildDir}/test-working-dir/"
-            systemProperty "TERRA_WORKING_DIR", "${project.buildDir}/test-working-dir/"
+            systemProperty 'TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/"
+
+            if (cloudPlatform == 'gcp') {
+                allTestTags.add('integration-gcp')
+            } else if (cloudPlatform == 'aws') {
+                allTestTags.add('integration-aws')
+            } else if (cloudPlatform == 'azure') {
+                allTestTags.add('integration-azure')
+            } else if (cloudPlatform == null) {  // run all tests
+                allTestTags.addAll(['integration-gcp', 'integration-aws', 'integration-azure'])
+            }
         }
+
+        // tell junit to run tests with this tag: unit or integration
+        useJUnitPlatform {
+            includeTags allTestTags as String[]
+        }
+
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
         // work, but that's not a concern for dedicated CI machines.
-        int localCores = System.getenv().containsKey("CI") ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
+        int localCores = System.getenv().containsKey('CI') ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
         // Integration tests wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        maxParallelForks = (testTag == "unit" ? localCores : 1)
+        maxParallelForks = (testTag == 'unit' ? localCores : 1)
     }
     beforeTest { descriptor ->
-        println "========================================================="
+        println '========================================================='
         println "Running test: ${descriptor.name} [${descriptor.className}]"
     }
     afterTest { descriptor, result ->
@@ -70,33 +97,33 @@ task runTestsWithTag(type: Test) {
         showStandardStreams = true // disable stdout & stderr redirection
     }
 
-    boolean contextDir = project.hasProperty("contextDir")
+    boolean contextDir = project.hasProperty('contextDir')
 
     // by default, tests override the global context directory with a sub-directory of the gradle build directory
     // this makes it easier to clean up after tests and makes sure the tests don't overwrite any context that
     // exists on this same machine. you can override this default behavior by specifying -PcontextDir=/path/to/dir.
     // this will cause context to be written to the specified directory.
     if (!contextDir) {
-        environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
+        environment 'TERRA_CONTEXT_PARENT_DIR', "${buildDir}/test-context/"
         mkdir "${project.buildDir}/test-context/"
     } else {
-        environment "TERRA_CONTEXT_PARENT_DIR", project.findProperty("contextDir")
+        environment 'TERRA_CONTEXT_PARENT_DIR', project.findProperty('contextDir')
     }
 
-    // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to "broad-dev"
-    String terraServer = project.hasProperty("server") ? project.findProperty("server") : "broad-dev"
-    environment "TERRA_SERVER", terraServer
+    // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to 'broad-dev'
+    String terraServer = project.hasProperty('server') ? project.findProperty('server') : 'broad-dev'
+    environment 'TERRA_SERVER', terraServer
 
     // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
-    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
+    String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
+    systemProperty 'TERRA_TEST_CONFIG_NAME', terraTestConfigName
 
     // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
-    String terraDockerImage = project.hasProperty("dockerImage") ? project.findProperty("dockerImage") : ""
-    environment "TERRA_DOCKER_IMAGE", terraDockerImage
+    String terraDockerImage = project.hasProperty('dockerImage') ? project.findProperty('dockerImage') : ''
+    environment 'TERRA_DOCKER_IMAGE', terraDockerImage
 
     // generate a unique id for each test run
-    systemProperty "TEST_RUN_ID", UUID.randomUUID().toString()
+    systemProperty 'TEST_RUN_ID', UUID.randomUUID().toString()
 
     dependsOn runInstallForTesting
     // run the install-for-testing.sh script before any tests
@@ -106,7 +133,7 @@ task runTestsWithTag(type: Test) {
     retry {
         // This is set automatically on Github Actions runners, and never set
         // otherwise.
-        if (System.getenv().containsKey("CI")) {
+        if (System.getenv().containsKey('CI')) {
             // Max retries per test.
             maxRetries = 1
             // Max total test failures.
@@ -126,22 +153,22 @@ task runTestsWithTag(type: Test) {
 //    ./gradlew cleanupTestUserWorkspaces -Pserver=broad-dev -PtestConfig=broad
 task cleanupTestUserWorkspaces(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
-    mainClass = "harness.utils.CleanupTestUserWorkspaces"
+    mainClass = 'harness.utils.CleanupTestUserWorkspaces'
 
     // override the default global context directory with a sub-directory of the gradle build directory
     // this is so that the tests don't overwrite any context that exists on this same machine.
-    environment "TERRA_CONTEXT_PARENT_DIR", "${buildDir}/test-context/"
+    environment 'TERRA_CONTEXT_PARENT_DIR', "${buildDir}/test-context/"
     mkdir "${project.buildDir}/test-context/"
 
     // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
-    systemProperty "TERRA_SERVER", project.findProperty("server")
+    systemProperty 'TERRA_SERVER', project.findProperty('server')
 
     // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigName = project.hasProperty("testConfig") ? project.findProperty("testConfig") : "broad"
-    systemProperty "TERRA_TEST_CONFIG_NAME", terraTestConfigName
+    String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
+    systemProperty 'TERRA_TEST_CONFIG_NAME', terraTestConfigName
 
     // [optional] specify that this is a dry run (e.g. -PdryRun)
-    systemProperty "DRY_RUN", project.hasProperty("dryRun").toString()
+    systemProperty 'DRY_RUN', project.hasProperty('dryRun').toString()
 
     dependsOn compileJava
 }

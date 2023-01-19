@@ -212,9 +212,12 @@ Both types of tests:
 - Run integration tests against an installation built from the latest GitHub
   release:
   `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
-
 - Run a single test by specifying the `--tests` option:
   `./gradlew runTestsWithTag -PtestTag=unit --tests Workspace.createFailsWithoutSpendAccess`
+
+By default, tests are run against all cloud platforms supported by the CLI server. Add the platform to target tests for a single platform
+- CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp`
+- CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp`
 
 #### Docker and Tests
 

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 public class ClientExceptionHandling extends SingleWorkspaceUnit {
   SamGroups trackedGroups = new SamGroups();
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
 

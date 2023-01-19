@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCS buckets. */
-@Tag("unit")
+@Tag("unit-gcp")
 public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
@@ -249,7 +250,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("create a controlled bucket, specifying all options except lifecycle")
-  void createWithAllOptionsExceptLifecycle() throws IOException {
+  void createWithAllOptionsExceptLifecycle() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -291,8 +292,11 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
         "create output matches private user name");
 
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                ExternalGCSBuckets.getStorageClient(
+                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                    .get(bucketName));
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         location, createdBucketOnCloud.getLocation(), "bucket location matches create input");

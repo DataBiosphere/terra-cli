@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.util.List;
@@ -26,8 +27,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled BQ datasets. */
-@Tag("unit")
-public class BqDatasetControlled extends SingleWorkspaceUnit {
+@Tag("unit-gcp")
+public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
@@ -275,7 +276,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create a controlled dataset, specifying all options")
-  void createWithAllOptions() throws IOException {
+  void createWithAllOptions() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id --format=json`
@@ -318,8 +319,11 @@ public class BqDatasetControlled extends SingleWorkspaceUnit {
         "create output matches private user name");
 
     Dataset createdDatasetOnCloud =
-        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .getDataset(DatasetId.of(workspace.googleProjectId, datasetId));
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                ExternalBQDatasets.getBQClient(
+                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                    .getDataset(DatasetId.of(workspace.googleProjectId, datasetId)));
     assertNotNull(createdDatasetOnCloud, "looking up dataset via BQ API succeeded");
     assertEquals(
         location, createdDatasetOnCloud.getLocation(), "dataset location matches create input");

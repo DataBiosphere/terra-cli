@@ -31,7 +31,7 @@ public class SetProperty extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace updatedWorkspace = Context.requireWorkspace().updateProperties(workspaceProperties);
-    updatedWorkspace.listResourcesAndSync();
+    updatedWorkspace.listResources();
     formatOption.printReturnValue(new UFWorkspace(updatedWorkspace), this::printText);
   }
 

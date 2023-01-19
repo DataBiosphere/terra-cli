@@ -5,11 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.service.utils.CrlUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
 import java.time.Duration;
@@ -24,9 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 /** Tests for specifying default lifetimes for controlled BQ Datasets. */
-@Tag("unit")
-public class BqDatasetLifetime extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class BqDatasetLifetime extends SingleWorkspaceUnitGcp {
   /** Helper to covert a Duration in seconds to a String */
   private static String toSecondsString(Duration duration) {
     return Long.valueOf(duration.toSeconds()).toString();
@@ -44,8 +44,8 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with default partition lifetime only")
-  void createWithDefaultPartitionLifetime(TestInfo testInfo) throws IOException {
-
+  void createWithDefaultPartitionLifetime(TestInfo testInfo)
+      throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration lifetime = Duration.ofSeconds(9600);
 
@@ -58,8 +58,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with default table lifetime only")
-  void createWithDefaultTableLifetime(TestInfo testInfo) throws IOException {
-
+  void createWithDefaultTableLifetime(TestInfo testInfo) throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration lifetime = Duration.ofHours(2);
 
@@ -72,7 +71,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with both default lifetimes")
-  void createWithBothDefaultLifetimes(TestInfo testInfo) throws IOException {
+  void createWithBothDefaultLifetimes(TestInfo testInfo) throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration partitionLifetime = Duration.ofSeconds(9600);
     final Duration tableLifetime = Duration.ofSeconds(4800);
@@ -88,7 +87,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("create with no default lifetimes and test update calls")
-  void updateDefaultLifetimes(TestInfo testInfo) throws IOException {
+  void updateDefaultLifetimes(TestInfo testInfo) throws IOException, InterruptedException {
     final String name = testInfo.getTestMethod().orElseThrow().getName();
     final Duration partitionLifetime = Duration.ofSeconds(9600);
     final Duration tableLifetime = Duration.ofSeconds(4800);
@@ -156,8 +155,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
   }
 
   /** Updates a dataset with a given name using the passed arguments. */
-  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments)
-      throws JsonProcessingException {
+  private void updateDatasetWithDefaultLifetimes(String name, String... defaultLifetimeArguments) {
     List<String> arguments =
         new ArrayList<>(Arrays.asList("resource", "update", "bq-dataset", "--name=" + name));
 
@@ -173,19 +171,23 @@ public class BqDatasetLifetime extends SingleWorkspaceUnit {
    *     or null if lifetime expected to be unset
    * @param defaultTableLifetimeMilliseconds expected lifetime for partitions in milliseconds, or
    *     null if lifetime expected to be unset
-   * @throws IOException
+   * @throws IOException IO Exception
+   * @throws InterruptedException Interrupted Exception
    */
   private void validateDefaultLifetimes(
       UFBqDataset bqDataset,
       @Nullable Long defaultPartitionLifetimeMilliseconds,
       @Nullable Long defaultTableLifetimeMilliseconds)
-      throws IOException {
+      throws IOException, InterruptedException {
 
     DatasetId datasetId = DatasetId.of(bqDataset.projectId, bqDataset.datasetId);
 
     Dataset dataset =
-        ExternalBQDatasets.getBQClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .getDataset(datasetId);
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                ExternalBQDatasets.getBQClient(
+                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                    .getDataset(datasetId));
 
     assertNotNull(dataset, "looking up dataset via BQ API succeeded");
     assertEquals(dataset.getDefaultPartitionExpirationMs(), defaultPartitionLifetimeMilliseconds);
