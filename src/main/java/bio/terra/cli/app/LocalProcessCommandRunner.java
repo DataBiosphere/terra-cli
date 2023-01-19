@@ -34,8 +34,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
     List<String> bashCommands = new ArrayList<>();
     bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
     bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
-    bashCommands.add(
-        "gcloud config set project " + Context.requireWorkspace().getGoogleProjectId());
+    if (Context.requireWorkspace().getGoogleProjectId().isPresent()) {
+      bashCommands.add(
+          "gcloud config set project " + Context.requireWorkspace().getGoogleProjectId().get());
+    }
     bashCommands.add(buildFullCommand(command));
     bashCommands.add(
         "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
