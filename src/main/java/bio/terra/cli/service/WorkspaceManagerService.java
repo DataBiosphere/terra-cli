@@ -401,7 +401,7 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () ->
             new WorkspaceApi(apiClient)
-                .listWorkspaces(offset, limit, /*minimumHighestRole=*/ IamRole.OWNER),
+                .listWorkspaces(offset, limit, /*minimumHighestRole=*/ null),
         "Error fetching list of workspaces");
   }
 
