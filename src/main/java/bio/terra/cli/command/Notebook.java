@@ -10,11 +10,13 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "notebook",
-    header = "Use GCP Notebooks in the workspace.",
+    header = "Use Notebooks in the workspace.",
     description =
-        "Commands to create and manage GCP Notebook resources within the workspace. \n\n"
-            + "You can create a https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution[GCP Notebook] controlled resource "
-            + "with `terra resource create gcp-notebook`. The `stop`, `start` commands are provided for convenience. \n\n"
-            + "You can also stop and start the notebook using the `gcloud notebooks instances start/stop` commands.",
+        "Commands to create and manage Notebook resources within the workspace. \n\n"
+            + "You can create a https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution[GCP Notebook] controlled resource"
+            + "in GCP with `terra resource create gcp-notebook or aws-notebook"
+            + "or a https://docs.aws.amazon.com/sagemaker/index.html[AWS SageMaker Notebook] controlled resource in AWS"
+            + "with `terra resource create aws-notebook`. The `stop`, `start` commands are provided for convenience. \n\n"
+            + "You can also stop and start the gcp-notebook using the `gcloud notebooks instances start/stop` commands.",
     subcommands = {Start.class, Stop.class})
 public class Notebook {}
