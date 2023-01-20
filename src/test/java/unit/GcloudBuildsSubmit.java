@@ -8,7 +8,6 @@ import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
@@ -59,7 +58,8 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
             UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
 
     // Poll until the test user can fetch the bucket, which may be delayed.
-    Storage ownerClient = ExternalGCSBuckets.getStorageClient(
+    Storage ownerClient =
+        ExternalGCSBuckets.getStorageClient(
             workspaceCreator.getCredentialsWithCloudPlatformScope());
     Page<Blob> bucketContents =
         CrlUtils.callGcpWithPermissionExceptionRetries(

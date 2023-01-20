@@ -394,6 +394,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle);
 
-    return CrlUtils.callGcpWithPermissionExceptionRetries(() -> ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator));
+    return CrlUtils.callGcpWithPermissionExceptionRetries(
+        () -> ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator));
   }
 }
