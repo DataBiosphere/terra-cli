@@ -400,7 +400,8 @@ public class WorkspaceManagerService {
   public WorkspaceDescriptionList listWorkspaces(int offset, int limit) {
     return callWithRetries(
         () ->
-            new WorkspaceApi(apiClient).listWorkspaces(offset, limit, /*minimumHighestRole=*/ null),
+            new WorkspaceApi(apiClient)
+                .listWorkspaces(offset, limit, /*minimumHighestRole=*/ IamRole.OWNER),
         "Error fetching list of workspaces");
   }
 
@@ -460,9 +461,10 @@ public class WorkspaceManagerService {
                   () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  // I've observed a flight taking 2 mins 28 sec. So retry for 3 mins.
-                  /*maxCalls=*/ 36,
-                  /*sleepDuration=*/ Duration.ofSeconds(5));
+                  // Context creation will wait for cloud IAM permissions to sync, so poll for up to
+                  // 30 minutes.
+                  /*maxCalls=*/ 120,
+                  /*sleepDuration=*/ Duration.ofSeconds(15));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
