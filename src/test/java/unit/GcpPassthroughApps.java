@@ -484,6 +484,43 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
                 + "https://github.com/DataBiosphere/terra.git"));
   }
 
+  @Test
+  @DisplayName("cromwell generate-config with default dir")
+  void cromwellGenerateConfig() throws IOException {
+    workspaceCreator.login(true);
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra cromwell generate-config`
+    TestCommand.runCommandExpectSuccess("cromwell", "generate-config");
+
+    // New cromwell.conf file generate successfully.
+    assertTrue(new File("cromwell.conf").isFile());
+
+    // Remove the created config file.
+    new File("cromwell.conf").delete();
+  }
+
+  @Test
+  @DisplayName("cromwell generate-config with custom dir")
+  void cromwellGenerateConfigCustomDir() throws IOException {
+    workspaceCreator.login(true);
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra cromwell generate-config --path=build/cromwell.conf`
+    TestCommand.runCommandExpectSuccess("cromwell", "generate-config", "--dir=build");
+
+    // New cromwell.conf file generate successfully.
+    assertTrue(
+        new File("./build/cromwell.conf").isFile(), "New cromwell.conf file generate successfully");
+
+    // Remove the created config file.
+    new File("./build/cromwell.conf").delete();
+  }
+
   /** This is to re-create a scenario when a resource is created through UI. */
   private String createAGitRepoReferenceByCallingWsmEndpoint() {
     String gitResourceName = TestUtils.appendRandomNumber("git-referenced-url");
