@@ -114,14 +114,14 @@ public class WorkspaceUtils {
    * buckets in this case). This helps hide delay in syncing cloud IAM bindings.
    */
   private static void waitForCloudSync(TestUser workspaceCreator, UFWorkspace workspace)
-          throws IOException, InterruptedException {
+      throws IOException, InterruptedException {
     var creatorCredentials = workspaceCreator.getCredentialsWithCloudPlatformScope();
     Storage storageClient =
-            StorageOptions.newBuilder()
-                    .setProjectId(workspace.googleProjectId)
-                    .setCredentials(creatorCredentials)
-                    .build()
-                    .getService();
+        StorageOptions.newBuilder()
+            .setProjectId(workspace.googleProjectId)
+            .setCredentials(creatorCredentials)
+            .build()
+            .getService();
     CrlUtils.callGcpWithPermissionExceptionRetries(storageClient::list);
   }
 
