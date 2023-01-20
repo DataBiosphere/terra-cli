@@ -8,7 +8,6 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class AwsBucketName {
-
   @CommandLine.Option(
       names = "--bucket-name",
       required = true,
