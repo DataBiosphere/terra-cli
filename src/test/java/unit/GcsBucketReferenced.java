@@ -58,11 +58,14 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // Poll until the test user can fetch the actual GCS bucket, which may be delayed.
-    GoogleCredentials shareeCredentials = shareeUser.getCredentialsWithCloudPlatformScope();
+    // Poll until both test users can fetch the actual GCS bucket, which may be delayed.
+    CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                    ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
+                            .list(externalSharedBucket.getName()));
     CrlUtils.callGcpWithPermissionExceptionRetries(
         () ->
-            ExternalGCSBuckets.getStorageClient(shareeCredentials)
+            ExternalGCSBuckets.getStorageClient(shareeUser.getCredentialsWithCloudPlatformScope())
                 .list(externalSharedBucket.getName()));
   }
 

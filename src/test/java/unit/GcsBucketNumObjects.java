@@ -3,7 +3,9 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
@@ -79,14 +81,21 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "numObjectsForControlled";
     String bucketName = UUID.randomUUID().toString();
-    UFGcsBucket createdBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
+    TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
             "create",
             "gcs-bucket",
             "--name=" + name,
             "--bucket-name=" + bucketName);
+
+    // poll until we can read the number of tables on the dataset. This may not be immediate as we need to wait for
+    // permissions to propagate on the new dataset.
+    UFGcsBucket createdBucket = CrlUtils.callGcpWithPermissionExceptionRetries(
+            () -> TestCommand.runAndParseCommandExpectSuccess(
+                    UFGcsBucket.class, "resource", "describe", "--name=" + name),
+            gcsBucket -> gcsBucket.numObjects != null
+    );
 
     // check that there are initially 0 objects reported in the bucket
     assertEquals(0, createdBucket.numObjects, "created bucket contains 0 objects");
