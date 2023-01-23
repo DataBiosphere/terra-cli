@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
     justification =
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
 public class User {
+  // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 

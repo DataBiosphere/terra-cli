@@ -656,9 +656,9 @@ public class WorkspaceManagerService {
                             initialResult.getJobReport().getId()),
                     (result) -> isDone(result.getJobReport()),
                     WorkspaceManagerService::isRetryable,
-                    // Retry for 5 minutes
-                    /*maxCalls=*/ 60,
-                    /*sleepDuration=*/ Duration.ofSeconds(5)),
+                    // Retry for 30 minutes, as this involves creating a new context
+                    /*maxCalls=*/ 120,
+                    /*sleepDuration=*/ Duration.ofSeconds(15)),
             "Error in cloning workspace.");
     logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
     throwIfJobNotCompleted(
