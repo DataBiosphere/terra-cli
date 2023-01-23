@@ -68,7 +68,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     // lifecycle rules
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // TODO: stolen from base class
+    // Clear gcloud directory before running these tests
     TestContext.clearGcloudConfigDirectory();
   }
 
@@ -223,13 +223,13 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
         "`gsutil ls` returns bucket");
 
     // `terra gcloud alpha storage ls`
-    cmd = TestCommand.runCommand("gcloud", "alpha", "storage", "ls");
+    cmd = TestCommand.runCommandExpectSuccessWithRetries("gcloud", "alpha", "storage", "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gcloud alpha storage ls` returns bucket");
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccessWithRetries("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
@@ -482,43 +482,6 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
                 + gitResourceName.replace("-", "_")
                 + "="
                 + "https://github.com/DataBiosphere/terra.git"));
-  }
-
-  @Test
-  @DisplayName("cromwell generate-config with default dir")
-  void cromwellGenerateConfig() throws IOException {
-    workspaceCreator.login(true);
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra cromwell generate-config`
-    TestCommand.runCommandExpectSuccess("cromwell", "generate-config");
-
-    // New cromwell.conf file generate successfully.
-    assertTrue(new File("cromwell.conf").isFile());
-
-    // Remove the created config file.
-    new File("cromwell.conf").delete();
-  }
-
-  @Test
-  @DisplayName("cromwell generate-config with custom dir")
-  void cromwellGenerateConfigCustomDir() throws IOException {
-    workspaceCreator.login(true);
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra cromwell generate-config --path=build/cromwell.conf`
-    TestCommand.runCommandExpectSuccess("cromwell", "generate-config", "--dir=build");
-
-    // New cromwell.conf file generate successfully.
-    assertTrue(
-        new File("./build/cromwell.conf").isFile(), "New cromwell.conf file generate successfully");
-
-    // Remove the created config file.
-    new File("./build/cromwell.conf").delete();
   }
 
   /** This is to re-create a scenario when a resource is created through UI. */

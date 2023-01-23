@@ -99,18 +99,19 @@ public class TestCommand {
   }
 
   /** Helper method to run a command and check its exit code is 0=success. */
-  public static void runCommandExpectSuccess(String... args) {
+  public static Result runCommandExpectSuccess(String... args) {
     Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd;
   }
 
   /** Helper method to run a command until its exit code is 0=success. */
-  public static void runCommandExpectSuccessWithRetries(String... args) {
+  public static Result runCommandExpectSuccessWithRetries(String... args) {
     int curRetries = 0;
     while (curRetries < CrlUtils.GCP_RETRY_COUNT) {
       Result cmd = runCommand(args);
       if (cmd.exitCode == 0) {
-        return;
+        return cmd;
       } else {
         try {
           Thread.sleep(CrlUtils.GCP_RETRY_SLEEP_DURATION.toMillis());
@@ -131,15 +132,6 @@ public class TestCommand {
    */
   private static Result runAndGetJsonResultExpectSuccess(String... args) {
     Result cmd = runCommand(addFormatJsonArg(args));
-    assertEquals(0, cmd.exitCode, "exit code = success");
-    return cmd;
-  }
-
-  /**
-   * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
-   */
-  public static Result runAndGetResultExpectSuccess(String... args) {
-    Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd;
   }
