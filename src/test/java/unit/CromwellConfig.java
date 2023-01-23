@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra cromwell` commands. */
 // TODO(PF-2333): This is currently broken due to a gcloud/GHA runner interaction
+//@Tag("unit")
 @Disabled
-@Tag("unit")
 public class CromwellConfig extends SingleWorkspaceUnit {
   @Test
   @DisplayName("cromwell generate-config with default dir")

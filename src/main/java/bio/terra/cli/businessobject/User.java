@@ -33,12 +33,8 @@ import org.slf4j.LoggerFactory;
     justification =
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
 public class User {
-  // TODO(PF-2333): For now, adding cloud-platform as a test, as this is required for creating a
-  // cloud context. I think this will cause issues for real users, though
   @VisibleForTesting
-  public static final List<String> USER_SCOPES =
-      ImmutableList.of(
-          "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
+  public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 
   private static final Logger logger = LoggerFactory.getLogger(User.class);
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
