@@ -229,7 +229,8 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
         "`gcloud alpha storage ls` returns bucket");
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccessWithRetries(
+        "resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
