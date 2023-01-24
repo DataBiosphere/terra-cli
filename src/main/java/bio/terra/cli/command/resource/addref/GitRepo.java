@@ -35,6 +35,7 @@ public class GitRepo extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
         referencedResourceCreationOptions.populateMetadataFields();
