@@ -2,6 +2,8 @@ package bio.terra.cli.command.cromwell;
 
 import bio.terra.cli.businessobject.Config.CommandRunnerOption;
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.command.shared.BaseCommand;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +30,12 @@ public class GenerateConfig extends BaseCommand {
       description = "Directory to put generated cromwell.conf in. Defaults to current directory.")
   public String dir;
 
+  @CommandLine.Option(
+      names = "--bucket-name",
+      required = true,
+      description = "GCS bucket to hold cromwell log files.")
+  public String bucket_name;
+
   @Override
   protected void execute() {
     // Get the absolute path for the generate-cromwell-config.sh file.
@@ -48,6 +56,9 @@ public class GenerateConfig extends BaseCommand {
 
     String googleProjectId = Context.requireWorkspace().getRequiredGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
+    Resource resource = Context.requireWorkspace().getResource(bucket_name);
+    boolean excludeBucketPrefix = false;
+    String googleBucket = ((GcsBucket) resource).resolve(excludeBucketPrefix);
 
     // Force local process runner, so the generated file exists on local filesystem (as opposed to
     // inside container).
@@ -58,7 +69,8 @@ public class GenerateConfig extends BaseCommand {
                 absolutePath,
                 org.apache.commons.io.FilenameUtils.concat(dir, "cromwell.conf"),
                 googleProjectId,
-                petSaEmail));
+                petSaEmail,
+                googleBucket));
     try {
       Files.deleteIfExists(Paths.get(absolutePath));
     } catch (IOException e) {
