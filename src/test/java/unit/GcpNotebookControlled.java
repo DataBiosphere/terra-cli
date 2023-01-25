@@ -256,24 +256,11 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         Objects::nonNull);
 
     // `terra notebook stop --name=$name`
-    TestCommand.Result cmd = TestCommand.runCommand("notebook", "stop", "--name=" + name);
-    boolean badState409 =
-        cmd.exitCode == 1 && cmd.stdErr.contains("409: unable to queue the operation");
-    assertTrue(
-        cmd.exitCode == 0 || badState409,
-        "stop either succeeds or fails with a 409 bad state error");
-    if (!badState409) {
-      GcpNotebookUtils.assertNotebookState(name, "STOPPED");
-    }
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+    GcpNotebookUtils.assertNotebookState(name, "STOPPED");
 
     // `terra notebook start --name=$name`
-    cmd = TestCommand.runCommand("notebook", "start", "--name=" + name);
-    badState409 = cmd.exitCode == 1 && cmd.stdErr.contains("409: unable to queue the operation");
-    assertTrue(
-        cmd.exitCode == 0 || badState409,
-        "start either succeeds or fails with a 409 bad state error");
-    if (!badState409) {
-      GcpNotebookUtils.assertNotebookState(name, "ACTIVE");
-    }
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    GcpNotebookUtils.assertNotebookState(name, "ACTIVE");
   }
 }

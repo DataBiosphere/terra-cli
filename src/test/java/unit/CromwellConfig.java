@@ -6,12 +6,14 @@ import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.File;
 import java.io.IOException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra cromwell` commands. */
-@Tag("unit")
+// TODO(PF-2333): This is currently broken due to a gcloud/GHA runner interaction
+// @Tag("unit")
+@Disabled
 public class CromwellConfig extends SingleWorkspaceUnit {
   @Test
   @DisplayName("cromwell generate-config with default dir")

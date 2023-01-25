@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.command.Main;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -98,9 +99,31 @@ public class TestCommand {
   }
 
   /** Helper method to run a command and check its exit code is 0=success. */
-  public static void runCommandExpectSuccess(String... args) {
+  public static Result runCommandExpectSuccess(String... args) {
     Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
+    return cmd;
+  }
+
+  /** Helper method to run a command until its exit code is 0=success. */
+  public static Result runCommandExpectSuccessWithRetries(String... args) {
+    int curRetries = 0;
+    while (curRetries < CrlUtils.GCP_RETRY_COUNT) {
+      Result cmd = runCommand(args);
+      if (cmd.exitCode == 0) {
+        return cmd;
+      } else {
+        try {
+          Thread.sleep(CrlUtils.GCP_RETRY_SLEEP_DURATION.toMillis());
+        } catch (InterruptedException e) {
+          // If the thread is interrupted, exit immediately.
+          throw new AssertionError(
+              "InterruptedException while retrying test command: " + Arrays.toString(args));
+        }
+        curRetries++;
+      }
+    }
+    throw new AssertionError("TestCommand did not succeed after retries: " + Arrays.toString(args));
   }
 
   /**
@@ -109,15 +132,6 @@ public class TestCommand {
    */
   private static Result runAndGetJsonResultExpectSuccess(String... args) {
     Result cmd = runCommand(addFormatJsonArg(args));
-    assertEquals(0, cmd.exitCode, "exit code = success");
-    return cmd;
-  }
-
-  /**
-   * Helper method to run a command, check its exit code is 0=success, and return {@link Result}.
-   */
-  public static Result runAndGetResultExpectSuccess(String... args) {
-    Result cmd = runCommand(args);
     assertEquals(0, cmd.exitCode, "exit code = success");
     return cmd;
   }
