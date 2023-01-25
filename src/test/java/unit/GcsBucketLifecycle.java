@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.api.client.util.DateTime;
 import com.google.cloud.storage.BucketInfo;
@@ -92,7 +93,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle action delete (condition age)")
-  void deleteAction() throws IOException {
+  void deleteAction() throws IOException, InterruptedException {
     String name = "delete_age";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -103,7 +104,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle action set storage class (condition age)")
-  void setStorageClassAction() throws IOException {
+  void setStorageClassAction() throws IOException, InterruptedException {
     String name = "setStorageClass_age";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -114,7 +115,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition created before (action delete)")
-  void createdBeforeCondition() throws IOException {
+  void createdBeforeCondition() throws IOException, InterruptedException {
     String name = "delete_createdBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -128,7 +129,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition custom time before (action delete)")
-  void customTimeBeforeCondition() throws IOException {
+  void customTimeBeforeCondition() throws IOException, InterruptedException {
     String name = "delete_customTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -142,7 +143,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition days since custom time (action delete)")
-  void daysSinceCustomTimeCondition() throws IOException {
+  void daysSinceCustomTimeCondition() throws IOException, InterruptedException {
     String name = "delete_daysSinceCustomTime";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -156,7 +157,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition days since noncurrent time (action delete)")
-  void daysSinceNoncurrentTimeCondition() throws IOException {
+  void daysSinceNoncurrentTimeCondition() throws IOException, InterruptedException {
     String name = "delete_daysSinceNoncurrentTime";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -170,7 +171,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition is live (action set storage class)")
-  void isLiveCondition() throws IOException {
+  void isLiveCondition() throws IOException, InterruptedException {
     String name = "setStorageClass_isLive";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -181,7 +182,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition matches storage class (action set storage class)")
-  void matchesStorageClassCondition() throws IOException {
+  void matchesStorageClassCondition() throws IOException, InterruptedException {
     String name = "setStorageClass_matchesStorageClass";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -197,7 +198,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition non-current time before (action set storage class)")
-  void noncurrentTimeBeforeCondition() throws IOException {
+  void noncurrentTimeBeforeCondition() throws IOException, InterruptedException {
     String name = "setStorageClass_noncurrentTimeBefore";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -211,7 +212,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("lifecycle condition number of newer versions (action set storage class)")
-  void numberOfNewerVerionsCondition() throws IOException {
+  void numberOfNewerVerionsCondition() throws IOException, InterruptedException {
     String name = "setStorageClass_numNewerVersions";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -253,7 +254,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("multiple lifecycle conditions in one rule")
-  void multipleConditions() throws IOException {
+  void multipleConditions() throws IOException, InterruptedException {
     String name = "multipleConditions";
     BucketInfo.LifecycleRule lifecycleRuleFromGCS =
         createBucketWithOneLifecycleRule(name, name + ".json");
@@ -274,7 +275,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("multiple lifecycle rules")
-  void multipleRules() throws IOException {
+  void multipleRules() throws IOException, InterruptedException {
     String name = "multipleRules";
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createBucketWithLifecycleRules(name, name + ".json");
@@ -362,7 +363,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
    * <p>- Expects that there is a single lifecycle rule, and returns it.
    */
   private BucketInfo.LifecycleRule createBucketWithOneLifecycleRule(
-      String resourceName, String lifecycleFilename) throws IOException {
+      String resourceName, String lifecycleFilename) throws IOException, InterruptedException {
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =
         createBucketWithLifecycleRules(resourceName, lifecycleFilename);
 
@@ -379,7 +380,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
    * <p>- Queries GCS directly for the lifecycle rules on the bucket, and returns them.
    */
   private List<? extends BucketInfo.LifecycleRule> createBucketWithLifecycleRules(
-      String resourceName, String lifecycleFilename) throws IOException {
+      String resourceName, String lifecycleFilename) throws IOException, InterruptedException {
     String bucketName = UUID.randomUUID().toString();
     Path lifecycle = TestCommand.getPathForTestInput("gcslifecycle/" + lifecycleFilename);
 
@@ -393,6 +394,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
         "--bucket-name=" + bucketName,
         "--lifecycle=" + lifecycle);
 
-    return ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator);
+    return CrlUtils.callGcpWithPermissionExceptionRetries(
+        () -> ExternalGCSBuckets.getLifecycleRulesFromCloud(bucketName, workspaceCreator));
   }
 }

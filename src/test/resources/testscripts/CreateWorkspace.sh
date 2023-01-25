@@ -13,7 +13,7 @@ if [[ "true" == "$isLoggedIn" ]]; then
   terra auth status
   # Polling for GCP permissions is difficult as the test user may not have gcloud credentials available,
   # so instead this is a static wait to compensate for the delay in syncing IAM permissions in GCP.
-  sleep 120
+  sleep 600
 else
   echo "No user is logged in. Skipping creating a new workspace."
 fi

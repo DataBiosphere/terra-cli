@@ -68,7 +68,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     // lifecycle rules
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // TODO: stolen from base class
+    // Clear gcloud directory before running these tests
     TestContext.clearGcloudConfigDirectory();
   }
 
@@ -223,13 +223,14 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
         "`gsutil ls` returns bucket");
 
     // `terra gcloud alpha storage ls`
-    cmd = TestCommand.runCommand("gcloud", "alpha", "storage", "ls");
+    cmd = TestCommand.runCommandExpectSuccessWithRetries("gcloud", "alpha", "storage", "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gcloud alpha storage ls` returns bucket");
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccessWithRetries(
+        "resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
