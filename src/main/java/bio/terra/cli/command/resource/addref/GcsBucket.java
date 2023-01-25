@@ -8,6 +8,8 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref gcs-bucket" command. */
@@ -31,6 +33,8 @@ public class GcsBucket extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
+
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
         referencedResourceCreationOptions.populateMetadataFields();

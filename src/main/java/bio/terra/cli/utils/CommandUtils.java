@@ -3,9 +3,11 @@ package bio.terra.cli.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.workspace.model.CloudPlatform;
+import java.util.Arrays;
 
 public class CommandUtils {
-  public static void checkPlatformSupport(CloudPlatform cloudPlatform)
+  // Checks if current server supports cloud platform
+  public static void checkServerSupport(CloudPlatform cloudPlatform)
       throws UserActionableException {
     if (!Context.getServer().getSupportedCloudPlatforms().contains(cloudPlatform)) {
       throw new UserActionableException(
@@ -13,6 +15,15 @@ public class CommandUtils {
               + cloudPlatform
               + " not supported for server "
               + Context.getServer().getName());
+    }
+  }
+
+  // Checks if workspace cloud platform is one of the cloud platforms
+  public static void checkWorkspaceSupport(CloudPlatform... cloudPlatforms)
+      throws UserActionableException {
+    if (!Arrays.asList(cloudPlatforms).contains(Context.requireWorkspace().getCloudPlatform())) {
+      throw new UserActionableException(
+          "Workspace does not support operations on cloud platforms " + cloudPlatforms);
     }
   }
 }

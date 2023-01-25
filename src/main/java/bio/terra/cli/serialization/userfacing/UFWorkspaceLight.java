@@ -86,6 +86,7 @@ public class UFWorkspaceLight {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
+    OUT.println("Cloud Platform:    " + cloudPlatform);
     if (cloudPlatform == CloudPlatform.GCP) {
       OUT.println("Google project:    " + googleProjectId);
       OUT.println(

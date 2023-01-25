@@ -1,5 +1,7 @@
 package bio.terra.cli.command.app.passthrough;
 
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the second-level "terra bq" command. */
@@ -13,5 +15,13 @@ public class Bq extends ToolCommand {
   @Override
   public String getInstallationUrl() {
     return "https://cloud.google.com/sdk/docs/install";
+  }
+
+  @Override
+  protected void executeImpl() {
+    workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
+
+    super.executeImpl();
   }
 }

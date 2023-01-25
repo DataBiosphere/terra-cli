@@ -45,6 +45,7 @@ public class Git extends ToolCommand {
   @Override
   protected void executeImpl() {
     workspaceOption.overrideIfSpecified();
+
     command.add(0, "git");
     if (cloneAll && names != null && names.length > 0) {
       throw new UserActionableException(
@@ -56,6 +57,7 @@ public class Git extends ToolCommand {
       clone(cloneAll ? getGitReposInWorkspace() : getGitReposByNames());
       return;
     }
+
     // handle other git commands
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command);
   }

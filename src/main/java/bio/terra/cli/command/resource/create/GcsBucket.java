@@ -8,6 +8,8 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -56,6 +58,7 @@ public class GcsBucket extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
 
     // build the resource object to create
     CreateResourceParams.Builder createResourceParams =
