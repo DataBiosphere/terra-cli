@@ -29,7 +29,7 @@ fi
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [[ "$(basename "$PWD")" != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
-  exit 1
+  return 1
 fi
 
 echo "Building Java code"
