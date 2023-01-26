@@ -1,21 +1,28 @@
 #!/bin/bash
-set -e
 
 ## This script sets up the environment for local development.
 ## Dependencies: docker, chmod
 ## Usage: source tools/local-dev.sh
 
-REQ_JAVA_VERSION=17
-echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
-if [[ -n "$(which java)" ]]; then
-  # Get the current major version of Java: "11.0.12" => "11"
-  CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
-  if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]]; then
-    >&2 echo "ERROR: Java version detected (${CUR_JAVA_VERSION}) is less than required (${REQ_JAVA_VERSION})"
+function check_java_version() {
+  local REQ_JAVA_VERSION=17
+
+  echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
+  if [[ -n "$(which java)" ]]; then
+    # Get the current major version of Java: "11.0.12" => "11"
+    local CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
+    if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]]; then
+      >&2 echo "ERROR: Java version detected (${CUR_JAVA_VERSION}) is less than required (${REQ_JAVA_VERSION})"
+      return 1
+    fi
+  else
+    >&2 echo "ERROR: No Java installation detected"
     return 1
   fi
-else
-  >&2 echo "ERROR: No Java installation detected"
+}
+
+if ! check_java_version; then
+  unset check_java_version
   return 1
 fi
 
