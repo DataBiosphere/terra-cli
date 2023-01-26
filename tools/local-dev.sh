@@ -1,13 +1,28 @@
 #!/bin/bash
+set -e
 
 ## This script sets up the environment for local development.
 ## Dependencies: docker, chmod
 ## Usage: source tools/local-dev.sh
 
+REQ_JAVA_VERSION=17
+echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
+if [[ -n "$(which java)" ]]; then
+  # Get the current major version of Java: "11.0.12" => "11"
+  CUR_JAVA_VERSION="$(java -version 2>&1 | awk -F\" '{ split($2,a,"."); print a[1]}')"
+  if [[ "${CUR_JAVA_VERSION}" -lt ${REQ_JAVA_VERSION} ]]; then
+    >&2 echo "ERROR: Java version detected (${CUR_JAVA_VERSION}) is less than required (${REQ_JAVA_VERSION})"
+    return 1
+  fi
+else
+  >&2 echo "ERROR: No Java installation detected"
+  return 1
+fi
+
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
 if [[ "$(basename "$PWD")" != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
-  exit 1
+  return 1
 fi
 
 echo "Building Java code"
