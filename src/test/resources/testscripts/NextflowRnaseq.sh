@@ -25,6 +25,8 @@ bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
 echo "resourceName: $resourceName, bucketName: $bucketName"
 terra resource create gcs-bucket --name=$resourceName --bucket-name=$bucketName
 terra resource list
+# Wait for permissions to propagate on the new bucket before attempting to use it
+sleep 300
 
 # I will use an example Nextflow workflow from a GitHub repository [show webpage], and checkout a tag that I have tested beforehand. This is the same example workflow that is used on the GCP + Nextflow tutorial [show webpage].
 

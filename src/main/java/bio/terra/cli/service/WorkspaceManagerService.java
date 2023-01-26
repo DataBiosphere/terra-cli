@@ -462,8 +462,8 @@ public class WorkspaceManagerService {
                   WorkspaceManagerService::isRetryable,
                   // Context creation will wait for cloud IAM permissions to sync, so poll for up to
                   // 30 minutes.
-                  /*maxCalls=*/ 120,
-                  /*sleepDuration=*/ Duration.ofSeconds(15));
+                  /*maxCalls=*/ 30,
+                  /*sleepDuration=*/ Duration.ofSeconds(60));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
@@ -657,8 +657,8 @@ public class WorkspaceManagerService {
                     (result) -> isDone(result.getJobReport()),
                     WorkspaceManagerService::isRetryable,
                     // Retry for 30 minutes, as this involves creating a new context
-                    /*maxCalls=*/ 120,
-                    /*sleepDuration=*/ Duration.ofSeconds(15)),
+                    /*maxCalls=*/ 30,
+                    /*sleepDuration=*/ Duration.ofSeconds(60)),
             "Error in cloning workspace.");
     logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
     throwIfJobNotCompleted(
