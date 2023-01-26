@@ -50,6 +50,30 @@ public class UFWorkspaceLight {
     this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
   }
 
+  /**
+   * This constructor can be used instead of {@link UFWorkspaceLight#UFWorkspaceLight(Workspace)} if
+   * you already have a WorkspaceDescription object from WSM to avoid making additional calls.
+   *
+   * @param workspaceDescription
+   */
+  public UFWorkspaceLight(WorkspaceDescription workspaceDescription) {
+    this.id = workspaceDescription.getUserFacingId();
+    this.name = workspaceDescription.getDisplayName();
+    this.description = workspaceDescription.getDescription();
+    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.userEmail = Context.requireUser().getEmail();
+    this.serverName = Context.getServer().getName();
+    this.createdDate = workspaceDescription.getCreatedDate();
+    this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
+
+    if (workspaceDescription.getGcpContext() != null) {
+      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
+      this.cloudPlatform = CloudPlatform.GCP;
+    } else if (workspaceDescription.getAzureContext() != null) {
+      this.cloudPlatform = CloudPlatform.AZURE;
+    }
+  }
+
   /** Constructor for Jackson deserialization during testing. */
   private UFWorkspaceLight(UFWorkspaceLight.Builder builder) {
     this.id = builder.id;
