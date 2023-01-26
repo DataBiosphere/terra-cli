@@ -22,6 +22,7 @@ function check_java_version() {
 }
 
 if ! check_java_version; then
+  unset check_java_version
   return 1
 fi
 
