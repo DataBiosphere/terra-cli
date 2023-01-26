@@ -6,8 +6,6 @@ echo "CROMWELL_CONFIG_PATH" : $1
 echo "GOOGLE_PROJECT": $2
 echo "PET_SA_EMAIL": $3
 echo "GOOGLE_BUCKET": $4
-echo "IMPORTANT: In cromwell.conf, change {WORKSPACE_BUCKET} to a bucket in your workspace."
-echo "HEY WILLY BUCKET IS {GOOGLE_BUCKET}!!"
 if [[ ! -f "$1" ]]; then
   cat <<EOF | tee "$1"
 
@@ -32,8 +30,7 @@ backend {
       config {
         project = "$2"
         concurrent-job-limit = 10
-#         replace {WORKSPACE_BUCKET} with the path to a gcs bucket in this workspace, e.g. gs://my-cromwell-workflow-bucket/workflows/cromwell-executions.
-        root = "{WORKSPACE_BUCKET}/workflows/cromwell-executions"
+        root = "$4/workflows/cromwell-executions"
 
         virtual-private-cloud {
           network-label-key = "vpc-network-name"
