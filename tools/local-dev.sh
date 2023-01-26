@@ -25,7 +25,6 @@ if ! check_java_version; then
   unset check_java_version
   return 1
 fi
-
 unset check_java_version
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
