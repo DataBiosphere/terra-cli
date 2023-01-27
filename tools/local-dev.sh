@@ -31,4 +31,4 @@ echo "Making all 'tools' scripts executable"
 chmod a+x tools/*
 
 # pull credentials needed for development
-#./tools/render-config.sh
+./tools/render-config.sh
