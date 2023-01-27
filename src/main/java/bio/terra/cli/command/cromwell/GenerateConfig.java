@@ -45,7 +45,7 @@ public class GenerateConfig extends BaseCommand {
     @CommandLine.Option(
         names = "--google-bucket-name",
         required = true,
-        description = "Google Cloud Storage bucket to hold Cromwell log files.")
+        description = "Google Cloud Storage bucket to hold Cromwell log files. For example: gs://bucket-name.")
     public String google_bucket_name;
   }
 

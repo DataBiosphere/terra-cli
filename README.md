@@ -482,7 +482,7 @@ Commands:
 
 To run Cromwell in a notebook instance:
 
-* Run `terra cromwell generate-config (--workspace-bucket-name=bucket_ref | --google-bucket-name=gcs_bucket) [--dir=my/path]`
+* Run `terra cromwell generate-config (--workspace-bucket-name=bucket_name | --google-bucket-name=my-bucket) [--dir=my/path]`
 * In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
 * Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
 * In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
