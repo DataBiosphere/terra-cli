@@ -30,11 +30,24 @@ public class GenerateConfig extends BaseCommand {
       description = "Directory to put generated cromwell.conf in. Defaults to current directory.")
   public String dir;
 
-  @CommandLine.Option(
-      names = "--bucket-name",
-      required = true,
-      description = "GCS bucket to hold cromwell log files.")
-  public String bucket_name;
+  // We create an exclusive ArgGroup because we require one of either
+  // workspace_bucket_name or google_bucket_name.
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+  WorkspaceOrGoogleBucketName workspace_or_google_bucket_name;
+
+  static class WorkspaceOrGoogleBucketName {
+    @CommandLine.Option(
+        names = "--workspace-bucket-name",
+        required = true,
+        description = "Terra workspace bucket to hold Cromwell log files.")
+    public String workspace_bucket_name;
+
+    @CommandLine.Option(
+        names = "--google-bucket-name",
+        required = true,
+        description = "Google Cloud Storage bucket to hold Cromwell log files.")
+    public String google_bucket_name;
+  }
 
   @Override
   protected void execute() {
@@ -56,9 +69,18 @@ public class GenerateConfig extends BaseCommand {
 
     String googleProjectId = Context.requireWorkspace().getRequiredGoogleProjectId();
     String petSaEmail = Context.requireUser().getPetSaEmail();
-    Resource resource = Context.requireWorkspace().getResource(bucket_name);
-    boolean excludeBucketPrefix = false;
-    String googleBucket = ((GcsBucket) resource).resolve(excludeBucketPrefix);
+
+    String googleBucket;
+    if (workspace_or_google_bucket_name.workspace_bucket_name == null) {
+      googleBucket = workspace_or_google_bucket_name.google_bucket_name;
+      if (!googleBucket.startsWith("gs://")) googleBucket = "gs://" + googleBucket;
+    } else {
+      Resource resource =
+          Context.requireWorkspace()
+              .getResource(workspace_or_google_bucket_name.workspace_bucket_name);
+      boolean includeUrlPrefix = true;
+      googleBucket = ((GcsBucket) resource).resolve(includeUrlPrefix);
+    }
 
     // Force local process runner, so the generated file exists on local filesystem (as opposed to
     // inside container).
