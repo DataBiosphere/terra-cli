@@ -214,6 +214,9 @@ Both types of tests:
   `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
 - Run a single test by specifying the `--tests` option:
   `./gradlew runTestsWithTag -PtestTag=unit --tests Workspace.createFailsWithoutSpendAccess`
+- Suppress console display of the test command's stdIn & stdOut by specifying the `-PquietConsole` option
+  `./gradlew runTestsWithTag -PtestTag=unit -PquietConsole`
+
 
 By default, tests are run against all cloud platforms supported by the CLI server. Add the platform to target tests for a single platform
 - CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp`
