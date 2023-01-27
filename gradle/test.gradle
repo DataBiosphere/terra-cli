@@ -56,12 +56,12 @@ task runTestsWithTag(type: Test) {
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
             boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
             String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
-            systemProperty 'TERRA_INSTALL_DIR', installDir
+            systemProperty('TERRA_INSTALL_DIR', installDir)
 
             // [for integration tests] specify the working directory to use when running scripts. this makes
             // it easier to clean up after tests (./gradlew clean) that generate files.
             mkdir "${project.buildDir}/test-working-dir/"
-            systemProperty 'TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/"
+            systemProperty('TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/")
 
             if (cloudPlatform == 'gcp') {
                 allTestTags.add('integration-gcp')
@@ -116,14 +116,18 @@ task runTestsWithTag(type: Test) {
 
     // set which file in src/test/resources/testconfigs to use
     String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
-    systemProperty 'TERRA_TEST_CONFIG_NAME', terraTestConfigName
+    systemProperty('TERRA_TEST_CONFIG_NAME', terraTestConfigName)
+
+    // suppress console logging ('stdin' & 'stdout' display)
+    String terraTestQuietConsole = project.hasProperty('quietConsole') ? 'true' : 'false'
+    systemProperty('TERRA_TEST_QUIET_CONSOLE', terraTestQuietConsole)
 
     // specify the Docker image to run tests with (e.g. -PdockerImage=terra-cli/local:b5fdce0). if unspecified, tests use the default Docker image
     String terraDockerImage = project.hasProperty('dockerImage') ? project.findProperty('dockerImage') : ''
     environment 'TERRA_DOCKER_IMAGE', terraDockerImage
 
     // generate a unique id for each test run
-    systemProperty 'TEST_RUN_ID', UUID.randomUUID().toString()
+    systemProperty('TEST_RUN_ID', UUID.randomUUID().toString())
 
     dependsOn runInstallForTesting
     // run the install-for-testing.sh script before any tests
@@ -161,14 +165,18 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     mkdir "${project.buildDir}/test-context/"
 
     // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
-    systemProperty 'TERRA_SERVER', project.findProperty('server')
+    systemProperty('TERRA_SERVER', project.findProperty('server'))
 
     // set which file in src/test/resources/testconfigs to use
     String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
-    systemProperty 'TERRA_TEST_CONFIG_NAME', terraTestConfigName
+    systemProperty('TERRA_TEST_CONFIG_NAME', terraTestConfigName)
+
+    // suppress console logging ('stdin' & 'stdout' display)
+    String terraTestQuietConsole = project.hasProperty('quietConsole') ? 'true' : 'false'
+    systemProperty('TERRA_TEST_QUIET_CONSOLE', terraTestQuietConsole)
 
     // [optional] specify that this is a dry run (e.g. -PdryRun)
-    systemProperty 'DRY_RUN', project.hasProperty('dryRun').toString()
+    systemProperty('DRY_RUN', project.hasProperty('dryRun').toString())
 
     dependsOn compileJava
 }
