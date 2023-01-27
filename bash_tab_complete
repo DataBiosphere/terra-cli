@@ -23,7 +23,10 @@ _go_with_options()
 _magic_options_for_terra()
 {
     local cmdline_options
-    cmdline_options=$(2>&1 terra | sed -n '/Commands:/,/Exit codes/{/Commands/b;/Exit codes/b;p}' | awk '{ print $1 }' | sort | uniq | xargs)
+    # The command line options are in between "Commands:" and "Exit codes"
+    local start="Commands:"
+    local end="Exit codes"
+    cmdline_options=$(2>&1 terra | sed -n "/$start/,/$end/{/$start/b;/$end/b;p}" | awk '{ print $1 }' | sort | uniq | xargs)
     _go_with_options "${cmdline_options}"
 }
 
