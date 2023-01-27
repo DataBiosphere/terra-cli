@@ -1,0 +1,30 @@
+# To use, in the Bash shell:
+# source bash_tab_complete
+#
+# Then you can use the "tab" key to auto-complete options in the
+# command line for terra.
+#
+# terra --con<TAB>
+# terra --config
+#
+# If you update terra, you can source this file again
+# to update the tab completion rules.
+
+
+_go_with_options()
+{
+    local options="$@"
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=( $(compgen -W "${options}" -- ${cur}) )
+    return 0
+}
+
+_magic_options_for_terra()
+{
+    local cmdline_options
+    cmdline_options=$(2>&1 terra | sed -n '/Commands:/,/Exit codes/{/Commands/b;/Exit codes/b;p}' | awk '{ print $1 }' | sort | uniq | xargs)
+    _go_with_options "${cmdline_options}"
+}
+
+complete -o default -F _magic_options_for_terra terra
