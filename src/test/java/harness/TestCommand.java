@@ -59,16 +59,24 @@ public class TestCommand {
     // log the stdout, stdin and stderr to the console
     String stdOutStr = stdOut.toString(StandardCharsets.UTF_8);
     String stdErrStr = stdErr.toString(StandardCharsets.UTF_8);
-    System.out.println("STDOUT --------------");
-    System.out.println(stdOutStr);
-    if (stdIn != null)
+
+    if (!TestConfig.getQuietConsole()) {
+      System.out.println("STDOUT --------------");
+      System.out.println(stdOutStr);
+    }
+
+    if (stdIn != null) {
       try {
-        System.out.println("STDIN --------------");
         stdIn.reset();
-        System.out.println(new String(stdIn.readAllBytes(), StandardCharsets.UTF_8));
+        if (!TestConfig.getQuietConsole()) {
+          System.out.println("STDIN --------------");
+          System.out.println(new String(stdIn.readAllBytes(), StandardCharsets.UTF_8));
+        }
       } catch (IOException ioEx) {
         throw new RuntimeException("Error logging stdin to console", ioEx);
       }
+    }
+
     if (!stdErrStr.isEmpty()) {
       System.out.println("STDERR --------------");
       System.out.println(stdErrStr);

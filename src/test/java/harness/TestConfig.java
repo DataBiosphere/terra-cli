@@ -17,6 +17,9 @@ public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
   private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
   private static TestConfig INSTANCE;
+
+  // suppress console logging ('stdin' & 'stdout' display)
+  private static boolean quietConsole;
   @JsonProperty private List<TestUser> testUsers;
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
   @JsonProperty private String projectForExternalResources;
@@ -37,12 +40,16 @@ public final class TestConfig {
 
   public static TestConfig get() {
     if (INSTANCE == null) {
-      String testConfigFileName = getTestConfigName() + ".json";
-      if (testConfigFileName == null || testConfigFileName.isEmpty()) {
+      String testConfigName = getTestConfigName();
+      if (testConfigName == null || testConfigName.isEmpty()) {
         throw new SystemException("TERRA_TEST_CONFIG_NAME must be set");
       }
+
+      String testConfigFileName = testConfigName + ".json";
       TestConfig testConfig = fromJsonFile(testConfigFileName);
       validateTestConfig(testConfig, testConfigFileName);
+
+      quietConsole = Boolean.parseBoolean(System.getProperty("TERRA_TEST_QUIET_CONSOLE"));
       INSTANCE = testConfig;
     }
     return INSTANCE;
@@ -110,5 +117,9 @@ public final class TestConfig {
 
   public String getJanitorPubSubProjectId() {
     return janitorPubSubProjectId;
+  }
+
+  public static boolean getQuietConsole() {
+    return quietConsole;
   }
 }
