@@ -42,7 +42,8 @@ public class CromwellConfig extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra cromwell generate-config --dir=build --google-bucket-name`
-    TestCommand.runCommandExpectSuccess("cromwell", "generate-config", "--dir=build", "--google-bucket-name=foo");
+    TestCommand.runCommandExpectSuccess(
+        "cromwell", "generate-config", "--dir=build", "--google-bucket-name=foo");
 
     // New cromwell.conf file generate successfully.
     assertTrue(

@@ -45,7 +45,8 @@ public class GenerateConfig extends BaseCommand {
     @CommandLine.Option(
         names = "--google-bucket-name",
         required = true,
-        description = "Google Cloud Storage bucket to hold Cromwell log files. For example: gs://bucket-name.")
+        description =
+            "Google Cloud Storage bucket to hold Cromwell log files. For example: gs://bucket-name.")
     public String google_bucket_name;
   }
 
@@ -78,8 +79,7 @@ public class GenerateConfig extends BaseCommand {
       Resource resource =
           Context.requireWorkspace()
               .getResource(workspace_or_google_bucket_name.workspace_bucket_name);
-      boolean includeUrlPrefix = true;
-      googleBucket = ((GcsBucket) resource).resolve(includeUrlPrefix);
+      googleBucket = ((GcsBucket) resource).resolve(/*includeUrlPrefix=*/ true);
     }
 
     // Force local process runner, so the generated file exists on local filesystem (as opposed to
