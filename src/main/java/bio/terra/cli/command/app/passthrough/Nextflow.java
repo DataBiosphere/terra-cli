@@ -1,6 +1,8 @@
 package bio.terra.cli.command.app.passthrough;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import java.util.HashMap;
 import java.util.Map;
 import picocli.CommandLine.Command;
@@ -27,11 +29,14 @@ public class Nextflow extends ToolCommand {
   @Override
   protected void executeImpl() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
+
     command.add(0, "nextflow");
     Map<String, String> envVars = new HashMap<>();
     envVars.put("NXF_MODE", "google");
     addEnvVarIfDefinedInHost("TOWER_ACCESS_TOKEN", envVars);
     addEnvVarIfDefinedInHost("TOWER_WORKSPACE_ID", envVars);
+
     Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(command, envVars);
   }
 

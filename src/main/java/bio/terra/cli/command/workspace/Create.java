@@ -38,7 +38,7 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    CommandUtils.checkPlatformSupport(cloudPlatform);
+    CommandUtils.checkServerSupport(cloudPlatform);
 
     Workspace workspace =
         Workspace.create(
