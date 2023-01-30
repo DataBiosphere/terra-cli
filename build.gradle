@@ -22,6 +22,9 @@ group = 'terra-cli'
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
 repositories {
+    flatDir {
+        dirs 'temp-libs'
+    }
     if (useMavenLocal) {
         mavenLocal() // must be listed first to take effect
     }
@@ -43,8 +46,11 @@ dependencies {
     implementation group: 'bio.terra', name: 'datarepo-client', version: '1.0.155-SNAPSHOT'
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.82.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.468-SNAPSHOT'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
+
+    // Changes for MC-Terra
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mcterra-wsm-12192022-1'
+    runtimeOnly group: 'org.glassfish.jersey.connectors', name: 'jersey-jdk-connector', version: '2.32'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
     implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
@@ -75,6 +81,12 @@ dependencies {
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.33.3'
     implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '1.116.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.7.2'
+
+    // AWS
+    implementation platform('software.amazon.awssdk:bom:2.18.34')
+    implementation 'software.amazon.awssdk:auth'
+    implementation 'software.amazon.awssdk:sagemaker'
+    implementation 'software.amazon.awssdk:s3'
 
     // Docker
     implementation group: 'com.github.docker-java', name: 'docker-java-core', version: '3.2.13'
