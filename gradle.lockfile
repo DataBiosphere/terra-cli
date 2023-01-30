@@ -12,6 +12,7 @@ bio.terra.cloud-resource-lib:platform:0.2.0=compileClasspath,runtimeClasspath,te
 bio.terra:datarepo-client:1.0.155-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:externalcreds-client-resttemplate:0.82.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.5-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra:workspace-manager-client:mcterra-wsm-12192022-1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback:logback-classic:1.4.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.4.0=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.13.4=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
