@@ -483,7 +483,7 @@ Commands:
 To run Cromwell in a notebook instance:
 
 * Run `terra cromwell generate-config (--workspace-bucket-name=bucket_name | --google-bucket-name=gs://my-bucket) [--dir=my/path]`
-* In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
+* One of `workspace-bucket-name` or `google-bucket-name` is required. `workspace-bucket-name` is a Terra resource name. `google-bucket-name` is a Google Cloud Storage bucket. If `google-bucket-name` does not begin with the "gs://" prefix, it will be automatically added.
 * Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
 * In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
 * Start workflow through cromshell: e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
