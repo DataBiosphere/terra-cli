@@ -67,21 +67,21 @@ jobs:
       run: |
         echo "Running unit tests for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-unit
-        ./gradlew runTestsWithTag -PtestTag=unit --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit
+        ./gradlew runTestsWithTag -PtestTag=unit --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit -PquietConsole
     - name: Run integration tests against source code
       id: run_integration_tests_against_source_code
       if: always()
       run: |
         echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-integration-source
-        ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source
+        ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source -PquietConsole
     - name: Run integration tests against release
       id: run_integration_tests_against_release
       if: always()
       run: |
         echo "Running integration tests against release for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-integration-release
-        ./gradlew runTestsWithTag -PtestTag=integration --scan -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release
+        ./gradlew runTestsWithTag -PtestTag=integration --scan -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release -PquietConsole
     - name: Compile logs and context files for all test runs
       id: compile_logs_and_context_files
       if: always()

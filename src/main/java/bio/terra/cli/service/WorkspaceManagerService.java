@@ -532,9 +532,10 @@ public class WorkspaceManagerService {
                   () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  // I've observed a flight taking 2 mins 28 sec. So retry for 3 mins.
-                  /*maxCalls=*/ 36,
-                  /*sleepDuration=*/ Duration.ofSeconds(5));
+                  // Context creation will wait for cloud IAM permissions to sync, so poll for up to
+                  // 30 minutes.
+                  /*maxCalls=*/ 30,
+                  /*sleepDuration=*/ Duration.ofSeconds(60));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
           if (StatusEnum.FAILED == status) {
@@ -739,9 +740,9 @@ public class WorkspaceManagerService {
                             initialResult.getJobReport().getId()),
                     (result) -> isDone(result.getJobReport()),
                     WorkspaceManagerService::isRetryable,
-                    // Retry for 5 minutes
-                    /*maxCalls=*/ 60,
-                    /*sleepDuration=*/ Duration.ofSeconds(5)),
+                    // Retry for 30 minutes, as this involves creating a new context
+                    /*maxCalls=*/ 30,
+                    /*sleepDuration=*/ Duration.ofSeconds(60)),
             "Error in cloning workspace.");
     logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
     throwIfJobNotCompleted(

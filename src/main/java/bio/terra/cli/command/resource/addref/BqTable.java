@@ -9,6 +9,8 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource add-ref bq-table" command. */
@@ -40,6 +42,7 @@ public class BqTable extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
 
     String datasetId = bqDatasetsIds.getBigQueryDatasetId();
     String projectId = bqDatasetsIds.getGcpProjectId();

@@ -18,9 +18,9 @@ import org.apache.http.HttpStatus;
 /** Utilities for working with the Terra Cloud Resource Library. */
 public class CrlUtils {
 
-  // For GCP permissions propagation, retry for up to 10 minutes.
-  public static final int GCP_RETRY_COUNT = 20;
-  public static final Duration GCP_RETRY_SLEEP_DURATION = Duration.ofSeconds(30);
+  // For GCP permissions propagation, retry for up to 30 minutes.
+  public static final int GCP_RETRY_COUNT = 30;
+  public static final Duration GCP_RETRY_SLEEP_DURATION = Duration.ofSeconds(60);
 
   private static final ClientConfig clientConfig =
       ClientConfig.Builder.newBuilder().setClient("terra-cli").build();

@@ -319,11 +319,11 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
     assertEquals(0, matchedNotebooks.size(), "list output for notebooks in workspace 1 is empty");
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runCommandExpectSuccessWithRetries(
         "notebook", "start", "--name=" + name, "--workspace=" + workspace2.id);
 
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runCommandExpectSuccessWithRetries(
         "notebook", "stop", "--name=" + name, "--workspace=" + workspace2.id);
   }
 }
