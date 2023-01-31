@@ -16,21 +16,26 @@ set -e
 ## Dependencies: jq
 ## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
 ##         testConfigFile (arg, required) relative path to the test config file
+##         terra (arg, optional) location of terra installation, useful if this is to be run outside the repo
 ## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org src/test/resources/testconfigs/broad.json
 #     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
 
-## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [[ $(basename $PWD) != 'terra-cli' ]]; then
-  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
-  exit 1
-fi
-terra=$PWD/build/install/terra-cli/bin/terra
-
 adminUsersGroupEmail=$1
 testConfigFile=$2
+terra=$3
+
 if [ -z "$adminUsersGroupEmail" ] || [ -z "$testConfigFile" ]; then
     >&2 echo "ERROR: Usage: ./setup-test-users.sh [adminUsersGroupEmail] [testConfigFile]"
     exit 1
+fi
+
+if [[ -z "$terra" ]]; then
+  ## assumes that it is being run from the top-level directory "terra-cli/".
+  if [[ $(basename $PWD) != 'terra-cli' ]]; then
+    >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
+    exit 1
+  fi
+  terra=$PWD/build/install/terra-cli/bin/terra
 fi
 
 # Fetch test users from config file
