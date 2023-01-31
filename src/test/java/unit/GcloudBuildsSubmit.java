@@ -53,20 +53,11 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
 
     // `terra resource create gcs-bucket --name=$name --format=json`
     String bucketResourceName = "resourceName";
-    UFGcsBucket createdBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
+    TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
 
-    // Poll until the test user can fetch the bucket, which may be delayed.
-    Storage ownerClient =
-        ExternalGCSBuckets.getStorageClient(
-            workspaceCreator.getCredentialsWithCloudPlatformScope());
-    Page<Blob> bucketContents =
-        CrlUtils.callGcpWithPermissionExceptionRetries(
-            () -> ownerClient.get(createdBucket.bucketName).list());
-
     // `builds submit --async --gcs-bucket-resource=bucketName --tag=$tag`
-    TestCommand.runCommandExpectSuccess(
+    TestCommand.runCommandExpectSuccessWithRetries(
         "gcloud",
         "builds",
         "submit",
