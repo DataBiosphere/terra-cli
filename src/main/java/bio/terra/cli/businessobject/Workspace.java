@@ -131,13 +131,9 @@ public class Workspace {
    * @param limit the maximum number of workspaces to return
    * @return list of workspaces
    */
-  public static List<Workspace> list(int offset, int limit) {
+  public static List<WorkspaceDescription> list(int offset, int limit) {
     // fetch the list of workspaces from WSM
-    List<WorkspaceDescription> listedWorkspaces =
-        WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
-
-    // convert the WSM objects to CLI objects
-    return listedWorkspaces.stream().map(Workspace::new).collect(Collectors.toList());
+    return WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
   }
 
   public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
