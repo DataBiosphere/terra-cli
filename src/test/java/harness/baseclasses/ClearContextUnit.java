@@ -87,8 +87,8 @@ public class ClearContextUnit {
     if (supportedPlatforms == null || !supportedPlatforms.contains(cloudPlatform)) {
       throw new UserActionableException(
           String.format(
-              "Cloud platform %s not supported on server %s" + cloudPlatform,
-              Context.getServer().getName()));
+              "Cloud platform %s not supported on server %s",
+              cloudPlatform.toString(), Context.getServer().getName()));
     }
 
     workspaceCreator.login();
