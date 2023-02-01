@@ -379,7 +379,7 @@ public class Workspace {
   }
 
   public Optional<String> getLandingZoneId() {
-    return Optional.ofNullable(googleProjectId);
+    return Optional.ofNullable(landingZoneId);
   }
 
   public String getRequiredLandingZoneId() {
