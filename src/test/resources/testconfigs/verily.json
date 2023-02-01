@@ -1,4 +1,5 @@
 {
+  "jsonComment": "IMPORTANT --> ADDED FILE ONLY FOR TESTING, DO NOT MERGE TO MASTER",
   "testUsers": [
     {
       "email": "cli_testuser_01@test.verily-bvdp.com",
@@ -26,6 +27,5 @@
     }
   ],
   "projectForExternalResources": "verily-bvdp-cli-test",
-  "jsonComment": "TODO(PF-963): Change to true after Verily deployment gets janitor",
   "useJanitor": false
 }
