@@ -28,14 +28,6 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    if (getCloudPlatform() == CloudPlatform.GCP) {
-      platformStorageName = "gcs-bucket";
-    } else if (getCloudPlatform() == CloudPlatform.AWS) {
-      platformStorageName = "aws-bucket";
-    } else {
-      throw new UserActionableException("Unsupported cloud platform " + getCloudPlatform());
-    }
-
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =
@@ -63,7 +55,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
-        platformStorageName,
+        getPlatformStorageName(),
         "--name=" + resourceName,
         "--bucket-name=" + bucketName);
   }
