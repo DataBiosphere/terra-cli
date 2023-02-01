@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
@@ -55,6 +56,7 @@ public class SamService {
     this.server = server;
     this.apiClient = new ApiClient();
 
+    this.apiClient.setHttpClient(HttpClients.getOkHttpClient());
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
     if (accessToken != null) {

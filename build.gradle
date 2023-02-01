@@ -55,6 +55,8 @@ dependencies {
 
     // hk2 is required to use WSM client, but not correctly exposed by the client
     implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.36'
+    // TODO(zloery) Not sure why this isn't pulled in transitively
+    implementation group: "org.glassfish.jersey.connectors", name: "jersey-jdk-connector", version: '2.36'
 
     // command parsing
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'

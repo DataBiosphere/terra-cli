@@ -23,6 +23,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParams;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.FolderApi;
@@ -143,6 +144,7 @@ public class WorkspaceManagerService {
     this.apiClient = new ApiClient();
 
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
+    this.apiClient.setHttpClient(HttpClients.getJaxClient());
     if (accessToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
