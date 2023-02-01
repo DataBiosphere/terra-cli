@@ -1,0 +1,31 @@
+{
+  "jsonComment": "IMPORTANT --> ADDED FILE ONLY FOR TESTING, DO NOT MERGE TO MASTER",
+  "testUsers": [
+    {
+      "email": "cli_testuser_01@test.verily-bvdp.com",
+      "spendEnabled": "OWNER"
+    },
+    {
+      "email": "cli_testuser_02@test.verily-bvdp.com",
+      "spendEnabled": "CLI_TEST_USERS_GROUP"
+    },
+    {
+      "email": "cli_testuser_03@test.verily-bvdp.com",
+      "spendEnabled": "CLI_TEST_USERS_GROUP"
+    },
+    {
+      "email": "cli_testuser_04@test.verily-bvdp.com",
+      "spendEnabled": "DIRECTLY"
+    },
+    {
+      "email": "cli_testuser_05@test.verily-bvdp.com",
+      "spendEnabled": "DIRECTLY"
+    },
+    {
+      "email": "cli_testuser_06@test.verily-bvdp.com",
+      "spendEnabled": "NO"
+    }
+  ],
+  "projectForExternalResources": "verily-bvdp-cli-test",
+  "useJanitor": false
+}

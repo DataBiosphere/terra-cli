@@ -23,14 +23,26 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
   protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
-  private CloudPlatform cloudPlatform = CloudPlatform.GCP; // default platform
+
+  // default platform: GCP
+  private CloudPlatform cloudPlatform = CloudPlatform.GCP;
+  private String platformStorageName = "gcs-bucket";
 
   protected void setCloudPlatform(CloudPlatform cloudPlatform) {
+    if (cloudPlatform == CloudPlatform.GCP) {
+      platformStorageName = "gcs-bucket";
+    } else if (cloudPlatform == CloudPlatform.AWS) {
+      platformStorageName = "aws-bucket";
+    }
     this.cloudPlatform = cloudPlatform;
   }
 
   protected CloudPlatform getCloudPlatform() {
     return cloudPlatform;
+  }
+
+  protected String getPlatformStorageName() {
+    return platformStorageName;
   }
 
   /**
@@ -72,14 +84,11 @@ public class ClearContextUnit {
     resetContext();
 
     Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    if (supportedPlatforms == null || supportedPlatforms.isEmpty()) {
+    if (supportedPlatforms == null || !supportedPlatforms.contains(cloudPlatform)) {
       throw new UserActionableException(
-          "No cloud platforms supported on server " + Context.getServer().getName());
-    }
-
-    // retain default platform if supported, otherwise replace
-    if (!supportedPlatforms.contains(getCloudPlatform())) {
-      setCloudPlatform(supportedPlatforms.iterator().next());
+          String.format(
+              "Cloud platform %s not supported on server %s",
+              cloudPlatform.toString(), Context.getServer().getName()));
     }
 
     workspaceCreator.login();
