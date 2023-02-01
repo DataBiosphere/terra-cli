@@ -1,8 +1,6 @@
 package harness.baseclasses;
 
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.utils.WorkspaceUtils;
@@ -22,8 +20,6 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
   protected static String getUserFacingId() {
     return userFacingId;
   }
-
-  private String platformStorageName;
 
   @BeforeAll
   protected void setupOnce() throws Exception {
