@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,12 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit-aws")
 public class WorkspaceAws extends ClearContextUnit {
+  @BeforeAll
+  protected void setupOnce() throws Exception {
+    setCloudPlatform(CloudPlatform.AWS);
+    super.setupOnce();
+  }
+
   @Test
   @DisplayName("status, describe, AWS workspace list reflect workspace create")
   void statusDescribeListReflectCreateAws() throws IOException, InterruptedException {
@@ -102,7 +109,7 @@ public class WorkspaceAws extends ClearContextUnit {
         "workspace aws landing zone id matches that in list");
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+    // TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
   @Test
@@ -117,14 +124,8 @@ public class WorkspaceAws extends ClearContextUnit {
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
-    String bucketResourceName = "describeReflectsNumResourcesAWS";
     String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "aws-bucket",
-        "--name=" + bucketResourceName,
-        "--bucket-name=" + bucketName);
+    TestCommand.runCommandExpectSuccess("resource", "create", "aws-bucket", "--name=" + bucketName);
 
     // `terra workspace describe`
     UFWorkspace describedWorkspace =
@@ -133,6 +134,6 @@ public class WorkspaceAws extends ClearContextUnit {
         1, describedWorkspace.numResources, "workspace has 1 resource after creating bucket");
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+    // TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

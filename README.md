@@ -619,7 +619,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
 
 (1) Change the storage class to `ARCHIVE` after 10 days.
 
-```json
+```
 {
   "rule": [
     {
@@ -638,7 +638,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
 (2) Delete any objects with storage class `STANDARD` that were created before
 December 3, 2007.
 
-```json
+```
 {
   "rule": [
     {
@@ -658,76 +658,7 @@ December 3, 2007.
 
 (3) Delete any objects that are more than 365 days old.
 
-```json
-{
-  "rule": [
-    {
-      "action": {
-        "type": "Delete"
-      },
-      "condition": {
-        "age": 365
-      }
-    }
-  ]
-}
 ```
-
-There is also a command shortcut for specifying this type of lifecycle rule (3).
-
-```
-terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
-```
-
-##### AWS bucket lifecycle rules
-
-AWS bucket lifecycle rules are specified by passing a JSON-formatted file path
-to the `terra resource create aws-bucket` command. This structure is a subset of
-the AWS S3 Bucket lifecycle [configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/how-to-set-lifecycle-configuration-intro.html).
-Below are some example file contents for specifying a lifecycle rule.
-
-(1) Change the storage class to `INTELLIGENT_TIERING` after 10 days.
-
-```json
-{
-  "rule": [
-    {
-      "action": {
-        "type": "SetStorageClass",
-        "storageClass": "INTELLIGENT_TIERING"
-      },
-      "condition": {
-        "age": 10
-      }
-    }
-  ]
-}
-```
-
-(2) Delete any objects with storage class `ONE_ZONE_INFREQUENT_ACCESS` that were created before
-December 3, 2007.
-
-```json
-{
-  "rule": [
-    {
-      "action": {
-        "type": "Delete"
-      },
-      "condition": {
-        "createdBefore": "2007-12-03",
-        "matchesStorageClass": [
-          "ONE_ZONE_INFREQUENT_ACCESS"
-        ]
-      }
-    }
-  ]
-}
-```
-
-(3) Delete any objects that are more than 365 days old.
-
-```json
 {
   "rule": [
     {
