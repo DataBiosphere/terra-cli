@@ -30,6 +30,8 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     super.setupOnce();
     if (getCloudPlatform() == CloudPlatform.GCP) {
       platformStorageName = "gcs-bucket";
+    } else if (getCloudPlatform() == CloudPlatform.AWS) {
+      platformStorageName = "aws-bucket";
     } else {
       throw new UserActionableException("Unsupported cloud platform " + getCloudPlatform());
     }

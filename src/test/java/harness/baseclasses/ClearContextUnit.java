@@ -72,14 +72,11 @@ public class ClearContextUnit {
     resetContext();
 
     Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    if (supportedPlatforms == null || supportedPlatforms.isEmpty()) {
+    if (supportedPlatforms == null || !supportedPlatforms.contains(cloudPlatform)) {
       throw new UserActionableException(
-          "No cloud platforms supported on server " + Context.getServer().getName());
-    }
-
-    // retain default platform if supported, otherwise replace
-    if (!supportedPlatforms.contains(getCloudPlatform())) {
-      setCloudPlatform(supportedPlatforms.iterator().next());
+          String.format(
+              "Cloud platform %s not supported on server %s" + cloudPlatform,
+              Context.getServer().getName()));
     }
 
     workspaceCreator.login();
