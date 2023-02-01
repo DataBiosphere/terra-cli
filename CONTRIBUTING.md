@@ -223,7 +223,7 @@ By default, tests are run against all cloud platforms supported by the CLI serve
 - CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp`
 
 Sample command to run AWS tests against verily config (requires render config for specific testConfig)
-  `./gradlew runTestsWithTag -PtestTag=unit  -Pserver=verily-mc-feature-dev -PtestConfig=verily`
+  `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=aws -Pserver=verily-mc-feature-dev -PtestConfig=verily`
 
 #### Docker and Tests
 
