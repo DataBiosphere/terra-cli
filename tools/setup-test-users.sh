@@ -15,38 +15,42 @@ set -e
 ##
 ## Dependencies: jq
 ## Inputs: adminUsersGroupEmail (arg, required) email address of the SAM group for admin users
-## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org
+##         testConfigFile (arg, required) relative path to the test config file
+##         terra (arg, optional) location of terra installation, useful if this is to be run outside the repo
+## Usage: ./tools/setup-test-users.sh  developer-admins@dev.test.firecloud.org src/test/resources/testconfigs/broad.json
 #     --> sets up the CLI test users and grants the developer-admins email ADMIN access to the cli-test-users SAM group
 
-# TODO(PF-1339): Rename to setup-broad-test-users.sh, add testconfig flag, and get test users from testconfig.
-
-## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [[ $(basename $PWD) != 'terra-cli' ]]; then
-  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
-  exit 1
-fi
-terra=$PWD/build/install/terra-cli/bin/terra
-
 adminUsersGroupEmail=$1
-if [[ -z "$adminUsersGroupEmail" ]]; then
-    >&2 echo "ERROR: Usage: ./setup-test-users.sh [adminUsersGroupEmail]"
+testConfigFile=$2
+terra=$3
+
+if [ -z "$adminUsersGroupEmail" ] || [ -z "$testConfigFile" ]; then
+    >&2 echo "ERROR: Usage: ./setup-test-users.sh [adminUsersGroupEmail] [testConfigFile]"
     exit 1
 fi
+
+if [[ -z "$terra" ]]; then
+  ## assumes that it is being run from the top-level directory "terra-cli/".
+  if [[ $(basename $PWD) != 'terra-cli' ]]; then
+    >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
+    exit 1
+  fi
+  terra=$PWD/build/install/terra-cli/bin/terra
+fi
+
+# Fetch test users from config file
+declare -a testUsersJson=(`jq -c '[.testUsers[]] | .[]' $2`)
 
 # invite all the test users if the server requires it
 echo
 echo "Checking whether the server requires inviting new users."
 requiresInvite=$($terra config get server --format=json | jq .samInviteRequiresAdmin)
+
 if [[ $requiresInvite == "true" ]]; then
   echo "Inviting test users."
-  declare -a testUsers=("Penelope.TwilightsHammer@test.firecloud.org"
-                  "John.Whiteclaw@test.firecloud.org"
-                  "Lily.Shadowmoon@test.firecloud.org"
-                  "Brooklyn.Thunderlord@test.firecloud.org"
-                  "Noah.Frostwolf@test.firecloud.org"
-                  "Ethan.Bonechewer@test.firecloud.org")
-  for testUser in "${testUsers[@]}"; do
-    $terra user status --email="$testUser" || $terra user invite --email="$testUser"
+  for userJson in "${testUsersJson[@]}"; do
+    userEmail=$(jq -r ".email" <<< "$userJson")
+    $terra user status --email="$userEmail" || $terra user invite --email="$userEmail"
   done
 else
   echo "Server does not require inviting new users."
@@ -67,30 +71,34 @@ echo
 echo "Granting the SAM group USER access to the spend profile."
 $terra spend enable --policy=USER --email=$groupEmail
 
-# penelope is an owner on both the cli-test-users group and the spend profile resource
-echo
-echo "Adding Penelope.TwilightsHammer as an ADMIN of the SAM group."
-$terra group add-user --name=$groupName --policy=ADMIN --email=Penelope.TwilightsHammer@test.firecloud.org
+for userJson in "${testUsersJson[@]}"; do
+    userEmail=$(jq -r ".email" <<< "$userJson")
+    spendEnabled=$(jq -r ".spendEnabled" <<< "$userJson")
 
-echo
-echo "Granting Penelope.TwilightsHammer OWNER access to the spend profile."
-$terra spend enable --policy=OWNER --email=Penelope.TwilightsHammer@test.firecloud.org
+    if [[ $spendEnabled == "OWNER" ]]; then
+      # owner on both the cli-test-users group and the spend profile resource
+      echo
+      echo "Adding $userEmail as an ADMIN of the SAM group."
+      $terra group add-user --name=$groupName --policy=ADMIN --email=$userEmail
+      echo
+      echo "Granting $userEmail OWNER access to the spend profile."
+      $terra spend enable --policy=OWNER --email=$userEmail
 
-# john and lily are members of the cli-test-users group
-echo
-echo "Adding John.Whiteclaw as a MEMBER of the SAM group."
-$terra group add-user --name=$groupName --policy=MEMBER --email=John.Whiteclaw@test.firecloud.org
-echo
-echo "Adding Lily.Shadowmoon as a MEMBER of the SAM group."
-$terra group add-user --name=$groupName --policy=MEMBER --email=Lily.Shadowmoon@test.firecloud.org
+    elif [[ $spendEnabled == "CLI_TEST_USERS_GROUP" ]]; then
+      # members of the cli-test-users group
+      echo
+      echo "Adding $userEmail as a MEMBER of the SAM group."
+      $terra group add-user --name=$groupName --policy=MEMBER --email=$userEmail
 
-# brooklyn and noah are users of the spend profile resource
-echo
-echo "Granting Brooklyn.Thunderlord USER access to the spend profile."
-$terra spend enable --policy=USER --email=Brooklyn.Thunderlord@test.firecloud.org
-echo
-echo "Granting Noah.Frostwolf USER access to the spend profile."
-$terra spend enable --policy=USER --email=Noah.Frostwolf@test.firecloud.org
+    elif [[ $spendEnabled == "DIRECTLY" ]]; then
+      # users of the spend profile resource
+      echo
+      echo "Adding $userEmail as a MEMBER of the SAM group."
+      $terra spend enable --policy=USER --email=$userEmail
 
-# ethan has no spend profile access
-# do nothing: Ethan.Bonechewer@test.firecloud.org
+    else
+      # no spend profile access
+      echo
+      echo "do nothing: $userEmail"
+    fi
+done
