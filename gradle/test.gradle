@@ -7,6 +7,50 @@ task runInstallForTesting(type: Exec) {
     dependsOn installDist
 }
 
+// Builds and returns a complete list of test tags to be executed on
+//      testType: 'unit' / 'integration'
+//      testTag: input from gradle command run
+//      cloudPlatform: input from gradle command run
+def getAllTestTags(String testType, String testTag, String cloudPlatform) {
+    def allTestTags = []
+    switch (testTag) {
+
+        case testType:
+            allTestTags.add(testType)
+            if (cloudPlatform == 'gcp') {
+                allTestTags.add(testType + '-gcp')
+            } else if (cloudPlatform == 'aws') {
+                allTestTags.add(testType + '-aws')
+            } else if (cloudPlatform == 'azure') {
+                allTestTags.add(testType + '-azure')
+            } else if (cloudPlatform == null) {  // run all tests
+                allTestTags.addAll([testType + '-gcp', testType + '-aws', testType + '-azure'])
+            }
+            break
+
+        case testType + '-gcp':
+            if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-gcp')
+            }
+            break
+
+        case testType + '-aws':
+            if ((cloudPlatform == 'aws') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-aws')
+            }
+            break
+
+        case testType + '-azure':
+            if ((cloudPlatform == 'azure') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-azure')
+            }
+            break
+        default:
+            break // no tests
+    }
+    return allTestTags
+}
+
 // run tests with the specified tag and install mode.
 // 1) run unit tests directly against the source code
 //    ./gradlew runTestsWithTag -PtestTag=unit
@@ -40,41 +84,7 @@ task runTestsWithTag(type: Test) {
             // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
             systemProperty('TERRA_CLI_VERSION', "${project.version}")
 
-            switch (testTag) {
-                case 'unit':
-                    allTestTags.add('unit')
-                    if (cloudPlatform == 'gcp') {
-                        allTestTags.add('unit-gcp')
-                    } else if (cloudPlatform == 'aws') {
-                        allTestTags.add('unit-aws')
-                    } else if (cloudPlatform == 'azure') {
-                        allTestTags.add('unit-azure')
-                    } else if (cloudPlatform == null) {  // run all tests
-                        allTestTags.addAll(['unit-gcp', 'unit-aws', 'unit-azure'])
-                    }
-                    break
-
-                case 'unit-gcp':
-                    if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
-                        allTestTags.add('unit-gcp')
-                    }
-                    break
-
-                case 'unit-aws':
-                    if ((cloudPlatform == 'aws') || (cloudPlatform == null)) {
-                        allTestTags.add('unit-aws')
-                    }
-                    break
-
-                case 'unit-azure':
-                    if ((cloudPlatform == 'azure') || (cloudPlatform == null)) {
-                        allTestTags.add('unit-azure')
-                    }
-                    break
-
-                default:
-                    break // no tests
-            }
+            allTestTags = getAllTestTags('unit', testTag, cloudPlatform)
 
         } else if (testTag.startsWith('integration')) {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
@@ -89,41 +99,7 @@ task runTestsWithTag(type: Test) {
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty('TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/")
 
-            switch (testTag) {
-                case 'integration':
-                    allTestTags.add('integration')
-                    if (cloudPlatform == 'gcp') {
-                        allTestTags.add('integration-gcp')
-                    } else if (cloudPlatform == 'aws') {
-                        allTestTags.add('integration-aws')
-                    } else if (cloudPlatform == 'azure') {
-                        allTestTags.add('integration-azure')
-                    } else if (cloudPlatform == null) {  // run all tests
-                        allTestTags.addAll(['integration-gcp', 'integration-aws', 'integration-azure'])
-                    }
-                    break
-
-                case 'integration-gcp':
-                    if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
-                        allTestTags.add('integration-gcp')
-                    }
-                    break
-
-                case 'integration-aws':
-                    if ((cloudPlatform == 'aws') || (cloudPlatform == null)) {
-                        allTestTags.add('integration-aws')
-                    }
-                    break
-
-                case 'integration-azure':
-                    if ((cloudPlatform == 'azure') || (cloudPlatform == null)) {
-                        allTestTags.add('integration-azure')
-                    }
-                    break
-
-                default:
-                    break // no tests
-            }
+            allTestTags = getAllTestTags('integration', testTag, cloudPlatform)
         }
 
         // tell junit to run tests with this tag: unit or integration
