@@ -24,11 +24,7 @@ resourceName="terraclitesting"
 bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
 echo "resourceName: $resourceName, bucketName: $bucketName"
 terra resource create gcs-bucket --name=$resourceName --bucket-name=$bucketName
-terra resource list
-# Wait for permissions to propagate on the new bucket before attempting to use it
-# TODO(PF-2333): It may be possible to lower this time in the future, but currently the user's pet regularly does not
-#  have access by 30 minutes post-waiting.
-sleep 3600
+terra resource describe --name=$resourceName
 
 # I will use an example Nextflow workflow from a GitHub repository [show webpage], and checkout a tag that I have tested beforehand. This is the same example workflow that is used on the GCP + Nextflow tutorial [show webpage].
 
