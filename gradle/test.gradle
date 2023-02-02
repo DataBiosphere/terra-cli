@@ -14,7 +14,6 @@ task runInstallForTesting(type: Exec) {
 def getAllTestTags(String testType, String testTag, String cloudPlatform) {
     def allTestTags = []
     switch (testTag) {
-
         case testType:
             allTestTags.add(testType)
             if (cloudPlatform == 'gcp') {
@@ -45,6 +44,7 @@ def getAllTestTags(String testType, String testTag, String cloudPlatform) {
                 allTestTags.add(testType + '-azure')
             }
             break
+
         default:
             break // no tests
     }
