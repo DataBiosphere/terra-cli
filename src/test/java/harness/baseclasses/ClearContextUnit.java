@@ -23,14 +23,24 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
   protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
-  private CloudPlatform cloudPlatform = CloudPlatform.GCP; // default platform
+
+  // default platform: GCP
+  private CloudPlatform cloudPlatform = CloudPlatform.GCP;
+  private String platformStorageName = "gcs-bucket";
 
   protected void setCloudPlatform(CloudPlatform cloudPlatform) {
+    if (cloudPlatform == CloudPlatform.GCP) {
+      platformStorageName = "gcs-bucket";
+    }
     this.cloudPlatform = cloudPlatform;
   }
 
   protected CloudPlatform getCloudPlatform() {
     return cloudPlatform;
+  }
+
+  protected String getPlatformStorageName() {
+    return platformStorageName;
   }
 
   /**

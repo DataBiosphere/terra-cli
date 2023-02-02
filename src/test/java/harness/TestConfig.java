@@ -3,6 +3,7 @@ package harness;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Test config that can vary between Terra deployments. */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
   private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";

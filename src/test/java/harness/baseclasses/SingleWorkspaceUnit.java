@@ -1,8 +1,6 @@
 package harness.baseclasses;
 
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
-import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.utils.WorkspaceUtils;
@@ -23,17 +21,9 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     return userFacingId;
   }
 
-  private String platformStorageName;
-
   @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
-    if (getCloudPlatform() == CloudPlatform.GCP) {
-      platformStorageName = "gcs-bucket";
-    } else {
-      throw new UserActionableException("Unsupported cloud platform " + getCloudPlatform());
-    }
-
     workspaceCreator.login();
 
     UFWorkspace createdWorkspace =
@@ -61,7 +51,7 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
-        platformStorageName,
+        getPlatformStorageName(),
         "--name=" + resourceName,
         "--bucket-name=" + bucketName);
   }
