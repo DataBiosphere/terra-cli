@@ -143,8 +143,8 @@ public class WorkspaceManagerService {
     this.server = server;
     this.apiClient = new ApiClient();
 
+    this.apiClient.setHttpClient(HttpClients.getWsmClient());
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
-    this.apiClient.setHttpClient(HttpClients.getJaxClient());
     if (accessToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired

@@ -17,20 +17,22 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
  * exceptions!). To avoid this, we maintain shared client objects
  */
 public class HttpClients {
-  private static final OkHttpClient okHttpClient;
-  private static final Client jaxClient;
+  private static final OkHttpClient samClient;
+  private static final Client wsmClient;
 
   static {
-    okHttpClient = new OkHttpClient.Builder().build();
-    jaxClient = buildjaxClient();
+    samClient = new OkHttpClient.Builder().build();
+    wsmClient = buildWsmClient();
   }
 
-  private static Client buildjaxClient() {
+  private static Client buildWsmClient() {
     final ClientConfig clientConfig = new ClientConfig();
     clientConfig.register(MultiPartFeature.class);
     clientConfig.register(new JSON());
     clientConfig.register(JacksonFeature.class);
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+    // For JDK17, we need to use this connection provider to work around the way Jersey
+    // implements PATCH
     clientConfig.connectorProvider(new JdkConnectorProvider());
     return ClientBuilder.newClient(clientConfig);
   }
@@ -38,11 +40,11 @@ public class HttpClients {
   private HttpClients() {}
   ;
 
-  public static OkHttpClient getOkHttpClient() {
-    return okHttpClient;
+  public static OkHttpClient getSamClient() {
+    return samClient;
   }
 
-  public static Client getJaxClient() {
-    return jaxClient;
+  public static Client getWsmClient() {
+    return wsmClient;
   }
 }

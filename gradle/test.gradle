@@ -134,7 +134,7 @@ task runTestsWithTag(type: Test) {
 
     outputs.upToDateWhen { false } // force tests to always be re-run
 
-    // TODO(PF-2333): Re-enable retries once flakiness is under control.
+    // TODO(PF-2465): Re-enable retries once flakiness is under control.
     //    retry {
     //        // This is set automatically on Github Actions runners, and never set
     //        // otherwise.

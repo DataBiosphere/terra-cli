@@ -56,7 +56,7 @@ public class SamService {
     this.server = server;
     this.apiClient = new ApiClient();
 
-    this.apiClient.setHttpClient(HttpClients.getOkHttpClient());
+    this.apiClient.setHttpClient(HttpClients.getSamClient());
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
     if (accessToken != null) {
