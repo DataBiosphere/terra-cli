@@ -39,14 +39,14 @@ public class GenerateConfig extends BaseCommand {
     @CommandLine.Option(
         names = "--workspace-bucket-name",
         required = true,
-        description = "Terra workspace bucket to hold Cromwell log files.")
+        description = "Terra workspace bucket used as the root of Cromwell workflow execution.")
     public String workspace_bucket_name;
 
     @CommandLine.Option(
         names = "--google-bucket-name",
         required = true,
         description =
-            "Google Cloud Storage bucket to hold Cromwell log files. For example: gs://bucket-name.")
+            "Google Cloud Storage bucket used as the root of Cromwell workflow execution. For example: gs://bucket-name.")
     public String google_bucket_name;
   }
 
