@@ -108,7 +108,7 @@ task runTestsWithTag(type: Test) {
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
         // work, but that's not a concern for dedicated CI machines.
         int localCores = System.getenv().containsKey('CI') ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
-        // Integration tests wrap various external command-line tools which often maintain their own global state.
+        // Integration te./gradlew runTestsWithTag -PtestTag=unit -Pplatform=aws -Pserver=verily-mc-feature-dev -PtestConfig=verilysts wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
         maxParallelForks = (testType == 'integration') ? 1 : localCores
     }
