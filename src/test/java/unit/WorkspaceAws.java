@@ -108,6 +108,7 @@ public class WorkspaceAws extends ClearContextUnit {
         matchingWorkspaces.get(0).landingZoneId,
         "workspace aws landing zone id matches that in list");
 
+    // TODO(TERRA-193) delete workspace
     // `terra workspace delete`
     // TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
@@ -133,6 +134,7 @@ public class WorkspaceAws extends ClearContextUnit {
     assertEquals(
         1, describedWorkspace.numResources, "workspace has 1 resource after creating bucket");
 
+    // TODO(TERRA-193) delete workspace
     // `terra workspace delete`
     // TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
