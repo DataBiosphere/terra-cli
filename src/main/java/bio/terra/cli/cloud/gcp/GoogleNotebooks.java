@@ -1,4 +1,4 @@
-package bio.terra.cli.service;
+package bio.terra.cli.cloud.gcp;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;

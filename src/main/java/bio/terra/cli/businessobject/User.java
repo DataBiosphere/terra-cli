@@ -1,10 +1,10 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
+import bio.terra.cli.cloud.gcp.GoogleOauth;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
-import bio.terra.cli.service.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -209,7 +209,7 @@ public class User {
     // just log an error here instead of throwing an exception, so that the workspace load will
     // will succeed and the user can delete the corrupted workspace
     Workspace currentWorkspace = Context.requireWorkspace();
-    String googleProjectId = currentWorkspace.getGoogleProjectId();
+    String googleProjectId = currentWorkspace.getGoogleProjectId().orElse(null);
     if (Strings.isNullOrEmpty(googleProjectId)) {
       logger.error("No Google context for the current workspace. Skip fetching pet SA from SAM.");
       return;
@@ -346,7 +346,7 @@ public class User {
 
   /** Get the access token for the pet SA credentials. */
   public AccessToken getPetSaAccessToken() {
-    String googleProjectId = Context.requireWorkspace().getGoogleProjectId();
+    String googleProjectId = Context.requireWorkspace().getRequiredGoogleProjectId();
     String accessTokenStr =
         SamService.forUser(this).getPetSaAccessTokenForProject(googleProjectId, PET_SA_SCOPES);
     return new AccessToken(accessTokenStr, null);

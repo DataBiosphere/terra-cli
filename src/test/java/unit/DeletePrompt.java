@@ -3,7 +3,6 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import harness.utils.SamGroups;
@@ -34,8 +33,8 @@ public class DeletePrompt extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
   }
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     // try to delete each group that was created by a method in this class
     trackedGroups.deleteAllTrackedGroups();
@@ -58,12 +57,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
   void noResponseAborts() {
     String resourceName = "noResponseAborts";
     String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "gcs-bucket",
-        "--name=" + resourceName,
-        "--bucket-name=" + bucketName);
+    createBucket(resourceName, bucketName);
 
     deleteResourceExpectAbort(resourceName, "n");
     deleteResourceExpectAbort(resourceName, "N");
@@ -90,7 +84,7 @@ public class DeletePrompt extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("prompt response is checked for groups delete")
-  void promptResponseCheckedByGroups() throws JsonProcessingException {
+  void promptResponseCheckedByGroups() {
     // `terra group create --name=$name`
     String name = SamGroups.randomGroupName();
     TestCommand.runCommandExpectSuccess("group", "create", "--name=" + name);
@@ -108,17 +102,12 @@ public class DeletePrompt extends SingleWorkspaceUnit {
   }
 
   /**
-   * Create a controlled GCS bucket resource and then delete it with the given prompt response.
-   * Expects the delete to succeed.
+   * Create a controlled storage resource and then delete it with the given prompt response. Expects
+   * the delete to succeed.
    */
   private void createAndDeleteBucketExpectSuccess(String resourceName, String promptResponse) {
     String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "gcs-bucket",
-        "--name=" + resourceName,
-        "--bucket-name=" + bucketName);
+    createBucket(resourceName, bucketName);
 
     ByteArrayInputStream stdIn =
         new ByteArrayInputStream(promptResponse.getBytes(StandardCharsets.UTF_8));

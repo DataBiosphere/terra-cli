@@ -6,13 +6,22 @@ import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
 import bio.terra.cloudres.google.storage.StorageCow;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
+import java.util.function.Predicate;
+import org.apache.http.HttpStatus;
 
 /** Utilities for working with the Terra Cloud Resource Library. */
 public class CrlUtils {
+
+  // For GCP permissions propagation, retry for up to 30 minutes.
+  public static final int GCP_RETRY_COUNT = 30;
+  public static final Duration GCP_RETRY_SLEEP_DURATION = Duration.ofSeconds(60);
+
   private static final ClientConfig clientConfig =
       ClientConfig.Builder.newBuilder().setClient("terra-cli").build();
 
@@ -48,5 +57,33 @@ public class CrlUtils {
     } catch (GeneralSecurityException | IOException ex) {
       throw new SystemException("Error creating Big Query client.", ex);
     }
+  }
+
+  public static boolean isGcpPermissionsError(Exception e) {
+    return ((e instanceof GoogleJsonResponseException)
+            && (((GoogleJsonResponseException) e).getStatusCode() == HttpStatus.SC_FORBIDDEN))
+        || ((e.getCause() instanceof GoogleJsonResponseException)
+            && (((GoogleJsonResponseException) e.getCause()).getStatusCode()
+                == HttpStatus.SC_FORBIDDEN));
+  }
+
+  public static <T, E extends Exception> T callGcpWithPermissionExceptionRetries(
+      HttpUtils.SupplierWithCheckedException<T, E> makeRequest) throws E, InterruptedException {
+    return HttpUtils.callWithRetries(
+        makeRequest,
+        CrlUtils::isGcpPermissionsError,
+        CrlUtils.GCP_RETRY_COUNT,
+        CrlUtils.GCP_RETRY_SLEEP_DURATION);
+  }
+
+  public static <T, E extends Exception> T callGcpWithPermissionExceptionRetries(
+      HttpUtils.SupplierWithCheckedException<T, E> makeRequest, Predicate<T> isDone)
+      throws E, InterruptedException {
+    return HttpUtils.pollWithRetries(
+        makeRequest,
+        isDone,
+        CrlUtils::isGcpPermissionsError,
+        CrlUtils.GCP_RETRY_COUNT,
+        CrlUtils.GCP_RETRY_SLEEP_DURATION);
   }
 }

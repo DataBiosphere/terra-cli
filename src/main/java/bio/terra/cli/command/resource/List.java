@@ -43,7 +43,7 @@ public class List extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     java.util.List<UFResource> resources =
-        Context.requireWorkspace().listResourcesAndSync().stream()
+        Context.requireWorkspace().listResources().stream()
             .filter(
                 (resource) -> {
                   boolean stewardshipMatches =

@@ -12,7 +12,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -27,16 +27,15 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test for CLI commands for GCS objects. */
-@Tag("unit")
-public class GcsObjectReferenced extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
   private BucketInfo externalBucket2;
 
   // name of blob in external bucket
-  private String externalBucketBlobName = "blobs/testBlob";
-  private String externalBucketBlobName2 = "blob2";
+  private final String externalBucketBlobName = "blobs/testBlob";
+  private final String externalBucketBlobName2 = "blob2";
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
@@ -55,8 +54,8 @@ public class GcsObjectReferenced extends SingleWorkspaceUnit {
         .collect(Collectors.toList());
   }
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();

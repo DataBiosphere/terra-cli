@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +20,8 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkspaceUser {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceUser.class);
-  private String email;
-  private List<Role> roles;
+  private final String email;
+  private final List<Role> roles;
   private UUID workspaceId;
 
   private WorkspaceUser(String email, List<Role> roles) {
@@ -87,7 +86,7 @@ public class WorkspaceUser {
    * @return a list of workspace users
    */
   public static List<WorkspaceUser> list(Workspace workspace) {
-    return listUsersInMap(workspace).values().stream().collect(Collectors.toList());
+    return new ArrayList<>(listUsersInMap(workspace).values());
   }
 
   /**
@@ -150,7 +149,7 @@ public class WorkspaceUser {
     WRITER(IamRole.WRITER),
     OWNER(IamRole.OWNER);
 
-    private IamRole wsmRole;
+    private final IamRole wsmRole;
 
     Role(IamRole wsmRole) {
       this.wsmRole = wsmRole;

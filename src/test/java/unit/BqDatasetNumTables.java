@@ -5,10 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
+import bio.terra.cli.service.utils.CrlUtils;
 import com.google.api.services.bigquery.model.DatasetReference;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalBQDatasets;
 import java.io.IOException;
@@ -19,16 +20,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for including the number of tables in a BQ dataset resource's description. */
-@Tag("unit")
-public class BqDatasetNumTables extends SingleWorkspaceUnit {
+@Tag("unit-gcp")
+public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
   // external dataset to use for creating BQ dataset references in the workspace
   private DatasetReference externalDataset;
 
   // name of tables in external dataset
-  private String externalTable = "testTable";
+  private final String externalTable = "testTable";
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalDataset = ExternalBQDatasets.createDataset();
@@ -65,14 +66,23 @@ public class BqDatasetNumTables extends SingleWorkspaceUnit {
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId`
     String name = "numTablesForControlled";
     String datasetId = randomDatasetId();
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFBqDataset.class,
+        "resource",
+        "create",
+        "bq-dataset",
+        "--name=" + name,
+        "--dataset-id=" + datasetId);
+
+    // poll until we can read the number of tables on the dataset. This may not be immediate as we
+    // need to wait for
+    // permissions to propagate on the new dataset.
     UFBqDataset createdDataset =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFBqDataset.class,
-            "resource",
-            "create",
-            "bq-dataset",
-            "--name=" + name,
-            "--dataset-id=" + datasetId);
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                TestCommand.runAndParseCommandExpectSuccess(
+                    UFBqDataset.class, "resource", "describe", "--name=" + name),
+            bqDataset -> bqDataset.numTables != null);
 
     // check that there are initially 0 tables reported in the dataset
     assertEquals(0, createdDataset.numTables, "created dataset contains 0 tables");

@@ -9,14 +9,19 @@ import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.api.gax.paging.Page;
 import com.google.cloud.Identity;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import harness.utils.TestUtils;
@@ -28,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
@@ -46,9 +52,8 @@ import org.junit.jupiter.api.Test;
  * global state in various places, and they will clobber eachother if they run in multiple test
  * runners at once.
  */
-@Tag("unit")
-public class PassthroughApps extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
   // external bucket to use for testing the JSON format against GCS directly
   private BucketInfo externalBucket;
 
@@ -63,12 +68,12 @@ public class PassthroughApps extends SingleWorkspaceUnit {
     // lifecycle rules
     ExternalGCSBuckets.grantWriteAccess(externalBucket, Identity.group(Auth.getProxyGroupEmail()));
 
-    // TODO: stolen from base class
+    // Clear gcloud directory before running these tests
     TestContext.clearGcloudConfigDirectory();
   }
 
-  @Override
   @AfterAll
+  @Override
   protected void cleanupOnce() throws Exception {
     super.cleanupOnce();
     ExternalGCSBuckets.deleteBucket(externalBucket);
@@ -186,18 +191,30 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
-  void gsutilGcloudAlphaStorageLs() throws IOException {
-
+  void gsutilGcloudAlphaStorageLs() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    UFWorkspace createdWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceName";
     String bucketName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
+
+    Storage localProjectStorageClient =
+        StorageOptions.newBuilder()
+            .setProjectId(createdWorkspace.googleProjectId)
+            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .build()
+            .getService();
+
+    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
+    Page<Bucket> createdBucketOnCloud =
+        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
 
     // `terra gsutil ls`
     TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");
@@ -206,19 +223,19 @@ public class PassthroughApps extends SingleWorkspaceUnit {
         "`gsutil ls` returns bucket");
 
     // `terra gcloud alpha storage ls`
-    cmd = TestCommand.runCommand("gcloud", "alpha", "storage", "ls");
+    cmd = TestCommand.runCommandExpectSuccessWithRetries("gcloud", "alpha", "storage", "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gcloud alpha storage ls` returns bucket");
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectSuccessWithRetries(
+        "resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
   @DisplayName("bq show dataset metadata")
   void bqShow() throws IOException {
-
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
@@ -296,6 +313,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("git clone resource")
   void gitCloneResource() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     String repo1 = TestUtils.appendRandomNumber("repo");
@@ -391,6 +409,7 @@ public class PassthroughApps extends SingleWorkspaceUnit {
   @DisplayName("CLI uses the same format as gsutil for setting lifecycle rules")
   void sameFormatForExternalBucket() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
+
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
@@ -422,10 +441,11 @@ public class PassthroughApps extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("gcloud and app execute respect workspace override")
-  void gcloudAppExecute() throws IOException {
+  void gcloudAppExecute() throws IOException, InterruptedException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
-    UFWorkspace workspace2 = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace workspace2 =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
 
     // Set workspace back to the original
     // `terra workspace set --id=$id1`

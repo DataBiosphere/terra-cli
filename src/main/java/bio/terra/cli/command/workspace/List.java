@@ -10,6 +10,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.WorkspaceDescription;
 import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -45,7 +46,7 @@ public class List extends WsmBaseCommand {
     formatOption.printReturnValue(
         UserIO.sortAndMap(
             Workspace.list(offset, limit),
-            Comparator.comparing(Workspace::getName),
+            Comparator.comparing(WorkspaceDescription::getUserFacingId),
             UFWorkspaceLight::new),
         this::printText);
   }

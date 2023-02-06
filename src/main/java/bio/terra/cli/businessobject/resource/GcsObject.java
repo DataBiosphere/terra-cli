@@ -61,7 +61,7 @@ public class GcsObject extends Resource {
     logger.info("Created GCS bucket object: {}", addedResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new GcsObject(addedResource);
   }
 

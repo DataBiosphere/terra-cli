@@ -6,12 +6,13 @@ import static unit.GcsBucketControlled.listBucketResourcesWithName;
 import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BucketInfo;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -25,17 +26,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle referenced GCS buckets. */
-@Tag("unit")
-public class GcsBucketReferenced extends SingleWorkspaceUnit {
-
+@Tag("unit-gcp")
+public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalSharedBucket;
   private BucketInfo externalPrivateBucket;
 
   private TestUser shareeUser;
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalSharedBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
@@ -53,8 +53,20 @@ public class GcsBucketReferenced extends SingleWorkspaceUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace", "add-user", "--email=" + shareeUser.email, "--role=WRITER");
     shareeUser.login();
+
     ExternalGCSBuckets.grantReadAccess(
         externalSharedBucket, Identity.group(Auth.getProxyGroupEmail()));
+
+    // Poll until both test users can fetch the actual GCS bucket, which may be delayed.
+    CrlUtils.callGcpWithPermissionExceptionRetries(
+        () ->
+            ExternalGCSBuckets.getStorageClient(
+                    workspaceCreator.getCredentialsWithCloudPlatformScope())
+                .list(externalSharedBucket.getName()));
+    CrlUtils.callGcpWithPermissionExceptionRetries(
+        () ->
+            ExternalGCSBuckets.getStorageClient(shareeUser.getCredentialsWithCloudPlatformScope())
+                .list(externalSharedBucket.getName()));
   }
 
   @AfterAll

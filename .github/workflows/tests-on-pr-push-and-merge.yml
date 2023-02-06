@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: Checkout current code
       id: checkout_code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
     - name: Set up JDK
@@ -41,7 +41,7 @@ jobs:
     steps:
     - name: Checkout current code
       id: checkout_code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
     - name: Set up JDK 17
@@ -52,7 +52,7 @@ jobs:
         java-version: 17
     - name: Cache Gradle packages
       id: cache_gradle
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -102,7 +102,7 @@ jobs:
         echo "Building new Docker image."
         imageTag="ghaTest"
         ./tools/build-docker.sh $imageTag # generates an image with this tag
-        echo "::set-output name=test_docker_image::-PdockerImage=terra-cli/local:$imageTag"
+        echo "test_docker_image=-PdockerImage=terra-cli/local:$imageTag" >> $GITHUB_OUTPUT
       env:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         GHA_EVENT_NAME: ${{ github.event_name }}
@@ -112,13 +112,13 @@ jobs:
         # runs against the default server: broad-dev
         echo "Running tests with tag: ${{ matrix.testTag }}"
         echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE
+        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE -PquietConsole
       env:
         TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
     - name: Archive logs and context file
       id: archive_logs_and_context
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logs-and-context-${{ matrix.testTag }}
         path: |

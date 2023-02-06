@@ -3,8 +3,8 @@ package harness.baseclasses;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import harness.TestCommand;
 import harness.TestContext;
-import harness.TestUser;
 import harness.utils.WorkspaceUtils;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
   private static String userFacingId;
 
   protected static String getUserFacingId() {
@@ -24,12 +23,11 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
   @BeforeAll
   protected void setupOnce() throws Exception {
-    TestContext.clearGlobalContextDir();
-    resetContext();
-
+    super.setupOnce();
     workspaceCreator.login();
 
-    UFWorkspace createdWorkspace = WorkspaceUtils.createWorkspace(workspaceCreator);
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(workspaceCreator, Optional.of(getCloudPlatform()));
     userFacingId = createdWorkspace.id;
   }
 
@@ -46,5 +44,15 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  protected void createBucket(String resourceName, String bucketName) {
+    // `terra resource create [bucket-type] --name=$name --bucket-name=$bucketName --format=json`
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        getPlatformStorageName(),
+        "--name=" + resourceName,
+        "--bucket-name=" + bucketName);
   }
 }

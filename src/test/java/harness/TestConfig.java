@@ -3,6 +3,7 @@ package harness;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
@@ -13,10 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Test config that can vary between Terra deployments. */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class TestConfig {
   private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
   private static final String TESTCONFIGS_RESOURCE_DIRECTORY = "testconfigs";
   private static TestConfig INSTANCE;
+
+  // suppress console logging ('stdin' & 'stdout' display)
+  private static boolean quietConsole;
   @JsonProperty private List<TestUser> testUsers;
   // Some CLI tests directly create external resources, eg FineGrainedAccessGcsObjectReference.java
   @JsonProperty private String projectForExternalResources;
@@ -37,12 +42,16 @@ public final class TestConfig {
 
   public static TestConfig get() {
     if (INSTANCE == null) {
-      String testConfigFileName = getTestConfigName() + ".json";
-      if (testConfigFileName == null || testConfigFileName.isEmpty()) {
-        throw new SystemException("TERRA_TEST_CONFIG_FILE_NAME must be set");
+      String testConfigName = getTestConfigName();
+      if (testConfigName == null || testConfigName.isEmpty()) {
+        throw new SystemException("TERRA_TEST_CONFIG_NAME must be set");
       }
+
+      String testConfigFileName = testConfigName + ".json";
       TestConfig testConfig = fromJsonFile(testConfigFileName);
       validateTestConfig(testConfig, testConfigFileName);
+
+      quietConsole = Boolean.parseBoolean(System.getProperty("TERRA_TEST_QUIET_CONSOLE"));
       INSTANCE = testConfig;
     }
     return INSTANCE;
@@ -110,5 +119,9 @@ public final class TestConfig {
 
   public String getJanitorPubSubProjectId() {
     return janitorPubSubProjectId;
+  }
+
+  public static boolean getQuietConsole() {
+    return quietConsole;
   }
 }

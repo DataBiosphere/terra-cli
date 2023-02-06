@@ -1,13 +1,18 @@
 package bio.terra.cli.serialization.userfacing;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.CloudPlatform;
+import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
+import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** This is used instead of UFWorkspace, if workspace resources aren't needed. */
 public class UFWorkspaceLight {
@@ -23,7 +28,6 @@ public class UFWorkspaceLight {
   public String userEmail;
   public OffsetDateTime createdDate;
   public OffsetDateTime lastUpdatedDate;
-  public String spendProfile;
 
   /**
    * It's expected that the workspace passed into this constructor does not have its resources
@@ -33,16 +37,41 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
-    this.name = internalObj.getName();
-    this.description = internalObj.getDescription();
+    this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.cloudPlatform = internalObj.getCloudPlatform();
-    this.googleProjectId = internalObj.getGoogleProjectId();
-    this.properties = internalObj.getProperties();
-    this.serverName = internalObj.getServerName();
-    this.userEmail = internalObj.getUserEmail();
-    this.createdDate = internalObj.getCreatedDate();
-    this.lastUpdatedDate = internalObj.getLastUpdatedDate();
-    this.spendProfile = internalObj.getSpendProfile();
+
+    WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
+    this.name = workspaceDescription.getDisplayName();
+    this.description = workspaceDescription.getDescription();
+    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.userEmail = Context.requireUser().getEmail();
+    this.serverName = Context.getServer().getName();
+    this.createdDate = workspaceDescription.getCreatedDate();
+    this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
+  }
+
+  /**
+   * This constructor can be used instead of {@link UFWorkspaceLight#UFWorkspaceLight(Workspace)} if
+   * you already have a WorkspaceDescription object from WSM to avoid making additional calls.
+   *
+   * @param workspaceDescription
+   */
+  public UFWorkspaceLight(WorkspaceDescription workspaceDescription) {
+    this.id = workspaceDescription.getUserFacingId();
+    this.name = workspaceDescription.getDisplayName();
+    this.description = workspaceDescription.getDescription();
+    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.userEmail = Context.requireUser().getEmail();
+    this.serverName = Context.getServer().getName();
+    this.createdDate = workspaceDescription.getCreatedDate();
+    this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
+
+    if (workspaceDescription.getGcpContext() != null) {
+      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
+      this.cloudPlatform = CloudPlatform.GCP;
+    } else if (workspaceDescription.getAzureContext() != null) {
+      this.cloudPlatform = CloudPlatform.AZURE;
+    }
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -57,7 +86,6 @@ public class UFWorkspaceLight {
     this.userEmail = builder.userEmail;
     this.createdDate = builder.createdDate;
     this.lastUpdatedDate = builder.lastUpdatedDate;
-    this.spendProfile = builder.spendProfile;
   }
 
   /** Default constructor for subclass Builder constructor */
@@ -72,7 +100,6 @@ public class UFWorkspaceLight {
     this.userEmail = null;
     this.createdDate = null;
     this.lastUpdatedDate = null;
-    this.spendProfile = null;
   }
 
   /** Print out a workspace object in text format. */
@@ -83,17 +110,17 @@ public class UFWorkspaceLight {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
+    OUT.println("Cloud Platform:    " + cloudPlatform);
     if (cloudPlatform == CloudPlatform.GCP) {
       OUT.println("Google project:    " + googleProjectId);
       OUT.println(
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
     }
-    if (properties == null) {
-      return;
+    if (properties != null) {
+      OUT.println("Properties:");
+      properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     }
-    OUT.println("Properties:");
-    properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
     OUT.println("Created:           " + createdDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
     OUT.println("Last updated:      " + lastUpdatedDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
@@ -112,7 +139,6 @@ public class UFWorkspaceLight {
     private String userEmail;
     private OffsetDateTime createdDate;
     private OffsetDateTime lastUpdatedDate;
-    private String spendProfile;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -167,14 +193,13 @@ public class UFWorkspaceLight {
       return this;
     }
 
-    public UFWorkspaceLight.Builder spendProfile(String spendProfile) {
-      this.spendProfile = spendProfile;
-      return this;
-    }
-
     /** Call the private constructor. */
     public UFWorkspaceLight build() {
       return new UFWorkspaceLight(this);
     }
+  }
+
+  private static Map<String, String> propertiesToStringMap(Properties properties) {
+    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 }

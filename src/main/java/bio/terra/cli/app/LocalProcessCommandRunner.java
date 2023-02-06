@@ -4,6 +4,7 @@ import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.PassthroughException;
+import bio.terra.workspace.model.CloudPlatform;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +33,21 @@ public class LocalProcessCommandRunner extends CommandRunner {
    */
   protected String wrapCommandInSetupCleanup(List<String> command) {
     List<String> bashCommands = new ArrayList<>();
-    bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
-    bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
-    bashCommands.add(
-        "gcloud config set project " + Context.requireWorkspace().getGoogleProjectId());
+    boolean isGcpWorkspace =
+        CloudPlatform.GCP.equals(Context.requireWorkspace().getCloudPlatform());
+    if (isGcpWorkspace) {
+      bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
+      bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
+      bashCommands.add(
+          "gcloud config set project " + Context.requireWorkspace().getRequiredGoogleProjectId());
+    }
     bashCommands.add(buildFullCommand(command));
-    bashCommands.add(
-        "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
-    bashCommands.add(
-        "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config unset project; else gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; fi");
+    if (isGcpWorkspace) {
+      bashCommands.add(
+          "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
+      bashCommands.add(
+          "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config unset project; else gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; fi");
+    }
     return String.join("; ", bashCommands);
   }
 
@@ -78,6 +85,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
       }
     }
 
+    return runBashCommand(command, envVars);
+  }
+
+  public static int runBashCommand(String command, Map<String, String> envVars) {
     List<String> processCommand = new ArrayList<>();
     processCommand.add("bash");
     processCommand.add("-ce");

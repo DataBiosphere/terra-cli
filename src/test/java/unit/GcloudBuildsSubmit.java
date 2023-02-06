@@ -4,8 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.utils.ExternalGCSBuckets;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
@@ -15,11 +21,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra gcloud builds submit` commands. */
-@Tag("unit")
-public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
-
-  @BeforeAll
+@Tag("unit-gcp")
+public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     new File("./Dockerfile").createNewFile();
@@ -36,7 +41,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
   @Test
   @DisplayName("builds submit --gcs-bucket")
-  void build() throws IOException {
+  void build() throws IOException, InterruptedException {
     Server server = Context.getServer();
     if (!server.getCloudBuildEnabled()) {
       return;
@@ -48,8 +53,17 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnit {
 
     // `terra resource create gcs-bucket --name=$name --format=json`
     String bucketResourceName = "resourceName";
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
+    UFGcsBucket createdBucket =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcsBucket.class, "resource", "create", "gcs-bucket", "--name=" + bucketResourceName);
+
+    // Poll until the test user can fetch the bucket, which may be delayed.
+    Storage ownerClient =
+        ExternalGCSBuckets.getStorageClient(
+            workspaceCreator.getCredentialsWithCloudPlatformScope());
+    Page<Blob> bucketContents =
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () -> ownerClient.get(createdBucket.bucketName).list());
 
     // `builds submit --async --gcs-bucket-resource=bucketName --tag=$tag`
     TestCommand.runCommandExpectSuccess(

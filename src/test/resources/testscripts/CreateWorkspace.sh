@@ -11,6 +11,9 @@ if [[ "true" == "$isLoggedIn" ]]; then
   echo "User $currentUser is logged in. Creating a new workspace."
   terra workspace create --id=my-workspace-$RANDOM
   terra auth status
+  # Polling for GCP permissions is difficult as the test user may not have gcloud credentials available,
+  # so instead this is a static wait to compensate for the delay in syncing IAM permissions in GCP.
+  sleep 600
 else
   echo "No user is logged in. Skipping creating a new workspace."
 fi

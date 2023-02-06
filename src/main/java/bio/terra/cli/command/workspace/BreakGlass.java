@@ -3,11 +3,13 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
+import bio.terra.cli.cloud.gcp.GoogleOauth;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.service.GoogleOauth;
+import bio.terra.workspace.model.GcpContext;
+import bio.terra.workspace.model.WorkspaceDescription;
 import com.google.api.client.util.DateTime;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.bigquery.BigQuery;
@@ -146,9 +148,14 @@ public class BreakGlass extends WsmBaseCommand {
     rowContent.put("serverName", Context.getServer().getName());
     rowContent.put("serverWsmUri", Context.getServer().getWorkspaceManagerUri());
     rowContent.put("workspaceId", Context.requireWorkspace().getUuid().toString());
-    rowContent.put("googleProjectId", Context.requireWorkspace().getGoogleProjectId());
-    rowContent.put("workspaceName", Context.requireWorkspace().getName());
-    rowContent.put("workspaceDescription", Context.requireWorkspace().getDescription());
+    WorkspaceDescription workspaceDescription =
+        Context.requireWorkspace().getWorkspaceDescription();
+    GcpContext gcpContext = workspaceDescription.getGcpContext();
+    if (gcpContext != null) {
+      rowContent.put("googleProjectId", gcpContext.getProjectId());
+    }
+    rowContent.put("workspaceName", workspaceDescription.getDisplayName());
+    rowContent.put("workspaceDescription", workspaceDescription.getDescription());
     rowContent.put("granterEmail", Context.requireUser().getEmail());
     rowContent.put("requestNotes", notes);
 

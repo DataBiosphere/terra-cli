@@ -2,12 +2,12 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.cloud.gcp.GoogleNotebooks;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDGcpNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
-import bio.terra.cli.service.GoogleNotebooks;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
  */
 public class GcpNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(GcpNotebook.class);
-  private String projectId;
-  private String instanceId;
-  private String location;
+  private final String projectId;
+  private final String instanceId;
+  private final String location;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public GcpNotebook(PDGcpNotebook configFromDisk) {
@@ -74,7 +74,7 @@ public class GcpNotebook extends Resource {
     logger.info("Created GCP notebook: {}", createdResource);
 
     // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResourcesAndSync();
+    Context.requireWorkspace().listResources();
     return new GcpNotebook(createdResource);
   }
 

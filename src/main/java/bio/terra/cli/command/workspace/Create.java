@@ -39,9 +39,8 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    String spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
 
-    CommandUtils.checkPlatformSupport(cloudPlatform);
+    CommandUtils.checkServerSupport(cloudPlatform);
 
     Workspace workspace =
         Workspace.create(
@@ -50,7 +49,7 @@ public class Create extends WsmBaseCommand {
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties,
-            spendProfile);
+            UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null));
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 

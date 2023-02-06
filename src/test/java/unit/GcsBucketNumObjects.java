@@ -4,13 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.utils.CrlUtils;
 import com.google.cloud.Identity;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import harness.TestCommand;
 import harness.TestUser;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.Auth;
 import harness.utils.ExternalGCSBuckets;
 import java.io.IOException;
@@ -22,16 +23,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for including the number of objects in a GCS bucket resource's description. */
-@Tag("unit")
-public class GcsBucketNumObjects extends SingleWorkspaceUnit {
+@Tag("unit-gcp")
+public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
   // external bucket to use for creating GCS bucket references in the workspace
   private BucketInfo externalBucket;
 
   // name of blob in external bucket
-  private String externalBucketBlobName = "testBlob";
+  private final String externalBucketBlobName = "testBlob";
 
-  @BeforeAll
   @Override
+  @BeforeAll
   protected void setupOnce() throws Exception {
     super.setupOnce();
     externalBucket = ExternalGCSBuckets.createBucketWithUniformAccess();
@@ -79,14 +80,23 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnit {
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "numObjectsForControlled";
     String bucketName = UUID.randomUUID().toString();
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcsBucket.class,
+        "resource",
+        "create",
+        "gcs-bucket",
+        "--name=" + name,
+        "--bucket-name=" + bucketName);
+
+    // poll until we can read the number of tables on the dataset. This may not be immediate as we
+    // need to wait for
+    // permissions to propagate on the new dataset.
     UFGcsBucket createdBucket =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcsBucket.class,
-            "resource",
-            "create",
-            "gcs-bucket",
-            "--name=" + name,
-            "--bucket-name=" + bucketName);
+        CrlUtils.callGcpWithPermissionExceptionRetries(
+            () ->
+                TestCommand.runAndParseCommandExpectSuccess(
+                    UFGcsBucket.class, "resource", "describe", "--name=" + name),
+            gcsBucket -> gcsBucket.numObjects != null);
 
     // check that there are initially 0 objects reported in the bucket
     assertEquals(0, createdBucket.numObjects, "created bucket contains 0 objects");

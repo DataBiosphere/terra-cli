@@ -8,6 +8,8 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import picocli.CommandLine;
@@ -49,6 +51,8 @@ public class GcsObject extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
+
     // build the resource object to add
     CreateResourceParams.Builder createResourceParams =
         referencedResourceCreationOptions.populateMetadataFields();
