@@ -1,3 +1,10 @@
+# Expected usage: NextflowRnaseqSetup.sh {resourceName}
+resourceName=$1
+if [[ -z "$resourceName" ]]; then
+  echo "Expected usage: NextflowRnaseqSetup.sh {resourceName}"
+  return 1
+fi
+
 # Nextflow users modify the nextflow.config file to specify where to run the batch jobs. I will modify the gls section because I will run against the Google Life Sciences Pipelines API.
 terra nextflow -version
 
@@ -11,7 +18,6 @@ terra nextflow -version
 #      google.lifeSciences.network = 'network'
 #      google.lifeSciences.subnetwork = 'subnetwork'
 mv rnaseq-nf/nextflow.config rnaseq-nf/nextflow.config_original
-resourceName="terraclitesting"
 sed "s\
 ;      workDir = 'gs://rnaseq-nf/scratch' // <- replace with your own bucket\!\
 ;      workDir = \"\$TERRA_$resourceName/scratch\"\

@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 ## This script runs a demo Nextflow workflow on the GLS Pipelines API. The inline comments are talking notes for a demo.
+# Expected usage: NextflowRnaseqSetup.sh {resourceName}
+resourceName=$1
+if [[ -z "$resourceName" ]]; then
+  echo "Expected usage: NextflowRnaseqSetup.sh {resourceName}"
+  return 1
+fi
 
 # [Before demo]
 #   - Run through commands once
@@ -20,7 +26,6 @@ terra status
 # Bucket names must be globally unique, so use a random UUID with the dashes removed for the bucket name.
 # Terra resource names must only be unique within the workspace, so use a fixed string for the resource name.
 
-resourceName="terraclitesting"
 bucketName=$(uuidgen | tr "[:upper:]" "[:lower:]" | sed -e 's/-//g')
 echo "resourceName: $resourceName, bucketName: $bucketName"
 terra resource create gcs-bucket --name=$resourceName --bucket-name=$bucketName
