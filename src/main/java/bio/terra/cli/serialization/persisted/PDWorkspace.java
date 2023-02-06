@@ -39,7 +39,7 @@ public class PDWorkspace {
   public static class Builder {
     private UUID uuid;
     private String userFacingId;
-    public String googleProjectId;
+    private String googleProjectId;
     private CloudPlatform cloudPlatform;
 
     /** Default constructor for Jackson. */
