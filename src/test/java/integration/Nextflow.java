@@ -56,7 +56,15 @@ public class Nextflow extends ClearContextIntegration {
     assertEquals(0, exitCode, "workspace created without errors");
 
     // run the script that downloads the NF workflow from GH and runs it
-    exitCode = TestBashScript.runScript("NextflowRnaseq.sh");
+    TestBashScript.runScript("NextflowRnaseqSetup.sh");
+
+    // Try running the script once, which will likely (but not definitely) fail due to missing
+    // permissions on the bucket.
+    TestBashScript.runScript("NextflowRnaseqWorkflow.sh");
+
+    // Try running the script a second time. After the first run, the user is much more likely to
+    // have bucket permissions.
+    exitCode = TestBashScript.runScript("NextflowRnaseqWorkflow.sh");
 
     // check that the NF script ran successfully
     assertEquals(0, exitCode, "script completed without errors");

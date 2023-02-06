@@ -21,7 +21,7 @@ public class TestBashScript {
    * Executes a test script in a separate process from the current working directory.
    *
    * @param scriptName name of the script in the test/resources/testscripts directory (e.g.
-   *     NextflowRnaseq.sh)
+   *     NextflowRnaseqSetup.sh)
    * @return process exit code
    */
   public static int runScript(String scriptName) {
