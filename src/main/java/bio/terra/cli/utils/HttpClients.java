@@ -5,9 +5,9 @@ import okhttp3.OkHttpClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 
 /**
- * Many client libraries for Terra services maintain their own threadpools, but the CLI constantly
- * creates and deletes these clients, leading to a lot of hanging threads (and OutOfMemory
- * exceptions!). To avoid this, we maintain shared client objects
+ * Many client libraries for Terra services maintain their own thread pools, but the CLI constantly
+ * creates and deletes these clients, leading to a lot of hanging threads and memory problems (especially during tests).
+ * To avoid this, we maintain shared client objects
  */
 public class HttpClients {
   private static final OkHttpClient samClient;
@@ -19,7 +19,6 @@ public class HttpClients {
   }
 
   private HttpClients() {}
-  ;
 
   public static OkHttpClient getSamClient() {
     return samClient;
