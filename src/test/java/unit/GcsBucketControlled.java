@@ -409,7 +409,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("update a controlled GCS bucket, specifying multiple properties, except for lifecycle")
+  @DisplayName(
+      "update a controlled GCS bucket, specifying multiple properties, except for lifecycle")
   void updateMultiplePropertiesGcs() throws IOException {
     workspaceCreator.login();
 

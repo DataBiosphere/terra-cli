@@ -5,6 +5,4 @@ import org.junit.jupiter.api.Tag;
 
 /** Tests for the `terra resource` commands that handle controlled AWS buckets. */
 @Tag("unit-aws")
-public class AwsBucketNumObjects extends SingleWorkspaceUnitAws {
-
-}
+public class AwsBucketNumObjects extends SingleWorkspaceUnitAws {}
