@@ -39,6 +39,7 @@ public class PDWorkspace {
   public static class Builder {
     private UUID uuid;
     private String userFacingId;
+    public String googleProjectId;
     private CloudPlatform cloudPlatform;
 
     /** Default constructor for Jackson. */
@@ -61,11 +62,6 @@ public class PDWorkspace {
 
     public Builder cloudPlatform(CloudPlatform cloudPlatform) {
       this.cloudPlatform = cloudPlatform;
-      return this;
-    }
-
-    public Builder spendProfile(String spendProfile) {
-      this.spendProfile = spendProfile;
       return this;
     }
 

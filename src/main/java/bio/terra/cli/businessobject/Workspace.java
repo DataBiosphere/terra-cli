@@ -359,8 +359,4 @@ public class Workspace {
   public WorkspaceDescription getWorkspaceDescription() {
     return WorkspaceManagerService.fromContext().getWorkspace(uuid);
   }
-
-  public String getSpendProfile() {
-    return spendProfile;
-  }
 }
