@@ -28,6 +28,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParams;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.ControlledAwsResourceApi;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
@@ -161,6 +162,7 @@ public class WorkspaceManagerService {
     this.server = server;
     this.apiClient = new ApiClient();
 
+    this.apiClient.setHttpClient(HttpClients.getWsmClient());
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
     if (accessToken != null) {
       // fetch the user access token
