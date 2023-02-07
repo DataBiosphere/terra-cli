@@ -4,8 +4,8 @@ import static harness.utils.ExternalBQDatasets.randomDatasetId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static unit.BqDatasetControlled.listDatasetResourcesWithName;
 import static unit.BqDatasetControlled.listOneDatasetResourceWithName;
-import static unit.GcsBucketControlled.listBucketResourcesWithName;
-import static unit.GcsBucketControlled.listOneBucketResourceWithName;
+import static unit.GcsBucketControlled.listBucketResourcesWithNameGcs;
+import static unit.GcsBucketControlled.listOneBucketResourceWithNameGcs;
 
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
@@ -136,12 +136,12 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
     // check that workspace 2 contains both referenced resources above and workspace 1 does not
 
     // `terra resource list --type=GCS_BUCKET --workspace=$id2`
-    UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
+    UFGcsBucket matchedBucket = listOneBucketResourceWithNameGcs(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
     // `terra resource list --type=GCS_BUCKET`
-    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
+    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithNameGcs(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
     // `terra resource list --type=BQ_DATASET --workspace=$id2`
@@ -230,12 +230,12 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
     // check that workspace 2 contains both controlled resources above and workspace 1 does not
 
     // `terra resource list --type=GCS_BUCKET --workspace=$id2`
-    UFGcsBucket matchedBucket = listOneBucketResourceWithName(resourceNameBucket, workspace2.id);
+    UFGcsBucket matchedBucket = listOneBucketResourceWithNameGcs(resourceNameBucket, workspace2.id);
     assertEquals(
         resourceNameBucket, matchedBucket.name, "list output for workspace 2 matches bucket name");
 
     // `terra resource list --type=GCS_BUCKET`
-    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithName(resourceNameBucket);
+    List<UFGcsBucket> matchedBuckets = listBucketResourcesWithNameGcs(resourceNameBucket);
     assertEquals(0, matchedBuckets.size(), "list output for bucket in workspace 1 is empty");
 
     // `terra resource list --type=BQ_DATASET --workspace=$id2`
