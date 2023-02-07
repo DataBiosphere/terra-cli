@@ -44,10 +44,10 @@ public class SpendProfileManagerService {
    * @param spendProfile name of the spend profile resource
    */
   public void enableUserForSpendProfile(
-      SpendProfilePolicy policy, String email, String spendProfile) {
+      SpendProfilePolicy policy, String email, String spendProfile, boolean saveToUserProfile) {
     samService.addUserToResourceOrInviteUser(
         SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policy.getSamPolicy(), email);
-    if (userManagerService != null) {
+    if (userManagerService != null && saveToUserProfile) {
       userManagerService.setDefaultSpendProfile(email, spendProfile);
     }
   }
