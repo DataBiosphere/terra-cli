@@ -25,7 +25,7 @@ public class AwsBucketUtils {
    * current workspace.
    */
   public static UFAwsBucket listOneBucketResourceWithNameAws(String resourceName)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     return listOneBucketResourceWithNameAws(resourceName, null);
   }
 
@@ -34,9 +34,9 @@ public class AwsBucketUtils {
    * the specified workspace id; Uses the current workspace if null.
    */
   static UFAwsBucket listOneBucketResourceWithNameAws(
-          String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     List<UFAwsBucket> matchedResources =
-            listBucketResourcesWithNameAws(resourceName, workspaceUserFacingId);
+        listBucketResourcesWithNameAws(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -47,7 +47,7 @@ public class AwsBucketUtils {
    * name. Uses the current workspace.
    */
   static List<UFAwsBucket> listBucketResourcesWithNameAws(String resourceName)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     return listBucketResourcesWithNameAws(resourceName, null);
   }
 
@@ -56,22 +56,22 @@ public class AwsBucketUtils {
    * name and workspace (uses the current workspace if null).
    */
   static List<UFAwsBucket> listBucketResourcesWithNameAws(
-          String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=AWS_BUCKET --format=json`
     List<UFAwsBucket> listedResources =
-            workspaceUserFacingId == null
-                    ? TestCommand.runAndParseCommandExpectSuccess(
-                    new TypeReference<>() {}, "resource", "list", "--type=AWS_BUCKET")
-                    : TestCommand.runAndParseCommandExpectSuccess(
-                    new TypeReference<>() {},
-                    "resource",
-                    "list",
-                    "--type=AWS_BUCKET",
-                    "--workspace=" + workspaceUserFacingId);
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resource", "list", "--type=AWS_BUCKET")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resource",
+                "list",
+                "--type=AWS_BUCKET",
+                "--workspace=" + workspaceUserFacingId);
 
     // find the matching bucket in the list
     return listedResources.stream()
-            .filter(resource -> resource.name.equals(resourceName))
-            .collect(Collectors.toList());
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
   }
 }

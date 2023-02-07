@@ -88,8 +88,7 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
     // String resolvedString = String.valueOf(resolved.get(resourceName));
 
     assertTrue(
-        AwsBucketUtils.verifyS3Path(
-            String.valueOf(resolved.get(resourceName)), resourceName, true),
+        AwsBucketUtils.verifyS3Path(String.valueOf(resolved.get(resourceName)), resourceName, true),
         "default resolve includes s3:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`

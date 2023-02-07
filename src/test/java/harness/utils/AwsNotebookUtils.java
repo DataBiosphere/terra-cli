@@ -16,7 +16,7 @@ public class AwsNotebookUtils {
    * given. Uses the current workspace.
    */
   public static void assertNotebookState(String resourceName, NotebookInstanceStatus notebookState)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     assertNotebookState(resourceName, notebookState, null);
   }
 
@@ -25,23 +25,23 @@ public class AwsNotebookUtils {
    * given. Filters on the specified workspace id; Uses the current workspace if null.
    */
   public static void assertNotebookState(
-          String resourceName, NotebookInstanceStatus notebookState, String workspaceUserFacingId)
-          throws JsonProcessingException {
+      String resourceName, NotebookInstanceStatus notebookState, String workspaceUserFacingId)
+      throws JsonProcessingException {
     UFAwsNotebook describeNotebook =
-            workspaceUserFacingId == null
-                    ? TestCommand.runAndParseCommandExpectSuccess(
-                    UFAwsNotebook.class, "resource", "describe", "--name=" + resourceName)
-                    : TestCommand.runAndParseCommandExpectSuccess(
-                    UFAwsNotebook.class,
-                    "resource",
-                    "describe",
-                    "--name=" + resourceName,
-                    "--workspace=" + workspaceUserFacingId);
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                UFAwsNotebook.class, "resource", "describe", "--name=" + resourceName)
+            : TestCommand.runAndParseCommandExpectSuccess(
+                UFAwsNotebook.class,
+                "resource",
+                "describe",
+                "--name=" + resourceName,
+                "--workspace=" + workspaceUserFacingId);
     // TODO(TERRA-368)
-    //assertEquals(notebookState, describeNotebook.state, "notebook state matches");
-    //if (!notebookState.equals("PROVISIONING")) {
+    // assertEquals(notebookState, describeNotebook.state, "notebook state matches");
+    // if (!notebookState.equals("PROVISIONING")) {
     //  assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
-    //}
+    // }
   }
 
   /**
@@ -49,7 +49,7 @@ public class AwsNotebookUtils {
    * current workspace.
    */
   public static UFAwsNotebook listOneNotebookResourceWithName(String resourceName)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     return listOneNotebookResourceWithName(resourceName, null);
   }
 
@@ -58,9 +58,9 @@ public class AwsNotebookUtils {
    * the specified workspace id; Uses the current workspace if null.
    */
   public static UFAwsNotebook listOneNotebookResourceWithName(
-          String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     List<UFAwsNotebook> matchedResources =
-            listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
+        listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -71,7 +71,7 @@ public class AwsNotebookUtils {
    * name. Uses the current workspace.
    */
   public static List<UFAwsNotebook> listNotebookResourcesWithName(String resourceName)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     return listNotebookResourcesWithName(resourceName, null);
   }
 
@@ -80,22 +80,22 @@ public class AwsNotebookUtils {
    * name. Filters on the specified workspace id; Uses the current workspace if null.
    */
   public static List<UFAwsNotebook> listNotebookResourcesWithName(
-          String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=AWS_SAGEMAKER_NOTEBOOK --format=json`
     List<UFAwsNotebook> listedResources =
-            workspaceUserFacingId == null
-                    ? TestCommand.runAndParseCommandExpectSuccess(
-                    new TypeReference<>() {}, "resource", "list", "--type=AWS_SAGEMAKER_NOTEBOOK")
-                    : TestCommand.runAndParseCommandExpectSuccess(
-                    new TypeReference<>() {},
-                    "resource",
-                    "list",
-                    "--type=AWS_SAGEMAKER_NOTEBOOK",
-                    "--workspace=" + workspaceUserFacingId);
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resource", "list", "--type=AWS_SAGEMAKER_NOTEBOOK")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resource",
+                "list",
+                "--type=AWS_SAGEMAKER_NOTEBOOK",
+                "--workspace=" + workspaceUserFacingId);
 
     // find the matching notebook in the list
     return listedResources.stream()
-            .filter(resource -> resource.name.equals(resourceName))
-            .collect(Collectors.toList());
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
   }
 }
