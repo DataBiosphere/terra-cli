@@ -124,9 +124,10 @@ public class WorkspaceAws extends ClearContextUnit {
         WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
-    // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName`
-    String bucketName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess("resource", "create", "aws-bucket", "--name=" + bucketName);
+    // `terra resource create aws-bucket --name=$name --bucket-name=$bucketName`
+    String resourceName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "aws-bucket", "--name=" + resourceName);
 
     // `terra workspace describe`
     UFWorkspace describedWorkspace =

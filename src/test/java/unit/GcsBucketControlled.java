@@ -42,9 +42,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFGcsBucket listOneBucketResourceWithNameGcs(String resourceName, String userFacingId)
-      throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithNameGcs(resourceName, userFacingId);
+  static UFGcsBucket listOneBucketResourceWithNameGcs(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources =
+        listBucketResourcesWithNameGcs(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
