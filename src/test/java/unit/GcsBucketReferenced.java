@@ -2,8 +2,8 @@ package unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static unit.GcsBucketControlled.listBucketResourcesWithNameGcs;
-import static unit.GcsBucketControlled.listOneBucketResourceWithNameGcs;
+import static unit.GcsBucketControlled.listBucketResourcesWithName;
+import static unit.GcsBucketControlled.listOneBucketResourceWithName;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -106,7 +106,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
         "add ref output matches bucket name");
 
     // check that the bucket is in the list
-    UFGcsBucket matchedResource = listOneBucketResourceWithNameGcs(name);
+    UFGcsBucket matchedResource = listOneBucketResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
     assertEquals(
         externalSharedBucket.getName(),
@@ -155,7 +155,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // check that the bucket is not in the list
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithNameGcs(name);
+    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(name);
     assertEquals(0, matchedResources.size(), "no resource found with this name");
   }
 

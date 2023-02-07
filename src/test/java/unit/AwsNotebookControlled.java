@@ -3,53 +3,111 @@ package unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import harness.baseclasses.SingleWorkspaceUnitGcp;
+import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.GcpNotebookUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the `terra resource` commands that handle controlled GCP notebooks. */
-@Tag("unit-gcp")
-public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
+/** Tests for the `terra resource` commands that handle controlled Aws notebooks. */
+@Tag("unit-aws")
+public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
+   * current workspace.
+   */
+  public static UFAwsNotebook listOneNotebookResourceWithName(String resourceName)
+      throws JsonProcessingException {
+    return listOneNotebookResourceWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
+   * the specified workspace id; Uses the current workspace if null.
+   */
+  public static UFAwsNotebook listOneNotebookResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFAwsNotebook> matchedResources =
+        listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
+
+    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
+    return matchedResources.get(0);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name. Uses the current workspace.
+   */
+  public static List<UFAwsNotebook> listNotebookResourcesWithName(String resourceName)
+      throws JsonProcessingException {
+    return listNotebookResourcesWithName(resourceName, null);
+  }
+
+  /**
+   * Helper method to call `terra resources list` and filter the results on the specified resource
+   * name. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  public static List<UFAwsNotebook> listNotebookResourcesWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    // `terra resources list --type=AWS_SAGEMAKER_NOTEBOOK --format=json`
+    List<UFAwsNotebook> listedResources =
+        workspaceUserFacingId == null
+            ? TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {}, "resource", "list", "--type=AWS_SAGEMAKER_NOTEBOOK")
+            : TestCommand.runAndParseCommandExpectSuccess(
+                new TypeReference<>() {},
+                "resource",
+                "list",
+                "--type=AWS_SAGEMAKER_NOTEBOOK",
+                "--workspace=" + workspaceUserFacingId);
+
+    // find the matching notebook in the list
+    return listedResources.stream()
+        .filter(resource -> resource.name.equals(resourceName))
+        .collect(Collectors.toList());
+  }
+
   @Test
-  @DisplayName("list and describe reflect creating and deleting a controlled GCP notebook")
+  @DisplayName("list and describe reflect creating and deleting a controlled AWS notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create gcp-notebook --name=$name`
+    // `terra resource create aws-notebook --name=$name`
     String name = "listDescribeReflectCreateDelete";
-    UFGcpNotebook createdNotebook =
+    UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class,
+            UFAwsNotebook.class,
             "resource",
             "create",
-            "gcp-notebook",
+            "aws-notebook",
             "--name=" + name,
             "--metadata=foo=bar");
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
-    assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
+    // TODO(TERRA-228) Support notebook creation parameters
+    // assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
 
-    // gcp notebooks are always private
+    // aws notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
     assertEquals(
@@ -58,19 +116,19 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         "create output matches private user name");
 
     // check that the notebook is in the list
-    UFGcpNotebook matchedResource = GcpNotebookUtils.listOneNotebookResourceWithName(name);
+    UFAwsNotebook matchedResource = listOneNotebookResourceWithName(name);
     assertEquals(name, matchedResource.name, "list output matches name");
 
     // `terra resource describe --name=$name --format=json`
-    UFGcpNotebook describeResource =
+    UFAwsNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
+            UFAwsNotebook.class, "resource", "describe", "--name=" + name);
 
     // check that the name matches and the instance id is populated
     assertEquals(name, describeResource.name, "describe resource output matches name");
-    assertNotNull(describeResource.instanceName, "describe resource output includes instance name");
+    assertNotNull(describeResource.instanceId, "describe resource output includes instance id");
 
-    // gcp notebooks are always private
+    // aws notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, describeResource.accessScope, "describe output matches access");
     assertEquals(
@@ -78,28 +136,13 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
 
+    // TODO(TERRA-219) Support notebook deletion
     // `terra notebook delete --name=$name`
-    TestCommand.Result cmd =
-        TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
-    // TODO (PF-745): use long-running job commands here
-    boolean cliTimedOut =
-        cmd.exitCode == 1
-            && cmd.stdErr.contains(
-                "CLI timed out waiting for the job to complete. It's still running on the server.");
-    assertTrue(cmd.exitCode == 0 || cliTimedOut, "delete either succeeds or times out");
-
-    if (!cliTimedOut) {
-      // confirm it no longer appears in the resources list
-      List<UFGcpNotebook> listedNotebooks = GcpNotebookUtils.listNotebookResourcesWithName(name);
-      assertThat(
-          "deleted notebook no longer appears in the resources list",
-          listedNotebooks,
-          Matchers.empty());
-    }
+    // TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
   }
 
   @Test
-  @DisplayName("resolve and check-access for a controlled GCP notebook")
+  @DisplayName("resolve and check-access for a controlled AWS notebook")
   void resolveAndCheckAccess() throws IOException {
     workspaceCreator.login();
 
@@ -128,7 +171,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("override the default location and instance id of a controlled GCP notebook")
+  @DisplayName("override the default location and instance id of a controlled AWS notebook")
   void overrideLocationAndInstanceId() throws IOException {
     workspaceCreator.login();
 
@@ -227,7 +270,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test // NOTE: This test takes ~10 minutes to run.
-  @DisplayName("start, stop a GCP notebook and poll until they complete")
+  @DisplayName("start, stop an AWS notebook and poll until they complete")
   void startStop() throws IOException, InterruptedException {
     workspaceCreator.login();
 
