@@ -6,6 +6,7 @@ import bio.terra.workspace.model.AwsCredential;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -16,12 +17,7 @@ import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 /** A Cloud Object Wrapper(COW) for AWS S3Client Library: {@link S3Client} */
@@ -65,9 +61,9 @@ public class AwsStorageBucketsCow {
     }
   }
 
-  public AwsS3Blob get(String bucketName, String bucketPrefix) {
+  public Optional<AwsS3Blob> getBlob(String bucketName, String bucketPrefix) {
     if (bucketPrefix.endsWith("/")) {
-      throw new UserActionableException("Get operation not supported on folder objects.");
+      throw new UserActionableException("Get blob operation not supported on folder objects.");
     }
 
     try {
@@ -87,7 +83,8 @@ public class AwsStorageBucketsCow {
         throw new UserActionableException("Cannot access storage bucket marked for deletion");
       }
 
-      return new AwsS3Blob(getResponseStream.readAllBytes(), getResponse.contentType());
+      return Optional.of(
+          new AwsS3Blob(getResponseStream.readAllBytes(), getResponse.contentType()));
 
     } catch (Exception e) {
       checkException(e);
