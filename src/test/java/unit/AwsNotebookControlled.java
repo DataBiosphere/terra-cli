@@ -81,7 +81,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         .collect(Collectors.toList());
   }
 
-  //@Test
+  // @Test
   @DisplayName("list and describe reflect creating and deleting a controlled AWS notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();
@@ -151,7 +151,8 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
-    assertEquals(createdNotebook.instanceId, resolved.get(name), "resolve returns the instance name");
+    assertEquals(
+        createdNotebook.instanceId, resolved.get(name), "resolve returns the instance name");
 
     // `terra resource check-access --name=$name`
     String stdErr =
@@ -256,7 +257,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
      */
   }
 
-  //@Test
+  // @Test
   @DisplayName("start, stop an AWS notebook and poll until they complete")
   void startStop() throws IOException, InterruptedException {
     workspaceCreator.login();
