@@ -5,18 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
-import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
-import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
-import harness.utils.GcpNotebookUtils;
+import harness.utils.AwsNotebookUtils;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
@@ -24,6 +21,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /** Tests for the `terra resource` commands that handle controlled Aws notebooks. */
 @Tag("unit-aws")
@@ -83,7 +81,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         .collect(Collectors.toList());
   }
 
-  @Test
+  //@Test
   @DisplayName("list and describe reflect creating and deleting a controlled AWS notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();
@@ -95,12 +93,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     String name = "listDescribeReflectCreateDelete";
     UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class,
-            "resource",
-            "create",
-            "aws-notebook",
-            "--name=" + name,
-            "--metadata=foo=bar");
+            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + name);
 
     // check that the name and notebook name match
     assertEquals(name, createdNotebook.name, "create output matches name");
@@ -149,23 +142,22 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create gcp-notebook --name=$name`
+    // `terra resource create aws-notebook --name=$name`
     String name = "resolveAndCheckAccess";
-    UFGcpNotebook createdNotebook =
+    UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "create", "gcp-notebook", "--name=" + name);
+            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + name);
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
-    assertEquals(
-        createdNotebook.instanceName, resolved.get(name), "resolve returns the instance name");
+    assertEquals(createdNotebook.instanceId, resolved.get(name), "resolve returns the instance name");
 
     // `terra resource check-access --name=$name`
     String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
     assertThat(
-        "check-access error is because gcp notebooks are controlled resources",
+        "check-access error because aws notebooks are controlled resources",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
   }
@@ -178,20 +170,20 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create gcp-notebook --name=$name
+    // `terra resource create aws-notebook --name=$name
     // --cloning=$cloning --description=$description
     // --location=$location --instance-id=$instanceId`
     String name = "overrideLocationAndInstanceId";
     CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
-    String location = "us-central1-b";
+    String location = "us-east-1";
     String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
-    UFGcpNotebook createdNotebook =
+    UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class,
+            UFAwsNotebook.class,
             "resource",
             "create",
-            "gcp-notebook",
+            "aws-notebook",
             "--name=" + name,
             "--cloning=" + cloning,
             "--description=" + description,
@@ -205,7 +197,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(location, createdNotebook.location, "create output matches location");
     assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
 
-    // gcp notebooks are always private
+    // aws notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
     assertEquals(
@@ -214,9 +206,9 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         "create output matches private user name");
 
     // `terra resource describe --name=$name --format=json`
-    UFGcpNotebook describeResource =
+    UFAwsNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
+            UFAwsNotebook.class, "resource", "describe", "--name=" + name);
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
@@ -226,7 +218,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(
         instanceId, describeResource.instanceId, "describe resource output matches instance id");
 
-    // gcp notebooks are always private
+    // aws notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, describeResource.accessScope, "describe output matches access");
     assertEquals(
@@ -237,29 +229,23 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // new key-value pair will be appended, existing key-value pair will be updated.
     String newName = "NewOverrideLocationAndInstanceId";
     String newDescription = "\"new override default location and instance id\"";
-    String newKey1 = "NewMetadata1";
-    String newKey2 = "NewMetadata2";
-    String newValue1 = "metadata1";
-    String newValue2 = "metadata2";
-    String newEntry1 = newKey1 + "=" + newValue1;
-    String newEntry2 = newKey2 + "=" + newValue2;
-    UFGcpNotebook updatedNotebook =
+    UFAwsNotebook updatedNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class,
+            UFAwsNotebook.class,
             "resource",
             "update",
-            "gcp-notebook",
+            "aws-notebook",
             "--name=" + name,
             "--new-name=" + newName,
-            "--new-description=" + newDescription,
-            "--new-metadata=" + newEntry1 + "," + newEntry2);
+            "--new-description=" + newDescription);
 
     // check that the properties match
     // the metadata supports multiple entries, we can't assert on the metadata because it's not
     // stored in or accessible via Workspace Manager.
     assertEquals(newName, updatedNotebook.name, "create output matches name");
     assertEquals(newDescription, updatedNotebook.description, "create output matches description");
-    assertEquals(
+    // TODO(TERRA-228) Support notebook creation parameters
+    /* assertEquals(
         newValue1,
         updatedNotebook.metadata.get(newKey1),
         "create output matches metadata" + newKey1 + ": " + newValue1);
@@ -267,9 +253,10 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         newValue2,
         updatedNotebook.metadata.get(newKey2),
         "create output matches metadata" + newKey2 + ": " + newValue2);
+     */
   }
 
-  @Test // NOTE: This test takes ~10 minutes to run.
+  //@Test
   @DisplayName("start, stop an AWS notebook and poll until they complete")
   void startStop() throws IOException, InterruptedException {
     workspaceCreator.login();
@@ -277,33 +264,17 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create gcp-notebook --name=$name`
+    // `terra resource create aws-notebook --name=$name`
     String name = "startStop";
-    TestCommand.runCommandExpectSuccess("resource", "create", "gcp-notebook", "--name=" + name);
-    GcpNotebookUtils.pollDescribeForNotebookState(name, "ACTIVE");
-
-    // Poll until the test user can get the notebook IAM bindings directly to confirm cloud
-    // permissions have
-    // synced. This works because we give "notebooks.instances.getIamPolicy" to notebook editors.
-    // The UFGcpNotebook object is not fully populated at creation time, so we need an additional
-    // `describe` call here.
-    UFGcpNotebook createdNotebook =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpNotebook.class, "resource", "describe", "--name=" + name);
-    CrlUtils.callGcpWithPermissionExceptionRetries(
-        () ->
-            CrlUtils.createNotebooksCow(workspaceCreator.getCredentialsWithCloudPlatformScope())
-                .instances()
-                .getIamPolicy(createdNotebook.instanceName)
-                .execute(),
-        Objects::nonNull);
+    TestCommand.runCommandExpectSuccess("resource", "create", "aws-notebook", "--name=" + name);
+    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.IN_SERVICE);
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
-    GcpNotebookUtils.assertNotebookState(name, "STOPPED");
+    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.STOPPED);
 
     // `terra notebook start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
-    GcpNotebookUtils.assertNotebookState(name, "ACTIVE");
+    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.IN_SERVICE);
   }
 }

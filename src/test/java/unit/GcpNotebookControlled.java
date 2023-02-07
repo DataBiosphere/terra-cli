@@ -122,7 +122,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
     assertThat(
-        "check-access error is because gcp notebooks are controlled resources",
+        "check-access error because gcp notebooks are controlled resources",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
   }
