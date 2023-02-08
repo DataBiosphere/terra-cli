@@ -43,6 +43,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'datarepo-client', version: '1.0.155-SNAPSHOT'
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.82.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.468-SNAPSHOT'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
