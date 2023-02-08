@@ -15,9 +15,9 @@ import org.junit.jupiter.api.BeforeAll;
  * debugging a particular failure.
  */
 public class SingleWorkspaceUnit extends ClearContextUnit {
-  private static String userFacingId;
+  private String userFacingId;
 
-  protected static String getUserFacingId() {
+  protected String getUserFacingId() {
     return userFacingId;
   }
 

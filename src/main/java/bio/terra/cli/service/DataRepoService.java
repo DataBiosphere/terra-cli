@@ -26,6 +26,10 @@ public class DataRepoService {
   private DataRepoService(@Nullable User user, Server server) {
     this.apiClient = new ApiClient();
 
+    // The previous httpClient isn't being closed properly inside ApiClient when setting a new one,
+    // so we have to do
+    // it manually.
+    this.apiClient.getHttpClient().close();
     this.apiClient.setHttpClient(HttpClients.getDataRepoClient());
     this.apiClient.setBasePath(server.getDataRepoUri());
     if (user != null) {
