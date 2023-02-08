@@ -143,6 +143,9 @@ public class WorkspaceManagerService {
     this.server = server;
     this.apiClient = new ApiClient();
 
+    // TODO(zloery): This feels like a very odd pattern. I don't understand why the previous
+    //   httpClient isn't being closed properly when setting a new one.
+    this.apiClient.getHttpClient().close();
     this.apiClient.setHttpClient(HttpClients.getWsmClient());
     this.apiClient.setBasePath(server.getWorkspaceManagerUri());
     if (accessToken != null) {
