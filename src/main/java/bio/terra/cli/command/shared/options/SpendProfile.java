@@ -1,5 +1,6 @@
 package bio.terra.cli.command.shared.options;
 
+import bio.terra.cli.businessobject.Server;
 import picocli.CommandLine;
 
 /**
@@ -10,7 +11,7 @@ import picocli.CommandLine;
 public class SpendProfile {
   @CommandLine.Option(
       names = "--profile",
-      defaultValue = "wm-default-spend-profile",
+      defaultValue = Server.DEFAULT_SPEND_PROFILE,
       description = "The spend profile.")
   public String spendProfile;
 }
