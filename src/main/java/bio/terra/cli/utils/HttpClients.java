@@ -12,10 +12,14 @@ import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 public class HttpClients {
   private static final OkHttpClient samClient;
   private static final Client wsmClient;
+  private static final Client dataRepoClient;
+  private static final Client userManagerClient;
 
   static {
     samClient = new ApiClient().getHttpClient();
     wsmClient = new bio.terra.workspace.client.ApiClient().getHttpClient();
+    dataRepoClient = new bio.terra.datarepo.client.ApiClient().getHttpClient();
+    userManagerClient = new bio.terra.user.client.ApiClient().getHttpClient();
   }
 
   private HttpClients() {}
@@ -26,5 +30,13 @@ public class HttpClients {
 
   public static Client getWsmClient() {
     return wsmClient;
+  }
+
+  public static Client getDataRepoClient() {
+    return dataRepoClient;
+  }
+
+  public static Client getUserManagerClient() {
+    return userManagerClient;
   }
 }
