@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import bio.terra.cli.service.UserManagerService;
 import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
+
     CommandUtils.checkServerSupport(cloudPlatform);
 
     Workspace workspace =
@@ -46,7 +48,8 @@ public class Create extends WsmBaseCommand {
             cloudPlatform,
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
-            workspaceProperties);
+            workspaceProperties,
+            UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null));
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 

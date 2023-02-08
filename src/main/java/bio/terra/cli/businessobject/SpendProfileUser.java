@@ -36,9 +36,10 @@ public class SpendProfileUser {
    * @param spendProfile name of the spend profile
    */
   public static SpendProfileUser enable(
-      String email, SpendProfilePolicy policy, String spendProfile) {
+      String email, SpendProfilePolicy policy, String spendProfile, boolean saveToUserProfile) {
     // call SAM to add a policy + email to a spend profile resource
-    SpendProfileManagerService.fromContext().enableUserForSpendProfile(policy, email, spendProfile);
+    SpendProfileManagerService.fromContext()
+        .enableUserForSpendProfile(policy, email, spendProfile, saveToUserProfile);
     logger.info(
         "Enabled user on spend profile: email={}, policy={}, spendProfile={}",
         email,
