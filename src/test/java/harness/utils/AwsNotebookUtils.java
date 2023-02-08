@@ -37,11 +37,7 @@ public class AwsNotebookUtils {
                 "describe",
                 "--name=" + resourceName,
                 "--workspace=" + workspaceUserFacingId);
-    // TODO(TERRA-368)
-    // assertEquals(notebookState, describeNotebook.state, "notebook state matches");
-    // if (!notebookState.equals("PROVISIONING")) {
-    //  assertNotNull(describeNotebook.proxyUri, "proxy url is populated");
-    // }
+    assertEquals(notebookState.toString(), describeNotebook.state, "notebook state matches");
   }
 
   /**

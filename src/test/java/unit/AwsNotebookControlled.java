@@ -257,9 +257,9 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
      */
   }
 
-  // @Test
+  @Test
   @DisplayName("start, stop an AWS notebook and poll until they complete")
-  void startStop() throws IOException, InterruptedException {
+  void startStop() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
