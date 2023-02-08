@@ -1,16 +1,12 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
-import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.UUID;
 
 /**
  * External representation of a workspace AWS notebook resource for command input/output.
@@ -23,12 +19,21 @@ import java.util.UUID;
 public class UFAwsNotebook extends UFResource {
   public final String instanceId;
   public final String location;
+  public final String instanceName;
+  public final String state;
+  public final String proxyUriJupyter;
+  public final String proxyUriJupyterLab;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFAwsNotebook(AwsNotebook internalObj) {
     super(internalObj);
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
+    this.instanceName = AwsNotebook.resolve(location, instanceId, true);
+    this.state = AwsNotebook.getStatus(location, instanceId).toString();
+    this.proxyUriJupyter = AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTER);
+    this.proxyUriJupyterLab =
+        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTERLAB);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -36,6 +41,10 @@ public class UFAwsNotebook extends UFResource {
     super(builder);
     this.instanceId = builder.instanceId;
     this.location = builder.location;
+    this.instanceName = builder.instanceName;
+    this.state = builder.state;
+    this.proxyUriJupyter = builder.proxyUriJupyter;
+    this.proxyUriJupyterLab = builder.proxyUriJupyterLab;
   }
 
   /** Print out this object in text format. */
@@ -43,39 +52,22 @@ public class UFAwsNotebook extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "AWS Notebook: " + AwsNotebook.resolve(location, instanceId, true));
-    OUT.println(prefix + "Instance id:   " + instanceId);
+    OUT.println(prefix + "Instance id:  " + instanceId);
     OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
-
-    Workspace workspace = Context.requireWorkspace();
-    UUID workspaceId = workspace.getUuid();
-    UUID resourceId = workspace.getResource(instanceId).getId();
-    OUT.println(
-        prefix
-            + "ProxyUrl (JUPYTER): "
-            + WorkspaceManagerService.fromContext()
-                .getAwsSageMakerProxyUrl(
-                    workspaceId,
-                    resourceId,
-                    AwsSageMakerProxyUrlView.JUPYTER,
-                    WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
-                .getUrl());
-    OUT.println(
-        prefix
-            + "ProxyUrl (JUPYTERLAB): "
-            + WorkspaceManagerService.fromContext()
-                .getAwsSageMakerProxyUrl(
-                    workspaceId,
-                    resourceId,
-                    AwsSageMakerProxyUrlView.JUPYTERLAB,
-                    WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
-                .getUrl());
+    OUT.println(prefix + "AWS Notebook: " + instanceName);
+    OUT.println(prefix + "State:  " + state);
+    OUT.println(prefix + "ProxyUri (JUPYTER): " + proxyUriJupyter);
+    OUT.println(prefix + "ProxyUri (JUPYTERLAB):  " + proxyUriJupyterLab);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String instanceId;
     private String location;
+    private String instanceName;
+    private String state;
+    private String proxyUriJupyter;
+    private String proxyUriJupyterLab;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -87,6 +79,26 @@ public class UFAwsNotebook extends UFResource {
 
     public Builder location(String location) {
       this.location = location;
+      return this;
+    }
+
+    public Builder instanceName(String instanceName) {
+      this.instanceName = instanceName;
+      return this;
+    }
+
+    public Builder state(String state) {
+      this.state = state;
+      return this;
+    }
+
+    public Builder proxyUriJupyter(String proxyUriJupyter) {
+      this.proxyUriJupyter = proxyUriJupyter;
+      return this;
+    }
+
+    public Builder proxyUriJupyterLab(String proxyUriJupyterLab) {
+      this.proxyUriJupyterLab = proxyUriJupyterLab;
       return this;
     }
 

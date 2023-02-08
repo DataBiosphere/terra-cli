@@ -2,16 +2,21 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.cloud.aws.SageMakerNotebooksCow;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
+import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /**
  * Internal representation of a AWS notebook workspace resource. Instances of this class are part of
@@ -128,6 +133,31 @@ public class AwsNotebook extends Resource {
             "%s.console.aws.amazon.com/sagemaker/home?region=%s#/notebook-instances/%s",
             location, location, instanceId);
     return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
+  }
+
+  public static NotebookInstanceStatus getStatus(String location, String instanceId) {
+    Workspace workspace = Context.requireWorkspace();
+    return SageMakerNotebooksCow.create(
+            WorkspaceManagerService.fromContext()
+                .getAwsSageMakerNotebookCredential(
+                    workspace.getUuid(),
+                    workspace.getResource(instanceId).getId(),
+                    AwsCredentialAccessScope.READ_ONLY,
+                    WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            location)
+        .get(instanceId)
+        .notebookInstanceStatus();
+  }
+
+  public static String getProxyUri(String instanceId, AwsSageMakerProxyUrlView proxyUrlView) {
+    Workspace workspace = Context.requireWorkspace();
+    return WorkspaceManagerService.fromContext()
+        .getAwsSageMakerProxyUrl(
+            workspace.getUuid(),
+            workspace.getResource(instanceId).getId(),
+            proxyUrlView,
+            WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
+        .getUrl();
   }
 
   // ====================================================
