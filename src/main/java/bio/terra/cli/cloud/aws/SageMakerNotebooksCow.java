@@ -69,7 +69,7 @@ public class SageMakerNotebooksCow {
     }
   }
 
-  private NotebookInstanceSummary get(String instanceName) {
+  public NotebookInstanceSummary get(String instanceName) {
     try {
       DescribeNotebookInstanceResponse describeResponse =
           notebooksClient.describeNotebookInstance(
