@@ -192,8 +192,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
             "--name=" + resourceName,
             "--cloning=" + cloning,
             "--description=" + description,
-            "--location=" + location,
-            "--instance-id=" + instanceId);
+            "--location=" + location);
 
     // check that the properties match
     assertEquals(resourceName, createdNotebook.name, "create output matches name");
@@ -262,7 +261,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
   }
 
   @Test
-  @DisplayName("start, stop an AWS notebook and poll until they complete")
+  @DisplayName("start, stop an AWS notebook")
   void startStop() throws IOException {
     workspaceCreator.login();
 
