@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect creating and deleting a controlled GCP notebook")
-  void listDescribeReflectCreateDelete() throws IOException {
+  void listDescribeReflectCreateDeleteGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -100,7 +100,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("resolve and check-access for a controlled GCP notebook")
-  void resolveAndCheckAccess() throws IOException {
+  void resolveAndCheckAccessGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -129,7 +129,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("override the default location and instance id of a controlled GCP notebook")
-  void overrideLocationAndInstanceId() throws IOException {
+  void overrideLocationAndInstanceIdGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -228,7 +228,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
   @Test // NOTE: This test takes ~10 minutes to run.
   @DisplayName("start, stop a GCP notebook and poll until they complete")
-  void startStop() throws IOException, InterruptedException {
+  void startStopGcs() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

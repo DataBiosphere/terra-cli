@@ -81,7 +81,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         .collect(Collectors.toList());
   }
 
-  // @Test
+  @Test
   @DisplayName("list and describe reflect creating and deleting a controlled AWS notebook")
   void listDescribeReflectCreateDelete() throws IOException {
     workspaceCreator.login();
