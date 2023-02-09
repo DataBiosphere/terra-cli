@@ -90,13 +90,13 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create aws-notebook --name=$name`
-    String name = "listDescribeReflectCreateDelete";
+    String resourceName = UUID.randomUUID().toString();
     UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + name);
+            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + resourceName);
 
     // check that the name and notebook name match
-    assertEquals(name, createdNotebook.name, "create output matches name");
+    assertEquals(resourceName, createdNotebook.name, "create output matches name");
     // TODO(TERRA-228) Support notebook creation parameters
     // assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
 
@@ -109,16 +109,16 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         "create output matches private user name");
 
     // check that the notebook is in the list
-    UFAwsNotebook matchedResource = listOneNotebookResourceWithName(name);
-    assertEquals(name, matchedResource.name, "list output matches name");
+    UFAwsNotebook matchedResource = listOneNotebookResourceWithName(resourceName);
+    assertEquals(resourceName, matchedResource.name, "list output matches name");
 
     // `terra resource describe --name=$name --format=json`
     UFAwsNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class, "resource", "describe", "--name=" + name);
+            UFAwsNotebook.class, "resource", "describe", "--name=" + resourceName);
 
     // check that the name matches and the instance id is populated
-    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(resourceName, describeResource.name, "describe resource output matches name");
     assertNotNull(describeResource.instanceId, "describe resource output includes instance id");
 
     // aws notebooks are always private
@@ -143,20 +143,24 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create aws-notebook --name=$name`
-    String name = "resolveAndCheckAccess";
+    String resourceName = UUID.randomUUID().toString();
     UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + name);
+            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + resourceName);
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
-        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + resourceName);
     assertEquals(
-        createdNotebook.instanceId, resolved.get(name), "resolve returns the instance name");
+        createdNotebook.instanceId,
+        resolved.get(resourceName),
+        "resolve returns the instance name");
 
     // `terra resource check-access --name=$name`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
+        TestCommand.runCommandExpectExitCode(
+            1, "resource", "check-access", "--name=" + resourceName);
     assertThat(
         "check-access error because aws notebooks are controlled resources",
         stdErr,
@@ -174,7 +178,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra resource create aws-notebook --name=$name
     // --cloning=$cloning --description=$description
     // --location=$location --instance-id=$instanceId`
-    String name = "overrideLocationAndInstanceId";
+    String resourceName = UUID.randomUUID().toString();
     CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-east-1";
@@ -185,14 +189,14 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
             "resource",
             "create",
             "aws-notebook",
-            "--name=" + name,
+            "--name=" + resourceName,
             "--cloning=" + cloning,
             "--description=" + description,
             "--location=" + location,
             "--instance-id=" + instanceId);
 
     // check that the properties match
-    assertEquals(name, createdNotebook.name, "create output matches name");
+    assertEquals(resourceName, createdNotebook.name, "create output matches name");
     assertEquals(cloning, createdNotebook.cloningInstructions, "create output matches cloning");
     assertEquals(description, createdNotebook.description, "create output matches description");
     assertEquals(location, createdNotebook.location, "create output matches location");
@@ -209,10 +213,10 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // `terra resource describe --name=$name --format=json`
     UFAwsNotebook describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class, "resource", "describe", "--name=" + name);
+            UFAwsNotebook.class, "resource", "describe", "--name=" + resourceName);
 
     // check that the properties match
-    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(resourceName, describeResource.name, "describe resource output matches name");
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
     assertEquals(location, describeResource.location, "describe resource output matches location");
@@ -236,7 +240,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
             "resource",
             "update",
             "aws-notebook",
-            "--name=" + name,
+            "--name=" + resourceName,
             "--new-name=" + newName,
             "--new-description=" + newDescription);
 
@@ -266,16 +270,17 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create aws-notebook --name=$name`
-    String name = "startStop";
-    TestCommand.runCommandExpectSuccess("resource", "create", "aws-notebook", "--name=" + name);
-    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.IN_SERVICE);
+    String resourceName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "aws-notebook", "--name=" + resourceName);
+    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.IN_SERVICE);
 
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
-    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.STOPPED);
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
+    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.STOPPED);
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
-    AwsNotebookUtils.assertNotebookState(name, NotebookInstanceStatus.IN_SERVICE);
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + resourceName);
+    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.IN_SERVICE);
   }
 }
