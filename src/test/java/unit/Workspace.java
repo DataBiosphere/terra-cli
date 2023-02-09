@@ -32,6 +32,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace create uses spend profile stored in user manager")
   void create_spendProfileFromUserManager() throws IOException, InterruptedException {
+    // TODO: re-enable once the alt spend profile is deployed to the other verily envs.
     if (!Context.getServer().getName().equals("verily-devel")) {
       return;
     }
@@ -60,6 +61,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace clone uses spend profile stored in user manager")
   void clone_spendProfileFromUserManager() throws IOException, InterruptedException {
+    // TODO: re-enable once the alt spend profile is deployed to the other verily envs.
     if (!Context.getServer().getName().equals("verily-devel")) {
       return;
     }
