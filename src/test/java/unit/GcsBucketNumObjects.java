@@ -71,7 +71,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("controlled bucket displays the number of objects")
-  void numObjectsForControlled() throws IOException, InterruptedException {
+  void numObjectsForControlledGcs() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -117,7 +117,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("referenced bucket displays the number of objects")
-  void numObjectsForReferenced() throws IOException {
+  void numObjectsForReferencedGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -140,7 +140,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("referenced bucket with no access does not fail the describe command")
-  void numObjectsForReferencedWithNoAccess() throws IOException {
+  void numObjectsForReferencedWithNoAccessGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

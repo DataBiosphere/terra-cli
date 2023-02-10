@@ -7,7 +7,6 @@
   "workspaceManagerUri": "https://terra-mc-feature-dev-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-mc-feature-dev-ecm.api.verily.com",
-  "userManagerUri": "https://terra-mc-feature-dev-user.api.verily.com",
   "supportsIdToken": true,
   "supportedCloudPlatforms": ["GCP", "AWS"]
 }
