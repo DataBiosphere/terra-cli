@@ -103,7 +103,12 @@ public class SageMakerNotebooksCow {
 
   public void start(String instanceName) {
     try {
-      checkNotebookStatus(instanceName, startableStatusSet);
+      NotebookInstanceStatus currentStatus = get(instanceName).notebookInstanceStatus();
+      if (currentStatus == NotebookInstanceStatus.IN_SERVICE) {
+        return;
+      }
+      checkNotebookStatus(currentStatus, startableStatusSet);
+
       SdkHttpResponse httpResponse =
           notebooksClient
               .startNotebookInstance(
@@ -125,7 +130,12 @@ public class SageMakerNotebooksCow {
 
   public void stop(String instanceName) {
     try {
-      checkNotebookStatus(instanceName, stoppableStatusSet);
+      NotebookInstanceStatus currentStatus = get(instanceName).notebookInstanceStatus();
+      if (currentStatus == NotebookInstanceStatus.STOPPED) {
+        return;
+      }
+      checkNotebookStatus(currentStatus, stoppableStatusSet);
+
       SdkHttpResponse httpResponse =
           notebooksClient
               .stopNotebookInstance(
@@ -176,22 +186,14 @@ public class SageMakerNotebooksCow {
     throw new SystemException("Error checking notebook instance status");
   }
 
-  public void checkNotebookStatus(String instanceName, Set<NotebookInstanceStatus> statusSet) {
-    try {
-      checkNotebookStatus(get(instanceName).notebookInstanceStatus(), statusSet);
-    } catch (SdkException e) {
-      throw new SystemException("Error checking notebook instance status", e);
-    }
-  }
-
   private void checkNotebookStatus(
-      NotebookInstanceStatus expectedStatus, Set<NotebookInstanceStatus> statusSet) {
-    if (!statusSet.contains(expectedStatus)) {
+      NotebookInstanceStatus currentStatus, Set<NotebookInstanceStatus> expectedStatusSet) {
+    if (!expectedStatusSet.contains(currentStatus)) {
       throw new UserActionableException(
           "Expected notebook instance status is "
-              + statusSet
+              + expectedStatusSet
               + " but current status is "
-              + expectedStatus);
+              + currentStatus);
     }
   }
 

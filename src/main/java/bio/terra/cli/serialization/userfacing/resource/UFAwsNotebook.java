@@ -31,9 +31,11 @@ public class UFAwsNotebook extends UFResource {
     this.location = internalObj.getLocation();
     this.instanceName = AwsNotebook.resolve(location, instanceId, true);
     this.state = AwsNotebook.getStatus(location, instanceId).toString();
-    this.proxyUriJupyter = AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTER);
+    this.proxyUriJupyter =
+        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTER, false).orElse(null);
     this.proxyUriJupyterLab =
-        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTERLAB);
+        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTERLAB, false)
+            .orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -53,11 +55,17 @@ public class UFAwsNotebook extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(prefix + "Instance id:  " + instanceId);
-    OUT.println(prefix + "Location: " + (location == null ? "(undefined)" : location));
+    OUT.println(prefix + "Location:     " + (location == null ? "(undefined)" : location));
     OUT.println(prefix + "AWS Notebook: " + instanceName);
-    OUT.println(prefix + "State:  " + state);
-    OUT.println(prefix + "ProxyUri (JUPYTER): " + proxyUriJupyter);
-    OUT.println(prefix + "ProxyUri (JUPYTERLAB):  " + proxyUriJupyterLab);
+    OUT.println(prefix + "State:        " + state);
+    OUT.println(
+        prefix
+            + "ProxyUri (JUPYTER):    "
+            + (proxyUriJupyter == null ? "(unavailable)" : proxyUriJupyter));
+    OUT.println(
+        prefix
+            + "ProxyUri (JUPYTERLAB): "
+            + (proxyUriJupyter == null ? "(unavailable)" : proxyUriJupyter));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
