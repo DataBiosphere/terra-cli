@@ -7,84 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
-import harness.utils.ExternalAwsBuckets;
+import harness.utils.AwsBucketUtils;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Tests for the `terra resource` commands that handle controlled AWS buckets. */
 @Tag("unit-aws")
 public class AwsBucketControlled extends SingleWorkspaceUnitAws {
-  private static final Logger logger = LoggerFactory.getLogger(AwsBucketControlled.class);
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
-   * current workspace.
-   */
-  static UFAwsBucket listOneBucketResourceWithNameAws(String resourceName)
-      throws JsonProcessingException {
-    return listOneBucketResourceWithNameAws(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
-   * the specified workspace id; Uses the current workspace if null.
-   */
-  static UFAwsBucket listOneBucketResourceWithNameAws(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    List<UFAwsBucket> matchedResources =
-        listBucketResourcesWithNameAws(resourceName, workspaceUserFacingId);
-
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    return matchedResources.get(0);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Uses the current workspace.
-   */
-  static List<UFAwsBucket> listBucketResourcesWithNameAws(String resourceName)
-      throws JsonProcessingException {
-    return listBucketResourcesWithNameAws(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name and workspace (uses the current workspace if null).
-   */
-  static List<UFAwsBucket> listBucketResourcesWithNameAws(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AWS_BUCKET --format=json`
-    List<UFAwsBucket> listedResources =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AWS_BUCKET")
-            : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {},
-                "resource",
-                "list",
-                "--type=AWS_BUCKET",
-                "--workspace=" + workspaceUserFacingId);
-
-    // find the matching bucket in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
-  }
-
   @Test
   @DisplayName("list and describe reflect creating a new controlled AWS bucket")
   void listDescribeReflectCreateAws() throws IOException {
@@ -103,7 +40,7 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
     assertEquals(resourceName, createdBucket.name, "create output matches name");
 
     // check that the bucket is in the list
-    UFAwsBucket matchedResource = listOneBucketResourceWithNameAws(resourceName);
+    UFAwsBucket matchedResource = AwsBucketUtils.listOneBucketResourceWithNameAws(resourceName);
     assertEquals(resourceName, matchedResource.name, "list output matches name");
     assertTrue(
         StringUtils.isNotBlank(matchedResource.bucketName),
@@ -151,8 +88,7 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
     // String resolvedString = String.valueOf(resolved.get(resourceName));
 
     assertTrue(
-        ExternalAwsBuckets.verifyS3Path(
-            String.valueOf(resolved.get(resourceName)), resourceName, true),
+        AwsBucketUtils.verifyS3Path(String.valueOf(resolved.get(resourceName)), resourceName, true),
         "default resolve includes s3:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
@@ -160,7 +96,7 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "resource", "resolve", "--name=" + resourceName, "--exclude-bucket-prefix");
     assertTrue(
-        ExternalAwsBuckets.verifyS3Path(
+        AwsBucketUtils.verifyS3Path(
             String.valueOf(resolvedExcludePrefix.get(resourceName)), resourceName, false),
         "exclude prefix resolve only includes bucket name");
 

@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.cloud.aws.SageMakerNotebooksCow;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
@@ -14,6 +15,7 @@ import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
 import bio.terra.workspace.model.ResourceDescription;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
@@ -149,15 +151,25 @@ public class AwsNotebook extends Resource {
         .notebookInstanceStatus();
   }
 
-  public static String getProxyUri(String instanceId, AwsSageMakerProxyUrlView proxyUrlView) {
+  public static Optional<String> getProxyUri(
+      String instanceId, AwsSageMakerProxyUrlView proxyUrlView, boolean rethrowException) {
     Workspace workspace = Context.requireWorkspace();
-    return WorkspaceManagerService.fromContext()
-        .getAwsSageMakerProxyUrl(
-            workspace.getUuid(),
-            workspace.getResource(instanceId).getId(),
-            proxyUrlView,
-            WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
-        .getUrl();
+    try {
+      return Optional.ofNullable(
+          WorkspaceManagerService.fromContext()
+              .getAwsSageMakerProxyUrl(
+                  workspace.getUuid(),
+                  workspace.getResource(instanceId).getId(),
+                  proxyUrlView,
+                  WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
+              .getUrl());
+    } catch (SystemException e) {
+      if (rethrowException) {
+        throw e;
+      }
+      // else: do not rethrow exception
+    }
+    return Optional.empty();
   }
 
   // ====================================================
