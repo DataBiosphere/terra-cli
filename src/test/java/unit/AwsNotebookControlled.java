@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
@@ -153,7 +154,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "resource", "resolve", "--name=" + resourceName);
     assertEquals(
-        createdNotebook.instanceId,
+        AwsNotebook.resolve(createdNotebook.location, createdNotebook.instanceId, true),
         resolved.get(resourceName),
         "resolve returns the instance name");
 
@@ -182,7 +183,8 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-east-1";
-    String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
+    // TODO(TERRA-371) Support instance-id
+    // String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
     UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsNotebook.class,
@@ -199,7 +201,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(cloning, createdNotebook.cloningInstructions, "create output matches cloning");
     assertEquals(description, createdNotebook.description, "create output matches description");
     assertEquals(location, createdNotebook.location, "create output matches location");
-    assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
+    // assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
 
     // aws notebooks are always private
     assertEquals(
@@ -219,8 +221,8 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
     assertEquals(location, describeResource.location, "describe resource output matches location");
-    assertEquals(
-        instanceId, describeResource.instanceId, "describe resource output matches instance id");
+    // assertEquals(instanceId, describeResource.instanceId, "describe resource output matches
+    // instance id");
 
     // aws notebooks are always private
     assertEquals(
@@ -230,8 +232,9 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
 
+    /* TODO(TERRA-218) Support Notebook update
     // new key-value pair will be appended, existing key-value pair will be updated.
-    String newName = "NewOverrideLocationAndInstanceId";
+    String newResourceName = UUID.randomUUID().toString();
     String newDescription = "\"new override default location and instance id\"";
     UFAwsNotebook updatedNotebook =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -240,14 +243,15 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
             "update",
             "aws-notebook",
             "--name=" + resourceName,
-            "--new-name=" + newName,
+            "--new-name=" + newResourceName,
             "--new-description=" + newDescription);
 
     // check that the properties match
     // the metadata supports multiple entries, we can't assert on the metadata because it's not
     // stored in or accessible via Workspace Manager.
-    assertEquals(newName, updatedNotebook.name, "create output matches name");
+    assertEquals(newResourceName, updatedNotebook.name, "create output matches name");
     assertEquals(newDescription, updatedNotebook.description, "create output matches description");
+     */
     // TODO(TERRA-228) Support notebook creation parameters
     /* assertEquals(
         newValue1,

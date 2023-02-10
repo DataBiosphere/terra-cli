@@ -54,10 +54,10 @@ public class UFAwsNotebook extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "Instance id:  " + instanceId);
-    OUT.println(prefix + "Location:     " + (location == null ? "(undefined)" : location));
-    OUT.println(prefix + "AWS Notebook: " + instanceName);
-    OUT.println(prefix + "State:        " + state);
+    OUT.println(prefix + "Instance id:   " + instanceId);
+    OUT.println(prefix + "Location:      " + (location == null ? "(undefined)" : location));
+    OUT.println(prefix + "Instance name: " + instanceName);
+    OUT.println(prefix + "State:         " + state);
     OUT.println(
         prefix
             + "ProxyUri (JUPYTER):    "
