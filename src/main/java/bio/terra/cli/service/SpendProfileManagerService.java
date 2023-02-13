@@ -19,9 +19,11 @@ public class SpendProfileManagerService {
   // there currently is no SPM service, so this class just wraps calls to SAM
   // keep a reference to the SAM service instance here
   private final SamService samService;
+  private final UserManagerService userManagerService;
 
-  private SpendProfileManagerService(SamService samService) {
+  private SpendProfileManagerService(SamService samService, UserManagerService userManagerService) {
     this.samService = samService;
+    this.userManagerService = userManagerService;
   }
 
   /**
@@ -30,7 +32,9 @@ public class SpendProfileManagerService {
    * uses the current context's server and user.
    */
   public static SpendProfileManagerService fromContext() {
-    return new SpendProfileManagerService(SamService.fromContext());
+    return new SpendProfileManagerService(
+        SamService.fromContext(),
+        Context.getServer().getUserManagerUri() != null ? UserManagerService.fromContext() : null);
   }
 
   /**
@@ -40,9 +44,12 @@ public class SpendProfileManagerService {
    * @param spendProfile name of the spend profile resource
    */
   public void enableUserForSpendProfile(
-      SpendProfilePolicy policy, String email, String spendProfile) {
+      SpendProfilePolicy policy, String email, String spendProfile, boolean saveToUserProfile) {
     samService.addUserToResourceOrInviteUser(
         SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policy.getSamPolicy(), email);
+    if (userManagerService != null && saveToUserProfile) {
+      userManagerService.setDefaultSpendProfile(email, spendProfile);
+    }
   }
 
   /**

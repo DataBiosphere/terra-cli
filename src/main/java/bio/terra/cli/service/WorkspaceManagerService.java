@@ -416,6 +416,7 @@ public class WorkspaceManagerService {
    * @param name optional display name
    * @param description optional description
    * @param properties optional properties
+   * @param spendProfile spend profile
    * @return the Workspace Manager workspace description object
    * @throws SystemException if the job to create the workspace cloud context fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
@@ -425,7 +426,8 @@ public class WorkspaceManagerService {
       CloudPlatform cloudPlatform,
       @Nullable String name,
       @Nullable String description,
-      @Nullable Map<String, String> properties) {
+      @Nullable Map<String, String> properties,
+      String spendProfile) {
     return handleClientExceptions(
         () -> {
           // create the Terra workspace object
@@ -434,7 +436,7 @@ public class WorkspaceManagerService {
           workspaceRequestBody.setId(workspaceId);
           workspaceRequestBody.setUserFacingId(userFacingId);
           workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
-          workspaceRequestBody.setSpendProfile(Context.getServer().getWsmDefaultSpendProfile());
+          workspaceRequestBody.setSpendProfile(spendProfile);
           workspaceRequestBody.setDisplayName(name);
           workspaceRequestBody.setDescription(description);
           workspaceRequestBody.setProperties(Workspace.stringMapToProperties(properties));
@@ -627,13 +629,18 @@ public class WorkspaceManagerService {
    * @param userFacingId - required userFacingId of new cloned workspace
    * @param name - optional name of new cloned workspace
    * @param description - optional description for new workspace
+   * @param spendProfile - spend profile to use for the workspace
    * @return object with information about the clone job success and destination workspace
    */
   public CloneWorkspaceResult cloneWorkspace(
-      UUID workspaceId, String userFacingId, @Nullable String name, @Nullable String description) {
+      UUID workspaceId,
+      String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      String spendProfile) {
     var request =
         new CloneWorkspaceRequest()
-            .spendProfile(Context.getServer().getWsmDefaultSpendProfile())
+            .spendProfile(spendProfile)
             .userFacingId(userFacingId)
             .displayName(name)
             .description(description)
