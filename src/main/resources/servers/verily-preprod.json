@@ -8,6 +8,7 @@
   "workspaceManagerUri": "https://terra-preprod-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
+  "userManagerUri": "https://terra-preprod-user.api.verily.com",
   "supportsIdToken": true,
   "supportedCloudPlatforms": ["GCP"]
 }

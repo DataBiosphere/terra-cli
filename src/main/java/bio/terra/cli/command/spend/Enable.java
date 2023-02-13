@@ -14,6 +14,11 @@ public class Enable extends BaseCommand {
   @CommandLine.Mixin bio.terra.cli.command.shared.options.SpendProfile spendProfileOption;
   @CommandLine.Mixin Format formatOption;
 
+  @CommandLine.Option(
+      names = "--save-to-profile",
+      description = "Save the spend profile to user profile")
+  boolean saveToProfile;
+
   /** Print this command's output in text format. */
   private static void printText(UFSpendProfileUser returnValue) {
     OUT.println("User enabled on the spend profile.");
@@ -27,7 +32,8 @@ public class Enable extends BaseCommand {
         SpendProfileUser.enable(
             spendProfileUserOption.email,
             spendProfileUserOption.policy,
-            spendProfileOption.spendProfile);
+            spendProfileOption.spendProfile,
+            saveToProfile);
     formatOption.printReturnValue(new UFSpendProfileUser(spendProfileUser), Enable::printText);
   }
 }

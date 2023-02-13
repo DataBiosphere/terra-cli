@@ -5,10 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
+import bio.terra.cli.service.UserManagerService;
+import bio.terra.cli.service.WorkspaceManagerService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -25,6 +29,69 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
+  @Test
+  @DisplayName("workspace create uses spend profile stored in user manager")
+  void create_spendProfileFromUserManager() throws IOException, InterruptedException {
+    // TODO: re-enable once the alt spend profile is deployed to the other verily envs.
+    if (!Context.getServer().getName().equals("verily-devel")) {
+      return;
+    }
+    var altSpendProfile = "wm-alt-spend-profile";
+    assumeTrue(Context.getServer().getUserManagerUri() != null);
+
+    // Use the spend owner account
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+    spendProfileOwner.login();
+
+    // Set the default in the user manager
+    UserManagerService.fromContext().setDefaultSpendProfile(/*email=*/ null, altSpendProfile);
+
+    // Create the workspace using the spend profile
+    WorkspaceUtils.createWorkspace(spendProfileOwner, Optional.empty());
+
+    var workspaceDescription =
+        WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
+    assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
+
+    // Remove the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, /*spendProfile=*/ null);
+  }
+
+  @Test
+  @DisplayName("workspace clone uses spend profile stored in user manager")
+  void clone_spendProfileFromUserManager() throws IOException, InterruptedException {
+    // TODO: re-enable once the alt spend profile is deployed to the other verily envs.
+    if (!Context.getServer().getName().equals("verily-devel")) {
+      return;
+    }
+    var altSpendProfile = "wm-alt-spend-profile";
+    assumeTrue(Context.getServer().getUserManagerUri() != null);
+
+    // Use the spend owner account
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+    spendProfileOwner.login();
+
+    // Create a workspace without a chosen default
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(spendProfileOwner, Optional.empty());
+
+    // Set the default in the user manager
+    UserManagerService.fromContext().setDefaultSpendProfile(/*email=*/ null, altSpendProfile);
+
+    // Clone the workspace using the spend profile
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "clone", "--new-id=" + createdWorkspace.id + "-clone");
+
+    var workspaceDescription =
+        WorkspaceManagerService.fromContext()
+            .getWorkspaceByUserFacingId(createdWorkspace.id + "-clone");
+    assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
+    // Remove the default in the user manager
+    UserManagerService.fromContext()
+        .setDefaultSpendProfile(/*email=*/ null, /*spendProfile=*/ null);
+  }
+
   @Test
   @DisplayName("status, describe, workspace list reflect workspace delete")
   void statusDescribeListReflectDelete() throws IOException, InterruptedException {

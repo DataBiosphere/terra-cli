@@ -7,6 +7,50 @@ task runInstallForTesting(type: Exec) {
     dependsOn installDist
 }
 
+// Builds and returns a complete list of test tags to be executed on
+//      testType: 'unit' / 'integration'
+//      testTag: input from gradle command run
+//      cloudPlatform: input from gradle command run
+def getAllTestTagsToRun(String testType, String testTag, String cloudPlatform) {
+    def allTestTags = []
+    switch (testTag) {
+        case testType:
+            allTestTags.add(testType)
+            if (cloudPlatform == 'gcp') {
+                allTestTags.add(testType + '-gcp')
+            } else if (cloudPlatform == 'aws') {
+                allTestTags.add(testType + '-aws')
+            } else if (cloudPlatform == 'azure') {
+                allTestTags.add(testType + '-azure')
+            } else if (cloudPlatform == null) {  // run all tests
+                allTestTags.addAll([testType + '-gcp', testType + '-aws', testType + '-azure'])
+            }
+            break
+
+        case testType + '-gcp':
+            if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-gcp')
+            }
+            break
+
+        case testType + '-aws':
+            if ((cloudPlatform == 'aws') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-aws')
+            }
+            break
+
+        case testType + '-azure':
+            if ((cloudPlatform == 'azure') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-azure')
+            }
+            break
+
+        default:
+            break // no tests
+    }
+    return allTestTags as String[]
+}
+
 // run tests with the specified tag and install mode.
 // 1) run unit tests directly against the source code
 //    ./gradlew runTestsWithTag -PtestTag=unit
@@ -28,10 +72,10 @@ task runTestsWithTag(type: Test) {
             throw new GradleException('The testTag Gradle property is required (e.g. -PtestTag=unit, -PtestTag=integration)')
         }
 
-        def allTestTags = [testTag] // non-platform specific tests
-        String cloudPlatform = project.findProperty('platform')
+        String testType = null
+        if (testTag.startsWith('unit')) {
+            testType = 'unit'
 
-        if (testTag == 'unit') {
             // [for unit tests] specify the implementation version that's set in the JAR manifest. unit tests
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.
@@ -40,17 +84,9 @@ task runTestsWithTag(type: Test) {
             // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
             systemProperty('TERRA_CLI_VERSION', "${project.version}")
 
-            if (cloudPlatform == 'gcp') {
-                allTestTags.add('unit-gcp')
-            } else if (cloudPlatform == 'aws') {
-                allTestTags.add('unit-aws')
-            } else if (cloudPlatform == 'azure') {
-                allTestTags.add('unit-azure')
-            } else if (cloudPlatform == null) {  // run all tests
-                allTestTags.addAll(['unit-gcp', 'unit-aws', 'unit-azure'])
-            }
+        } else if (testTag.startsWith('integration')) {
+            testType = 'integration'
 
-        } else if (testTag == 'integration') {
             // [for integration tests] specify the install location for the terra application (i.e. launch script)
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
@@ -62,21 +98,11 @@ task runTestsWithTag(type: Test) {
             // it easier to clean up after tests (./gradlew clean) that generate files.
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty('TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/")
-
-            if (cloudPlatform == 'gcp') {
-                allTestTags.add('integration-gcp')
-            } else if (cloudPlatform == 'aws') {
-                allTestTags.add('integration-aws')
-            } else if (cloudPlatform == 'azure') {
-                allTestTags.add('integration-azure')
-            } else if (cloudPlatform == null) {  // run all tests
-                allTestTags.addAll(['integration-gcp', 'integration-aws', 'integration-azure'])
-            }
         }
 
         // tell junit to run tests with this tag: unit or integration
         useJUnitPlatform {
-            includeTags allTestTags as String[]
+            includeTags getAllTestTagsToRun(testType, testTag, project.findProperty('platform'))
         }
 
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
@@ -84,8 +110,9 @@ task runTestsWithTag(type: Test) {
         int localCores = System.getenv().containsKey('CI') ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)
         // Integration tests wrap various external command-line tools which often maintain their own global state.
         // Running them in parallel will cause runners to clobber this state, so these tests must be run serially.
-        maxParallelForks = (testTag == 'unit' ? localCores : 1)
+        maxParallelForks = (testType == 'integration') ? 1 : localCores
     }
+
     beforeTest { descriptor ->
         println '========================================================='
         println "Running test: ${descriptor.name} [${descriptor.className}]"
@@ -134,20 +161,21 @@ task runTestsWithTag(type: Test) {
 
     outputs.upToDateWhen { false } // force tests to always be re-run
 
-    retry {
-        // This is set automatically on Github Actions runners, and never set
-        // otherwise.
-        if (System.getenv().containsKey('CI')) {
-            // Max retries per test.
-            maxRetries = 1
-            // Max total test failures.
-            // This is an estimate based on current failure rates, but if more
-            // than 5 tests fail in a run it's likely a real source of failure
-            // and we should stop retrying.
-            maxFailures = 5
-        }
-        failOnPassedAfterRetry = true
-    }
+    // TODO(PF-2465): Re-enable retries once flakiness is under control.
+    //    retry {
+    //        // This is set automatically on Github Actions runners, and never set
+    //        // otherwise.
+    //        if (System.getenv().containsKey('CI')) {
+    //            // Max retries per test.
+    //            maxRetries = 1
+    //            // Max total test failures.
+    //            // This is an estimate based on current failure rates, but if more
+    //            // than 5 tests fail in a run it's likely a real source of failure
+    //            // and we should stop retrying.
+    //            maxFailures = 5
+    //        }
+    //        failOnPassedAfterRetry = true
+    //    }
 }
 
 // cleanup workspaces owned by test users.
