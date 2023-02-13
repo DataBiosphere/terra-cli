@@ -1,13 +1,11 @@
 package bio.terra.cli.utils;
 
+import bio.terra.workspace.client.JSON;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
-import bio.terra.workspace.client.JSON;
 import okhttp3.OkHttpClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jdk.connector.JdkConnectorProperties;
 import org.glassfish.jersey.jdk.connector.JdkConnectorProvider;
@@ -36,7 +34,6 @@ public class HttpClients {
     clientConfig.register(MultiPartFeature.class);
     clientConfig.register(new JSON());
     clientConfig.register(JacksonFeature.class);
-    clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     clientConfig.connectorProvider(new JdkConnectorProvider());
     clientConfig.property(JdkConnectorProperties.CONTAINER_IDLE_TIMEOUT, 60000);
     return ClientBuilder.newClient(clientConfig);
