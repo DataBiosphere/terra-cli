@@ -1,8 +1,17 @@
 package bio.terra.cli.utils;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+
+import bio.terra.workspace.client.JSON;
 import okhttp3.OkHttpClient;
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.jdk.connector.JdkConnectorProperties;
+import org.glassfish.jersey.jdk.connector.JdkConnectorProvider;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 /**
  * Many client libraries for Terra services maintain their own thread pools, but the CLI constantly
@@ -17,9 +26,20 @@ public class HttpClients {
 
   static {
     samClient = new ApiClient().getHttpClient();
-    wsmClient = new bio.terra.workspace.client.ApiClient().getHttpClient();
+    wsmClient = buildWsmClient();
     dataRepoClient = new bio.terra.datarepo.client.ApiClient().getHttpClient();
     userManagerClient = new bio.terra.user.client.ApiClient().getHttpClient();
+  }
+
+  private static Client buildWsmClient() {
+    final ClientConfig clientConfig = new ClientConfig();
+    clientConfig.register(MultiPartFeature.class);
+    clientConfig.register(new JSON());
+    clientConfig.register(JacksonFeature.class);
+    clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+    clientConfig.connectorProvider(new JdkConnectorProvider());
+    clientConfig.property(JdkConnectorProperties.CONTAINER_IDLE_TIMEOUT, 60000);
+    return ClientBuilder.newClient(clientConfig);
   }
 
   private HttpClients() {}
