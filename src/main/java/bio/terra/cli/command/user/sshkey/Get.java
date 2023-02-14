@@ -9,7 +9,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra user ssh-key get" command. */
-@Command(name = "get", description = "Get a terra-generated and -managed ssh key.")
+@Command(name = "get", description = "Get a Terra-generated and -managed SSH key.")
 public class Get extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
