@@ -35,7 +35,7 @@ public class HttpClients {
     clientConfig.register(new JSON());
     clientConfig.register(JacksonFeature.class);
     clientConfig.connectorProvider(new JdkConnectorProvider());
-    clientConfig.property(JdkConnectorProperties.CONTAINER_IDLE_TIMEOUT, 60000);
+    clientConfig.property(JdkConnectorProperties.CONTAINER_IDLE_TIMEOUT, 120000);
     return ClientBuilder.newClient(clientConfig);
   }
 
