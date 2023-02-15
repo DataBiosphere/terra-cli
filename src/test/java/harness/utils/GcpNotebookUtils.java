@@ -42,8 +42,8 @@ public class GcpNotebookUtils {
                     "--workspace=" + workspaceUserFacingId),
         (result) -> notebookState.equals(result.state),
         (ex) -> false, // no retries
-        2 * 20, // up to 20 minutes
-        Duration.ofSeconds(30)); // every 30 seconds
+        4 * 20, // up to 20 minutes
+        Duration.ofSeconds(15)); // every 15 seconds
 
     assertNotebookState(resourceName, notebookState, workspaceUserFacingId);
   }
