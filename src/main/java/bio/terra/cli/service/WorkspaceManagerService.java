@@ -466,7 +466,7 @@ public class WorkspaceManagerService {
                   WorkspaceManagerService::isRetryable,
                   // Context creation will wait for cloud IAM permissions to sync, so poll for up to
                   // 30 minutes.
-                  /*maxCalls=*/ 4*30,
+                  /*maxCalls=*/ 4 * 30,
                   /*sleepDuration=*/ Duration.ofSeconds(15));
           logger.debug("create workspace context result: {}", createContextResult);
           StatusEnum status = createContextResult.getJobReport().getStatus();
