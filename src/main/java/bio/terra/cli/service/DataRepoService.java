@@ -3,6 +3,7 @@ package bio.terra.cli.service;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.datarepo.api.UnauthenticatedApi;
 import bio.terra.datarepo.client.ApiClient;
 import bio.terra.datarepo.client.ApiException;
@@ -25,7 +26,9 @@ public class DataRepoService {
   private DataRepoService(@Nullable User user, Server server) {
     this.apiClient = new ApiClient();
 
-    this.apiClient.setBasePath(server.getDataRepoUri());
+    this.apiClient
+        .setHttpClient(HttpClients.getDataRepoClient())
+        .setBasePath(server.getDataRepoUri());
     if (user != null) {
       this.apiClient.setAccessToken(user.getTerraToken().getTokenValue());
     }

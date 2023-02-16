@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.user.api.ProfileApi;
 import bio.terra.user.api.PublicApi;
 import bio.terra.user.client.ApiClient;
@@ -32,7 +33,9 @@ public class UserManagerService {
   private UserManagerService(@Nullable AccessToken accessToken, Server server) {
     this.apiClient = new ApiClient();
 
-    this.apiClient.setBasePath(server.getUserManagerUri());
+    this.apiClient
+        .setHttpClient(HttpClients.getUserManagerClient())
+        .setBasePath(server.getUserManagerUri());
     if (accessToken != null) {
       this.apiClient.setAccessToken(accessToken.getTokenValue());
     }
