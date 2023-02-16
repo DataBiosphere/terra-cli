@@ -8,6 +8,7 @@
   "workspaceManagerUri": "https://terra-staging-wsm.api.verily.com",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-staging-ecm.api.verily.com",
+  "userManagerUri": "https://terra-staging-user.api.verily.com",
   "supportsIdToken": true,
   "supportedCloudPlatforms": ["GCP"]
 }

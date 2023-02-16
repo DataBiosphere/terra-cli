@@ -127,7 +127,10 @@ public final class GoogleOauth {
     } else {
       // print the url to stdout and ask the user to copy/paste the token response to stdin
       credential =
-          new AuthorizationCodeInstalledApp(flow, new StdinReceiver(), new NoLaunchBrowser())
+          new AuthorizationCodeInstalledApp(
+                  flow,
+                  new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+                  new NoLaunchBrowser())
               .authorize(CREDENTIAL_STORE_KEY);
     }
 
@@ -299,9 +302,15 @@ public final class GoogleOauth {
    * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
    */
   private static class StdinReceiver extends AbstractPromptReceiver {
+    private String redirectUri;
+
+    public StdinReceiver(String redirectUri) {
+      this.redirectUri = redirectUri;
+    }
+
     @Override
     public String getRedirectUri() {
-      return "urn:ietf:wg:oauth:2.0:oob";
+      return redirectUri;
     }
   }
 

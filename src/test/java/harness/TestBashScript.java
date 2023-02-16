@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 
 /**
@@ -21,31 +22,38 @@ public class TestBashScript {
    * Executes a test script in a separate process from the current working directory.
    *
    * @param scriptName name of the script in the test/resources/testscripts directory (e.g.
-   *     NextflowRnaseq.sh)
+   *     NextflowRnaseqSetup.sh)
+   * @param args arguments to pass to the test script
    * @return process exit code
    */
-  public static int runScript(String scriptName) {
+  public static int runScript(String scriptName, List<String> args) {
     // build the command from the script name
     Path script = TestBashScript.getPathFromScriptName(scriptName);
-    List<String> command = Collections.singletonList("bash " + script);
+    String joinedArgs = StringUtils.join(args, " ");
+    String fullCommand = String.join(" ", "bash", script.toString(), joinedArgs);
 
-    return runCommands(command, Collections.emptyMap());
+    return runCommands(List.of(fullCommand), Collections.emptyMap());
+  }
+
+  public static int runScript(String scriptName) {
+    return runScript(scriptName, List.of());
   }
 
   /**
    * Executes a command in a separate process from the given working directory, with the given
    * environment variables set beforehand. Adds `terra` to the $PATH.
    *
-   * @param command the command and arguments to execute
+   * @param commands the commands and arguments to execute. each element of this list should be a
+   *     separate (command + arguments) entry.
    * @param envVars the environment variables to set or overwrite if already defined
    * @return process exit code
    */
-  public static int runCommands(List<String> command, Map<String, String> envVars) {
+  public static int runCommands(List<String> commands, Map<String, String> envVars) {
     // execute the commands via bash
     List<String> bashCommand = new ArrayList<>();
     bashCommand.add("bash");
     bashCommand.add("-cx"); // -x option = print out the commands as they run
-    bashCommand.add(String.join("; ", command));
+    bashCommand.add(String.join("; ", commands));
 
     // add to the $PATH the directory where the CLI is installed
     Map<String, String> envVarsCopy = new HashMap<>(envVars);
