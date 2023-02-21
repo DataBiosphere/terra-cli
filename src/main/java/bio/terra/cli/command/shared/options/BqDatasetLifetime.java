@@ -20,7 +20,7 @@ public class BqDatasetLifetime {
               + "such that time zone changes will not affect this lifetime.  This value is "
               + "applied if you do not set a partition expiration on the table when it is "
               + "created.")
-  private Integer defaultPartitionLifetimeSeconds;
+  private Long defaultPartitionLifetimeSeconds;
 
   @CommandLine.Option(
       names = "--default-table-lifetime",
@@ -31,17 +31,17 @@ public class BqDatasetLifetime {
               + "such that time zone changes will not affect this lifetime. Any table created in "
               + "the dataset is deleted this many seconds after its creation time. This value is "
               + "applied if you do not set a table expiration when the table is created.")
-  private Integer defaultTableLifetimeSeconds;
+  private Long defaultTableLifetimeSeconds;
 
   public boolean isDefined() {
     return (defaultPartitionLifetimeSeconds != null) || (defaultTableLifetimeSeconds != null);
   }
 
-  public Integer getDefaultPartitionLifetimeSeconds() {
+  public Long getDefaultPartitionLifetimeSeconds() {
     return defaultPartitionLifetimeSeconds;
   }
 
-  public Integer getDefaultTableLifetimeSeconds() {
+  public Long getDefaultTableLifetimeSeconds() {
     return defaultTableLifetimeSeconds;
   }
 }
