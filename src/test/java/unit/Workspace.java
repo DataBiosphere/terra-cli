@@ -333,4 +333,25 @@ public class Workspace extends ClearContextUnit {
         stdErr,
         CoreMatchers.containsString("Missing required option: '--id=<id>'"));
   }
+
+  @Test
+  @DisplayName("workspace create fails for unsupported platform")
+  void createFailsForUnsupportedPlatform() throws IOException {
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    // `terra workspace create --id=<user-facing-id> --platform=invalidPlatform`
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(
+            2,
+            "workspace",
+            "create",
+            "--id=" + WorkspaceUtils.createUserFacingId(),
+            "--platform",
+            "invalidPlatform");
+    assertThat(
+        "error message indicate platform must be valid if provided",
+        stdErr,
+        CoreMatchers.containsString("Invalid value for option '--platform'"));
+  }
 }
