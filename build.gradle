@@ -50,7 +50,7 @@ dependencies {
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // Changes for MC-Terra
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mc-terra-wsm-02212023-2'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: 'mc-terra-wsm-02222023-1'
     runtimeOnly group: 'org.glassfish.jersey.connectors', name: 'jersey-jdk-connector', version: '2.32'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
