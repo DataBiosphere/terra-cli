@@ -1292,7 +1292,7 @@ public class WorkspaceManagerService {
                   Duration.ofSeconds(10));
           logger.debug("Create controlled AWS notebook result {}", createResult);
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
-          return createResult.getAiNotebookInstance();
+          return createResult.getSageMakerNotebookInstance();
         },
         "Error creating controlled AWS Notebook instance in the workspace.");
   }
