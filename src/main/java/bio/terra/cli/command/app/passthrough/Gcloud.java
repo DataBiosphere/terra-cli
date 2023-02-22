@@ -58,7 +58,7 @@ public class Gcloud extends ToolCommand {
     command.add(0, getExecutableName());
 
     if (gcsBucketResourceName != null) {
-      var resource = Context.requireWorkspace().getResource(gcsBucketResourceName);
+      Resource resource = Context.requireWorkspace().getResource(gcsBucketResourceName);
       if (Resource.Type.GCS_BUCKET != resource.getResourceType()) {
         throw new UserActionableException(
             String.format(
