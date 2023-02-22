@@ -7,6 +7,7 @@ import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /**
  * External representation of a workspace AWS notebook resource for command input/output.
@@ -30,12 +31,14 @@ public class UFAwsNotebook extends UFResource {
     this.instanceId = internalObj.getInstanceId();
     this.location = internalObj.getLocation();
     this.instanceName = AwsNotebook.resolve(location, instanceId, true);
-    this.state = AwsNotebook.getStatus(location, instanceId).toString();
+    this.state =
+        AwsNotebook.getStatus(location, instanceId)
+            .orElse(NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
+            .toString();
     this.proxyUriJupyter =
-        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTER, false).orElse(null);
+        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTER).orElse(null);
     this.proxyUriJupyterLab =
-        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTERLAB, false)
-            .orElse(null);
+        AwsNotebook.getProxyUri(instanceId, AwsSageMakerProxyUrlView.JUPYTERLAB).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */

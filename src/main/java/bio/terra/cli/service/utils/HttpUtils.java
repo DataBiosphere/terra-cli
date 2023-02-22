@@ -325,7 +325,7 @@ public class HttpUtils {
           // keep track of the last retryable exception so we can re-throw it in case of a timeout
           lastRetryableException = ex;
         }
-        logger.info("Caught retryable exception: {}", ex);
+        logger.info("Caught retryable exception: ", ex);
       }
 
       // sleep before retrying, unless this is the last try

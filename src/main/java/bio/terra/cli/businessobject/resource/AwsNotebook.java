@@ -4,7 +4,6 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.cloud.aws.SageMakerNotebooksCow;
-import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsNotebookParams;
@@ -137,22 +136,28 @@ public class AwsNotebook extends Resource {
     return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
-  public static NotebookInstanceStatus getStatus(String location, String instanceId) {
+  public static Optional<NotebookInstanceStatus> getStatus(String location, String instanceId) {
     Workspace workspace = Context.requireWorkspace();
-    return SageMakerNotebooksCow.create(
-            WorkspaceManagerService.fromContext()
-                .getAwsSageMakerNotebookCredential(
-                    workspace.getUuid(),
-                    workspace.getResource(instanceId).getId(),
-                    AwsCredentialAccessScope.READ_ONLY,
-                    WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
-            location)
-        .get(instanceId)
-        .notebookInstanceStatus();
+    try {
+      return Optional.ofNullable(
+          SageMakerNotebooksCow.create(
+                  WorkspaceManagerService.fromContext()
+                      .getAwsSageMakerNotebookCredential(
+                          workspace.getUuid(),
+                          workspace.getResource(instanceId).getId(),
+                          AwsCredentialAccessScope.READ_ONLY,
+                          WorkspaceManagerService.AWS_CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+                  location)
+              .get(instanceId)
+              .notebookInstanceStatus());
+    } catch (UserActionableException e) {
+      logger.error("Error getting status of notebook {}. ", instanceId, e);
+    }
+    return Optional.empty();
   }
 
   public static Optional<String> getProxyUri(
-      String instanceId, AwsSageMakerProxyUrlView proxyUrlView, boolean rethrowException) {
+      String instanceId, AwsSageMakerProxyUrlView proxyUrlView) {
     Workspace workspace = Context.requireWorkspace();
     try {
       return Optional.ofNullable(
@@ -163,11 +168,8 @@ public class AwsNotebook extends Resource {
                   proxyUrlView,
                   WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
               .getUrl());
-    } catch (SystemException e) {
-      if (rethrowException) {
-        throw e;
-      }
-      // else: do not rethrow exception
+    } catch (UserActionableException e) {
+      logger.error("Error getting proxy uri of notebook {}. ", instanceId, e);
     }
     return Optional.empty();
   }
