@@ -1,11 +1,8 @@
 package bio.terra.cli.businessobject;
 
-import bio.terra.cli.businessobject.resource.BqDataset;
-import bio.terra.cli.businessobject.resource.BqTable;
-import bio.terra.cli.businessobject.resource.GcpNotebook;
-import bio.terra.cli.businessobject.resource.GcsBucket;
-import bio.terra.cli.businessobject.resource.GcsObject;
-import bio.terra.cli.businessobject.resource.GitRepo;
+import bio.terra.cli.businessobject.resource.AwsBucket;
+import bio.terra.cli.businessobject.resource.AwsNotebook;
+import bio.terra.cli.businessobject.resource.*;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
@@ -105,6 +102,8 @@ public abstract class Resource {
       case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
+      case AWS_BUCKET -> new AwsBucket(wsmObject);
+      case AWS_SAGEMAKER_NOTEBOOK -> new AwsNotebook(wsmObject);
       default -> throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
     };
   }
@@ -238,6 +237,8 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO
+    GIT_REPO,
+    AWS_BUCKET,
+    AWS_SAGEMAKER_NOTEBOOK
   }
 }
