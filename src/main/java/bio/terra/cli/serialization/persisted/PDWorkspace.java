@@ -18,6 +18,8 @@ public class PDWorkspace {
   public final UUID uuid;
   public final String userFacingId;
   public final String googleProjectId;
+  public final String awsAccountNumber;
+  public final String landingZoneId;
   public final CloudPlatform cloudPlatform;
 
   /** Serialize an instance of the internal class to the disk format. */
@@ -25,6 +27,8 @@ public class PDWorkspace {
     this.uuid = internalObj.getUuid();
     this.userFacingId = internalObj.getUserFacingId();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
+    this.awsAccountNumber = internalObj.getAwsAccountNumber().orElse(null);
+    this.landingZoneId = internalObj.getLandingZoneId().orElse(null);
     this.cloudPlatform = internalObj.getCloudPlatform();
   }
 
@@ -32,6 +36,8 @@ public class PDWorkspace {
     this.uuid = builder.uuid;
     this.userFacingId = builder.userFacingId;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountNumber = builder.awsAccountNumber;
+    this.landingZoneId = builder.landingZoneId;
     this.cloudPlatform = builder.cloudPlatform;
   }
 
@@ -40,6 +46,8 @@ public class PDWorkspace {
     private UUID uuid;
     private String userFacingId;
     private String googleProjectId;
+    private String awsAccountNumber;
+    private String landingZoneId;
     private CloudPlatform cloudPlatform;
 
     /** Default constructor for Jackson. */
@@ -57,6 +65,16 @@ public class PDWorkspace {
 
     public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
+      return this;
+    }
+
+    public Builder awsAccountNumber(String awsAccountNumber) {
+      this.awsAccountNumber = awsAccountNumber;
+      return this;
+    }
+
+    public Builder landingZoneId(String landingZoneId) {
+      this.landingZoneId = landingZoneId;
       return this;
     }
 

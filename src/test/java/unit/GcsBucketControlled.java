@@ -42,9 +42,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFGcsBucket listOneBucketResourceWithName(String resourceName, String userFacingId)
-      throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, userFacingId);
+  static UFGcsBucket listOneBucketResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources =
+        listBucketResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -84,8 +85,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("list and describe reflect creating a new controlled bucket")
-  void listDescribeReflectCreate() throws IOException {
+  @DisplayName("list and describe reflect creating a new controlled GCS bucket")
+  void listDescribeReflectCreateGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -127,8 +128,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("create a new controlled gcs bucket without specifying the bucket name")
-  void createGcsBucketWithoutSpecifyingBucketName() throws IOException {
+  @DisplayName("create a new controlled GCS bucket without specifying the bucket name")
+  void createBucketWithoutSpecifyingBucketNameGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -166,8 +167,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("list reflects deleting a controlled bucket")
-  void listReflectsDelete() throws IOException {
+  @DisplayName("list reflects deleting a controlled GCS bucket")
+  void listReflectsDeleteGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -188,8 +189,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("resolve a controlled bucket")
-  void resolve() throws IOException {
+  @DisplayName("resolve a controlled GCS bucket")
+  void resolveGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -223,8 +224,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("check-access for a controlled bucket")
-  void checkAccess() throws IOException {
+  @DisplayName("check-access for a controlled GCS bucket")
+  void checkAccessGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -249,8 +250,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("create a controlled bucket, specifying all options except lifecycle")
-  void createWithAllOptionsExceptLifecycle() throws IOException, InterruptedException {
+  @DisplayName("create a controlled GCS bucket, specifying all options except lifecycle")
+  void createWithAllOptionsExceptLifecycleGcs() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -327,8 +328,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("update a controlled bucket, one property at a time, except for lifecycle")
-  void updateIndividualProperties() throws IOException {
+  @DisplayName("update a controlled GCS bucket, one property at a time, except for lifecycle")
+  void updateIndividualPropertiesGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -409,8 +410,9 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("update a controlled bucket, specifying multiple properties, except for lifecycle")
-  void updateMultipleProperties() throws IOException {
+  @DisplayName(
+      "update a controlled GCS bucket, specifying multiple properties, except for lifecycle")
+  void updateMultiplePropertiesGcs() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`

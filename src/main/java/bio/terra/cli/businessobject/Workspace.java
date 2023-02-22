@@ -40,18 +40,24 @@ public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
   private UUID uuid;
   private String userFacingId;
-  private CloudPlatform cloudPlatform;
   private String googleProjectId;
+  private String awsAccountNumber;
+  private String landingZoneId;
+  private CloudPlatform cloudPlatform;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.uuid = wsmObject.getId();
     this.userFacingId = wsmObject.getUserFacingId();
     if (wsmObject.getGcpContext() != null) {
-      cloudPlatform = CloudPlatform.GCP;
       googleProjectId = wsmObject.getGcpContext().getProjectId();
+      cloudPlatform = CloudPlatform.GCP;
     } else if (wsmObject.getAzureContext() != null) {
       cloudPlatform = CloudPlatform.AZURE;
+    } else if (wsmObject.getAwsContext() != null) {
+      this.awsAccountNumber = wsmObject.getAwsContext().getAccountNumber();
+      this.landingZoneId = wsmObject.getAwsContext().getLandingZoneId();
+      this.cloudPlatform = CloudPlatform.AWS;
     }
   }
 
@@ -60,6 +66,8 @@ public class Workspace {
     this.uuid = configFromDisk.uuid;
     this.userFacingId = configFromDisk.userFacingId;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.awsAccountNumber = configFromDisk.awsAccountNumber;
+    this.landingZoneId = configFromDisk.landingZoneId;
     this.cloudPlatform = configFromDisk.cloudPlatform;
   }
 
@@ -231,11 +239,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -250,6 +254,17 @@ public class Workspace {
         listResources().stream().filter(resource -> resource.name.equals(name)).findFirst();
     return resourceOpt.orElseThrow(
         () -> new UserActionableException("Resource not found: " + name));
+  }
+
+  /**
+   * Get a resource by id.
+   *
+   * @throws UserActionableException if there is no resource with that id
+   */
+  public Resource getResource(UUID id) {
+    Optional<Resource> resourceOpt =
+        listResources().stream().filter(resource -> resource.id.equals(id)).findFirst();
+    return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
   }
 
   /** Fetch the list of resources for the current workspace. */
@@ -295,7 +310,7 @@ public class Workspace {
    *     on workspace projects in this WSM deployment (e.g. WSM application SA)
    * @return the proxy group email of the workspace user that was granted break-glass access
    */
-  public String grantBreakGlass(
+  public String grantBreakGlass( // TODO(TERRA-211) support breakglass
       String granteeEmail, ServiceAccountCredentials userProjectsAdminCredentials) {
     // fetch the user's proxy group email from SAM
     String granteeProxyGroupEmail = SamService.fromContext().getProxyGroupEmail(granteeEmail);
@@ -350,6 +365,28 @@ public class Workspace {
         .orElseThrow(
             () ->
                 new UserActionableException("No GCP project available in the current workspace."));
+  }
+
+  public Optional<String> getAwsAccountNumber() {
+    return Optional.ofNullable(awsAccountNumber);
+  }
+
+  public String getRequiredAwsAccountNumber() {
+    return getAwsAccountNumber()
+        .orElseThrow(
+            () ->
+                new UserActionableException("No AWS account available in the current workspace."));
+  }
+
+  public Optional<String> getLandingZoneId() {
+    return Optional.ofNullable(landingZoneId);
+  }
+
+  public String getRequiredLandingZoneId() {
+    return getLandingZoneId()
+        .orElseThrow(
+            () ->
+                new UserActionableException("No landing zone available in the current workspace."));
   }
 
   public CloudPlatform getCloudPlatform() {
