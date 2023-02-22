@@ -25,15 +25,15 @@ public class Add extends BaseCommand {
   @Override
   protected void execute() {
     ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
-    var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
+    SshKeyPair sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
     saveKeyFileAndSshAdd(sshKeyPair);
     formatOption.printReturnValue(UFSshKeyPair.createUFSshKey(sshKeyPair), UFSshKeyPair::print);
   }
 
   protected static void saveKeyFileAndSshAdd(SshKeyPair sshKeyPair) {
-    var dir = System.getProperty("user.home") + "/.ssh/";
-    var privateKeyPath = concat(dir, "terra_id_rsa");
-    var publicKeyPath = concat(dir, "terra_id_rsa.pub");
+    String dir = System.getProperty("user.home") + "/.ssh/";
+    String privateKeyPath = concat(dir, "terra_id_rsa");
+    String publicKeyPath = concat(dir, "terra_id_rsa.pub");
     try {
       writeStringToFile(new File(privateKeyPath), sshKeyPair.getPrivateKey());
       writeStringToFile(new File(publicKeyPath), sshKeyPair.getPublicKey());

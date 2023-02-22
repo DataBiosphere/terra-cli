@@ -81,7 +81,7 @@ public class Git extends ToolCommand {
     Arrays.stream(names)
         .forEach(
             name -> {
-              var resource = Context.requireWorkspace().getResource(name);
+              Resource resource = Context.requireWorkspace().getResource(name);
               if (Resource.Type.GIT_REPO != resource.getResourceType()) {
                 throw new UserActionableException(
                     String.format(

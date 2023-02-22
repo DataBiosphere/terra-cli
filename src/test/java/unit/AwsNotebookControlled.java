@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,11 +14,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.AwsNotebookUtils;
+import harness.utils.GcpNotebookUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -83,8 +86,9 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
   }
 
   @Test
-  @DisplayName("list and describe reflect creating and deleting a controlled AWS notebook")
-  void listDescribeReflectCreateDelete() throws IOException {
+  @DisplayName(
+      "list, describe and resolve reflect creating, stopping, starting and deleting a controlled AWS notebook")
+  void listDescribeResolveReflectCreateStopStartDelete() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -98,6 +102,11 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
 
     // check that the name and notebook name match
     assertEquals(resourceName, createdNotebook.name, "create output matches name");
+    assertNotNull(createdNotebook.instanceId, "create resource output includes instance id");
+    assertEquals(
+        NotebookInstanceStatus.IN_SERVICE.toString(),
+        createdNotebook.state,
+        "create output state matches initial state");
     // TODO(TERRA-228) Support notebook creation parameters
     // assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
 
@@ -112,6 +121,8 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // check that the notebook is in the list
     UFAwsNotebook matchedResource = listOneNotebookResourceWithName(resourceName);
     assertEquals(resourceName, matchedResource.name, "list output matches name");
+    assertNotNull(matchedResource.instanceId, "list resource output includes instance id");
+    assertEquals(resourceName, matchedResource.name, "list output state matches initial state");
 
     // `terra resource describe --name=$name --format=json`
     UFAwsNotebook describeResource =
@@ -121,6 +132,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     // check that the name matches and the instance id is populated
     assertEquals(resourceName, describeResource.name, "describe resource output matches name");
     assertNotNull(describeResource.instanceId, "describe resource output includes instance id");
+    assertEquals(resourceName, describeResource.name, "list output state matches initial state");
 
     // aws notebooks are always private
     assertEquals(
@@ -130,24 +142,13 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         describeResource.privateUserName.toLowerCase(),
         "describe output matches private user name");
 
-    // TODO(TERRA-219) Support notebook deletion
-    // `terra notebook delete --name=$name`
-    // TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
-  }
+    // `terra notebook stop --name=$name`
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
+    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.STOPPED);
 
-  @Test
-  @DisplayName("resolve and check-access for a controlled AWS notebook")
-  void resolveAndCheckAccess() throws IOException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra resource create aws-notebook --name=$name`
-    String resourceName = UUID.randomUUID().toString();
-    UFAwsNotebook createdNotebook =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsNotebook.class, "resource", "create", "aws-notebook", "--name=" + resourceName);
+    // `terra notebook start --name=$name`
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + resourceName);
+    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.IN_SERVICE);
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
@@ -166,6 +167,31 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         "check-access error because aws notebooks are controlled resources",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
+
+    // `terra resource delete --name=$name`
+    stdErr =
+        TestCommand.runCommandExpectExitCode(1, "resource", "delete", "--name=" + resourceName);
+    assertThat(
+        "delete error because aws notebooks must be stopped before deletion",
+        stdErr,
+        CoreMatchers.containsString(
+            "delete error because aws notebooks must be stopped before deletion"));
+    // TODO-Dex
+
+    // `terra notebook stop --name=$name`
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
+
+    // `terra resource delete --name=$name`
+    TestCommand.runCommandExpectSuccessWithRetries(
+        "resource", "delete", "--name=" + resourceName, "--quiet");
+
+    // confirm it no longer appears in the resources list
+    List<UFGcpNotebook> listedNotebooks =
+        GcpNotebookUtils.listNotebookResourcesWithName(resourceName);
+    assertThat(
+        "deleted notebook no longer appears in the resources list",
+        listedNotebooks,
+        Matchers.empty());
   }
 
   @Test
@@ -262,28 +288,5 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         updatedNotebook.metadata.get(newKey2),
         "create output matches metadata" + newKey2 + ": " + newValue2);
      */
-  }
-
-  @Test
-  @DisplayName("start, stop an AWS notebook")
-  void startStop() throws IOException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra resource create aws-notebook --name=$name`
-    String resourceName = UUID.randomUUID().toString();
-    TestCommand.runCommandExpectSuccess(
-        "resource", "create", "aws-notebook", "--name=" + resourceName);
-    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.IN_SERVICE);
-
-    // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
-    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.STOPPED);
-
-    // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + resourceName);
-    AwsNotebookUtils.assertNotebookState(resourceName, NotebookInstanceStatus.IN_SERVICE);
   }
 }

@@ -66,6 +66,8 @@ import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledAwsSageMakerNotebookResult;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledAwsSageMakerNotebookRequest;
+import bio.terra.workspace.model.DeleteControlledAwsSageMakerNotebookResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
@@ -339,15 +341,12 @@ public class WorkspaceManagerService {
    */
   private static ControlledResourceCommonFields createCommonFields(
       CreateResourceParams createParams) {
-    ControlledResourceCommonFields commonFields =
-        new ControlledResourceCommonFields()
-            .name(createParams.name)
-            .description(createParams.description)
-            .cloningInstructions(createParams.cloningInstructions)
-            .accessScope(createParams.accessScope)
-            .managedBy(ManagedBy.USER);
-
-    return commonFields;
+    return new ControlledResourceCommonFields()
+        .name(createParams.name)
+        .description(createParams.description)
+        .cloningInstructions(createParams.cloningInstructions)
+        .accessScope(createParams.accessScope)
+        .managedBy(ManagedBy.USER);
   }
 
   /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
@@ -370,11 +369,9 @@ public class WorkspaceManagerService {
    */
   private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
     switch (jobReport.getStatus()) {
-      case FAILED:
-        throw new SystemException("Job failed: " + errorReport.getMessage());
-      case RUNNING:
-        throw new UserActionableException(
-            "CLI timed out waiting for the job to complete. It's still running on the server.");
+      case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING -> throw new UserActionableException(
+          "CLI timed out waiting for the job to complete. It's still running on the server.");
     }
   }
 
@@ -698,7 +695,6 @@ public class WorkspaceManagerService {
    * in a workspace.
    *
    * @param workspaceId the id of the workspace to enable pet impersonation in
-   * @return the email identifier of the pet SA which the user can now impersonate
    */
   public void enablePet(UUID workspaceId) {
     callWithRetries(
@@ -722,7 +718,7 @@ public class WorkspaceManagerService {
       @Nullable String name,
       @Nullable String description,
       String spendProfile) {
-    var request =
+    CloneWorkspaceRequest request =
         new CloneWorkspaceRequest()
             .spendProfile(spendProfile)
             .userFacingId(userFacingId)
@@ -867,7 +863,7 @@ public class WorkspaceManagerService {
         () -> {
           // poll the enumerate endpoint until no results are returned, or we hit the limit
           List<ResourceDescription> allResources = new ArrayList<>();
-          int numResultsReturned = 0;
+          int numResultsReturned;
           do {
             int offset = allResources.size();
             ResourceList result =
@@ -1298,7 +1294,7 @@ public class WorkspaceManagerService {
                   Duration.ofSeconds(10));
           logger.debug("Create controlled AWS notebook result {}", createResult);
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
-          return createResult.getAiNotebookInstance();
+          return createResult.getSageMakerNotebookInstance();
         },
         "Error creating controlled AWS Notebook instance in the workspace.");
   }
@@ -1773,7 +1769,7 @@ public class WorkspaceManagerService {
   public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    var deleteRequest =
+    DeleteControlledGcpAiNotebookInstanceRequest deleteRequest =
         new DeleteControlledGcpAiNotebookInstanceRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(
@@ -1865,26 +1861,25 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsNotebookInstance(UUID workspaceId, UUID resourceId) {
-    /* TODO(TERRA-219)
     ControlledAwsResourceApi controlledAwsResourceApi = new ControlledAwsResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    var deleteRequest =
-        new DeleteControlledAwsSagemakerNotebookInstanceRequest()
+    DeleteControlledAwsSageMakerNotebookRequest deleteRequest =
+        new DeleteControlledAwsSageMakerNotebookRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(
         () -> {
           // make the initial delete request
           HttpUtils.callWithRetries(
               () ->
-                  controlledAwsResourceApi.deleteAwsNotebookInstance(
+                  controlledAwsResourceApi.deleteAwsSageMakerNotebook(
                       deleteRequest, workspaceId, resourceId),
               WorkspaceManagerService::isRetryable);
 
           // poll the result endpoint until the job is no longer RUNNING
-          DeleteControlledAwsSagemakerNotebookInstanceResult deleteResult =
+          DeleteControlledAwsSageMakerNotebookResult deleteResult =
               HttpUtils.pollWithRetries(
                   () ->
-                      controlledAwsResourceApi.getDeleteAwsNotebookInstanceResult(
+                      controlledAwsResourceApi.getDeleteAwsSageMakerNotebookResult(
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable);
@@ -1893,7 +1888,6 @@ public class WorkspaceManagerService {
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
         },
         "Error deleting controlled AWS Notebook instance in the workspace.");
-     */
   }
 
   /**
