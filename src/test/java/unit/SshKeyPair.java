@@ -3,6 +3,7 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
@@ -29,14 +30,14 @@ public class SshKeyPair extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
-    assertNotNull(sshKeyPair.privateSshKey);
+    assertNull(sshKeyPair.privateSshKey);
     assertNotNull(sshKeyPair.publicSshKey);
     assertEquals(testUser.email.toLowerCase(), sshKeyPair.userEmail.toLowerCase());
 
     var sshKeyPair2 =
         TestCommand.runAndParseCommandExpectSuccess(UFSshKeyPair.class, "user", "ssh-key", "get");
 
-    assertEquals(sshKeyPair.privateSshKey, sshKeyPair2.privateSshKey);
+    assertNotNull(sshKeyPair2.privateSshKey);
     assertEquals(sshKeyPair.publicSshKey, sshKeyPair2.publicSshKey);
     assertEquals(testUser.email.toLowerCase(), sshKeyPair2.userEmail.toLowerCase());
   }
@@ -62,10 +63,10 @@ public class SshKeyPair extends SingleWorkspaceUnit {
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
-    assertNotEquals(sshkey.privateSshKey, sshkey2.privateSshKey);
+    assertNull(sshkey.privateSshKey);
+    assertNull(sshkey2.privateSshKey);
     assertNotEquals(sshkey.publicSshKey, sshkey2.publicSshKey);
     assertNotNull(sshkey2.publicSshKey);
-    assertNotNull(sshkey2.privateSshKey);
   }
 
   @Test
