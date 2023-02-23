@@ -2,6 +2,7 @@ package bio.terra.cli.command.user.sshkey;
 
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.Format.FormatOptions;
 import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
 import bio.terra.cli.service.ExternalCredentialsManagerService;
 import bio.terra.externalcreds.model.SshKeyPairType;
@@ -16,7 +17,7 @@ public class Get extends BaseCommand {
   @Override
   protected void execute() {
     ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
-    var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
+    var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/false);
     formatOption.printReturnValue(UFSshKeyPair.createUFSshKey(sshKeyPair), UFSshKeyPair::print);
   }
 }
