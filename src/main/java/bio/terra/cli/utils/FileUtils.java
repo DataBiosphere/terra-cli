@@ -65,6 +65,6 @@ public class FileUtils {
 
     return Files.write(
         outputFile.toPath(),
-        Optional.ofNullable(fileContents).orElse("").getBytes(StandardCharsets.UTF_8));
+        (fileContents == null) ? "" : fileContents.getBytes(StandardCharsets.UTF_8));
   }
 }
