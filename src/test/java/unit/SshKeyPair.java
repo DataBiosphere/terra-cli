@@ -35,7 +35,8 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     assertEquals(testUser.email.toLowerCase(), sshKeyPair.userEmail.toLowerCase());
 
     var sshKeyPair2 =
-        TestCommand.runAndParseCommandExpectSuccess(UFSshKeyPair.class, "user", "ssh-key", "get");
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFSshKeyPair.class, "user", "ssh-key", "get", "--include-private-key");
 
     assertNotNull(sshKeyPair2.privateSshKey);
     assertEquals(sshKeyPair.publicSshKey, sshKeyPair2.publicSshKey);
