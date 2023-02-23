@@ -54,7 +54,7 @@ public class Format {
   }
 
   // Return the option in force, either from the --format passed in or the Config system.
-  private FormatOptions getEffectiveFormatOption() {
+  public FormatOptions getEffectiveFormatOption() {
     return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().getFormat());
   }
 
