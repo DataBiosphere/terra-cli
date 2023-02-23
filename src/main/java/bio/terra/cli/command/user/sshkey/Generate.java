@@ -31,7 +31,7 @@ public class Generate extends BaseCommand {
         "Generating new SSH key is aborted");
     var sshKeyPair =
         ExternalCredentialsManagerService.fromContext()
-            .generateSshKeyPair(SshKeyPairType.GITHUB, saveToFile);
+            .generateSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ saveToFile);
     if (saveToFile) {
       Add.saveKeyFileAndSshAdd(sshKeyPair);
     } else {
