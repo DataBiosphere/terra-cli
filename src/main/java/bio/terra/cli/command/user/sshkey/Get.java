@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
 public class Get extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
-  @CommandLine.Option(names = "--include-private-key", description = "User email.")
+  @CommandLine.Option(names = "--include-private-key", description = "Include private ssh key.")
   private boolean includePrivateKey;
 
   @Override
