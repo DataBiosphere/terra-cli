@@ -94,7 +94,8 @@ public class ExternalCredentialsManagerService {
   public SshKeyPair getSshKeyPair(SshKeyPairType keyPairType, boolean includePrivateKey) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     return callWithRetries(
-        () -> sshKeyPairApi.getSshKeyPair(keyPairType, includePrivateKey), "Failed to get an ssh key pair");
+        () -> sshKeyPairApi.getSshKeyPair(keyPairType, includePrivateKey),
+        "Failed to get an ssh key pair");
   }
 
   /**
@@ -104,7 +105,9 @@ public class ExternalCredentialsManagerService {
   public SshKeyPair generateSshKeyPair(SshKeyPairType keyPairType, boolean includePrivateKey) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     return callWithRetries(
-        () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType, includePrivateKey),
+        () ->
+            sshKeyPairApi.generateSshKeyPair(
+                Context.requireUser().getEmail(), keyPairType, includePrivateKey),
         "Failed to regenerate ssh key");
   }
 
