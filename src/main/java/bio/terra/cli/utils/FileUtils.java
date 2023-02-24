@@ -1,5 +1,6 @@
 package bio.terra.cli.utils;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,12 +55,15 @@ public class FileUtils {
       value = "RV_RETURN_VALUE_IGNORED",
       justification =
           "A file not found exception will be thrown anyway in this same method if the mkdirs or createNewFile calls fail.")
-  public static Path writeStringToFile(File outputFile, String fileContents) throws IOException {
+  public static Path writeStringToFile(File outputFile, @Nullable String fileContents)
+      throws IOException {
     logger.debug("Writing to file: {}", outputFile.getAbsolutePath());
 
     // create the file and any parent directories if they don't already exist
     createFile(outputFile);
 
-    return Files.write(outputFile.toPath(), fileContents.getBytes(StandardCharsets.UTF_8));
+    return Files.write(
+        outputFile.toPath(),
+        (fileContents == null ? "" : fileContents).getBytes(StandardCharsets.UTF_8));
   }
 }

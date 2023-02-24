@@ -6,6 +6,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
 import bio.terra.cli.service.ExternalCredentialsManagerService;
 import bio.terra.externalcreds.model.SshKeyPair;
+import bio.terra.externalcreds.model.SshKeyPair;
 import bio.terra.externalcreds.model.SshKeyPairType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -31,7 +32,8 @@ public class Generate extends BaseCommand {
             + "Are you sure you want to proceed (y/N)?",
         "Generating new SSH key is aborted");
     SshKeyPair sshKeyPair =
-        ExternalCredentialsManagerService.fromContext().generateSshKeyPair(SshKeyPairType.GITHUB);
+        ExternalCredentialsManagerService.fromContext()
+            .generateSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ saveToFile);
     if (saveToFile) {
       Add.saveKeyFileAndSshAdd(sshKeyPair);
     } else {

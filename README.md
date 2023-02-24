@@ -756,6 +756,10 @@ for more details.
 
 #### ssh-key
 
+> **Ensure you have the latest CLI version.** To install new CLI version, first
+[manually uninstall](#manual-uninstall) existing CLI `rm -R ~/.terra` and then
+[install](#install-and-run) the latest CLI.
+
 `terra user ssh-key` is how Terra do source control in a notebook environment. 
 It handles the ssh key of the current user. There is one single Terra ssh key
 per user in a given server (e.g. broad-dev). With this SSH key, you can perform
