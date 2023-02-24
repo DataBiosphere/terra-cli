@@ -122,8 +122,7 @@ public class CRLJanitor {
       // Wait for the Future to complete
       messageIdFuture.get();
     } catch (InterruptedException | ExecutionException e) {
-      throw new JanitorException(
-          String.format("Failed to publish message: [%s] ", data), e);
+      throw new JanitorException(String.format("Failed to publish message: [%s] ", data), e);
     }
   }
 }

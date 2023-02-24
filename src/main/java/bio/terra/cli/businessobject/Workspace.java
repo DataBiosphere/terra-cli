@@ -231,9 +231,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }

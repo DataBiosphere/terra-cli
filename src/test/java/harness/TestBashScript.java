@@ -115,7 +115,8 @@ public class TestBashScript {
    * Helper method to get the absolute path to a script in the test/resources/testscripts directory.
    */
   private static Path getPathFromScriptName(String name) {
-    return Path.of(TestBashScript.class.getClassLoader().getResource("testscripts/" + name).getPath())
+    return Path.of(
+            TestBashScript.class.getClassLoader().getResource("testscripts/" + name).getPath())
         .toAbsolutePath();
   }
 

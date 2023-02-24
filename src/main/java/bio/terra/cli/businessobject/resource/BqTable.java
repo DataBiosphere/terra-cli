@@ -130,10 +130,10 @@ public class BqTable extends Resource {
   public String resolve(BqResolvedOptions resolveOption) {
     return switch (resolveOption) {
       case FULL_PATH -> projectId
-              + BQ_PROJECT_DATA_TABLE_DELIMITER
-              + datasetId
-              + BQ_PROJECT_DATA_TABLE_DELIMITER
-              + dataTableId;
+          + BQ_PROJECT_DATA_TABLE_DELIMITER
+          + datasetId
+          + BQ_PROJECT_DATA_TABLE_DELIMITER
+          + dataTableId;
       case TABLE_ID_ONLY -> dataTableId;
       case DATASET_ID_ONLY -> datasetId;
       case PROJECT_ID_ONLY -> projectId;

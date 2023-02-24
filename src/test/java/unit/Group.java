@@ -299,10 +299,11 @@ public class Group extends ClearContextUnit {
     groupAdmin.login();
 
     List<TestUser> expectedGroupMembers =
-            TestUser.getTestUsers().stream()
-                    .filter(
-                            testUser ->
-                                    testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP)).toList();
+        TestUser.getTestUsers().stream()
+            .filter(
+                testUser ->
+                    testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP))
+            .toList();
     for (TestUser expectedGroupMember : expectedGroupMembers) {
       // check that the test user is included in the list-users output
       expectListedMemberWithPolicies(

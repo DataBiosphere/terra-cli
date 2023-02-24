@@ -219,8 +219,9 @@ public class SpendProfileUser extends ClearContextUnit {
     // check that each test user who is enabled on the spend profile directly, is included in the
     // list-users output
     List<TestUser> expectedSpendUsers =
-            TestUser.getTestUsers().stream()
-                    .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY)).toList();
+        TestUser.getTestUsers().stream()
+            .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY))
+            .toList();
     for (TestUser expectedSpendUser : expectedSpendUsers) {
       expectListedUserWithPolicies(expectedSpendUser.email, SpendProfilePolicy.USER);
     }

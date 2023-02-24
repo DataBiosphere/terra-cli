@@ -18,7 +18,8 @@ public class ReferencedResourceCreation {
       names = "--cloning",
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
-  public final  CloningInstructionsEnum cloningInstructionsOption = CloningInstructionsEnum.REFERENCE;
+  public final CloningInstructionsEnum cloningInstructionsOption =
+      CloningInstructionsEnum.REFERENCE;
 
   @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 

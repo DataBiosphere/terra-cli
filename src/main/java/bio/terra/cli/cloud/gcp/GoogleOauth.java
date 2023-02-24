@@ -69,10 +69,9 @@ public final class GoogleOauth {
     try (InputStream inputStream =
         GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
 
-      return
-          GoogleClientSecrets.load(
-                  GsonFactory.getDefaultInstance(),
-              new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+      return GoogleClientSecrets.load(
+          GsonFactory.getDefaultInstance(),
+          new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(
@@ -364,7 +363,6 @@ public final class GoogleOauth {
       IdToken idToken = IdToken.create(tokenResponse.get("id_token").toString());
       getDataStore().set(storeKey, idToken);
     }
-
 
     /** Callback called on token creation */
     @Override

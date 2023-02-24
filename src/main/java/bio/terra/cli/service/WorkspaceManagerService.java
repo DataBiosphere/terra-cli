@@ -297,7 +297,7 @@ public class WorkspaceManagerService {
     switch (jobReport.getStatus()) {
       case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
       case RUNNING -> throw new UserActionableException(
-              "CLI timed out waiting for the job to complete. It's still running on the server.");
+          "CLI timed out waiting for the job to complete. It's still running on the server.");
     }
   }
 
