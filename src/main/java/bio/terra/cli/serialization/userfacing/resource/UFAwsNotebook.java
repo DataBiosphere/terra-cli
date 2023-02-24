@@ -60,7 +60,7 @@ public class UFAwsNotebook extends UFResource {
     OUT.println(prefix + "Instance id:   " + instanceId);
     OUT.println(prefix + "Location:      " + (location == null ? "(undefined)" : location));
     OUT.println(prefix + "Instance name: " + instanceName);
-    OUT.println(prefix + "State:         " + state);
+    OUT.println(prefix + "State:         " + (state == null ? "(unknown)" : state));
     OUT.println(
         prefix
             + "ProxyUri (JUPYTER):    "

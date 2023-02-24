@@ -150,7 +150,7 @@ public class AwsNotebook extends Resource {
                   location)
               .get(instanceId)
               .notebookInstanceStatus());
-    } catch (UserActionableException e) {
+    } catch (Exception e) {
       logger.error("Error getting status of notebook {}. ", instanceId, e);
     }
     return Optional.empty();
@@ -168,7 +168,7 @@ public class AwsNotebook extends Resource {
                   proxyUrlView,
                   WorkspaceManagerService.AWS_PROXY_URL_EXPIRATION_SECONDS_DEFAULT)
               .getUrl());
-    } catch (UserActionableException e) {
+    } catch (Exception e) {
       logger.error("Error getting proxy uri of notebook {}. ", instanceId, e);
     }
     return Optional.empty();
