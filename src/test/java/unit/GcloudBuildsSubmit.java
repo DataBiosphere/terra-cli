@@ -36,7 +36,7 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("builds submit --gcs-bucket")
-  void build() throws IOException, InterruptedException {
+  void build() throws IOException {
     Server server = Context.getServer();
     if (!server.getCloudBuildEnabled()) {
       return;

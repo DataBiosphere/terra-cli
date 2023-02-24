@@ -29,9 +29,9 @@ public class SpendProfileUser extends ClearContextUnit {
   public static final String TEST_SPEND_PROFILE = "test-spend-profile";
 
   // only an owner on the spend profile can disable emails
-  TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+  final TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
 
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   private static void expectListedUserWithPolicies(
       String email, String profile, SpendProfilePolicy... policies) throws JsonProcessingException {

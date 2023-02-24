@@ -15,14 +15,14 @@ public class ControlledResourceCreation {
   @CommandLine.Option(
       names = "--access",
       description = "Access scope for the resource: ${COMPLETION-CANDIDATES}.")
-  public AccessScope access = AccessScope.SHARED_ACCESS;
+  public final AccessScope access = AccessScope.SHARED_ACCESS;
   // Cloning option must have a different default for referenced resources (REFERENCE) than
   // for controlled resources (RESOURCE).
   @CommandLine.Option(
       names = "--cloning",
       description =
           "Instructions for handling when cloning the workspace: ${COMPLETION-CANDIDATES}.")
-  public CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
+  public final CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
 
   @CommandLine.Mixin ResourceCreation resourceCreationOption;
 

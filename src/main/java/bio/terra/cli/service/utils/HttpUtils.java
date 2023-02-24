@@ -450,8 +450,8 @@ public class HttpUtils {
 
   /** This is a POJO class to hold the HTTP status code and the raw JSON response body. */
   public static class HttpResponse {
-    public String responseBody;
-    public int statusCode;
+    public final String responseBody;
+    public final int statusCode;
 
     HttpResponse(String responseBody, int statusCode) {
       this.responseBody = responseBody;

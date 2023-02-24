@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra group` commands. */
 @Tag("unit")
 public class Group extends ClearContextUnit {
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   /** Helper method to check that a command returned a group not found error. */
   private static void expectGroupNotFound(TestCommand.Result cmd) {
@@ -311,7 +311,7 @@ public class Group extends ClearContextUnit {
   }
 
   private TestCommand.Result expectGroupListedMemberWithPoliciesTableFormat(
-      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+      String name, String email, GroupPolicy... policies) {
     // call `terra group list` in table format
     TestCommand.Result cmd = TestCommand.runCommand("group", "list");
 
@@ -342,7 +342,7 @@ public class Group extends ClearContextUnit {
   }
 
   private TestCommand.Result expectListedMemberWithPoliciesTableFormat(
-      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+      String name, String email, GroupPolicy... policies) {
     // call `terra group list-users` in table format
     TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
 
