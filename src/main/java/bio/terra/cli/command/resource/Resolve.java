@@ -43,23 +43,13 @@ public class Resolve extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
 
-    String cloudId;
-    switch (resource.getResourceType()) {
-      case GCS_BUCKET:
-        cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
-        break;
-      case GCS_OBJECT:
-        cloudId = ((GcsObject) resource).resolve(!excludeBucketPrefix);
-        break;
-      case BQ_DATASET:
-        cloudId = ((BqDataset) resource).resolve(bqPathFormat);
-        break;
-      case BQ_TABLE:
-        cloudId = ((BqTable) resource).resolve(bqPathFormat);
-        break;
-      default:
-        cloudId = resource.resolve();
-    }
+    String cloudId = switch (resource.getResourceType()) {
+      case GCS_BUCKET -> ((GcsBucket) resource).resolve(!excludeBucketPrefix);
+      case GCS_OBJECT -> ((GcsObject) resource).resolve(!excludeBucketPrefix);
+      case BQ_DATASET -> ((BqDataset) resource).resolve(bqPathFormat);
+      case BQ_TABLE -> ((BqTable) resource).resolve(bqPathFormat);
+      default -> resource.resolve();
+    };
     JSONObject object = new JSONObject();
     object.put(resource.getName(), cloudId);
     formatOption.printReturnValue(object, this::printText, this::printJson);

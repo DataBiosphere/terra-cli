@@ -38,7 +38,7 @@ public class HttpUtils {
    * @param accessToken the bearer token to include in the request, null if not required
    * @param params map of request parameters
    * @return a POJO that includes the HTTP status code and the raw JSON response body
-   * @throws IOException
+   * @throws IOException IOException
    */
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
@@ -60,7 +60,7 @@ public class HttpUtils {
    * @param headers map of request headers
    * @param params map of request parameters
    * @return a POJO that includes the HTTP status code and the raw JSON response body
-   * @throws IOException
+   * @throws IOException IOException
    */
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, Map<String, String> headers, Map<String, String> params)
@@ -356,7 +356,6 @@ public class HttpUtils {
    * @param handleOneTimeError function to handle the one-time error before retrying the request
    * @param handleOneTimeErrorIsRetryable function to test whether an exception thrown by
    *     handleOneTimeError is retryable or not
-   * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
    * @throws E2 if handleOneTimeError throws an exception
    */

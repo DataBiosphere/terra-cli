@@ -132,7 +132,6 @@ public class TestUser {
    * @param writeGcloudAuthFiles Whether to write gcloud auth files for the user as part of logging
    *     in. GCloud state is shared per-machine, so only tests in PassthroughApps should use this to
    *     avoid clobbering across threads.
-   * @return global context object, populated with the user's credentials
    */
   public void login(boolean writeGcloudAuthFiles) throws IOException {
     System.out.println("Logging in test user: " + email);

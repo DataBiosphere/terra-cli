@@ -295,11 +295,9 @@ public class WorkspaceManagerService {
    */
   private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
     switch (jobReport.getStatus()) {
-      case FAILED:
-        throw new SystemException("Job failed: " + errorReport.getMessage());
-      case RUNNING:
-        throw new UserActionableException(
-            "CLI timed out waiting for the job to complete. It's still running on the server.");
+      case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING -> throw new UserActionableException(
+              "CLI timed out waiting for the job to complete. It's still running on the server.");
     }
   }
 
@@ -611,7 +609,6 @@ public class WorkspaceManagerService {
    * in a workspace.
    *
    * @param workspaceId the id of the workspace to enable pet impersonation in
-   * @return the email identifier of the pet SA which the user can now impersonate
    */
   public void enablePet(UUID workspaceId) {
     callWithRetries(

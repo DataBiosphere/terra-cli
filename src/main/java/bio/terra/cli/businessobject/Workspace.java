@@ -233,8 +233,6 @@ public class Workspace {
 
   /**
    * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
    */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);

@@ -68,8 +68,7 @@ public class GoogleNotebooks {
    * https://github.com/googleapis/java-notebooks/issues/201.
    */
   private void checkFor409BadState(Exception ex) {
-    if (ex instanceof GoogleJsonResponseException) {
-      GoogleJsonResponseException googleJsonEx = (GoogleJsonResponseException) ex;
+    if (ex instanceof GoogleJsonResponseException googleJsonEx) {
       int httpCode = googleJsonEx.getStatusCode();
       String message = googleJsonEx.getDetails().getMessage();
       if (httpCode == HttpStatusCodes.STATUS_CODE_CONFLICT

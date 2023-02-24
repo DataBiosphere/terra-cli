@@ -97,7 +97,6 @@ public class JacksonMapper {
    * @param outputFile the file to write to
    * @param javaObject the Java object to write
    * @param <T> the Java object class to write
-   * @return an instance of the Java object class
    */
   @SuppressFBWarnings(
       value = "RV_RETURN_VALUE_IGNORED",
