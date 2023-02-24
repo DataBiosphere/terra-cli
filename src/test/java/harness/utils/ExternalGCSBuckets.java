@@ -143,7 +143,15 @@ public class ExternalGCSBuckets {
   public static Blob writeBlob(GoogleCredentials credentials, String bucketName, String blobName)
       throws InterruptedException {
     Storage storageClient = getStorageClient(credentials);
-    BucketInfo bucket = storageClient.get(bucketName);
+    // retry forbidden errors because the permissions can flicker.
+    Bucket bucket =
+        HttpUtils.callWithRetries(
+            () -> storageClient.get(bucketName),
+            (ex) ->
+                (ex instanceof StorageException)
+                    && ((StorageException) ex).getCode() == HttpStatus.SC_FORBIDDEN,
+            5,
+            Duration.ofMinutes(1));
 
     BlobId blobId = BlobId.of(bucket.getName(), blobName);
     BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
