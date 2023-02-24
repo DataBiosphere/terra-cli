@@ -32,7 +32,7 @@ public class Resolve extends WsmBaseCommand {
           "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id].[table id if applicable], "
               + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], "
               + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
-  private BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
+  private final BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;

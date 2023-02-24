@@ -69,7 +69,7 @@ public class GcsBucketLifecycle {
     Delete(GcpGcsBucketLifecycleRuleActionType.DELETE),
     SetStorageClass(GcpGcsBucketLifecycleRuleActionType.SET_STORAGE_CLASS);
 
-    private GcpGcsBucketLifecycleRuleActionType wsmEnumVal;
+    private final GcpGcsBucketLifecycleRuleActionType wsmEnumVal;
 
     ActionType(GcpGcsBucketLifecycleRuleActionType wsmEnumVal) {
       this.wsmEnumVal = wsmEnumVal;

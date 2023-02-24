@@ -19,7 +19,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.oauth2.AccessToken;
@@ -55,7 +55,7 @@ public final class GoogleOauth {
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
-  private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+  private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
 
@@ -69,12 +69,11 @@ public final class GoogleOauth {
     try (InputStream inputStream =
         GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
 
-      GoogleClientSecrets clientSecrets =
+      return
           GoogleClientSecrets.load(
-              JacksonFactory.getDefaultInstance(),
+                  GsonFactory.getDefaultInstance(),
               new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
-      return clientSecrets;
     } catch (IOException ioException) {
       throw new SystemException(
           String.format(
@@ -222,8 +221,8 @@ public final class GoogleOauth {
   /**
    * Get a credentials object for a service account using its JSON-formatted key file.
    *
-   * @jsonKey file handle for the JSON-formatted service account key file
-   * @scopes scopes to request for the credential object
+   * @param jsonKey file handle for the JSON-formatted service account key file
+   * @param scopes scopes to request for the credential object
    * @return credentials object for the service account
    */
   public static ServiceAccountCredentials getServiceAccountCredential(
@@ -302,7 +301,7 @@ public final class GoogleOauth {
    * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
    */
   private static class StdinReceiver extends AbstractPromptReceiver {
-    private String redirectUri;
+    private final String redirectUri;
 
     public StdinReceiver(String redirectUri) {
       this.redirectUri = redirectUri;
@@ -366,22 +365,23 @@ public final class GoogleOauth {
       getDataStore().set(storeKey, idToken);
     }
 
-    @Override
+
     /** Callback called on token creation */
+    @Override
     public void onCredentialCreated(Credential credential, TokenResponse tokenResponse)
         throws IOException {
       storeIdToken(tokenResponse);
     }
 
-    @Override
     /** Callback called on token refresh */
+    @Override
     public void onTokenResponse(Credential credential, TokenResponse tokenResponse)
         throws IOException {
       storeIdToken(tokenResponse);
     }
 
-    @Override
     /** Callback called on token refresh failure */
+    @Override
     public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) {
       throw new SystemException("Error obtaining token: " + tokenErrorResponse);
     }
@@ -395,8 +395,8 @@ public final class GoogleOauth {
    */
   private static class TerraAuthenticationHelper {
 
-    private IdCredentialListener idCredentialListener;
-    private GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
+    private final IdCredentialListener idCredentialListener;
+    private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
 
     /**
      * Private ctor called by create() method to create and associate idCredentialListener and
@@ -436,9 +436,9 @@ public final class GoogleOauth {
      * @param scopes OAuth scopes to request when launching an OAuth authentication flow
      * @param clientSecrets Application Client Secrets used to obtain credentials on behalf of CLI
      * @param dataStoreDir Directory where credentials store lives, used for cred storage/retrieval
-     * @return
-     * @throws IOException
-     * @throws GeneralSecurityException
+     * @return TerraAuthenticationHelper
+     * @throws IOException IOException
+     * @throws GeneralSecurityException GeneralSecurityException
      */
     public static TerraAuthenticationHelper create(
         List<String> scopes, GoogleClientSecrets clientSecrets, File dataStoreDir)

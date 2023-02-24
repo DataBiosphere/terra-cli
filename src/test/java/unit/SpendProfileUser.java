@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -220,9 +219,8 @@ public class SpendProfileUser extends ClearContextUnit {
     // check that each test user who is enabled on the spend profile directly, is included in the
     // list-users output
     List<TestUser> expectedSpendUsers =
-        TestUser.getTestUsers().stream()
-            .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY))
-            .collect(Collectors.toList());
+            TestUser.getTestUsers().stream()
+                    .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY)).toList();
     for (TestUser expectedSpendUser : expectedSpendUsers) {
       expectListedUserWithPolicies(expectedSpendUser.email, SpendProfilePolicy.USER);
     }

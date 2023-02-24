@@ -267,15 +267,12 @@ public class WorkspaceManagerService {
    */
   private static ControlledResourceCommonFields createCommonFields(
       CreateResourceParams createParams) {
-    ControlledResourceCommonFields commonFields =
-        new ControlledResourceCommonFields()
-            .name(createParams.name)
-            .description(createParams.description)
-            .cloningInstructions(createParams.cloningInstructions)
-            .accessScope(createParams.accessScope)
-            .managedBy(ManagedBy.USER);
-
-    return commonFields;
+    return new ControlledResourceCommonFields()
+        .name(createParams.name)
+        .description(createParams.description)
+        .cloningInstructions(createParams.cloningInstructions)
+        .accessScope(createParams.accessScope)
+        .managedBy(ManagedBy.USER);
   }
 
   /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
@@ -783,7 +780,7 @@ public class WorkspaceManagerService {
         () -> {
           // poll the enumerate endpoint until no results are returned, or we hit the limit
           List<ResourceDescription> allResources = new ArrayList<>();
-          int numResultsReturned = 0;
+          int numResultsReturned;
           do {
             int offset = allResources.size();
             ResourceList result =

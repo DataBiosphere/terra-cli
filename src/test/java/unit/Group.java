@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
@@ -300,11 +299,10 @@ public class Group extends ClearContextUnit {
     groupAdmin.login();
 
     List<TestUser> expectedGroupMembers =
-        TestUser.getTestUsers().stream()
-            .filter(
-                testUser ->
-                    testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP))
-            .collect(Collectors.toList());
+            TestUser.getTestUsers().stream()
+                    .filter(
+                            testUser ->
+                                    testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP)).toList();
     for (TestUser expectedGroupMember : expectedGroupMembers) {
       // check that the test user is included in the list-users output
       expectListedMemberWithPolicies(

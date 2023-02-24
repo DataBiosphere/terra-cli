@@ -15,7 +15,7 @@ public class SamGroups {
   private static final Random RANDOM = new Random();
   // keep a map of groups created by tests, so we can try to clean them up
   // group name -> test user that created it
-  private Map<String, TestUser> trackedGroups = new HashMap<>();
+  private final Map<String, TestUser> trackedGroups = new HashMap<>();
 
   /** Helper method to generate a random group name. */
   public static String randomGroupName() {

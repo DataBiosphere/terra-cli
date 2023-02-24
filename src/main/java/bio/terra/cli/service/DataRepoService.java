@@ -47,7 +47,7 @@ public class DataRepoService {
    */
   public RepositoryConfigurationModel getVersion() {
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
-    RepositoryConfigurationModel repositoryConfig = null;
+    RepositoryConfigurationModel repositoryConfig;
     try {
       repositoryConfig = unauthenticatedApi.retrieveRepositoryConfig();
     } catch (ApiException ex) {

@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +40,7 @@ public class CRLJanitor {
       "./rendered/" + TestConfig.getTestConfigName() + "/janitor-client.json";
   // default scope to request for the SA
   private static final List<String> CLOUD_PLATFORM_SCOPE =
-      Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+      List.of("https://www.googleapis.com/auth/cloud-platform");
   private static final String DEFAULT_CLIENT_NAME = "cli-test";
   // How long Janitor should wait before cleaning test workspaces.
   private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(6);
@@ -50,7 +48,7 @@ public class CRLJanitor {
   // it's better to re-use a single Publisher instance.
   private static final Publisher publisher = initializeJanitorPubSubPublisher();
 
-  public static final ClientConfig getClientConfig() {
+  public static ClientConfig getClientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(DEFAULT_CLIENT_NAME);
     if (TestConfig.get().useJanitor()) {
       builder.setCleanupConfig(
@@ -125,7 +123,7 @@ public class CRLJanitor {
       messageIdFuture.get();
     } catch (InterruptedException | ExecutionException e) {
       throw new JanitorException(
-          String.format("Failed to publish message: [%s] ", data.toString()), e);
+          String.format("Failed to publish message: [%s] ", data), e);
     }
   }
 }

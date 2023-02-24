@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,9 +71,9 @@ public class HttpUtils {
     if (hasParams) {
       StringBuilder paramsStrBuilder = new StringBuilder();
       for (Map.Entry<String, String> mapEntry : params.entrySet()) {
-        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getKey(), "UTF-8"));
+        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getKey(), StandardCharsets.UTF_8));
         paramsStrBuilder.append("=");
-        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getValue(), "UTF-8"));
+        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getValue(), StandardCharsets.UTF_8));
         paramsStrBuilder.append("&");
       }
       paramsStr = paramsStrBuilder.toString();
@@ -325,7 +326,7 @@ public class HttpUtils {
           // keep track of the last retryable exception so we can re-throw it in case of a timeout
           lastRetryableException = ex;
         }
-        logger.info("Caught retryable exception: {}", ex);
+        logger.info("Caught retryable exception: ", ex);
       }
 
       // sleep before retrying, unless this is the last try
@@ -415,7 +416,7 @@ public class HttpUtils {
       if (!isOneTimeError.test(ex)) {
         throw ex;
       }
-      logger.info("Caught possible one-time error: {}", ex);
+      logger.info("Caught possible one-time error: ", ex);
 
       // handle the one-time error
       callWithRetries(handleOneTimeError, handleOneTimeErrorIsRetryable);
