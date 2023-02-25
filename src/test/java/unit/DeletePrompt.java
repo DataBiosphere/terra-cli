@@ -21,7 +21,7 @@ import org.junit.jupiter.api.TestInfo;
 /** Tests for the confirmation prompt for delete commands. */
 @Tag("unit")
 public class DeletePrompt extends SingleWorkspaceUnit {
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   @Override
   @BeforeEach

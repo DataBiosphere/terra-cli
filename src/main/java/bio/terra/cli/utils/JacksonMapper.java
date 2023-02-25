@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JacksonMapper {
   private static final Logger logger = LoggerFactory.getLogger(JacksonMapper.class);
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   public static ObjectMapper getMapper() {
@@ -97,7 +97,6 @@ public class JacksonMapper {
    * @param outputFile the file to write to
    * @param javaObject the Java object to write
    * @param <T> the Java object class to write
-   * @return an instance of the Java object class
    */
   @SuppressFBWarnings(
       value = "RV_RETURN_VALUE_IGNORED",

@@ -21,7 +21,7 @@ import java.util.List;
     value = {"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
     justification = "This POJO class is used for easy serialization to JSON using Jackson.")
 public class GcsBucketLifecycle {
-  public List<Rule> rule = new ArrayList<>();
+  public final List<Rule> rule = new ArrayList<>();
 
   /**
    * Helper method to build a lifecycle rule that auto-deletes the contents of the bucket after some
@@ -69,7 +69,7 @@ public class GcsBucketLifecycle {
     Delete(GcpGcsBucketLifecycleRuleActionType.DELETE),
     SetStorageClass(GcpGcsBucketLifecycleRuleActionType.SET_STORAGE_CLASS);
 
-    private GcpGcsBucketLifecycleRuleActionType wsmEnumVal;
+    private final GcpGcsBucketLifecycleRuleActionType wsmEnumVal;
 
     ActionType(GcpGcsBucketLifecycleRuleActionType wsmEnumVal) {
       this.wsmEnumVal = wsmEnumVal;

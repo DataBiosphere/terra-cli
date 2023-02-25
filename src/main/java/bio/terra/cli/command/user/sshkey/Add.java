@@ -25,7 +25,8 @@ public class Add extends BaseCommand {
   @Override
   protected void execute() {
     ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
-    SshKeyPair sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ true);
+    SshKeyPair sshKeyPair =
+        ecmService.getSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ true);
     saveKeyFileAndSshAdd(sshKeyPair);
     formatOption.printReturnValue(UFSshKeyPair.createUFSshKey(sshKeyPair), UFSshKeyPair::print);
   }

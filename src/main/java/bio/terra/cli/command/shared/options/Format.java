@@ -102,6 +102,6 @@ public class Format {
   /** This enum specifies the format options for printing the command output. */
   public enum FormatOptions {
     JSON,
-    TEXT;
+    TEXT
   }
 }

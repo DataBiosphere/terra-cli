@@ -137,6 +137,7 @@ public class BqTable extends Resource {
       case TABLE_ID_ONLY -> dataTableId;
       case DATASET_ID_ONLY -> datasetId;
       case PROJECT_ID_ONLY -> projectId;
+      default -> throw new IllegalArgumentException("Unknown BigQuery data table resolve option.");
     };
   }
 

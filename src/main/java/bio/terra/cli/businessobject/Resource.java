@@ -100,26 +100,17 @@ public abstract class Resource {
   public static Resource deserializeFromWsm(ResourceDescription wsmObject) {
     bio.terra.workspace.model.ResourceType wsmResourceType =
         wsmObject.getMetadata().getResourceType();
-    switch (wsmResourceType) {
-      case GCS_BUCKET:
-        return new GcsBucket(wsmObject);
-      case GCS_OBJECT:
-        return new GcsObject(wsmObject);
-      case BIG_QUERY_DATASET:
-        return new BqDataset(wsmObject);
-      case BIG_QUERY_DATA_TABLE:
-        return new BqTable(wsmObject);
-      case AI_NOTEBOOK:
-        return new GcpNotebook(wsmObject);
-      case GIT_REPO:
-        return new GitRepo(wsmObject);
-      case AWS_BUCKET:
-        return new AwsBucket(wsmObject);
-      case AWS_SAGEMAKER_NOTEBOOK:
-        return new AwsNotebook(wsmObject);
-      default:
-        throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
-    }
+    return switch (wsmResourceType) {
+      case GCS_BUCKET -> new GcsBucket(wsmObject);
+      case GCS_OBJECT -> new GcsObject(wsmObject);
+      case BIG_QUERY_DATASET -> new BqDataset(wsmObject);
+      case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
+      case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
+      case GIT_REPO -> new GitRepo(wsmObject);
+      case AWS_BUCKET -> new AwsBucket(wsmObject);
+      case AWS_SAGEMAKER_NOTEBOOK -> new AwsNotebook(wsmObject);
+      default -> throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
+    };
   }
 
   protected static void validateResourceName(String name) {
@@ -146,14 +137,9 @@ public abstract class Resource {
   /** Delete an existing resource in the workspace. */
   public void delete() {
     switch (stewardshipType) {
-      case REFERENCED:
-        deleteReferenced();
-        break;
-      case CONTROLLED:
-        deleteControlled();
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
+      case REFERENCED -> deleteReferenced();
+      case CONTROLLED -> deleteControlled();
+      default -> throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
     Context.requireWorkspace().listResources();
   }
@@ -258,6 +244,6 @@ public abstract class Resource {
     AI_NOTEBOOK,
     GIT_REPO,
     AWS_BUCKET,
-    AWS_SAGEMAKER_NOTEBOOK;
+    AWS_SAGEMAKER_NOTEBOOK
   }
 }
