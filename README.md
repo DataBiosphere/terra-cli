@@ -26,6 +26,7 @@
     * [Workspace](#workspace)
     * [Resources](#resources)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
+        * [AWS bucket lifecycle rules](#aws-bucket-lifecycle-rules)
         * [GCS bucket object reference](#gcs-bucket-object-reference)
             * [Reference to a file or folder](#reference-to-a-file-or-folder)
             * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
@@ -616,8 +617,7 @@ example) to pick up any changes that your collaborators have made.
 ##### GCS bucket lifecycle rules
 
 GCS bucket lifecycle rules are specified by passing a JSON-formatted file path
-to the
-`terra resource create gcs-bucket` command. The expected JSON structure matches
+to the `terra resource create gcs-bucket` command. The expected JSON structure matches
 the one used by the `gsutil lifecycle`
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This
 structure is a subset of the GCS
@@ -626,7 +626,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
 
 (1) Change the storage class to `ARCHIVE` after 10 days.
 
-```json
+```
 {
   "rule": [
     {
@@ -645,7 +645,7 @@ resource [specification](https://cloud.google.com/storage/docs/json_api/v1/bucke
 (2) Delete any objects with storage class `STANDARD` that were created before
 December 3, 2007.
 
-```json
+```
 {
   "rule": [
     {
@@ -665,7 +665,7 @@ December 3, 2007.
 
 (3) Delete any objects that are more than 365 days old.
 
-```json
+```
 {
   "rule": [
     {
