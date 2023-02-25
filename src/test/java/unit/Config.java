@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class Config extends SingleWorkspaceUnit {
   private String getTableFormatValue(List<HashMap> result, String Option) {
-    var res =
+    Object res =
         result.stream()
             .filter(x -> (x.get("option").equals(Option)))
             .findFirst()
