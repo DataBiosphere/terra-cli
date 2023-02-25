@@ -40,8 +40,8 @@ public class VersionCheckUtils {
       return false;
     }
 
-    var currentVersion = Version.parse(currentVersionString);
-    var oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
+    Version currentVersion = Version.parse(currentVersionString);
+    Version oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
     return currentVersion.compareTo(oldestSupportedVersion) < 0;
   }
 }
