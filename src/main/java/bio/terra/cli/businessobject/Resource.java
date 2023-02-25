@@ -2,7 +2,12 @@ package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.AwsBucket;
 import bio.terra.cli.businessobject.resource.AwsNotebook;
-import bio.terra.cli.businessobject.resource.*;
+import bio.terra.cli.businessobject.resource.BqDataset;
+import bio.terra.cli.businessobject.resource.BqTable;
+import bio.terra.cli.businessobject.resource.GcpNotebook;
+import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsObject;
+import bio.terra.cli.businessobject.resource.GitRepo;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.PDResource;
 import bio.terra.cli.serialization.userfacing.UFResource;
