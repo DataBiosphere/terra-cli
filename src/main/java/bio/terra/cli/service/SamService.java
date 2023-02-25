@@ -462,7 +462,7 @@ public class SamService {
    * project-specific pet SA email for the current user (i.e. the one whose credentials were
    * supplied to the apiClient object).
    *
-   * @param googleProjectId
+   * @param googleProjectId the Google project id
    * @return the pet SA email
    */
   public String getPetSaEmailForProject(String googleProjectId) {
@@ -476,8 +476,8 @@ public class SamService {
    * project-specific pet SA access token for the current user (i.e. the one whose credentials were
    * supplied to the apiClient object).
    *
-   * @param googleProjectId
-   * @param scopes
+   * @param googleProjectId the Google project id
+   * @param scopes access scopes
    * @return the access token string
    */
   public String getPetSaAccessTokenForProject(String googleProjectId, List<String> scopes) {

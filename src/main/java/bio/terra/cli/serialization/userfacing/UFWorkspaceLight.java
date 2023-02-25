@@ -33,7 +33,7 @@ public class UFWorkspaceLight {
    * It's expected that the workspace passed into this constructor does not have its resources
    * populated. If it does, then one should create a UFWorkspace instead.
    *
-   * @param internalObj
+   * @param internalObj Workspace
    */
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
@@ -54,7 +54,7 @@ public class UFWorkspaceLight {
    * This constructor can be used instead of {@link UFWorkspaceLight#UFWorkspaceLight(Workspace)} if
    * you already have a WorkspaceDescription object from WSM to avoid making additional calls.
    *
-   * @param workspaceDescription
+   * @param workspaceDescription workspaceDescription
    */
   public UFWorkspaceLight(WorkspaceDescription workspaceDescription) {
     this.id = workspaceDescription.getUserFacingId();

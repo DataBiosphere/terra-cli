@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  * sub-classes are part of the current context or state.
  */
 public abstract class Resource {
-  // Copied from WSM
+  // Copied from WSM: ResourceType specific validation performed in WSM
   private static final Pattern RESOURCE_NAME_VALIDATION_PATTERN =
       Pattern.compile("^[a-zA-Z0-9][-_a-zA-Z0-9]{0,1023}$");
 
@@ -98,22 +98,15 @@ public abstract class Resource {
   public static Resource deserializeFromWsm(ResourceDescription wsmObject) {
     bio.terra.workspace.model.ResourceType wsmResourceType =
         wsmObject.getMetadata().getResourceType();
-    switch (wsmResourceType) {
-      case GCS_BUCKET:
-        return new GcsBucket(wsmObject);
-      case GCS_OBJECT:
-        return new GcsObject(wsmObject);
-      case BIG_QUERY_DATASET:
-        return new BqDataset(wsmObject);
-      case BIG_QUERY_DATA_TABLE:
-        return new BqTable(wsmObject);
-      case AI_NOTEBOOK:
-        return new GcpNotebook(wsmObject);
-      case GIT_REPO:
-        return new GitRepo(wsmObject);
-      default:
-        throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
-    }
+    return switch (wsmResourceType) {
+      case GCS_BUCKET -> new GcsBucket(wsmObject);
+      case GCS_OBJECT -> new GcsObject(wsmObject);
+      case BIG_QUERY_DATASET -> new BqDataset(wsmObject);
+      case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
+      case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
+      case GIT_REPO -> new GitRepo(wsmObject);
+      default -> throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
+    };
   }
 
   protected static void validateResourceName(String name) {
@@ -140,14 +133,9 @@ public abstract class Resource {
   /** Delete an existing resource in the workspace. */
   public void delete() {
     switch (stewardshipType) {
-      case REFERENCED:
-        deleteReferenced();
-        break;
-      case CONTROLLED:
-        deleteControlled();
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
+      case REFERENCED -> deleteReferenced();
+      case CONTROLLED -> deleteControlled();
+      default -> throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
     Context.requireWorkspace().listResources();
   }
@@ -250,6 +238,6 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO;
+    GIT_REPO
   }
 }

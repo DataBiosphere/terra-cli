@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.slf4j.Logger;
@@ -62,8 +61,6 @@ public class FileUtils {
     // create the file and any parent directories if they don't already exist
     createFile(outputFile);
 
-    return Files.write(
-        outputFile.toPath(),
-        (fileContents == null ? "" : fileContents).getBytes(StandardCharsets.UTF_8));
+    return Files.writeString(outputFile.toPath(), fileContents == null ? "" : fileContents);
   }
 }

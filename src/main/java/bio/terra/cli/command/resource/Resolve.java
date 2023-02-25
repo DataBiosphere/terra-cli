@@ -32,7 +32,7 @@ public class Resolve extends WsmBaseCommand {
           "[For BIG_QUERY_DATASET and BIG_QUERY_DATA_TABLE] Cloud id format: FULL_PATH=[project id].[dataset id].[table id if applicable], "
               + "DATASET_ID_ONLY=[dataset id], PROJECT_ID_ONLY=[project id], "
               + "[For BIG_QUERY_DATA_TABLE only] TABLE_ID_ONLY=[data table id]")
-  private BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
+  private final BqResolvedOptions bqPathFormat = BqResolvedOptions.FULL_PATH;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -43,23 +43,14 @@ public class Resolve extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
 
-    String cloudId;
-    switch (resource.getResourceType()) {
-      case GCS_BUCKET:
-        cloudId = ((GcsBucket) resource).resolve(!excludeBucketPrefix);
-        break;
-      case GCS_OBJECT:
-        cloudId = ((GcsObject) resource).resolve(!excludeBucketPrefix);
-        break;
-      case BQ_DATASET:
-        cloudId = ((BqDataset) resource).resolve(bqPathFormat);
-        break;
-      case BQ_TABLE:
-        cloudId = ((BqTable) resource).resolve(bqPathFormat);
-        break;
-      default:
-        cloudId = resource.resolve();
-    }
+    String cloudId =
+        switch (resource.getResourceType()) {
+          case GCS_BUCKET -> ((GcsBucket) resource).resolve(!excludeBucketPrefix);
+          case GCS_OBJECT -> ((GcsObject) resource).resolve(!excludeBucketPrefix);
+          case BQ_DATASET -> ((BqDataset) resource).resolve(bqPathFormat);
+          case BQ_TABLE -> ((BqTable) resource).resolve(bqPathFormat);
+          default -> resource.resolve();
+        };
     JSONObject object = new JSONObject();
     object.put(resource.getName(), cloudId);
     formatOption.printReturnValue(object, this::printText, this::printJson);

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for handling exceptions thrown by Terra services. */
 @Tag("unit")
 public class ClientExceptionHandling extends SingleWorkspaceUnit {
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   @AfterAll
   @Override

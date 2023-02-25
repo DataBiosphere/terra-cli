@@ -20,7 +20,7 @@ public enum GcsStorageClass {
   COLDLINE(GcpGcsBucketDefaultStorageClass.COLDLINE),
   ARCHIVE(GcpGcsBucketDefaultStorageClass.ARCHIVE);
 
-  private GcpGcsBucketDefaultStorageClass wsmEnumVal;
+  private final GcpGcsBucketDefaultStorageClass wsmEnumVal;
 
   GcsStorageClass(GcpGcsBucketDefaultStorageClass wsmEnumVal) {
     this.wsmEnumVal = wsmEnumVal;

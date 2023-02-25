@@ -91,7 +91,7 @@ public class TestBashScript {
     }
     if (envVars != null) {
       Map<String, String> procEnvVars = procBuilder.environment();
-      envVars.entrySet().forEach(envVar -> procEnvVars.put(envVar.getKey(), envVar.getValue()));
+      procEnvVars.putAll(envVars);
     }
     procBuilder.inheritIO();
 
@@ -115,10 +115,9 @@ public class TestBashScript {
    * Helper method to get the absolute path to a script in the test/resources/testscripts directory.
    */
   private static Path getPathFromScriptName(String name) {
-    Path scriptPath =
-        Path.of(TestBashScript.class.getClassLoader().getResource("testscripts/" + name).getPath())
-            .toAbsolutePath();
-    return scriptPath;
+    return Path.of(
+            TestBashScript.class.getClassLoader().getResource("testscripts/" + name).getPath())
+        .toAbsolutePath();
   }
 
   /**

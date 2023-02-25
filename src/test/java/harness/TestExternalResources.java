@@ -4,8 +4,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /** This class holds pointers to the SA that tests can use to create external resources. */
@@ -16,7 +14,7 @@ public class TestExternalResources {
 
   // default scope to request for the SA
   private static final List<String> CLOUD_PLATFORM_SCOPE =
-      Collections.unmodifiableList(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+      List.of("https://www.googleapis.com/auth/cloud-platform");
 
   /** Get credentials for the SA with permissions on the external project. */
   public static GoogleCredentials getSACredentials() throws IOException {
