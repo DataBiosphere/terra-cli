@@ -5,7 +5,7 @@
     * [Login](#login)
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
-    * [Local Tools Installation](#local-tools-installation)
+    * [Local tools installation](#local-tools-installation)
     * [Troubleshooting](#troubleshooting)
         * [Clear context](#clear-context)
         * [Manual Install](#manual-install)
@@ -64,8 +64,8 @@ Docker support. Set it to
   running).
 
 Re-installing will overwrite any existing installation (i.e. all JARs and
-scripts will be overwritten), but will not modify the `$PATH`. So if you have
-added it to your `$PATH`, that step needs to be repeated after each install.
+scripts will be overwritten), but will not modify the `$PATH`. If you have
+added the location of the Terra CLI to your `$PATH`, you will therefore need to add its location to your path again after each install.
 
 #### Requirements
 
@@ -73,68 +73,66 @@ added it to your `$PATH`, that step needs to be repeated after each install.
 2. Docker 20.10.2 (Must be running if installing in DOCKER_AVAILABLE mode)
 3. `curl`, `tar`, `gcloud` (For install only)
 
-Note: The CLI doesn't use `gcloud` directly either during install or normal
+Note: The CLI doesn't use `gcloud` directly either during installation or normal
 operation.
 However, `docker pull` [may use](https://cloud.google.com/container-registry/docs/quickstart#auth) `gcloud`
-under the covers to pull the default Docker image from GCR. This is the reason
-for the `gcloud` requirement for install.
+under the covers to pull the default Docker image from GCR; therefore, `gcloud` is required for installation.
 
 #### Login
+Note: If you are using the CLI on a Terra cloud environment, you do not need to run the commands below. You are already logged in. You can verify this by running `terra auth status`.
 
-1. `terra auth login` launches an OAuth flow that pops out a browser window to
+
+1. `terra auth login` launches an OAuth flow that creates a new tab in your browser window where you will
    complete the login.
 2. If the machine where you're running the CLI does not have a browser available
-   to it, then use the manual login flow by setting the browser
-   flag `terra config set browser MANUAL`. See
+   to it, then use the manual login flow by setting the browser flag using `terra config set browser MANUAL`. See
    the [Authentication](#authentication)
    section below for more details.
 
 #### Spend profile access
 
-In order to spend money (e.g. by creating a workspace and resources within it)
-in Terra, you need access to a billing account via a spend profile. Currently,
-there is a single spend profile used by Workspace Manager. An admin user can
-grant you access. Admins,
-see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend)
+In order to spend money 
+in Terra (e.g. by creating a workspace and resources within it), you need access to a billing account via a spend profile. Currently, there is a single spend profile used by {{% et-name %}}. An admin user can
+grant you access. Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend)
 for more details.
 
 #### External data
 
-In order to read or write external data from Terra, you should grant data access
+In order to read data from or write data to a private external resource in Terra, you must grant the appropriate data access permissions
 to your proxy group.
-`terra auth status` shows the email of your proxy group.
+Run `terra auth status` to view the email address of your proxy group. 
 
-#### Local Tools Installation
+#### Local tools installation
 
 When running `terra app` commands in `LOCAL_PROCESS` `app-launch` mode (the
-default), it's necessary to install the various tools locally. The following
-instructions are for MacOS or Linux.
+default), it's necessary to install various tools locally. The following
+instructions are for both MacOS and Linux.
 
 - `gcloud` - Make sure you have Python installed, then download the .tar.gz
   archive file from
   the [installation page](https://cloud.google.com/sdk/docs/install).
   Run `gcloud version` to verify the installation.
   - `gcloud builds submit` has `--gcs-bucket-resource` option to specify the `--gcs-source-staging-dir` and `--gcs-log-dir` options as default.
-- `gsutil` - included in
+- `gsutil` - This command is included in
   the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install), or available
   separately [here](https://cloud.google.com/storage/docs/gsutil_install).
-  Verify the installation with `gsutil version` (also printed as part
+  Verify its installation with `gsutil version` (also printed as part
   of `gcloud version`)
-- `bq` - included with `gcloud`. More details are
+- `bq` - This command is included with `gcloud`. More details are
   available [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
-  Similarly, verify the installation with `bq version`.
+  Similarly, verify its installation with `bq version`.
 - `nextflow` - Install by downloading a `bash` script and running it locally.
-  Create a `nextflow` directory somewhere convenient (e.g. $HOME/nextflow) and
-  switch to it. Then do `curl -s https://get.nextflow.io | bash`. Finally, move
+  Create a `nextflow` directory somewhere convenient (e.g. `$HOME/nextflow`) and
+  switch to it. Then run `curl -s https://get.nextflow.io | bash`. Finally, move
   the `nextflow` executable script to a location on
-  the `$PATH`: `sudo mv nextflow /usr/local/bin/`. Verify the installation
+  the `$PATH`: the `$PATH` by running `sudo mv nextflow /usr/local/bin/`. Verify the installation
   with `nextflow -version`.
 - `git` -
-  Follow [instruction](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  here for installing Git on different platform.
+  Follow these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for installing Git on your platform.
 
-Now, these applications are available in `terra` by doing, for
-example, `terra gsutil ls`. When run in `terra`, environment variables are set
+
+Now, these applications are available in `terra` by running, for
+example, `terra gsutil ls`. When run with `terra`, environment variables are set
 based on resources in the active workspace, and context such as the active GCP
 project is set up automatically.
 
