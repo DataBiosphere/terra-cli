@@ -134,7 +134,7 @@ public class Config {
   /** Options for handling the browser during the OAuth process. */
   public enum BrowserLaunchOption {
     MANUAL,
-    AUTO;
+    AUTO
   }
 
   /** Different ways of running tool/app commands. */
@@ -142,7 +142,7 @@ public class Config {
     DOCKER_CONTAINER(new DockerCommandRunner()),
     LOCAL_PROCESS(new LocalProcessCommandRunner());
 
-    private CommandRunner commandRunner;
+    private final CommandRunner commandRunner;
 
     CommandRunnerOption(CommandRunner commandRunner) {
       this.commandRunner = commandRunner;

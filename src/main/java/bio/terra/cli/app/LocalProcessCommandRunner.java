@@ -67,7 +67,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
       // For unit tests, set CLOUDSDK_AUTH_ACCESS_TOKEN. This is how to programmatically
       // authenticate as test user, without SA key file
       // (https://cloud.google.com/sdk/docs/authorizing).
-      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().get());
+      envVars.put("CLOUDSDK_AUTH_ACCESS_TOKEN", getTestPetSaAccessToken().orElseThrow());
     } else {
       // Only enforce ADC if we're not a test. (`gcloud auth activate-service-account` requires a
       // key file, which we don't want for security reasons.)

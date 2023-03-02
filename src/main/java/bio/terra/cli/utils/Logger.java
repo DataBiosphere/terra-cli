@@ -168,7 +168,7 @@ public class Logger {
     TRACE,
     ALL;
 
-    private Level logLevelImpl;
+    private final Level logLevelImpl;
 
     LogLevel() {
       this.logLevelImpl = Level.valueOf(this.toString());

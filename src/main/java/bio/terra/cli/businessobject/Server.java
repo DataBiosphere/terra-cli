@@ -4,6 +4,7 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDServer;
 import bio.terra.cli.service.DataRepoService;
 import bio.terra.cli.service.SamService;
+import bio.terra.cli.service.UserManagerService;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.JacksonMapper;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 public class Server {
   @VisibleForTesting public static final String RESOURCE_DIRECTORY = "servers";
   @VisibleForTesting public static final String ALL_SERVERS_FILENAME = "all-servers.json";
+  public static final String DEFAULT_SPEND_PROFILE = "wm-default-spend-profile";
   private static final Logger logger = LoggerFactory.getLogger(Server.class);
   private static final String DEFAULT_SERVER_FILENAME = "broad-dev-cli-testing.json";
   // unique identifier that matches the JSON file name under resources/servers.
@@ -50,6 +52,7 @@ public class Server {
   private final String wsmDefaultSpendProfile;
   private final String dataRepoUri;
   private final String externalCredsUri;
+  private final String userManagerUri;
   // Terra services in the service instance are configured to accept JWT ID tokens for
   // authentication.
   private final boolean supportsIdToken;
@@ -67,6 +70,7 @@ public class Server {
     this.wsmDefaultSpendProfile = configFromDisk.wsmDefaultSpendProfile;
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
+    this.userManagerUri = configFromDisk.userManagerUri;
     this.supportsIdToken = configFromDisk.supportsIdToken;
     this.supportedCloudPlatforms =
         configFromDisk.supportedCloudPlatforms != null
@@ -178,9 +182,22 @@ public class Server {
       }
     }
 
+    boolean userUriSpecified = (userManagerUri != null);
+    boolean userStatusIsOk = true;
+    if (userUriSpecified) {
+      try {
+        UserManagerService.unauthenticated(this).getStatus();
+        logger.info("USER status: {}", userStatusIsOk);
+      } catch (Exception ex) {
+        logger.error("Error getting USER status.", ex);
+        userStatusIsOk = false;
+      }
+    }
+
     return (!samUriSpecified || (samStatus != null && samStatus.getOk()))
         && (!wsmUriSpecified || wsmStatusIsOk)
-        && (!dataRepoUriSpecified || (tdrStatus != null && tdrStatus.isOk()));
+        && (!dataRepoUriSpecified
+            || (tdrStatus != null && tdrStatus.isOk()) && (!userUriSpecified || userStatusIsOk));
   }
 
   // ====================================================
@@ -224,6 +241,10 @@ public class Server {
 
   public String getExternalCredsUri() {
     return externalCredsUri;
+  }
+
+  public String getUserManagerUri() {
+    return userManagerUri;
   }
 
   public boolean getSupportsIdToken() {

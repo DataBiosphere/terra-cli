@@ -3,6 +3,7 @@ package unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.serialization.userfacing.UFGroup;
 import bio.terra.cli.serialization.userfacing.UFSpendProfileUser;
 import bio.terra.cli.service.SpendProfileManagerService.SpendProfilePolicy;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,9 +29,9 @@ public class SpendProfileUser extends ClearContextUnit {
   public static final String TEST_SPEND_PROFILE = "test-spend-profile";
 
   // only an owner on the spend profile can disable emails
-  TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+  final TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
 
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   private static void expectListedUserWithPolicies(
       String email, String profile, SpendProfilePolicy... policies) throws JsonProcessingException {
@@ -52,7 +52,7 @@ public class SpendProfileUser extends ClearContextUnit {
    */
   private static void expectListedUserWithPolicies(String email, SpendProfilePolicy... policies)
       throws JsonProcessingException {
-    expectListedUserWithPolicies(email, "wm-default-spend-profile", policies);
+    expectListedUserWithPolicies(email, Server.DEFAULT_SPEND_PROFILE, policies);
   }
 
   static Optional<UFSpendProfileUser> listUsersWithEmail(String email, String profile)
@@ -72,7 +72,7 @@ public class SpendProfileUser extends ClearContextUnit {
    */
   static Optional<UFSpendProfileUser> listUsersWithEmail(String email)
       throws JsonProcessingException {
-    return listUsersWithEmail(email, "wm-default-spend-profile");
+    return listUsersWithEmail(email, Server.DEFAULT_SPEND_PROFILE);
   }
 
   @AfterAll
@@ -221,7 +221,7 @@ public class SpendProfileUser extends ClearContextUnit {
     List<TestUser> expectedSpendUsers =
         TestUser.getTestUsers().stream()
             .filter(testUser -> testUser.spendEnabled.equals(TestUser.SpendEnabled.DIRECTLY))
-            .collect(Collectors.toList());
+            .toList();
     for (TestUser expectedSpendUser : expectedSpendUsers) {
       expectListedUserWithPolicies(expectedSpendUser.email, SpendProfilePolicy.USER);
     }

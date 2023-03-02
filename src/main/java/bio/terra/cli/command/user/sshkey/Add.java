@@ -17,7 +17,7 @@ import java.util.List;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "add", description = "Save your Terra SSH key to ~/.ssh and add it to ssh agent.")
+@Command(name = "add", description = "Save your Terra SSH key to ~/.ssh and add it to ssh-agent.")
 public class Add extends BaseCommand {
 
   @CommandLine.Mixin Format formatOption;
@@ -25,7 +25,7 @@ public class Add extends BaseCommand {
   @Override
   protected void execute() {
     ExternalCredentialsManagerService ecmService = ExternalCredentialsManagerService.fromContext();
-    var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB);
+    var sshKeyPair = ecmService.getSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ true);
     saveKeyFileAndSshAdd(sshKeyPair);
     formatOption.printReturnValue(UFSshKeyPair.createUFSshKey(sshKeyPair), UFSshKeyPair::print);
   }

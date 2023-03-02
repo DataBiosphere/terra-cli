@@ -3,7 +3,9 @@ package bio.terra.cli.command.shared.options;
 import picocli.CommandLine;
 
 /**
- * @CommandLine.Mixin class for workspace name and description options
+ * Command helper class that defines the workspace name and description options
+ *
+ * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class WorkspaceNameAndDescription {
   @CommandLine.Option(

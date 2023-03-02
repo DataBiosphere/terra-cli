@@ -91,20 +91,23 @@ public class ExternalCredentialsManagerService {
    *
    * @param keyPairType git server tied to the key (e.g. GitHub, GitLab, Azure).
    */
-  public SshKeyPair getSshKeyPair(SshKeyPairType keyPairType) {
+  public SshKeyPair getSshKeyPair(SshKeyPairType keyPairType, boolean includePrivateKey) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     return callWithRetries(
-        () -> sshKeyPairApi.getSshKeyPair(keyPairType), "Failed to get an ssh key pair");
+        () -> sshKeyPairApi.getSshKeyPair(keyPairType, includePrivateKey),
+        "Failed to get an ssh key pair");
   }
 
   /**
    * Generate an SshKey for the user. If the user already has a terra ssh key, the old one will be
    * replaced.
    */
-  public SshKeyPair generateSshKeyPair(SshKeyPairType keyPairType) {
+  public SshKeyPair generateSshKeyPair(SshKeyPairType keyPairType, boolean includePrivateKey) {
     SshKeyPairApi sshKeyPairApi = new SshKeyPairApi(apiClient);
     return callWithRetries(
-        () -> sshKeyPairApi.generateSshKeyPair(Context.requireUser().getEmail(), keyPairType),
+        () ->
+            sshKeyPairApi.generateSshKeyPair(
+                Context.requireUser().getEmail(), keyPairType, includePrivateKey),
         "Failed to regenerate ssh key");
   }
 

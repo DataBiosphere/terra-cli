@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra group` commands. */
 @Tag("unit")
 public class Group extends ClearContextUnit {
-  SamGroups trackedGroups = new SamGroups();
+  final SamGroups trackedGroups = new SamGroups();
 
   /** Helper method to check that a command returned a group not found error. */
   private static void expectGroupNotFound(TestCommand.Result cmd) {
@@ -304,7 +303,7 @@ public class Group extends ClearContextUnit {
             .filter(
                 testUser ->
                     testUser.spendEnabled.equals(TestUser.SpendEnabled.CLI_TEST_USERS_GROUP))
-            .collect(Collectors.toList());
+            .toList();
     for (TestUser expectedGroupMember : expectedGroupMembers) {
       // check that the test user is included in the list-users output
       expectListedMemberWithPolicies(
@@ -313,7 +312,7 @@ public class Group extends ClearContextUnit {
   }
 
   private TestCommand.Result expectGroupListedMemberWithPoliciesTableFormat(
-      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+      String name, String email, GroupPolicy... policies) {
     // call `terra group list` in table format
     TestCommand.Result cmd = TestCommand.runCommand("group", "list");
 
@@ -344,7 +343,7 @@ public class Group extends ClearContextUnit {
   }
 
   private TestCommand.Result expectListedMemberWithPoliciesTableFormat(
-      String name, String email, GroupPolicy... policies) throws JsonProcessingException {
+      String name, String email, GroupPolicy... policies) {
     // call `terra group list-users` in table format
     TestCommand.Result cmd = TestCommand.runCommand("group", "list-users", "--name=" + name);
 

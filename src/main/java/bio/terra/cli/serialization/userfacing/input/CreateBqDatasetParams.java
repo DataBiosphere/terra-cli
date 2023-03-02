@@ -15,8 +15,8 @@ public class CreateBqDatasetParams {
   public final String projectId;
   public final String datasetId;
   public final String location;
-  public final Integer defaultPartitionLifetimeSeconds;
-  public final Integer defaultTableLifetimeSeconds;
+  public final Long defaultPartitionLifetimeSeconds;
+  public final Long defaultTableLifetimeSeconds;
 
   protected CreateBqDatasetParams(CreateBqDatasetParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -33,8 +33,8 @@ public class CreateBqDatasetParams {
     private String projectId;
     private String datasetId;
     private String location;
-    private Integer defaultPartitionLifetimeSeconds;
-    private Integer defaultTableLifetimeSeconds;
+    private Long defaultPartitionLifetimeSeconds;
+    private Long defaultTableLifetimeSeconds;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -59,12 +59,12 @@ public class CreateBqDatasetParams {
       return this;
     }
 
-    public Builder defaultPartitionLifetimeSeconds(Integer defaultPartitionLifetimeSeconds) {
+    public Builder defaultPartitionLifetimeSeconds(Long defaultPartitionLifetimeSeconds) {
       this.defaultPartitionLifetimeSeconds = defaultPartitionLifetimeSeconds;
       return this;
     }
 
-    public Builder defaultTableLifetimeSeconds(Integer defaultTableLifetimeSeconds) {
+    public Builder defaultTableLifetimeSeconds(Long defaultTableLifetimeSeconds) {
       this.defaultTableLifetimeSeconds = defaultTableLifetimeSeconds;
       return this;
     }

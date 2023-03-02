@@ -132,7 +132,6 @@ public class TestUser {
    * @param writeGcloudAuthFiles Whether to write gcloud auth files for the user as part of logging
    *     in. GCloud state is shared per-machine, so only tests in PassthroughApps should use this to
    *     avoid clobbering across threads.
-   * @return global context object, populated with the user's credentials
    */
   public void login(boolean writeGcloudAuthFiles) throws IOException {
     System.out.println("Logging in test user: " + email);
@@ -280,7 +279,7 @@ public class TestUser {
             "rendered",
             TestConfig.getTestConfigName(),
             email + ".json");
-    logger.debug("Reading test user refresh token from {}", testUserFilePath.toString());
+    logger.debug("Reading test user refresh token from {}", testUserFilePath);
 
     Gson gson = new Gson();
     Map<String, String> testUserMap = new HashMap<>();
@@ -289,7 +288,7 @@ public class TestUser {
       testUserMap = gson.fromJson(reader, Map.class);
       reader.close();
     } catch (IOException e) {
-      throw new SystemException("Error reading test user file " + testUserFilePath.toString(), e);
+      throw new SystemException("Error reading test user file " + testUserFilePath, e);
     }
 
     return testUserMap.get("refresh_token");
@@ -307,6 +306,6 @@ public class TestUser {
     OWNER, // owner of the cli-test-users group and owner on the spend profile resource
     NO, // not enabled
     CLI_TEST_USERS_GROUP, // member of cli-test-users group, which is enabled on spend profile
-    DIRECTLY; // user of the spend profile resource
+    DIRECTLY // user of the spend profile resource
   }
 }

@@ -209,16 +209,15 @@ public class DockerClientWrapper {
 
   /** Helper class for reading Docker container logs into a string. */
   private static class LogContainerCommandCallback extends ResultCallback.Adapter<Frame> {
-
     protected final StringBuffer log = new StringBuffer();
-    List<Frame> framesList = new ArrayList<>();
+    protected final List<Frame> framesList = new ArrayList<>();
 
     // these two boolean flags are useful for debugging
     // buildSingleStringOutput = concatenate the output into a single String (be careful of very
     // long outputs)
-    boolean buildSingleStringOutput;
+    protected final boolean buildSingleStringOutput;
     // buildFramesList = keep a list of all the output lines (frames) as they come back
-    boolean buildFramesList;
+    protected final boolean buildFramesList;
 
     public LogContainerCommandCallback() {
       this(false, false);

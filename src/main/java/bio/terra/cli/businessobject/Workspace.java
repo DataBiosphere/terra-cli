@@ -69,11 +69,14 @@ public class Workspace {
       CloudPlatform cloudPlatform,
       String name,
       String description,
-      Map<String, String> properties) {
+      Map<String, String> properties,
+      String spendProfile) {
+
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(userFacingId, cloudPlatform, name, description, properties);
+            .createWorkspace(
+                userFacingId, cloudPlatform, name, description, properties, spendProfile);
     logger.info("Created workspace: {}", createdWorkspace);
 
     // convert the WSM object to a CLI object
@@ -228,11 +231,7 @@ public class Workspace {
     return workspace;
   }
 
-  /**
-   * Enable the current user and their pet to impersonate their pet SA in this workspace.
-   *
-   * @return Email identifier of the pet SA the current user can now actAs.
-   */
+  /** Enable the current user and their pet to impersonate their pet SA in this workspace. */
   public void enablePet() {
     WorkspaceManagerService.fromContext().enablePet(uuid);
   }
@@ -268,12 +267,18 @@ public class Workspace {
    * @param userFacingId - user-facing ID of the new workspace
    * @param name - name of the new workspace
    * @param description - description of the new workspace
+   * @param spendProfile - spend profile of the new workspace
    * @return - ClonedWorkspace structure with details on each resource
    */
   public ClonedWorkspace clone(
-      String userFacingId, @Nullable String name, @Nullable String description) {
+      String userFacingId,
+      @Nullable String name,
+      @Nullable String description,
+      String spendProfile) {
+
     CloneWorkspaceResult result =
-        WorkspaceManagerService.fromContext().cloneWorkspace(uuid, userFacingId, name, description);
+        WorkspaceManagerService.fromContext()
+            .cloneWorkspace(uuid, userFacingId, name, description, spendProfile);
     return result.getWorkspace();
   }
 

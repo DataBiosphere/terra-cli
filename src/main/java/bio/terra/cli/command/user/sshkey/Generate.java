@@ -10,13 +10,13 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the fourth-level "terra user ssh-key generate" command. */
-@Command(name = "generate", description = "Generate a terra managed ssh key.")
+@Command(name = "generate", description = "Generate a Terra-managed SSH key.")
 public class Generate extends BaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
       names = "--save-to-file",
-      description = "Save the terra ssh key pair as file, skip printing out the key")
+      description = "Save the Terra SSH key pair as a file, skip printing out the key")
   boolean saveToFile;
 
   @CommandLine.Mixin ConfirmationPrompt confirmationPrompt;
@@ -30,7 +30,8 @@ public class Generate extends BaseCommand {
             + "Are you sure you want to proceed (y/N)?",
         "Generating new SSH key is aborted");
     var sshKeyPair =
-        ExternalCredentialsManagerService.fromContext().generateSshKeyPair(SshKeyPairType.GITHUB);
+        ExternalCredentialsManagerService.fromContext()
+            .generateSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ saveToFile);
     if (saveToFile) {
       Add.saveKeyFileAndSshAdd(sshKeyPair);
     } else {

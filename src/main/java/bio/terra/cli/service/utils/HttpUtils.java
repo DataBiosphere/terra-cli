@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class HttpUtils {
    * @param accessToken the bearer token to include in the request, null if not required
    * @param params map of request parameters
    * @return a POJO that includes the HTTP status code and the raw JSON response body
-   * @throws IOException
+   * @throws IOException IOException
    */
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, String accessToken, Map<String, String> params)
@@ -59,7 +60,7 @@ public class HttpUtils {
    * @param headers map of request headers
    * @param params map of request parameters
    * @return a POJO that includes the HTTP status code and the raw JSON response body
-   * @throws IOException
+   * @throws IOException IOException
    */
   public static HttpResponse sendHttpRequest(
       String urlStr, String requestType, Map<String, String> headers, Map<String, String> params)
@@ -70,9 +71,9 @@ public class HttpUtils {
     if (hasParams) {
       StringBuilder paramsStrBuilder = new StringBuilder();
       for (Map.Entry<String, String> mapEntry : params.entrySet()) {
-        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getKey(), "UTF-8"));
+        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getKey(), StandardCharsets.UTF_8));
         paramsStrBuilder.append("=");
-        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getValue(), "UTF-8"));
+        paramsStrBuilder.append(URLEncoder.encode(mapEntry.getValue(), StandardCharsets.UTF_8));
         paramsStrBuilder.append("&");
       }
       paramsStr = paramsStrBuilder.toString();
@@ -325,7 +326,7 @@ public class HttpUtils {
           // keep track of the last retryable exception so we can re-throw it in case of a timeout
           lastRetryableException = ex;
         }
-        logger.info("Caught retryable exception: {}", ex);
+        logger.info("Caught retryable exception: ", ex);
       }
 
       // sleep before retrying, unless this is the last try
@@ -355,7 +356,6 @@ public class HttpUtils {
    * @param handleOneTimeError function to handle the one-time error before retrying the request
    * @param handleOneTimeErrorIsRetryable function to test whether an exception thrown by
    *     handleOneTimeError is retryable or not
-   * @return the response object
    * @throws E1 if makeRequest throws an exception that is not the expected one-time error
    * @throws E2 if handleOneTimeError throws an exception
    */
@@ -415,7 +415,7 @@ public class HttpUtils {
       if (!isOneTimeError.test(ex)) {
         throw ex;
       }
-      logger.info("Caught possible one-time error: {}", ex);
+      logger.info("Caught possible one-time error: ", ex);
 
       // handle the one-time error
       callWithRetries(handleOneTimeError, handleOneTimeErrorIsRetryable);
@@ -450,8 +450,8 @@ public class HttpUtils {
 
   /** This is a POJO class to hold the HTTP status code and the raw JSON response body. */
   public static class HttpResponse {
-    public String responseBody;
-    public int statusCode;
+    public final String responseBody;
+    public final int statusCode;
 
     HttpResponse(String responseBody, int statusCode) {
       this.responseBody = responseBody;

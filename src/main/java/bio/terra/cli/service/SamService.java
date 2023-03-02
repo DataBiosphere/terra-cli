@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
@@ -55,6 +56,7 @@ public class SamService {
     this.server = server;
     this.apiClient = new ApiClient();
 
+    this.apiClient.setHttpClient(HttpClients.getSamClient());
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
     if (accessToken != null) {
@@ -460,7 +462,7 @@ public class SamService {
    * project-specific pet SA email for the current user (i.e. the one whose credentials were
    * supplied to the apiClient object).
    *
-   * @param googleProjectId
+   * @param googleProjectId the Google project id
    * @return the pet SA email
    */
   public String getPetSaEmailForProject(String googleProjectId) {
@@ -474,8 +476,8 @@ public class SamService {
    * project-specific pet SA access token for the current user (i.e. the one whose credentials were
    * supplied to the apiClient object).
    *
-   * @param googleProjectId
-   * @param scopes
+   * @param googleProjectId the Google project id
+   * @param scopes access scopes
    * @return the access token string
    */
   public String getPetSaAccessTokenForProject(String googleProjectId, List<String> scopes) {

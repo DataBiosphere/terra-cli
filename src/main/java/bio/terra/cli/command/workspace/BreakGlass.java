@@ -38,8 +38,8 @@ public class BreakGlass extends WsmBaseCommand {
   private static final Logger logger = LoggerFactory.getLogger(BreakGlass.class);
   // pointers to the central BQ dataset where break-glass requests are logged
   // keep the dataset/table names here consistent with those in tools/create-break-glass-bq.sh
-  private static String BQ_DATASET_NAME = "break_glass_requests";
-  private static String BQ_TABLE_NAME = "requests";
+  private static final String BQ_DATASET_NAME = "break_glass_requests";
+  private static final String BQ_TABLE_NAME = "requests";
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
