@@ -10,7 +10,10 @@ import picocli.CommandLine.Command;
     description = "Creates a snapshot of a file and places it in a `snapshots` bucket.")
 public class Snapshot extends BaseCommand {
 
-  @CommandLine.Option(names = "--filePath", required = true, description = "The path to a file to create a snapshot of.")
+  @CommandLine.Option(
+      names = "--filePath",
+      required = true,
+      description = "The path to a file to create a snapshot of.")
   public String filePath;
 
   @CommandLine.Option(
