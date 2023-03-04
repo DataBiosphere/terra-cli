@@ -6,6 +6,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
+import com.auth0.client.auth.AuthAPI;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.CredentialRefreshListener;
@@ -418,6 +419,15 @@ public final class GoogleOauth {
       // create the code flow object, pointing at the credential datastore in order to store and
       // retrieve ID tokens, and registering our IdCredentialListener for callbacks on token
       // creation/refresh
+      AuthAPI auth =
+          AuthAPI.newBuilder(
+                  "terra-sandbox.us.auth0.com",
+                  "9iX5StTZSzVGTxwPw94F47pCG77AXpeF",
+                  "61Dmg1ut-N60GjYfBokmpSSoK4__5BnPo3jzA4dAaDU133u7_DqqxGbfY4cSQMQJ")
+              .build();
+      String url =
+          auth.authorizeUrl("https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
+              .build();
       googleAuthorizationCodeFlow =
           new GoogleAuthorizationCodeFlow.Builder(
                   GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
@@ -426,6 +436,7 @@ public final class GoogleOauth {
               .setApprovalPrompt("force")
               .setCredentialCreatedListener(idCredentialListener)
               .addRefreshListener(idCredentialListener)
+              .setAuthorizationServerEncodedUrl(url)
               .build();
     }
 

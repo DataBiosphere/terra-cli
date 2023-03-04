@@ -92,6 +92,8 @@ dependencies {
     // Swagger deps
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
 
+    implementation 'com.auth0:auth0:2.0.0'
+
     // Test deps
     testImplementation platform('org.junit:junit-bom:5.9.0')
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.0'
