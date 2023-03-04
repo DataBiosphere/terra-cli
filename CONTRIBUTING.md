@@ -26,7 +26,7 @@
     * [Update the default image](#update-the-default-image)
 5. [Code](#code)
     * [Code structure](#code-structure)
-    * [Top-level package](#top-level-package)
+    * [Business logic](#business-logic)
     * [Supported tools](#supported-tools)
         * [Adding a new supported tool](#add-a-new-supported-tool)
     * [Commands](#commands)
@@ -634,10 +634,10 @@ file.
 In WSM db, `workspace` table has 2 ID columns: `workspace_id`
 and `user_facing_id`.
 
-|               | What is this                                | Name in codebase | What CLI user sees                   |
-|---------------|---------------------------------------------|------------------|--------------------------------------|
-|workspace_id   | UUID; db primary key                        | `uuid`           | N/A, user doesn't see this.          |
-|user_facing_id | A human-settable, mutable, ID. Also unique. | `userFacingId`   | `ID`                                 |
+|                | What is this                                | Name in codebase | What CLI user sees          |
+|----------------|---------------------------------------------|------------------|-----------------------------|
+| workspace_id   | UUID; db primary key                        | `uuid`           | N/A, user doesn't see this. |
+| user_facing_id | A human-settable, mutable, ID. Also unique. | `userFacingId`   | `ID`                        |
 
 For simplicity, user only sees `user_facing_id`; for example
 in `terra workspace describe.`

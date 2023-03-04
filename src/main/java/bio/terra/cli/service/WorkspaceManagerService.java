@@ -267,15 +267,12 @@ public class WorkspaceManagerService {
    */
   private static ControlledResourceCommonFields createCommonFields(
       CreateResourceParams createParams) {
-    ControlledResourceCommonFields commonFields =
-        new ControlledResourceCommonFields()
-            .name(createParams.name)
-            .description(createParams.description)
-            .cloningInstructions(createParams.cloningInstructions)
-            .accessScope(createParams.accessScope)
-            .managedBy(ManagedBy.USER);
-
-    return commonFields;
+    return new ControlledResourceCommonFields()
+        .name(createParams.name)
+        .description(createParams.description)
+        .cloningInstructions(createParams.cloningInstructions)
+        .accessScope(createParams.accessScope)
+        .managedBy(ManagedBy.USER);
   }
 
   /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
@@ -298,11 +295,9 @@ public class WorkspaceManagerService {
    */
   private static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
     switch (jobReport.getStatus()) {
-      case FAILED:
-        throw new SystemException("Job failed: " + errorReport.getMessage());
-      case RUNNING:
-        throw new UserActionableException(
-            "CLI timed out waiting for the job to complete. It's still running on the server.");
+      case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING -> throw new UserActionableException(
+          "CLI timed out waiting for the job to complete. It's still running on the server.");
     }
   }
 
@@ -614,7 +609,6 @@ public class WorkspaceManagerService {
    * in a workspace.
    *
    * @param workspaceId the id of the workspace to enable pet impersonation in
-   * @return the email identifier of the pet SA which the user can now impersonate
    */
   public void enablePet(UUID workspaceId) {
     callWithRetries(
@@ -783,7 +777,7 @@ public class WorkspaceManagerService {
         () -> {
           // poll the enumerate endpoint until no results are returned, or we hit the limit
           List<ResourceDescription> allResources = new ArrayList<>();
-          int numResultsReturned = 0;
+          int numResultsReturned;
           do {
             int offset = allResources.size();
             ResourceList result =

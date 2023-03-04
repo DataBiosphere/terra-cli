@@ -26,7 +26,7 @@ public class UFServer {
   public final String wsmDefaultSpendProfile;
   public final String dataRepoUri;
   public final boolean supportsIdToken;
-  public Set<CloudPlatform> supportedCloudPlatforms;
+  public final Set<CloudPlatform> supportedCloudPlatforms;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFServer(Server internalObj) {

@@ -471,19 +471,26 @@ format                TEXT                                           output form
 
 #### Cromwell
 
-This command is creating an auto generation cromwell.conf in workspace.
+Utility commands for using the [Cromwell](https://cromwell.readthedocs.io/en/stable/) workflow engine with Terra.
 
 ```
 Usage: terra cromwell [COMMAND]
 Commands related to Cromwell workflows.
 Commands:
-  generate-config  Generate cromwell.conf under the user-specified path.
+  generate-config  Generate a Cromwell configuration file (cromwell.conf) for use on a Terra workspace cloud environment.
 ```
 
 To run Cromwell in a notebook instance:
 
-* Run `terra cromwell generate-config [--dir=my/path]`
-* In a notebook instance terminal, in `cromwell.conf`, replace `{WORKSPACE_BUCKET}` with a bucket in your workspace
+* Run
+```
+terra cromwell generate-config \
+    (--workspace-bucket-name=bucket_name | --google-bucket-name=gs://my-bucket) \
+    [--dir=my/path]
+```
+* One of `workspace-bucket-name` or `google-bucket-name` is required to specify the bucket used by Cromwell for workflow orchestration.
+  * `workspace-bucket-name` is a Terra resource name.
+  * `google-bucket-name` is a Google Cloud Storage bucket. If `google-bucket-name` does not begin with the `gs://` prefix, it will be automatically added.
 * Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
 * In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
 * Start workflow through cromshell: e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
@@ -748,6 +755,10 @@ for more details.
 #### User
 
 #### ssh-key
+
+> **Ensure you have the latest CLI version.** To install new CLI version, first
+[manually uninstall](#manual-uninstall) existing CLI `rm -R ~/.terra` and then
+[install](#install-and-run) the latest CLI.
 
 `terra user ssh-key` is how Terra do source control in a notebook environment. 
 It handles the ssh key of the current user. There is one single Terra ssh key

@@ -8,10 +8,15 @@ task runInstallForTesting(type: Exec) {
 }
 
 // Builds and returns a complete list of test tags to be executed on
-//      testType: 'unit' / 'integration'
-//      testTag: input from gradle command run
-//      cloudPlatform: input from gradle command run
-def getAllTestTagsToRun(String testType, String testTag, String cloudPlatform) {
+//      testType:       'unit' / 'integration'      -> not null
+//      testTag:        input from gradle command   -> not null
+//      cloudPlatform:  input from gradle command   -> may be null
+// in: unit / unit      / null  ->  out:    [unit, unit-gcp, unit-aws, unit-azure]
+// in: unit / unit      / gcp   ->  out:    [unit, unit-gcp]
+// in: unit / unit-gcp  / null  ->  out:    [unit-gcp]
+// in: unit / unit-gcp  / gcp   ->  out:    [unit-gcp]
+// in: unit / unit-gcp  / aws   ->  out:    []
+static def getAllTestTagsToRun(String testType, String testTag, String cloudPlatform) {
     def allTestTags = []
     switch (testTag) {
         case testType:

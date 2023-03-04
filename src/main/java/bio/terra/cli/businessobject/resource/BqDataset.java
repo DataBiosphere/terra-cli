@@ -162,16 +162,12 @@ public class BqDataset extends Resource {
    * dataset: [GCP project id].[BQ dataset id]
    */
   public String resolve(BqResolvedOptions resolveOption) {
-    switch (resolveOption) {
-      case FULL_PATH:
-        return projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;
-      case DATASET_ID_ONLY:
-        return datasetId;
-      case PROJECT_ID_ONLY:
-        return projectId;
-      default:
-        throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
-    }
+    return switch (resolveOption) {
+      case FULL_PATH -> projectId + BQ_PROJECT_DATASET_DELIMITER + datasetId;
+      case DATASET_ID_ONLY -> datasetId;
+      case PROJECT_ID_ONLY -> projectId;
+      default -> throw new IllegalArgumentException("Unknown BigQuery dataset resolve option.");
+    };
   }
 
   /** Query the cloud for information about the dataset. */
