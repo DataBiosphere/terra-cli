@@ -13,14 +13,20 @@ package bio.terra.cli.cloud.gcp;
  * the License.
  */
 
+import static bio.terra.cli.cloud.gcp.GoogleOauth.ID_TOKEN_STORE_KEY;
+
+import bio.terra.cli.businessobject.Context;
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.json.auth.TokenHolder;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.auth.oauth2.IdToken;
 import java.io.IOException;
 
 /**
@@ -77,7 +83,6 @@ public class TerraAuthorizationCodeInstalledApp extends AuthorizationCodeInstall
               .setAudience("https://terra-devel.api.verily.com")
               .execute();
 
-      System.out.println(result);
       var tokenResponse =
           new TokenResponse()
               .setAccessToken(result.getAccessToken())
@@ -85,12 +90,9 @@ public class TerraAuthorizationCodeInstalledApp extends AuthorizationCodeInstall
               .setRefreshToken(result.getRefreshToken())
               .setScope(result.getScope())
               .setTokenType(result.getTokenType());
-      // TokenResponse response =
-      //     getFlow().newTokenRequest(code).setRedirectUri(redirectUri).execute();
-      // store credential and return it
-      // new FileDataStoreFactory(Context.getContextDir().toFile())
-      //     .getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID)
-      //     .set(ID_TOKEN_STORE_KEY, IdToken.create(result.getIdToken()));
+      new FileDataStoreFactory(Context.getContextDir().toFile())
+          .getDataStore(StoredCredential.DEFAULT_DATA_STORE_ID)
+          .set(ID_TOKEN_STORE_KEY, IdToken.create(result.getIdToken()));
       return getFlow().createAndStoreCredential(tokenResponse, userId);
     } finally {
       getReceiver().stop();

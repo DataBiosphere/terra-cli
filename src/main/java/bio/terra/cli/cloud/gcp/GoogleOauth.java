@@ -170,8 +170,8 @@ public final class GoogleOauth {
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
         TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
-    // helper.deleteStoredCredential();
-    // helper.deleteStoredIdToken();
+    helper.deleteStoredCredential();
+    helper.deleteStoredIdToken();
   }
 
   /**
@@ -284,7 +284,7 @@ public final class GoogleOauth {
   public static void revokeToken(Optional<TerraCredentials> credential) {
     if (credential.isPresent()
         && credential.get().getGoogleCredentials().getAccessToken() != null) {
-      String endpoint = "https://oauth2.googleapis.com/revoke";
+      String endpoint = "https://terra-sandbox.us.auth0.com/oauth/revoke";
       Map<String, String> headers =
           ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
       Map<String, String> params =
@@ -406,7 +406,7 @@ public final class GoogleOauth {
               "61Dmg1ut-N60GjYfBokmpSSoK4__5BnPo3jzA4dAaDU133u7_DqqxGbfY4cSQMQJ");
       String url =
           auth.authorizeUrl("https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
-              .withResponseType("code")
+              .withResponseType("code token id_token")
               .withAudience("https://terra-devel.api.verily.com")
               .withScope("profile email")
               .build();
@@ -422,6 +422,7 @@ public final class GoogleOauth {
                   "9iX5StTZSzVGTxwPw94F47pCG77AXpeF",
                   url)
               .setDataStoreFactory(fileDataStoreFactory)
+              .setScopes(scopes)
               .build();
     }
 
