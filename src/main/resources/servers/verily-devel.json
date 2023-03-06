@@ -9,6 +9,6 @@
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
   "userManagerUri": "https://terra-devel-user.api.verily.com",
-  "supportsIdToken": true,
+  "supportsIdToken": false,
   "supportedCloudPlatforms": ["GCP"]
 }

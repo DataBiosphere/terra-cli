@@ -13,9 +13,9 @@ public class TerraCredentials {
   private final IdToken idToken;
 
   public TerraCredentials(GoogleCredentials googleCredentials, IdToken idToken) {
-    if (googleCredentials == null || idToken == null) {
-      throw new NullPointerException("GoogleCredential and IdToken must both be non-null.");
-    }
+    // if (googleCredentials == null || idToken == null) {
+    //   throw new NullPointerException("GoogleCredential and IdToken must both be non-null.");
+    // }
     this.googleCredentials = googleCredentials;
     this.idToken = idToken;
   }

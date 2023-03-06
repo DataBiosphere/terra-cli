@@ -59,6 +59,7 @@ public class SamService {
     this.apiClient.setHttpClient(HttpClients.getSamClient());
     this.apiClient.setBasePath(server.getSamUri());
     this.apiClient.setUserAgent("OpenAPI-Generator/1.0.0 java"); // only logs an error in sam
+    System.out.println(accessToken);
     if (accessToken != null) {
       // fetch the user access token
       // this method call will attempt to refresh the token if it's already expired
