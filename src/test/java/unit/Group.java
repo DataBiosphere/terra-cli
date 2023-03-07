@@ -331,7 +331,7 @@ public class Group extends ClearContextUnit {
       // Convert to lower-case because email in broad.json is mixed case
       if (rows[i].contains(email) && rows[i].contains(name)) {
         nameAndEmailExists = true;
-        for (GroupPolicy policy : policies) {
+        for (var policy : policies) {
           assertThat("Row has all policies.", rows[i].contains(policy.toString()));
         }
       }
@@ -359,7 +359,7 @@ public class Group extends ClearContextUnit {
       // Convert to lower-case because email in broad.json is mixed case
       if (rows[i].contains(email.toLowerCase())) {
         emailExists = true;
-        for (GroupPolicy policy : policies) {
+        for (var policy : policies) {
           assertThat("Row has all policies.", rows[i].contains(policy.toString()));
         }
       }

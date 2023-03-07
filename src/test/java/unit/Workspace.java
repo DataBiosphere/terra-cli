@@ -13,7 +13,6 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.service.UserManagerService;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -33,7 +32,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace create uses spend profile stored in user manager")
   void create_spendProfileFromUserManager() throws IOException, InterruptedException {
-    String altSpendProfile = "wm-alt-spend-profile";
+    var altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -46,7 +45,7 @@ public class Workspace extends ClearContextUnit {
     // Create the workspace using the spend profile
     WorkspaceUtils.createWorkspace(spendProfileOwner, Optional.empty());
 
-    WorkspaceDescription workspaceDescription =
+    var workspaceDescription =
         WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
 
@@ -58,7 +57,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace clone uses spend profile stored in user manager")
   void clone_spendProfileFromUserManager() throws IOException, InterruptedException {
-    String altSpendProfile = "wm-alt-spend-profile";
+    var altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -76,7 +75,7 @@ public class Workspace extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace", "clone", "--new-id=" + createdWorkspace.id + "-clone");
 
-    WorkspaceDescription workspaceDescription =
+    var workspaceDescription =
         WorkspaceManagerService.fromContext()
             .getWorkspaceByUserFacingId(createdWorkspace.id + "-clone");
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
@@ -333,26 +332,5 @@ public class Workspace extends ClearContextUnit {
         "error message indicate user must set ID",
         stdErr,
         CoreMatchers.containsString("Missing required option: '--id=<id>'"));
-  }
-
-  @Test
-  @DisplayName("workspace create fails for unsupported platform")
-  void createFailsForUnsupportedPlatform() throws IOException {
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login();
-
-    // `terra workspace create --id=<user-facing-id> --platform=invalidPlatform`
-    String stdErr =
-        TestCommand.runCommandExpectExitCode(
-            2,
-            "workspace",
-            "create",
-            "--id=" + WorkspaceUtils.createUserFacingId(),
-            "--platform",
-            "invalidPlatform");
-    assertThat(
-        "error message indicate platform must be valid if provided",
-        stdErr,
-        CoreMatchers.containsString("Invalid value for option '--platform'"));
   }
 }

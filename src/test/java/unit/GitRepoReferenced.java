@@ -268,7 +268,7 @@ public class GitRepoReferenced extends SingleWorkspaceUnit {
             "--new-repo-url=" + GIT_REPO_HTTPS_URL);
     assertEquals(GIT_REPO_HTTPS_URL, updatedGitRepo.gitRepoUrl);
 
-    JSONObject resolved =
+    var resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(GIT_REPO_HTTPS_URL, resolved.get(newName), "resolve matches https Git url");
   }

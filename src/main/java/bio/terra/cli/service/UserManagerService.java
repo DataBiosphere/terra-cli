@@ -115,7 +115,7 @@ public class UserManagerService {
       return false;
     }
     logErrorMessage((ApiException) ex);
-    int statusCode = ((ApiException) ex).getCode();
+    var statusCode = ((ApiException) ex).getCode();
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
@@ -131,7 +131,7 @@ public class UserManagerService {
         ex.getMessage());
 
     // try to deserialize the response body into an ErrorReport
-    String responseBody = ex.getResponseBody();
+    var responseBody = ex.getResponseBody();
 
     // if we found a User Manager error message, then return it
     // otherwise return a string with the http code

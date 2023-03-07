@@ -537,7 +537,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket.getName(), updatedBucketObject.bucketName);
 
-    JSONObject resolved =
+    var resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket.getName(), externalBucketBlobName2),
@@ -555,7 +555,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
     assertEquals(externalBucketBlobName2, updatedBucketObject.objectName);
     assertEquals(externalBucket2.getName(), updatedBucketObject.bucketName);
 
-    JSONObject resolved2 =
+    var resolved2 =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + newName);
     assertEquals(
         ExternalGCSBuckets.getGsPath(externalBucket2.getName(), externalBucketBlobName2),
