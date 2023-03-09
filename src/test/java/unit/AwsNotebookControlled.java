@@ -170,13 +170,13 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
 
     // `terra resource delete --name=$name`
     stdErr =
-        TestCommand.runCommandExpectExitCode(1, "resource", "delete", "--name=" + resourceName);
+        TestCommand.runCommandExpectExitCode(
+            1, "resource", "delete", "--name=" + resourceName, "--quiet");
     assertThat(
         "delete error because aws notebooks must be stopped before deletion",
         stdErr,
         CoreMatchers.containsString(
             "delete error because aws notebooks must be stopped before deletion"));
-    // TODO-Dex
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
