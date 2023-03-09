@@ -136,7 +136,8 @@ public class AwsNotebook extends Resource {
     return includeUrlPrefix ? AWS_NOTEBOOK_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
-  public static Optional<NotebookInstanceStatus> getInstanceStatus(String location, String instanceId) {
+  public static Optional<NotebookInstanceStatus> getInstanceStatus(
+      String location, String instanceId) {
     Workspace workspace = Context.requireWorkspace();
     try {
       return Optional.ofNullable(

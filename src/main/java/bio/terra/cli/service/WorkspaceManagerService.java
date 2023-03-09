@@ -1158,29 +1158,28 @@ public class WorkspaceManagerService {
   public GcpAiNotebookInstanceResource createControlledGcpNotebookInstance(
       UUID workspaceId, CreateGcpNotebookParams createParams) {
     // convert the CLI object to a WSM request object
-    String jobId = UUID.randomUUID().toString();
+    String asyncJobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
         new CreateControlledGcpAiNotebookInstanceRequestBody()
             .common(createCommonFields(createParams.resourceFields))
             .aiNotebookInstance(fromCLIObject(createParams))
-            .jobControl(new JobControl().id(jobId));
-    logger.debug("Create controlled GCP notebook request {}", createRequest);
+            .jobControl(new JobControl().id(asyncJobId));
 
     return handleClientExceptions(
         () -> {
           ControlledGcpResourceApi controlledGcpResourceApi =
               new ControlledGcpResourceApi(apiClient);
-          // Start the GCP notebook creation job.
+          // start the GCP notebook creation job.
           HttpUtils.callWithRetries(
               () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
               WorkspaceManagerService::isRetryable);
 
-          // Poll the result endpoint until the job is no longer RUNNING.
+          // poll the result endpoint until the job is no longer RUNNING.
           CreatedControlledGcpAiNotebookInstanceResult createResult =
               HttpUtils.pollWithRetries(
                   () ->
                       controlledGcpResourceApi.getCreateAiNotebookInstanceResult(
-                          workspaceId, jobId),
+                          workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
                   // Creating a GCP notebook instance should take less than ~10 minutes.
@@ -1263,20 +1262,18 @@ public class WorkspaceManagerService {
   public AwsSageMakerNotebookResource createControlledAwsNotebookInstance(
       UUID workspaceId, CreateAwsNotebookParams createParams) {
     // convert the CLI object to a WSM request object
-    String jobId = UUID.randomUUID().toString();
-
+    String asyncJobId = UUID.randomUUID().toString();
     CreateControlledAwsSageMakerNotebookRequestBody createRequest =
         new CreateControlledAwsSageMakerNotebookRequestBody()
             .common(createCommonFields(createParams.resourceFields))
             .awsSageMakerNotebook(fromCLIObject(createParams))
-            .jobControl(new JobControl().id(jobId));
-    logger.debug("Create controlled AWS notebook request {}", createRequest);
+            .jobControl(new JobControl().id(asyncJobId));
 
     return handleClientExceptions(
         () -> {
           ControlledAwsResourceApi controlledAwsResourceApi =
               new ControlledAwsResourceApi(apiClient);
-          // Start the AWS notebook creation job.
+          // start the AWS notebook creation job.
           HttpUtils.callWithRetries(
               () -> controlledAwsResourceApi.createAwsSageMakerNotebook(createRequest, workspaceId),
               WorkspaceManagerService::isRetryable);
@@ -1286,7 +1283,7 @@ public class WorkspaceManagerService {
               HttpUtils.pollWithRetries(
                   () ->
                       controlledAwsResourceApi.getCreateAwsSageMakerNotebookResult(
-                          workspaceId, jobId),
+                          workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
                   // Creating a AWS notebook instance should take less than ~10 minutes.
@@ -1730,12 +1727,14 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledGcsBucket(UUID workspaceId, UUID resourceId) {
-    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
     DeleteControlledGcpGcsBucketRequest deleteRequest =
         new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
+
     handleClientExceptions(
         () -> {
+          ControlledGcpResourceApi controlledGcpResourceApi =
+              new ControlledGcpResourceApi(apiClient);
           // make the initial delete request
           HttpUtils.callWithRetries(
               () -> controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
@@ -1767,13 +1766,15 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
-    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
     var deleteRequest =
         new DeleteControlledGcpAiNotebookInstanceRequest()
             .jobControl(new JobControl().id(asyncJobId));
+
     handleClientExceptions(
         () -> {
+          ControlledGcpResourceApi controlledGcpResourceApi =
+              new ControlledGcpResourceApi(apiClient);
           // make the initial delete request
           HttpUtils.callWithRetries(
               () ->
@@ -1861,13 +1862,15 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsNotebookInstance(UUID workspaceId, UUID resourceId) {
-    ControlledAwsResourceApi controlledAwsResourceApi = new ControlledAwsResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    var deleteRequest =
+    DeleteControlledAwsSageMakerNotebookRequest deleteRequest =
         new DeleteControlledAwsSageMakerNotebookRequest()
             .jobControl(new JobControl().id(asyncJobId));
+
     handleClientExceptions(
         () -> {
+          ControlledAwsResourceApi controlledAwsResourceApi =
+              new ControlledAwsResourceApi(apiClient);
           // make the initial delete request
           HttpUtils.callWithRetries(
               () ->
@@ -1882,7 +1885,9 @@ public class WorkspaceManagerService {
                       controlledAwsResourceApi.getDeleteAwsSageMakerNotebookResult(
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable);
+                  WorkspaceManagerService::isRetryable,
+                  60,
+                  Duration.ofSeconds(10));
           logger.debug("delete controlled Aws notebook instance result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());

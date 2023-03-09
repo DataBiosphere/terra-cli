@@ -173,10 +173,10 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         TestCommand.runCommandExpectExitCode(
             1, "resource", "delete", "--name=" + resourceName, "--quiet");
     assertThat(
-        "delete error because aws notebooks must be stopped before deletion",
+        "Expected notebook instance status is [Failed, Stopped] but current status is InService",
         stdErr,
         CoreMatchers.containsString(
-            "delete error because aws notebooks must be stopped before deletion"));
+            "Expected notebook instance status is [Failed, Stopped] but current status is InService"));
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + resourceName);
