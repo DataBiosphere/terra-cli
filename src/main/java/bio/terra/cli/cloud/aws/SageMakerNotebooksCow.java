@@ -60,7 +60,6 @@ public class SageMakerNotebooksCow {
               .client(notebooksClient)
               .overrideConfiguration(
                   WaiterOverrideConfiguration.builder()
-                      .maxAttempts(AwsClient.AWS_CLIENT_MAXIMUM_RETRIES)
                       .waitTimeout(SAGEMAKER_NOTEBOOK_WAITER_TIMEOUT_DURATION)
                       .build())
               .build());

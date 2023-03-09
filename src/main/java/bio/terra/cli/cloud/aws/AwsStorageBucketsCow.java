@@ -52,7 +52,6 @@ public class AwsStorageBucketsCow {
               .client(bucketsClient)
               .overrideConfiguration(
                   WaiterOverrideConfiguration.builder()
-                      .maxAttempts(AwsClient.AWS_CLIENT_MAXIMUM_RETRIES)
                       .waitTimeout(AWS_STORAGE_BUCKET_WAITER_TIMEOUT_DURATION)
                       .build())
               .build());
