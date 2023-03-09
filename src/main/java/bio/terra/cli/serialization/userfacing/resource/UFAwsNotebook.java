@@ -32,7 +32,7 @@ public class UFAwsNotebook extends UFResource {
     this.location = internalObj.getLocation();
     this.instanceName = AwsNotebook.resolve(location, instanceId, true);
     this.state =
-        AwsNotebook.getStatus(location, instanceId)
+        AwsNotebook.getInstanceStatus(location, instanceId)
             .orElse(NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
             .toString();
     this.proxyUriJupyter =

@@ -718,7 +718,7 @@ public class WorkspaceManagerService {
       @Nullable String name,
       @Nullable String description,
       String spendProfile) {
-    CloneWorkspaceRequest request =
+    var request =
         new CloneWorkspaceRequest()
             .spendProfile(spendProfile)
             .userFacingId(userFacingId)
@@ -1769,7 +1769,7 @@ public class WorkspaceManagerService {
   public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledGcpAiNotebookInstanceRequest deleteRequest =
+    var deleteRequest =
         new DeleteControlledGcpAiNotebookInstanceRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(
@@ -1863,7 +1863,7 @@ public class WorkspaceManagerService {
   public void deleteControlledAwsNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledAwsResourceApi controlledAwsResourceApi = new ControlledAwsResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledAwsSageMakerNotebookRequest deleteRequest =
+    var deleteRequest =
         new DeleteControlledAwsSageMakerNotebookRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(
