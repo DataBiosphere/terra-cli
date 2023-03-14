@@ -10,8 +10,8 @@ import bio.terra.cli.serialization.userfacing.input.UpdateControlledAwsBucketPar
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedAwsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsBucket;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.workspace.model.AwsBucketResource;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
+import bio.terra.workspace.model.AwsS3BucketResource;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +40,13 @@ public class AwsBucket extends Resource {
   public AwsBucket(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
-    this.bucketName = wsmObject.getResourceAttributes().getAwsBucket().getS3BucketName();
-    this.bucketPrefix = wsmObject.getResourceAttributes().getAwsBucket().getPrefix();
-    this.location = wsmObject.getResourceAttributes().getAwsBucket().getRegion();
+    this.bucketName = wsmObject.getResourceAttributes().getAwsS3Bucket().getS3BucketName();
+    this.bucketPrefix = wsmObject.getResourceAttributes().getAwsS3Bucket().getPrefix();
+    this.location = wsmObject.getResourceAttributes().getAwsS3Bucket().getRegion();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AwsBucket(AwsBucketResource wsmObject) {
+  public AwsBucket(AwsS3BucketResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_BUCKET;
     this.bucketName = wsmObject.getAttributes().getS3BucketName();
@@ -62,7 +62,7 @@ public class AwsBucket extends Resource {
   public static AwsBucket addReferenced(CreateAwsBucketParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
-    AwsBucketResource addedResource =
+    AwsS3BucketResource addedResource =
         WorkspaceManagerService.fromContext()
             .createReferencedAwsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created AWS bucket: {}", addedResource);
@@ -81,7 +81,7 @@ public class AwsBucket extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    AwsBucketResource createdResource =
+    AwsS3BucketResource createdResource =
         WorkspaceManagerService.fromContext()
             .createControlledAwsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created AWS bucket: {}", createdResource);

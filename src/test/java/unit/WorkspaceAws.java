@@ -34,7 +34,7 @@ public class WorkspaceAws extends ClearContextUnit {
 
   @Test
   @DisplayName("status, describe, AWS workspace list reflect workspace create")
-  void statusDescribeListReflectCreateAws() throws IOException, InterruptedException {
+  void statusDescribeListReflectCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();
@@ -115,7 +115,7 @@ public class WorkspaceAws extends ClearContextUnit {
 
   @Test
   @DisplayName("AWS workspace describe reflects the number of resources")
-  void describeReflectsNumResourcesAws() throws IOException, InterruptedException {
+  void describeReflectsNumResources() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
     testUser.login();

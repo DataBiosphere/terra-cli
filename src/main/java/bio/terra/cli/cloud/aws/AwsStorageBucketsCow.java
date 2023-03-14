@@ -13,11 +13,19 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 /** A Cloud Object Wrapper(COW) for AWS S3Client Library: {@link S3Client} */
@@ -60,6 +68,34 @@ public class AwsStorageBucketsCow {
     }
   }
 
+  public void putBlob(String bucketName, String bucketPrefix, AwsS3Blob contents) {
+    if (bucketPrefix.endsWith("/")) {
+      throw new UserActionableException("Put blob operation not supported on folder objects.");
+    }
+
+    try {
+      PutObjectResponse putResponseStream =
+          bucketsClient.putObject(
+              PutObjectRequest.builder()
+                  .bucket(bucketName)
+                  .key(bucketPrefix)
+                  .contentEncoding(contents.encoding())
+                  .build(),
+              RequestBody.fromBytes(contents.bytes()));
+
+      SdkHttpResponse httpResponse = putResponseStream.sdkHttpResponse();
+      if (!httpResponse.isSuccessful()) {
+        throw new SystemException(
+            "Error putting storage object, "
+                + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
+      }
+
+    } catch (Exception e) {
+      checkException(e);
+      throw new SystemException("Error putting storage object " + e.getClass().getName(), e);
+    }
+  }
+
   public Optional<AwsS3Blob> getBlob(String bucketName, String bucketPrefix) {
     if (bucketPrefix.endsWith("/")) {
       throw new UserActionableException("Get blob operation not supported on folder objects.");
@@ -74,20 +110,20 @@ public class AwsStorageBucketsCow {
       SdkHttpResponse httpResponse = getResponse.sdkHttpResponse();
       if (!httpResponse.isSuccessful()) {
         throw new SystemException(
-            "Error getting storage bucket, "
+            "Error getting storage object, "
                 + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
       }
 
       if (getResponse.deleteMarker() != null && getResponse.deleteMarker()) {
-        throw new UserActionableException("Cannot access storage bucket marked for deletion");
+        throw new UserActionableException("Cannot access storage object marked for deletion");
       }
 
       return Optional.of(
-          new AwsS3Blob(getResponseStream.readAllBytes(), getResponse.contentType()));
+          new AwsS3Blob(getResponseStream.readAllBytes(), getResponse.contentEncoding()));
 
     } catch (Exception e) {
       checkException(e);
-      throw new SystemException("Error getting storage bucket " + e.getClass().getName(), e);
+      throw new SystemException("Error getting storage object " + e.getClass().getName(), e);
     }
   }
 
@@ -96,6 +132,7 @@ public class AwsStorageBucketsCow {
    * error looking it up. This behavior is useful for display purposes.
    */
   public Integer getNumObjects(String bucketName, String bucketPrefix, long limit) {
+    // TODO(TERRA-385) move to CRL
     try {
       Iterator<ListObjectsV2Response> listIterator =
           bucketsClient
@@ -139,7 +176,7 @@ public class AwsStorageBucketsCow {
         return new String(bytes, encoding);
       } catch (UnsupportedEncodingException e) {
         throw new UnsupportedEncodingException(
-            "Error getting object contents - unsupported content type");
+            "Error getting object contents - unsupported content encoding");
       }
     }
   }

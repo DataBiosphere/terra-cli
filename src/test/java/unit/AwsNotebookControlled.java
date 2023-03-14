@@ -6,19 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.businessobject.resource.AwsNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsNotebook;
-import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloningInstructionsEnum;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.AwsNotebookUtils;
-import harness.utils.GcpNotebookUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -30,61 +25,6 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 /** Tests for the `terra resource` commands that handle controlled Aws notebooks. */
 @Tag("unit-aws")
 public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Uses the
-   * current workspace.
-   */
-  public static UFAwsNotebook listOneNotebookResourceWithName(String resourceName)
-      throws JsonProcessingException {
-    return listOneNotebookResourceWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and expect one resource with this name. Filters on
-   * the specified workspace id; Uses the current workspace if null.
-   */
-  public static UFAwsNotebook listOneNotebookResourceWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    List<UFAwsNotebook> matchedResources =
-        listNotebookResourcesWithName(resourceName, workspaceUserFacingId);
-
-    assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
-    return matchedResources.get(0);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Uses the current workspace.
-   */
-  public static List<UFAwsNotebook> listNotebookResourcesWithName(String resourceName)
-      throws JsonProcessingException {
-    return listNotebookResourcesWithName(resourceName, null);
-  }
-
-  /**
-   * Helper method to call `terra resources list` and filter the results on the specified resource
-   * name. Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  public static List<UFAwsNotebook> listNotebookResourcesWithName(
-      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AWS_SAGEMAKER_NOTEBOOK --format=json`
-    List<UFAwsNotebook> listedResources =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AWS_SAGEMAKER_NOTEBOOK")
-            : TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {},
-                "resource",
-                "list",
-                "--type=AWS_SAGEMAKER_NOTEBOOK",
-                "--workspace=" + workspaceUserFacingId);
-
-    // find the matching notebook in the list
-    return listedResources.stream()
-        .filter(resource -> resource.name.equals(resourceName))
-        .collect(Collectors.toList());
-  }
-
   @Test
   @DisplayName(
       "list, describe and resolve reflect creating, stopping, starting and deleting a controlled AWS notebook")
@@ -119,7 +59,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         "create output matches private user name");
 
     // check that the notebook is in the list
-    UFAwsNotebook matchedResource = listOneNotebookResourceWithName(resourceName);
+    UFAwsNotebook matchedResource = AwsNotebookUtils.listOneNotebookResourceWithName(resourceName);
     assertEquals(resourceName, matchedResource.name, "list output matches name");
     assertNotNull(matchedResource.instanceId, "list resource output includes instance id");
     assertEquals(resourceName, matchedResource.name, "list output state matches initial state");
@@ -186,8 +126,8 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
         "resource", "delete", "--name=" + resourceName, "--quiet");
 
     // confirm it no longer appears in the resources list
-    List<UFGcpNotebook> listedNotebooks =
-        GcpNotebookUtils.listNotebookResourcesWithName(resourceName);
+    List<UFAwsNotebook> listedNotebooks =
+        AwsNotebookUtils.listNotebookResourcesWithName(resourceName);
     assertThat(
         "deleted notebook no longer appears in the resources list",
         listedNotebooks,
@@ -209,7 +149,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
     CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-east-1";
-    // TODO(TERRA-371) Support instance-id
+    // TODO(TERRA-228) Support instance-id
     // String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
     UFAwsNotebook createdNotebook =
         TestCommand.runAndParseCommandExpectSuccess(

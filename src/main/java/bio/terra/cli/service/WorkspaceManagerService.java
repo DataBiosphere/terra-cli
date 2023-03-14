@@ -39,11 +39,11 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.AwsBucketCreationParameters;
-import bio.terra.workspace.model.AwsBucketResource;
 import bio.terra.workspace.model.AwsConsoleLink;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
+import bio.terra.workspace.model.AwsS3BucketCreationParameters;
+import bio.terra.workspace.model.AwsS3BucketResource;
 import bio.terra.workspace.model.AwsSageMakerNotebookCreationParameters;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.AwsSageMakerProxyUrlView;
@@ -53,7 +53,7 @@ import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
-import bio.terra.workspace.model.CreateControlledAwsBucketRequestBody;
+import bio.terra.workspace.model.CreateControlledAwsS3BucketRequestBody;
 import bio.terra.workspace.model.CreateControlledAwsSageMakerNotebookRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
@@ -934,7 +934,7 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () ->
             new ControlledAwsResourceApi(apiClient)
-                .getAwsBucketCredential(workspaceId, resourceId, accessScope, duration),
+                .getAwsS3BucketCredential(workspaceId, resourceId, accessScope, duration),
         "Error getting AWS Storage Bucket credential.");
   }
 
@@ -1097,7 +1097,7 @@ public class WorkspaceManagerService {
    * @param createParams creation parameters
    * @return the AWS bucket resource object
    */
-  public AwsBucketResource createReferencedAwsBucket(
+  public AwsS3BucketResource createReferencedAwsBucket(
       UUID workspaceId, CreateAwsBucketParams createParams) {
     /* TODO(TERRA-196)
     // convert the CLI object to a WSM request object
@@ -1111,7 +1111,7 @@ public class WorkspaceManagerService {
                 .createBucketReference(createRequest, workspaceId),
         "Error creating referenced AWS bucket in the workspace.");
      */
-    return new AwsBucketResource();
+    return new AwsS3BucketResource();
   }
 
   /**
@@ -1230,14 +1230,14 @@ public class WorkspaceManagerService {
    * @param createParams creation parameters
    * @return the AWS bucket resource object
    */
-  public AwsBucketResource createControlledAwsBucket(
+  public AwsS3BucketResource createControlledAwsBucket(
       UUID workspaceId, CreateAwsBucketParams createParams) {
     // convert the CLI object to a WSM request object
-    CreateControlledAwsBucketRequestBody createRequest =
-        new CreateControlledAwsBucketRequestBody()
+    CreateControlledAwsS3BucketRequestBody createRequest =
+        new CreateControlledAwsS3BucketRequestBody()
             .common(createCommonFields(createParams.resourceFields))
-            .awsBucket(
-                new AwsBucketCreationParameters()
+            .awsS3Bucket(
+                new AwsS3BucketCreationParameters()
                     /* TODO(TERRA-229)
                     .name(createParams.bucketName)
                     */
@@ -1245,8 +1245,8 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () ->
             new ControlledAwsResourceApi(apiClient)
-                .createAwsBucket(createRequest, workspaceId)
-                .getAwsBucket(),
+                .createAwsS3Bucket(createRequest, workspaceId)
+                .getAwsS3Bucket(),
         "Error creating controlled AWS bucket in the workspace.");
   }
 
@@ -1814,7 +1814,7 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/swc/buckets/{resourceId}" endpoint to
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}" endpoint to
    * delete a AWS bucket as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
@@ -1823,32 +1823,9 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsBucket(UUID workspaceId, UUID resourceId) {
-    /* TODO(TERRA_194)
-    ControlledAwsResourceApi controlledAwsResourceApi = new ControlledAwsResourceApi(apiClient);
-    String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledAwsBucketRequest deleteRequest =
-        new DeleteControlledAwsBucketRequest().jobControl(new JobControl().id(asyncJobId));
-    handleClientExceptions(
-        () -> {
-          // make the initial delete request
-          HttpUtils.callWithRetries(
-              () -> controlledAwsResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
-
-          // poll the result endpoint until the job is no longer RUNNING
-          DeleteControlledAwsBucketResult deleteResult =
-              HttpUtils.pollWithRetries(
-                  () -> controlledAwsResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  /*maxCalls=* / 12,
-                  /*sleepDuration=* / Duration.ofSeconds(5));
-          logger.debug("delete controlled aws bucket result: {}", deleteResult);
-
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
-        },
+    callWithRetries(
+        () -> new ControlledAwsResourceApi(apiClient).deleteAwsS3Bucket(workspaceId, resourceId),
         "Error deleting controlled AWS bucket in the workspace.");
-     */
   }
 
   /**

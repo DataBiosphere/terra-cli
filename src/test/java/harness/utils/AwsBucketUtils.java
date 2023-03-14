@@ -24,19 +24,19 @@ public class AwsBucketUtils {
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
    */
-  public static UFAwsBucket listOneBucketResourceWithNameAws(String resourceName)
+  public static UFAwsBucket listOneBucketResourceWithName(String resourceName)
       throws JsonProcessingException {
-    return listOneBucketResourceWithNameAws(resourceName, null);
+    return listOneBucketResourceWithName(resourceName, null);
   }
 
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFAwsBucket listOneBucketResourceWithNameAws(
+  public static UFAwsBucket listOneBucketResourceWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     List<UFAwsBucket> matchedResources =
-        listBucketResourcesWithNameAws(resourceName, workspaceUserFacingId);
+        listBucketResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -46,16 +46,16 @@ public class AwsBucketUtils {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Uses the current workspace.
    */
-  static List<UFAwsBucket> listBucketResourcesWithNameAws(String resourceName)
+  public static List<UFAwsBucket> listBucketResourcesWithName(String resourceName)
       throws JsonProcessingException {
-    return listBucketResourcesWithNameAws(resourceName, null);
+    return listBucketResourcesWithName(resourceName, null);
   }
 
   /**
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  static List<UFAwsBucket> listBucketResourcesWithNameAws(
+  public static List<UFAwsBucket> listBucketResourcesWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
     // `terra resources list --type=AWS_BUCKET --format=json`
     List<UFAwsBucket> listedResources =
