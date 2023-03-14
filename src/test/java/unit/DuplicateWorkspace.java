@@ -14,17 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Tag("unit")
-public class CloneWorkspace extends ClearContextUnit {
+public class DuplicateWorkspace extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
-  private static final Logger logger = LoggerFactory.getLogger(CloneWorkspace.class);
 
   @Test
-  @DisplayName("clone workspace fails without new-id")
-  public void cloneFailsWithoutNewUserFacingId() throws IOException {
+  @DisplayName("duplicate workspace fails without new-id")
+  public void duplicateFailsWithoutNewUserFacingId() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace clone`
-    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "clone");
+    String stdErr = TestCommand.runCommandExpectExitCode(2, "workspace", "duplicate");
     assertThat(
         "error message indicate user must set ID",
         stdErr,

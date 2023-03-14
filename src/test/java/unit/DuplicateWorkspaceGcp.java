@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.serialization.userfacing.UFClonedResource;
-import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
+import bio.terra.cli.serialization.userfacing.UFDuplicatedResource;
+import bio.terra.cli.serialization.userfacing.UFDuplicatedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
@@ -39,9 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Tag("unit-gcp")
-public class CloneWorkspaceGcp extends ClearContextUnit {
+public class DuplicateWorkspaceGcp extends ClearContextUnit {
   private static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
-  private static final Logger logger = LoggerFactory.getLogger(CloneWorkspaceGcp.class);
+  private static final Logger logger = LoggerFactory.getLogger(DuplicateWorkspaceGcp.class);
 
   private static final String GIT_REPO_HTTPS_URL =
       "https://github.com/DataBiosphere/terra-workspace-manager.git";
@@ -117,8 +117,8 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("clone workspace with platform GCP")
-  public void cloneWorkspaceGcp() throws IOException, InterruptedException {
+  @DisplayName("duplicate workspace with platform GCP")
+  public void duplicateWorkspaceGcp() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // create a workspace
@@ -183,92 +183,92 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
     TestCommand.runAndParseCommandExpectSuccess(
         UFWorkspace.class, "workspace", "update", "--new-name=update_name");
 
-    // Clone the workspace
-    UFClonedWorkspace clonedWorkspace =
+    // Duplicate the workspace
+    UFDuplicatedWorkspace duplicatedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFClonedWorkspace.class,
+            UFDuplicatedWorkspace.class,
             "workspace",
-            "clone",
-            "--new-id=" + TestUtils.appendRandomNumber("cloned-workspace-id"),
-            "--name=cloned_workspace",
-            "--description=A clone.");
+            "duplicate",
+            "--new-id=" + TestUtils.appendRandomNumber("duplicated-workspace-id"),
+            "--name=duplicated_workspace",
+            "--description=A duplicate.");
 
     assertEquals(
         sourceWorkspace.id,
-        clonedWorkspace.sourceWorkspace.id,
-        "Correct source workspace ID for clone.");
-    destinationWorkspace = clonedWorkspace.destinationWorkspace;
+        duplicatedWorkspace.sourceWorkspace.id,
+        "Correct source workspace ID for duplicate.");
+    destinationWorkspace = duplicatedWorkspace.destinationWorkspace;
     assertThat(
-        "There are 5 cloned resources", clonedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
+        "There are 5 duplicated resources", duplicatedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
 
-    UFClonedResource bucketClonedResource =
+    UFDuplicatedResource bucketDuplicatedResource =
         getOrFail(
-            clonedWorkspace.resources.stream()
+            duplicatedWorkspace.resources.stream()
                 .filter(cr -> sourceBucket.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, bucketClonedResource.result, "bucket clone succeeded");
+        CloneResourceResult.SUCCEEDED, bucketDuplicatedResource.result, "bucket duplicated succeeded");
     assertNotNull(
-        bucketClonedResource.destinationResource, "Destination bucket resource was created");
+        bucketDuplicatedResource.destinationResource, "Destination bucket resource was created");
 
-    UFClonedResource copyNothingBucketClonedResource =
+    UFDuplicatedResource copyNothingBucketDuplicatedResourcec =
         getOrFail(
-            clonedWorkspace.resources.stream()
+            duplicatedWorkspace.resources.stream()
                 .filter(cr -> copyNothingBucket.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
         CloneResourceResult.SKIPPED,
-        copyNothingBucketClonedResource.result,
+        copyNothingBucketDuplicatedResourcec.result,
         "COPY_NOTHING resource was skipped.");
     assertNull(
-        copyNothingBucketClonedResource.destinationResource,
+        copyNothingBucketDuplicatedResourcec.destinationResource,
         "Skipped resource has no destination resource.");
 
-    UFClonedResource datasetRefClonedResource =
+    UFDuplicatedResource datasetDuplicatedResource =
         getOrFail(
-            clonedWorkspace.resources.stream()
+            duplicatedWorkspace.resources.stream()
                 .filter(cr -> datasetReference.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
         CloneResourceResult.SUCCEEDED,
-        datasetRefClonedResource.result,
-        "Dataset reference clone succeeded.");
+        datasetDuplicatedResource.result,
+        "Dataset reference duplicate succeeded.");
     assertNotNull(
-        datasetRefClonedResource.destinationResource, "Dataset reference cloned resource null.");
+        datasetDuplicatedResource.destinationResource, "Dataset reference duplicated resource null.");
     assertEquals(
         StewardshipType.REFERENCED,
-        datasetRefClonedResource.destinationResource.stewardshipType,
+        datasetDuplicatedResource.destinationResource.stewardshipType,
         "Dataset reference has correct stewardship type.");
 
-    UFClonedResource datasetClonedResource =
+    UFDuplicatedResource datasetDupliccatedResource =
         getOrFail(
-            clonedWorkspace.resources.stream()
+            duplicatedWorkspace.resources.stream()
                 .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, datasetClonedResource.result, "Dataset clone succeeded.");
-    assertNotNull(datasetClonedResource.destinationResource, "Dataset cloned resource null.");
+        CloneResourceResult.SUCCEEDED, datasetDupliccatedResource.result, "Dataset duplicate succeeded.");
+    assertNotNull(datasetDupliccatedResource.destinationResource, "Dataset duplicated resource null.");
     assertEquals(
         "The first dataset.",
-        datasetClonedResource.destinationResource.description,
+        datasetDupliccatedResource.destinationResource.description,
         "Dataset description matches.");
 
-    UFClonedResource gitRepoClonedResource =
+    UFDuplicatedResource gitRepoDuplicatedResource =
         getOrFail(
-            clonedWorkspace.resources.stream()
+            duplicatedWorkspace.resources.stream()
                 .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, gitRepoClonedResource.result, "Git repo clone succeeded");
-    assertNotNull(gitRepoClonedResource.destinationResource, "GitRepo cloned resource null.");
+        CloneResourceResult.SUCCEEDED, gitRepoDuplicatedResource.result, "Git repo duplicate succeeded");
+    assertNotNull(gitRepoDuplicatedResource.destinationResource, "GitRepo duplicated resource null.");
     assertEquals(
         GIT_REPO_REF_NAME,
-        gitRepoClonedResource.destinationResource.name,
+        gitRepoDuplicatedResource.destinationResource.name,
         "Resource type matches GIT_REPO");
 
-    // Switch to the new workspace from the clone
+    // Switch to the new workspace from the duplicate
     TestCommand.runCommandExpectSuccess(
-        "workspace", "set", "--id=" + clonedWorkspace.destinationWorkspace.id);
+        "workspace", "set", "--id=" + duplicatedWorkspace.destinationWorkspace.id);
 
     // Validate resources
     List<UFResource> resources =
