@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class ConfigGcp extends SingleWorkspaceUnit {
   @Test
   @DisplayName("app-launch config affects how apps are launched")
-  void appLaunchGcp() throws IOException {
+  void appLaunch() throws IOException {
     String badImageError = "No such image: badimageid";
 
     workspaceCreator.login();
