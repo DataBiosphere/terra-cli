@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit-gcp")
 public class WorkspaceGcp extends ClearContextUnit {
   @Test
-  @DisplayName("default platform is GCP on workspace create")
+  @DisplayName("default platform is on workspace create")
   void defaultPlatformSetOnCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
@@ -54,7 +54,7 @@ public class WorkspaceGcp extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("status, describe, GCP workspace list reflect workspace create")
+  @DisplayName("status, describe, workspace list reflect workspace create")
   void statusDescribeListReflectCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();

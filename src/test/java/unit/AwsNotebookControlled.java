@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
   @Test
   @DisplayName(
-      "list, describe and resolve reflect creating, stopping, starting and deleting a controlled AWS notebook")
+      "list, describe and resolve reflect creating, stopping, starting and deleting a controlled SageMaker notebook")
   void listDescribeResolveReflectCreateStopStartDelete() throws IOException {
     workspaceCreator.login();
 
@@ -135,7 +135,7 @@ public class AwsNotebookControlled extends SingleWorkspaceUnitAws {
   }
 
   @Test
-  @DisplayName("override the default location and instance id of a controlled AWS notebook")
+  @DisplayName("override the default location and instance id of a controlled SageMaker notebook")
   void overrideLocationAndInstanceId() throws IOException {
     workspaceCreator.login();
 

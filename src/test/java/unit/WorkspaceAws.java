@@ -33,7 +33,7 @@ public class WorkspaceAws extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("status, describe, AWS workspace list reflect workspace create")
+  @DisplayName("status and describe list reflect workspace create")
   void statusDescribeListReflectCreate() throws IOException, InterruptedException {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithSpendAccess();

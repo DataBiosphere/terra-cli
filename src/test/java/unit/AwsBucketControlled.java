@@ -25,7 +25,8 @@ import org.junit.jupiter.api.Test;
 @Tag("unit-aws")
 public class AwsBucketControlled extends SingleWorkspaceUnitAws {
   @Test
-  @DisplayName("list, describe and resolve reflect creating and deleting a controlled AWS bucket")
+  @DisplayName(
+      "list, describe and resolve reflect creating and deleting a controlled storage bucket")
   void listDescribeResolveReflectCreateDelete() throws IOException {
     workspaceCreator.login();
 
@@ -95,7 +96,7 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
   }
 
   @Test
-  @DisplayName("create a controlled AWS bucket, specifying all options except lifecycle")
+  @DisplayName("create a controlled storage bucket, specifying all options except lifecycle")
   void createWithAllOptionsExceptLifecycle() throws IOException {
     // TODO(TERRA-221) - support additional properties
     workspaceCreator.login();
@@ -159,14 +160,14 @@ public class AwsBucketControlled extends SingleWorkspaceUnitAws {
   }
 
   @Test
-  @DisplayName("update a controlled AWS bucket, one property at a time, except for lifecycle")
+  @DisplayName("update a controlled storage bucket, one property at a time, except for lifecycle")
   void updateIndividualProperties() {
     // TODO(TERRA-221) - support additional properties
   }
 
   @Test
   @DisplayName(
-      "update a controlled AWS bucket, specifying multiple properties, except for lifecycle")
+      "update a controlled storage bucket, specifying multiple properties, except for lifecycle")
   void updateMultipleProperties() {
     // TODO(TERRA-221) - support additional properties
   }
