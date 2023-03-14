@@ -118,7 +118,7 @@ public class CloneWorkspaceGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("clone workspace with platform GCP")
-  public void cloneWorkspaceGcp() throws IOException, InterruptedException {
+  public void cloneWorkspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // create a workspace
