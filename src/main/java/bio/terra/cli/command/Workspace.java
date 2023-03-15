@@ -2,11 +2,11 @@ package bio.terra.cli.command;
 
 import bio.terra.cli.command.workspace.AddUser;
 import bio.terra.cli.command.workspace.BreakGlass;
-import bio.terra.cli.command.workspace.Duplicate;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
 import bio.terra.cli.command.workspace.DeleteProperty;
 import bio.terra.cli.command.workspace.Describe;
+import bio.terra.cli.command.workspace.Duplicate;
 import bio.terra.cli.command.workspace.List;
 import bio.terra.cli.command.workspace.ListUsers;
 import bio.terra.cli.command.workspace.RemoveUser;

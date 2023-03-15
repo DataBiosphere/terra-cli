@@ -199,7 +199,9 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
         "Correct source workspace ID for duplicate.");
     destinationWorkspace = duplicatedWorkspace.destinationWorkspace;
     assertThat(
-        "There are 5 duplicated resources", duplicatedWorkspace.resources, hasSize(SOURCE_RESOURCE_NUM));
+        "There are 5 duplicated resources",
+        duplicatedWorkspace.resources,
+        hasSize(SOURCE_RESOURCE_NUM));
 
     UFDuplicatedResource bucketDuplicatedResource =
         getOrFail(
@@ -207,7 +209,9 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
                 .filter(cr -> sourceBucket.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, bucketDuplicatedResource.result, "bucket duplicated succeeded");
+        CloneResourceResult.SUCCEEDED,
+        bucketDuplicatedResource.result,
+        "bucket duplicated succeeded");
     assertNotNull(
         bucketDuplicatedResource.destinationResource, "Destination bucket resource was created");
 
@@ -234,7 +238,8 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
         datasetDuplicatedResource.result,
         "Dataset reference duplicate succeeded.");
     assertNotNull(
-        datasetDuplicatedResource.destinationResource, "Dataset reference duplicated resource null.");
+        datasetDuplicatedResource.destinationResource,
+        "Dataset reference duplicated resource null.");
     assertEquals(
         StewardshipType.REFERENCED,
         datasetDuplicatedResource.destinationResource.stewardshipType,
@@ -246,8 +251,11 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
                 .filter(cr -> sourceDataset.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, datasetDupliccatedResource.result, "Dataset duplicate succeeded.");
-    assertNotNull(datasetDupliccatedResource.destinationResource, "Dataset duplicated resource null.");
+        CloneResourceResult.SUCCEEDED,
+        datasetDupliccatedResource.result,
+        "Dataset duplicate succeeded.");
+    assertNotNull(
+        datasetDupliccatedResource.destinationResource, "Dataset duplicated resource null.");
     assertEquals(
         "The first dataset.",
         datasetDupliccatedResource.destinationResource.description,
@@ -259,8 +267,11 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
                 .filter(cr -> gitRepositoryReference.id.equals(cr.sourceResource.id))
                 .findFirst());
     assertEquals(
-        CloneResourceResult.SUCCEEDED, gitRepoDuplicatedResource.result, "Git repo duplicate succeeded");
-    assertNotNull(gitRepoDuplicatedResource.destinationResource, "GitRepo duplicated resource null.");
+        CloneResourceResult.SUCCEEDED,
+        gitRepoDuplicatedResource.result,
+        "Git repo duplicate succeeded");
+    assertNotNull(
+        gitRepoDuplicatedResource.destinationResource, "GitRepo duplicated resource null.");
     assertEquals(
         GIT_REPO_REF_NAME,
         gitRepoDuplicatedResource.destinationResource.name,
