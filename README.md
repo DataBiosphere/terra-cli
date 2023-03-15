@@ -788,7 +788,7 @@ Setup a Terra workspace.
 Commands:
   add-user         Add a user or group to the workspace.
   break-glass      Grant break-glass access to a workspace user.
-  clone            Clone an existing workspace.
+  duplicate        Duplicate an existing workspace.
   create           Create a new workspace.
   delete           Delete an existing workspace.
   delete-property  Delete the workspace properties.
