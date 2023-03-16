@@ -55,8 +55,8 @@ public class Workspace extends ClearContextUnit {
   }
 
   @Test
-  @DisplayName("workspace clone uses spend profile stored in user manager")
-  void clone_spendProfileFromUserManager() throws IOException, InterruptedException {
+  @DisplayName("workspace duplicate uses spend profile stored in user manager")
+  void duplicate_spendProfileFromUserManager() throws IOException, InterruptedException {
     var altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
@@ -71,13 +71,13 @@ public class Workspace extends ClearContextUnit {
     // Set the default in the user manager
     UserManagerService.fromContext().setDefaultSpendProfile(/*email=*/ null, altSpendProfile);
 
-    // Clone the workspace using the spend profile
+    // Duplicate the workspace using the spend profile
     TestCommand.runCommandExpectSuccess(
-        "workspace", "clone", "--new-id=" + createdWorkspace.id + "-clone");
+        "workspace", "duplicate", "--new-id=" + createdWorkspace.id + "-duplicate");
 
     var workspaceDescription =
         WorkspaceManagerService.fromContext()
-            .getWorkspaceByUserFacingId(createdWorkspace.id + "-clone");
+            .getWorkspaceByUserFacingId(createdWorkspace.id + "-duplicate");
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
     // Remove the default in the user manager
     UserManagerService.fromContext()
