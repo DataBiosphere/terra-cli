@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
+import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
@@ -66,6 +67,7 @@ import picocli.CommandLine.ParseResult;
       Config.class,
       Cromwell.class,
       Gcloud.class,
+      GenerateCompletion.class,
       Git.class,
       Group.class,
       Gsutil.class,
@@ -111,6 +113,10 @@ public class Main implements Runnable {
     cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
     cmd.setColorScheme(colorScheme);
     cmd.setCaseInsensitiveEnumValuesAllowed(true);
+
+    // Hide the "generate-completion" subcommand
+    CommandLine gen = cmd.getSubcommands().get("generate-completion");
+    gen.getCommandSpec().usageMessage().hidden(true);
 
     // set the output and error streams to the defaults: stdout, stderr
     // save pointers to these streams in a singleton class, so we can access them throughout the
