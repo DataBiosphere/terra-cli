@@ -7,8 +7,8 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceNameAndDescription;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.UFClonedResource;
-import bio.terra.cli.serialization.userfacing.UFClonedWorkspace;
+import bio.terra.cli.serialization.userfacing.UFDuplicatedResource;
+import bio.terra.cli.serialization.userfacing.UFDuplicatedWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.service.UserManagerService;
 import bio.terra.workspace.model.CloneResourceResult;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This corresponds to the third-level "terra workspace clone" command. */
-@Command(name = "clone", description = "Clone an existing workspace.")
-public class Clone extends WsmBaseCommand {
+/** This corresponds to the third-level "terra workspace duplicate" command. */
+@Command(name = "duplicate", description = "duplicate an existing workspace.")
+public class Duplicate extends WsmBaseCommand {
   @CommandLine.Option(names = "--new-id", required = true, description = "ID for new workspace")
   // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace clone`
   private String id;
@@ -49,21 +49,21 @@ public class Clone extends WsmBaseCommand {
         Workspace.get(clonedWorkspace.getDestinationWorkspaceId());
 
     // Get a list of UFClonedResource objects based on the resources returned in the ClonedWorkspace
-    java.util.List<UFClonedResource> ufClonedResources =
+    java.util.List<UFDuplicatedResource> ufDuplicatedResources =
         clonedWorkspace.getResources().stream()
             .map(r -> buildUfClonedResource(sourceWorkspace, destinationWorkspaceHydrated, r))
             .collect(Collectors.toList());
 
     // print results
     formatOption.printReturnValue(
-        new UFClonedWorkspace(
+        new UFDuplicatedWorkspace(
             new UFWorkspace(sourceWorkspace),
             new UFWorkspace(destinationWorkspaceHydrated),
-            ufClonedResources),
+            ufDuplicatedResources),
         this::printText);
   }
 
-  private UFClonedResource buildUfClonedResource(
+  private UFDuplicatedResource buildUfClonedResource(
       Workspace sourceWorkspace,
       Workspace destinationWorkspace,
       ResourceCloneDetails resourceCloneDetails) {
@@ -75,14 +75,14 @@ public class Clone extends WsmBaseCommand {
       destinationResource = null;
     }
 
-    return new UFClonedResource(
+    return new UFDuplicatedResource(
         resourceCloneDetails,
         sourceResource.serializeToCommand(),
         Optional.ofNullable(destinationResource).map(Resource::serializeToCommand).orElse(null));
   }
 
-  private void printText(UFClonedWorkspace returnValue) {
-    OUT.println("Workspace successfully cloned.");
+  private void printText(UFDuplicatedWorkspace returnValue) {
+    OUT.println("Workspace successfully duplicated.");
     returnValue.print();
   }
 }

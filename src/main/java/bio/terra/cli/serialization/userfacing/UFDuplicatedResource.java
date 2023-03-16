@@ -14,14 +14,14 @@ import org.apache.commons.text.StringEscapeUtils;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonDeserialize(builder = UFClonedResource.Builder.class)
-public class UFClonedResource {
+@JsonDeserialize(builder = UFDuplicatedResource.Builder.class)
+public class UFDuplicatedResource {
   public final CloneResourceResult result;
   public final UFResource sourceResource;
   @Nullable public final UFResource destinationResource;
   @Nullable public final String errorMessage;
 
-  public UFClonedResource(
+  public UFDuplicatedResource(
       ResourceCloneDetails resourceCloneDetails,
       UFResource sourceResource,
       @Nullable UFResource destinationResource) {
@@ -34,7 +34,7 @@ public class UFClonedResource {
             StringEscapeUtils.unescapeHtml4(resourceCloneDetails.getErrorMessage()));
   }
 
-  protected UFClonedResource(Builder builder) {
+  protected UFDuplicatedResource(Builder builder) {
     this.result = builder.result;
     this.sourceResource = builder.sourceResource;
     this.destinationResource = builder.destinationResource;
@@ -89,8 +89,8 @@ public class UFClonedResource {
       return this;
     }
 
-    public UFClonedResource build() {
-      return new UFClonedResource(this);
+    public UFDuplicatedResource build() {
+      return new UFDuplicatedResource(this);
     }
   }
 }
