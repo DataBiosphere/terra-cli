@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -95,5 +96,17 @@ public class LocalProcessLauncher {
     } catch (InterruptedException intEx) {
       throw new SystemException("Error waiting for child process to terminate", intEx);
     }
+  }
+
+  public InputStream getErrorStream() {
+    return process.getErrorStream();
+  }
+
+  public InputStream getInputStream() {
+    return process.getInputStream();
+  }
+
+  public OutputStream getOutputStream() {
+    return process.getOutputStream();
   }
 }
