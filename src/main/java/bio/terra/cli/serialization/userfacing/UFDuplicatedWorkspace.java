@@ -11,22 +11,22 @@ import java.util.List;
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  */
-@JsonDeserialize(builder = UFClonedWorkspace.Builder.class)
-public class UFClonedWorkspace {
+@JsonDeserialize(builder = UFDuplicatedWorkspace.Builder.class)
+public class UFDuplicatedWorkspace {
   public final UFWorkspace sourceWorkspace;
   public final UFWorkspace destinationWorkspace;
-  public final List<UFClonedResource> resources;
+  public final List<UFDuplicatedResource> resources;
 
-  public UFClonedWorkspace(
+  public UFDuplicatedWorkspace(
       UFWorkspace sourceWorkspace,
       UFWorkspace destinationWorkspace,
-      List<UFClonedResource> clonedResources) {
+      List<UFDuplicatedResource> clonedResources) {
     this.sourceWorkspace = sourceWorkspace;
     this.destinationWorkspace = destinationWorkspace;
     this.resources = clonedResources;
   }
 
-  protected UFClonedWorkspace(Builder builder) {
+  protected UFDuplicatedWorkspace(Builder builder) {
     this.sourceWorkspace = builder.sourceWorkspace;
     this.destinationWorkspace = builder.destinationWorkspace;
     this.resources = builder.resources;
@@ -52,7 +52,7 @@ public class UFClonedWorkspace {
   public static class Builder {
     private UFWorkspace sourceWorkspace;
     private UFWorkspace destinationWorkspace;
-    private List<UFClonedResource> resources;
+    private List<UFDuplicatedResource> resources;
 
     /** Default constructor for Jackson */
     public Builder() {}
@@ -67,13 +67,13 @@ public class UFClonedWorkspace {
       return this;
     }
 
-    public Builder resources(List<UFClonedResource> resources) {
+    public Builder resources(List<UFDuplicatedResource> resources) {
       this.resources = resources;
       return this;
     }
 
-    public UFClonedWorkspace build() {
-      return new UFClonedWorkspace(this);
+    public UFDuplicatedWorkspace build() {
+      return new UFDuplicatedWorkspace(this);
     }
   }
 }
