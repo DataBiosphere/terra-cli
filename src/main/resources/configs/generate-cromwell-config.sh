@@ -2,10 +2,18 @@
 
 # Initialize a default Cromwell config. Don't overwrite in case the user has
 # customized their Cromwell config file on their PD.
-echo "CROMWELL_CONFIG_PATH" : $1
-echo "GOOGLE_PROJECT": $2
-echo "PET_SA_EMAIL": $3
-echo "GOOGLE_BUCKET": $4
+CROMWELL_CONFIG_PATH=$1
+GOOGLE_PROJECT=$2
+PET_SA_EMAIL=$3
+GOOGLE_BUCKET=$4
+CONCURRENT_JOB_LIMIT=$5
+
+echo "CROMWELL_CONFIG_PATH" : "${CROMWELL_CONFIG_PATH}"
+echo "GOOGLE_PROJECT": "${GOOGLE_PROJECT}"
+echo "PET_SA_EMAIL": "${PET_SA_EMAIL}"
+echo "GOOGLE_BUCKET": "${GOOGLE_BUCKET}"
+echo "CONCURRENT_JOB_LIMIT": "${CONCURRENT_JOB_LIMIT}"
+
 if [[ ! -f "$1" ]]; then
   cat <<EOF | tee "$1"
 
@@ -28,9 +36,9 @@ backend {
       actor-factory = "cromwell.backend.google.pipelines.v2beta.PipelinesApiLifecycleActorFactory"
 
       config {
-        project = "$2"
-        concurrent-job-limit = 10
-        root = "$4/workflows/cromwell-executions"
+        project = "$GOOGLE_PROJECT"
+        concurrent-job-limit = $CONCURRENT_JOB_LIMIT
+        root = "$GOOGLE_BUCKET/workflows/cromwell-executions"
 
         virtual-private-cloud {
           network-label-key = "vpc-network-name"
@@ -40,7 +48,7 @@ backend {
 
         genomics {
           auth = "application_default"
-          compute-service-account = "$3"
+          compute-service-account = "$PET_SA_EMAIL"
           endpoint-url = "https://lifesciences.googleapis.com/"
           location = "us-central1"
         }
