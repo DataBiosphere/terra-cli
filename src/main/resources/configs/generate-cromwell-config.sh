@@ -14,8 +14,8 @@ echo "PET_SA_EMAIL": "${PET_SA_EMAIL}"
 echo "GOOGLE_BUCKET": "${GOOGLE_BUCKET}"
 echo "CONCURRENT_JOB_LIMIT": "${CONCURRENT_JOB_LIMIT}"
 
-if [[ ! -f "$1" ]]; then
-  cat <<EOF | tee "$1"
+if [[ ! -f "${CROMWELL_CONFIG_PATH}" ]]; then
+  cat <<EOF | tee "${CROMWELL_CONFIG_PATH}"
 
 google {
   application-name = "cromwell"
