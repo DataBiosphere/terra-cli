@@ -2,11 +2,11 @@
 
 # Initialize a default Cromwell config. Don't overwrite in case the user has
 # customized their Cromwell config file on their PD.
-CROMWELL_CONFIG_PATH=$1
-GOOGLE_PROJECT=$2
-PET_SA_EMAIL=$3
-GOOGLE_BUCKET=$4
-CONCURRENT_JOB_LIMIT=$5
+readonly CROMWELL_CONFIG_PATH="$1"
+readonly GOOGLE_PROJECT="$2"
+readonly PET_SA_EMAIL="$3"
+readonly GOOGLE_BUCKET="$4"
+readonly CONCURRENT_JOB_LIMIT="$5"
 
 echo "CROMWELL_CONFIG_PATH" : "${CROMWELL_CONFIG_PATH}"
 echo "GOOGLE_PROJECT": "${GOOGLE_PROJECT}"
@@ -36,9 +36,9 @@ backend {
       actor-factory = "cromwell.backend.google.pipelines.v2beta.PipelinesApiLifecycleActorFactory"
 
       config {
-        project = "$GOOGLE_PROJECT"
-        concurrent-job-limit = $CONCURRENT_JOB_LIMIT
-        root = "$GOOGLE_BUCKET/workflows/cromwell-executions"
+        project = "${GOOGLE_PROJECT}"
+        concurrent-job-limit = ${CONCURRENT_JOB_LIMIT}
+        root = "${GOOGLE_BUCKET}/workflows/cromwell-executions"
 
         virtual-private-cloud {
           network-label-key = "vpc-network-name"
@@ -48,7 +48,7 @@ backend {
 
         genomics {
           auth = "application_default"
-          compute-service-account = "$PET_SA_EMAIL"
+          compute-service-account = "${PET_SA_EMAIL}"
           endpoint-url = "https://lifesciences.googleapis.com/"
           location = "us-central1"
         }
