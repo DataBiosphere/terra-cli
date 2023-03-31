@@ -36,16 +36,21 @@ public class CromwellConfig extends SingleWorkspaceUnit {
   }
 
   @Test
-  @DisplayName("cromwell generate-config with custom dir")
+  @DisplayName("cromwell generate-config with custom dir and custom concurrent-job-limit")
   void cromwellGenerateConfigCustomDir() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra cromwell generate-config --dir=build --google-bucket-name=foo`
+    // `terra cromwell generate-config --dir=build --concurrent-job-limit=1337
+    // --google-bucket-name=foo`
     TestCommand.runCommandExpectSuccess(
-        "cromwell", "generate-config", "--dir=build", "--google-bucket-name=foo");
+        "cromwell",
+        "generate-config",
+        "--dir=build",
+        "--concurrent-job-limit=1337",
+        "--google-bucket-name=foo");
 
     // New cromwell.conf file generate successfully.
     assertTrue(

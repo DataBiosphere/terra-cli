@@ -30,6 +30,13 @@ public class GenerateConfig extends BaseCommand {
       description = "Directory to put generated cromwell.conf in. Defaults to current directory.")
   public String dir;
 
+  @CommandLine.Option(
+      names = "--concurrent-job-limit",
+      defaultValue = "10",
+      required = false,
+      description = "Optional limits on the number of concurrent jobs. Defaults to 10.")
+  public String concurrent_job_limit;
+
   // We create an exclusive ArgGroup because we require one of either
   // workspace_bucket_name or google_bucket_name.
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
@@ -92,7 +99,8 @@ public class GenerateConfig extends BaseCommand {
                 org.apache.commons.io.FilenameUtils.concat(dir, "cromwell.conf"),
                 googleProjectId,
                 petSaEmail,
-                googleBucket));
+                googleBucket,
+                concurrent_job_limit));
     try {
       Files.deleteIfExists(Paths.get(absolutePath));
     } catch (IOException e) {
