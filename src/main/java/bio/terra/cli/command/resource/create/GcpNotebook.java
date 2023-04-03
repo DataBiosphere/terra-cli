@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
+import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
@@ -11,9 +12,17 @@ import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.json.JSONObject;
 import picocli.CommandLine;
 
 /** This class corresponds to the fourth-level "terra resource create gcp-notebook" command. */
@@ -167,6 +176,112 @@ public class GcpNotebook extends WsmBaseCommand {
     bio.terra.cli.businessobject.resource.GcpNotebook createdResource =
         bio.terra.cli.businessobject.resource.GcpNotebook.createControlled(createParams.build());
     formatOption.printReturnValue(new UFGcpNotebook(createdResource), GcpNotebook::printText);
+
+    boolean doWaitForNotebooksReady = true; // this would be a flag
+    if (doWaitForNotebooksReady) {
+      waitForNotebooksReady(createdResource.getInstanceId());
+    }
+  }
+
+  private String getNotebookGuestAttribute(String instanceId, String guestAttribute) {
+    String command =
+        "gcloud compute instances get-guest-attributes "
+            + instanceId
+            + " "
+            + "--zone us-central1-a "
+            + "--query-path '"
+            + guestAttribute
+            + "' "
+            + "--format 'json(value)'";
+
+    List<String> processCommand = new ArrayList<>();
+    processCommand.add("bash");
+    processCommand.add("-ce");
+    processCommand.add(command);
+
+    Map<String, String> envVars = new HashMap<String, String>();
+
+    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
+    localProcessLauncher.launchProcess(processCommand, envVars);
+
+    InputStream stdout = localProcessLauncher.getInputStream();
+    int exitCode = localProcessLauncher.waitForTerminate();
+    if (exitCode != 0) {
+      // This is actually expected for several iterations immediately
+      // after provisioning.
+      ERR.println(String.format("ERROR getting notebook startup status: %d", exitCode));
+      return "";
+    }
+
+    final BufferedReader reader =
+        new BufferedReader(new InputStreamReader(localProcessLauncher.getInputStream()));
+
+    String output;
+    try {
+      StringBuilder sb = new StringBuilder();
+      String line = null;
+      while ((line = reader.readLine()) != null) {
+        sb.append(line);
+      }
+      reader.close();
+
+      output = sb.toString().trim();
+    } catch (IOException ex) {
+      // TODO:
+      return null;
+    }
+
+    if (output.isEmpty()) {
+      return "";
+    } else {
+      // Remove the starting and trailing square brackets
+      // and then parse as JSON.
+      String jsonstr = output.substring(1, output.length() - 1);
+      JSONObject obj = new JSONObject(jsonstr);
+      return obj.getString("value").trim();
+    }
+  }
+
+  private String getNotebookReadyStatus(String instanceId) {
+    return getNotebookGuestAttribute(instanceId, "startup_script/status");
+  }
+
+  private String getNotebookReadyMessage(String instanceId) {
+    return getNotebookGuestAttribute(instanceId, "startup_script/message");
+  }
+
+  private void waitForNotebooksReady(String instanceId) {
+    String lastStatus = "";
+    while (true) {
+      String currStatus = getNotebookReadyStatus(instanceId);
+
+      if (currStatus.isEmpty()) {
+        OUT.println("The post-startup script has not started.");
+      } else if (currStatus.equals(lastStatus)) {
+        OUT.print(".");
+      } else {
+        OUT.println();
+        OUT.print(currStatus);
+
+        if (currStatus.equals("COMPLETE")) {
+          OUT.println();
+          break;
+        } else if (currStatus.equals("ERROR")) {
+          OUT.println();
+          OUT.println(getNotebookReadyMessage(instanceId));
+          break;
+        }
+
+        lastStatus = currStatus;
+      }
+
+      try {
+        Thread.sleep(5000);
+      } catch (InterruptedException ex) {
+        ERR.println(ex);
+        break;
+      }
+    }
   }
 
   static class VmOrContainerImage {
