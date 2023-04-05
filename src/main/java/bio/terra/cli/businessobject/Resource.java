@@ -105,7 +105,8 @@ public abstract class Resource {
       case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
-      default -> throw new IllegalArgumentException("Unexpected resource type: " + wsmResourceType);
+        // Omit other resource types are not supported by the CLI.
+      default -> null;
     };
   }
 

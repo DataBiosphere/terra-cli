@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -253,7 +254,10 @@ public class Workspace {
     List<ResourceDescription> wsmObjects =
         WorkspaceManagerService.fromContext()
             .enumerateAllResources(uuid, Context.getConfig().getResourcesCacheSize());
-    return wsmObjects.stream().map(Resource::deserializeFromWsm).collect(Collectors.toList());
+    return wsmObjects.stream()
+        .map(Resource::deserializeFromWsm)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 
   /** Fetch the list of folders for this workspace */
