@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.not;
 
 import harness.TestCommand;
 import harness.TestCommand.Result;
-import harness.baseclasses.SingleWorkspaceUnit;
+import harness.baseclasses.SingleWorkspaceUnitGcp;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra config` commands specific to CloudPlatform.GCP. */
 @Tag("unit-gcp")
-public class ConfigGcp extends SingleWorkspaceUnit {
+public class ConfigGcp extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("app-launch config affects how apps are launched")
-  void appLaunchGcp() throws IOException {
+  void appLaunch() throws IOException {
     String badImageError = "No such image: badimageid";
 
     workspaceCreator.login();

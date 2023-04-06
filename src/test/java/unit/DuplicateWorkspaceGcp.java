@@ -118,7 +118,7 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("duplicate workspace with platform GCP")
-  public void duplicateWorkspaceGcp() throws IOException, InterruptedException {
+  public void duplicateWorkspace() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // create a workspace

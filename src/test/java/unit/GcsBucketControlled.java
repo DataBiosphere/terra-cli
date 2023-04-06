@@ -42,9 +42,10 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  static UFGcsBucket listOneBucketResourceWithName(String resourceName, String userFacingId)
-      throws JsonProcessingException {
-    List<UFGcsBucket> matchedResources = listBucketResourcesWithName(resourceName, userFacingId);
+  static UFGcsBucket listOneBucketResourceWithName(
+      String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
+    List<UFGcsBucket> matchedResources =
+        listBucketResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
     return matchedResources.get(0);
@@ -84,7 +85,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("list and describe reflect creating a new controlled bucket")
+  @DisplayName("list and describe reflect creating a new controlled GCS bucket")
   void listDescribeReflectCreate() throws IOException {
     workspaceCreator.login();
 
@@ -127,7 +128,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("create a new controlled gcs bucket without specifying the bucket name")
+  @DisplayName("create a new controlled GCS bucket without specifying the bucket name")
   void createGcsBucketWithoutSpecifyingBucketName() throws IOException {
     workspaceCreator.login();
 
@@ -166,7 +167,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("list reflects deleting a controlled bucket")
+  @DisplayName("list reflects deleting a controlled GCS bucket")
   void listReflectsDelete() throws IOException {
     workspaceCreator.login();
 
@@ -188,7 +189,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("resolve a controlled bucket")
+  @DisplayName("resolve a controlled GCS bucket")
   void resolve() throws IOException {
     workspaceCreator.login();
 
@@ -223,7 +224,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("check-access for a controlled bucket")
+  @DisplayName("check-access for a controlled GCS bucket")
   void checkAccess() throws IOException {
     workspaceCreator.login();
 
@@ -249,7 +250,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("create a controlled bucket, specifying all options except lifecycle")
+  @DisplayName("create a controlled GCS bucket, specifying all options except lifecycle")
   void createWithAllOptionsExceptLifecycle() throws IOException, InterruptedException {
     workspaceCreator.login();
 
@@ -327,7 +328,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("update a controlled bucket, one property at a time, except for lifecycle")
+  @DisplayName("update a controlled GCS bucket, one property at a time, except for lifecycle")
   void updateIndividualProperties() throws IOException {
     workspaceCreator.login();
 
@@ -409,7 +410,8 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
-  @DisplayName("update a controlled bucket, specifying multiple properties, except for lifecycle")
+  @DisplayName(
+      "update a controlled GCS bucket, specifying multiple properties, except for lifecycle")
   void updateMultipleProperties() throws IOException {
     workspaceCreator.login();
 
