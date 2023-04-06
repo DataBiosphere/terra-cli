@@ -19,10 +19,13 @@ public class UFWorkspaceLight {
   // "id" instead of "userFacingId" because user sees this with "terra workspace describe
   // --format=json"
   public String id;
-  public String name;
-  public String description;
   public CloudPlatform cloudPlatform;
   public String googleProjectId;
+  public String awsAccountId;
+  public String awsTenantAlias;
+
+  public String name;
+  public String description;
   public Map<String, String> properties;
   public String serverName;
   public String userEmail;
@@ -37,8 +40,10 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
-    this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.cloudPlatform = internalObj.getCloudPlatform();
+    this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
+    this.awsAccountId = internalObj.getAwsAccountId().orElse(null);
+    this.awsTenantAlias = internalObj.getAwsTenantAlias().orElse(null);
 
     WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
     this.name = workspaceDescription.getDisplayName();
@@ -58,6 +63,18 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(WorkspaceDescription workspaceDescription) {
     this.id = workspaceDescription.getUserFacingId();
+
+    if (workspaceDescription.getGcpContext() != null) {
+      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
+      this.cloudPlatform = CloudPlatform.GCP;
+    } else if (workspaceDescription.getAzureContext() != null) {
+      this.cloudPlatform = CloudPlatform.AZURE;
+    } else if (workspaceDescription.getAwsContext() != null) {
+      cloudPlatform = CloudPlatform.AWS;
+      awsAccountId = workspaceDescription.getAwsContext().getAccountId();
+      awsTenantAlias = workspaceDescription.getAwsContext().getTenantAlias();
+    }
+
     this.name = workspaceDescription.getDisplayName();
     this.description = workspaceDescription.getDescription();
     this.properties = propertiesToStringMap(workspaceDescription.getProperties());
@@ -65,22 +82,18 @@ public class UFWorkspaceLight {
     this.serverName = Context.getServer().getName();
     this.createdDate = workspaceDescription.getCreatedDate();
     this.lastUpdatedDate = workspaceDescription.getLastUpdatedDate();
-
-    if (workspaceDescription.getGcpContext() != null) {
-      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
-      this.cloudPlatform = CloudPlatform.GCP;
-    } else if (workspaceDescription.getAzureContext() != null) {
-      this.cloudPlatform = CloudPlatform.AZURE;
-    }
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFWorkspaceLight(UFWorkspaceLight.Builder builder) {
+  protected UFWorkspaceLight(Builder builder) {
     this.id = builder.id;
-    this.name = builder.name;
-    this.description = builder.description;
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
+    this.awsAccountId = builder.awsAccountId;
+    this.awsTenantAlias = builder.awsTenantAlias;
+
+    this.name = builder.name;
+    this.description = builder.description;
     this.properties = builder.properties;
     this.serverName = builder.serverName;
     this.userEmail = builder.userEmail;
@@ -91,10 +104,13 @@ public class UFWorkspaceLight {
   /** Default constructor for subclass Builder constructor */
   protected UFWorkspaceLight() {
     this.id = null;
-    this.name = null;
-    this.description = null;
     this.cloudPlatform = null;
     this.googleProjectId = null;
+    this.awsAccountId = null;
+    this.awsTenantAlias = null;
+
+    this.name = null;
+    this.description = null;
     this.properties = null;
     this.serverName = null;
     this.userEmail = null;
@@ -111,12 +127,18 @@ public class UFWorkspaceLight {
     OUT.println("Name:              " + name);
     OUT.println("Description:       " + description);
     OUT.println("Cloud Platform:    " + cloudPlatform);
+
     if (cloudPlatform == CloudPlatform.GCP) {
       OUT.println("Google project:    " + googleProjectId);
       OUT.println(
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
+    } else if (cloudPlatform == CloudPlatform.AWS) {
+      OUT.println("AWS account:       " + awsAccountId);
+      OUT.println("Tenant alias:      " + awsTenantAlias);
+      OUT.println("Cloud console:     https://" + awsAccountId + ".signin.aws.amazon.com/console/");
     }
+
     if (properties != null) {
       OUT.println("Properties:");
       properties.forEach((key, value) -> OUT.println("  " + key + ": " + value));
@@ -129,66 +151,79 @@ public class UFWorkspaceLight {
   public static class Builder {
     // "id" instead of "userFacingId" because user sees this with "terra workspace describe
     // --format=json"
-    private String id;
-    private String name;
-    private String description;
-    private CloudPlatform cloudPlatform;
-    private String googleProjectId;
-    private Map<String, String> properties;
-    private String serverName;
-    private String userEmail;
-    private OffsetDateTime createdDate;
-    private OffsetDateTime lastUpdatedDate;
+    protected String id;
+    protected CloudPlatform cloudPlatform;
+    protected String googleProjectId;
+    protected String awsAccountId;
+    protected String awsTenantAlias;
+
+    protected String name;
+    protected String description;
+    protected Map<String, String> properties;
+    protected String serverName;
+    protected String userEmail;
+    protected OffsetDateTime createdDate;
+    protected OffsetDateTime lastUpdatedDate;
 
     /** Default constructor for Jackson. */
     public Builder() {}
 
-    public UFWorkspaceLight.Builder id(String id) {
+    public Builder id(String id) {
       this.id = id;
       return this;
     }
 
-    public UFWorkspaceLight.Builder name(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public UFWorkspaceLight.Builder description(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public UFWorkspaceLight.Builder cloudPlatform(CloudPlatform cloudPlatform) {
+    public Builder cloudPlatform(CloudPlatform cloudPlatform) {
       this.cloudPlatform = cloudPlatform;
       return this;
     }
 
-    public UFWorkspaceLight.Builder googleProjectId(String googleProjectId) {
+    public Builder googleProjectId(String googleProjectId) {
       this.googleProjectId = googleProjectId;
       return this;
     }
 
-    public UFWorkspaceLight.Builder properties(Map<String, String> properties) {
+    public Builder awsAccountId(String awsAccountId) {
+      this.awsAccountId = awsAccountId;
+      return this;
+    }
+
+    public Builder awsTenantAlias(String awsTenantAlias) {
+      this.awsTenantAlias = awsTenantAlias;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder properties(Map<String, String> properties) {
       this.properties = properties;
       return this;
     }
 
-    public UFWorkspaceLight.Builder serverName(String serverName) {
+    public Builder serverName(String serverName) {
       this.serverName = serverName;
       return this;
     }
 
-    public UFWorkspaceLight.Builder userEmail(String userEmail) {
+    public Builder userEmail(String userEmail) {
       this.userEmail = userEmail;
       return this;
     }
 
-    public UFWorkspaceLight.Builder createdDate(OffsetDateTime createdDate) {
+    public Builder createdDate(OffsetDateTime createdDate) {
       this.createdDate = createdDate;
       return this;
     }
 
-    public UFWorkspaceLight.Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
+    public Builder lastUpdatedDate(OffsetDateTime lastUpdatedDate) {
       this.lastUpdatedDate = lastUpdatedDate;
       return this;
     }

@@ -39,10 +39,13 @@ import org.slf4j.LoggerFactory;
  */
 public class Workspace {
   private static final Logger logger = LoggerFactory.getLogger(Workspace.class);
-  private UUID uuid;
-  private String userFacingId;
+  private final UUID uuid;
+  private final String userFacingId;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
+  // TODO-Dex verify fields added
+  private String awsAccountId;
+  private String awsTenantAlias;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
@@ -53,6 +56,10 @@ public class Workspace {
       googleProjectId = wsmObject.getGcpContext().getProjectId();
     } else if (wsmObject.getAzureContext() != null) {
       cloudPlatform = CloudPlatform.AZURE;
+    } else if (wsmObject.getAwsContext() != null) {
+      cloudPlatform = CloudPlatform.AWS;
+      awsAccountId = wsmObject.getAwsContext().getAccountId();
+      awsTenantAlias = wsmObject.getAwsContext().getTenantAlias();
     }
   }
 
@@ -60,8 +67,10 @@ public class Workspace {
   public Workspace(PDWorkspace configFromDisk) {
     this.uuid = configFromDisk.uuid;
     this.userFacingId = configFromDisk.userFacingId;
-    this.googleProjectId = configFromDisk.googleProjectId;
     this.cloudPlatform = configFromDisk.cloudPlatform;
+    this.googleProjectId = configFromDisk.googleProjectId;
+    this.awsAccountId = configFromDisk.awsAccountId;
+    this.awsTenantAlias = configFromDisk.awsTenantAlias;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -249,6 +258,17 @@ public class Workspace {
         () -> new UserActionableException("Resource not found: " + name));
   }
 
+  /**
+   * Get a resource by id.
+   *
+   * @throws UserActionableException if there is no resource with that id
+   */
+  public Resource getResource(UUID id) {
+    Optional<Resource> resourceOpt =
+        listResources().stream().filter(resource -> resource.id.equals(id)).findFirst();
+    return resourceOpt.orElseThrow(() -> new UserActionableException("Resource not found: " + id));
+  }
+
   /** Fetch the list of resources for the current workspace. */
   public List<Resource> listResources() {
     List<ResourceDescription> wsmObjects =
@@ -341,6 +361,10 @@ public class Workspace {
     return userFacingId;
   }
 
+  public CloudPlatform getCloudPlatform() {
+    return cloudPlatform;
+  }
+
   public Optional<String> getGoogleProjectId() {
     return Optional.ofNullable(googleProjectId);
   }
@@ -352,8 +376,12 @@ public class Workspace {
                 new UserActionableException("No GCP project available in the current workspace."));
   }
 
-  public CloudPlatform getCloudPlatform() {
-    return cloudPlatform;
+  public Optional<String> getAwsAccountId() {
+    return Optional.ofNullable(awsAccountId);
+  }
+
+  public Optional<String> getAwsTenantAlias() {
+    return Optional.ofNullable(awsTenantAlias);
   }
 
   public WorkspaceDescription getWorkspaceDescription() {
