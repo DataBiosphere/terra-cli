@@ -20,8 +20,16 @@ public class UFWorkspaceLight {
   // --format=json"
   public String id;
   public CloudPlatform cloudPlatform;
+
+  // GCP
   public String googleProjectId;
+
+  // AWS
+  public String awsMajorVersion;
+  public String awsOrganizationId;
   public String awsAccountId;
+  public String awsTenantAlias;
+  public String awsEnvironmentAlias;
 
   public String name;
   public String description;
@@ -41,7 +49,11 @@ public class UFWorkspaceLight {
     this.id = internalObj.getUserFacingId();
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
+    this.awsMajorVersion = internalObj.getAwsMajorVersion().orElse(null);
+    this.awsOrganizationId = internalObj.getAwsOrganizationId().orElse(null);
     this.awsAccountId = internalObj.getAwsAccountId().orElse(null);
+    this.awsTenantAlias = internalObj.getAwsTenantAlias().orElse(null);
+    this.awsEnvironmentAlias = internalObj.getAwsEnvironmentAlias().orElse(null);
 
     WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
     this.name = workspaceDescription.getDisplayName();
@@ -86,7 +98,11 @@ public class UFWorkspaceLight {
     this.id = builder.id;
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
+    this.awsMajorVersion = builder.awsMajorVersion;
+    this.awsOrganizationId = builder.awsOrganizationId;
     this.awsAccountId = builder.awsAccountId;
+    this.awsTenantAlias = builder.awsTenantAlias;
+    this.awsEnvironmentAlias = builder.awsEnvironmentAlias;
 
     this.name = builder.name;
     this.description = builder.description;
@@ -102,7 +118,11 @@ public class UFWorkspaceLight {
     this.id = null;
     this.cloudPlatform = null;
     this.googleProjectId = null;
+    this.awsMajorVersion = null;
+    this.awsOrganizationId = null;
     this.awsAccountId = null;
+    this.awsTenantAlias = null;
+    this.awsEnvironmentAlias = null;
 
     this.name = null;
     this.description = null;
@@ -128,9 +148,13 @@ public class UFWorkspaceLight {
       OUT.println(
           "Cloud console:     https://console.cloud.google.com/home/dashboard?project="
               + googleProjectId);
+
     } else if (cloudPlatform == CloudPlatform.AWS) {
+      OUT.println("AWS major version: " + awsMajorVersion);
+      OUT.println("AWS organization:  " + awsOrganizationId);
       OUT.println("AWS account:       " + awsAccountId);
-      OUT.println("Cloud console:     https://" + awsAccountId + ".signin.aws.amazon.com/console/");
+      OUT.println("AWS tenant:        " + awsTenantAlias);
+      OUT.println("AWS environment:   " + awsEnvironmentAlias);
     }
 
     if (properties != null) {
@@ -147,8 +171,16 @@ public class UFWorkspaceLight {
     // --format=json"
     protected String id;
     protected CloudPlatform cloudPlatform;
+
+    // GCP
     protected String googleProjectId;
+
+    // AWS
+    protected String awsMajorVersion;
+    protected String awsOrganizationId;
     protected String awsAccountId;
+    protected String awsTenantAlias;
+    protected String awsEnvironmentAlias;
 
     protected String name;
     protected String description;
@@ -176,8 +208,28 @@ public class UFWorkspaceLight {
       return this;
     }
 
+    public Builder awsMajorVersion(String awsMajorVersion) {
+      this.awsMajorVersion = awsMajorVersion;
+      return this;
+    }
+
+    public Builder awsOrganizationId(String awsOrganizationId) {
+      this.awsOrganizationId = awsOrganizationId;
+      return this;
+    }
+
     public Builder awsAccountId(String awsAccountId) {
       this.awsAccountId = awsAccountId;
+      return this;
+    }
+
+    public Builder awsTenantAlias(String awsTenantAlias) {
+      this.awsTenantAlias = awsTenantAlias;
+      return this;
+    }
+
+    public Builder awsEnvironmentAlias(String awsEnvironmentAlias) {
+      this.awsEnvironmentAlias = awsEnvironmentAlias;
       return this;
     }
 

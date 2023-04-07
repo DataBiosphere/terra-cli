@@ -42,21 +42,36 @@ public class Workspace {
   private final UUID uuid;
   private final String userFacingId;
   private CloudPlatform cloudPlatform;
+
+  // GCP
   private String googleProjectId;
+
+  // AWS
+  private String awsMajorVersion;
+  private String awsOrganizationId;
   private String awsAccountId;
+  private String awsTenantAlias;
+  private String awsEnvironmentAlias;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
     this.uuid = wsmObject.getId();
     this.userFacingId = wsmObject.getUserFacingId();
+
     if (wsmObject.getGcpContext() != null) {
       cloudPlatform = CloudPlatform.GCP;
       googleProjectId = wsmObject.getGcpContext().getProjectId();
+
     } else if (wsmObject.getAzureContext() != null) {
       cloudPlatform = CloudPlatform.AZURE;
+
     } else if (wsmObject.getAwsContext() != null) {
       cloudPlatform = CloudPlatform.AWS;
+      awsMajorVersion = wsmObject.getAwsContext().getMajorVersion();
+      awsOrganizationId = wsmObject.getAwsContext().getOrganizationId();
       awsAccountId = wsmObject.getAwsContext().getAccountId();
+      awsTenantAlias = wsmObject.getAwsContext().getTenantAlias();
+      awsEnvironmentAlias = wsmObject.getAwsContext().getEnvironmentAlias();
     }
   }
 
@@ -66,7 +81,11 @@ public class Workspace {
     this.userFacingId = configFromDisk.userFacingId;
     this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
+    this.awsMajorVersion = configFromDisk.awsMajorVersion;
+    this.awsOrganizationId = configFromDisk.awsOrganizationId;
     this.awsAccountId = configFromDisk.awsAccountId;
+    this.awsTenantAlias = configFromDisk.awsTenantAlias;
+    this.awsEnvironmentAlias = configFromDisk.awsEnvironmentAlias;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -372,8 +391,24 @@ public class Workspace {
                 new UserActionableException("No GCP project available in the current workspace."));
   }
 
+  public Optional<String> getAwsMajorVersion() {
+    return Optional.ofNullable(awsMajorVersion);
+  }
+
+  public Optional<String> getAwsOrganizationId() {
+    return Optional.ofNullable(awsOrganizationId);
+  }
+
   public Optional<String> getAwsAccountId() {
     return Optional.ofNullable(awsAccountId);
+  }
+
+  public Optional<String> getAwsTenantAlias() {
+    return Optional.ofNullable(awsTenantAlias);
+  }
+
+  public Optional<String> getAwsEnvironmentAlias() {
+    return Optional.ofNullable(awsEnvironmentAlias);
   }
 
   public WorkspaceDescription getWorkspaceDescription() {

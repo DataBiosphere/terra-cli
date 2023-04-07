@@ -18,8 +18,16 @@ public class PDWorkspace {
   public final UUID uuid;
   public final String userFacingId;
   public final CloudPlatform cloudPlatform;
+
+  // GCP
   public final String googleProjectId;
+
+  // AWS
+  public final String awsMajorVersion;
+  public final String awsOrganizationId;
   public final String awsAccountId;
+  public final String awsTenantAlias;
+  public final String awsEnvironmentAlias;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
@@ -27,7 +35,11 @@ public class PDWorkspace {
     this.userFacingId = internalObj.getUserFacingId();
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
+    this.awsMajorVersion = internalObj.getAwsMajorVersion().orElse(null);
+    this.awsOrganizationId = internalObj.getAwsOrganizationId().orElse(null);
     this.awsAccountId = internalObj.getAwsAccountId().orElse(null);
+    this.awsTenantAlias = internalObj.getAwsTenantAlias().orElse(null);
+    this.awsEnvironmentAlias = internalObj.getAwsEnvironmentAlias().orElse(null);
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
@@ -35,7 +47,11 @@ public class PDWorkspace {
     this.userFacingId = builder.userFacingId;
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
+    this.awsMajorVersion = builder.awsMajorVersion;
+    this.awsOrganizationId = builder.awsOrganizationId;
     this.awsAccountId = builder.awsAccountId;
+    this.awsTenantAlias = builder.awsTenantAlias;
+    this.awsEnvironmentAlias = builder.awsEnvironmentAlias;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -43,8 +59,16 @@ public class PDWorkspace {
     private UUID uuid;
     private String userFacingId;
     private CloudPlatform cloudPlatform;
+
+    // GCP
     private String googleProjectId;
+
+    // AWS
+    private String awsMajorVersion;
+    private String awsOrganizationId;
     private String awsAccountId;
+    private String awsTenantAlias;
+    private String awsEnvironmentAlias;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -69,8 +93,28 @@ public class PDWorkspace {
       return this;
     }
 
+    public Builder awsMajorVersion(String awsMajorVersion) {
+      this.awsMajorVersion = awsMajorVersion;
+      return this;
+    }
+
+    public Builder awsOrganizationId(String awsOrganizationId) {
+      this.awsOrganizationId = awsOrganizationId;
+      return this;
+    }
+
     public Builder awsAccountId(String awsAccountId) {
       this.awsAccountId = awsAccountId;
+      return this;
+    }
+
+    public Builder awsTenantAlias(String awsTenantAlias) {
+      this.awsTenantAlias = awsTenantAlias;
+      return this;
+    }
+
+    public Builder awsEnvironmentAlias(String awsEnvironmentAlias) {
+      this.awsEnvironmentAlias = awsEnvironmentAlias;
       return this;
     }
 
