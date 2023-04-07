@@ -86,7 +86,7 @@ public class UFWorkspaceLight {
       cloudPlatform = CloudPlatform.AWS;
 
       AwsContext awsContext = workspaceDescription.getAwsContext();
-      awsMajorVersion = awsContext.getAccountId();
+      awsMajorVersion = awsContext.getMajorVersion();
       awsOrganizationId = awsContext.getOrganizationId();
       awsAccountId = awsContext.getAccountId();
       awsTenantAlias = awsContext.getTenantAlias();
