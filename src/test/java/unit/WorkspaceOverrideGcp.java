@@ -104,7 +104,7 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("referenced resource commands respect workspace override")
-  void referencedResourcesGcp() throws IOException {
+  void referencedResources() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id1`
@@ -197,7 +197,7 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("controlled resource commands respect workspace override")
-  void controlledResourcesGcp() throws IOException {
+  void controlledResources() throws IOException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id1`
@@ -285,7 +285,7 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
 
   @Test
   @DisplayName("notebook commands respect workspace override")
-  void notebooksGcp() throws IOException, InterruptedException {
+  void notebooks() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id1`

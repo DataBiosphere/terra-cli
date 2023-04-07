@@ -442,7 +442,7 @@ public class WorkspaceManagerService {
               () -> workspaceApi.createWorkspace(workspaceRequestBody),
               WorkspaceManagerService::isRetryable);
 
-          // create the Google project that backs the Terra workspace object
+          // create the cloud context that backs the Terra workspace object
           UUID jobId = UUID.randomUUID();
           CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
           cloudContextRequest.setCloudPlatform(cloudPlatform);
@@ -517,14 +517,8 @@ public class WorkspaceManagerService {
         callWithRetries(
             () -> new WorkspaceApi(apiClient).getWorkspace(uuid, /*minimumHighestRole=*/ null),
             "Error fetching workspace");
-    String googleProjectId =
-        (workspaceWithContext.getGcpContext() == null)
-            ? null
-            : workspaceWithContext.getGcpContext().getProjectId();
-    logger.info(
-        "Workspace context: userFacingId {}, project id: {}",
-        workspaceWithContext.getUserFacingId(),
-        googleProjectId);
+
+    logWorkspaceDescription(workspaceWithContext);
     return workspaceWithContext;
   }
 
@@ -539,15 +533,25 @@ public class WorkspaceManagerService {
                 new WorkspaceApi(apiClient)
                     .getWorkspaceByUserFacingId(userFacingId, /*minimumHighestRole=*/ null),
             "Error fetching workspace");
-    String googleProjectId =
+
+    logWorkspaceDescription(workspaceWithContext);
+    return workspaceWithContext;
+  }
+
+  private void logWorkspaceDescription(WorkspaceDescription workspaceWithContext) {
+    String gcpContext =
         (workspaceWithContext.getGcpContext() == null)
             ? null
-            : workspaceWithContext.getGcpContext().getProjectId();
+            : workspaceWithContext.getGcpContext().toString();
+    String awsContext =
+        (workspaceWithContext.getAwsContext() == null)
+            ? null
+            : workspaceWithContext.getAwsContext().toString();
     logger.info(
-        "Workspace context: {}, project id: {}",
+        "Workspace context: userFacingId {}, gcpContext: {}, awsContext: {}",
         workspaceWithContext.getUserFacingId(),
-        googleProjectId);
-    return workspaceWithContext;
+        gcpContext,
+        awsContext);
   }
 
   /**

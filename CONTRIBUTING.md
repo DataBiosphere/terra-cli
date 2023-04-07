@@ -217,7 +217,6 @@ Both types of tests:
 - Suppress console display of the test command's stdIn & stdOut by specifying the `-PquietConsole` option
   `./gradlew runTestsWithTag -PtestTag=unit -PquietConsole`
 
-
 By default, tests are run against all cloud platforms supported by the CLI server. Add the platform to target tests for a single platform
 - CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp`
 - CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp`

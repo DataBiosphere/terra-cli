@@ -3,7 +3,6 @@ package harness.baseclasses;
 import bio.terra.cli.app.CommandRunner;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.Logger;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
@@ -11,6 +10,7 @@ import harness.TestContext;
 import harness.TestUser;
 import java.io.IOException;
 import java.util.Set;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
@@ -82,10 +82,11 @@ public class ClearContextUnit {
     resetContext();
 
     Set<CloudPlatform> supportedPlatforms = Context.getServer().getSupportedCloudPlatforms();
-    if (supportedPlatforms == null || supportedPlatforms.isEmpty()) {
-      throw new UserActionableException(
-          "No cloud platforms supported on server " + Context.getServer().getName());
-    }
+    Assumptions.assumeTrue(
+        supportedPlatforms != null && supportedPlatforms.contains(cloudPlatform),
+        String.format(
+            "Cloud platform %s not supported on server %s",
+            cloudPlatform.toString(), Context.getServer().getName()));
 
     // retain default platform if supported, otherwise replace
     if (!supportedPlatforms.contains(getCloudPlatform())) {
