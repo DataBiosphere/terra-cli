@@ -20,7 +20,6 @@ public class PDWorkspace {
   public final CloudPlatform cloudPlatform;
   public final String googleProjectId;
   public final String awsAccountId;
-  public final String awsTenantAlias;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDWorkspace(Workspace internalObj) {
@@ -29,7 +28,6 @@ public class PDWorkspace {
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.awsAccountId = internalObj.getAwsAccountId().orElse(null);
-    this.awsTenantAlias = internalObj.getAwsTenantAlias().orElse(null);
   }
 
   private PDWorkspace(PDWorkspace.Builder builder) {
@@ -38,7 +36,6 @@ public class PDWorkspace {
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountId = builder.awsAccountId;
-    this.awsTenantAlias = builder.awsTenantAlias;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -48,7 +45,6 @@ public class PDWorkspace {
     private CloudPlatform cloudPlatform;
     private String googleProjectId;
     private String awsAccountId;
-    private String awsTenantAlias;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -75,11 +71,6 @@ public class PDWorkspace {
 
     public Builder awsAccountId(String awsAccountId) {
       this.awsAccountId = awsAccountId;
-      return this;
-    }
-
-    public Builder awsTenantAlias(String awsTenantAlias) {
-      this.awsTenantAlias = awsTenantAlias;
       return this;
     }
 

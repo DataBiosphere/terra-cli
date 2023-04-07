@@ -44,7 +44,6 @@ public class WorkspaceAws extends ClearContextUnit {
     // check the created workspace has an id and a google project
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
     assertNotNull(createdWorkspace.awsAccountId, "create workspace returned a aws account id");
-    assertNotNull(createdWorkspace.awsTenantAlias, "create workspace returned a aws tenant alias");
     assertThat(
         "workspace email matches test user",
         createdWorkspace.userEmail,
@@ -69,10 +68,6 @@ public class WorkspaceAws extends ClearContextUnit {
         createdWorkspace.awsAccountId,
         status.workspace.awsAccountId,
         "workspace aws account id matches current status");
-    assertEquals(
-        createdWorkspace.awsTenantAlias,
-        status.workspace.awsTenantAlias,
-        "workspace aws tenant alias matches current status");
 
     // `terra workspace describe --format=json`
     UFWorkspace describedWorkspace =
@@ -85,10 +80,6 @@ public class WorkspaceAws extends ClearContextUnit {
         createdWorkspace.awsAccountId,
         describedWorkspace.awsAccountId,
         "workspace aws id number matches that in describe");
-    assertEquals(
-        createdWorkspace.awsTenantAlias,
-        describedWorkspace.awsTenantAlias,
-        "workspace aws tenant alias matches that in describe");
 
     // check the new workspace is included in the list
     List<UFWorkspaceLight> matchingWorkspaces =
@@ -100,10 +91,6 @@ public class WorkspaceAws extends ClearContextUnit {
         createdWorkspace.awsAccountId,
         matchingWorkspaces.get(0).awsAccountId,
         "workspace aws id number matches that in list");
-    assertEquals(
-        createdWorkspace.awsTenantAlias,
-        matchingWorkspaces.get(0).awsTenantAlias,
-        "workspace aws tenant alias matches that in list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

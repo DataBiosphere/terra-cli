@@ -73,7 +73,6 @@ public class List extends WsmBaseCommand {
     NAME("NAME", w -> w.name, 30, LEFT),
     GOOGLE_PROJECT("GOOGLE PROJECT", w -> w.googleProjectId, 30, LEFT),
     AWS_ACCOUNT("AWS_ACCOUNT", w -> w.awsAccountId, 15, LEFT),
-    AWS_TENANT("AWS_TENANT", w -> w.awsTenantAlias, 15, LEFT),
     DESCRIPTION("DESCRIPTION", w -> w.description, 40, LEFT);
 
     private final String columnLabel;

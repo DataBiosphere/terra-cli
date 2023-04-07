@@ -22,7 +22,6 @@ public class UFWorkspaceLight {
   public CloudPlatform cloudPlatform;
   public String googleProjectId;
   public String awsAccountId;
-  public String awsTenantAlias;
 
   public String name;
   public String description;
@@ -43,7 +42,6 @@ public class UFWorkspaceLight {
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.awsAccountId = internalObj.getAwsAccountId().orElse(null);
-    this.awsTenantAlias = internalObj.getAwsTenantAlias().orElse(null);
 
     WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
     this.name = workspaceDescription.getDisplayName();
@@ -72,7 +70,6 @@ public class UFWorkspaceLight {
     } else if (workspaceDescription.getAwsContext() != null) {
       cloudPlatform = CloudPlatform.AWS;
       awsAccountId = workspaceDescription.getAwsContext().getAccountId();
-      awsTenantAlias = workspaceDescription.getAwsContext().getTenantAlias();
     }
 
     this.name = workspaceDescription.getDisplayName();
@@ -90,7 +87,6 @@ public class UFWorkspaceLight {
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsAccountId = builder.awsAccountId;
-    this.awsTenantAlias = builder.awsTenantAlias;
 
     this.name = builder.name;
     this.description = builder.description;
@@ -107,7 +103,6 @@ public class UFWorkspaceLight {
     this.cloudPlatform = null;
     this.googleProjectId = null;
     this.awsAccountId = null;
-    this.awsTenantAlias = null;
 
     this.name = null;
     this.description = null;
@@ -135,7 +130,6 @@ public class UFWorkspaceLight {
               + googleProjectId);
     } else if (cloudPlatform == CloudPlatform.AWS) {
       OUT.println("AWS account:       " + awsAccountId);
-      OUT.println("Tenant alias:      " + awsTenantAlias);
       OUT.println("Cloud console:     https://" + awsAccountId + ".signin.aws.amazon.com/console/");
     }
 
@@ -155,7 +149,6 @@ public class UFWorkspaceLight {
     protected CloudPlatform cloudPlatform;
     protected String googleProjectId;
     protected String awsAccountId;
-    protected String awsTenantAlias;
 
     protected String name;
     protected String description;
@@ -185,11 +178,6 @@ public class UFWorkspaceLight {
 
     public Builder awsAccountId(String awsAccountId) {
       this.awsAccountId = awsAccountId;
-      return this;
-    }
-
-    public Builder awsTenantAlias(String awsTenantAlias) {
-      this.awsTenantAlias = awsTenantAlias;
       return this;
     }
 

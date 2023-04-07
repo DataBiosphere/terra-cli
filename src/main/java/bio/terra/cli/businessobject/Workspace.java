@@ -43,9 +43,7 @@ public class Workspace {
   private final String userFacingId;
   private CloudPlatform cloudPlatform;
   private String googleProjectId;
-  // TODO-Dex verify fields added
   private String awsAccountId;
-  private String awsTenantAlias;
 
   /** Build an instance of this class from the WSM client library WorkspaceDescription object. */
   private Workspace(WorkspaceDescription wsmObject) {
@@ -59,7 +57,6 @@ public class Workspace {
     } else if (wsmObject.getAwsContext() != null) {
       cloudPlatform = CloudPlatform.AWS;
       awsAccountId = wsmObject.getAwsContext().getAccountId();
-      awsTenantAlias = wsmObject.getAwsContext().getTenantAlias();
     }
   }
 
@@ -70,7 +67,6 @@ public class Workspace {
     this.cloudPlatform = configFromDisk.cloudPlatform;
     this.googleProjectId = configFromDisk.googleProjectId;
     this.awsAccountId = configFromDisk.awsAccountId;
-    this.awsTenantAlias = configFromDisk.awsTenantAlias;
   }
 
   /** Create a new workspace and set it as the current workspace. */
@@ -378,10 +374,6 @@ public class Workspace {
 
   public Optional<String> getAwsAccountId() {
     return Optional.ofNullable(awsAccountId);
-  }
-
-  public Optional<String> getAwsTenantAlias() {
-    return Optional.ofNullable(awsTenantAlias);
   }
 
   public WorkspaceDescription getWorkspaceDescription() {
