@@ -3,6 +3,7 @@ package bio.terra.cli.serialization.userfacing;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.UserIO;
+import bio.terra.workspace.model.AwsContext;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.Properties;
 import bio.terra.workspace.model.Property;
@@ -75,13 +76,21 @@ public class UFWorkspaceLight {
     this.id = workspaceDescription.getUserFacingId();
 
     if (workspaceDescription.getGcpContext() != null) {
-      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
       this.cloudPlatform = CloudPlatform.GCP;
+      this.googleProjectId = workspaceDescription.getGcpContext().getProjectId();
+
     } else if (workspaceDescription.getAzureContext() != null) {
       this.cloudPlatform = CloudPlatform.AZURE;
+
     } else if (workspaceDescription.getAwsContext() != null) {
       cloudPlatform = CloudPlatform.AWS;
-      awsAccountId = workspaceDescription.getAwsContext().getAccountId();
+
+      AwsContext awsContext = workspaceDescription.getAwsContext();
+      awsMajorVersion = awsContext.getAccountId();
+      awsOrganizationId = awsContext.getOrganizationId();
+      awsAccountId = awsContext.getAccountId();
+      awsTenantAlias = awsContext.getTenantAlias();
+      awsEnvironmentAlias = awsContext.getEnvironmentAlias();
     }
 
     this.name = workspaceDescription.getDisplayName();

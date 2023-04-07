@@ -41,9 +41,16 @@ public class WorkspaceAws extends ClearContextUnit {
     UFWorkspace createdWorkspace =
         WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
 
-    // check the created workspace has an id and a google project
+    // check the created workspace has an id and aws details
     assertNotNull(createdWorkspace.id, "create workspace returned a workspace id");
+    assertNotNull(
+        createdWorkspace.awsMajorVersion, "create workspace returned a aws major version");
+    assertNotNull(
+        createdWorkspace.awsOrganizationId, "create workspace returned a aws organization id");
     assertNotNull(createdWorkspace.awsAccountId, "create workspace returned a aws account id");
+    assertNotNull(createdWorkspace.awsTenantAlias, "create workspace returned a aws tenant alias");
+    assertNotNull(
+        createdWorkspace.awsEnvironmentAlias, "create workspace returned a aws environment alias");
     assertThat(
         "workspace email matches test user",
         createdWorkspace.userEmail,
@@ -63,36 +70,48 @@ public class WorkspaceAws extends ClearContextUnit {
         "workspace server matches current server",
         createdWorkspace.serverName,
         equalToIgnoringCase(status.server.name));
-    assertEquals(createdWorkspace.id, status.workspace.id, "workspace id matches current status");
-    assertEquals(
-        createdWorkspace.awsAccountId,
-        status.workspace.awsAccountId,
-        "workspace aws account id matches current status");
+    assertWorkspaceAwsFields(createdWorkspace, status.workspace, "current status");
 
     // `terra workspace describe --format=json`
     UFWorkspace describedWorkspace =
         TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
 
     // check the new workspace is returned by describe
-    assertEquals(
-        createdWorkspace.id, describedWorkspace.id, "workspace id matches that in describe");
-    assertEquals(
-        createdWorkspace.awsAccountId,
-        describedWorkspace.awsAccountId,
-        "workspace aws id number matches that in describe");
+    assertWorkspaceAwsFields(createdWorkspace, describedWorkspace, "describe");
 
     // check the new workspace is included in the list
     List<UFWorkspaceLight> matchingWorkspaces =
         WorkspaceUtils.listWorkspacesWithId(createdWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
-    assertEquals(
-        createdWorkspace.id, matchingWorkspaces.get(0).id, "workspace id matches that in list");
-    assertEquals(
-        createdWorkspace.awsAccountId,
-        matchingWorkspaces.get(0).awsAccountId,
-        "workspace aws id number matches that in list");
+    assertWorkspaceAwsFields(createdWorkspace, matchingWorkspaces.get(0), "list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  private <T extends UFWorkspaceLight, E extends UFWorkspaceLight> void assertWorkspaceAwsFields(
+      T expectedWorkspace, E actualWorkspace, String messageSource) {
+    assertEquals(
+        expectedWorkspace.id, actualWorkspace.id, "workspace id matches that in " + messageSource);
+    assertEquals(
+        expectedWorkspace.awsMajorVersion,
+        actualWorkspace.awsMajorVersion,
+        "workspace aws major version matches that in " + messageSource);
+    assertEquals(
+        expectedWorkspace.awsOrganizationId,
+        actualWorkspace.awsOrganizationId,
+        "workspace aws organization id matches that in " + messageSource);
+    assertEquals(
+        expectedWorkspace.awsAccountId,
+        actualWorkspace.awsAccountId,
+        "workspace aws account id matches that in " + messageSource);
+    assertEquals(
+        expectedWorkspace.awsTenantAlias,
+        actualWorkspace.awsTenantAlias,
+        "workspace aws tenant alias matches that in " + messageSource);
+    assertEquals(
+        expectedWorkspace.awsEnvironmentAlias,
+        actualWorkspace.awsEnvironmentAlias,
+        "workspace aws environment alias matches that in " + messageSource);
   }
 }
