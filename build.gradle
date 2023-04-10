@@ -114,6 +114,7 @@ if (hasProperty('buildScan')) {
 
 compileJava.dependsOn tasks.spotlessApply
 
+def gradleIncDir= "$rootDir/gradle"
 apply from: "$gradleIncDir/application.gradle"
 apply from: "$gradleIncDir/dependency-locking.gradle"
 apply from: "$gradleIncDir/sonarqube.gradle"
