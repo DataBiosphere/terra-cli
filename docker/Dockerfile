@@ -5,12 +5,15 @@ FROM us.gcr.io/broad-dsp-gcr-public/base/jre:17-debian
 # working directory when the docker is run
 WORKDIR /usr
 
-# install curl (to download install packages), python (for gcloud sdk) and git
+# install curl (to download install packages), python (for gcloud sdk), git,
+# gnupg and lsb-release (for gcsfuse)
 RUN apt-get update \
     && apt-get install -y \
     curl \
     python3 \
-    git
+    git \
+    gnupg \
+    lsb-release
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
 # these commands come from https://cloud.google.com/sdk/docs/downloads-versioned-archives
@@ -32,6 +35,13 @@ ENV NXF_VER 21.10.6
 ENV NXF_MODE google
 RUN curl -s https://get.nextflow.io | bash \
     && mv nextflow /usr/local/bin
+
+# install gcsfuse for mount tests
+RUN export GCSFUSE_REPO=gcsfuse-$(lsb_release -c -s) \
+    && echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN apt-get update \
+    && apt-get install -y gcsfuse
 
 # copy any custom scripts into the image
 COPY scripts/* /usr/local/bin/

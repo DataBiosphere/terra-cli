@@ -76,6 +76,12 @@ public class LocalProcessLauncher {
     }
   }
 
+  public Process launchSilentProcess(List<String> command) {
+    launchProcess(command, null, null);
+    waitForTerminate();
+    return process;
+  }
+
   /** Stream standard out/err from the child process to the CLI console. */
   public void streamOutputForProcess() {
     // getInputStream() is confusingly named; it returns process stdout (what we want).
@@ -95,5 +101,10 @@ public class LocalProcessLauncher {
     } catch (InterruptedException intEx) {
       throw new SystemException("Error waiting for child process to terminate", intEx);
     }
+  }
+
+  /** Get the error stream from the child process. */
+  public InputStream getErrorStream() {
+    return process.getErrorStream();
   }
 }
