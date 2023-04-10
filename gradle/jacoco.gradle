@@ -4,9 +4,9 @@ jacoco {
 
 tasks.withType(JacocoReport) {
     reports {
-        xml.required false
-        csv.required false
-        html.outputLocation file("${buildDir}/jacocoHtml")
+        xml.required = false
+        csv.required = false
+        html.outputLocation = file("${buildDir}/jacocoHtml")
     }
 }
 

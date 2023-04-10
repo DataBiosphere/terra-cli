@@ -8,8 +8,8 @@ spotbugs {
 spotbugsMain {
     reports {
         html {
-            required true
-            outputLocation file("$buildDir/reports/spotbugs/main.txt")
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/main.txt")
             stylesheet = 'fancy.xsl'
         }
     }
@@ -18,8 +18,8 @@ spotbugsMain {
 spotbugsTest {
     reports {
         html {
-            required true
-            outputLocation file("$buildDir/reports/spotbugs/test.txt")
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/test.txt")
             stylesheet = 'fancy.xsl'
         }
     }
