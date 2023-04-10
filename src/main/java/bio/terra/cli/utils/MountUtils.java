@@ -30,10 +30,18 @@ public class MountUtils {
   // Directory to mount workspace resources under
   private static final Path WORKSPACE_DIR = Paths.get(System.getProperty("user.home"), "workspace");
 
+  /**
+   * Mounts all mountable resources for a given workspace
+   *
+   * @param ws workspace context
+   */
   public static void mountResources(Workspace ws) {
     Map<UUID, Path> resourceMountPaths = getResourceMountPaths();
 
+    // Create directories for each resource mount point
     createResourceDirectories(new ArrayList<>(resourceMountPaths.values()));
+
+    // Mount each resource
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
@@ -42,9 +50,15 @@ public class MountUtils {
         });
   }
 
+  /**
+   * Unmount all mountable resources for a given workspace
+   *
+   * @param ws workspace context
+   */
   public static void unmountResources(Workspace ws) {
     Map<UUID, Path> resourceMountPaths = getResourceMountPaths();
 
+    // Unmount each resource
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
@@ -52,9 +66,17 @@ public class MountUtils {
           handler.unmount();
         });
 
+    // Delete mount point directories only if they are empty so we do not unintentionally delete
+    // bucket files or local files stored at mounted directories
     deleteResourceDirectories();
   }
 
+  /**
+   * Get the mount paths for every mountable resource in the workspace. Mount paths are relative to
+   * WORKSPACE_DIR.
+   *
+   * @return A map of resource IDs to mount paths.
+   */
   public static Map<UUID, Path> getResourceMountPaths() {
     java.util.List<Resource> resources =
         Context.requireWorkspace().listResources().stream()
@@ -77,6 +99,12 @@ public class MountUtils {
     return resourceMountPaths;
   }
 
+  /**
+   * Helper method to get workspace folder paths. Used to build the mount paths for mountable
+   * resources.
+   *
+   * @return A map of folder IDs to folder paths.
+   */
   private static Map<UUID, Path> getFolderPaths() {
     List<Folder> folders = Context.requireWorkspace().listFolders();
     Map<UUID, Path> folderPaths = new HashMap<>();
@@ -107,10 +135,10 @@ public class MountUtils {
   }
 
   /**
-   Creates local directories for all the given resource paths.
-
-   @param paths A list of resource paths to create directories for.
-   @throws SystemException If the creation of the directories failed.
+   * Creates local directories for all the given resource paths.
+   *
+   * @param paths A list of resource paths to create directories for.
+   * @throws SystemException If the creation of the directories failed.
    */
   public static void createResourceDirectories(List<Path> paths) throws SystemException {
     for (Path path : paths) {
@@ -123,10 +151,11 @@ public class MountUtils {
   }
 
   /**
-   Recursively deletes all empty subdirectories in the WORKSPACE_DIR, excluding the WORKSPACE_DIR itself.
-
-   Throws UserActionableException if a non-empty directory is encountered.
-   Throws SystemException if there is an error during deletion.
+   * Recursively deletes all empty subdirectories in the WORKSPACE_DIR, excluding the WORKSPACE_DIR
+   * itself.
+   *
+   * <p>Throws UserActionableException if a non-empty directory is encountered. Throws
+   * SystemException if there is an error during deletion.
    */
   public static void deleteResourceDirectories() {
     // Explore WORKSPACE_DIR in reverse DFS order
@@ -154,7 +183,8 @@ public class MountUtils {
                 }
               });
     } catch (IOException e) {
-      throw new UserActionableException("Failed to open directory: " + WORKSPACE_DIR + ". Create ", e);
+      throw new UserActionableException(
+          "Failed to open directory: " + WORKSPACE_DIR + ". Create ", e);
     }
   }
 

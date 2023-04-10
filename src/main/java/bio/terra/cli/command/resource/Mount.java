@@ -33,7 +33,5 @@ public class Mount extends BaseCommand {
 
     unmountResources(ws);
     mountResources(ws);
-
-    OUT.println("Mounted workspace resources.");
   }
 }
