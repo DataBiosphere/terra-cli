@@ -6,6 +6,7 @@ plugins {
     id 'com.diffplug.spotless' version '6.10.0'
     id 'com.github.spotbugs' version '5.0.12'
     id 'org.gradle.test-retry' version '1.4.1'
+    id 'org.sonarqube' version '4.0.0.2929'
 
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
@@ -113,9 +114,11 @@ if (hasProperty('buildScan')) {
 
 compileJava.dependsOn tasks.spotlessApply
 
-apply from: "$rootDir/gradle/application.gradle"
-apply from: "$rootDir/gradle/dependency-locking.gradle"
-apply from: "$rootDir/gradle/spotbugs.gradle"
-apply from: "$rootDir/gradle/spotless.gradle"
-apply from: "$rootDir/gradle/tools.gradle"
-apply from: "$rootDir/gradle/test.gradle"
+apply from: "$gradleIncDir/application.gradle"
+apply from: "$gradleIncDir/dependency-locking.gradle"
+apply from: "$gradleIncDir/sonarqube.gradle"
+apply from: "$gradleIncDir/sonarqube.gradle"
+apply from: "$gradleIncDir/spotbugs.gradle"
+apply from: "$gradleIncDir/spotless.gradle"
+apply from: "$gradleIncDir/tools.gradle"
+apply from: "$gradleIncDir/test.gradle"
