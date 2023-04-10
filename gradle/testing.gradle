@@ -110,6 +110,8 @@ task runTestsWithTag(type: Test) {
             includeTags getAllTestTagsToRun(testType, testTag, project.findProperty('platform'))
         }
 
+        finalizedBy jacocoTestReport
+
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
         // work, but that's not a concern for dedicated CI machines.
         int localCores = System.getenv().containsKey('CI') ? Runtime.runtime.availableProcessors() : Runtime.runtime.availableProcessors().intdiv(2)

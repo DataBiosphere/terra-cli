@@ -4,21 +4,19 @@ spotbugs {
     extraArgs = ['-emacs']
     includeFilter = file('gradle/config/spotbugs/exclude.xml')
 }
+
 spotbugsMain {
     reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.txt")
-            stylesheet = 'fancy.xsl'
-        }
+        html.required true
+        html.destination file("$buildDir/reports/spotbugs/main.txt")
+        html.stylesheet 'fancy.xsl'
     }
 }
+
 spotbugsTest {
     reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.txt")
-            stylesheet = 'fancy.xsl'
-        }
+        html.required true
+        html.destination file("$buildDir/reports/spotbugs/test.txt")
+        html.stylesheet 'fancy.xsl'
     }
 }
