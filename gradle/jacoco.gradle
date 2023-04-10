@@ -1,12 +1,12 @@
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = '0.8.8'
 }
 
 tasks.withType(JacocoReport) {
     reports {
-        xml.required = false
-        csv.required = false
-        html.destination file("${buildDir}/jacocoHtml")
+        xml.required false
+        csv.required false
+        html.outputLocation file("${buildDir}/jacocoHtml")
     }
 }
 
