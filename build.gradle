@@ -117,7 +117,6 @@ compileJava.dependsOn tasks.spotlessApply
 apply from: "$gradleIncDir/application.gradle"
 apply from: "$gradleIncDir/dependency-locking.gradle"
 apply from: "$gradleIncDir/sonarqube.gradle"
-apply from: "$gradleIncDir/sonarqube.gradle"
 apply from: "$gradleIncDir/spotbugs.gradle"
 apply from: "$gradleIncDir/spotless.gradle"
 apply from: "$gradleIncDir/tools.gradle"
