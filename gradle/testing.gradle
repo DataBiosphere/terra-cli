@@ -64,8 +64,6 @@ static def getAllTestTagsToRun(String testType, String testTag, String cloudPlat
 // 3) run integration tests against an installation built from the latest GitHub release
 //    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
 task runTestsWithTag(type: Test) {
-    finalizedBy jacocoTestReport
-
     doFirst {
         // All gradle tasks are evaluated every time any task is run. If we
         // require that the testTag property be defined in this task definition,
@@ -163,8 +161,10 @@ task runTestsWithTag(type: Test) {
     // generate a unique id for each test run
     systemProperty('TEST_RUN_ID', UUID.randomUUID().toString())
 
-    dependsOn runInstallForTesting
     // run the install-for-testing.sh script before any tests
+    dependsOn runInstallForTesting
+
+    finalizedBy jacocoTestReport
 
     outputs.upToDateWhen { false } // force tests to always be re-run
 
