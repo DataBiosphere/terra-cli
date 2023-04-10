@@ -1,7 +1,3 @@
-test {
-    finalizedBy jacocoTestReport
-}
-
 // install the CLI, either from source code directly or from a GH release, before starting tests
 task runInstallForTesting(type: Exec) {
     boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
@@ -68,6 +64,8 @@ static def getAllTestTagsToRun(String testType, String testTag, String cloudPlat
 // 3) run integration tests against an installation built from the latest GitHub release
 //    ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
 task runTestsWithTag(type: Test) {
+    finalizedBy jacocoTestReport
+
     doFirst {
         // All gradle tasks are evaluated every time any task is run. If we
         // require that the testTag property be defined in this task definition,
