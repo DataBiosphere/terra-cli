@@ -1,3 +1,7 @@
+test {
+    finalizedBy jacocoTestReport
+}
+
 // install the CLI, either from source code directly or from a GH release, before starting tests
 task runInstallForTesting(type: Exec) {
     boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
@@ -109,8 +113,6 @@ task runTestsWithTag(type: Test) {
         useJUnitPlatform {
             includeTags getAllTestTagsToRun(testType, testTag, project.findProperty('platform'))
         }
-
-        finalizedBy jacocoTestReport
 
         // We don't want to use up all the cores on a developer's machine because it locks them out of doing other
         // work, but that's not a concern for dedicated CI machines.
