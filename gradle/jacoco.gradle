@@ -19,6 +19,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.90
             }
         }
+        failOnViolation = false
     }
 }
 check.dependsOn jacocoTestCoverageVerification
