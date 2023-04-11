@@ -1,12 +1,10 @@
 package bio.terra.cli.command.resource;
 
-import static bio.terra.cli.utils.MountUtils.mountResources;
-import static bio.terra.cli.utils.MountUtils.unmountResources;
-
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.utils.MountUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -16,14 +14,12 @@ public class Mount extends BaseCommand {
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
-  @CommandLine.Option(names = "--disable-cache", required = false, description = "Disable cache")
-  private Boolean disableCache;
-
   @CommandLine.Option(
-      names = "--read-only",
+      names = "--disable-cache",
       required = false,
-      description = "Mount with only read permission")
-  private Boolean readOnly;
+      description = "Disable cache",
+      defaultValue = "false")
+  private Boolean disableCache;
 
   /** Execute */
   @Override
@@ -31,7 +27,10 @@ public class Mount extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace ws = Context.requireWorkspace();
 
-    unmountResources(ws);
-    mountResources(ws);
+    if (MountUtils.workspaceDirExists()) {
+      MountUtils.unmountResources(ws);
+    }
+    MountUtils.mountResources(ws, disableCache);
+    OUT.println("Mounted workspace resources.");
   }
 }

@@ -4,9 +4,10 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.ResourcePropertyNames;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.mounthandler.GcsBucketMountHandler;
+import bio.terra.cli.businessobject.mounthandler.GcsFuseMountHandler;
 import bio.terra.cli.businessobject.mounthandler.ResourceMountHandler;
 import bio.terra.cli.businessobject.resource.GcsBucket;
+import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.workspace.model.Folder;
@@ -30,13 +31,25 @@ public class MountUtils {
   // Directory to mount workspace resources under
   private static final Path WORKSPACE_DIR = Paths.get(System.getProperty("user.home"), "workspace");
 
+  // Check if the workspace directory exists
+  public static boolean workspaceDirExists() {
+    return Files.exists(WORKSPACE_DIR) && Files.isDirectory(WORKSPACE_DIR);
+  }
+
   /**
    * Mounts all mountable resources for a given workspace
    *
    * @param ws workspace context
    */
-  public static void mountResources(Workspace ws) {
+  public static void mountResources(Workspace ws, Boolean disableCache) {
     Map<UUID, Path> resourceMountPaths = getResourceMountPaths();
+
+    // Create root workspace directory if it does not exist
+    try {
+      Files.createDirectories(WORKSPACE_DIR);
+    } catch (IOException e) {
+      throw new SystemException("Error creating workspace directory", e);
+    }
 
     // Create directories for each resource mount point
     createResourceDirectories(new ArrayList<>(resourceMountPaths.values()));
@@ -45,7 +58,7 @@ public class MountUtils {
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
-          ResourceMountHandler handler = getMountHandler(r, mountPath);
+          ResourceMountHandler handler = getMountHandler(r, mountPath, disableCache);
           handler.mount();
         });
   }
@@ -62,11 +75,11 @@ public class MountUtils {
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
-          ResourceMountHandler handler = getMountHandler(r, mountPath);
+          ResourceMountHandler handler = getMountHandler(r, mountPath, null);
           handler.unmount();
         });
 
-    // Delete mount point directories only if they are empty so we do not unintentionally delete
+    // Delete mount point directories if they are empty, so we do not unintentionally delete
     // bucket files or local files stored at mounted directories
     deleteResourceDirectories();
   }
@@ -78,10 +91,8 @@ public class MountUtils {
    * @return A map of resource IDs to mount paths.
    */
   public static Map<UUID, Path> getResourceMountPaths() {
-    java.util.List<Resource> resources =
-        Context.requireWorkspace().listResources().stream()
-            .filter(r -> r.getResourceType() == Resource.Type.GCS_BUCKET)
-            .toList();
+    List<Resource> resources = getMountableResources();
+
     Map<UUID, Path> folderPaths = getFolderPaths();
     Map<UUID, Path> resourceMountPaths = new HashMap<>();
 
@@ -97,6 +108,30 @@ public class MountUtils {
       }
     }
     return resourceMountPaths;
+  }
+
+  /**
+   * Helper method to get mountable resources in the workspace, any file containing resource or
+   * reference to a file containing resource.
+   */
+  public static List<Resource> getMountableResources() {
+    return Context.requireWorkspace().listResources().stream()
+        .filter(
+            r -> {
+              if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
+                return true;
+              } else if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
+                try {
+                  return ((GcsObject) r).isPrefix();
+                } catch (SystemException e) {
+                  // Pass through GCS objects that are inaccessible to display error on mounted
+                  // folder later
+                  return true;
+                }
+              }
+              return false;
+            })
+        .toList();
   }
 
   /**
@@ -195,9 +230,11 @@ public class MountUtils {
    * @param mountPoint mount point path for the resource
    * @return mount handler for the resource
    */
-  public static ResourceMountHandler getMountHandler(Resource r, Path mountPoint) {
+  public static ResourceMountHandler getMountHandler(
+      Resource r, Path mountPoint, Boolean disableCache) {
     return switch (r.getResourceType()) {
-      case GCS_BUCKET, GCS_OBJECT -> new GcsBucketMountHandler((GcsBucket) r, mountPoint);
+      case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache);
+      case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache);
       default -> throw new SystemException("Unsupported resource type: " + r.getResourceType());
     };
   }

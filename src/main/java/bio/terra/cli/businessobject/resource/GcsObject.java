@@ -4,14 +4,19 @@ import static bio.terra.cli.businessobject.resource.GcsBucket.GCS_BUCKET_URL_PRE
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.resource.PDGcsObject;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cloudres.google.storage.BlobCow;
+import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
+import com.google.cloud.storage.Storage.BlobListOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +117,7 @@ public class GcsObject extends Resource {
 
   /** Resolve a GCS bucket object resource to its cloud identifier. */
   public String resolve() {
-    return resolve(/*includeUrlPrefix=*/ true);
+    return resolve(true);
   }
 
   /**
@@ -123,6 +128,27 @@ public class GcsObject extends Resource {
     return includeUrlPrefix
         ? GCS_BUCKET_URL_PREFIX + bucketName + "/" + objectName
         : bucketName + "/" + objectName;
+  }
+
+  /**
+   * Check if the GCS bucket object is a directory by checking for the presence of a child object
+   * with a trailing slash. There will always be an object present to represent the directory/prefix
+   * itself.
+   */
+  public boolean isPrefix() throws SystemException {
+    try {
+      BucketCow bucketCow =
+          CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials()).get(bucketName);
+      Iterable<BlobCow> objects = bucketCow.list(BlobListOption.prefix(objectName)).getValues();
+      for (BlobCow object : objects) {
+        if (object.getBlobInfo().getName().endsWith("/")) {
+          return true;
+        }
+      }
+      return false;
+    } catch (Exception e) {
+      throw new SystemException("Error looking up bucket: " + bucketName, e);
+    }
   }
 
   // ====================================================

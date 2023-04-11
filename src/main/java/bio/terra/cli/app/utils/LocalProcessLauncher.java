@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** This class provides utility methods for launching local child processes. */
 public class LocalProcessLauncher {
@@ -103,8 +104,10 @@ public class LocalProcessLauncher {
     }
   }
 
-  /** Get the error stream from the child process. */
-  public InputStream getErrorStream() {
-    return process.getErrorStream();
+  /** Get the error string from the child process. */
+  public String getErrorString() {
+    return new BufferedReader(new InputStreamReader(process.getErrorStream()))
+        .lines()
+        .collect(Collectors.joining(""));
   }
 }

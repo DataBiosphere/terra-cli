@@ -2,11 +2,7 @@ package bio.terra.cli.businessobject.mounthandler;
 
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.slf4j.Logger;
@@ -20,9 +16,11 @@ public abstract class ResourceMountHandler {
 
   Logger logger = LoggerFactory.getLogger(this.getClass());
   protected Path mountPoint;
+  protected Boolean disableCache;
 
-  public ResourceMountHandler(Path mountPoint) {
+  public ResourceMountHandler(Path mountPoint, Boolean disableCache) {
     this.mountPoint = mountPoint;
+    this.disableCache = disableCache;
   }
 
   /**
@@ -39,26 +37,12 @@ public abstract class ResourceMountHandler {
    */
   public abstract void unmount() throws UserActionableException, SystemException;
 
-  /**
-   * Checks if the provided error string is present in the given input stream. Used to differentiate
-   * the different errors that all return exit code 1.
-   *
-   * @param errorStream the input stream to search for the error substring
-   * @param error the error string to search for
-   * @return true if the error is present in the input stream, false otherwise
-   * @throws SystemException if there was an error while reading the error stream
-   */
-  protected boolean errorContains(InputStream errorStream, String error) {
-    try (BufferedReader reader =
-        new BufferedReader(new InputStreamReader(errorStream, StandardCharsets.UTF_8))) {
-      return reader.lines().anyMatch(line -> line.toLowerCase().contains(error));
-    } catch (IOException e) {
-      throw new SystemException("Failed to read error stream", e);
-    }
-  }
-
   protected void addPermissionErrorToMountPoint() {
     addErrorStateToMountPoint("_NO_ACCESS");
+  }
+
+  protected void addNotFoundErrorToMountPoint() {
+    addErrorStateToMountPoint("_NOT_FOUND");
   }
 
   protected void addErrorStateToMountPoint() {

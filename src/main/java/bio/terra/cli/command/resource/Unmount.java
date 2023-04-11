@@ -1,11 +1,10 @@
 package bio.terra.cli.command.resource;
 
-import static bio.terra.cli.utils.MountUtils.unmountResources;
-
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.utils.MountUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -21,8 +20,11 @@ public class Unmount extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace ws = Context.requireWorkspace();
 
-    unmountResources(ws);
-
-    OUT.println("Unmounted workspace resources.");
+    if (MountUtils.workspaceDirExists()) {
+      MountUtils.unmountResources(ws);
+      OUT.println("Unmounted workspace resources.");
+    } else {
+      OUT.println("There are no mounted workspace resources.");
+    }
   }
 }
