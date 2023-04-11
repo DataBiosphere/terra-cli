@@ -3,7 +3,7 @@ set -e
 ## This script builds a new GitHub release for the Terra CLI, and uploads a new Docker container.
 ## The GitHub release includes an install package and a download + install script.
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.
-## The release version number argument to this script must match the version number in the build.gradle
+## The release version number argument to this script must match the version number in the settings.gradle
 # file (i.e. version = '0.0.0' line).
 ## Dependencies: docker, gh, sed
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
@@ -35,15 +35,15 @@ if [[ $releaseVersion =~ [A-Z] ]]; then
   exit 1
 fi
 
-echo "-- Checking if this version matches the value in build.gradle"
+echo "-- Checking if this version matches the value in settings.gradle"
 # note that the --quiet flag has to be before the task name, otherwise log statements
 # related to downloading Gradle are not suppressed (https://github.com/gradle/gradle/issues/5098)
 buildGradleVersion=$(./gradlew --quiet getBuildVersion)
 if [[ "$releaseVersion" != "$buildGradleVersion" ]]; then
-  >&2 echo "ERROR: Release version ($releaseVersion) does not match build.gradle version ($buildGradleVersion)"
+  >&2 echo "ERROR: Release version ($releaseVersion) does not match settings.gradle version ($buildGradleVersion)"
   exit 1
 else
-  echo "Release version matches build.gradle version"
+  echo "Release version matches settings.gradle version"
 fi
 
 echo "-- Checking if there is a tag that matches this version"
