@@ -1,0 +1,25 @@
+jacoco {
+    toolVersion = '0.8.8'
+}
+
+tasks.withType(JacocoReport) {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = file("${buildDir}/jacoco.html")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.90
+            }
+        }
+        failOnViolation = false
+    }
+}
+check.dependsOn jacocoTestCoverageVerification

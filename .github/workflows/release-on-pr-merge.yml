@@ -29,8 +29,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         DEFAULT_BUMP: minor
         RELEASE_BRANCHES: main
-        VERSION_FILE_PATH: build.gradle
-        VERSION_LINE_MATCH: ^version\>
+        VERSION_FILE_PATH: settings.gradle
+        VERSION_LINE_MATCH: "^gradle.ext.cliVersion\\s*=\\s*\".*\""
     - name: Updating code to get the version bump changes
       id: update_code_post_version_bump
       run: |
