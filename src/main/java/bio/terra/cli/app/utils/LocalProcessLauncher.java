@@ -77,7 +77,7 @@ public class LocalProcessLauncher {
     }
   }
 
-  public Process launchSilentProcess(List<String> command) {
+  public Process launchSilentProcess(List<String> command, Map<String, String> envVars, Path workingDirectory) {
     launchProcess(command, null, null);
     waitForTerminate();
     return process;

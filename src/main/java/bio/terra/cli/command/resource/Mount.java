@@ -21,7 +21,6 @@ public class Mount extends BaseCommand {
       defaultValue = "false")
   private Boolean disableCache;
 
-  /** Execute */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();

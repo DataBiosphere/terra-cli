@@ -14,7 +14,6 @@ public class Unmount extends BaseCommand {
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
-  /** Execute */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();

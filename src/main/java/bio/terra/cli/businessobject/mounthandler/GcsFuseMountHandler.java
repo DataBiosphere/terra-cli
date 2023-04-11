@@ -12,6 +12,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver.
+ */
 public class GcsFuseMountHandler extends ResourceMountHandler {
   Logger logger = LoggerFactory.getLogger(GcsFuseMountHandler.class);
   protected final String FUSE_MOUNT_COMMAND = "gcsfuse";
@@ -30,7 +33,6 @@ public class GcsFuseMountHandler extends ResourceMountHandler {
   }
 
   public void mount() throws SystemException {
-
     // Build mount command
     List<String> command = new ArrayList<>(List.of(FUSE_MOUNT_COMMAND));
     if (disableCache) {
@@ -43,7 +45,7 @@ public class GcsFuseMountHandler extends ResourceMountHandler {
 
     // Run mount command
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    Process p = localProcessLauncher.launchSilentProcess(command);
+    Process p = localProcessLauncher.launchSilentProcess(command, null, null);
 
     // Add errors to the mount point directories if the mount fails
     String errorMessage = localProcessLauncher.getErrorString();
@@ -70,7 +72,7 @@ public class GcsFuseMountHandler extends ResourceMountHandler {
 
     // Run unmount command
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    Process p = localProcessLauncher.launchSilentProcess(command);
+    Process p = localProcessLauncher.launchSilentProcess(command, null, null);
 
     // Throw an error if the mount directory is being used by another process
     // Ignore errors related to the mount point not being mounted
