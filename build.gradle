@@ -16,6 +16,10 @@ plugins {
     id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
+project.ext {
+    isCiServer = System.getenv().containsKey("CI")
+}
+
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
 repositories {
@@ -107,8 +111,6 @@ if (hasProperty('buildScan')) {
         termsOfServiceAgree = 'yes'
     }
 }
-
-compileJava.dependsOn tasks.spotlessApply
 
 def gradleIncDir= "$rootDir/gradle"
 apply from: "$gradleIncDir/application.gradle"
