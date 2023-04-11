@@ -16,11 +16,6 @@ plugins {
     id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
-// TODO(PF-1981) - Move version to settings.gradle
-// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.321.0'
-group = 'terra-cli'
-
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
 repositories {

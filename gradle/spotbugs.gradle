@@ -9,7 +9,7 @@ spotbugsMain {
     reports {
         html {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main.txt")
+            outputLocation = file("$buildDir/reports/spotbugs/main.html")
             stylesheet = 'fancy.xsl'
         }
     }
@@ -19,7 +19,7 @@ spotbugsTest {
     reports {
         html {
             required = true
-            outputLocation = file("$buildDir/reports/spotbugs/test.txt")
+            outputLocation = file("$buildDir/reports/spotbugs/test.html")
             stylesheet = 'fancy.xsl'
         }
     }

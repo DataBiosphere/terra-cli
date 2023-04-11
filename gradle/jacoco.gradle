@@ -6,7 +6,7 @@ tasks.withType(JacocoReport) {
     reports {
         xml.required = false
         csv.required = false
-        html.outputLocation = file("${buildDir}/jacocoHtml")
+        html.outputLocation = file("${buildDir}/jacoco.html")
     }
 }
 
