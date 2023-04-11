@@ -1,7 +1,7 @@
 // convenience tasks to fetch build properties from scripts (e.g. see $rootDir/tools/)
 task getBuildVersion {
     doLast {
-        println(version)
+        println(gradle.cliVersion)
     }
 }
 task getDockerRepoPath {

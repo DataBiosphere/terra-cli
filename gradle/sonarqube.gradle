@@ -1,0 +1,8 @@
+sonar {
+    properties {
+        property 'sonar.projectName', rootProject.name
+        property 'sonar.projectKey', 'DataBiosphere_' + rootProject.name
+        property 'sonar.organization', 'broad-databiosphere'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+    }
+}

@@ -1,11 +1,13 @@
 plugins {
-    id 'java'
-    id 'idea'
     id 'application'
+    id 'idea'
+    id 'java'
+    id 'jacoco'
 
-    id 'com.diffplug.spotless' version '6.10.0'
-    id 'com.github.spotbugs' version '5.0.12'
+    id 'com.diffplug.spotless' version '6.16.0'
+    id 'com.github.spotbugs' version '5.0.13'
     id 'org.gradle.test-retry' version '1.4.1'
+    id 'org.sonarqube' version '4.0.0.2929'
 
     // Fix guava -jre vs -android dependency resolution.
     // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
@@ -14,10 +16,9 @@ plugins {
     id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
-// TODO(PF-1981) - Move version to settings.gradle
-// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
-version = '0.321.0'
-group = 'terra-cli'
+project.ext {
+    isCiServer = System.getenv().containsKey("CI")
+}
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
@@ -111,11 +112,12 @@ if (hasProperty('buildScan')) {
     }
 }
 
-compileJava.dependsOn tasks.spotlessApply
-
-apply from: "$rootDir/gradle/application.gradle"
-apply from: "$rootDir/gradle/dependency-locking.gradle"
-apply from: "$rootDir/gradle/spotbugs.gradle"
-apply from: "$rootDir/gradle/spotless.gradle"
-apply from: "$rootDir/gradle/tools.gradle"
-apply from: "$rootDir/gradle/test.gradle"
+def gradleIncDir= "$rootDir/gradle"
+apply from: "$gradleIncDir/application.gradle"
+apply from: "$gradleIncDir/dependency-locking.gradle"
+apply from: "$gradleIncDir/jacoco.gradle"
+apply from: "$gradleIncDir/sonarqube.gradle"
+apply from: "$gradleIncDir/spotbugs.gradle"
+apply from: "$gradleIncDir/spotless.gradle"
+apply from: "$gradleIncDir/tools.gradle"
+apply from: "$gradleIncDir/testing.gradle"

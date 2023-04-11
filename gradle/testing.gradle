@@ -2,7 +2,7 @@
 task runInstallForTesting(type: Exec) {
     boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
     String installMode = testInstallFromGitHub ? 'GITHUB_RELEASE' : 'SOURCE_CODE'
-    commandLine 'bash', './tools/install-for-testing.sh', installMode, "${project.version}"
+    commandLine 'bash', './tools/install-for-testing.sh', installMode, "${gradle.cliVersion}"
 
     dependsOn installDist
 }
@@ -85,9 +85,9 @@ task runTestsWithTag(type: Test) {
             // run against the code directly, and so there is no JAR manifest. this implementation version is
             // used to get the default docker image id.
             systemProperty('TERRA_JAR_IMPLEMENTATION_VERSION',
-                    "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${project.version}:${project.properties['dockerImageTag']}")
+                    "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${gradle.cliVersion}:${project.properties['dockerImageTag']}")
             // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
-            systemProperty('TERRA_CLI_VERSION', "${project.version}")
+            systemProperty('TERRA_CLI_VERSION', "${gradle.cliVersion}")
 
         } else if (testTag.startsWith('integration')) {
             testType = 'integration'
@@ -96,7 +96,7 @@ task runTestsWithTag(type: Test) {
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
             boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
-            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${project.group}/bin"
+            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${gradle.projectGroup}/bin"
             systemProperty('TERRA_INSTALL_DIR', installDir)
 
             // [for integration tests] specify the working directory to use when running scripts. this makes
@@ -161,8 +161,10 @@ task runTestsWithTag(type: Test) {
     // generate a unique id for each test run
     systemProperty('TEST_RUN_ID', UUID.randomUUID().toString())
 
-    dependsOn runInstallForTesting
     // run the install-for-testing.sh script before any tests
+    dependsOn runInstallForTesting
+
+    finalizedBy jacocoTestReport
 
     outputs.upToDateWhen { false } // force tests to always be re-run
 
