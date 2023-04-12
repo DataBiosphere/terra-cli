@@ -1,4 +1,3 @@
 rootProject.name = 'terra-cli'
 
-gradle.ext.projectGroup = 'terra-cli'
 gradle.ext.cliVersion = '0.322.0'
