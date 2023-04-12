@@ -1,4 +1,4 @@
 rootProject.name = 'terra-cli'
 
-// The tools/publish-release.sh script depends on this version string being of the format "version = '1.2.3'"
+gradle.ext.projectGroup = 'terra-cli'
 gradle.ext.cliVersion = '0.322.0'
