@@ -67,9 +67,6 @@ dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
-# don't include the version number in the archive file name, so that the install script doesn't need to know it
-mv $distributionArchivePath build/distributions/terra-cli.tar
-distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled

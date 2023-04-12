@@ -16,7 +16,7 @@ application {
 // plugin: distribution
 distributions {
     main {
-        distributionBaseName = 'terra-cli'
+        distributionBaseName = "${rootProject.name}"
         // configure what to include in the release archive
         contents {
             from 'tools/install.sh'
@@ -49,8 +49,8 @@ jar {
     // reference for example manifest values: https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html
     manifest {
         attributes 'Specification-Title': 'Terra CLI',
-        'Specification-Version': "${gradle.cliVersion}", // this matches the top-level version property
+        'Specification-Version': "${rootProject.version}", // this matches the top-level version property
         'Implementation-Title': 'bio.terra.cli',
-        'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${gradle.cliVersion}:${project.properties['dockerImageTag']}"
+        'Implementation-Version': "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${rootProject.version}:${project.properties['dockerImageTag']}"
     }
 }

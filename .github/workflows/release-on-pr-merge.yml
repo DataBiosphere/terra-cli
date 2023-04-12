@@ -30,7 +30,7 @@ jobs:
         DEFAULT_BUMP: minor
         RELEASE_BRANCHES: main
         VERSION_FILE_PATH: settings.gradle
-        VERSION_LINE_MATCH: "^\\s*gradle.ext.cliVersion\\s*=\\s*'.*'"
+        VERSION_LINE_MATCH: "^version\\s*=\\s*'.*'"
     - name: Updating code to get the version bump changes
       id: update_code_post_version_bump
       run: |
