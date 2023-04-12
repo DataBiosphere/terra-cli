@@ -10,12 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver.
- */
+/** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
 public class GcsFuseMountHandler extends BaseMountHandler {
   private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
   private final String bucketName;

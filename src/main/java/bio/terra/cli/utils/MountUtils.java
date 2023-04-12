@@ -3,8 +3,8 @@ package bio.terra.cli.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.businessobject.mounthandler.GcsFuseMountHandler;
 import bio.terra.cli.businessobject.mounthandler.BaseMountHandler;
+import bio.terra.cli.businessobject.mounthandler.GcsFuseMountHandler;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
@@ -24,9 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * This class provides utility methods for mounting and unmount workspace resources
- */
+/** This class provides utility methods for mounting and unmount workspace resources */
 public class MountUtils {
 
   // Directory to mount workspace resources under

@@ -140,7 +140,10 @@ public class GcsObject extends Resource {
     try {
       BucketCow bucketCow =
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials()).get(bucketName);
-      Iterable<BlobCow> objects = bucketCow.list(BlobListOption.currentDirectory(), BlobListOption.prefix(objectName)).getValues();
+      Iterable<BlobCow> objects =
+          bucketCow
+              .list(BlobListOption.currentDirectory(), BlobListOption.prefix(objectName))
+              .getValues();
       return StreamSupport.stream(objects.spliterator(), false)
           .anyMatch(object -> object.getBlobInfo().isDirectory());
     } catch (Exception e) {
