@@ -17,6 +17,7 @@ import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.cloud.storage.Storage.BlobListOption;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public class GcsObject extends Resource {
 
   /** Resolve a GCS bucket object resource to its cloud identifier. */
   public String resolve() {
-    return resolve(true);
+    return resolve(/*includeUrlPrefix=*/ true);
   }
 
   /**
@@ -135,17 +136,13 @@ public class GcsObject extends Resource {
    * with a trailing slash. There will always be an object present to represent the directory/prefix
    * itself.
    */
-  public boolean isPrefix() throws SystemException {
+  public boolean isDirectory() throws SystemException {
     try {
       BucketCow bucketCow =
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials()).get(bucketName);
-      Iterable<BlobCow> objects = bucketCow.list(BlobListOption.prefix(objectName)).getValues();
-      for (BlobCow object : objects) {
-        if (object.getBlobInfo().getName().endsWith("/")) {
-          return true;
-        }
-      }
-      return false;
+      Iterable<BlobCow> objects = bucketCow.list(BlobListOption.currentDirectory(), BlobListOption.prefix(objectName)).getValues();
+      return StreamSupport.stream(objects.spliterator(), false)
+          .anyMatch(object -> object.getBlobInfo().isDirectory());
     } catch (Exception e) {
       throw new SystemException("Error looking up bucket: " + bucketName, e);
     }

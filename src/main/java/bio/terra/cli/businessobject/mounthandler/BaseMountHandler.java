@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
  * Abstract class for mounting a resource to a mount point. This class is extended by specific
  * resource mount handlers. Subclasses need to implement the mount and unmount methods.
  */
-public abstract class ResourceMountHandler {
+public abstract class BaseMountHandler {
 
-  Logger logger = LoggerFactory.getLogger(this.getClass());
+  protected static Logger logger = LoggerFactory.getLogger(BaseMountHandler.class);
   protected Path mountPoint;
   protected Boolean disableCache;
 
-  public ResourceMountHandler(Path mountPoint, Boolean disableCache) {
+  public BaseMountHandler(Path mountPoint, Boolean disableCache) {
     this.mountPoint = mountPoint;
     this.disableCache = disableCache;
   }

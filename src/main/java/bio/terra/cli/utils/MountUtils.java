@@ -2,10 +2,9 @@ package bio.terra.cli.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.ResourcePropertyNames;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.mounthandler.GcsFuseMountHandler;
-import bio.terra.cli.businessobject.mounthandler.ResourceMountHandler;
+import bio.terra.cli.businessobject.mounthandler.BaseMountHandler;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
@@ -25,11 +24,14 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/** This class provides utility methods for mounting and unmount workspace resources */
+/**
+ * This class provides utility methods for mounting and unmount workspace resources
+ */
 public class MountUtils {
 
   // Directory to mount workspace resources under
   private static final Path WORKSPACE_DIR = Paths.get(System.getProperty("user.home"), "workspace");
+  private static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
 
   // Check if the workspace directory exists
   public static boolean workspaceDirExists() {
@@ -58,7 +60,7 @@ public class MountUtils {
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
-          ResourceMountHandler handler = getMountHandler(r, mountPath, disableCache);
+          BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
           handler.mount();
         });
   }
@@ -75,13 +77,11 @@ public class MountUtils {
     resourceMountPaths.forEach(
         (id, mountPath) -> {
           Resource r = ws.getResource(id);
-          ResourceMountHandler handler = getMountHandler(r, mountPath, null);
+          BaseMountHandler handler = getMountHandler(r, mountPath, null);
           handler.unmount();
         });
 
-    // Delete mount point directories if they are empty, so we do not unintentionally delete
-    // bucket files or local files stored at mounted directories
-    deleteResourceDirectories();
+    deleteEmptyResourceDirectories();
   }
 
   /**
@@ -93,11 +93,11 @@ public class MountUtils {
   public static Map<UUID, Path> getResourceMountPaths() {
     List<Resource> resources = getMountableResources();
 
-    Map<UUID, Path> folderPaths = getFolderPaths();
+    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
     Map<UUID, Path> resourceMountPaths = new HashMap<>();
 
     for (Resource resource : resources) {
-      String parentFolderId = resource.getProperty(ResourcePropertyNames.FolderId.getValue());
+      String parentFolderId = resource.getProperty(TERRA_FOLDER_ID_PROPERTY_KEY);
       if (parentFolderId != null) {
         Path mountPath =
             WORKSPACE_DIR.resolve(
@@ -120,9 +120,10 @@ public class MountUtils {
             r -> {
               if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
                 return true;
-              } else if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
+              }
+              if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
                 try {
-                  return ((GcsObject) r).isPrefix();
+                  return ((GcsObject) r).isDirectory();
                 } catch (SystemException e) {
                   // Pass through GCS objects that are inaccessible to display error on mounted
                   // folder later
@@ -140,7 +141,7 @@ public class MountUtils {
    *
    * @return A map of folder IDs to folder paths.
    */
-  private static Map<UUID, Path> getFolderPaths() {
+  private static Map<UUID, Path> getFolderIdToFolderPathMap() {
     List<Folder> folders = Context.requireWorkspace().listFolders();
     Map<UUID, Path> folderPaths = new HashMap<>();
 
@@ -186,13 +187,13 @@ public class MountUtils {
   }
 
   /**
-   * Recursively deletes all empty subdirectories in the WORKSPACE_DIR, excluding the WORKSPACE_DIR
+   * Recursively deletes empty subdirectories in the WORKSPACE_DIR, excluding the WORKSPACE_DIR
    * itself.
    *
    * <p>Throws UserActionableException if a non-empty directory is encountered. Throws
    * SystemException if there is an error during deletion.
    */
-  public static void deleteResourceDirectories() {
+  public static void deleteEmptyResourceDirectories() {
     // Explore WORKSPACE_DIR in reverse DFS order
     try (Stream<Path> stream = Files.walk(WORKSPACE_DIR)) {
       stream
@@ -230,7 +231,7 @@ public class MountUtils {
    * @param mountPoint mount point path for the resource
    * @return mount handler for the resource
    */
-  public static ResourceMountHandler getMountHandler(
+  public static BaseMountHandler getMountHandler(
       Resource r, Path mountPoint, Boolean disableCache) {
     return switch (r.getResourceType()) {
       case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache);

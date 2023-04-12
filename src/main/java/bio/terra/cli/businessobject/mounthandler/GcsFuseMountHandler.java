@@ -9,17 +9,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver.
  */
-public class GcsFuseMountHandler extends ResourceMountHandler {
-  Logger logger = LoggerFactory.getLogger(GcsFuseMountHandler.class);
-  protected final String FUSE_MOUNT_COMMAND = "gcsfuse";
-  protected String bucketName;
-  protected String subDir;
+public class GcsFuseMountHandler extends BaseMountHandler {
+  private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
+  private final String bucketName;
+  private @Nullable String subDir;
 
   public GcsFuseMountHandler(GcsBucket gcsBucket, Path mountPoint, Boolean disableCache) {
     super(mountPoint, disableCache);
@@ -45,12 +45,13 @@ public class GcsFuseMountHandler extends ResourceMountHandler {
 
     // Run mount command
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    Process p = localProcessLauncher.launchSilentProcess(command, null, null);
+    localProcessLauncher.launchProcess(command, null, null);
+    int exitCode = localProcessLauncher.waitForTerminate();
 
     // Add errors to the mount point directories if the mount fails
     String errorMessage = localProcessLauncher.getErrorString();
     String bucketOutputName = subDir != null ? bucketName + "/" + subDir : bucketName;
-    if (p.exitValue() != 0) {
+    if (exitCode != 0) {
       if (errorMessage.contains("forbidden")) {
         addPermissionErrorToMountPoint();
         logger.info("Insufficient permissions. Unable to access GCS bucket " + bucketOutputName);
@@ -72,12 +73,13 @@ public class GcsFuseMountHandler extends ResourceMountHandler {
 
     // Run unmount command
     LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    Process p = localProcessLauncher.launchSilentProcess(command, null, null);
+    localProcessLauncher.launchProcess(command, null, null);
+    int exitCode = localProcessLauncher.waitForTerminate();
 
     // Throw an error if the mount directory is being used by another process
     // Ignore errors related to the mount point not being mounted
     String errorMessage = localProcessLauncher.getErrorString();
-    if (p.exitValue() != 0) {
+    if (exitCode != 0) {
       if (!isNotMountedError(errorMessage)) {
         throw new UserActionableException(
             "Failed to unmount "
