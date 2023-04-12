@@ -96,7 +96,7 @@ task runTestsWithTag(type: Test) {
             // for an installation directly from source code, this points to the build/install/terra-cli/bin directory (i.e. the output of ./gradlew install)
             // for an installation from a GH release, this points to the build/test-install directory (i.e. where the curl install command is run)
             boolean testInstallFromGitHub = project.hasProperty('testInstallFromGitHub')
-            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${gradle.projectGroup}/bin"
+            String installDir = testInstallFromGitHub ? "${project.buildDir}/test-install" : "${project.buildDir}/install/${rootProject.name}/bin"
             systemProperty('TERRA_INSTALL_DIR', installDir)
 
             // [for integration tests] specify the working directory to use when running scripts. this makes
