@@ -5,6 +5,6 @@ import java.util.regex.Pattern;
 public class MacMountController extends MountController {
 
   protected Pattern getMountEntryPattern() {
-    return Pattern.compile("^(\\S+)\\s+on\\s+([^\\(]+)\\s+(\\([^\\)]+\\))");
+    return Pattern.compile("^(\\S+)\\s+on\\s+([^\\(]+)\\s+(\\([^\\)]++\\))");
   }
 }
