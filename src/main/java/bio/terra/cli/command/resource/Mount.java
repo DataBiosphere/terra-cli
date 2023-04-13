@@ -4,7 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.utils.MountUtils;
+import bio.terra.cli.utils.mount.MountController;
+import bio.terra.cli.utils.mount.MountControllerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -26,10 +27,11 @@ public class Mount extends BaseCommand {
     workspaceOption.overrideIfSpecified();
     Workspace ws = Context.requireWorkspace();
 
-    if (MountUtils.workspaceDirExists()) {
-      MountUtils.unmountResources(ws);
+    MountController mountController = MountControllerFactory.getMountController();
+    if (MountController.workspaceDirExists()) {
+      mountController.unmountResources();
     }
-    MountUtils.mountResources(ws, disableCache);
+    mountController.mountResources(ws, disableCache);
     OUT.println("Mounted workspace resources.");
   }
 }

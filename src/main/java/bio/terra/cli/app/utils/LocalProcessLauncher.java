@@ -98,6 +98,11 @@ public class LocalProcessLauncher {
     }
   }
 
+  /** Get stdout input stream from the child process. */
+  public InputStream getInputStream() {
+    return process.getInputStream();
+  }
+
   /** Get the error string from the child process. */
   public String getErrorString() {
     return new BufferedReader(new InputStreamReader(process.getErrorStream()))

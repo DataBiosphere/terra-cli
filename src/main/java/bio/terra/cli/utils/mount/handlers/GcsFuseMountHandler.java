@@ -1,18 +1,22 @@
-package bio.terra.cli.businessobject.mounthandler;
+package bio.terra.cli.utils.mount.handlers;
 
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
+/**
+ * This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver.
+ */
 public class GcsFuseMountHandler extends BaseMountHandler {
+
   private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
   private final String bucketName;
   private @Nullable String subDir;
@@ -48,6 +52,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     String errorMessage = localProcessLauncher.getErrorString();
     String bucketOutputName = subDir != null ? bucketName + "/" + subDir : bucketName;
     if (exitCode != 0) {
+      logger.error(errorMessage);
       if (errorMessage.contains("forbidden")) {
         addPermissionErrorToMountPoint();
         logger.info("Insufficient permissions. Unable to access GCS bucket " + bucketOutputName);
@@ -63,60 +68,5 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     }
   }
 
-  public void unmount() throws SystemException {
-    // Build unmount command
-    List<String> command = Arrays.asList(getUnmountCommand(), mountPoint.toString());
 
-    // Run unmount command
-    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    localProcessLauncher.launchProcess(command, null, null);
-    int exitCode = localProcessLauncher.waitForTerminate();
-
-    // Throw an error if the mount directory is being used by another process
-    // Ignore errors related to the mount point not being mounted
-    String errorMessage = localProcessLauncher.getErrorString();
-    if (exitCode != 0) {
-      if (!isNotMountedError(errorMessage)) {
-        throw new UserActionableException(
-            "Failed to unmount "
-                + mountPoint
-                + ". Make sure that the mount point is not being used by other processes.");
-      }
-    } else {
-      logger.info("Unmounted GCS bucket " + bucketName);
-    }
-  }
-
-  /**
-   * Returns the appropriate unmount command based on the current operating system.
-   *
-   * @return The unmount command as a String.
-   * @throws UserActionableException if the current operating system is not supported for unmounting
-   *     GCS bucket.
-   */
-  private String getUnmountCommand() {
-    String os = System.getProperty("os.name").toLowerCase();
-    if (os.contains("mac")) {
-      return "umount";
-    } else if (os.contains("linux")) {
-      return "fusermount -u";
-    }
-    throw new UserActionableException("Unsupported OS for unmounting GCS bucket: " + os);
-  }
-
-  /**
-   * Check if the unmount error is because the bucket is already not mounted.
-   *
-   * @param errorString the error string to check
-   * @return true if the error stream contains the given string
-   */
-  private boolean isNotMountedError(String errorString) {
-    String os = System.getProperty("os.name").toLowerCase();
-    if (os.contains("mac")) {
-      return errorString.contains("not currently mounted");
-    } else if (os.contains("linux")) {
-      return errorString.contains("not found in");
-    }
-    return false;
-  }
 }
