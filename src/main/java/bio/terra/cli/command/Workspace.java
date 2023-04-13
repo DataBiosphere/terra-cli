@@ -2,6 +2,7 @@ package bio.terra.cli.command;
 
 import bio.terra.cli.command.workspace.AddUser;
 import bio.terra.cli.command.workspace.BreakGlass;
+import bio.terra.cli.command.workspace.ConfigureAws;
 import bio.terra.cli.command.workspace.Create;
 import bio.terra.cli.command.workspace.Delete;
 import bio.terra.cli.command.workspace.DeleteProperty;
@@ -25,6 +26,7 @@ import picocli.CommandLine.Command;
     subcommands = {
       AddUser.class,
       BreakGlass.class,
+      ConfigureAws.class,
       Duplicate.class,
       Create.class,
       Delete.class,

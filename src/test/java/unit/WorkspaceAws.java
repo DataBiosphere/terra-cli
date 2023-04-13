@@ -13,10 +13,13 @@ import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
+import harness.utils.AwsConfigurationUtils;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -136,6 +139,128 @@ public class WorkspaceAws extends ClearContextUnit {
         1,
         describedWorkspace.numResources,
         "workspace has 1 resource after creating storage folder");
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+  }
+
+  @Test
+  @DisplayName("AWS configure command")
+  void configureAws() throws IOException, InterruptedException {
+    // select a test user and login
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
+    assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
+
+    String folderRegion = "us-east-1";
+
+    // 'terra workspace configure-aws' - should error with no resources
+    TestCommand.runCommandExpectExitCode(1, "workspace", "configure-aws");
+
+    // `terra resource create s3-storage-folder --name=$name --region $region`
+    String defaultResourceName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        "s3-storage-folder",
+        "--name=" + defaultResourceName,
+        "--region=" + folderRegion);
+
+    // `terra resource create s3-storage-folder --name=$name --region $region`
+    String secondaryResourceName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource",
+        "create",
+        "s3-storage-folder",
+        "--name=" + secondaryResourceName,
+        "--region=" + folderRegion);
+
+    String terraPath = "/fake/path/to/terra";
+    String awsVaultPath = "/fake/path/to/aws-vault";
+
+    Collection<String> resourceNames = Set.of(defaultResourceName, secondaryResourceName);
+
+    // 'terra workspace configure-aws'
+    TestCommand.Result configureResult =
+        TestCommand.runCommandExpectSuccess("workspace", "configure-aws");
+
+    AwsConfigurationUtils.validateConfiguration(
+        configureResult.stdOut,
+        folderRegion,
+        resourceNames,
+        Optional.empty(),
+        false,
+        Optional.empty(),
+        Optional.empty());
+
+    // 'terra workspace configure-aws --default-resource $name'
+    configureResult =
+        TestCommand.runCommandExpectSuccess(
+            "workspace", "configure-aws", "--default-resource", defaultResourceName);
+
+    AwsConfigurationUtils.validateConfiguration(
+        configureResult.stdOut,
+        folderRegion,
+        resourceNames,
+        Optional.of(defaultResourceName),
+        false,
+        Optional.empty(),
+        Optional.empty());
+
+    // 'terra workspace configure-aws --cache-with-aws-vault'
+    configureResult =
+        TestCommand.runCommandExpectSuccess("workspace", "configure-aws", "--cache-with-aws-vault");
+
+    AwsConfigurationUtils.validateConfiguration(
+        configureResult.stdOut,
+        folderRegion,
+        resourceNames,
+        Optional.empty(),
+        true,
+        Optional.empty(),
+        Optional.empty());
+
+    // 'terra workspace configure-aws --default-resource $name --cache-with-aws-vault'
+    configureResult =
+        TestCommand.runCommandExpectSuccess(
+            "workspace",
+            "configure-aws",
+            "--default-resource",
+            defaultResourceName,
+            "--cache-with-aws-vault");
+
+    AwsConfigurationUtils.validateConfiguration(
+        configureResult.stdOut,
+        folderRegion,
+        resourceNames,
+        Optional.of(defaultResourceName),
+        true,
+        Optional.empty(),
+        Optional.empty());
+
+    // 'terra workspace configure-aws --cache-with-aws-vault --terra-path $path --aws-vault-path
+    // $path'
+    configureResult =
+        TestCommand.runCommandExpectSuccess(
+            "workspace",
+            "configure-aws",
+            "--cache-with-aws-vault",
+            "--terra-path",
+            terraPath,
+            "--aws-vault-path",
+            awsVaultPath);
+
+    AwsConfigurationUtils.validateConfiguration(
+        configureResult.stdOut,
+        folderRegion,
+        resourceNames,
+        Optional.empty(),
+        true,
+        Optional.of(terraPath),
+        Optional.of(awsVaultPath));
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
