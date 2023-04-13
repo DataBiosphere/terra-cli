@@ -4,18 +4,16 @@ import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Workspace;
-import bio.terra.cli.utils.OSFamily;
-import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
 import bio.terra.workspace.model.Folder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,12 +28,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * This class provides utility methods for mounting and unmount workspace resources
- */
+/** This class provides utility methods for mounting and unmount workspace resources */
 public abstract class MountController {
 
   // Directory to mount workspace resources under
@@ -46,21 +41,16 @@ public abstract class MountController {
   // String to look for in mount entry to determine if it is a user fuse mount
   private static final String FUSE_MOUNT_ENTRY = "fuse";
 
-  protected record MountEntry(String resourceName, String mountPath, String mountDetails) {
-
-  }
+  protected record MountEntry(String resourceName, String mountPath, String mountDetails) {}
 
   protected abstract Pattern getMountEntryPattern();
-
-
 
   // Check if the workspace directory exists
   public static boolean workspaceDirExists() {
     return Files.exists(WORKSPACE_DIR) && Files.isDirectory(WORKSPACE_DIR);
   }
 
-  public MountController() {
-  }
+  public MountController() {}
 
   /**
    * Mounts all mountable resources for a given workspace
@@ -81,16 +71,15 @@ public abstract class MountController {
     createResourceDirectories(new ArrayList<>(resourceMountPaths.values()));
 
     // Mount each resource
-    resourceMountPaths.forEach((id, mountPath) -> {
-      Resource r = ws.getResource(id);
-      BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
-      handler.mount();
-    });
+    resourceMountPaths.forEach(
+        (id, mountPath) -> {
+          Resource r = ws.getResource(id);
+          BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
+          handler.mount();
+        });
   }
 
-  /**
-   * Unmount all mountable resources for a given workspace
-   */
+  /** Unmount all mountable resources for a given workspace */
   public void unmountResources() {
     // Parse `mount` output to get mount paths
     List<String> command = new ArrayList<>(Collections.singleton(LIST_MOUNT_ENTRIES_COMMAND));
@@ -101,17 +90,21 @@ public abstract class MountController {
     if (exitCode != 0) {
       throw new SystemException("Failed to query mounted resources.");
     }
-    BufferedReader stdout = new BufferedReader(
-        new InputStreamReader(localProcessLauncher.getInputStream()));
+    BufferedReader stdout =
+        new BufferedReader(new InputStreamReader(localProcessLauncher.getInputStream()));
 
     Pattern mountEntryPattern = getMountEntryPattern();
-    stdout.lines().map(line -> {
-          Matcher matcher = mountEntryPattern.matcher(line);
-          if (matcher.find()) {
-            return matcher;
-          }
-          return null;
-        }).filter(Objects::nonNull)
+    stdout
+        .lines()
+        .map(
+            line -> {
+              Matcher matcher = mountEntryPattern.matcher(line);
+              if (matcher.find()) {
+                return matcher;
+              }
+              return null;
+            })
+        .filter(Objects::nonNull)
         .map(this::getMountEntry)
         .filter(mountEntry -> mountEntry.mountPath.contains(WORKSPACE_DIR.toString()))
         .filter(mountEntry -> mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY))
@@ -135,8 +128,9 @@ public abstract class MountController {
     for (Resource resource : resources) {
       String parentFolderId = resource.getProperty(TERRA_FOLDER_ID_PROPERTY_KEY);
       if (parentFolderId != null) {
-        Path mountPath = WORKSPACE_DIR.resolve(
-            folderPaths.get(UUID.fromString(parentFolderId)).resolve(resource.getName()));
+        Path mountPath =
+            WORKSPACE_DIR.resolve(
+                folderPaths.get(UUID.fromString(parentFolderId)).resolve(resource.getName()));
         resourceMountPaths.put(resource.getId(), mountPath);
       } else {
         resourceMountPaths.put(resource.getId(), WORKSPACE_DIR.resolve(resource.getName()));
@@ -150,21 +144,24 @@ public abstract class MountController {
    * reference to a file containing resource.
    */
   private List<Resource> getMountableResources() {
-    return Context.requireWorkspace().listResources().stream().filter(r -> {
-      if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
-        return true;
-      }
-      if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
-        try {
-          return ((GcsObject) r).isDirectory();
-        } catch (SystemException e) {
-          // Pass through GCS objects that are inaccessible to display error on mounted
-          // folder later
-          return true;
-        }
-      }
-      return false;
-    }).toList();
+    return Context.requireWorkspace().listResources().stream()
+        .filter(
+            r -> {
+              if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
+                return true;
+              }
+              if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
+                try {
+                  return ((GcsObject) r).isDirectory();
+                } catch (SystemException e) {
+                  // Pass through GCS objects that are inaccessible to display error on mounted
+                  // folder later
+                  return true;
+                }
+              }
+              return false;
+            })
+        .toList();
   }
 
   /**
@@ -220,8 +217,10 @@ public abstract class MountController {
 
   /**
    * Parses a regex line match result into a MountEntry object.
+   *
    * @param matcher Matcher object
-   * @return A MountEntry object containing the bucketName, mountPath, and mountDetails for the mount entry.
+   * @return A MountEntry object containing the bucketName, mountPath, and mountDetails for the
+   *     mount entry.
    */
   private MountEntry getMountEntry(Matcher matcher) {
     String bucketName = matcher.group(1);
@@ -240,23 +239,31 @@ public abstract class MountController {
   private static void deleteEmptyResourceDirectories() {
     // Explore WORKSPACE_DIR in reverse DFS order
     try (Stream<Path> stream = Files.walk(WORKSPACE_DIR)) {
-      stream.sorted(Comparator.reverseOrder()).map(Path::toFile).filter(File::isDirectory)
+      stream
+          .sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .filter(File::isDirectory)
           .filter(dir -> !dir.equals(WORKSPACE_DIR.toFile())) // exclude WORKSPACE_DIR
-          .filter(dir -> {
-            if (Objects.requireNonNull(dir.listFiles()).length == 0) {
-              return true;
-            } else {
-              throw new UserActionableException("Cannot delete non-empty directory: " + dir
-                  + ". Please move the files in this directory and rerun the command.");
-            }
-          }).forEach(dir -> {
-            if (!dir.delete()) {
-              throw new SystemException("Failed to delete empty directory: " + dir);
-            }
-          });
+          .filter(
+              dir -> {
+                if (Objects.requireNonNull(dir.listFiles()).length == 0) {
+                  return true;
+                } else {
+                  throw new UserActionableException(
+                      "Cannot delete non-empty directory: "
+                          + dir
+                          + ". Please move the files in this directory and rerun the command.");
+                }
+              })
+          .forEach(
+              dir -> {
+                if (!dir.delete()) {
+                  throw new SystemException("Failed to delete empty directory: " + dir);
+                }
+              });
     } catch (IOException e) {
-      throw new UserActionableException("Failed to open directory: " + WORKSPACE_DIR + ". Create ",
-          e);
+      throw new UserActionableException(
+          "Failed to open directory: " + WORKSPACE_DIR + ". Create ", e);
     }
   }
 
@@ -267,8 +274,8 @@ public abstract class MountController {
    * @param mountPoint mount point path for the resource
    * @return mount handler for the resource
    */
-  public static BaseMountHandler getMountHandler(Resource r, Path mountPoint,
-      Boolean disableCache) {
+  public static BaseMountHandler getMountHandler(
+      Resource r, Path mountPoint, Boolean disableCache) {
     return switch (r.getResourceType()) {
       case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache);
       case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache);

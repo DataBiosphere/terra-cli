@@ -4,17 +4,12 @@ import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/**
- * This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver.
- */
+/** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
 public class GcsFuseMountHandler extends BaseMountHandler {
 
   private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
@@ -67,6 +62,4 @@ public class GcsFuseMountHandler extends BaseMountHandler {
       logger.info("Mounted " + bucketOutputName);
     }
   }
-
-
 }

@@ -63,7 +63,7 @@ public abstract class BaseMountHandler {
    *
    * @return The unmount command as a String.
    * @throws UserActionableException if the current operating system is not supported for unmounting
-   * GCS bucket.
+   *     GCS bucket.
    */
   private static String getUnmountCommand() {
     String os = System.getProperty("os.name").toLowerCase();

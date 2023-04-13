@@ -22,7 +22,8 @@ import org.junit.jupiter.api.TestInstance;
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ClearContextUnit {
-  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
+  // protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithSpendAccess();
+  protected static final TestUser workspaceCreator = TestUser.chooseTestUserWithOwnerAccess();
 
   // default platform: GCP
   private CloudPlatform cloudPlatform = CloudPlatform.GCP;
