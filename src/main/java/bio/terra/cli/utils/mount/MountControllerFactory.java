@@ -1,11 +1,13 @@
 package bio.terra.cli.utils.mount;
 
+import bio.terra.cli.utils.OSFamily;
+
 public class MountControllerFactory {
   public static MountController getMountController() {
-    String os = System.getProperty("os.name").toLowerCase();
-    if (os.contains("mac")) {
+    String os = OSFamily.getOSFamily();
+    if (os.equals(OSFamily.MAC)) {
       return new MacMountController();
-    } else if (os.contains("nux") || os.contains("nix") || os.contains("aix")) {
+    } else if (os.equals(OSFamily.LINUX)) {
       return new LinuxMountController();
     } else {
       throw new UnsupportedOperationException("Unsupported operating system.");

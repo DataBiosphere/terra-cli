@@ -19,9 +19,9 @@ public abstract class BaseMountHandler {
 
   protected static Logger logger = LoggerFactory.getLogger(BaseMountHandler.class);
   protected Path mountPoint;
-  protected Boolean disableCache;
+  protected boolean disableCache;
 
-  public BaseMountHandler(Path mountPoint, Boolean disableCache) {
+  protected BaseMountHandler(Path mountPoint, Boolean disableCache) {
     this.mountPoint = mountPoint;
     this.disableCache = disableCache;
   }

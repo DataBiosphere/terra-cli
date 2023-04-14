@@ -17,6 +17,7 @@ import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.cloud.storage.Storage.BlobListOption;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class GcsObject extends Resource {
+
   private static final Logger logger = LoggerFactory.getLogger(GcsObject.class);
   private String bucketName;
   private String objectName;
@@ -138,14 +140,23 @@ public class GcsObject extends Resource {
    */
   public boolean isDirectory() throws SystemException {
     try {
+      // get all objects with prefix of objectName
       BucketCow bucketCow =
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials()).get(bucketName);
       Iterable<BlobCow> objects =
           bucketCow
               .list(BlobListOption.currentDirectory(), BlobListOption.prefix(objectName))
               .getValues();
-      return StreamSupport.stream(objects.spliterator(), false)
-          .anyMatch(object -> object.getBlobInfo().isDirectory());
+      Stream<BlobCow> objectsStream = StreamSupport.stream(objects.spliterator(), false);
+
+      // Check for the presence of a directory object.
+      // If a directory was created with the gcp cloud console, it will return false for
+      // isDirectory(). In that case, we will check if there are more than 1 objects in the list.
+      // This will correctly handle user created directories that are non-empty. Empty manually
+      // create directories will not be detected as a directory as it's ambiguous from the API.
+      boolean isDirectory = objectsStream.anyMatch(object -> object.getBlobInfo().isDirectory());
+      long numObjects = objectsStream.count();
+      return isDirectory || numObjects > 1;
     } catch (Exception e) {
       throw new SystemException("Error looking up bucket: " + bucketName, e);
     }
