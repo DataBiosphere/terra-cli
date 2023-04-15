@@ -31,6 +31,8 @@ public class ClearContextUnit {
   protected void setCloudPlatform(CloudPlatform cloudPlatform) {
     if (cloudPlatform == CloudPlatform.GCP) {
       platformStorageName = "gcs-bucket";
+    } else if (cloudPlatform == CloudPlatform.AWS) {
+      platformStorageName = "aws-storage-folder";
     }
     this.cloudPlatform = cloudPlatform;
   }

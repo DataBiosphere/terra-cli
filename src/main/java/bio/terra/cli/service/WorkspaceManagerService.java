@@ -8,6 +8,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsStorageFolderParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -25,6 +26,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParam
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
+import bio.terra.workspace.api.ControlledAwsResourceApi;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.FolderApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
@@ -33,12 +35,15 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
+import bio.terra.workspace.model.AwsStorageFolderCreationParameters;
+import bio.terra.workspace.model.AwsStorageFolderResource;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
+import bio.terra.workspace.model.CreateControlledAwsStorageFolderRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
@@ -968,53 +973,6 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
-   * add a GCP notebook instance as a controlled resource in the workspace.
-   *
-   * @param workspaceId the workspace to add the resource to
-   * @param createParams resource definition to create
-   * @return the GCP notebook instance resource object
-   */
-  public GcpAiNotebookInstanceResource createControlledGcpNotebookInstance(
-      UUID workspaceId, CreateGcpNotebookParams createParams) {
-    // convert the CLI object to a WSM request object
-    String jobId = UUID.randomUUID().toString();
-    CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
-        new CreateControlledGcpAiNotebookInstanceRequestBody()
-            .common(createCommonFields(createParams.resourceFields))
-            .aiNotebookInstance(fromCLIObject(createParams))
-            .jobControl(new JobControl().id(jobId));
-    logger.debug("Create controlled GCP notebook request {}", createRequest);
-
-    return handleClientExceptions(
-        () -> {
-          ControlledGcpResourceApi controlledGcpResourceApi =
-              new ControlledGcpResourceApi(apiClient);
-          // Start the GCP notebook creation job.
-          HttpUtils.callWithRetries(
-              () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
-              WorkspaceManagerService::isRetryable);
-
-          // Poll the result endpoint until the job is no longer RUNNING.
-          CreatedControlledGcpAiNotebookInstanceResult createResult =
-              HttpUtils.pollWithRetries(
-                  () ->
-                      controlledGcpResourceApi.getCreateAiNotebookInstanceResult(
-                          workspaceId, jobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  // Creating a GCP notebook instance should take less than ~10 minutes.
-                  60,
-                  Duration.ofSeconds(10));
-          logger.debug("Create controlled GCP notebook result {}", createResult);
-          throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
-          return createResult.getAiNotebookInstance();
-        },
-        "Error creating controlled GCP Notebook instance in the workspace.");
-  }
-
-  /**
-   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets" endpoint to add a GCS
    * bucket as a controlled resource in the workspace.
    *
@@ -1047,6 +1005,52 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instance" endpoint to
+   * add a GCP notebook instance as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams resource definition to create
+   * @return the GCP notebook instance resource object
+   */
+  public GcpAiNotebookInstanceResource createControlledGcpNotebookInstance(
+      UUID workspaceId, CreateGcpNotebookParams createParams) {
+    // convert the CLI object to a WSM request object
+    String asyncJobId = UUID.randomUUID().toString();
+    CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
+        new CreateControlledGcpAiNotebookInstanceRequestBody()
+            .common(createCommonFields(createParams.resourceFields))
+            .aiNotebookInstance(fromCLIObject(createParams))
+            .jobControl(new JobControl().id(asyncJobId));
+
+    return handleClientExceptions(
+        () -> {
+          ControlledGcpResourceApi controlledGcpResourceApi =
+              new ControlledGcpResourceApi(apiClient);
+          // start the GCP notebook creation job.
+          HttpUtils.callWithRetries(
+              () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING.
+          CreatedControlledGcpAiNotebookInstanceResult createResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledGcpResourceApi.getCreateAiNotebookInstanceResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  // Creating a GCP notebook instance should take less than ~10 minutes.
+                  60,
+                  Duration.ofSeconds(10));
+          logger.debug("Create controlled GCP notebook result {}", createResult);
+          throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+          return createResult.getAiNotebookInstance();
+        },
+        "Error creating controlled GCP Notebook instance in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets" endpoint to add a Big
    * Query dataset as a controlled resource in the workspace.
    *
@@ -1072,6 +1076,30 @@ public class WorkspaceManagerService {
                 .createBigQueryDataset(createRequest, workspaceId)
                 .getBigQueryDataset(),
         "Error creating controlled BigQuery dataset in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder" endpoint to add a AWS
+   * storage folder as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams creation parameters
+   * @return the AWS storage folder resource object
+   */
+  public AwsStorageFolderResource createControlledAwsStorageFolder(
+      UUID workspaceId, CreateAwsStorageFolderParams createParams) {
+    // convert the CLI object to a WSM request object
+    CreateControlledAwsStorageFolderRequestBody createRequest =
+        new CreateControlledAwsStorageFolderRequestBody()
+            .common(createCommonFields(createParams.resourceFields))
+            .awsStorageFolder(new AwsStorageFolderCreationParameters().region(createParams.region));
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .createAwsStorageFolder(createRequest, workspaceId)
+                .getAwsStorageFolder(),
+        "Error creating controlled AWS storage folder in the workspace.");
   }
 
   /**
@@ -1125,6 +1153,60 @@ public class WorkspaceManagerService {
             new ReferencedGcpResourceApi(apiClient)
                 .updateBucketReferenceResource(updateRequest, workspaceId, resourceId),
         "Error updating referenced GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager PATCH
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
+   * endpoint to update a BigQuery data table referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedBigQueryDataTable(
+      UUID workspaceId, UUID resourceId, UpdateReferencedBqTableParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateBigQueryDataTableReferenceRequestBody updateRequest =
+        new UpdateBigQueryDataTableReferenceRequestBody()
+            .name(updateParams.resourceParams.name)
+            .description(updateParams.resourceParams.description)
+            .projectId(updateParams.projectId)
+            .datasetId(updateParams.datasetId)
+            .dataTableId(updateParams.tableId)
+            .cloningInstructions(updateParams.cloningInstructions);
+
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBigQueryDataTableReferenceResource(updateRequest, workspaceId, resourceId),
+        "Error updating referenced BigQuery data table in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
+   * endpoint to update a BigQuery dataset referenced resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateReferencedBigQueryDataset(
+      UUID workspaceId, UUID resourceId, UpdateReferencedBqDatasetParams updateParams) {
+    // convert the CLI object to a WSM request object
+    UpdateBigQueryDatasetReferenceRequestBody updateRequest =
+        new UpdateBigQueryDatasetReferenceRequestBody()
+            .name(updateParams.resourceParams.name)
+            .description(updateParams.resourceParams.description)
+            .projectId(updateParams.projectId)
+            .datasetId(updateParams.datasetId)
+            .cloningInstructions(updateParams.cloningInstructions);
+    callWithRetries(
+        () ->
+            new ReferencedGcpResourceApi(apiClient)
+                .updateBigQueryDatasetReferenceResource(updateRequest, workspaceId, resourceId),
+        "Error updating referenced BigQuery dataset in the workspace.");
   }
 
   /**
@@ -1209,60 +1291,6 @@ public class WorkspaceManagerService {
             new ControlledGcpResourceApi(apiClient)
                 .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
         "Error updating controlled GCP notebook in the workspace.");
-  }
-
-  /**
-   * Call the Workspace Manager PATCH
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatatables/{resourceId}"
-   * endpoint to update a BigQuery data table referenced resource in the workspace.
-   *
-   * @param workspaceId the workspace where the resource exists
-   * @param resourceId the resource id
-   * @param updateParams resource properties to update
-   */
-  public void updateReferencedBigQueryDataTable(
-      UUID workspaceId, UUID resourceId, UpdateReferencedBqTableParams updateParams) {
-    // convert the CLI object to a WSM request object
-    UpdateBigQueryDataTableReferenceRequestBody updateRequest =
-        new UpdateBigQueryDataTableReferenceRequestBody()
-            .name(updateParams.resourceParams.name)
-            .description(updateParams.resourceParams.description)
-            .projectId(updateParams.projectId)
-            .datasetId(updateParams.datasetId)
-            .dataTableId(updateParams.tableId)
-            .cloningInstructions(updateParams.cloningInstructions);
-
-    callWithRetries(
-        () ->
-            new ReferencedGcpResourceApi(apiClient)
-                .updateBigQueryDataTableReferenceResource(updateRequest, workspaceId, resourceId),
-        "Error updating referenced BigQuery data table in the workspace.");
-  }
-
-  /**
-   * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/referenced/gcp/bigquerydatasets/{resourceId}"
-   * endpoint to update a BigQuery dataset referenced resource in the workspace.
-   *
-   * @param workspaceId the workspace where the resource exists
-   * @param resourceId the resource id
-   * @param updateParams resource properties to update
-   */
-  public void updateReferencedBigQueryDataset(
-      UUID workspaceId, UUID resourceId, UpdateReferencedBqDatasetParams updateParams) {
-    // convert the CLI object to a WSM request object
-    UpdateBigQueryDatasetReferenceRequestBody updateRequest =
-        new UpdateBigQueryDatasetReferenceRequestBody()
-            .name(updateParams.resourceParams.name)
-            .description(updateParams.resourceParams.description)
-            .projectId(updateParams.projectId)
-            .datasetId(updateParams.datasetId)
-            .cloningInstructions(updateParams.cloningInstructions);
-    callWithRetries(
-        () ->
-            new ReferencedGcpResourceApi(apiClient)
-                .updateBigQueryDatasetReferenceResource(updateRequest, workspaceId, resourceId),
-        "Error updating referenced BigQuery dataset in the workspace.");
   }
 
   /**
@@ -1374,6 +1402,43 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
+   * delete a GCS bucket as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the bucket fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledGcsBucket(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledGcpGcsBucketRequest deleteRequest =
+        new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
+    handleClientExceptions(
+        () -> {
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () -> controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledGcpGcsBucketResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  /*maxCalls=*/ 12,
+                  /*sleepDuration=*/ Duration.ofSeconds(5));
+          logger.debug("delete controlled gcs bucket result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+        },
+        "Error deleting controlled GCS bucket in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/ai-notebook-instances/{resourceId}"
    * endpoint to delete a GCP notebook instance as a controlled resource in the workspace.
    *
@@ -1414,43 +1479,6 @@ public class WorkspaceManagerService {
 
   /**
    * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/buckets/{resourceId}" endpoint to
-   * delete a GCS bucket as a controlled resource in the workspace.
-   *
-   * @param workspaceId the workspace to remove the resource from
-   * @param resourceId the resource id
-   * @throws SystemException if the job to delete the bucket fails
-   * @throws UserActionableException if the CLI times out waiting for the job to complete
-   */
-  public void deleteControlledGcsBucket(UUID workspaceId, UUID resourceId) {
-    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
-    String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledGcpGcsBucketRequest deleteRequest =
-        new DeleteControlledGcpGcsBucketRequest().jobControl(new JobControl().id(asyncJobId));
-    handleClientExceptions(
-        () -> {
-          // make the initial delete request
-          HttpUtils.callWithRetries(
-              () -> controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
-
-          // poll the result endpoint until the job is no longer RUNNING
-          DeleteControlledGcpGcsBucketResult deleteResult =
-              HttpUtils.pollWithRetries(
-                  () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  /*maxCalls=*/ 12,
-                  /*sleepDuration=*/ Duration.ofSeconds(5));
-          logger.debug("delete controlled gcs bucket result: {}", deleteResult);
-
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
-        },
-        "Error deleting controlled GCS bucket in the workspace.");
-  }
-
-  /**
-   * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/bqdatasets/{resourceId}" endpoint to
    * delete a BigQuery dataset as a controlled resource in the workspace.
    *
@@ -1462,6 +1490,23 @@ public class WorkspaceManagerService {
         () ->
             new ControlledGcpResourceApi(apiClient).deleteBigQueryDataset(workspaceId, resourceId),
         "Error deleting controlled BigQuery dataset in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}" endpoint
+   * to delete a AWS storage folder as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the storage folder fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledAwsStorageFolder(UUID workspaceId, UUID resourceId) {
+    callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient).deleteAwsStorageFolder(workspaceId, resourceId),
+        "Error deleting controlled AWS storage folder in the workspace.");
   }
 
   /**
