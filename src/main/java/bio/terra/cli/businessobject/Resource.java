@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.AwsStorageFolder;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
@@ -106,6 +107,7 @@ public abstract class Resource {
       case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
+      case AWS_STORAGE_FOLDER -> new AwsStorageFolder(wsmObject);
         // Omit other resource types are not supported by the CLI.
       default -> null;
     };
@@ -248,6 +250,7 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO
+    GIT_REPO,
+    AWS_STORAGE_FOLDER
   }
 }
