@@ -124,8 +124,7 @@ public class WorkspaceAws extends ClearContextUnit {
         WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
-    // TODO-Dex --bucket-name ?
-    // `terra resource create aws-storage-folder --name=$name --bucket-name=$bucketName`
+    // `terra resource create aws-storage-folder --name=$name`
     String resourceName = UUID.randomUUID().toString();
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "aws-storage-folder", "--name=" + resourceName);

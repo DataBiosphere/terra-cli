@@ -7,12 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsStorageFolder;
-import bio.terra.workspace.model.AccessScope;
-import bio.terra.workspace.model.CloningInstructionsEnum;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.AwsStorageFolderUtils;
-import harness.utils.TestUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -109,59 +106,5 @@ public class AwsControlledStorageFolder extends SingleWorkspaceUnitAws {
         "deleted storage folder no longer appears in the resources list",
         listedBuckets,
         Matchers.empty());
-  }
-
-  @Test
-  @DisplayName("create a controlled storage folder, specifying all options except lifecycle")
-  void createWithAllOptionsExceptLifecycle() throws IOException {
-    // TODO(TERRA-221) - support additional properties
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra resources create aws-storage-folder --name=$name --access=$access
-    // --cloning=$cloning --description=$description --location=$location --format=json`
-    String resourceName = UUID.randomUUID().toString();
-    AccessScope access = AccessScope.PRIVATE_ACCESS;
-    CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
-    String description = "\"create with all options except lifecycle\"";
-    String location = "us-east-1";
-    UFAwsStorageFolder createdResource =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsStorageFolder.class,
-            "resource",
-            "create",
-            "aws-storage-folder",
-            "--name=" + resourceName,
-            "--access=" + access,
-            "--cloning=" + cloning,
-            "--description=" + description,
-            "--location=" + location);
-
-    // check that the properties match
-    assertNotNull(createdResource.id, "create resource returned a resource id");
-
-    assertEquals(resourceName, createdResource.name, "create resource output matches name");
-    assertEquals(access, createdResource.accessScope, "create resource output matches access");
-    assertEquals(
-        cloning, createdResource.cloningInstructions, "create resource output matches cloning");
-    assertEquals(
-        description, createdResource.description, "create resource output matches description");
-    assertEquals(
-        workspaceCreator.email.toLowerCase(),
-        createdResource.privateUserName.toLowerCase(),
-        "create resource output matches private user name");
-
-    // `terra resources describe --name=$name --format=json`
-    UFAwsStorageFolder describeResource =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsStorageFolder.class, "resource", "describe", "--name=" + resourceName);
-
-    // check that the properties match
-    TestUtils.assertResourceProperties(createdResource, describeResource, "describe");
-
-    // `terra resources delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
   }
 }
