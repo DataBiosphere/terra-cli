@@ -17,6 +17,7 @@ import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,6 +30,31 @@ public class WorkspaceAws extends ClearContextUnit {
   protected void setupOnce() throws Exception {
     setCloudPlatform(CloudPlatform.AWS);
     super.setupOnce();
+  }
+
+  private static void assertWorkspaceAwsFields(
+      UFWorkspace expected, UFWorkspace actual, String messageSource) {
+    assertEquals(expected.id, actual.id, "workspace id matches that in " + messageSource);
+    assertEquals(
+        expected.awsMajorVersion,
+        actual.awsMajorVersion,
+        "workspace aws major version matches that in " + messageSource);
+    assertEquals(
+        expected.awsOrganizationId,
+        actual.awsOrganizationId,
+        "workspace aws organization id matches that in " + messageSource);
+    assertEquals(
+        expected.awsAccountId,
+        actual.awsAccountId,
+        "workspace aws account id matches that in " + messageSource);
+    assertEquals(
+        expected.awsTenantAlias,
+        actual.awsTenantAlias,
+        "workspace aws tenant alias matches that in " + messageSource);
+    assertEquals(
+        expected.awsEnvironmentAlias,
+        actual.awsEnvironmentAlias,
+        "workspace aws environment alias matches that in " + messageSource);
   }
 
   @Test
@@ -55,8 +81,6 @@ public class WorkspaceAws extends ClearContextUnit {
         "workspace email matches test user",
         createdWorkspace.userEmail,
         equalToIgnoringCase(testUser.email));
-
-    // check the created workspace has cloud platform set
     assertThat(
         "workspace cloudPlatform matches AWS",
         CloudPlatform.AWS,
@@ -83,35 +107,38 @@ public class WorkspaceAws extends ClearContextUnit {
     List<UFWorkspaceLight> matchingWorkspaces =
         WorkspaceUtils.listWorkspacesWithId(createdWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
-    assertWorkspaceAwsFields(createdWorkspace, matchingWorkspaces.get(0), "list");
+    assertWorkspaceAwsFields(createdWorkspace, (UFWorkspace) matchingWorkspaces.get(0), "list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 
-  private <T extends UFWorkspaceLight, E extends UFWorkspaceLight> void assertWorkspaceAwsFields(
-      T expectedWorkspace, E actualWorkspace, String messageSource) {
+  @Test
+  @DisplayName("AWS workspace describe reflects the number of resources")
+  void describeReflectsNumResources() throws IOException, InterruptedException {
+    // select a test user and login
+    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
+    testUser.login();
+
+    UFWorkspace createdWorkspace =
+        WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
+    assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
+
+    // TODO-Dex --bucket-name ?
+    // `terra resource create aws-storage-folder --name=$name --bucket-name=$bucketName`
+    String resourceName = UUID.randomUUID().toString();
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "aws-storage-folder", "--name=" + resourceName);
+
+    // `terra workspace describe`
+    UFWorkspace describedWorkspace =
+        TestCommand.runAndParseCommandExpectSuccess(UFWorkspace.class, "workspace", "describe");
     assertEquals(
-        expectedWorkspace.id, actualWorkspace.id, "workspace id matches that in " + messageSource);
-    assertEquals(
-        expectedWorkspace.awsMajorVersion,
-        actualWorkspace.awsMajorVersion,
-        "workspace aws major version matches that in " + messageSource);
-    assertEquals(
-        expectedWorkspace.awsOrganizationId,
-        actualWorkspace.awsOrganizationId,
-        "workspace aws organization id matches that in " + messageSource);
-    assertEquals(
-        expectedWorkspace.awsAccountId,
-        actualWorkspace.awsAccountId,
-        "workspace aws account id matches that in " + messageSource);
-    assertEquals(
-        expectedWorkspace.awsTenantAlias,
-        actualWorkspace.awsTenantAlias,
-        "workspace aws tenant alias matches that in " + messageSource);
-    assertEquals(
-        expectedWorkspace.awsEnvironmentAlias,
-        actualWorkspace.awsEnvironmentAlias,
-        "workspace aws environment alias matches that in " + messageSource);
+        1,
+        describedWorkspace.numResources,
+        "workspace has 1 resource after creating storage folder");
+
+    // `terra workspace delete`
+    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
   }
 }

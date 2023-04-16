@@ -14,10 +14,9 @@ public class AwsStorageFolderUtils {
    * Utility method to verify the s3:// path of a storage folder format: "s3://%s/%s/" (last '/' is
    * optional).
    */
-  public static boolean verifyS3Path(String s3Path, String bucketPrefix, boolean includesS3Prefix) {
+  public static boolean verifyS3Path(String s3Path, String prefix, boolean includesS3Prefix) {
     return s3Path.matches(
-        String.format(
-            "^%s[a-zA-Z0-9_-]+/%s/?$", (includesS3Prefix ? "[sS]3://" : ""), bucketPrefix));
+        String.format("^%s[a-zA-Z0-9_-]+/%s/?$", (includesS3Prefix ? "[sS]3://" : ""), prefix));
   }
 
   /**
@@ -73,5 +72,16 @@ public class AwsStorageFolderUtils {
     return listedResources.stream()
         .filter(resource -> resource.name.equals(resourceName))
         .collect(Collectors.toList());
+  }
+
+  public static void assertAwsStorageFolderFields(
+      UFAwsStorageFolder expected, UFAwsStorageFolder actual, String src) {
+    assertEquals(expected.name, actual.name, "storage folder name matches that in " + src);
+    assertEquals(
+        expected.bucketName, actual.bucketName, "storage folder bucketName matches that in " + src);
+    assertEquals(expected.prefix, actual.prefix, "storage folder prefix matches that in " + src);
+    assertEquals(expected.region, actual.region, "storage folder region matches that in " + src);
+    assertEquals(
+        expected.numObjects, actual.numObjects, "storage folder numObjects matches that in " + src);
   }
 }
