@@ -30,7 +30,7 @@ public class UFAwsStorageFolder extends UFResource {
     this.bucketName = internalObj.getBucketName();
     this.prefix = internalObj.getPrefix();
     this.region = internalObj.getRegion();
-    this.numObjects = internalObj.numObjects(MAX_NUM_OBJECTS + 1); // TODO(TERRA-146)
+    this.numObjects = internalObj.numObjects(MAX_NUM_OBJECTS + 1);
   }
 
   /** Constructor for Jackson deserialization during testing. */
