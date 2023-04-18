@@ -32,8 +32,8 @@ public class WorkspaceAws extends ClearContextUnit {
     super.setupOnce();
   }
 
-  private static void assertWorkspaceAwsFields(
-      UFWorkspace expected, UFWorkspace actual, String messageSource) {
+  private static <T extends UFWorkspaceLight, E extends UFWorkspaceLight>
+      void assertWorkspaceAwsFields(T expected, E actual, String messageSource) {
     assertEquals(expected.id, actual.id, "workspace id matches that in " + messageSource);
     assertEquals(
         expected.awsMajorVersion,
@@ -107,7 +107,7 @@ public class WorkspaceAws extends ClearContextUnit {
     List<UFWorkspaceLight> matchingWorkspaces =
         WorkspaceUtils.listWorkspacesWithId(createdWorkspace.id);
     assertEquals(1, matchingWorkspaces.size(), "new workspace is included exactly once in list");
-    assertWorkspaceAwsFields(createdWorkspace, (UFWorkspace) matchingWorkspaces.get(0), "list");
+    assertWorkspaceAwsFields(createdWorkspace, matchingWorkspaces.get(0), "list");
 
     // `terra workspace delete`
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

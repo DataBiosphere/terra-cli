@@ -48,7 +48,7 @@ public class UFAwsStorageFolder extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(
-        prefix + "AWS Storage Folder: " + AwsStorageFolder.resolve(bucketName, prefix, true));
+        prefix + "AWS Storage Folder: " + AwsStorageFolder.resolve(bucketName, this.prefix, true));
     OUT.println(prefix + "Region: " + (region == null ? "(undefined)" : region));
     OUT.println(
         prefix

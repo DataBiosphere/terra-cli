@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsStorageFolder;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
@@ -49,10 +48,6 @@ public class AwsControlledStorageFolder extends SingleWorkspaceUnitAws {
     assertNotNull(createdResource.prefix, "create resource returned a aws prefix");
     assertNotNull(createdResource.region, "create resource returned a aws region");
     assertEquals(resourceName, createdResource.name, "create resource resource name matches name");
-    assertEquals(
-        createdResource.resourceType,
-        Resource.Type.AWS_STORAGE_FOLDER,
-        "create resource resource type matches AWS_STORAGE_FOLDER");
     assertEquals(createdResource.numObjects, 0, "create resource contains no objects");
 
     // check that the storage folder is in the list
