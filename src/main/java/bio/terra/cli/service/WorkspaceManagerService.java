@@ -54,6 +54,8 @@ import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledAwsResourceRequestBody;
+import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
@@ -1503,9 +1505,35 @@ public class WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsStorageFolder(UUID workspaceId, UUID resourceId) {
-    callWithRetries(
-        () ->
-            new ControlledAwsResourceApi(apiClient).deleteAwsStorageFolder(workspaceId, resourceId),
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledAwsResourceRequestBody deleteRequest =
+        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
+
+    handleClientExceptions(
+        () -> {
+          ControlledAwsResourceApi controlledAwsResourceApi =
+              new ControlledAwsResourceApi(apiClient);
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () ->
+                  controlledAwsResourceApi.deleteAwsStorageFolder(
+                      deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledAwsResourceResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledAwsResourceApi.getDeleteAwsStorageFolderResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  60,
+                  Duration.ofSeconds(10));
+          logger.debug("delete controlled AWS storage folder result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+        },
         "Error deleting controlled AWS storage folder in the workspace.");
   }
 
