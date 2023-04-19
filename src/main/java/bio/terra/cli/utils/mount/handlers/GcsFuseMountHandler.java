@@ -46,11 +46,6 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     // Add errors to the mount point directories if the mount fails
     String errorMessage = localProcessLauncher.getErrorString();
     String bucketOutputName = subDir != null ? bucketName + "/" + subDir : bucketName;
-    System.out.println("@@@@@@@@@@@@@@@@@");
-    System.out.println(bucketName);
-    System.out.println(mountPoint);
-    System.out.println(errorMessage);
-    System.out.println("@@@@@@@@@@@@@@@@@");
     if (exitCode != 0) {
       addErrorToMountPoint(errorMessage, bucketOutputName);
       logger.error(errorMessage);

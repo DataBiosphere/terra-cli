@@ -3,6 +3,9 @@ package bio.terra.cli.utils.mount;
 import bio.terra.cli.utils.OSFamily;
 
 public class MountControllerFactory {
+
+  private MountControllerFactory() {}
+
   public static MountController getMountController() {
     String os = OSFamily.getOSFamily();
     if (os.equals(OSFamily.MAC)) {

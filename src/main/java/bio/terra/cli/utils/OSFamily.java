@@ -7,6 +7,8 @@ public class OSFamily {
   public static final String WINDOWS = "windows";
   public static final String UNKNOWN = "unknown";
 
+  private OSFamily() {}
+
   /**
    * Returns the OS family.
    *

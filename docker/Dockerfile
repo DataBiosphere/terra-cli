@@ -36,13 +36,6 @@ ENV NXF_MODE google
 RUN curl -s https://get.nextflow.io | bash \
     && mv nextflow /usr/local/bin
 
-# install gcsfuse for mount tests
-RUN export GCSFUSE_REPO=gcsfuse-$(lsb_release -c -s) \
-    && echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-RUN apt-get update \
-    && apt-get install -y gcsfuse
-
 # copy any custom scripts into the image
 COPY scripts/* /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
