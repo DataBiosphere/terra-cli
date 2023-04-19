@@ -18,21 +18,18 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class PDAwsStorageFolder extends PDResource {
   public final String bucketName;
   public final String prefix;
-  public final String region;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDAwsStorageFolder(AwsStorageFolder internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
     this.prefix = internalObj.getPrefix();
-    this.region = internalObj.getRegion();
   }
 
   private PDAwsStorageFolder(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
     this.prefix = builder.prefix;
-    this.region = builder.region;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
@@ -44,7 +41,6 @@ public class PDAwsStorageFolder extends PDResource {
   public static class Builder extends PDResource.Builder {
     private String bucketName;
     private String prefix;
-    private String region;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -56,11 +52,6 @@ public class PDAwsStorageFolder extends PDResource {
 
     public Builder prefix(String prefix) {
       this.prefix = prefix;
-      return this;
-    }
-
-    public Builder region(String region) {
-      this.region = region;
       return this;
     }
 

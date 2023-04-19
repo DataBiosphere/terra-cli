@@ -63,8 +63,6 @@ public class BqTable extends Resource {
             .createReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ data table: {}", addedResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new BqTable(addedResource);
   }
 

@@ -47,6 +47,7 @@ public abstract class Resource {
   // controlled resources
   protected AccessScope accessScope;
   protected ManagedBy managedBy;
+  protected String region;
 
   // private controlled resources
   protected String privateUserName;
@@ -64,6 +65,7 @@ public abstract class Resource {
     this.cloningInstructions = configFromDisk.cloningInstructions;
     this.accessScope = configFromDisk.accessScope;
     this.managedBy = configFromDisk.managedBy;
+    this.region = configFromDisk.region;
     this.privateUserName = configFromDisk.privateUserName;
     this.privateUserRole = configFromDisk.privateUserRole;
     this.properties = configFromDisk.properties;
@@ -81,6 +83,7 @@ public abstract class Resource {
       ControlledResourceMetadata controlledMetadata = metadata.getControlledResourceMetadata();
       this.accessScope = controlledMetadata.getAccessScope();
       this.managedBy = controlledMetadata.getManagedBy();
+      this.region = controlledMetadata.getRegion();
 
       PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
@@ -130,7 +133,6 @@ public abstract class Resource {
   protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
     this.name = updateParams.name == null ? name : updateParams.name;
     this.description = updateParams.description == null ? description : updateParams.description;
-    Context.requireWorkspace().listResources();
   }
 
   /** Delete an existing resource in the workspace. */
@@ -140,7 +142,6 @@ public abstract class Resource {
       case CONTROLLED -> deleteControlled();
       default -> throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-    Context.requireWorkspace().listResources();
   }
 
   /** Call WSM to delete a referenced resource. */
@@ -213,6 +214,10 @@ public abstract class Resource {
 
   public ManagedBy getManagedBy() {
     return managedBy;
+  }
+
+  public String getRegion() {
+    return region;
   }
 
   public String getPrivateUserName() {

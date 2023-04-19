@@ -70,8 +70,6 @@ public class BqDataset extends Resource {
             .createReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", addedResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new BqDataset(addedResource);
   }
 
@@ -89,8 +87,6 @@ public class BqDataset extends Resource {
             .createControlledBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", createdResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new BqDataset(createdResource);
   }
 

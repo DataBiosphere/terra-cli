@@ -53,6 +53,7 @@ public abstract class UFResource {
   public final CloningInstructionsEnum cloningInstructions;
   public final AccessScope accessScope;
   public final ManagedBy managedBy;
+  public final String region;
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
   public final Properties properties;
@@ -67,6 +68,7 @@ public abstract class UFResource {
     this.cloningInstructions = internalObj.getCloningInstructions();
     this.accessScope = internalObj.getAccessScope();
     this.managedBy = internalObj.getManagedBy();
+    this.region = internalObj.getRegion();
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
     this.properties = internalObj.getProperties();
@@ -82,6 +84,7 @@ public abstract class UFResource {
     this.cloningInstructions = builder.cloningInstructions;
     this.accessScope = builder.accessScope;
     this.managedBy = builder.managedBy;
+    this.region = builder.region;
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
     this.properties = builder.properties;
@@ -103,6 +106,7 @@ public abstract class UFResource {
     if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
       OUT.println(prefix + "Access scope: " + accessScope);
       OUT.println(prefix + "Managed by:   " + managedBy);
+      OUT.println(prefix + "Region:       " + region);
 
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
         OUT.println(prefix + "Private user: " + privateUserName);
@@ -126,6 +130,7 @@ public abstract class UFResource {
     private CloningInstructionsEnum cloningInstructions;
     private AccessScope accessScope;
     private ManagedBy managedBy;
+    private String region;
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
     private Properties properties;
@@ -170,6 +175,11 @@ public abstract class UFResource {
 
     public Builder managedBy(ManagedBy managedBy) {
       this.managedBy = managedBy;
+      return this;
+    }
+
+    public Builder region(String region) {
+      this.region = region;
       return this;
     }
 

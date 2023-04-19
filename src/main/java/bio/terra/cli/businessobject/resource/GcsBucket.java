@@ -60,8 +60,6 @@ public class GcsBucket extends Resource {
             .createReferencedGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", addedResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new GcsBucket(addedResource);
   }
 
@@ -79,8 +77,6 @@ public class GcsBucket extends Resource {
             .createControlledGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", createdResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new GcsBucket(createdResource);
   }
 
