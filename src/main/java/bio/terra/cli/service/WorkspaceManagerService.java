@@ -8,7 +8,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsStorageFolderParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
@@ -35,15 +35,15 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
-import bio.terra.workspace.model.AwsStorageFolderCreationParameters;
-import bio.terra.workspace.model.AwsStorageFolderResource;
+import bio.terra.workspace.model.AwsS3StorageFolderCreationParameters;
+import bio.terra.workspace.model.AwsS3StorageFolderResource;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
-import bio.terra.workspace.model.CreateControlledAwsStorageFolderRequestBody;
+import bio.terra.workspace.model.CreateControlledAwsS3StorageFolderRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
@@ -1087,21 +1087,22 @@ public class WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams creation parameters
-   * @return the AWS storage folder resource object
+   * @return the AWS S3 Storage Folder resource object
    */
-  public AwsStorageFolderResource createControlledAwsStorageFolder(
-      UUID workspaceId, CreateAwsStorageFolderParams createParams) {
+  public AwsS3StorageFolderResource createControlledAwsS3StorageFolder(
+      UUID workspaceId, CreateAwsS3StorageFolderParams createParams) {
     // convert the CLI object to a WSM request object
-    CreateControlledAwsStorageFolderRequestBody createRequest =
-        new CreateControlledAwsStorageFolderRequestBody()
+    CreateControlledAwsS3StorageFolderRequestBody createRequest =
+        new CreateControlledAwsS3StorageFolderRequestBody()
             .common(createCommonFields(createParams.resourceFields))
-            .awsStorageFolder(new AwsStorageFolderCreationParameters().region(createParams.region));
+            .awsS3StorageFolder(
+                new AwsS3StorageFolderCreationParameters().region(createParams.region));
     return callWithRetries(
         () ->
             new ControlledAwsResourceApi(apiClient)
-                .createAwsStorageFolder(createRequest, workspaceId)
-                .getAwsStorageFolder(),
-        "Error creating controlled AWS storage folder in the workspace.");
+                .createAwsS3StorageFolder(createRequest, workspaceId)
+                .getAwsS3StorageFolder(),
+        "Error creating controlled AWS S3 Storage Folder in the workspace.");
   }
 
   /**
@@ -1497,14 +1498,14 @@ public class WorkspaceManagerService {
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}" endpoint
-   * to delete a AWS storage folder as a controlled resource in the workspace.
+   * to delete a AWS S3 Storage Folder as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
    * @throws SystemException if the job to delete the storage folder fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
-  public void deleteControlledAwsStorageFolder(UUID workspaceId, UUID resourceId) {
+  public void deleteControlledAwsS3StorageFolder(UUID workspaceId, UUID resourceId) {
     String asyncJobId = UUID.randomUUID().toString();
     DeleteControlledAwsResourceRequestBody deleteRequest =
         new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
@@ -1516,7 +1517,7 @@ public class WorkspaceManagerService {
           // make the initial delete request
           HttpUtils.callWithRetries(
               () ->
-                  controlledAwsResourceApi.deleteAwsStorageFolder(
+                  controlledAwsResourceApi.deleteAwsS3StorageFolder(
                       deleteRequest, workspaceId, resourceId),
               WorkspaceManagerService::isRetryable);
 
@@ -1524,17 +1525,17 @@ public class WorkspaceManagerService {
           DeleteControlledAwsResourceResult deleteResult =
               HttpUtils.pollWithRetries(
                   () ->
-                      controlledAwsResourceApi.getDeleteAwsStorageFolderResult(
+                      controlledAwsResourceApi.getDeleteAwsS3StorageFolderResult(
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
                   60,
                   Duration.ofSeconds(10));
-          logger.debug("delete controlled AWS storage folder result: {}", deleteResult);
+          logger.debug("delete controlled AWS S3 Storage Folder result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
         },
-        "Error deleting controlled AWS storage folder in the workspace.");
+        "Error deleting controlled AWS S3 Storage Folder in the workspace.");
   }
 
   /**
