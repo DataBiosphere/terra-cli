@@ -97,6 +97,7 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.0')
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.0'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.3.0'
 
     // PubSub is used in tests to communicate with Janitor, but is not required for the CLI itself.
     testImplementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.13'

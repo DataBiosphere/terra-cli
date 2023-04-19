@@ -20,6 +20,13 @@ public class LocalProcessLauncher {
   public LocalProcessLauncher() {}
 
   /**
+   * Utility function to instantiate a new {@link LocalProcessLauncher}. Used for mocking in tests.
+   */
+  public static LocalProcessLauncher createLocalProcessLauncher() {
+    return new LocalProcessLauncher();
+  }
+
+  /**
    * Helper method to stream the child process' output to the CLI console.
    *
    * @param fromStream stream reading from the child process output

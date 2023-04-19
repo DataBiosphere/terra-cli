@@ -39,27 +39,37 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     command.addAll(List.of(bucketName, mountPoint.toString()));
 
     // Run mount command
-    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
-    localProcessLauncher.launchProcess(command, null, null);
+    LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.createLocalProcessLauncher();
+    localProcessLauncher.launchProcess(command, null);
     int exitCode = localProcessLauncher.waitForTerminate();
 
     // Add errors to the mount point directories if the mount fails
     String errorMessage = localProcessLauncher.getErrorString();
     String bucketOutputName = subDir != null ? bucketName + "/" + subDir : bucketName;
+    System.out.println("@@@@@@@@@@@@@@@@@");
+    System.out.println(bucketName);
+    System.out.println(mountPoint);
+    System.out.println(errorMessage);
+    System.out.println("@@@@@@@@@@@@@@@@@");
     if (exitCode != 0) {
+      addErrorToMountPoint(errorMessage, bucketOutputName);
       logger.error(errorMessage);
-      if (errorMessage.contains("forbidden")) {
-        addPermissionErrorToMountPoint();
-        logger.info("Insufficient permissions. Unable to access GCS bucket " + bucketOutputName);
-      } else if (errorMessage.contains("bucket doesn't exist")) {
-        addNotFoundErrorToMountPoint();
-        logger.info("GCS bucket not found: " + bucketOutputName);
-      } else {
-        addErrorStateToMountPoint();
-        logger.info("Failed to mount GCS bucket " + bucketOutputName);
-      }
     } else {
       logger.info("Mounted " + bucketOutputName);
+    }
+  }
+
+  public void addErrorToMountPoint(String errorMessage, String bucketOutputName) {
+    logger.error(errorMessage);
+    if (errorMessage.contains("forbidden")) {
+      addPermissionErrorToMountPoint();
+      logger.info("Insufficient permissions. Unable to access GCS bucket " + bucketOutputName);
+    } else if (errorMessage.contains("bucket doesn't exist")) {
+      addNotFoundErrorToMountPoint();
+      logger.info("GCS bucket not found: " + bucketOutputName);
+    } else {
+      addErrorStateToMountPoint();
+      logger.info("Failed to mount GCS bucket " + bucketOutputName);
     }
   }
 }

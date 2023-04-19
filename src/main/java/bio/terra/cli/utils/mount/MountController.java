@@ -34,7 +34,8 @@ import java.util.stream.Stream;
 public abstract class MountController {
 
   // Directory to mount workspace resources under
-  private static final Path WORKSPACE_DIR = Paths.get(Context.getContextDir().toString(), "workspace");
+  private static final Path WORKSPACE_DIR =
+      Paths.get(Context.getContextDir().toString(), "workspace");
   private static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
   // Command to list mount entries
   private static final String LIST_MOUNT_ENTRIES_COMMAND = "mount";
@@ -205,7 +206,7 @@ public abstract class MountController {
    * @param paths A list of resource paths to create directories for.
    * @throws SystemException If the creation of the directories failed.
    */
-  private void createResourceDirectories(List<Path> paths) throws SystemException {
+  public static void createResourceDirectories(List<Path> paths) throws SystemException {
     for (Path path : paths) {
       if (!path.toFile().exists() && !path.toFile().mkdirs()) {
         throw new SystemException("Failed to create directory: " + path);
