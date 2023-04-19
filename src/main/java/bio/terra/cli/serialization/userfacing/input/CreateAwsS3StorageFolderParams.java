@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateAwsStorageFolderParams.Builder.class)
-public class CreateAwsStorageFolderParams {
+@JsonDeserialize(builder = CreateAwsS3StorageFolderParams.Builder.class)
+public class CreateAwsS3StorageFolderParams {
   public final CreateResourceParams resourceFields;
   public final String region;
 
-  protected CreateAwsStorageFolderParams(CreateAwsStorageFolderParams.Builder builder) {
+  protected CreateAwsS3StorageFolderParams(CreateAwsS3StorageFolderParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
     this.region = builder.region;
   }
@@ -38,8 +38,8 @@ public class CreateAwsStorageFolderParams {
     }
 
     /** Call the private constructor. */
-    public CreateAwsStorageFolderParams build() {
-      return new CreateAwsStorageFolderParams(this);
+    public CreateAwsS3StorageFolderParams build() {
+      return new CreateAwsS3StorageFolderParams(this);
     }
   }
 }

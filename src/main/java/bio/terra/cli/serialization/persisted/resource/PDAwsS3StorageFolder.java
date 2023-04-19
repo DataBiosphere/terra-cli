@@ -1,40 +1,40 @@
 package bio.terra.cli.serialization.persisted.resource;
 
-import bio.terra.cli.businessobject.resource.AwsStorageFolder;
+import bio.terra.cli.businessobject.resource.AwsS3StorageFolder;
 import bio.terra.cli.serialization.persisted.PDResource;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * External representation of a workspace AWS storage folder resource for writing to disk.
+ * External representation of a workspace AWS S3 Storage Folder resource for writing to disk.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is not user-facing.
  *
- * <p>See the {@link AwsStorageFolder} class for a storage folder's internal representation.
+ * <p>See the {@link AwsS3StorageFolder} class for a storage folder's internal representation.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = PDAwsStorageFolder.Builder.class)
-public class PDAwsStorageFolder extends PDResource {
+@JsonDeserialize(builder = PDAwsS3StorageFolder.Builder.class)
+public class PDAwsS3StorageFolder extends PDResource {
   public final String bucketName;
   public final String prefix;
 
   /** Serialize an instance of the internal class to the disk format. */
-  public PDAwsStorageFolder(AwsStorageFolder internalObj) {
+  public PDAwsS3StorageFolder(AwsS3StorageFolder internalObj) {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
     this.prefix = internalObj.getPrefix();
   }
 
-  private PDAwsStorageFolder(Builder builder) {
+  private PDAwsS3StorageFolder(Builder builder) {
     super(builder);
     this.bucketName = builder.bucketName;
     this.prefix = builder.prefix;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
-  public AwsStorageFolder deserializeToInternal() {
-    return new AwsStorageFolder(this);
+  public AwsS3StorageFolder deserializeToInternal() {
+    return new AwsS3StorageFolder(this);
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -56,8 +56,8 @@ public class PDAwsStorageFolder extends PDResource {
     }
 
     /** Call the private constructor. */
-    public PDAwsStorageFolder build() {
-      return new PDAwsStorageFolder(this);
+    public PDAwsS3StorageFolder build() {
+      return new PDAwsS3StorageFolder(this);
     }
   }
 }

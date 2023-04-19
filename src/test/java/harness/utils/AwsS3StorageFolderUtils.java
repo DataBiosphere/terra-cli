@@ -2,14 +2,14 @@ package harness.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.cli.serialization.userfacing.resource.UFAwsStorageFolder;
+import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AwsStorageFolderUtils {
+public class AwsS3StorageFolderUtils {
   /**
    * Utility method to verify the s3:// path of a storage folder format: "s3://%s/%s/" (last '/' is
    * optional).
@@ -23,7 +23,7 @@ public class AwsStorageFolderUtils {
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.
    */
-  public static UFAwsStorageFolder listOneStorageFolderResourceWithName(String resourceName)
+  public static UFAwsS3StorageFolder listOneStorageFolderResourceWithName(String resourceName)
       throws JsonProcessingException {
     return listOneStorageFolderResourceWithName(resourceName, null);
   }
@@ -32,9 +32,9 @@ public class AwsStorageFolderUtils {
    * Helper method to call `terra resources list` and expect one resource with this name. Filters on
    * the specified workspace id; Uses the current workspace if null.
    */
-  public static UFAwsStorageFolder listOneStorageFolderResourceWithName(
+  public static UFAwsS3StorageFolder listOneStorageFolderResourceWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    List<UFAwsStorageFolder> matchedResources =
+    List<UFAwsS3StorageFolder> matchedResources =
         listStorageFolderResourcesWithName(resourceName, workspaceUserFacingId);
 
     assertEquals(1, matchedResources.size(), "found exactly one resource with this name");
@@ -45,7 +45,7 @@ public class AwsStorageFolderUtils {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name. Uses the current workspace.
    */
-  public static List<UFAwsStorageFolder> listStorageFolderResourcesWithName(String resourceName)
+  public static List<UFAwsS3StorageFolder> listStorageFolderResourcesWithName(String resourceName)
       throws JsonProcessingException {
     return listStorageFolderResourcesWithName(resourceName, null);
   }
@@ -54,18 +54,18 @@ public class AwsStorageFolderUtils {
    * Helper method to call `terra resources list` and filter the results on the specified resource
    * name and workspace (uses the current workspace if null).
    */
-  public static List<UFAwsStorageFolder> listStorageFolderResourcesWithName(
+  public static List<UFAwsS3StorageFolder> listStorageFolderResourcesWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AWS_STORAGE_FOLDER --format=json`
-    List<UFAwsStorageFolder> listedResources =
+    // `terra resources list --type=AWS_S3_STORAGE_FOLDER --format=json`
+    List<UFAwsS3StorageFolder> listedResources =
         workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AWS_STORAGE_FOLDER")
+                new TypeReference<>() {}, "resource", "list", "--type=AWS_S3_STORAGE_FOLDER")
             : TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {},
                 "resource",
                 "list",
-                "--type=AWS_STORAGE_FOLDER",
+                "--type=AWS_S3_STORAGE_FOLDER",
                 "--workspace=" + workspaceUserFacingId);
 
     // find the matching storage folder in the list
@@ -74,8 +74,8 @@ public class AwsStorageFolderUtils {
         .collect(Collectors.toList());
   }
 
-  public static void assertAwsStorageFolderFields(
-      UFAwsStorageFolder expected, UFAwsStorageFolder actual, String src) {
+  public static void assertAwsS3StorageFolderFields(
+      UFAwsS3StorageFolder expected, UFAwsS3StorageFolder actual, String src) {
     assertEquals(expected.name, actual.name, "storage folder name matches that in " + src);
     assertEquals(
         expected.bucketName, actual.bucketName, "storage folder bucketName matches that in " + src);

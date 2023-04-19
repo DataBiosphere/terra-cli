@@ -1,7 +1,7 @@
 package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsStorageFolder;
+import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
@@ -41,7 +41,7 @@ import java.util.UUID;
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
   @Type(value = UFGcsObject.class, name = "GCS_OBJECT"),
   @Type(value = UFGitRepo.class, name = "GIT_REPO"),
-  @Type(value = UFAwsStorageFolder.class, name = "AWS_STORAGE_FOLDER"),
+  @Type(value = UFAwsS3StorageFolder.class, name = "AWS_S3_STORAGE_FOLDER"),
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {
