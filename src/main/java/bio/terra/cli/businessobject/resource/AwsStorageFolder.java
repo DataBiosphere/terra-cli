@@ -22,14 +22,12 @@ public class AwsStorageFolder extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AwsStorageFolder.class);
   private final String bucketName;
   private final String prefix;
-  private final String region;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsStorageFolder(PDAwsStorageFolder configFromDisk) {
     super(configFromDisk);
     this.bucketName = configFromDisk.bucketName;
     this.prefix = configFromDisk.prefix;
-    this.region = configFromDisk.region;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -38,7 +36,6 @@ public class AwsStorageFolder extends Resource {
     this.resourceType = Type.AWS_STORAGE_FOLDER;
     this.bucketName = wsmObject.getResourceAttributes().getAwsStorageFolder().getBucketName();
     this.prefix = wsmObject.getResourceAttributes().getAwsStorageFolder().getPrefix();
-    this.region = wsmObject.getResourceAttributes().getAwsStorageFolder().getRegion();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
@@ -47,7 +44,18 @@ public class AwsStorageFolder extends Resource {
     this.resourceType = Type.AWS_STORAGE_FOLDER;
     this.bucketName = wsmObject.getAttributes().getBucketName();
     this.prefix = wsmObject.getAttributes().getPrefix();
-    this.region = wsmObject.getAttributes().getRegion();
+  }
+
+  /**
+   * Serialize the internal representation of the resource to the format for command input/output.
+   */
+  public UFAwsStorageFolder serializeToCommand() {
+    return new UFAwsStorageFolder(this);
+  }
+
+  /** Serialize the internal representation of the resource to the format for writing to disk. */
+  public PDAwsStorageFolder serializeToDisk() {
+    return new PDAwsStorageFolder(this);
   }
 
   /**
@@ -73,21 +81,7 @@ public class AwsStorageFolder extends Resource {
             .createControlledAwsStorageFolder(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created AWS storage folder: {}", createdResource);
 
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
     return new AwsStorageFolder(createdResource);
-  }
-
-  /**
-   * Serialize the internal representation of the resource to the format for command input/output.
-   */
-  public UFAwsStorageFolder serializeToCommand() {
-    return new UFAwsStorageFolder(this);
-  }
-
-  /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDAwsStorageFolder serializeToDisk() {
-    return new PDAwsStorageFolder(this);
   }
 
   /** Delete a AWS storage folder referenced resource in the workspace. Currently unsupported. */
@@ -143,9 +137,5 @@ public class AwsStorageFolder extends Resource {
 
   public String getPrefix() {
     return prefix;
-  }
-
-  public String getRegion() {
-    return region;
   }
 }
