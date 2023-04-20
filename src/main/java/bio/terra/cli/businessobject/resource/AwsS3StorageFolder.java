@@ -7,8 +7,11 @@ import bio.terra.cli.serialization.persisted.resource.PDAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.AwsCredential;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
 import bio.terra.workspace.model.ResourceDescription;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,6 +122,28 @@ public class AwsS3StorageFolder extends Resource {
       String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {
     String resolvedPath = String.format("%s/%s/", awsBucketName, awsBucketPrefix);
     return includeUrlPrefix ? AWS_S3_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
+  }
+
+  public JSONObject getCredentials(CredentialsAccessScope scope, int duration) {
+    // call WSM to get credentials
+    AwsCredential awsCredential =
+        WorkspaceManagerService.fromContext()
+            .getAwsS3StorageFolderCredential(
+                Context.requireWorkspace().getUuid(),
+                id,
+                scope == CredentialsAccessScope.READ_ONLY
+                    ? AwsCredentialAccessScope.READ_ONLY
+                    : AwsCredentialAccessScope.WRITE_READ,
+                duration);
+
+    JSONObject object = new JSONObject();
+    object.put("Version", awsCredential.getVersion());
+    object.put("AccessKeyId", awsCredential.getAccessKeyId());
+    object.put("SecretAccessKey", awsCredential.getSecretAccessKey());
+    object.put("SessionToken", awsCredential.getSessionToken());
+    object.put("Expiration", awsCredential.getExpiration());
+
+    return object;
   }
 
   /**

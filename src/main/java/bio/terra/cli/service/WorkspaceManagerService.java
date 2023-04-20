@@ -35,6 +35,8 @@ import bio.terra.workspace.api.UnauthenticatedApi;
 import bio.terra.workspace.api.WorkspaceApi;
 import bio.terra.workspace.client.ApiClient;
 import bio.terra.workspace.client.ApiException;
+import bio.terra.workspace.model.AwsCredential;
+import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderCreationParameters;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
@@ -1536,6 +1538,29 @@ public class WorkspaceManagerService {
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
         },
         "Error deleting controlled AWS S3 Storage Folder in the workspace.");
+  }
+
+  // TODO move AWS functions to new file
+  /**
+   * Call the Workspace Manager
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}/credential"
+   * endpoint
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}/credential"
+   * endpoint to get AWS credentials to access the controlled storage folder
+   *
+   * @param workspaceId the workspace that contains the resource
+   * @param resourceId the resource id
+   * @param accessScope the access scope (READ_ONLY, WRITE_READ)
+   * @param duration the duration for credential in seconds
+   * @return AWS Bucket access credentials
+   */
+  public AwsCredential getAwsS3StorageFolderCredential(
+      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
+        "Error getting AWS storage folder credential.");
   }
 
   /**
