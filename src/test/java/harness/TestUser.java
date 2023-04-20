@@ -207,7 +207,7 @@ public class TestUser {
                 + "client_id = %s\n"
                 + "client_secret = %s\n"
                 + "\n"
-                + "[Credentials]\n"
+                + "[ResourceCredentials]\n"
                 + "gs_oauth2_refresh_token = %s",
             GCLOUD_CLIENT_ID, GCLOUD_CLIENT_SECRET, getRefreshToken());
     Path path =

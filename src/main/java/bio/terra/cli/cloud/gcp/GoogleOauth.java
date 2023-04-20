@@ -139,7 +139,7 @@ public final class GoogleOauth {
       credential.refreshToken();
     }
 
-    // OAuth2 Credentials representing a user's identity and consent
+    // OAuth2 ResourceCredentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
             .setClientId(readClientSecrets().getDetails().getClientId())
@@ -191,7 +191,8 @@ public final class GoogleOauth {
       return null; // there is no credential, return here
     } else {
 
-      // now turn the stored credential into a regular OAuth2 Credentials representing a user's
+      // now turn the stored credential into a regular OAuth2 ResourceCredentials representing a
+      // user's
       // identity and consent
       credentials =
           UserCredentials.newBuilder()
@@ -210,7 +211,7 @@ public final class GoogleOauth {
     if (idToken == null) {
       // We have existing credentials, but do not have an ID token.  Return null in order to force a
       // credential refresh which will capture and store an ID token with the new credentials.
-      logger.info("Credentials present, but no ID token present.");
+      logger.info("ResourceCredentials present, but no ID token present.");
       return null;
     }
 

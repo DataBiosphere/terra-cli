@@ -25,6 +25,7 @@ import bio.terra.workspace.model.StewardshipType;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
@@ -170,6 +171,16 @@ public abstract class Resource {
   }
 
   /**
+   * Retrieve and print temporary credentials to access a cloud resource as a JSONObject Resources
+   * to override this as necessary
+   */
+  public JSONObject getCredentials(
+      CredentialsAccessScope scope, int duration, boolean includeConsoleLink) {
+    throw new UserActionableException(
+        "Credentials not supported for resource type: " + resourceType);
+  }
+
+  /**
    * Cast this resource to a specific type (i.e. a sub-class of this class).
    *
    * @throws UserActionableException if the resource is the wrong type
@@ -248,5 +259,10 @@ public abstract class Resource {
     AI_NOTEBOOK,
     GIT_REPO,
     AWS_S3_STORAGE_FOLDER
+  }
+
+  public enum CredentialsAccessScope {
+    READ_ONLY,
+    WRITE_READ
   }
 }
