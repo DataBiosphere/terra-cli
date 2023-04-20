@@ -124,8 +124,7 @@ public class AwsS3StorageFolder extends Resource {
     return includeUrlPrefix ? AWS_S3_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
-  public JSONObject getCredentials(
-      CredentialsAccessScope scope, int duration, boolean includeConsoleLink) {
+  public JSONObject getCredentials(CredentialsAccessScope scope, int duration) {
     // call WSM to get credentials
     AwsCredential awsCredential =
         WorkspaceManagerService.fromContext()
@@ -138,16 +137,11 @@ public class AwsS3StorageFolder extends Resource {
                 duration);
 
     JSONObject object = new JSONObject();
+    object.put("Version", awsCredential.getVersion());
     object.put("AccessKeyId", awsCredential.getAccessKeyId());
     object.put("SecretAccessKey", awsCredential.getSecretAccessKey());
     object.put("SessionToken", awsCredential.getSessionToken());
     object.put("Expiration", awsCredential.getExpiration());
-
-    if (includeConsoleLink) {
-      // TODO - get console link
-      String consoleLink = "";
-      object.put("ConsoleLink", consoleLink);
-    }
 
     return object;
   }

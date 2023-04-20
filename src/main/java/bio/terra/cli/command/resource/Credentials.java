@@ -18,11 +18,6 @@ public class Credentials extends WsmBaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
-      names = "--console-link",
-      description = "Include the console link for direct resource access.")
-  private boolean includeConsoleLink;
-
-  @CommandLine.Option(
       names = "--scope",
       description = "Set the credentials access scope: ${COMPLETION-CANDIDATES}.",
       defaultValue = "READ_ONLY",
@@ -32,7 +27,7 @@ public class Credentials extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--duration",
       defaultValue = "900",
-      description = "Duration of access (in seconds), minimum: 900s, maximum: 1800s")
+      description = "Duration of access (in seconds), minimum: 900, maximum: 3600")
   private int duration;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -43,7 +38,7 @@ public class Credentials extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    JSONObject object = resource.getCredentials(scope, duration, includeConsoleLink);
+    JSONObject object = resource.getCredentials(scope, duration);
 
     // TODO: check if format.printText is sufficient
     formatOption.printReturnValue(object);

@@ -3,6 +3,7 @@ package bio.terra.cli.command;
 import bio.terra.cli.command.resource.AddRef;
 import bio.terra.cli.command.resource.CheckAccess;
 import bio.terra.cli.command.resource.Create;
+import bio.terra.cli.command.resource.Credentials;
 import bio.terra.cli.command.resource.Delete;
 import bio.terra.cli.command.resource.Describe;
 import bio.terra.cli.command.resource.List;
@@ -28,6 +29,7 @@ import picocli.CommandLine;
     subcommands = {
       AddRef.class,
       CheckAccess.class,
+      Credentials.class,
       Create.class,
       Delete.class,
       Describe.class,

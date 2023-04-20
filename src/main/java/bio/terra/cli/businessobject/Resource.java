@@ -175,7 +175,7 @@ public abstract class Resource {
    * to override this as necessary
    */
   public JSONObject getCredentials(
-      CredentialsAccessScope scope, int duration, boolean includeConsoleLink) {
+      CredentialsAccessScope scope, int duration) {
     throw new UserActionableException(
         "Credentials not supported for resource type: " + resourceType);
   }
