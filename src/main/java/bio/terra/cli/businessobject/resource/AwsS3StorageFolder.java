@@ -126,9 +126,7 @@ public class AwsS3StorageFolder extends Resource {
 
   public JSONObject getCredentials(
       CredentialsAccessScope scope, int duration, boolean includeConsoleLink) {
-
-    // call WSM to delete the resource
-
+    // call WSM to get credentials
     AwsCredential awsCredential =
         WorkspaceManagerService.fromContext()
             .getAwsS3StorageFolderCredential(

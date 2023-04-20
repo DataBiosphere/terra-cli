@@ -151,8 +151,8 @@ public class User {
   }
 
   /**
-   * Fetches a Google Application ResourceCredentials with {@code PET_SA_SCOPES} and stores in
-   * {@code terraCredentials}.
+   * Fetches a Google Application Credentials with {@code PET_SA_SCOPES} and stores in {@code
+   * terraCredentials}.
    */
   private void loadAppDefaultCredentials() {
 
@@ -160,7 +160,7 @@ public class User {
       terraCredentials = AppDefaultCredentialUtils.getExistingAdc(PET_SA_SCOPES);
     } catch (IOException ioException) {
       throw new SystemException(
-          "Could not obtain ID Token from Application Default ResourceCredentials.", ioException);
+          "Could not obtain ID Token from Application Default Credentials.", ioException);
     }
   }
 
