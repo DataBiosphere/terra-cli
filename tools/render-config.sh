@@ -19,6 +19,7 @@ TEST_USERS_VAULT_PATH=secret/dsde/terra/cli-test/test-users
 EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
 JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 VERILYCLI_WSM_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/verilycli/workspace/app-sa
+CLIENT_CRED_VAULT_PATH=secret/dsde/terra/cli/oauth-client-credentials
 
 # Helper function to read a secret from Vault and write it to a local file in the rendered/broad/ directory.
 # Inputs: vault path, file name, [optional] decode from base 64
@@ -68,7 +69,16 @@ readFromVault "$VERILYCLI_WSM_SA_VAULT_PATH" "verilycli-wsm-sa.json" "base64"
 
 # Read test user refresh tokens
 echo "Reading test user refresh tokens from Vault"
-testUsers=$(cat src/test/resources/testconfigs/broad.json | jq -r '.testUsers[] | {email} | join (" ")')
+testUsers=$(cat "src/test/resources/testconfigs/broad.json" | jq -r '.testUsers[] | {email} | join (" ")')
 while IFS= read -r line; do
   readFromVault "$TEST_USERS_VAULT_PATH/${line}" "${line}.json"
 done <<< "$testUsers"
+
+echo "Fetching Broad client id and client secrets"
+clientId=$(docker run --rm -e VAULT_TOKEN="$VAULT_TOKEN" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+            vault read -format json "$CLIENT_CRED_VAULT_PATH" | \
+            jq -r '.data."broad-client-id"')
+clientSecret=$(docker run --rm -e VAULT_TOKEN="$VAULT_TOKEN" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+                vault read -format json "$CLIENT_CRED_VAULT_PATH" | \
+                jq -r '.data."broad-client-secret"')
+./tools/client-credentials.sh "src/main/resources/broad_secret.json" "$clientId" "$clientSecret"

@@ -70,8 +70,8 @@ echo "-- Building the distribution archive"
 distributionArchivePath=$(ls build/distributions/*tar)
 
 echo "-- Packaging client id and client secrets in the release"
-client-credentials.sh "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
-client-credentials.sh "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
+./tools/client-credentials.sh "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
+./tools/client-credentials.sh "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled

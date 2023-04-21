@@ -21,26 +21,18 @@ fi
 secretsFile=$1
 clientId=$2
 clientSecret=$3
-function packageAppSecrets() {
-  if [ -f "$secretsFile" ]; then
-    echo "$secretsFile not available, skipping"
-    return
-  fi
-  tmpFile=$1+".tmp"
 
-  if [ -z "$clientId" ] || [ -z "$clientSecret" ]; then
-    echo "client_id & client_secret not available for $secretsFile, skipping"
-    return
-  fi
+if [ ! -f "$secretsFile" ]; then
+  echo "$secretsFile not available, skipping"
+  exit 0
+fi
+tmpFile=$1+".tmp"
 
-  echo "********* start file before"
-  cat "$secretsFile"
-  echo "********* end file before"
+if [ -z "$clientId" ] || [ -z "$clientSecret" ]; then
+  echo "client_id & client_secret not available for $secretsFile, skipping"
+  exit 0
+fi
 
-  jq --arg CLIENT_ID "$clientId" --arg CLIENT_SECRET "$clientSecret" \
-    '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
-    "$secretsFile" > "$tmpFile" && mv "$tmpFile" "$secretsFile"
-  echo "********* start file"
-  cat "$secretsFile"
-  echo "********* end file"
-}
+jq --arg CLIENT_ID "$clientId" --arg CLIENT_SECRET "$clientSecret" \
+  '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
+  "$secretsFile" > "$tmpFile" && mv "$tmpFile" "$secretsFile"
