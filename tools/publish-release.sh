@@ -69,30 +69,9 @@ echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
 
-# Function to package client id and secrets into relevant files
-# params: $1: secretsFile
-#         $2: client_id
-#         $3: client_secret
-function packageAppSecrets() {
-  if [ -f "$1" ]; then
-    echo "$1 not available, skipping"
-    return
-  fi
-  tmpFile=$1+".tmp"
-
-  if [ -z "$2" ] || [ -z "$3" ]; then
-    echo "client_id & client_secret not available for $1, skipping"
-    return
-  fi
-
-  jq --arg CLIENT_ID "$2" --arg CLIENT_SECRET "$3" \
-    '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
-    "$1" > "$tmpFile" && mv "$tmpFile" "$1"
-}
-
 echo "-- Packaging client id and client secrets in the release"
-packageAppSecrets "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
-packageAppSecrets "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
+client-credentials.sh "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
+client-credentials.sh "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled

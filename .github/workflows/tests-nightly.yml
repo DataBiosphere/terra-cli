@@ -61,6 +61,12 @@ jobs:
         LILY_SHADOWMOON: ${{ secrets.LILY_SHADOWMOON }}
         NOAH_FROSTWOLF: ${{ secrets.NOAH_FROSTWOLF }}
         PENELOPE_TWILIGHTSHAMMER: ${{ secrets.PENELOPE_TWILIGHTSHAMMER }}
+    - name: Update client credentials
+      id: client-credentials
+      run: |
+        ./tools/client-credentials.sh \
+          "src/main/resources/broad_secret.json" \
+          ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
     - name: Run unit tests
       id: run_unit_tests
       if: always()
