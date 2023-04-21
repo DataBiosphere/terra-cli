@@ -21,7 +21,6 @@ public class UFAwsS3StorageFolder extends UFResource {
   private static final long MAX_NUM_OBJECTS = 100;
   public final String bucketName;
   public final String prefix;
-  public final String region;
   public final Integer numObjects;
 
   /** Serialize an instance of the internal class to the command format. */
@@ -29,7 +28,6 @@ public class UFAwsS3StorageFolder extends UFResource {
     super(internalObj);
     this.bucketName = internalObj.getBucketName();
     this.prefix = internalObj.getPrefix();
-    this.region = internalObj.getRegion();
     this.numObjects = internalObj.numObjects(MAX_NUM_OBJECTS + 1);
   }
 
@@ -38,7 +36,6 @@ public class UFAwsS3StorageFolder extends UFResource {
     super(builder);
     this.bucketName = builder.bucketName;
     this.prefix = builder.prefix;
-    this.region = builder.region;
     this.numObjects = builder.numObjects;
   }
 
@@ -51,7 +48,6 @@ public class UFAwsS3StorageFolder extends UFResource {
         prefix
             + "AWS S3 Storage Folder: "
             + AwsS3StorageFolder.resolve(bucketName, this.prefix, true));
-    OUT.println(prefix + "Region: " + (region == null ? "(undefined)" : region));
     OUT.println(
         prefix
             + "# Objects: "
@@ -64,7 +60,6 @@ public class UFAwsS3StorageFolder extends UFResource {
   public static class Builder extends UFResource.Builder {
     private String bucketName;
     private String prefix;
-    private String region;
     private Integer numObjects;
 
     /** Default constructor for Jackson. */
@@ -77,11 +72,6 @@ public class UFAwsS3StorageFolder extends UFResource {
 
     public Builder prefix(String prefix) {
       this.prefix = prefix;
-      return this;
-    }
-
-    public Builder region(String region) {
-      this.region = region;
       return this;
     }
 

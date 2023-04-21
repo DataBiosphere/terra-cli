@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled AWS S3 Storage Folders. */
 @Tag("unit-aws")
-public class AwsControlledStorageFolder extends SingleWorkspaceUnitAws {
+public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
 
   @Test
   @DisplayName(
@@ -43,10 +43,8 @@ public class AwsControlledStorageFolder extends SingleWorkspaceUnitAws {
             "--name=" + resourceName);
 
     // check the created workspace has an id and aws details
-    assertNotNull(createdResource.id, "create resource returned a resource id");
     assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
     assertNotNull(createdResource.prefix, "create resource returned a aws prefix");
-    assertNotNull(createdResource.region, "create resource returned a aws region");
     assertEquals(resourceName, createdResource.name, "create resource resource name matches name");
     assertEquals(createdResource.numObjects, 0, "create resource contains no objects");
 

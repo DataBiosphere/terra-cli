@@ -40,7 +40,7 @@ public class Credentials extends WsmBaseCommand {
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     JSONObject object = resource.getCredentials(scope, duration);
 
-    // TODO: check if format.printText is sufficient
+    // TODO-Dex: check if format.printText is sufficient
     formatOption.printReturnValue(object);
   }
 }

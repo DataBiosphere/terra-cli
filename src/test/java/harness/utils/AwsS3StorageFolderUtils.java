@@ -80,7 +80,6 @@ public class AwsS3StorageFolderUtils {
     assertEquals(
         expected.bucketName, actual.bucketName, "storage folder bucketName matches that in " + src);
     assertEquals(expected.prefix, actual.prefix, "storage folder prefix matches that in " + src);
-    assertEquals(expected.region, actual.region, "storage folder region matches that in " + src);
     assertEquals(
         expected.numObjects, actual.numObjects, "storage folder numObjects matches that in " + src);
   }

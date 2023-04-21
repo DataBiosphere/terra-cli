@@ -175,8 +175,7 @@ public abstract class Resource {
    * Retrieve and print temporary credentials to access a cloud resource as a JSONObject Resources
    * to override this as necessary
    */
-  public JSONObject getCredentials(
-      CredentialsAccessScope scope, int duration) {
+  public JSONObject getCredentials(CredentialsAccessScope scope, int duration) {
     throw new UserActionableException(
         "Credentials not supported for resource type: " + resourceType);
   }

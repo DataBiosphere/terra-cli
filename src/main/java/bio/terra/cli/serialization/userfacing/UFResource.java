@@ -106,7 +106,7 @@ public abstract class UFResource {
     if (stewardshipType.equals(StewardshipType.CONTROLLED)) {
       OUT.println(prefix + "Access scope: " + accessScope);
       OUT.println(prefix + "Managed by:   " + managedBy);
-      OUT.println(prefix + "Region:       " + region);
+      OUT.println(prefix + "Region:       " + (region == null ? "(undefined)" : region));
 
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
         OUT.println(prefix + "Private user: " + privateUserName);
