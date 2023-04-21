@@ -108,6 +108,7 @@ jobs:
         ./tools/client-credentials.sh \
           "src/main/resources/broad_secret.json" \
           ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
+        cat "src/main/resources/broad_secret.json"
     - name: Run tests
       id: run_tests
       run: |
