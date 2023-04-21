@@ -33,11 +33,18 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 
+/**
+ * Test suite for the MountHandler classes
+ *
+ * <p>To test Linux unmount tests, set the system os name property to "linux" in setup().
+ */
 @Tag("real-unit")
 public class MountHandlerTest {
 
@@ -140,6 +147,7 @@ public class MountHandlerTest {
   }
 
   @Test
+  @EnabledOnOs({OS.LINUX})
   @DisplayName("succesfully unmounts bucket")
   void testUnmount() {
     // Setup mocks
@@ -157,13 +165,14 @@ public class MountHandlerTest {
   }
 
   @Test
+  @EnabledOnOs({OS.LINUX})
   @DisplayName("unmount silently fails when bucket is not mounted")
   void testUnmountSilentlyFailed() {
     // Setup mocks
     String bucketName = "bucket";
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
     when(launcherMock.waitForTerminate()).thenReturn(1);
-    when(launcherMock.getErrorString()).thenReturn("my-bucket: not currently mounted");
+    when(launcherMock.getErrorString()).thenReturn("entry for /bucket not found in /etc/mtab");
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount
@@ -174,6 +183,7 @@ public class MountHandlerTest {
   }
 
   @Test
+  @EnabledOnOs({OS.LINUX})
   @DisplayName("unmount throws UserException when bucket resource is being used by another process")
   void testUnmountFailed() {
 
@@ -182,7 +192,7 @@ public class MountHandlerTest {
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
     when(launcherMock.waitForTerminate()).thenReturn(1);
     when(launcherMock.getErrorString())
-        .thenReturn("umount(/my-bucket): Resource busy -- try 'diskutil unmount'");
+        .thenReturn("fusermount: failed to unmount /bucket: Device or resource busy");
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount and catch exception

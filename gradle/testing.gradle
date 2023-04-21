@@ -111,7 +111,7 @@ task runTestsWithTag(type: Test) {
             // it easier to clean up after tests (./gradlew clean) that generate files.
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty('TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/")
-        }else {
+        } else {
             throw new GradleException("Unknown test tag: ${testTag}")
         }
 
