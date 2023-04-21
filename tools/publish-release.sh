@@ -5,14 +5,15 @@ set -e
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.
 ## The release version number argument to this script must match the version number in the settings.gradle
 # file (i.e. version = '0.0.0' line).
-## Dependencies: docker, gh, sed
+#
+## Dependencies: docker, gh, sed, jq
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
 ##         isRegularRelease (arg, optional) 'false' for a pre-release (default), 'true' for a regular release
 ## Usage: ./publish-release.sh  0.0.0        --> publishes version 0.0.0 as a pre-release
 ## Usage: ./publish-release.sh  0.0.0 true   --> publishes version 0.0.0 as a regular release
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [[ $(basename $PWD) != 'terra-cli' ]]; then
+if [[ $(basename "$PWD") != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
@@ -48,7 +49,7 @@ fi
 
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
-foundReleaseTag=$(git tag -l $releaseVersion)
+foundReleaseTag=$(git tag -l "$releaseVersion")
 if [[ -z "$foundReleaseTag" ]]; then
   >&2 echo "ERROR: No tag found matching this version"
   exit 1
@@ -62,11 +63,36 @@ echo "-- Building the Docker image"
 echo "-- Publishing the Docker image"
 dockerImageName=$(./gradlew --quiet getDockerImageName) # e.g. terra-cli
 dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
-./tools/publish-docker.sh $dockerImageTag "$dockerImageName/$releaseVersion" forRelease
+./tools/publish-docker.sh "$dockerImageTag" "$dockerImageName/$releaseVersion" forRelease
 
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
+
+# Function to package client id and secrets into relevant files
+# params: $1: secretsFile
+#         $2: client_id
+#         $3: client_secret
+function packageAppSecrets() {
+  if [ -f "$1" ]; then
+    echo "$1 not available, skipping"
+    return
+  fi
+  tmpFile=$1+".tmp"
+
+  if [ -z "$2" ] || [ -z "$3" ]; then
+    echo "client_id & client_secret not available for $1, skipping"
+    return
+  fi
+
+  jq --arg CLIENT_ID "$2" --arg CLIENT_SECRET "$3" \
+    '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
+    "$1" > "$tmpFile" && mv "$tmpFile" "$1"
+}
+
+echo "-- Packaging client id and client secrets in the release"
+packageAppSecrets "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
+packageAppSecrets "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled
@@ -77,7 +103,7 @@ else
   echo "Creating pre-release"
   preReleaseFlag="--prerelease"
 fi
-gh release create $releaseTag $preReleaseFlag \
+gh release create "$releaseTag" $preReleaseFlag \
   --title "$releaseVersion" \
   "${distributionArchivePath}#Install package" \
   "tools/download-install.sh#Download & Install script"
