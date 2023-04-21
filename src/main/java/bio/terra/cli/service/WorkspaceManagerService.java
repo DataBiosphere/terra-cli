@@ -1540,7 +1540,7 @@ public class WorkspaceManagerService {
         "Error deleting controlled AWS S3 Storage Folder in the workspace.");
   }
 
-  // TODO-dex move AWS functions to new file
+  // TODO(TERRA-363) move AWS functions to new file
   /**
    * Call the Workspace Manager
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}/credential"

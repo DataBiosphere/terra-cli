@@ -13,7 +13,7 @@ public class TestUtils {
     return string + RANDOM.nextInt(10000);
   }
 
-  // TODO-Dex
+  // TODO(TERRA-363) call this in test
   public static <T extends UFResource, E extends UFResource> void assertResourceProperties(
       T expected, E actual, String src) {
     assertEquals(expected.id, actual.id, "resource id matches that in " + src);
