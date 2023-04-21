@@ -6,7 +6,7 @@ set -e
 ## The release version number argument to this script must match the version number in the settings.gradle
 # file (i.e. version = '0.0.0' line).
 #
-## Dependencies: docker, gh, sed, jq
+## Dependencies: docker, gh, sed
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
 ##         isRegularRelease (arg, optional) 'false' for a pre-release (default), 'true' for a regular release
 ## Usage: ./publish-release.sh  0.0.0        --> publishes version 0.0.0 as a pre-release
@@ -68,10 +68,6 @@ dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
 distributionArchivePath=$(ls build/distributions/*tar)
-
-echo "-- Packaging client id and client secrets in the release"
-./tools/client-credentials.sh "src/main/resources/broad_secret.json" "$BROAD_CLIENT_ID" "$BROAD_CLIENT_SECRET"
-./tools/client-credentials.sh "src/main/resources/verily_secret.json" "$VERILY_CLIENT_ID" "$VERILY_CLIENT_SECRET"
 
 echo "-- Creating a new GitHub release with the install archive and download script"
 gh config set prompt disabled
