@@ -15,14 +15,16 @@ import java.util.stream.Collectors;
 
 /** This class provides utility methods for launching local child processes. */
 public class LocalProcessLauncher {
+
   private Process process;
 
   public LocalProcessLauncher() {}
 
   /**
-   * Utility function to instantiate a new {@link LocalProcessLauncher}. Used for mocking in tests.
+   * Utility function to instantiate a new {@link LocalProcessLauncher}. Use instead of constructor
+   * so that we can mock LocalProcessLauncher in tests.
    */
-  public static LocalProcessLauncher createLocalProcessLauncher() {
+  public static LocalProcessLauncher create() {
     return new LocalProcessLauncher();
   }
 

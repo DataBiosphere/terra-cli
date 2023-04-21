@@ -5,15 +5,12 @@ FROM us.gcr.io/broad-dsp-gcr-public/base/jre:17-debian
 # working directory when the docker is run
 WORKDIR /usr
 
-# install curl (to download install packages), python (for gcloud sdk), git,
-# gnupg and lsb-release (for gcsfuse)
+# install curl (to download install packages), python (for gcloud sdk) and git
 RUN apt-get update \
     && apt-get install -y \
     curl \
     python3 \
-    git \
-    gnupg \
-    lsb-release
+    git
 
 # install Google Cloud SDK (gcloud, gsutil, bq)
 # these commands come from https://cloud.google.com/sdk/docs/downloads-versioned-archives

@@ -27,6 +27,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     this.subDir = gcsObject.getObjectName();
   }
 
+  /** Implements the mount method for a GCS bucket or prefix object. */
   public void mount() throws SystemException {
     // Build mount command
     List<String> command = new ArrayList<>(List.of(FUSE_MOUNT_COMMAND));
@@ -39,7 +40,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     command.addAll(List.of(bucketName, mountPoint.toString()));
 
     // Run mount command
-    LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.createLocalProcessLauncher();
+    LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
     localProcessLauncher.launchProcess(command, null);
     int exitCode = localProcessLauncher.waitForTerminate();
 
@@ -54,6 +55,12 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     }
   }
 
+  /**
+   * Append appropriate error string to the mount point directory if the mount fails.
+   *
+   * @param errorMessage gcsfuse error message to parse
+   * @param bucketOutputName bucket and object path to display in log message.
+   */
   public void addErrorToMountPoint(String errorMessage, String bucketOutputName) {
     logger.error(errorMessage);
     if (errorMessage.contains("forbidden")) {

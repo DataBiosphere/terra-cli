@@ -3,6 +3,7 @@ package bio.terra.cli.utils.mount.handlers;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,24 +22,33 @@ public abstract class BaseMountHandler {
   protected Path mountPoint;
   protected boolean disableCache;
 
+  @VisibleForTesting
+  public static void setLogger(Logger newLogger) {
+    logger = newLogger;
+  }
+
   protected BaseMountHandler(Path mountPoint, Boolean disableCache) {
     this.mountPoint = mountPoint;
     this.disableCache = disableCache;
   }
 
-  /**
-   * Mounts the resource at the mount point.
-   *
-   * @throws SystemException if the mount fails
-   */
+  /** Mounts the resource at the mount point. */
   public abstract void mount() throws UserActionableException, SystemException;
 
-  public static void unmount(String resourceName) throws SystemException {
+  /**
+   * Unmounts the resource at the mount point.
+   *
+   * @param resourceName the name of the bucket to unmount.
+   * @throws UserActionableException if the mount entry is being used by another process.
+   * @throws SystemException if the unmount fails because there is no existing mount entry or any
+   *     other error.
+   */
+  public static void unmount(String resourceName) throws UserActionableException, SystemException {
     // Build unmount command
     List<String> command = Arrays.asList(getUnmountCommand(), resourceName);
 
     // Run unmount command
-    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
+    LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
     localProcessLauncher.launchProcess(command, null, null);
     int exitCode = localProcessLauncher.waitForTerminate();
 
@@ -104,10 +114,10 @@ public abstract class BaseMountHandler {
   }
 
   /**
-   * Adds an error state to the mount point.This is done by renaming the mount point to
-   * mountPoint_errorString.
+   * Appends an error string to the mount point directory. This is done by renaming the mount point
+   * to mountPoint_errorString.
    *
-   * @param errorString the error string to add to the mount point
+   * @param errorString the error string.
    */
   private void addErrorStateToMountPoint(String errorString) {
     // Add error state to mount point

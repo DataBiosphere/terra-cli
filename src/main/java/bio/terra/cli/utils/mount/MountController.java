@@ -34,8 +34,7 @@ import java.util.stream.Stream;
 public abstract class MountController {
 
   // Directory to mount workspace resources under
-  private static final Path WORKSPACE_DIR =
-      Paths.get(Context.getContextDir().toString(), "workspace");
+  private static final Path WORKSPACE_DIR = Paths.get(System.getProperty("user.home"), "workspace");
   private static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
   // Command to list mount entries
   private static final String LIST_MOUNT_ENTRIES_COMMAND = "mount";
@@ -51,6 +50,14 @@ public abstract class MountController {
     return Files.exists(WORKSPACE_DIR) && Files.isDirectory(WORKSPACE_DIR);
   }
 
+  private static void createWorkspaceDir() {
+    try {
+      Files.createDirectories(WORKSPACE_DIR);
+    } catch (IOException e) {
+      throw new SystemException("Error creating workspace directory", e);
+    }
+  }
+
   protected MountController() {}
 
   /**
@@ -59,18 +66,12 @@ public abstract class MountController {
    * @param ws workspace context
    */
   public void mountResources(Workspace ws, Boolean disableCache) {
+
     Map<UUID, Path> resourceMountPaths = getResourceMountPaths();
-
     // Create root workspace directory if it does not exist
-    try {
-      Files.createDirectories(WORKSPACE_DIR);
-    } catch (IOException e) {
-      throw new SystemException("Error creating workspace directory", e);
-    }
-
+    createWorkspaceDir();
     // Create directories for each resource mount point
     createResourceDirectories(new ArrayList<>(resourceMountPaths.values()));
-
     // Mount each resource
     resourceMountPaths.forEach(
         (id, mountPath) -> {
