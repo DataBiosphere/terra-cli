@@ -71,7 +71,3 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         RELEASE_VERSION: ${{ steps.bump_tag.outputs.tag }}
-        BROAD_CLIENT_ID: ${{ secrets.BROAD_CLIENT_ID }}
-        BROAD_CLIENT_SECRET: ${{ secrets.BROAD_CLIENT_SECRET }}
-        VERILY_CLIENT_ID: ${{ secrets.VERILY_CLIENT_ID }}
-        VERILY_CLIENT_SECRET: ${{ secrets.VERILY_CLIENT_SECRET }}
