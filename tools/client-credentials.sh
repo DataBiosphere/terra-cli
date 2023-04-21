@@ -33,7 +33,14 @@ function packageAppSecrets() {
     return
   fi
 
+  echo "********* start file before"
+  cat "$secretsFile"
+  echo "********* end file before"
+
   jq --arg CLIENT_ID "$clientId" --arg CLIENT_SECRET "$clientSecret" \
     '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
     "$secretsFile" > "$tmpFile" && mv "$tmpFile" "$secretsFile"
+  echo "********* start file"
+  cat "$secretsFile"
+  echo "********* end file"
 }
