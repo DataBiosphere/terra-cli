@@ -5,6 +5,7 @@ set -e
 ## Note that a pre-release does not affect the "Latest release" tag, but a regular release does.
 ## The release version number argument to this script must match the version number in the settings.gradle
 # file (i.e. version = '0.0.0' line).
+#
 ## Dependencies: docker, gh, sed
 ## Inputs: releaseVersion (arg, required) determines the git tag to use for creating the release
 ##         isRegularRelease (arg, optional) 'false' for a pre-release (default), 'true' for a regular release
@@ -12,7 +13,7 @@ set -e
 ## Usage: ./publish-release.sh  0.0.0 true   --> publishes version 0.0.0 as a regular release
 
 ## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [[ $(basename $PWD) != 'terra-cli' ]]; then
+if [[ $(basename "$PWD") != 'terra-cli' ]]; then
   >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
   exit 1
 fi
@@ -48,7 +49,7 @@ fi
 
 echo "-- Checking if there is a tag that matches this version"
 releaseTag=$releaseVersion
-foundReleaseTag=$(git tag -l $releaseVersion)
+foundReleaseTag=$(git tag -l "$releaseVersion")
 if [[ -z "$foundReleaseTag" ]]; then
   >&2 echo "ERROR: No tag found matching this version"
   exit 1
@@ -62,7 +63,7 @@ echo "-- Building the Docker image"
 echo "-- Publishing the Docker image"
 dockerImageName=$(./gradlew --quiet getDockerImageName) # e.g. terra-cli
 dockerImageTag=$(./gradlew --quiet getDockerImageTag) # e.g. stable
-./tools/publish-docker.sh $dockerImageTag "$dockerImageName/$releaseVersion" forRelease
+./tools/publish-docker.sh "$dockerImageTag" "$dockerImageName/$releaseVersion" forRelease
 
 echo "-- Building the distribution archive"
 ./gradlew clean distTar -PforRelease
@@ -77,7 +78,7 @@ else
   echo "Creating pre-release"
   preReleaseFlag="--prerelease"
 fi
-gh release create $releaseTag $preReleaseFlag \
+gh release create "$releaseTag" $preReleaseFlag \
   --title "$releaseVersion" \
   "${distributionArchivePath}#Install package" \
   "tools/download-install.sh#Download & Install script"
