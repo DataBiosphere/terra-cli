@@ -9,8 +9,8 @@ import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParams;
 import bio.terra.cli.service.utils.HttpUtils;
-import bio.terra.cli.service.utils.WsmUtils;
 import bio.terra.cli.utils.HttpClients;
+import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.workspace.api.FolderApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -21,10 +21,12 @@ import bio.terra.workspace.client.ApiException;
 import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
+import bio.terra.workspace.model.ControlledResourceCommonFields;
 import bio.terra.workspace.model.CreateCloudContextRequest;
 import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceRequestBody;
+import bio.terra.workspace.model.ErrorReport;
 import bio.terra.workspace.model.Folder;
 import bio.terra.workspace.model.FolderList;
 import bio.terra.workspace.model.GitRepoAttributes;
@@ -32,7 +34,10 @@ import bio.terra.workspace.model.GitRepoResource;
 import bio.terra.workspace.model.GrantRoleRequestBody;
 import bio.terra.workspace.model.IamRole;
 import bio.terra.workspace.model.JobControl;
+import bio.terra.workspace.model.JobReport;
 import bio.terra.workspace.model.JobReport.StatusEnum;
+import bio.terra.workspace.model.ManagedBy;
+import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ReferenceResourceCommonFields;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
@@ -43,16 +48,24 @@ import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
 import bio.terra.workspace.model.WorkspaceDescriptionList;
 import bio.terra.workspace.model.WorkspaceStageModel;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.auth.oauth2.AccessToken;
 import com.google.common.collect.ImmutableList;
+import java.net.SocketException;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +182,8 @@ public class WorkspaceManagerService {
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
           HttpUtils.callWithRetries(
-              () -> workspaceApi.createWorkspace(workspaceRequestBody), WsmUtils::isRetryable);
+              () -> workspaceApi.createWorkspace(workspaceRequestBody),
+              WorkspaceManagerService::isRetryable);
 
           // create the cloud context that backs the Terra workspace object
           UUID jobId = UUID.randomUUID();
@@ -180,14 +194,14 @@ public class WorkspaceManagerService {
           // make the initial create context request
           HttpUtils.callWithRetries(
               () -> workspaceApi.createCloudContext(cloudContextRequest, workspaceId),
-              WsmUtils::isRetryable);
+              WorkspaceManagerService::isRetryable);
 
           // poll the result endpoint until the job is no longer RUNNING
           CreateCloudContextResult createContextResult =
               HttpUtils.pollWithRetries(
                   () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
-                  (result) -> WsmUtils.isDone(result.getJobReport()),
-                  WsmUtils::isRetryable,
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
                   // Context creation will wait for cloud IAM permissions to sync, so poll for up to
                   // 30 minutes.
                   /*maxCalls=*/ 30,
@@ -226,13 +240,13 @@ public class WorkspaceManagerService {
             }
           }
           // handle non-spend-profile-related failures
-          WsmUtils.throwIfJobNotCompleted(
+          throwIfJobNotCompleted(
               createContextResult.getJobReport(), createContextResult.getErrorReport());
 
           // call the get workspace endpoint to get the full description object
           return HttpUtils.callWithRetries(
               () -> workspaceApi.getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
-              WsmUtils::isRetryable);
+              WorkspaceManagerService::isRetryable);
         },
         "Error creating a new workspace");
   }
@@ -329,8 +343,7 @@ public class WorkspaceManagerService {
     callWithRetries(
         () ->
             new WorkspaceApi(apiClient)
-                .updateWorkspaceProperties(
-                    WsmUtils.buildProperties(workspaceProperties), workspaceId),
+                .updateWorkspaceProperties(buildProperties(workspaceProperties), workspaceId),
         "Error updating workspace properties");
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
@@ -391,14 +404,14 @@ public class WorkspaceManagerService {
                         workspaceApi.getCloneWorkspaceResult(
                             initialResult.getWorkspace().getDestinationWorkspaceId(),
                             initialResult.getJobReport().getId()),
-                    (result) -> WsmUtils.isDone(result.getJobReport()),
-                    WsmUtils::isRetryable,
+                    (result) -> isDone(result.getJobReport()),
+                    WorkspaceManagerService::isRetryable,
                     // Retry for 30 minutes, as this involves creating a new context
                     /*maxCalls=*/ 30,
                     /*sleepDuration=*/ Duration.ofSeconds(60)),
             "Error in cloning workspace.");
     logger.debug("clone workspace polling result: {}", cloneWorkspaceResult);
-    WsmUtils.throwIfJobNotCompleted(
+    throwIfJobNotCompleted(
         cloneWorkspaceResult.getJobReport(), cloneWorkspaceResult.getErrorReport());
     return cloneWorkspaceResult;
   }
@@ -445,7 +458,7 @@ public class WorkspaceManagerService {
       // - so try to invite the user first, then retry granting them an iam role
       callAndHandleOneTimeError(
           () -> new WorkspaceApi(apiClient).grantRole(grantRoleRequestBody, workspaceId, iamRole),
-          (ex) -> WsmUtils.isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
+          (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
           () -> SamService.fromContext().inviteUser(userEmail),
           "Error granting IAM role on workspace.");
     }
@@ -524,7 +537,7 @@ public class WorkspaceManagerService {
                                 MAX_RESOURCES_PER_ENUMERATE_REQUEST,
                                 null,
                                 null),
-                    WsmUtils::isRetryable);
+                    WorkspaceManagerService::isRetryable);
 
             // add all fetched resources to the running list
             numResultsReturned = result.getResources().size();
@@ -635,8 +648,8 @@ public class WorkspaceManagerService {
 
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
-   * WsmUtils#isRetryable} exception. If an exception is thrown by the WSM client or the retries,
-   * make sure the HTTP status code and error message are logged.
+   * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
+   * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with no return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
@@ -645,13 +658,14 @@ public class WorkspaceManagerService {
   protected void callWithRetries(
       HttpUtils.RunnableWithCheckedException<ApiException> makeRequest, String errorMsg) {
     handleClientExceptions(
-        () -> HttpUtils.callWithRetries(makeRequest, WsmUtils::isRetryable), errorMsg);
+        () -> HttpUtils.callWithRetries(makeRequest, WorkspaceManagerService::isRetryable),
+        errorMsg);
   }
 
   /**
    * Execute a function that includes hitting WSM endpoints. Retry if the function throws an {@link
-   * WsmUtils#isRetryable} exception. If an exception is thrown by the WSM client or the retries,
-   * make sure the HTTP status code and error message are logged.
+   * #isRetryable} exception. If an exception is thrown by the WSM client or the retries, make sure
+   * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
    * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
@@ -660,14 +674,15 @@ public class WorkspaceManagerService {
   protected <T> T callWithRetries(
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
     return handleClientExceptions(
-        () -> HttpUtils.callWithRetries(makeRequest, WsmUtils::isRetryable), errorMsg);
+        () -> HttpUtils.callWithRetries(makeRequest, WorkspaceManagerService::isRetryable),
+        errorMsg);
   }
 
   /**
    * Execute a function, and possibly a second function to handle a one-time error, that includes
-   * hitting WSM endpoints. Retry if the function throws an {@link WsmUtils#isRetryable} exception.
-   * If an exception is thrown by the WSM client or the retries, make sure the HTTP status code and
-   * error message are logged.
+   * hitting WSM endpoints. Retry if the function throws an {@link #isRetryable} exception. If an
+   * exception is thrown by the WSM client or the retries, make sure the HTTP status code and error
+   * message are logged.
    *
    * @param makeRequest function with no return value
    * @param isOneTimeError function to test whether the exception is the expected one-time error
@@ -684,7 +699,7 @@ public class WorkspaceManagerService {
         () ->
             HttpUtils.callAndHandleOneTimeErrorWithRetries(
                 makeRequest,
-                WsmUtils::isRetryable,
+                WorkspaceManagerService::isRetryable,
                 isOneTimeError,
                 handleOneTimeError,
                 (ex) ->
@@ -725,13 +740,146 @@ public class WorkspaceManagerService {
     } catch (ApiException | InterruptedException ex) {
       // if this is a WSM client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        String exceptionErrorMessage = WsmUtils.logErrorMessage((ApiException) ex);
-
-        errorMsg += ": " + exceptionErrorMessage;
+        errorMsg += ": " + logErrorMessage((ApiException) ex);
       }
 
       // wrap the WSM exception and re-throw it
       throw new SystemException(errorMsg, ex);
     }
+  }
+
+  /**
+   * Helper method to convert a local date (e.g. 2014-01-02) into an object that includes time and
+   * zone. The time is set to midnight, the zone to UTC.
+   *
+   * @param localDate date object with no time or zone/offset information included
+   * @return object that specifies the date, time and zone/offest
+   */
+  public static OffsetDateTime dateAtMidnightAndUTC(@Nullable LocalDate localDate) {
+    return localDate == null
+        ? null
+        : OffsetDateTime.of(localDate.atTime(LocalTime.MIDNIGHT), ZoneOffset.UTC);
+  }
+
+  /**
+   * Create a common fields WSM object from a Resource that is being used to create a controlled
+   * resource.
+   */
+  public static ControlledResourceCommonFields createCommonFields(
+      CreateResourceParams createParams) {
+    return new ControlledResourceCommonFields()
+        .name(createParams.name)
+        .description(createParams.description)
+        .cloningInstructions(createParams.cloningInstructions)
+        .accessScope(createParams.accessScope)
+        .managedBy(ManagedBy.USER);
+  }
+
+  /** Helper method that checks a JobReport's status and returns false if it's still RUNNING. */
+  public static boolean isDone(JobReport jobReport) {
+    return !jobReport.getStatus().equals(JobReport.StatusEnum.RUNNING);
+  }
+
+  /**
+   * Helper method that checks a JobReport's status and throws an exception if it's not COMPLETED.
+   *
+   * <p>- Throws a {@link SystemException} if the job FAILED.
+   *
+   * <p>- Throws a {@link UserActionableException} if the job is still RUNNING. Some actions are
+   * expected to take a long time (e.g. deleting a bucket with lots of objects), and a timeout is
+   * not necessarily a failure. The action the user can take is to wait a bit longer and then check
+   * back (e.g. by listing the buckets in the workspace) later to see if the job completed.
+   *
+   * @param jobReport WSM job report object
+   * @param errorReport WSM error report object
+   */
+  public static void throwIfJobNotCompleted(JobReport jobReport, ErrorReport errorReport) {
+    switch (jobReport.getStatus()) {
+      case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
+      case RUNNING -> throw new UserActionableException(
+          "CLI timed out waiting for the job to complete. It's still running on the server.");
+    }
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client matches the given HTTP
+   * status code.
+   *
+   * @param ex exception to test
+   * @return true if the exception status code matches
+   */
+  public static boolean isHttpStatusCode(Exception ex, int statusCode) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    int exceptionStatusCode = ((ApiException) ex).getCode();
+    return statusCode == exceptionStatusCode;
+  }
+
+  /**
+   * Utility method that checks if an exception thrown by the WSM client is retryable.
+   *
+   * @param ex exception to test
+   * @return true if the exception is retryable
+   */
+  public static boolean isRetryable(Exception ex) {
+    if (!(ex instanceof ApiException)) {
+      return false;
+    }
+    logErrorMessage((ApiException) ex);
+    int statusCode = ((ApiException) ex).getCode();
+    // if a request to WSM times out, the client will wrap a SocketException in an ApiException,
+    // set the HTTP status code to 0, and rethrows it to the caller. Unfortunately this is a
+    // different exception than the SocketTimeoutException thrown by other client libraries.
+    final int TIMEOUT_STATUS_CODE = 0;
+    boolean isWsmTimeout =
+        statusCode == TIMEOUT_STATUS_CODE && ex.getCause() instanceof SocketException;
+
+    return isWsmTimeout
+        || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
+        || statusCode == HttpStatus.SC_BAD_GATEWAY
+        || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
+        || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
+  }
+
+  /** Pull a human-readable error message from an ApiException. */
+  public static String logErrorMessage(ApiException apiEx) {
+    logger.error(
+        "WSM exception status code: {}, response body: {}, message: {}",
+        apiEx.getCode(),
+        apiEx.getResponseBody(),
+        apiEx.getMessage());
+
+    // try to deserialize the response body into an ErrorReport
+    String apiExMsg = apiEx.getResponseBody();
+    if (apiExMsg != null)
+      try {
+        ErrorReport errorReport =
+            JacksonMapper.getMapper().readValue(apiEx.getResponseBody(), ErrorReport.class);
+        apiExMsg = errorReport.getMessage();
+      } catch (JsonProcessingException jsonEx) {
+        logger.debug("Error deserializing WSM exception ErrorReport: {}", apiEx.getResponseBody());
+      }
+
+    // if we found a SAM error message, then return it
+    // otherwise return a string with the http code
+    return ((apiExMsg != null && !apiExMsg.isEmpty())
+        ? apiExMsg
+        : apiEx.getCode() + " " + apiEx.getMessage());
+  }
+
+  public static List<Property> buildProperties(@Nullable Map<String, String> propertyMap) {
+    if (propertyMap == null) {
+      return new ArrayList<>();
+    }
+    return propertyMap.entrySet().stream()
+        .map(
+            entry -> {
+              Property property = new Property();
+              property.setKey(entry.getKey());
+              property.setValue(entry.getValue());
+              return property;
+            })
+        .collect(Collectors.toList());
   }
 }
