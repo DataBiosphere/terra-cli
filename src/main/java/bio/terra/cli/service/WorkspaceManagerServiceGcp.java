@@ -19,6 +19,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParam
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.service.utils.HttpUtils;
+import bio.terra.cli.service.utils.WsmUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
@@ -73,7 +74,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for calling Workspace Manager's GCP endpoints. */
+/** Utility methods for calling Workspace Manager endpoints. */
 public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceGcp.class);
 
@@ -163,8 +164,8 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
       GcpGcsBucketLifecycleRuleCondition condition =
           new GcpGcsBucketLifecycleRuleCondition()
               .age(rule.condition.age)
-              .createdBefore(dateAtMidnightAndUTC(rule.condition.createdBefore))
-              .customTimeBefore(dateAtMidnightAndUTC(rule.condition.customTimeBefore))
+              .createdBefore(WsmUtils.dateAtMidnightAndUTC(rule.condition.createdBefore))
+              .customTimeBefore(WsmUtils.dateAtMidnightAndUTC(rule.condition.customTimeBefore))
               .daysSinceCustomTime(rule.condition.daysSinceCustomTime)
               .daysSinceNoncurrentTime(rule.condition.daysSinceNoncurrentTime)
               .live(rule.condition.isLive)
@@ -172,7 +173,8 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
                   rule.condition.matchesStorageClass.stream()
                       .map(GcsStorageClass::toWSMEnum)
                       .collect(Collectors.toList()))
-              .noncurrentTimeBefore(dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))
+              .noncurrentTimeBefore(
+                  WsmUtils.dateAtMidnightAndUTC(rule.condition.noncurrentTimeBefore))
               .numNewerVersions(rule.condition.numNewerVersions);
 
       GcpGcsBucketLifecycleRule lifecycleRuleRequestObject =
@@ -299,7 +301,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
     String jobId = UUID.randomUUID().toString();
     CreateControlledGcpAiNotebookInstanceRequestBody createRequest =
         new CreateControlledGcpAiNotebookInstanceRequestBody()
-            .common(createCommonFields(createParams.resourceFields))
+            .common(WsmUtils.createCommonFields(createParams.resourceFields))
             .aiNotebookInstance(fromCLIObject(createParams))
             .jobControl(new JobControl().id(jobId));
     logger.debug("Create controlled GCP notebook request {}", createRequest);
@@ -311,7 +313,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
           // Start the GCP notebook creation job.
           HttpUtils.callWithRetries(
               () -> controlledGcpResourceApi.createAiNotebookInstance(createRequest, workspaceId),
-              WorkspaceManagerService::isRetryable);
+              WsmUtils::isRetryable);
 
           // Poll the result endpoint until the job is no longer RUNNING.
           CreatedControlledGcpAiNotebookInstanceResult createResult =
@@ -319,13 +321,14 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
                   () ->
                       controlledGcpResourceApi.getCreateAiNotebookInstanceResult(
                           workspaceId, jobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
+                  (result) -> WsmUtils.isDone(result.getJobReport()),
+                  WsmUtils::isRetryable,
                   // Creating a GCP notebook instance should take less than ~10 minutes.
                   60,
                   Duration.ofSeconds(10));
           logger.debug("Create controlled GCP notebook result {}", createResult);
-          throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+          WsmUtils.throwIfJobNotCompleted(
+              createResult.getJobReport(), createResult.getErrorReport());
           return createResult.getAiNotebookInstance();
         },
         "Error creating controlled GCP Notebook instance in the workspace.");
@@ -348,7 +351,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateControlledGcpGcsBucketRequestBody createRequest =
         new CreateControlledGcpGcsBucketRequestBody()
-            .common(createCommonFields(createParams.resourceFields))
+            .common(WsmUtils.createCommonFields(createParams.resourceFields))
             .gcsBucket(
                 new GcpGcsBucketCreationParameters()
                     .name(createParams.bucketName)
@@ -377,7 +380,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
     // convert the CLI object to a WSM request object
     CreateControlledGcpBigQueryDatasetRequestBody createRequest =
         new CreateControlledGcpBigQueryDatasetRequestBody()
-            .common(createCommonFields(createParams.resourceFields))
+            .common(WsmUtils.createCommonFields(createParams.resourceFields))
             .dataset(
                 new GcpBigQueryDatasetCreationParameters()
                     .datasetId(createParams.datasetId)
@@ -664,7 +667,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
   public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledGcpAiNotebookInstanceRequest deleteRequest =
+    var deleteRequest =
         new DeleteControlledGcpAiNotebookInstanceRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(
@@ -674,7 +677,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
               () ->
                   controlledGcpResourceApi.deleteAiNotebookInstance(
                       deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
+              WsmUtils::isRetryable);
 
           // poll the result endpoint until the job is no longer RUNNING
           DeleteControlledGcpAiNotebookInstanceResult deleteResult =
@@ -682,11 +685,12 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
                   () ->
                       controlledGcpResourceApi.getDeleteAiNotebookInstanceResult(
                           workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable);
+                  (result) -> WsmUtils.isDone(result.getJobReport()),
+                  WsmUtils::isRetryable);
           logger.debug("delete controlled GCP notebook instance result: {}", deleteResult);
 
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          WsmUtils.throwIfJobNotCompleted(
+              deleteResult.getJobReport(), deleteResult.getErrorReport());
           return true;
         },
         "Error deleting controlled GCP Notebook instance in the workspace.");
@@ -712,19 +716,20 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
           // make the initial delete request
           HttpUtils.callWithRetries(
               () -> controlledGcpResourceApi.deleteBucket(deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
+              WsmUtils::isRetryable);
 
           // poll the result endpoint until the job is no longer RUNNING
           DeleteControlledGcpGcsBucketResult deleteResult =
               HttpUtils.pollWithRetries(
                   () -> controlledGcpResourceApi.getDeleteBucketResult(workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
+                  (result) -> WsmUtils.isDone(result.getJobReport()),
+                  WsmUtils::isRetryable,
                   /*maxCalls=*/ 12,
                   /*sleepDuration=*/ Duration.ofSeconds(5));
           logger.debug("delete controlled gcs bucket result: {}", deleteResult);
 
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          WsmUtils.throwIfJobNotCompleted(
+              deleteResult.getJobReport(), deleteResult.getErrorReport());
           return true;
         },
         "Error deleting controlled GCS bucket in the workspace.");
