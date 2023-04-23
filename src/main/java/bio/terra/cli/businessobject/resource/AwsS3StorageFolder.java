@@ -6,7 +6,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceAws;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
@@ -81,7 +81,7 @@ public class AwsS3StorageFolder extends Resource {
 
     // call WSM to create the resource
     AwsS3StorageFolderResource createdResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceAws.fromContext()
             .createControlledAwsS3StorageFolder(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created AWS S3 Storage Folder: {}", createdResource);
 
@@ -97,7 +97,7 @@ public class AwsS3StorageFolder extends Resource {
   /** Delete a AWS S3 Storage Folder controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceAws.fromContext()
         .deleteControlledAwsS3StorageFolder(Context.requireWorkspace().getUuid(), id);
   }
 
@@ -127,7 +127,7 @@ public class AwsS3StorageFolder extends Resource {
   public JSONObject getCredentials(CredentialsAccessScope scope, int duration) {
     // call WSM to get credentials
     AwsCredential awsCredential =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceAws.fromContext()
             .getAwsS3StorageFolderCredential(
                 Context.requireWorkspace().getUuid(),
                 id,
