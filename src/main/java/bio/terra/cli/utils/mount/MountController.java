@@ -11,6 +11,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
 import bio.terra.workspace.model.Folder;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -38,10 +39,15 @@ public abstract class MountController {
   private static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
   // Command to list mount entries
   private static final String LIST_MOUNT_ENTRIES_COMMAND = "mount";
-  // String to look for in mount entry to determine if it is a user fuse mount
+  // String to look for in mount entry to determine if it is a user created fuse mount
   private static final String FUSE_MOUNT_ENTRY = "fuse";
 
   protected record MountEntry(String resourceName, String mountPath, String mountDetails) {}
+
+  /** Helper method to mock WORKSPACE_DIR */
+  public static Path getWorkspaceDir() {
+    return WORKSPACE_DIR;
+  }
 
   protected abstract Pattern getMountEntryPattern();
 
@@ -85,7 +91,7 @@ public abstract class MountController {
   public void unmountResources() {
     // Parse `mount` output to get mount paths
     List<String> command = new ArrayList<>(Collections.singleton(LIST_MOUNT_ENTRIES_COMMAND));
-    LocalProcessLauncher localProcessLauncher = new LocalProcessLauncher();
+    LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
     localProcessLauncher.launchProcess(command, null, null);
 
     int exitCode = localProcessLauncher.waitForTerminate();
@@ -108,7 +114,7 @@ public abstract class MountController {
             })
         .filter(Objects::nonNull)
         .map(this::getMountEntry)
-        .filter(mountEntry -> mountEntry.mountPath.contains(WORKSPACE_DIR.toString()))
+        .filter(mountEntry -> mountEntry.mountPath.contains(getWorkspaceDir().toString()))
         .filter(mountEntry -> mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY))
         .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.resourceName));
 
@@ -121,7 +127,8 @@ public abstract class MountController {
    *
    * @return A map of resource IDs to mount paths.
    */
-  private Map<UUID, Path> getResourceMountPaths() {
+  @VisibleForTesting
+  public Map<UUID, Path> getResourceMountPaths() {
     List<Resource> resources = getMountableResources();
 
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
@@ -274,8 +281,7 @@ public abstract class MountController {
    * @param mountPoint mount point path for the resource
    * @return mount handler for the resource
    */
-  public static BaseMountHandler getMountHandler(
-      Resource r, Path mountPoint, Boolean disableCache) {
+  public BaseMountHandler getMountHandler(Resource r, Path mountPoint, Boolean disableCache) {
     return switch (r.getResourceType()) {
       case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache);
       case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache);
