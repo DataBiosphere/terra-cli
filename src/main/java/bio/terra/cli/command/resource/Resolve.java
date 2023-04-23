@@ -25,7 +25,7 @@ public class Resolve extends WsmBaseCommand {
       names = "--exclude-bucket-prefix",
       description =
           "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix, "
-              + "[For AWS_S3_TORAGE_FOLDER] Exclude the 's3://' prefix.")
+              + "[For S3_STORAGE_FOLDER] Exclude the 's3://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
@@ -52,8 +52,7 @@ public class Resolve extends WsmBaseCommand {
           case GCS_OBJECT -> ((GcsObject) resource).resolve(!excludeBucketPrefix);
           case BQ_DATASET -> ((BqDataset) resource).resolve(bqPathFormat);
           case BQ_TABLE -> ((BqTable) resource).resolve(bqPathFormat);
-          case AWS_S3_STORAGE_FOLDER -> ((AwsS3StorageFolder) resource)
-              .resolve(!excludeBucketPrefix);
+          case S3_STORAGE_FOLDER -> ((AwsS3StorageFolder) resource).resolve(!excludeBucketPrefix);
           default -> resource.resolve();
         };
     JSONObject object = new JSONObject();

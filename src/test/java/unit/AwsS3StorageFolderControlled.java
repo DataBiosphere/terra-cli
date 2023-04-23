@@ -32,14 +32,14 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create aws-s3-storage-folder --name=$storageFolderName`
+    // `terra resource create s3-storage-folder --name=$storageFolderName`
     String resourceName = UUID.randomUUID().toString();
     UFAwsS3StorageFolder createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class,
             "resource",
             "create",
-            "aws-s3-storage-folder",
+            "s3-storage-folder",
             "--name=" + resourceName);
 
     // check the created workspace has an id and aws details

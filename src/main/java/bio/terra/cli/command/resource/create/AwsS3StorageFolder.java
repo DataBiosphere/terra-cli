@@ -10,11 +10,9 @@ import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
-/**
- * This class corresponds to the fourth-level "terra resource create aws-s3-storage-folder" command.
- */
+/** This class corresponds to the fourth-level "terra resource create s3-storage-folder" command. */
 @CommandLine.Command(
-    name = "aws-s3-storage-folder",
+    name = "s3-storage-folder",
     description = "Add a controlled AWS S3 Storage Folder.",
     showDefaultValues = true)
 public class AwsS3StorageFolder extends WsmBaseCommand {

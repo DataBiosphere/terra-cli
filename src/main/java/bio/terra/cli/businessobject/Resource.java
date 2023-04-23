@@ -266,7 +266,7 @@ public abstract class Resource {
     BQ_TABLE,
     AI_NOTEBOOK,
     GIT_REPO,
-    AWS_S3_STORAGE_FOLDER
+    S3_STORAGE_FOLDER
   }
 
   public enum CredentialsAccessScope {

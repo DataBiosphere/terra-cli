@@ -56,16 +56,16 @@ public class AwsS3StorageFolderUtils {
    */
   public static List<UFAwsS3StorageFolder> listStorageFolderResourcesWithName(
       String resourceName, String workspaceUserFacingId) throws JsonProcessingException {
-    // `terra resources list --type=AWS_S3_STORAGE_FOLDER --format=json`
+    // `terra resources list --type=S3_STORAGE_FOLDER --format=json`
     List<UFAwsS3StorageFolder> listedResources =
         workspaceUserFacingId == null
             ? TestCommand.runAndParseCommandExpectSuccess(
-                new TypeReference<>() {}, "resource", "list", "--type=AWS_S3_STORAGE_FOLDER")
+                new TypeReference<>() {}, "resource", "list", "--type=S3_STORAGE_FOLDER")
             : TestCommand.runAndParseCommandExpectSuccess(
                 new TypeReference<>() {},
                 "resource",
                 "list",
-                "--type=AWS_S3_STORAGE_FOLDER",
+                "--type=S3_STORAGE_FOLDER",
                 "--workspace=" + workspaceUserFacingId);
 
     // find the matching storage folder in the list

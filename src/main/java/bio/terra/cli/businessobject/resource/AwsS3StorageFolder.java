@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AwsS3StorageFolder extends Resource {
   // prefix for AWS S3 Storage Folder to make a valid URL.
-  private static final String AWS_S3_BUCKET_URL_PREFIX = "s3://";
+  private static final String S3_BUCKET_URL_PREFIX = "s3://";
   private static final Logger logger = LoggerFactory.getLogger(AwsS3StorageFolder.class);
   private final String bucketName;
   private final String prefix;
@@ -36,7 +36,7 @@ public class AwsS3StorageFolder extends Resource {
   /** Deserialize an instance of the WSM client library object to the internal object. */
   public AwsS3StorageFolder(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.AWS_S3_STORAGE_FOLDER;
+    this.resourceType = Type.S3_STORAGE_FOLDER;
     this.bucketName = wsmObject.getResourceAttributes().getAwsS3StorageFolder().getBucketName();
     this.prefix = wsmObject.getResourceAttributes().getAwsS3StorageFolder().getPrefix();
   }
@@ -44,7 +44,7 @@ public class AwsS3StorageFolder extends Resource {
   /** Deserialize an instance of the WSM client library create object to the internal object. */
   public AwsS3StorageFolder(AwsS3StorageFolderResource wsmObject) {
     super(wsmObject.getMetadata());
-    this.resourceType = Type.AWS_S3_STORAGE_FOLDER;
+    this.resourceType = Type.S3_STORAGE_FOLDER;
     this.bucketName = wsmObject.getAttributes().getBucketName();
     this.prefix = wsmObject.getAttributes().getPrefix();
   }
@@ -121,7 +121,7 @@ public class AwsS3StorageFolder extends Resource {
   public static String resolve(
       String awsBucketName, String awsBucketPrefix, boolean includeUrlPrefix) {
     String resolvedPath = String.format("%s/%s/", awsBucketName, awsBucketPrefix);
-    return includeUrlPrefix ? AWS_S3_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
+    return includeUrlPrefix ? S3_BUCKET_URL_PREFIX + resolvedPath : resolvedPath;
   }
 
   public JSONObject getCredentials(CredentialsAccessScope scope, int duration) {
