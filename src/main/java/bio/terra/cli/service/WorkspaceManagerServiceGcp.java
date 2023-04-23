@@ -664,7 +664,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
   public void deleteControlledGcpNotebookInstance(UUID workspaceId, UUID resourceId) {
     ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
     String asyncJobId = UUID.randomUUID().toString();
-    var deleteRequest =
+    DeleteControlledGcpAiNotebookInstanceRequest deleteRequest =
         new DeleteControlledGcpAiNotebookInstanceRequest()
             .jobControl(new JobControl().id(asyncJobId));
     handleClientExceptions(

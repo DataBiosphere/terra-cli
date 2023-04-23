@@ -5,6 +5,7 @@ import bio.terra.cli.command.shared.options.ConfirmationPrompt;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFSshKeyPair;
 import bio.terra.cli.service.ExternalCredentialsManagerService;
+import bio.terra.externalcreds.model.SshKeyPair;
 import bio.terra.externalcreds.model.SshKeyPairType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -29,7 +30,7 @@ public class Generate extends BaseCommand {
             + "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account "
             + "Are you sure you want to proceed (y/N)?",
         "Generating new SSH key is aborted");
-    var sshKeyPair =
+    SshKeyPair sshKeyPair =
         ExternalCredentialsManagerService.fromContext()
             .generateSshKeyPair(SshKeyPairType.GITHUB, /*includePrivateKey=*/ saveToFile);
     if (saveToFile) {
