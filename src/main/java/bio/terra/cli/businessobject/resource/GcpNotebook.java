@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.persisted.resource.PDGcpNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.GcpAiNotebookInstanceResource;
 import bio.terra.workspace.model.ResourceDescription;
@@ -68,7 +68,7 @@ public class GcpNotebook extends Resource {
 
     // call WSM to create the resource
     GcpAiNotebookInstanceResource createdResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createControlledGcpNotebookInstance(
                 Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCP notebook: {}", createdResource);
@@ -94,7 +94,7 @@ public class GcpNotebook extends Resource {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateControlledGcpNotebook(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
@@ -107,7 +107,7 @@ public class GcpNotebook extends Resource {
   /** Delete a GCP notebook controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteControlledGcpNotebookInstance(Context.requireWorkspace().getUuid(), id);
   }
 

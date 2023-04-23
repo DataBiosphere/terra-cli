@@ -7,7 +7,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.cloudres.google.storage.StorageCow;
@@ -56,7 +56,7 @@ public class GcsBucket extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     GcpGcsBucketResource addedResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createReferencedGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", addedResource);
 
@@ -75,7 +75,7 @@ public class GcsBucket extends Resource {
 
     // call WSM to create the resource
     GcpGcsBucketResource createdResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createControlledGcsBucket(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket: {}", createdResource);
 
@@ -107,7 +107,7 @@ public class GcsBucket extends Resource {
     if (updateParams.cloningInstructions != null) {
       this.cloningInstructions = updateParams.cloningInstructions;
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateReferencedGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
@@ -117,7 +117,7 @@ public class GcsBucket extends Resource {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateControlledGcsBucket(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
@@ -125,14 +125,14 @@ public class GcsBucket extends Resource {
   /** Delete a GCS bucket referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteReferencedGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Delete a GCS bucket controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteControlledGcsBucket(Context.requireWorkspace().getUuid(), id);
   }
 
