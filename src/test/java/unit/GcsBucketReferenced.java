@@ -126,7 +126,7 @@ public class GcsBucketReferenced extends SingleWorkspaceUnitGcp {
         "describe resource output matches bucket name");
     assertEquals(
         externalSharedBucket.getLocation(),
-        describeResource.location,
+        describeResource.region,
         "describe resource location matches bucket location");
     assertEquals(0, describeResource.numObjects, "describe resource numObjects is zero");
 
