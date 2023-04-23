@@ -379,7 +379,7 @@ public class WorkspaceManagerService {
       @Nullable String name,
       @Nullable String description,
       String spendProfile) {
-    var request =
+    CloneWorkspaceRequest cloneRequest =
         new CloneWorkspaceRequest()
             .spendProfile(spendProfile)
             .userFacingId(userFacingId)
@@ -390,7 +390,8 @@ public class WorkspaceManagerService {
     WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
     CloneWorkspaceResult initialResult =
         callWithRetries(
-            () -> workspaceApi.cloneWorkspace(request, workspaceId), "Error cloning workspace");
+            () -> workspaceApi.cloneWorkspace(cloneRequest, workspaceId),
+            "Error cloning workspace");
     logger.debug("clone workspace initial result: {}", initialResult);
 
     // poll until the workspace clone completes.
