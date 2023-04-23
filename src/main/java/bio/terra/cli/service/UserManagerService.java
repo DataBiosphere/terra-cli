@@ -169,9 +169,7 @@ public class UserManagerService {
     } catch (ApiException | InterruptedException ex) {
       // if this is an User Manager client exception, check for a message in the response body
       if (ex instanceof ApiException) {
-        String exceptionErrorMessage = logErrorMessage((ApiException) ex);
-
-        errorMsg += ": " + exceptionErrorMessage;
+        errorMsg += ": " + logErrorMessage((ApiException) ex);
       }
 
       // wrap the User Manager exception and re-throw it

@@ -145,9 +145,7 @@ public class ExternalCredentialsManagerService {
     } catch (HttpStatusCodeException | InterruptedException ex) {
       // if this is an ECM client exception, check for a message in the response body
       if (ex instanceof HttpStatusCodeException) {
-        String exceptionErrorMessage = logErrorMessage((HttpStatusCodeException) ex);
-
-        errorMsg += ": " + exceptionErrorMessage;
+        errorMsg += ": " + logErrorMessage((HttpStatusCodeException) ex);
       }
 
       // wrap the ECM exception and re-throw it
