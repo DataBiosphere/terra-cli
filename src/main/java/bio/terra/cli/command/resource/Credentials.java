@@ -6,7 +6,6 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -38,9 +37,7 @@ public class Credentials extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    JSONObject object = resource.getCredentials(scope, duration);
-
-    // TODO(TERRA-363): check if format.printText is sufficient
+    Object object = resource.getCredentials(scope, duration);
     formatOption.printReturnValue(object);
   }
 }
