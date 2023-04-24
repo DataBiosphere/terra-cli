@@ -8,6 +8,8 @@ import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.FileUtils;
+import bio.terra.cli.utils.OSFamily;
 import bio.terra.cli.utils.mount.MountController;
 import bio.terra.cli.utils.mount.MountControllerFactory;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
@@ -35,19 +37,12 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 
-/**
- * Test suite for the MountHandler classes
- *
- * <p>To test Linux unmount tests, set the system os name property to "linux" in setup().
- */
-@Disabled
+/** Test suite for the MountHandler classes */
 @Tag("real-unit")
 public class MountHandlerTest {
 
@@ -125,7 +120,7 @@ public class MountHandlerTest {
                 // Create test gcs bucket and a directory to mount it to
                 Resource gcsBucket = createTestGcsBucket(bucketName);
                 Path mountPath = tempWorkspaceDir.resolve(Paths.get(bucketName));
-                MountController.createResourceDirectories(List.of(mountPath));
+                FileUtils.createDirectories(mountPath);
 
                 // setup mocks
                 LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
@@ -151,8 +146,7 @@ public class MountHandlerTest {
   }
 
   @Test
-  @EnabledOnOs(OS.LINUX)
-  @DisplayName("succesfully unmounts bucket")
+  @DisplayName("successfully unmounts bucket")
   void testUnmount() {
     // Setup mocks
     String bucketName = "bucket";
@@ -169,14 +163,17 @@ public class MountHandlerTest {
   }
 
   @Test
-  @EnabledOnOs({OS.LINUX})
   @DisplayName("unmount silently fails when bucket is not mounted")
   void testUnmountSilentlyFailed() {
-    // Setup mocks
     String bucketName = "bucket";
+    String errorString =
+        OSFamily.getOSFamily().equals(OSFamily.LINUX)
+            ? "entry for /bucket not found in /etc/mtabnot currently mounted"
+            : "umount: /bucket: not currently mounted";
+
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
     when(launcherMock.waitForTerminate()).thenReturn(1);
-    when(launcherMock.getErrorString()).thenReturn("entry for /bucket not found in /etc/mtab");
+    when(launcherMock.getErrorString()).thenReturn(errorString);
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount
@@ -187,16 +184,17 @@ public class MountHandlerTest {
   }
 
   @Test
-  @EnabledOnOs({OS.LINUX})
   @DisplayName("unmount throws UserException when bucket resource is being used by another process")
   void testUnmountFailed() {
-
-    // Setup mocks
     String bucketName = "bucket";
+    String errorString =
+        OSFamily.getOSFamily().equals(OSFamily.LINUX)
+            ? "fusermount: failed to unmount /bucket: Device or resource busy"
+            : "umount(/bucket): Resource busy -- try 'diskutil unmount'";
+
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
     when(launcherMock.waitForTerminate()).thenReturn(1);
-    when(launcherMock.getErrorString())
-        .thenReturn("fusermount: failed to unmount /bucket: Device or resource busy");
+    when(launcherMock.getErrorString()).thenReturn(errorString);
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount and catch exception

@@ -3,17 +3,15 @@ package bio.terra.cli.utils.mount;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
 import bio.terra.workspace.model.Folder;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -21,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +26,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /** This class provides utility methods for mounting and unmount workspace resources */
 public abstract class MountController {
@@ -44,11 +40,12 @@ public abstract class MountController {
 
   protected record MountEntry(String resourceName, String mountPath, String mountDetails) {}
 
-  /** Helper method to mock WORKSPACE_DIR */
+  // Helper method to stub static WORKSPACE_DIR
   public static Path getWorkspaceDir() {
     return WORKSPACE_DIR;
   }
 
+  // Implemented by subclasses per OS
   protected abstract Pattern getMountEntryPattern();
 
   // Check if the workspace directory exists
@@ -69,27 +66,31 @@ public abstract class MountController {
   /**
    * Mounts all mountable resources for a given workspace
    *
-   * @param ws workspace context
+   * @param disableCache Whether to disable caching for the mounts
    */
-  public void mountResources(Workspace ws, Boolean disableCache) {
-
-    Map<UUID, Path> resourceMountPaths = getResourceMountPaths();
+  public void mountResources(Boolean disableCache) {
     // Create root workspace directory if it does not exist
     createWorkspaceDir();
-    // Create directories for each resource mount point
-    createResourceDirectories(new ArrayList<>(resourceMountPaths.values()));
-    // Mount each resource
-    resourceMountPaths.forEach(
-        (id, mountPath) -> {
-          Resource r = ws.getResource(id);
-          BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
-          handler.mount();
-        });
+
+    // Fetch workspace resources and folders
+    List<Resource> resources = Context.requireWorkspace().listResources();
+    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
+
+    // Filter resources by mountable resources and mount them
+    resources.stream()
+        .filter(this::isMountableResource)
+        .forEach(
+            r -> {
+              Path mountPath = getResourceMountPath(r, folderPaths);
+              FileUtils.createDirectories(mountPath);
+              BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
+              handler.mount();
+            });
   }
 
   /** Unmount all mountable resources for a given workspace */
   public void unmountResources() {
-    // Parse `mount` output to get mount paths
+    // List all mounted directories
     List<String> command = new ArrayList<>(Collections.singleton(LIST_MOUNT_ENTRIES_COMMAND));
     LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
     localProcessLauncher.launchProcess(command, null, null);
@@ -101,76 +102,61 @@ public abstract class MountController {
     BufferedReader stdout =
         new BufferedReader(new InputStreamReader(localProcessLauncher.getInputStream()));
 
-    Pattern mountEntryPattern = getMountEntryPattern();
     stdout
         .lines()
-        .map(
-            line -> {
-              Matcher matcher = mountEntryPattern.matcher(line);
-              if (matcher.find()) {
-                return matcher;
-              }
-              return null;
-            })
+        .map(this::getResourceMountEntry)
         .filter(Objects::nonNull)
-        .map(this::getMountEntry)
-        .filter(mountEntry -> mountEntry.mountPath.contains(getWorkspaceDir().toString()))
-        .filter(mountEntry -> mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY))
         .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.resourceName));
 
-    deleteEmptyResourceDirectories();
+    FileUtils.deleteEmptyDirectories(WORKSPACE_DIR);
   }
 
-  /**
-   * Get the mount paths for every mountable resource in the workspace. Mount paths are relative to
-   * WORKSPACE_DIR.
-   *
-   * @return A map of resource IDs to mount paths.
-   */
+  /** Helper method to get the mount path for a given resource */
   @VisibleForTesting
-  public Map<UUID, Path> getResourceMountPaths() {
-    List<Resource> resources = getMountableResources();
-
-    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
-    Map<UUID, Path> resourceMountPaths = new HashMap<>();
-
-    for (Resource resource : resources) {
-      String parentFolderId = resource.getProperty(TERRA_FOLDER_ID_PROPERTY_KEY);
-      if (parentFolderId != null) {
-        Path mountPath =
-            WORKSPACE_DIR.resolve(
-                folderPaths.get(UUID.fromString(parentFolderId)).resolve(resource.getName()));
-        resourceMountPaths.put(resource.getId(), mountPath);
-      } else {
-        resourceMountPaths.put(resource.getId(), WORKSPACE_DIR.resolve(resource.getName()));
-      }
+  public Path getResourceMountPath(Resource r, Map<UUID, Path> folderPaths) {
+    String parentFolderId = r.getProperty(TERRA_FOLDER_ID_PROPERTY_KEY);
+    if (parentFolderId != null) {
+      return WORKSPACE_DIR.resolve(
+          folderPaths.get(UUID.fromString(parentFolderId)).resolve(r.getName()));
+    } else {
+      return WORKSPACE_DIR.resolve(r.getName());
     }
-    return resourceMountPaths;
   }
 
   /**
    * Helper method to get mountable resources in the workspace, any file containing resource or
    * reference to a file containing resource.
    */
-  private List<Resource> getMountableResources() {
-    return Context.requireWorkspace().listResources().stream()
-        .filter(
-            r -> {
-              if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
-                return true;
-              }
-              if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
-                try {
-                  return ((GcsObject) r).isDirectory();
-                } catch (SystemException e) {
-                  // Pass through GCS objects that are inaccessible to display error on mounted
-                  // folder later
-                  return true;
-                }
-              }
-              return false;
-            })
-        .toList();
+  private boolean isMountableResource(Resource r) {
+    if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
+      return true;
+    }
+    if (r.getResourceType() == Resource.Type.GCS_OBJECT) {
+      try {
+        return ((GcsObject) r).isDirectory();
+      } catch (SystemException e) {
+        // Pass through GCS objects that are inaccessible to display error on mounted
+        // folder later
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Helper method to parse a resource mount entry to be unmounted.
+   *
+   * @param mountOutputLine mount entry line from a list of mounded devices
+   * @return MountEntry object if the mount entry is a user created fuse mount, null otherwise
+   */
+  private MountEntry getResourceMountEntry(String mountOutputLine) {
+    Matcher matcher = getMountEntryPattern().matcher(mountOutputLine);
+    if (matcher.find()) {
+      MountEntry mountEntry = getMountEntry(matcher);
+      if (mountEntry.mountPath.contains(getWorkspaceDir().toString())
+          && mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY)) return mountEntry;
+    }
+    return null;
   }
 
   /**
@@ -179,7 +165,8 @@ public abstract class MountController {
    *
    * @return A map of folder IDs to folder paths.
    */
-  private Map<UUID, Path> getFolderIdToFolderPathMap() {
+  @VisibleForTesting
+  public Map<UUID, Path> getFolderIdToFolderPathMap() {
     List<Folder> folders = Context.requireWorkspace().listFolders();
     Map<UUID, Path> folderPaths = new HashMap<>();
 
@@ -209,20 +196,6 @@ public abstract class MountController {
   }
 
   /**
-   * Creates local directories for all the given resource paths.
-   *
-   * @param paths A list of resource paths to create directories for.
-   * @throws SystemException If the creation of the directories failed.
-   */
-  public static void createResourceDirectories(List<Path> paths) throws SystemException {
-    for (Path path : paths) {
-      if (!path.toFile().exists() && !path.toFile().mkdirs()) {
-        throw new SystemException("Failed to create directory: " + path);
-      }
-    }
-  }
-
-  /**
    * Parses a regex line match result into a MountEntry object.
    *
    * @param matcher Matcher object
@@ -234,44 +207,6 @@ public abstract class MountController {
     String mountPath = matcher.group(2).trim();
     String mountedDetails = matcher.group(3);
     return new MountEntry(bucketName, mountPath, mountedDetails);
-  }
-
-  /**
-   * Recursively deletes empty subdirectories in the WORKSPACE_DIR, excluding the WORKSPACE_DIR
-   * itself.
-   *
-   * <p>Throws UserActionableException if a non-empty directory is encountered. Throws
-   * SystemException if there is an error during deletion.
-   */
-  private static void deleteEmptyResourceDirectories() {
-    // Explore WORKSPACE_DIR in reverse DFS order
-    try (Stream<Path> stream = Files.walk(WORKSPACE_DIR)) {
-      stream
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .filter(File::isDirectory)
-          .filter(dir -> !dir.equals(WORKSPACE_DIR.toFile())) // exclude WORKSPACE_DIR
-          .filter(
-              dir -> {
-                if (Objects.requireNonNull(dir.listFiles()).length == 0) {
-                  return true;
-                } else {
-                  throw new UserActionableException(
-                      "Cannot delete non-empty directory: "
-                          + dir
-                          + ". Please move the files in this directory and rerun the command.");
-                }
-              })
-          .forEach(
-              dir -> {
-                if (!dir.delete()) {
-                  throw new SystemException("Failed to delete empty directory: " + dir);
-                }
-              });
-    } catch (IOException e) {
-      throw new UserActionableException(
-          "Failed to open directory: " + WORKSPACE_DIR + ". Create ", e);
-    }
   }
 
   /**

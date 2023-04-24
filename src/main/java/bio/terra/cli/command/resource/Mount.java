@@ -1,7 +1,5 @@
 package bio.terra.cli.command.resource;
 
-import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.utils.mount.MountController;
@@ -17,7 +15,6 @@ public class Mount extends BaseCommand {
 
   @CommandLine.Option(
       names = "--disable-cache",
-      required = false,
       description = "Disable cache",
       defaultValue = "false")
   private Boolean disableCache;
@@ -25,13 +22,12 @@ public class Mount extends BaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    Workspace ws = Context.requireWorkspace();
 
     MountController mountController = MountControllerFactory.getMountController();
     if (MountController.workspaceDirExists()) {
       mountController.unmountResources();
     }
-    mountController.mountResources(ws, disableCache);
+    mountController.mountResources(disableCache);
     OUT.println("Mounted workspace resources.");
   }
 }
