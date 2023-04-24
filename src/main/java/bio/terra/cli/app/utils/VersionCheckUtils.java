@@ -3,7 +3,6 @@ package bio.terra.cli.app.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.workspace.model.SystemVersion;
-import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleDescriptor.Version;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -41,8 +40,8 @@ public class VersionCheckUtils {
       return false;
     }
 
-    ModuleDescriptor.Version currentVersion = Version.parse(currentVersionString);
-    ModuleDescriptor.Version oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
+    Version currentVersion = Version.parse(currentVersionString);
+    Version oldestSupportedVersion = Version.parse(oldestSupportedVersionString);
     return currentVersion.compareTo(oldestSupportedVersion) < 0;
   }
 }

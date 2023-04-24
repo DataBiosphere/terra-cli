@@ -32,9 +32,9 @@ public class Add extends BaseCommand {
   }
 
   protected static void saveKeyFileAndSshAdd(SshKeyPair sshKeyPair) {
-    String dir = System.getProperty("user.home") + "/.ssh/";
-    String privateKeyPath = concat(dir, "terra_id_rsa");
-    String publicKeyPath = concat(dir, "terra_id_rsa.pub");
+    var dir = System.getProperty("user.home") + "/.ssh/";
+    var privateKeyPath = concat(dir, "terra_id_rsa");
+    var publicKeyPath = concat(dir, "terra_id_rsa.pub");
     try {
       writeStringToFile(new File(privateKeyPath), sshKeyPair.getPrivateKey());
       writeStringToFile(new File(publicKeyPath), sshKeyPair.getPublicKey());
