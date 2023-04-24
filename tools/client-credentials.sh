@@ -12,12 +12,6 @@ set -e
 ##         clientSecret (arg, required) client secret
 ## Usage: ./client-credentials.sh <file> <id> <secret> --> adds client_id and client_secret to file
 
-## The script assumes that it is being run from the top-level directory "terra-cli/".
-if [[ $(basename "$PWD") != 'terra-cli' ]]; then
-  >&2 echo "ERROR: Script must be run from top-level directory 'terra-cli/'"
-  exit 1
-fi
-
 secretsFile=$1
 clientId=$2
 clientSecret=$3
