@@ -51,7 +51,6 @@ public class MountControllerTest {
   }
 
   @Test
-  // @EnabledOnOs(OS.LINUX)
   @DisplayName("mountController mounts buckets on linux")
   void testMountResources() {
     MockedStatic<Context> mockStaticContext = mockStatic(Context.class);
