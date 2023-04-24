@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
@@ -80,6 +81,23 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
         AwsS3StorageFolderUtils.verifyS3Path(
             String.valueOf(resolvedExcludePrefix.get(resourceName)), resourceName, false),
         "exclude prefix resolve only includes storage folder name");
+
+    // `terra resource credentials --name=$name --scope=READ_ONLY --duration=1500 --format=json`
+    JSONObject resolvedCredentials =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource",
+            "credentials",
+            "--name=" + resourceName,
+            "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
+            "--duration=" + 1500);
+    assertNotNull(resolvedCredentials.get("Version"), "get credentials returned version");
+    assertNotNull(resolvedCredentials.get("AccessKeyId"), "get credentials returned access key id");
+    assertNotNull(
+        resolvedCredentials.get("SecretAccessKey"), "get credentials returned access key");
+    assertNotNull(
+        resolvedCredentials.get("SessionToken"), "get credentials returned session token");
+    assertNotNull(
+        resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
     // `terra resources check-access --name=$name`
     String stdErr =
