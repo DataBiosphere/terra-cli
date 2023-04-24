@@ -1,3 +1,3 @@
 rootProject.name = 'terra-cli'
 
-gradle.ext.cliVersion = '0.326.0'
+gradle.ext.cliVersion = '0.327.0'
