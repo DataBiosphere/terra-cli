@@ -105,8 +105,6 @@ public class MountControllerTest {
   @Test
   @DisplayName("mountController unmounts buckets on linux")
   void testUnmountResources() {
-    System.setProperty("os.name", "Linux");
-
     // Example output of `mount` command on ubuntu
     InputStream linuxMountOutput =
         new ByteArrayInputStream(
@@ -129,9 +127,15 @@ public class MountControllerTest {
                     + "devfs on /dev (devfs, local, nobrowse)\n"
                     + "/dev/disk3s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)\n"
                     + "srcfsd_darwin@googleosxfuse0 on /Volumes/google/src (googleosxfuse, nodev, nosuid, synchronous, mounted by rogerwangcs)\n"
-                    + "bucket-1 on /Users/me/workspace/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                    + "bucket-2 on /Users/me/workspace/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                    + "bucket-3 on /Users/me/workspace/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n")
+                    + "bucket-1 on "
+                    + tempWorkspaceDir
+                    + "/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+                    + "bucket-2 on "
+                    + tempWorkspaceDir
+                    + "/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+                    + "bucket-3 on "
+                    + tempWorkspaceDir
+                    + "/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n")
                 .getBytes());
     InputStream mountOutput =
         OSFamily.getOSFamily().equals(OSFamily.LINUX) ? linuxMountOutput : macMountOutput;
