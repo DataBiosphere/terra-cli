@@ -10,6 +10,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.AwsS3StorageFolderUtils;
+import harness.utils.TestUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -61,6 +62,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
             UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + resourceName);
 
     // check the new storage folder is returned by describe
+    TestUtils.assertResourceProperties(createdResource, describeResource, "describe");
     AwsS3StorageFolderUtils.assertAwsS3StorageFolderFields(
         createdResource, describeResource, "describe");
 
