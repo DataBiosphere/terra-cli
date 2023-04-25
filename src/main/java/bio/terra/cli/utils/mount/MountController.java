@@ -10,6 +10,7 @@ import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
 import bio.terra.workspace.model.Folder;
+import bio.terra.workspace.model.StewardshipType;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 /** This class provides utility methods for mounting and unmount workspace resources */
 public abstract class MountController {
@@ -67,9 +69,11 @@ public abstract class MountController {
    * Mounts all mountable resources for a given workspace
    *
    * @param disableCache Whether to disable caching for the mounts
+   * @param readOnly Whether to mount the resources as read only. If null, the resources will be
+   *     mounted with permissions based on if the resource was created by the user or not.
    * @return number of resources that errored during mount
    */
-  public int mountResources(boolean disableCache, boolean readOnly) {
+  public int mountResources(boolean disableCache, @Nullable Boolean readOnly) {
     // Create root workspace directory if it does not exist
     createWorkspaceDir();
 
@@ -83,13 +87,11 @@ public abstract class MountController {
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
               FileUtils.createDirectories(mountPath);
-              boolean overrideReadOnly =
-                  readOnly || r.getPrivateUserName().equals(Context.requireUser().getEmail());
-              System.out.println("@@@@@@@");
-              System.out.println(r.getPrivateUserName());
-              System.out.println(Context.requireUser().getEmail());
-              BaseMountHandler handler =
-                  getMountHandler(r, mountPath, disableCache, overrideReadOnly);
+
+              boolean mountReadOnly =
+                  Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(r));
+
+              BaseMountHandler handler = getMountHandler(r, mountPath, disableCache, mountReadOnly);
               return handler.mount();
             })
         .sum();
@@ -161,7 +163,9 @@ public abstract class MountController {
     if (matcher.find()) {
       MountEntry mountEntry = getMountEntry(matcher);
       if (mountEntry.mountPath.contains(getWorkspaceDir().toString())
-          && mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY)) return mountEntry;
+          && mountEntry.mountDetails.contains(FUSE_MOUNT_ENTRY)) {
+        return mountEntry;
+      }
     }
     return null;
   }
@@ -230,5 +234,18 @@ public abstract class MountController {
       case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache, readOnly);
       default -> throw new SystemException("Unsupported resource type: " + r.getResourceType());
     };
+  }
+
+  /**
+   * Helper method to determine if a resource a controlled GCS bucket created by the current user.
+   *
+   * @param r resource to check
+   * @return true if the resource is a controlled GCS bucket created by the current user, false
+   *     otherwise.
+   */
+  private boolean createdByUser(Resource r) {
+    return r.getResourceType().equals(Resource.Type.GCS_BUCKET)
+        && r.getStewardshipType().equals(StewardshipType.CONTROLLED)
+        && r.getCreatedBy().equals(Context.requireUser().getEmail());
   }
 }

@@ -4,6 +4,7 @@ import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.utils.mount.MountController;
 import bio.terra.cli.utils.mount.MountControllerFactory;
+import javax.annotation.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -33,11 +34,8 @@ public class Mount extends BaseCommand {
    * <p>For other resources, this flag will determine whether the mount is read-only or read-write,
    * and defaults to read-only.
    */
-  @CommandLine.Option(
-      names = "--read-only",
-      description = "Mount with only read permissions.",
-      defaultValue = "true")
-  private Boolean readOnly;
+  @CommandLine.Option(names = "--read-only", description = "Mount with only read permissions.")
+  private @Nullable Boolean readOnly;
 
   @Override
   protected void execute() {

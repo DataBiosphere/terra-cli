@@ -230,13 +230,10 @@ public abstract class Resource {
     return properties;
   }
 
-<<<<<<< HEAD
   public String getCreatedBy() {
     return createdBy;
   }
 
-=======
->>>>>>> main
   public String getProperty(String key) {
     return properties.stream()
         .filter(p -> p.getKey().equals(key))

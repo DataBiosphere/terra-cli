@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 /** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
 public class GcsFuseMountHandler extends BaseMountHandler {
 
-  private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
+  private static final List<String> FUSE_MOUNT_COMMAND = List.of("gcsfuse", "--implicit-dirs");
   private final String bucketName;
   private @Nullable String subDir;
 
@@ -32,7 +32,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
   /** Implements the mount method for a GCS bucket or prefix object. */
   public int mount() throws SystemException {
     // Build mount command
-    List<String> command = new ArrayList<>(List.of(FUSE_MOUNT_COMMAND));
+    List<String> command = new ArrayList<>(FUSE_MOUNT_COMMAND);
     if (disableCache) {
       command.addAll(List.of("--stat-cache-ttl", "0s", "--type-cache-ttl", "0s"));
     }
