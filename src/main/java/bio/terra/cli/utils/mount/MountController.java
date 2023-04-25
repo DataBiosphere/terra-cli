@@ -67,8 +67,9 @@ public abstract class MountController {
    * Mounts all mountable resources for a given workspace
    *
    * @param disableCache Whether to disable caching for the mounts
+   * @return number of resources that errored during mount
    */
-  public void mountResources(Boolean disableCache) {
+  public int mountResources(Boolean disableCache) {
     // Create root workspace directory if it does not exist
     createWorkspaceDir();
 
@@ -76,16 +77,16 @@ public abstract class MountController {
     List<Resource> resources = Context.requireWorkspace().listResources();
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
 
-    // Filter resources by mountable resources and mount them
-    resources.stream()
+    return resources.stream()
         .filter(this::isMountableResource)
-        .forEach(
+        .mapToInt(
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
               FileUtils.createDirectories(mountPath);
               BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
-              handler.mount();
-            });
+              return handler.mount();
+            })
+        .sum();
   }
 
   /** Unmount all mountable resources for a given workspace */

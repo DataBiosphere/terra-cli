@@ -6,7 +6,7 @@ import bio.terra.cli.utils.mount.MountControllerFactory;
 import picocli.CommandLine.Command;
 
 /** This class corresponds to the "terra resource unmount" command. */
-@Command(name = "unmount", description = "Unmounts workspace resources.")
+@Command(name = "unmount", description = "Unmounts all workspace bucket resources.")
 public class Unmount extends BaseCommand {
 
   @Override

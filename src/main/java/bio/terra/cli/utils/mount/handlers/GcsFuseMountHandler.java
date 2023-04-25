@@ -28,7 +28,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
   }
 
   /** Implements the mount method for a GCS bucket or prefix object. */
-  public void mount() throws SystemException {
+  public int mount() throws SystemException {
     // Build mount command
     List<String> command = new ArrayList<>(List.of(FUSE_MOUNT_COMMAND));
     if (disableCache) {
@@ -50,9 +50,11 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     if (exitCode != 0) {
       addErrorToMountPoint(errorMessage, bucketOutputName);
       logger.error(errorMessage);
-    } else {
-      logger.info("Mounted " + bucketOutputName);
+      return exitCode;
     }
+
+    logger.info("Mounted " + bucketOutputName);
+    return 0;
   }
 
   /**

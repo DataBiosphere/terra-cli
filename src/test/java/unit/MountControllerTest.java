@@ -70,8 +70,8 @@ public class MountControllerTest {
 
     BaseMountHandler mountHandler1 = mock(GcsFuseMountHandler.class);
     BaseMountHandler mountHandler2 = mock(GcsFuseMountHandler.class);
-    doNothing().when(mountHandler1).mount();
-    doNothing().when(mountHandler2).mount();
+    when(mountHandler1.mount()).thenReturn(0);
+    when(mountHandler2.mount()).thenReturn(0);
 
     MountController mountController = MountControllerFactory.getMountController();
     MountController spyMountController = spy(mountController);
@@ -103,7 +103,7 @@ public class MountControllerTest {
   }
 
   @Test
-  @DisplayName("mountController nunmounts buckets on linux")
+  @DisplayName("mountController unmounts buckets on linux")
   void testUnmountResources() {
     // Example output of `mount` command on ubuntu
     InputStream linuxMountOutput =

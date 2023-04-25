@@ -32,7 +32,7 @@ public abstract class BaseMountHandler {
   }
 
   /** Mounts the resource at the mount point. */
-  public abstract void mount() throws UserActionableException, SystemException;
+  public abstract int mount() throws UserActionableException, SystemException;
 
   /**
    * Unmounts the resource at the mount point.
@@ -121,12 +121,12 @@ public abstract class BaseMountHandler {
    */
   private void addErrorStateToMountPoint(String errorString) {
     // Add error state to mount point
-    Path newPath = mountPoint.resolveSibling(mountPoint.toAbsolutePath() + errorString);
+    Path pathWithErrorString = mountPoint.resolveSibling(mountPoint.toAbsolutePath() + errorString);
     try {
-      Files.move(mountPoint, newPath);
+      Files.move(mountPoint, pathWithErrorString);
     } catch (IOException e) {
       throw new SystemException(
-          "Failed to add error state to mounted resource at: " + mountPoint, e);
+          "Failed to set error state to mounted resource at: " + mountPoint, e);
     }
   }
 }
