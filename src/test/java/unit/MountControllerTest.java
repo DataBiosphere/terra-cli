@@ -42,24 +42,17 @@ import org.mockito.stubbing.Answer;
 @Tag("unit")
 public class MountControllerTest {
 
-  @TempDir
-  static Path tempWorkspaceDir;
+  @TempDir static Path tempWorkspaceDir;
 
-  @Mock
-  private Workspace workspace;
-  @Mock
-  private User user;
-  @Mock
-  private Resource resource1;
-  @Mock
-  private Resource resource2;
-  @Mock
-  private BaseMountHandler mountHandler1;
-  @Mock
-  private BaseMountHandler mountHandler2;
+  @Mock private Workspace workspace;
+  @Mock private User user;
+  @Mock private Resource resource1;
+  @Mock private Resource resource2;
+  @Mock private BaseMountHandler mountHandler1;
+  @Mock private BaseMountHandler mountHandler2;
 
-  static private Path mountPath1;
-  static private Path mountPath2;
+  private static Path mountPath1;
+  private static Path mountPath2;
 
   @BeforeEach
   public void setUpTest() {
@@ -88,10 +81,7 @@ public class MountControllerTest {
     when(mountHandler2.mount()).thenReturn(0);
   }
 
-
-  /**
-   * Utility method to check if a directory exists
-   */
+  /** Utility method to check if a directory exists */
   private void verifyDirectory(Path path) {
     File file = path.toFile();
     assert (file.exists() && file.isDirectory());
@@ -144,32 +134,32 @@ public class MountControllerTest {
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
       mockStaticContext.when(Context::requireUser).thenReturn(user);
 
-      // Validate that buckets created by the current user are mounted with read/write and other buckets are mounted as read.
+      // Validate that buckets created by the current user are mounted with read/write and other
+      // buckets are mounted as read.
       MountController spyMountController = getSpyMountController();
       spyMountController.mountResources(false, null);
-      verify(spyMountController).getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(),
-          eq(false));
-      verify(spyMountController).getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(),
-          eq(true));
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
 
       // Validate that readOnly flag overrides default mount permissions
 
       // read only
       spyMountController = getSpyMountController();
       spyMountController.mountResources(false, true);
-      verify(spyMountController).getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(),
-          eq(true));
-      verify(spyMountController).getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(),
-          eq(true));
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(true));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
 
       // read write
       spyMountController = getSpyMountController();
       spyMountController.mountResources(false, false);
-      verify(spyMountController).getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(),
-          eq(false));
-      verify(spyMountController).getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(),
-          eq(false));
-
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(false));
     }
   }
 
@@ -180,39 +170,39 @@ public class MountControllerTest {
     InputStream linuxMountOutput =
         new ByteArrayInputStream(
             ("mqueue on /dev/mqueue type mqueue (rw,relatime)\n"
-                + "/dev/sda15 on /boot/efi type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro)\n"
-                + "fusectl on /sys/fs/fuse/connections type fusectl (rw,relatime)\n"
-                + "bucket-1 on "
-                + tempWorkspaceDir
-                + "/bucket-1 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
-                + "bucket-2 on "
-                + tempWorkspaceDir
-                + "/bucket-2 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
-                + "bucket-3 on "
-                + tempWorkspaceDir
-                + "/bucket-3 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n")
+                    + "/dev/sda15 on /boot/efi type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro)\n"
+                    + "fusectl on /sys/fs/fuse/connections type fusectl (rw,relatime)\n"
+                    + "bucket-1 on "
+                    + tempWorkspaceDir
+                    + "/bucket-1 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
+                    + "bucket-2 on "
+                    + tempWorkspaceDir
+                    + "/bucket-2 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
+                    + "bucket-3 on "
+                    + tempWorkspaceDir
+                    + "/bucket-3 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n")
                 .getBytes());
     InputStream macMountOutput =
         new ByteArrayInputStream(
             ("/dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)\n"
-                + "devfs on /dev (devfs, local, nobrowse)\n"
-                + "/dev/disk3s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)\n"
-                + "srcfsd_darwin@googleosxfuse0 on /Volumes/google/src (googleosxfuse, nodev, nosuid, synchronous, mounted by rogerwangcs)\n"
-                + "bucket-1 on "
-                + tempWorkspaceDir
-                + "/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                + "bucket-2 on "
-                + tempWorkspaceDir
-                + "/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                + "bucket-3 on "
-                + tempWorkspaceDir
-                + "/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n")
+                    + "devfs on /dev (devfs, local, nobrowse)\n"
+                    + "/dev/disk3s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)\n"
+                    + "srcfsd_darwin@googleosxfuse0 on /Volumes/google/src (googleosxfuse, nodev, nosuid, synchronous, mounted by rogerwangcs)\n"
+                    + "bucket-1 on "
+                    + tempWorkspaceDir
+                    + "/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+                    + "bucket-2 on "
+                    + tempWorkspaceDir
+                    + "/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+                    + "bucket-3 on "
+                    + tempWorkspaceDir
+                    + "/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n")
                 .getBytes());
     InputStream mountOutput =
         OSFamily.getOSFamily().equals(OSFamily.LINUX) ? linuxMountOutput : macMountOutput;
 
     try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
-        mockStatic(LocalProcessLauncher.class);
+            mockStatic(LocalProcessLauncher.class);
         MockedStatic<MountController> mockStaticMountController =
             mockStatic(MountController.class);
         MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
