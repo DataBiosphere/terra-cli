@@ -2,7 +2,11 @@ package unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Resource;
@@ -28,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -42,27 +44,16 @@ import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 
 /** Test suite for the MountHandler classes */
-@Tag("real-unit")
+@Tag("unit")
 public class MountHandlerTest {
 
   @TempDir private static Path tempWorkspaceDir;
   @Mock private static Logger mockLogger;
-  @Mock private static MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher;
-
-  @BeforeAll
-  public static void setup() {
-    mockStaticLocalProcessLauncher = mockStatic(LocalProcessLauncher.class);
-  }
 
   @BeforeEach
   public void setupMocks() {
     mockLogger = mock(Logger.class);
     BaseMountHandler.setLogger(mockLogger);
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    mockStaticLocalProcessLauncher.close();
   }
 
   /** create a fake GcsBucket for testing mount */
@@ -116,29 +107,33 @@ public class MountHandlerTest {
           DynamicTest.dynamicTest(
               testName,
               () -> {
-                // Create test gcs bucket and a directory to mount it to
-                Resource gcsBucket = createTestGcsBucket(bucketName);
-                Path mountPath = tempWorkspaceDir.resolve(Paths.get(bucketName));
-                FileUtils.createDirectories(mountPath);
+                try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+                    mockStatic(LocalProcessLauncher.class)) {
+                  // Create test gcs bucket and a directory to mount it to
+                  Resource gcsBucket = createTestGcsBucket(bucketName);
+                  Path mountPath = tempWorkspaceDir.resolve(Paths.get(bucketName));
+                  FileUtils.createDirectories(mountPath);
 
-                // setup mocks
-                LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
-                int exitValue = errorMessage.isEmpty() ? 0 : 1;
-                when(launcherMock.waitForTerminate()).thenReturn(exitValue);
-                when(launcherMock.getErrorString()).thenReturn(errorMessage);
+                  // setup mocks
+                  LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+                  int exitValue = errorMessage.isEmpty() ? 0 : 1;
+                  when(launcherMock.waitForTerminate()).thenReturn(exitValue);
+                  when(launcherMock.getErrorString()).thenReturn(errorMessage);
 
-                mockStaticLocalProcessLauncher
-                    .when(LocalProcessLauncher::create)
-                    .thenReturn(launcherMock);
+                  mockStaticLocalProcessLauncher
+                      .when(LocalProcessLauncher::create)
+                      .thenReturn(launcherMock);
 
-                // Create a mountHandler and run mount
-                MountController mountController = MountControllerFactory.getMountController();
-                BaseMountHandler mountHandler =
-                    mountController.getMountHandler(gcsBucket, mountPath, false);
-                mountHandler.mount();
+                  // Create a mountHandler and run mount
+                  MountController mountController = MountControllerFactory.getMountController();
+                  BaseMountHandler mountHandler =
+                      mountController.getMountHandler(gcsBucket, mountPath, false);
+                  mountHandler.mount();
 
-                // Check that the mount path does not exist
-                assert Files.exists(mountPath.resolveSibling(mountPath + expectedMountPathSuffix));
+                  // Check that the mount path does not exist
+                  assert Files.exists(
+                      mountPath.resolveSibling(mountPath + expectedMountPathSuffix));
+                }
               }));
     }
     return tests;
@@ -147,76 +142,84 @@ public class MountHandlerTest {
   @Test
   @DisplayName("successfully unmounts bucket")
   void testUnmount() {
-    // Setup mocks
-    String bucketName = "bucket";
-    LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
-    when(launcherMock.waitForTerminate()).thenReturn(0);
-    when(launcherMock.getErrorString()).thenReturn("");
-    mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
+    try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+        mockStatic(LocalProcessLauncher.class)) {
+      String bucketName = "bucket";
+      LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+      when(launcherMock.waitForTerminate()).thenReturn(0);
+      when(launcherMock.getErrorString()).thenReturn("");
+      mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
-    // Run unmount
-    BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
+      // Run unmount
+      BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
 
-    // Check that we get the successful unmounted message
-    verify(mockLogger).info("Unmounted " + tempWorkspaceDir + "/" + bucketName);
+      // Check that we get the successful unmounted message
+      verify(mockLogger).info("Unmounted " + tempWorkspaceDir + "/" + bucketName);
+    }
   }
 
   @Test
   @DisplayName("unmount silently fails when bucket is not mounted")
   void testUnmountSilentlyFailed() {
-    String bucketName = "bucket";
-    String errorString =
-        OSFamily.getOSFamily().equals(OSFamily.LINUX)
-            ? "entry for /bucket not found in /etc/mtab"
-            : "umount: /bucket: not currently mounted";
+    try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+        mockStatic(LocalProcessLauncher.class)) {
+      String bucketName = "bucket";
+      String errorString =
+          OSFamily.getOSFamily().equals(OSFamily.LINUX)
+              ? "entry for /bucket not found in /etc/mtab"
+              : "umount: /bucket: not currently mounted";
 
-    LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
-    when(launcherMock.waitForTerminate()).thenReturn(1);
-    when(launcherMock.getErrorString()).thenReturn(errorString);
-    mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
+      LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+      when(launcherMock.waitForTerminate()).thenReturn(1);
+      when(launcherMock.getErrorString()).thenReturn(errorString);
+      mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
-    // Run unmount
-    BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
+      // Run unmount
+      BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
 
-    // Check that no messages are logged
-    verifyNoInteractions(mockLogger);
+      // Check that no messages are logged
+      verifyNoInteractions(mockLogger);
+    }
   }
 
   @Test
   @DisplayName("unmount throws UserException when bucket resource is being used by another process")
   void testUnmountFailed() {
-    String bucketName = "bucket";
-    String errorString =
-        OSFamily.getOSFamily().equals(OSFamily.LINUX)
-            ? "fusermount: failed to unmount "
-                + tempWorkspaceDir
-                + "/"
-                + bucketName
-                + ": Device or resource busy"
-            : "umount("
-                + tempWorkspaceDir
-                + "/"
-                + bucketName
-                + "): Resource busy -- try 'diskutil unmount'";
+    try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+        mockStatic(LocalProcessLauncher.class)) {
+      String bucketName = "bucket";
+      String errorString =
+          OSFamily.getOSFamily().equals(OSFamily.LINUX)
+              ? "fusermount: failed to unmount "
+                  + tempWorkspaceDir
+                  + "/"
+                  + bucketName
+                  + ": Device or resource busy"
+              : "umount("
+                  + tempWorkspaceDir
+                  + "/"
+                  + bucketName
+                  + "): Resource busy -- try 'diskutil unmount'";
 
-    LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
-    when(launcherMock.waitForTerminate()).thenReturn(1);
-    when(launcherMock.getErrorString()).thenReturn(errorString);
-    mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
+      LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+      when(launcherMock.waitForTerminate()).thenReturn(1);
+      when(launcherMock.getErrorString()).thenReturn(errorString);
+      mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
-    // Run unmount and catch exception
-    Exception exception =
-        assertThrows(
-            UserActionableException.class,
-            () -> BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName));
+      // Run unmount and catch exception
+      Exception exception =
+          assertThrows(
+              UserActionableException.class,
+              () -> BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName));
 
-    // Check that exception is thrown
-    assertEquals(
-        exception.getMessage(),
-        "Failed to unmount "
-            + tempWorkspaceDir
-            + "/"
-            + bucketName
-            + ". Make sure that the mount point is not being used by other processes.");
+      // Check that exception is thrown
+      assertEquals(
+          exception.getMessage(),
+          "Failed to unmount "
+              + tempWorkspaceDir
+              + "/"
+              + bucketName
+              + ". Make sure that the mount point is not being used by other processes.");
+    }
   }
 }

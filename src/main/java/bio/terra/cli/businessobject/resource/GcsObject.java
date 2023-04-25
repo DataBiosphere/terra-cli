@@ -10,10 +10,10 @@ import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.storage.BlobCow;
 import bio.terra.cloudres.google.storage.BucketCow;
-import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.cloud.storage.Storage.BlobListOption;
@@ -145,7 +145,10 @@ public class GcsObject extends Resource {
           CrlUtils.createStorageCow(Context.requireUser().getPetSACredentials()).get(bucketName);
       Iterable<BlobCow> objects =
           bucketCow
-              .list(BlobListOption.currentDirectory(), BlobListOption.prefix(objectName))
+              .list(
+                  BlobListOption.currentDirectory(),
+                  BlobListOption.prefix(objectName),
+                  BlobListOption.pageSize(2))
               .getValues();
       Stream<BlobCow> objectsStream = StreamSupport.stream(objects.spliterator(), false);
 

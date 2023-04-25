@@ -89,14 +89,6 @@ task runTestsWithTag(type: Test) {
             // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
             systemProperty('TERRA_CLI_VERSION', "${gradle.cliVersion}")
 
-        } else if (testTag.startsWith('real-unit')) {
-            testType = 'real-unit'
-
-            // Same as unit tests
-            systemProperty('TERRA_JAR_IMPLEMENTATION_VERSION',
-                    "${project.properties['dockerRepoPath']}/${project.properties['dockerImageName']}/${gradle.cliVersion}:${project.properties['dockerImageTag']}")
-            // Normally CLI version comes from jar. For unit tests, there is no jar, so pass version this way.
-            systemProperty('TERRA_CLI_VERSION', "${gradle.cliVersion}")
         } else if (testTag.startsWith('integration')) {
             testType = 'integration'
 
@@ -111,8 +103,6 @@ task runTestsWithTag(type: Test) {
             // it easier to clean up after tests (./gradlew clean) that generate files.
             mkdir "${project.buildDir}/test-working-dir/"
             systemProperty('TERRA_WORKING_DIR', "${project.buildDir}/test-working-dir/")
-        } else {
-            throw new GradleException("Unknown test tag: ${testTag}")
         }
 
         // tell junit to run tests with this tag: unit or integration

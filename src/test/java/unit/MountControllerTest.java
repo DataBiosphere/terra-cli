@@ -1,6 +1,16 @@
 package unit;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
@@ -18,31 +28,17 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 
-@Tag("real-unit")
+@Tag("unit")
 public class MountControllerTest {
 
   @TempDir static Path tempWorkspaceDir;
-  @Mock private static MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher;
-
-  @BeforeAll
-  public static void setup() {
-    mockStaticLocalProcessLauncher = mockStatic(LocalProcessLauncher.class);
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    mockStaticLocalProcessLauncher.close();
-  }
 
   /** Utility method to check if a directory exists */
   public void verifyDirectory(Path path) {
@@ -53,53 +49,52 @@ public class MountControllerTest {
   @Test
   @DisplayName("mountController mounts buckets on linux")
   void testMountResources() {
-    MockedStatic<Context> mockStaticContext = mockStatic(Context.class);
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
 
-    Path mountPath1 = tempWorkspaceDir.resolve(Path.of("bucket-1"));
-    Path mountPath2 = tempWorkspaceDir.resolve(Path.of("bucket-2"));
+      Path mountPath1 = tempWorkspaceDir.resolve(Path.of("bucket-1"));
+      Path mountPath2 = tempWorkspaceDir.resolve(Path.of("bucket-2"));
 
-    Resource resource1 = mock(Resource.class);
-    Resource resource2 = mock(Resource.class);
-    when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
-    when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
+      Resource resource1 = mock(Resource.class);
+      Resource resource2 = mock(Resource.class);
+      when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
+      when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
 
-    Workspace workspace = mock(Workspace.class);
-    when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
+      Workspace workspace = mock(Workspace.class);
+      when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
 
-    mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
 
-    BaseMountHandler mountHandler1 = mock(GcsFuseMountHandler.class);
-    BaseMountHandler mountHandler2 = mock(GcsFuseMountHandler.class);
-    when(mountHandler1.mount()).thenReturn(0);
-    when(mountHandler2.mount()).thenReturn(0);
+      BaseMountHandler mountHandler1 = mock(GcsFuseMountHandler.class);
+      BaseMountHandler mountHandler2 = mock(GcsFuseMountHandler.class);
+      when(mountHandler1.mount()).thenReturn(0);
+      when(mountHandler2.mount()).thenReturn(0);
 
-    MountController mountController = MountControllerFactory.getMountController();
-    MountController spyMountController = spy(mountController);
+      MountController mountController = MountControllerFactory.getMountController();
+      MountController spyMountController = spy(mountController);
 
-    doReturn(new HashMap<UUID, Path>()).when(spyMountController).getFolderIdToFolderPathMap();
+      doReturn(new HashMap<UUID, Path>()).when(spyMountController).getFolderIdToFolderPathMap();
 
-    doReturn(mountPath1, mountPath2)
-        .when(spyMountController)
-        .getResourceMountPath(any(Resource.class), anyMap());
+      doReturn(mountPath1, mountPath2)
+          .when(spyMountController)
+          .getResourceMountPath(any(Resource.class), anyMap());
 
-    doReturn(mountHandler1, mountHandler2)
-        .when(spyMountController)
-        .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean());
-    doReturn(mountHandler2)
-        .when(spyMountController)
-        .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean());
+      doReturn(mountHandler1, mountHandler2)
+          .when(spyMountController)
+          .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean());
+      doReturn(mountHandler2)
+          .when(spyMountController)
+          .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean());
 
-    // Call mount resources
-    spyMountController.mountResources(false);
+      // Call mount resources
+      spyMountController.mountResources(false);
 
-    // Validate that handlers are called and directories are created
-    verify(mountHandler1, times(1)).mount();
-    verify(mountHandler2, times(1)).mount();
+      // Validate that handlers are called and directories are created
+      verify(mountHandler1, times(1)).mount();
+      verify(mountHandler2, times(1)).mount();
 
-    verifyDirectory(mountPath1);
-    verifyDirectory(mountPath2);
-
-    mockStaticContext.close();
+      verifyDirectory(mountPath1);
+      verifyDirectory(mountPath2);
+    }
   }
 
   @Test
@@ -140,32 +135,34 @@ public class MountControllerTest {
     InputStream mountOutput =
         OSFamily.getOSFamily().equals(OSFamily.LINUX) ? linuxMountOutput : macMountOutput;
 
-    MockedStatic<MountController> mockStaticMountController = mockStatic(MountController.class);
-    mockStaticMountController.when(MountController::getWorkspaceDir).thenReturn(tempWorkspaceDir);
+    try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+            mockStatic(LocalProcessLauncher.class);
+        MockedStatic<MountController> mockStaticMountController =
+            mockStatic(MountController.class);
+        MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
+            mockStatic(BaseMountHandler.class)) {
+      mockStaticMountController.when(MountController::getWorkspaceDir).thenReturn(tempWorkspaceDir);
 
-    LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
-    when(launcherMock.waitForTerminate()).thenReturn(0);
-    when(launcherMock.getInputStream()).thenReturn(mountOutput);
-    mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
+      LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+      when(launcherMock.waitForTerminate()).thenReturn(0);
+      when(launcherMock.getInputStream()).thenReturn(mountOutput);
+      mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
-    MockedStatic<BaseMountHandler> mockStaticBaseMountHandler = mockStatic(BaseMountHandler.class);
-    mockStaticBaseMountHandler
-        .when(() -> BaseMountHandler.unmount(any(String.class)))
-        .then((Answer<Void>) invocation -> null);
+      mockStaticBaseMountHandler
+          .when(() -> BaseMountHandler.unmount(any(String.class)))
+          .then((Answer<Void>) invocation -> null);
 
-    // Run unmountResources
-    MountController mountController = MountControllerFactory.getMountController();
-    mountController.unmountResources();
+      // Run unmountResources
+      MountController mountController = MountControllerFactory.getMountController();
+      mountController.unmountResources();
 
-    // Verify that BaseMountHandler.unmount has been called for each bucket
-    mockStaticBaseMountHandler.verify(
-        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
-    mockStaticBaseMountHandler.verify(
-        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-2"));
-    mockStaticBaseMountHandler.verify(
-        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-3"));
-
-    mockStaticMountController.close();
-    mockStaticBaseMountHandler.close();
+      // Verify that BaseMountHandler.unmount has been called for each bucket
+      mockStaticBaseMountHandler.verify(
+          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
+      mockStaticBaseMountHandler.verify(
+          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-2"));
+      mockStaticBaseMountHandler.verify(
+          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-3"));
+    }
   }
 }
