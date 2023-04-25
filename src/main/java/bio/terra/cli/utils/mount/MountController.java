@@ -90,7 +90,6 @@ public abstract class MountController {
 
               boolean mountReadOnly =
                   Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(r));
-
               BaseMountHandler handler = getMountHandler(r, mountPath, disableCache, mountReadOnly);
               return handler.mount();
             })
