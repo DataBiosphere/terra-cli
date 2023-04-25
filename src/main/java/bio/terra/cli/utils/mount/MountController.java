@@ -69,7 +69,7 @@ public abstract class MountController {
    * @param disableCache Whether to disable caching for the mounts
    * @return number of resources that errored during mount
    */
-  public int mountResources(Boolean disableCache) {
+  public int mountResources(boolean disableCache, boolean readOnly) {
     // Create root workspace directory if it does not exist
     createWorkspaceDir();
 
@@ -83,7 +83,13 @@ public abstract class MountController {
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
               FileUtils.createDirectories(mountPath);
-              BaseMountHandler handler = getMountHandler(r, mountPath, disableCache);
+              boolean overrideReadOnly =
+                  readOnly || r.getPrivateUserName().equals(Context.requireUser().getEmail());
+              System.out.println("@@@@@@@");
+              System.out.println(r.getPrivateUserName());
+              System.out.println(Context.requireUser().getEmail());
+              BaseMountHandler handler =
+                  getMountHandler(r, mountPath, disableCache, overrideReadOnly);
               return handler.mount();
             })
         .sum();
@@ -217,10 +223,11 @@ public abstract class MountController {
    * @param mountPoint mount point path for the resource
    * @return mount handler for the resource
    */
-  public BaseMountHandler getMountHandler(Resource r, Path mountPoint, Boolean disableCache) {
+  public BaseMountHandler getMountHandler(
+      Resource r, Path mountPoint, boolean disableCache, boolean readOnly) {
     return switch (r.getResourceType()) {
-      case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache);
-      case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache);
+      case GCS_BUCKET -> new GcsFuseMountHandler((GcsBucket) r, mountPoint, disableCache, readOnly);
+      case GCS_OBJECT -> new GcsFuseMountHandler((GcsObject) r, mountPoint, disableCache, readOnly);
       default -> throw new SystemException("Unsupported resource type: " + r.getResourceType());
     };
   }

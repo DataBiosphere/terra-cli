@@ -80,13 +80,13 @@ public class MountControllerTest {
 
       doReturn(mountHandler1, mountHandler2)
           .when(spyMountController)
-          .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean());
+          .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean(), anyBoolean());
       doReturn(mountHandler2)
           .when(spyMountController)
-          .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean());
+          .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean(), anyBoolean());
 
       // Call mount resources
-      spyMountController.mountResources(false);
+      spyMountController.mountResources(false, true);
 
       // Validate that handlers are called and directories are created
       verify(mountHandler1, times(1)).mount();

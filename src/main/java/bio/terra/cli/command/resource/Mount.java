@@ -26,6 +26,19 @@ public class Mount extends BaseCommand {
       defaultValue = "false")
   private Boolean disableCache;
 
+  /**
+   * For controlled resources created by the calling user, the mount is always read-write regardless
+   * of the value of this flag.
+   *
+   * <p>For other resources, this flag will determine whether the mount is read-only or read-write,
+   * and defaults to read-only.
+   */
+  @CommandLine.Option(
+      names = "--read-only",
+      description = "Mount with only read permissions.",
+      defaultValue = "true")
+  private Boolean readOnly;
+
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -34,7 +47,7 @@ public class Mount extends BaseCommand {
     if (MountController.workspaceDirExists()) {
       mountController.unmountResources();
     }
-    int errors = mountController.mountResources(disableCache);
+    int errors = mountController.mountResources(disableCache, readOnly);
     if (errors != 0) {
       OUT.println("One or more resources failed to unmount.");
     } else {

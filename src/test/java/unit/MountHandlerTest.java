@@ -127,7 +127,7 @@ public class MountHandlerTest {
                   // Create a mountHandler and run mount
                   MountController mountController = MountControllerFactory.getMountController();
                   BaseMountHandler mountHandler =
-                      mountController.getMountHandler(gcsBucket, mountPath, false);
+                      mountController.getMountHandler(gcsBucket, mountPath, false, false);
                   mountHandler.mount();
 
                   // Check that the mount path does not exist

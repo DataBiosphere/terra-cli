@@ -16,13 +16,15 @@ public class GcsFuseMountHandler extends BaseMountHandler {
   private final String bucketName;
   private @Nullable String subDir;
 
-  public GcsFuseMountHandler(GcsBucket gcsBucket, Path mountPoint, Boolean disableCache) {
-    super(mountPoint, disableCache);
+  public GcsFuseMountHandler(
+      GcsBucket gcsBucket, Path mountPoint, boolean disableCache, boolean readOnly) {
+    super(mountPoint, disableCache, readOnly);
     this.bucketName = gcsBucket.getBucketName();
   }
 
-  public GcsFuseMountHandler(GcsObject gcsObject, Path mountPoint, Boolean disableCache) {
-    super(mountPoint, disableCache);
+  public GcsFuseMountHandler(
+      GcsObject gcsObject, Path mountPoint, boolean disableCache, boolean readOnly) {
+    super(mountPoint, disableCache, readOnly);
     this.bucketName = gcsObject.getBucketName();
     this.subDir = gcsObject.getObjectName();
   }
@@ -36,6 +38,9 @@ public class GcsFuseMountHandler extends BaseMountHandler {
     }
     if (subDir != null) {
       command.addAll(List.of("--only-dir", subDir));
+    }
+    if (readOnly) {
+      command.addAll(List.of("-o", "ro"));
     }
     command.addAll(List.of(bucketName, mountPoint.toString()));
 
