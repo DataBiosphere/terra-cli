@@ -155,10 +155,10 @@ public class MountHandlerTest {
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount
-    BaseMountHandler.unmount(bucketName);
+    BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
 
     // Check that we get the successful unmounted message
-    verify(mockLogger).info("Unmounted " + bucketName);
+    verify(mockLogger).info("Unmounted " + tempWorkspaceDir + "/" + bucketName);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class MountHandlerTest {
     String bucketName = "bucket";
     String errorString =
         OSFamily.getOSFamily().equals(OSFamily.LINUX)
-            ? "entry for /bucket not found in /etc/mtabnot currently mounted"
+            ? "entry for /bucket not found in /etc/mtab"
             : "umount: /bucket: not currently mounted";
 
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
@@ -176,7 +176,7 @@ public class MountHandlerTest {
     mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
     // Run unmount
-    BaseMountHandler.unmount(bucketName);
+    BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
 
     // Check that no messages are logged
     verifyNoInteractions(mockLogger);
@@ -188,8 +188,16 @@ public class MountHandlerTest {
     String bucketName = "bucket";
     String errorString =
         OSFamily.getOSFamily().equals(OSFamily.LINUX)
-            ? "fusermount: failed to unmount /bucket: Device or resource busy"
-            : "umount(/bucket): Resource busy -- try 'diskutil unmount'";
+            ? "fusermount: failed to unmount "
+                + tempWorkspaceDir
+                + "/"
+                + bucketName
+                + ": Device or resource busy"
+            : "umount("
+                + tempWorkspaceDir
+                + "/"
+                + bucketName
+                + "): Resource busy -- try 'diskutil unmount'";
 
     LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
     when(launcherMock.waitForTerminate()).thenReturn(1);
@@ -198,12 +206,16 @@ public class MountHandlerTest {
 
     // Run unmount and catch exception
     Exception exception =
-        assertThrows(UserActionableException.class, () -> BaseMountHandler.unmount(bucketName));
+        assertThrows(
+            UserActionableException.class,
+            () -> BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName));
 
     // Check that exception is thrown
     assertEquals(
         exception.getMessage(),
         "Failed to unmount "
+            + tempWorkspaceDir
+            + "/"
             + bucketName
             + ". Make sure that the mount point is not being used by other processes.");
   }

@@ -103,7 +103,7 @@ public class MountControllerTest {
   }
 
   @Test
-  @DisplayName("mountController unmounts buckets on linux")
+  @DisplayName("mountController nunmounts buckets on linux")
   void testUnmountResources() {
     // Example output of `mount` command on ubuntu
     InputStream linuxMountOutput =
@@ -158,9 +158,12 @@ public class MountControllerTest {
     mountController.unmountResources();
 
     // Verify that BaseMountHandler.unmount has been called for each bucket
-    mockStaticBaseMountHandler.verify(() -> BaseMountHandler.unmount("bucket-1"));
-    mockStaticBaseMountHandler.verify(() -> BaseMountHandler.unmount("bucket-2"));
-    mockStaticBaseMountHandler.verify(() -> BaseMountHandler.unmount("bucket-3"));
+    mockStaticBaseMountHandler.verify(
+        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
+    mockStaticBaseMountHandler.verify(
+        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-2"));
+    mockStaticBaseMountHandler.verify(
+        () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-3"));
 
     mockStaticMountController.close();
     mockStaticBaseMountHandler.close();

@@ -106,7 +106,7 @@ public abstract class MountController {
         .lines()
         .map(this::getResourceMountEntry)
         .filter(Objects::nonNull)
-        .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.resourceName));
+        .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
 
     FileUtils.deleteEmptyDirectories(getWorkspaceDir());
   }

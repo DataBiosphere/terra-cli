@@ -7,7 +7,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +37,15 @@ public abstract class BaseMountHandler {
   /**
    * Unmounts the resource at the mount point.
    *
-   * @param resourceName the name of the bucket to unmount.
+   * @param mountPath the path of the bucket.
    * @throws UserActionableException if the mount entry is being used by another process.
    * @throws SystemException if the unmount fails because there is no existing mount entry or any
    *     other error.
    */
-  public static void unmount(String resourceName) throws UserActionableException, SystemException {
+  public static void unmount(String mountPath) throws UserActionableException, SystemException {
     // Build unmount command
-    List<String> command = Arrays.asList(getUnmountCommand(), resourceName);
+    List<String> command = new java.util.ArrayList<>(getUnmountCommand());
+    command.add(mountPath);
 
     // Run unmount command
     LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
@@ -60,27 +60,27 @@ public abstract class BaseMountHandler {
         logger.error(errorMessage);
         throw new UserActionableException(
             "Failed to unmount "
-                + resourceName
+                + mountPath
                 + ". Make sure that the mount point is not being used by other processes.");
       }
     } else {
-      logger.info("Unmounted " + resourceName);
+      logger.info("Unmounted " + mountPath);
     }
   }
 
   /**
    * Returns the appropriate unmount command based on the current operating system.
    *
-   * @return The unmount command as a String.
+   * @return The base unmount command.
    * @throws UserActionableException if the current operating system is not supported for unmounting
    *     GCS bucket.
    */
-  private static String getUnmountCommand() {
+  private static List<String> getUnmountCommand() {
     String os = System.getProperty("os.name").toLowerCase();
     if (os.contains("mac")) {
-      return "umount";
+      return List.of("umount");
     } else if (os.contains("linux")) {
-      return "fusermount -u";
+      return List.of("fusermount", "-u");
     }
     throw new UserActionableException("Unsupported OS for unmounting GCS bucket: " + os);
   }
