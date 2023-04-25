@@ -13,6 +13,7 @@ import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
 import bio.terra.cli.service.UserManagerService;
 import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
 import harness.TestUser;
@@ -32,7 +33,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace create uses spend profile stored in user manager")
   void create_spendProfileFromUserManager() throws IOException, InterruptedException {
-    var altSpendProfile = "wm-alt-spend-profile";
+    String altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -45,7 +46,7 @@ public class Workspace extends ClearContextUnit {
     // Create the workspace using the spend profile
     WorkspaceUtils.createWorkspace(spendProfileOwner, Optional.empty());
 
-    var workspaceDescription =
+    WorkspaceDescription workspaceDescription =
         WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
 
@@ -57,7 +58,7 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace duplicate uses spend profile stored in user manager")
   void duplicate_spendProfileFromUserManager() throws IOException, InterruptedException {
-    var altSpendProfile = "wm-alt-spend-profile";
+    String altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -75,7 +76,7 @@ public class Workspace extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess(
         "workspace", "duplicate", "--new-id=" + createdWorkspace.id + "-duplicate");
 
-    var workspaceDescription =
+    WorkspaceDescription workspaceDescription =
         WorkspaceManagerService.fromContext()
             .getWorkspaceByUserFacingId(createdWorkspace.id + "-duplicate");
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());

@@ -26,7 +26,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   @Test
   void getSshKey() throws IOException {
     testUser.login();
-    var sshKeyPair =
+    UFSshKeyPair sshKeyPair =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
@@ -34,7 +34,7 @@ public class SshKeyPair extends SingleWorkspaceUnit {
     assertNotNull(sshKeyPair.publicSshKey);
     assertEquals(testUser.email.toLowerCase(), sshKeyPair.userEmail.toLowerCase());
 
-    var sshKeyPair2 =
+    UFSshKeyPair sshKeyPair2 =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "get", "--include-private-key");
 
@@ -56,11 +56,11 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   @Test
   void generateSshKey() throws IOException {
     testUser.login();
-    var sshkey =
+    UFSshKeyPair sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
-    var sshkey2 =
+    UFSshKeyPair sshkey2 =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
 
@@ -82,13 +82,13 @@ public class SshKeyPair extends SingleWorkspaceUnit {
   @Test
   void switchUser() throws IOException {
     testUser.login();
-    var sshkey =
+    UFSshKeyPair sshkey =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
     assertEquals(testUser.email.toLowerCase(), sshkey.userEmail.toLowerCase());
 
     testUser2.login();
-    var sshkey2 =
+    UFSshKeyPair sshkey2 =
         TestCommand.runAndParseCommandExpectSuccess(
             UFSshKeyPair.class, "user", "ssh-key", "generate", "--quiet");
     assertEquals(testUser2.email.toLowerCase(), sshkey2.userEmail.toLowerCase());

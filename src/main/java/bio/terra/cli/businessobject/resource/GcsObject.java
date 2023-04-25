@@ -9,7 +9,7 @@ import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class GcsObject extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     GcpGcsObjectResource addedResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createReferencedGcsObject(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created GCS bucket object: {}", addedResource);
 
@@ -83,7 +83,7 @@ public class GcsObject extends Resource {
     if (resourceParams.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateReferencedGcsObject(Context.requireWorkspace().getUuid(), id, updateParams);
     if (updateParams.bucketName != null) {
       this.bucketName = updateParams.bucketName;
@@ -100,7 +100,7 @@ public class GcsObject extends Resource {
   /** Delete a GCS bucket object referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteReferencedGcsObject(Context.requireWorkspace().getUuid(), id);
   }
 

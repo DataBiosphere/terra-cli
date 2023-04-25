@@ -316,7 +316,7 @@ public class GcsBucketLifecycle extends SingleWorkspaceUnitGcp {
     expectActionSetStorageClass(lifecycleRulesFromGCS.get(0), StorageClass.ARCHIVE);
     assertEquals(
         124, lifecycleRulesFromGCS.get(0).getCondition().getAge(), "condition age matches");
-    var describedBucket =
+    UFGcsBucket describedBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class, "resource", "describe", "--name=" + resourceName);
     assertEquals(
