@@ -18,6 +18,7 @@ import bio.terra.workspace.model.ControlledResourceMetadata;
 import bio.terra.workspace.model.ManagedBy;
 import bio.terra.workspace.model.PrivateResourceUser;
 import bio.terra.workspace.model.Properties;
+import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
@@ -223,6 +224,14 @@ public abstract class Resource {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public String getProperty(String key) {
+    return properties.stream()
+        .filter(p -> p.getKey().equals(key))
+        .findFirst()
+        .map(Property::getValue)
+        .orElse(null);
   }
 
   /**

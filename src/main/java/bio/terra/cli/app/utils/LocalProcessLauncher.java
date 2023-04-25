@@ -11,12 +11,22 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** This class provides utility methods for launching local child processes. */
 public class LocalProcessLauncher {
+
   private Process process;
 
   public LocalProcessLauncher() {}
+
+  /**
+   * Utility function to instantiate a new {@link LocalProcessLauncher}. Use instead of constructor
+   * so that we can mock LocalProcessLauncher in tests.
+   */
+  public static LocalProcessLauncher create() {
+    return new LocalProcessLauncher();
+  }
 
   /**
    * Helper method to stream the child process' output to the CLI console.
@@ -95,5 +105,17 @@ public class LocalProcessLauncher {
     } catch (InterruptedException intEx) {
       throw new SystemException("Error waiting for child process to terminate", intEx);
     }
+  }
+
+  /** Get stdout input stream from the child process. */
+  public InputStream getInputStream() {
+    return process.getInputStream();
+  }
+
+  /** Get the error string from the child process. */
+  public String getErrorString() {
+    return new BufferedReader(new InputStreamReader(process.getErrorStream()))
+        .lines()
+        .collect(Collectors.joining(""));
   }
 }

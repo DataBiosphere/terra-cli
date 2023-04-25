@@ -1,5 +1,6 @@
 package bio.terra.cli.utils;
 
+import bio.terra.cli.exception.SystemException;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
@@ -8,11 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating files on disk. */
 public class FileUtils {
+
   private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
   /**
@@ -62,5 +66,66 @@ public class FileUtils {
     createFile(outputFile);
 
     return Files.writeString(outputFile.toPath(), fileContents == null ? "" : fileContents);
+  }
+
+  /**
+   * Walks a file tree from the bottom up, excluding the root. This means that all children of a
+   * directory are walked before their parent.
+   *
+   * <p>Outline of algorithm:
+   *
+   * <p>- Walk the file tree and build a list of child paths
+   *
+   * <p>- Sort the list from longest paths to shortest
+   *
+   * <p>- Process the paths in this order, skipping the root path
+   *
+   * <p>This is useful for deleting a directory tree. Java's {@link File#delete()} only works on
+   * files or empty directories. In this method, since longer paths come first, all children of a
+   * directory will be processed before we get to the parent directory.
+   *
+   * @param root starting node
+   * @param processChildPath lambda to process each node
+   * @param skipRoot true to skip the root node and only process child nodes
+   * @throws IOException IO Exception
+   */
+  public static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
+      throws IOException {
+    Files.walk(root)
+        .sorted(Comparator.reverseOrder())
+        .forEach(
+            childPath -> {
+              // only process children of the root, not the root itself
+              if (!skipRoot || !childPath.equals(root)) {
+                processChildPath.accept(childPath);
+              }
+            });
+  }
+
+  /**
+   * Creates directories for a path if it does not exist.
+   *
+   * @param path The path to create directories for.
+   * @throws SystemException If the creation of the directories failed.
+   */
+  public static void createDirectories(Path path) throws SystemException {
+    if (!path.toFile().exists() && !path.toFile().mkdirs()) {
+      throw new SystemException("Failed to create directory: " + path);
+    }
+  }
+
+  /**
+   * Recursively deletes empty subdirectories in the given root directory, excluding the root
+   * itself.
+   *
+   * @param root the root directory to delete empty subdirectories from.
+   * @throws SystemException if an error occurs while deleting the empty directories.
+   */
+  public static void deleteEmptyDirectories(Path root) {
+    try {
+      FileUtils.walkUpFileTree(root, childPath -> childPath.toFile().delete(), false);
+    } catch (IOException ex) {
+      throw new SystemException("Error deleting empty directories", ex);
+    }
   }
 }

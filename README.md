@@ -576,8 +576,10 @@ Commands:
   delete                     Delete a resource from the workspace.
   describe                   Describe a resource.
   list                       List all resources.
-  list-tree                  List all resources in tree view.
+  list-tree                  List all resources and folders in tree view.
+  mount                      Mounts all workspace bucket resources.
   resolve                    Resolve a resource to its cloud id or path.
+  unmount                    Unmounts all workspace bucket resources.
   update                     Update the properties of a resource.
 ```
 
@@ -726,6 +728,18 @@ Bq dataset `bar` in the same project, one can use
 the reference. However, one is not allowed to update the reference to a
 different type (e.g. update a dataset reference to a data table reference is not
 allowed).
+
+##### Mounting workspace Resources
+
+Users can mount GCS buckets and referenced folder objects locally to the user's
+home directory in `$HOME/workspace/` by running `terra resource mount`.
+Optionally, users can specify the `--disable-cache` flag. This will disable file
+metadata caching and file type caching for objects in the mounted buckets. List
+operations such as `ls` will be slower, but will reflect the most up-to-date
+state of the bucket. This is useful when working with collaborators in a shared
+workspace. See more details in
+the [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#caching)
+repository.
 
 #### Server
 
