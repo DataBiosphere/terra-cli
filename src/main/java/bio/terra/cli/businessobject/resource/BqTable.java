@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.persisted.resource.PDBqTable;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqTableParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.workspace.model.GcpBigQueryDataTableResource;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class BqTable extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDataTableResource addedResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ data table: {}", addedResource);
 
@@ -97,7 +97,7 @@ public class BqTable extends Resource {
     if (updateParams.cloningInstructions != null) {
       this.cloningInstructions = updateParams.cloningInstructions;
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
@@ -105,7 +105,7 @@ public class BqTable extends Resource {
   /** Delete a BigQuery data table referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteReferencedBigQueryDataTable(Context.requireWorkspace().getUuid(), id);
   }
 

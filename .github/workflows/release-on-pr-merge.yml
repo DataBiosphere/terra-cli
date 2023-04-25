@@ -16,27 +16,30 @@ jobs:
       with:
         token: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         ref: main
-    # publish-release runs Java code so ensure we're using 17 instead of 11    
+
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: 17
+
     - name: Bump tag and build version
       id: bump_tag
-      uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
       env:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
         DEFAULT_BUMP: minor
         RELEASE_BRANCHES: main
         VERSION_FILE_PATH: settings.gradle
-        VERSION_LINE_MATCH: "^gradle.ext.cliVersion\\s*=\\s*\".*\""
+        VERSION_LINE_MATCH: "^\\s*gradle.ext.cliVersion\\s*=\\s*'.*'"
+
     - name: Updating code to get the version bump changes
       id: update_code_post_version_bump
       run: |
         git pull
       env:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+
     - name: Render config
       id: render_config
       run: |
@@ -55,6 +58,12 @@ jobs:
         DEV_CI_SA_KEY: ${{ secrets.DEV_CI_SA_KEY }}
         EXT_PROJECT_SA_KEY: ${{ secrets.EXT_PROJECT_SA_KEY }}
         JANITOR_CLIENT_SA_KEY: ${{ secrets.JANITOR_CLIENT_SA_KEY }}
+
+    - name: Update client credentials
+      run: |
+        ./tools/client-credentials.sh "src/main/resources/broad_secret.json" ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
+        ./tools/client-credentials.sh "src/main/resources/verily_secret.json" ${{ secrets.VERILY_CLIENT_ID }} ${{ secrets.VERILY_CLIENT_SECRET }}
+
     - name: Publish a release
       id: publish_release
       run: |

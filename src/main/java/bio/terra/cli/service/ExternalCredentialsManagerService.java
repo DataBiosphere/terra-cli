@@ -61,7 +61,7 @@ public class ExternalCredentialsManagerService {
       return false;
     }
     logErrorMessage((HttpStatusCodeException) ex);
-    var statusCode = ((HttpStatusCodeException) ex).getStatusCode();
+    HttpStatus statusCode = ((HttpStatusCodeException) ex).getStatusCode();
     return statusCode == HttpStatus.INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.BAD_GATEWAY
         || statusCode == HttpStatus.SERVICE_UNAVAILABLE
@@ -77,7 +77,7 @@ public class ExternalCredentialsManagerService {
         ex.getMessage());
 
     // try to deserialize the response body into an ErrorReport
-    var responseBody = ex.getResponseBodyAsString();
+    String responseBody = ex.getResponseBodyAsString();
 
     // if we found a ECM error message, then return it
     // otherwise return a string with the http code
@@ -145,9 +145,7 @@ public class ExternalCredentialsManagerService {
     } catch (HttpStatusCodeException | InterruptedException ex) {
       // if this is an ECM client exception, check for a message in the response body
       if (ex instanceof HttpStatusCodeException) {
-        String exceptionErrorMessage = logErrorMessage((HttpStatusCodeException) ex);
-
-        errorMsg += ": " + exceptionErrorMessage;
+        errorMsg += ": " + logErrorMessage((HttpStatusCodeException) ex);
       }
 
       // wrap the ECM exception and re-throw it

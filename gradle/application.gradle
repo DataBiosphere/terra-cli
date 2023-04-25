@@ -16,7 +16,7 @@ application {
 // plugin: distribution
 distributions {
     main {
-        distributionBaseName = 'terra-cli'
+        distributionBaseName = "${rootProject.name}"
         // configure what to include in the release archive
         contents {
             from 'tools/install.sh'

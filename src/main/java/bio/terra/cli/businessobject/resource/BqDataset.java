@@ -7,7 +7,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
-import bio.terra.cli.service.WorkspaceManagerService;
+import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
@@ -66,7 +66,7 @@ public class BqDataset extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     GcpBigQueryDatasetResource addedResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", addedResource);
 
@@ -85,7 +85,7 @@ public class BqDataset extends Resource {
 
     // call WSM to create the resource
     GcpBigQueryDatasetResource createdResource =
-        WorkspaceManagerService.fromContext()
+        WorkspaceManagerServiceGcp.fromContext()
             .createControlledBigQueryDataset(Context.requireWorkspace().getUuid(), createParams);
     logger.info("Created BQ dataset: {}", createdResource);
 
@@ -120,7 +120,7 @@ public class BqDataset extends Resource {
     if (updateParams.cloningInstructions != null) {
       this.cloningInstructions = updateParams.cloningInstructions;
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceParams);
   }
@@ -130,7 +130,7 @@ public class BqDataset extends Resource {
     if (updateParams.resourceFields.name != null) {
       validateResourceName(updateParams.resourceFields.name);
     }
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .updateControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id, updateParams);
     super.updatePropertiesAndSync(updateParams.resourceFields);
   }
@@ -138,14 +138,14 @@ public class BqDataset extends Resource {
   /** Delete a BigQuery dataset referenced resource in the workspace. */
   protected void deleteReferenced() {
     // call WSM to delete the reference
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteReferencedBigQueryDataset(Context.requireWorkspace().getUuid(), id);
   }
 
   /** Delete a BigQuery dataset controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
-    WorkspaceManagerService.fromContext()
+    WorkspaceManagerServiceGcp.fromContext()
         .deleteControlledBigQueryDataset(Context.requireWorkspace().getUuid(), id);
   }
 
