@@ -73,7 +73,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for calling Workspace Manager endpoints. */
+/** Utility methods for calling Workspace Manager's GCP endpoints. */
 public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceGcp.class);
 

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-// TODO(TERRA-528) remove all PR-Resources
+// TODO(TERRA-528) remove all PD-Resources
 
 /**
  * External representation of a workspace AWS S3 Storage Folder resource for writing to disk.
