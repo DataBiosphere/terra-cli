@@ -33,6 +33,10 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
 
   @AfterAll
   protected void cleanupOnce() throws Exception {
+    if (userFacingId == null) { // nothing to clean up
+      return;
+    }
+
     TestContext.clearGlobalContextDir();
     resetContext();
 

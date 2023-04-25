@@ -48,7 +48,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
     assertNotNull(createdResource.prefix, "create resource returned a aws prefix");
     assertEquals(resourceName, createdResource.name, "create resource resource name matches name");
-    assertEquals(createdResource.numObjects, 0, "create resource contains no objects");
+    assertEquals(0, createdResource.numObjects, "create resource contains no objects");
 
     // check that the storage folder is in the list
     UFAwsS3StorageFolder matchedResource =
