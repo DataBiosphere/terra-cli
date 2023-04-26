@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resource;
 
+import bio.terra.cli.command.resource.create.AwsS3StorageFolder;
 import bio.terra.cli.command.resource.create.BqDataset;
 import bio.terra.cli.command.resource.create.GcpNotebook;
 import bio.terra.cli.command.resource.create.GcsBucket;
@@ -14,5 +15,5 @@ import picocli.CommandLine;
     name = "create",
     aliases = {"create-controlled"},
     description = "Add a new controlled resource.",
-    subcommands = {GcpNotebook.class, BqDataset.class, GcsBucket.class})
+    subcommands = {GcsBucket.class, GcpNotebook.class, BqDataset.class, AwsS3StorageFolder.class})
 public class Create {}

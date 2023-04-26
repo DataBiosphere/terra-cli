@@ -53,8 +53,7 @@ public class GitRepo extends Resource {
         WorkspaceManagerService.fromContext()
             .createReferencedGitRepo(Context.requireWorkspace().getUuid(), addGitRepoParams);
     logger.info("Created Git repo reference: {}", addedResource);
-    // convert the WSM object to a CLI object
-    Context.requireWorkspace().listResources();
+
     return new GitRepo(addedResource);
   }
 

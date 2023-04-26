@@ -1,5 +1,6 @@
 package bio.terra.cli.businessobject;
 
+import bio.terra.cli.businessobject.resource.AwsS3StorageFolder;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
@@ -47,6 +48,7 @@ public abstract class Resource {
   // controlled resources
   protected AccessScope accessScope;
   protected ManagedBy managedBy;
+  protected String region;
 
   // private controlled resources
   protected String privateUserName;
@@ -64,6 +66,7 @@ public abstract class Resource {
     this.cloningInstructions = configFromDisk.cloningInstructions;
     this.accessScope = configFromDisk.accessScope;
     this.managedBy = configFromDisk.managedBy;
+    this.region = configFromDisk.region;
     this.privateUserName = configFromDisk.privateUserName;
     this.privateUserRole = configFromDisk.privateUserRole;
     this.properties = configFromDisk.properties;
@@ -81,6 +84,7 @@ public abstract class Resource {
       ControlledResourceMetadata controlledMetadata = metadata.getControlledResourceMetadata();
       this.accessScope = controlledMetadata.getAccessScope();
       this.managedBy = controlledMetadata.getManagedBy();
+      this.region = controlledMetadata.getRegion();
 
       PrivateResourceUser privateMetadata = controlledMetadata.getPrivateResourceUser();
       if (accessScope.equals(AccessScope.PRIVATE_ACCESS)) {
@@ -106,6 +110,7 @@ public abstract class Resource {
       case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
+      case AWS_S3_STORAGE_FOLDER -> new AwsS3StorageFolder(wsmObject);
         // Omit other resource types are not supported by the CLI.
       default -> null;
     };
@@ -129,7 +134,6 @@ public abstract class Resource {
   protected void updatePropertiesAndSync(UpdateResourceParams updateParams) {
     this.name = updateParams.name == null ? name : updateParams.name;
     this.description = updateParams.description == null ? description : updateParams.description;
-    Context.requireWorkspace().listResources();
   }
 
   /** Delete an existing resource in the workspace. */
@@ -139,7 +143,6 @@ public abstract class Resource {
       case CONTROLLED -> deleteControlled();
       default -> throw new IllegalArgumentException("Unknown stewardship type: " + stewardshipType);
     }
-    Context.requireWorkspace().listResources();
   }
 
   /** Call WSM to delete a referenced resource. */
@@ -165,6 +168,15 @@ public abstract class Resource {
     // call WSM to check access to the resource
     return WorkspaceManagerService.fromContext()
         .checkAccess(Context.requireWorkspace().getUuid(), id);
+  }
+
+  /**
+   * Retrieve and print temporary credentials to access a cloud resource as a JSONObject Resources
+   * to override this as necessary
+   */
+  public Object getCredentials(CredentialsAccessScope scope, int duration) {
+    throw new UserActionableException(
+        "Credentials not supported for resource type: " + resourceType);
   }
 
   /**
@@ -214,6 +226,10 @@ public abstract class Resource {
     return managedBy;
   }
 
+  public String getRegion() {
+    return region;
+  }
+
   public String getPrivateUserName() {
     return privateUserName;
   }
@@ -248,6 +264,12 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
-    GIT_REPO
+    GIT_REPO,
+    S3_STORAGE_FOLDER
+  }
+
+  public enum CredentialsAccessScope {
+    READ_ONLY,
+    WRITE_READ
   }
 }
