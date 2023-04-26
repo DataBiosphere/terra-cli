@@ -34,32 +34,35 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
-    // `terra resource create s3-storage-folder --name=$storageFolderName`
-    String resourceName = UUID.randomUUID().toString();
+    // `terra resource create s3-storage-folder --name=$name --folder-name=folderName`
+    String folderName = UUID.randomUUID().toString();
+    String name = "listDescribeResolveReflectCreateDelete" + folderName;
     UFAwsS3StorageFolder createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class,
             "resource",
             "create",
             "s3-storage-folder",
-            "--name=" + resourceName);
+            "--name=" + name,
+            "--folder-name=",
+            folderName);
 
     // check the created workspace has an id and aws details
     assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
-    assertNotNull(createdResource.prefix, "create resource returned a aws prefix");
-    assertEquals(resourceName, createdResource.name, "create resource resource name matches name");
+    assertEquals(folderName, createdResource.prefix, "create resource prefix matches folder name");
+    assertEquals(name, createdResource.name, "create resource name matches name");
     assertEquals(0, createdResource.numObjects, "create resource contains no objects");
 
     // check that the storage folder is in the list
     UFAwsS3StorageFolder matchedResource =
-        AwsS3StorageFolderUtils.listOneStorageFolderResourceWithName(resourceName);
+        AwsS3StorageFolderUtils.listOneStorageFolderResourceWithName(name);
     AwsS3StorageFolderUtils.assertAwsS3StorageFolderFields(
         createdResource, matchedResource, "list");
 
     // `terra resource describe --name=$name --format=json`
     UFAwsS3StorageFolder describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + resourceName);
+            UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + name);
 
     // check the new storage folder is returned by describe
     TestUtils.assertResourceProperties(createdResource, describeResource, "describe");
@@ -68,20 +71,18 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
-        TestCommand.runAndGetJsonObjectExpectSuccess(
-            "resource", "resolve", "--name=" + resourceName);
+        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertTrue(
-        AwsS3StorageFolderUtils.verifyS3Path(
-            String.valueOf(resolved.get(resourceName)), resourceName, true),
+        AwsS3StorageFolderUtils.verifyS3Path(String.valueOf(resolved.get(name)), name, true),
         "default resolve includes s3:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
     JSONObject resolvedExcludePrefix =
         TestCommand.runAndGetJsonObjectExpectSuccess(
-            "resource", "resolve", "--name=" + resourceName, "--exclude-bucket-prefix");
+            "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertTrue(
         AwsS3StorageFolderUtils.verifyS3Path(
-            String.valueOf(resolvedExcludePrefix.get(resourceName)), resourceName, false),
+            String.valueOf(resolvedExcludePrefix.get(name)), name, false),
         "exclude prefix resolve only includes storage folder name");
 
     // `terra resource credentials --name=$name --scope=READ_ONLY --duration=1500 --format=json`
@@ -89,7 +90,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "resource",
             "credentials",
-            "--name=" + resourceName,
+            "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
             "--duration=" + 1500);
     assertNotNull(resolvedCredentials.get("Version"), "get credentials returned version");
@@ -103,19 +104,18 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
 
     // `terra resources check-access --name=$name`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(
-            1, "resource", "check-access", "--name=" + resourceName);
+        TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
     assertThat(
         "error message includes wrong stewardship type",
         stdErr,
         CoreMatchers.containsString("Checking access is intended for REFERENCED resources only"));
 
     // `terra resource delete --name=$name`
-    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resourceName, "--quiet");
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // confirm it no longer appears in the resources list
     List<UFAwsS3StorageFolder> listedBuckets =
-        AwsS3StorageFolderUtils.listStorageFolderResourcesWithName(resourceName);
+        AwsS3StorageFolderUtils.listStorageFolderResourcesWithName(name);
     assertThat(
         "deleted storage folder no longer appears in the resources list",
         listedBuckets,
