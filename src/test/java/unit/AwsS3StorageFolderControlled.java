@@ -44,8 +44,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
             "create",
             "s3-storage-folder",
             "--name=" + name,
-            "--folder-name=",
-            folderName);
+            "--folder-name=" + folderName);
 
     // check the created workspace has an id and aws details
     assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
