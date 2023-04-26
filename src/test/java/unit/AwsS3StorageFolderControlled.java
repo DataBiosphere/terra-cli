@@ -72,7 +72,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
     assertTrue(
-        AwsS3StorageFolderUtils.verifyS3Path(String.valueOf(resolved.get(name)), name, true),
+        AwsS3StorageFolderUtils.verifyS3Path(String.valueOf(resolved.get(name)), folderName, true),
         "default resolve includes s3:// prefix");
 
     // `terra resource resolve --name=$name --exclude-bucket-prefix --format=json`
@@ -81,7 +81,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
             "resource", "resolve", "--name=" + name, "--exclude-bucket-prefix");
     assertTrue(
         AwsS3StorageFolderUtils.verifyS3Path(
-            String.valueOf(resolvedExcludePrefix.get(name)), name, false),
+            String.valueOf(resolvedExcludePrefix.get(name)), folderName, false),
         "exclude prefix resolve only includes storage folder name");
 
     // `terra resource credentials --name=$name --scope=READ_ONLY --duration=1500 --format=json`
