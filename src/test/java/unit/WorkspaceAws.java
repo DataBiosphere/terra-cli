@@ -125,9 +125,9 @@ public class WorkspaceAws extends ClearContextUnit {
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create s3-storage-folder --name=$name`
-    String resourceName = UUID.randomUUID().toString();
+    String name = "describeReflectsNumResources" + UUID.randomUUID();
     TestCommand.runCommandExpectSuccess(
-        "resource", "create", "s3-storage-folder", "--name=" + resourceName);
+        "resource", "create", "s3-storage-folder", "--name=" + name);
 
     // `terra workspace describe`
     UFWorkspace describedWorkspace =

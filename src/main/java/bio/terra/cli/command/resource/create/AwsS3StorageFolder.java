@@ -21,11 +21,17 @@ public class AwsS3StorageFolder extends WsmBaseCommand {
   @CommandLine.Mixin Format formatOption;
 
   @CommandLine.Option(
-      names = "--location",
+      names = "--folder-name",
+      description =
+          "Name of the S3 Storage folder, without the prefix. (e.g. 'my-folder', not 's3://my-folder'). If not provided, a unique folder name will be generated.")
+  private String folderName;
+
+  @CommandLine.Option(
+      names = "--region",
       defaultValue = "us-east-1",
       description =
-          "The AWS location of the storage folder (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
-  private String location;
+          "The AWS region of the storage folder (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
+  private String region;
 
   /** Print this command's output in text format. */
   private static void printText(UFAwsS3StorageFolder returnValue) {
@@ -46,7 +52,8 @@ public class AwsS3StorageFolder extends WsmBaseCommand {
     CreateAwsS3StorageFolderParams.Builder createParams =
         new CreateAwsS3StorageFolderParams.Builder()
             .resourceFields(createResourceParams.build())
-            .region(location);
+            .folderName(folderName)
+            .region(region);
 
     bio.terra.cli.businessobject.resource.AwsS3StorageFolder createdResource =
         bio.terra.cli.businessobject.resource.AwsS3StorageFolder.createControlled(

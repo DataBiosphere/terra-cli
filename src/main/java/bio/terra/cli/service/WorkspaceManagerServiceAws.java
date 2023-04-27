@@ -66,7 +66,9 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
         new CreateControlledAwsS3StorageFolderRequestBody()
             .common(createCommonFields(createParams.resourceFields))
             .awsS3StorageFolder(
-                new AwsS3StorageFolderCreationParameters().region(createParams.region));
+                new AwsS3StorageFolderCreationParameters()
+                    .folderName(createParams.folderName)
+                    .region(createParams.region));
     return callWithRetries(
         () ->
             new ControlledAwsResourceApi(apiClient)
