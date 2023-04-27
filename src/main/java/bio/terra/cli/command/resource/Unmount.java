@@ -1,6 +1,7 @@
 package bio.terra.cli.command.resource;
 
 import bio.terra.cli.command.shared.BaseCommand;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.mount.MountController;
 import bio.terra.cli.utils.mount.MountControllerFactory;
 import javax.annotation.Nullable;
@@ -28,7 +29,7 @@ public class Unmount extends BaseCommand {
       mountController.unmountResources();
       OUT.println("Successfully unmounted workspace resources.");
     } else {
-      OUT.println("There are no mounted workspace resources.");
+      throw new UserActionableException("There are no mounted workspace resources.");
     }
   }
 }

@@ -2,6 +2,7 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.command.shared.BaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.mount.MountController;
 import bio.terra.cli.utils.mount.MountControllerFactory;
 import javax.annotation.Nullable;
@@ -62,10 +63,10 @@ public class Mount extends BaseCommand {
         mountController.unmountResources();
       }
       int errors = mountController.mountResources(disableCache, readOnly);
-      if (errors != 0) {
-        OUT.println("One or more resources failed to mount.");
-      } else {
+      if (errors == 0) {
         OUT.println("Successfully mounted workspace bucket resources.");
+      } else {
+        throw new UserActionableException("One or more resources failed to mount.");
       }
     }
   }
