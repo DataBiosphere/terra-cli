@@ -20,15 +20,17 @@ public abstract class BaseMountHandler {
   protected static Logger logger = LoggerFactory.getLogger(BaseMountHandler.class);
   protected Path mountPoint;
   protected boolean disableCache;
+  protected boolean readOnly;
 
   @VisibleForTesting
   public static void setLogger(Logger newLogger) {
     logger = newLogger;
   }
 
-  protected BaseMountHandler(Path mountPoint, Boolean disableCache) {
+  protected BaseMountHandler(Path mountPoint, boolean disableCache, boolean readOnly) {
     this.mountPoint = mountPoint;
     this.disableCache = disableCache;
+    this.readOnly = readOnly;
   }
 
   /** Mounts the resource at the mount point. */

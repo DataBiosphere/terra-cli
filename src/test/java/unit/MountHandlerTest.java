@@ -93,7 +93,7 @@ public class MountHandlerTest {
               "daemonize.Run: readFromProcess: sub-process: mountWithArgs: failed to open connection - getConnWithRetry: get token source: DefaultTokenSource: google: could not find default credentials."));
 
   @TestFactory
-  public Collection<DynamicTest> mountGcsBucketTests() {
+  public Collection<DynamicTest> mount_writesErrorsToMountDir() {
 
     List<DynamicTest> tests = new ArrayList<>();
 
@@ -127,7 +127,8 @@ public class MountHandlerTest {
                   // Create a mountHandler and run mount
                   MountController mountController = MountControllerFactory.getMountController();
                   BaseMountHandler mountHandler =
-                      mountController.getMountHandler(gcsBucket, mountPath, false);
+                      mountController.getMountHandler(
+                          gcsBucket, mountPath, /*disableCache=*/ false, /*readOnly=*/ false);
                   mountHandler.mount();
 
                   // Check that the mount path does not exist
@@ -141,7 +142,7 @@ public class MountHandlerTest {
 
   @Test
   @DisplayName("successfully unmounts bucket")
-  void testUnmount() {
+  void unmount_suceeds() {
     try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
         mockStatic(LocalProcessLauncher.class)) {
       String bucketName = "bucket";
@@ -160,7 +161,7 @@ public class MountHandlerTest {
 
   @Test
   @DisplayName("unmount silently fails when bucket is not mounted")
-  void testUnmountSilentlyFailed() {
+  void unmount_silentlyFails() {
     try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
         mockStatic(LocalProcessLauncher.class)) {
       String bucketName = "bucket";
@@ -184,7 +185,7 @@ public class MountHandlerTest {
 
   @Test
   @DisplayName("unmount throws UserException when bucket resource is being used by another process")
-  void testUnmountFailed() {
+  void unmount_failed() {
     try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
         mockStatic(LocalProcessLauncher.class)) {
       String bucketName = "bucket";

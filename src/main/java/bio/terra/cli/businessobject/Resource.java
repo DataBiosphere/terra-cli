@@ -56,6 +56,8 @@ public abstract class Resource {
 
   protected Properties properties;
 
+  protected String createdBy;
+
   /** Deserialize an instance of the disk format to the internal object. */
   protected Resource(PDResource configFromDisk) {
     this.id = configFromDisk.id;
@@ -70,6 +72,7 @@ public abstract class Resource {
     this.privateUserName = configFromDisk.privateUserName;
     this.privateUserRole = configFromDisk.privateUserRole;
     this.properties = configFromDisk.properties;
+    this.createdBy = configFromDisk.createdBy;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -94,6 +97,7 @@ public abstract class Resource {
     }
 
     this.properties = metadata.getProperties();
+    this.createdBy = metadata.getCreatedBy();
   }
 
   /**
@@ -240,6 +244,10 @@ public abstract class Resource {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
   }
 
   public String getProperty(String key) {
