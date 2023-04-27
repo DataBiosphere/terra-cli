@@ -573,6 +573,7 @@ Commands:
   add-ref, add-referenced    Add a new referenced resource.
   check-access               Check if you have access to a referenced resource.
   create, create-controlled  Add a new controlled resource.
+  credentials                Retrieve temporary credentials to access a cloud resource.
   delete                     Delete a resource from the workspace.
   describe                   Describe a resource.
   list                       List all resources.
