@@ -21,12 +21,12 @@ public class Unmount extends BaseCommand {
     // Unmount only a single resource if specified, throws error if mount fails.
     if (resourceName != null) {
       mountController.unmountResource(resourceName);
-      OUT.println("Unmounted resource " + resourceName + ".");
+      OUT.println("Successfully unmounted resource " + resourceName + ".");
     }
     // Unmount all resources otherwise
     else if (MountController.workspaceDirExists()) {
       mountController.unmountResources();
-      OUT.println("Unmounted workspace resources.");
+      OUT.println("Successfully unmounted workspace resources.");
     } else {
       OUT.println("There are no mounted workspace resources.");
     }

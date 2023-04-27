@@ -116,6 +116,12 @@ public class FileUtils {
     }
   }
 
+  /**
+   * Helper method to check if a directory is empty.
+   *
+   * @param path The path to check.
+   * @return True if the path is a directory and is empty, false otherwise.
+   */
   public static boolean isEmptyDirectory(Path path) {
     try {
       return Files.isDirectory(path) && Objects.requireNonNull(path.toFile().list()).length == 0;
@@ -130,7 +136,7 @@ public class FileUtils {
    *
    * @param root the root directory to delete empty subdirectories from.
    * @param throwOnFailure whether to throw a {@link SystemException} if an error occurs during
-   *     deletion
+   *     deletion or to silently ignore the error.
    * @throws SystemException if throwOnFailure is true and an error occurs during deletion
    */
   public static void deleteEmptyDirectories(Path root, boolean throwOnFailure) {
@@ -138,16 +144,15 @@ public class FileUtils {
       FileUtils.walkUpFileTree(
           root,
           childPath -> {
-              if (isEmptyDirectory(childPath)) {
-                childPath.toFile().delete();
-              } else {
-                throw new UserActionableException(
-                    String.format("Directory is not empty: %s", childPath));
-              }
+            if (isEmptyDirectory(childPath)) {
+              childPath.toFile().delete();
+            } else {
+              throw new UserActionableException(
+                  String.format("Directory is not empty: %s", childPath));
+            }
           },
           false);
     } catch (Exception ex) {
-      logger.error(String.format("Error deleting empty directory %s", root), ex);
       if (throwOnFailure)
         throw new SystemException(String.format("Error deleting empty directory %s", root), ex);
     }

@@ -76,7 +76,7 @@ public abstract class MountController {
    * @return number of resources that errored during mount
    */
   public int mountResources(boolean disableCache, @Nullable Boolean readOnly) {
-    // Create root workspace directory if it does not exist
+    // Create workspace directory if it does not exist
     if (!workspaceDirExists()) {
       createWorkspaceDir();
     }
@@ -101,7 +101,7 @@ public abstract class MountController {
   }
 
   public void mountResource(String resourceName, boolean disableCache, @Nullable Boolean readOnly) {
-    // Create root workspace directory if it does not exist
+    // Create workspace directory if it does not exist
     if (!workspaceDirExists()) {
       createWorkspaceDir();
     }
@@ -332,17 +332,5 @@ public abstract class MountController {
         : r.getResourceType().equals(Resource.Type.GCS_OBJECT)
             ? ((GcsObject) r).getBucketName()
             : "";
-  }
-
-  /**
-   * Helper method to get the object path from a resource.
-   *
-   * @param r resource to get the object path from
-   * @return object path, empty if resource is not a GCS object
-   */
-  private String getObjectPathFromResource(Resource r) {
-    return r.getResourceType().equals(Resource.Type.GCS_OBJECT)
-        ? ((GcsObject) r).getBucketName()
-        : "";
   }
 }
