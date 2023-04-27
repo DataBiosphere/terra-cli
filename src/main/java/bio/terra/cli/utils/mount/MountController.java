@@ -236,7 +236,8 @@ public abstract class MountController {
   }
 
   /**
-   * Helper method to determine if a resource a controlled GCS bucket created by the current user.
+   * Helper method to determine if a resource is a controlled GCS bucket created by the current
+   * user.
    *
    * @param r resource to check
    * @return true if the resource is a controlled GCS bucket created by the current user, false

@@ -733,7 +733,16 @@ allowed).
 
 Users can mount GCS buckets and referenced folder objects locally to the user's
 home directory in `$HOME/workspace/` by running `terra resource mount`.
-Optionally, users can specify the `--disable-cache` flag. This will disable file
+
+By default, controlled GCS buckets and referenced folder objects created by the
+user will be mounted with read-write permissions while controlled buckets
+created by other users and referenced bucket folders will be mounted with
+read-only permissions. Users can override this default behavior by specifying
+the `--read-only` flag. Ex: `terra resource mount --read-only` for all mounts to
+be read-only or `terra resource mount --name=mybucket --read-only=false` for all
+mounts to be read-write.
+
+Users can specify the `--disable-cache` flag. This will disable file
 metadata caching and file type caching for objects in the mounted buckets. List
 operations such as `ls` will be slower, but will reflect the most up-to-date
 state of the bucket. This is useful when working with collaborators in a shared

@@ -108,7 +108,7 @@ public class MountControllerTest {
 
   @Test
   @DisplayName("mountController mounts buckets on linux")
-  void testMountResources() {
+  void mountResources_succeeds() {
     try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
       mockStaticContext.when(Context::requireUser).thenReturn(user);
@@ -116,7 +116,7 @@ public class MountControllerTest {
       MountController spyMountController = getSpyMountController();
 
       // Call mount resources
-      spyMountController.mountResources(false, true);
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
 
       // Validate that handlers are called and directories are created
       verify(mountHandler1, times(1)).mount();
@@ -129,33 +129,52 @@ public class MountControllerTest {
 
   @Test
   @DisplayName("mountController mounts buckets with expected read/write permissions")
-  void testMountResourcesWithPermissions() {
+  void mountResources_mountsWithDefaultPermissions() {
     try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
       mockStaticContext.when(Context::requireUser).thenReturn(user);
 
-      // Validate that buckets created by the current user are mounted with read/write and other
-      // buckets are mounted as read.
       MountController spyMountController = getSpyMountController();
-      spyMountController.mountResources(false, null);
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
+
+      // Validate that buckets created by the current user are mounted as read-write and other
+      // buckets are mounted as read.
       verify(spyMountController)
           .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
       verify(spyMountController)
           .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
+    }
+  }
+
+  @Test
+  @DisplayName("mountController mounts all buckets as read-only")
+  void mountResources_mountsAllReadOnly() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/true);
 
       // Validate that readOnly flag overrides default mount permissions
-
-      // read only
-      spyMountController = getSpyMountController();
-      spyMountController.mountResources(false, true);
       verify(spyMountController)
           .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(true));
       verify(spyMountController)
           .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
+    }
+  }
 
-      // read write
-      spyMountController = getSpyMountController();
-      spyMountController.mountResources(false, false);
+  @Test
+  @DisplayName("mountController mounts all buckets as read-write")
+  void mountResources_mountsAllReadWrite() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/false);
+
+      // Validate that readOnly flag overrides default mount permissions
       verify(spyMountController)
           .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
       verify(spyMountController)
@@ -163,9 +182,10 @@ public class MountControllerTest {
     }
   }
 
+
   @Test
   @DisplayName("mountController unmounts buckets on linux")
-  void testUnmountResources() {
+  void unmountResources_succeeds() {
     // Example output of `mount` command on ubuntu
     InputStream linuxMountOutput =
         new ByteArrayInputStream(

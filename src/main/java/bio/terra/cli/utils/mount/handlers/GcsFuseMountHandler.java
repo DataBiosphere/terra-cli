@@ -12,6 +12,9 @@ import javax.annotation.Nullable;
 /** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
 public class GcsFuseMountHandler extends BaseMountHandler {
 
+  // Base gcsfuse mount command.
+  // with --implicit-dirs flag to show directories on the path to an object with prefix so that the
+  // object can be accessible.
   private static final List<String> FUSE_MOUNT_COMMAND = List.of("gcsfuse", "--implicit-dirs");
   private final String bucketName;
   private @Nullable String subDir;
