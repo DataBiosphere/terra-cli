@@ -116,7 +116,7 @@ public class MountControllerTest {
       MountController spyMountController = getSpyMountController();
 
       // Call mount resources
-      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
+      spyMountController.mountResources(/*disableCache=*/ false, /*readOnly=*/ null);
 
       // Validate that handlers are called and directories are created
       verify(mountHandler1, times(1)).mount();
@@ -135,7 +135,7 @@ public class MountControllerTest {
       mockStaticContext.when(Context::requireUser).thenReturn(user);
 
       MountController spyMountController = getSpyMountController();
-      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
+      spyMountController.mountResources(/*disableCache=*/ false, /*readOnly=*/ null);
 
       // Validate that buckets created by the current user are mounted as read-write and other
       // buckets are mounted as read.
@@ -154,7 +154,7 @@ public class MountControllerTest {
       mockStaticContext.when(Context::requireUser).thenReturn(user);
 
       MountController spyMountController = getSpyMountController();
-      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/true);
+      spyMountController.mountResources(/*disableCache=*/ false, /*readOnly=*/ true);
 
       // Validate that readOnly flag overrides default mount permissions
       verify(spyMountController)
@@ -172,7 +172,7 @@ public class MountControllerTest {
       mockStaticContext.when(Context::requireUser).thenReturn(user);
 
       MountController spyMountController = getSpyMountController();
-      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/false);
+      spyMountController.mountResources(/*disableCache=*/ false, /*readOnly=*/ false);
 
       // Validate that readOnly flag overrides default mount permissions
       verify(spyMountController)
@@ -181,7 +181,6 @@ public class MountControllerTest {
           .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(false));
     }
   }
-
 
   @Test
   @DisplayName("mountController unmounts buckets on linux")
