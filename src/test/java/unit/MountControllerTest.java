@@ -15,12 +15,14 @@ import static org.mockito.Mockito.when;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.utils.OSFamily;
 import bio.terra.cli.utils.mount.MountController;
 import bio.terra.cli.utils.mount.MountControllerFactory;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
+import bio.terra.workspace.model.StewardshipType;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -28,10 +30,12 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 
@@ -40,53 +44,79 @@ public class MountControllerTest {
 
   @TempDir static Path tempWorkspaceDir;
 
+  @Mock private Workspace workspace;
+  @Mock private User user;
+  @Mock private Resource resource1;
+  @Mock private Resource resource2;
+  @Mock private BaseMountHandler mountHandler1;
+  @Mock private BaseMountHandler mountHandler2;
+
+  private static Path mountPath1;
+  private static Path mountPath2;
+
+  @BeforeEach
+  public void setUpTest() {
+    mountPath1 = tempWorkspaceDir.resolve(Path.of("bucket-1"));
+    mountPath2 = tempWorkspaceDir.resolve(Path.of("bucket-2"));
+
+    resource1 = mock(Resource.class);
+    when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
+    when(resource1.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
+    when(resource1.getCreatedBy()).thenReturn("johny.appleseed@verily.com");
+
+    resource2 = mock(Resource.class);
+    when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
+    when(resource2.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
+    when(resource2.getCreatedBy()).thenReturn("bonny.bananabead@verily.com");
+
+    workspace = mock(Workspace.class);
+    when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
+
+    user = mock(User.class);
+    when(user.getEmail()).thenReturn("johny.appleseed@verily.com");
+
+    mountHandler1 = mock(GcsFuseMountHandler.class);
+    mountHandler2 = mock(GcsFuseMountHandler.class);
+    when(mountHandler1.mount()).thenReturn(0);
+    when(mountHandler2.mount()).thenReturn(0);
+  }
+
   /** Utility method to check if a directory exists */
-  public void verifyDirectory(Path path) {
+  private void verifyDirectory(Path path) {
     File file = path.toFile();
     assert (file.exists() && file.isDirectory());
   }
 
+  private MountController getSpyMountController() {
+    MountController mountController = MountControllerFactory.getMountController();
+    MountController spyMountController = spy(mountController);
+
+    doReturn(new HashMap<UUID, Path>()).when(spyMountController).getFolderIdToFolderPathMap();
+
+    doReturn(mountPath1, mountPath2)
+        .when(spyMountController)
+        .getResourceMountPath(any(Resource.class), anyMap());
+
+    doReturn(mountHandler1, mountHandler2)
+        .when(spyMountController)
+        .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean(), anyBoolean());
+    doReturn(mountHandler2)
+        .when(spyMountController)
+        .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean(), anyBoolean());
+    return spyMountController;
+  }
+
   @Test
   @DisplayName("mountController mounts buckets on linux")
-  void testMountResources() {
+  void mountResources_succeeds() {
     try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
-
-      Path mountPath1 = tempWorkspaceDir.resolve(Path.of("bucket-1"));
-      Path mountPath2 = tempWorkspaceDir.resolve(Path.of("bucket-2"));
-
-      Resource resource1 = mock(Resource.class);
-      Resource resource2 = mock(Resource.class);
-      when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
-      when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
-
-      Workspace workspace = mock(Workspace.class);
-      when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
-
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
 
-      BaseMountHandler mountHandler1 = mock(GcsFuseMountHandler.class);
-      BaseMountHandler mountHandler2 = mock(GcsFuseMountHandler.class);
-      when(mountHandler1.mount()).thenReturn(0);
-      when(mountHandler2.mount()).thenReturn(0);
-
-      MountController mountController = MountControllerFactory.getMountController();
-      MountController spyMountController = spy(mountController);
-
-      doReturn(new HashMap<UUID, Path>()).when(spyMountController).getFolderIdToFolderPathMap();
-
-      doReturn(mountPath1, mountPath2)
-          .when(spyMountController)
-          .getResourceMountPath(any(Resource.class), anyMap());
-
-      doReturn(mountHandler1, mountHandler2)
-          .when(spyMountController)
-          .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean());
-      doReturn(mountHandler2)
-          .when(spyMountController)
-          .getMountHandler(any(Resource.class), eq(mountPath2), anyBoolean());
+      MountController spyMountController = getSpyMountController();
 
       // Call mount resources
-      spyMountController.mountResources(false);
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
 
       // Validate that handlers are called and directories are created
       verify(mountHandler1, times(1)).mount();
@@ -98,8 +128,64 @@ public class MountControllerTest {
   }
 
   @Test
+  @DisplayName("mountController mounts buckets with expected read/write permissions")
+  void mountResources_mountsWithDefaultPermissions() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/null);
+
+      // Validate that buckets created by the current user are mounted as read-write and other
+      // buckets are mounted as read.
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
+    }
+  }
+
+  @Test
+  @DisplayName("mountController mounts all buckets as read-only")
+  void mountResources_mountsAllReadOnly() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/true);
+
+      // Validate that readOnly flag overrides default mount permissions
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(true));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(true));
+    }
+  }
+
+  @Test
+  @DisplayName("mountController mounts all buckets as read-write")
+  void mountResources_mountsAllReadWrite() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResources(/*disableCache=*/false, /*readOnly=*/false);
+
+      // Validate that readOnly flag overrides default mount permissions
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), eq(false));
+      verify(spyMountController)
+          .getMountHandler(eq(resource2), eq(mountPath2), anyBoolean(), eq(false));
+    }
+  }
+
+
+  @Test
   @DisplayName("mountController unmounts buckets on linux")
-  void testUnmountResources() {
+  void unmountResources_succeeds() {
     // Example output of `mount` command on ubuntu
     InputStream linuxMountOutput =
         new ByteArrayInputStream(

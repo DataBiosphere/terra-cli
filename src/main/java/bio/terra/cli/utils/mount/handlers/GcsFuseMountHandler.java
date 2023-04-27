@@ -12,17 +12,22 @@ import javax.annotation.Nullable;
 /** This class handles mounting a GCS bucket or prefix object using the GCS FUSE driver. */
 public class GcsFuseMountHandler extends BaseMountHandler {
 
-  private static final String FUSE_MOUNT_COMMAND = "gcsfuse";
+  // Base gcsfuse mount command.
+  // with --implicit-dirs flag to show directories on the path to an object with prefix so that the
+  // object can be accessible.
+  private static final List<String> FUSE_MOUNT_COMMAND = List.of("gcsfuse", "--implicit-dirs");
   private final String bucketName;
   private @Nullable String subDir;
 
-  public GcsFuseMountHandler(GcsBucket gcsBucket, Path mountPoint, Boolean disableCache) {
-    super(mountPoint, disableCache);
+  public GcsFuseMountHandler(
+      GcsBucket gcsBucket, Path mountPoint, boolean disableCache, boolean readOnly) {
+    super(mountPoint, disableCache, readOnly);
     this.bucketName = gcsBucket.getBucketName();
   }
 
-  public GcsFuseMountHandler(GcsObject gcsObject, Path mountPoint, Boolean disableCache) {
-    super(mountPoint, disableCache);
+  public GcsFuseMountHandler(
+      GcsObject gcsObject, Path mountPoint, boolean disableCache, boolean readOnly) {
+    super(mountPoint, disableCache, readOnly);
     this.bucketName = gcsObject.getBucketName();
     this.subDir = gcsObject.getObjectName();
   }
@@ -30,12 +35,15 @@ public class GcsFuseMountHandler extends BaseMountHandler {
   /** Implements the mount method for a GCS bucket or prefix object. */
   public int mount() throws SystemException {
     // Build mount command
-    List<String> command = new ArrayList<>(List.of(FUSE_MOUNT_COMMAND));
+    List<String> command = new ArrayList<>(FUSE_MOUNT_COMMAND);
     if (disableCache) {
       command.addAll(List.of("--stat-cache-ttl", "0s", "--type-cache-ttl", "0s"));
     }
     if (subDir != null) {
       command.addAll(List.of("--only-dir", subDir));
+    }
+    if (readOnly) {
+      command.addAll(List.of("-o", "ro"));
     }
     command.addAll(List.of(bucketName, mountPoint.toString()));
 

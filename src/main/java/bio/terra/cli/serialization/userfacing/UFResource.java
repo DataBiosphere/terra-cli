@@ -57,6 +57,7 @@ public abstract class UFResource {
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
   public final Properties properties;
+  public final String createdBy;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFResource(Resource internalObj) {
@@ -72,6 +73,7 @@ public abstract class UFResource {
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
     this.properties = internalObj.getProperties();
+    this.createdBy = internalObj.getCreatedBy();
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -88,6 +90,7 @@ public abstract class UFResource {
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
     this.properties = builder.properties;
+    this.createdBy = builder.createdBy;
   }
 
   /**
@@ -113,6 +116,7 @@ public abstract class UFResource {
       }
     }
     OUT.println(prefix + "Properties:   " + properties);
+    // createdBy is currently used internally and not user facing.
   }
 
   /** Print out this object in text format. */
@@ -134,6 +138,7 @@ public abstract class UFResource {
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
     private Properties properties;
+    private String createdBy;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -195,6 +200,11 @@ public abstract class UFResource {
 
     public Builder properties(Properties properties) {
       this.properties = properties;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
       return this;
     }
 

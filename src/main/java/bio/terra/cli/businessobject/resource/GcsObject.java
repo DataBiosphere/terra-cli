@@ -17,7 +17,6 @@ import bio.terra.cloudres.google.storage.BucketCow;
 import bio.terra.workspace.model.GcpGcsObjectResource;
 import bio.terra.workspace.model.ResourceDescription;
 import com.google.cloud.storage.Storage.BlobListOption;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,15 +148,16 @@ public class GcsObject extends Resource {
                   BlobListOption.prefix(objectName),
                   BlobListOption.pageSize(2))
               .getValues();
-      Stream<BlobCow> objectsStream = StreamSupport.stream(objects.spliterator(), false);
 
       // Check for the presence of a directory object.
       // If a directory was created with the gcp cloud console, it will return false for
       // isDirectory(). In that case, we will check if there are more than 1 objects in the list.
       // This will correctly handle user created directories that are non-empty. Empty manually
       // create directories will not be detected as a directory as it's ambiguous from the API.
-      boolean isDirectory = objectsStream.anyMatch(object -> object.getBlobInfo().isDirectory());
-      long numObjects = objectsStream.count();
+      boolean isDirectory =
+          StreamSupport.stream(objects.spliterator(), false)
+              .anyMatch(object -> object.getBlobInfo().isDirectory());
+      long numObjects = StreamSupport.stream(objects.spliterator(), false).count();
       return isDirectory || numObjects > 1;
     } catch (Exception e) {
       throw new SystemException("Error looking up bucket: " + bucketName, e);

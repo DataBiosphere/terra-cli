@@ -34,6 +34,7 @@ public abstract class PDResource {
   public final String privateUserName;
   public final ControlledResourceIamRole privateUserRole;
   public final Properties properties;
+  public final String createdBy;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDResource(Resource internalObj) {
@@ -49,6 +50,7 @@ public abstract class PDResource {
     this.privateUserName = internalObj.getPrivateUserName();
     this.privateUserRole = internalObj.getPrivateUserRole();
     this.properties = internalObj.getProperties();
+    this.createdBy = internalObj.getCreatedBy();
   }
 
   protected PDResource(PDResource.Builder builder) {
@@ -64,6 +66,7 @@ public abstract class PDResource {
     this.privateUserName = builder.privateUserName;
     this.privateUserRole = builder.privateUserRole;
     this.properties = builder.properties;
+    this.createdBy = builder.createdBy;
   }
 
   /** Deserialize the format for writing to disk to the internal representation of the resource. */
@@ -83,6 +86,7 @@ public abstract class PDResource {
     private String privateUserName;
     private ControlledResourceIamRole privateUserRole;
     private Properties properties;
+    private String createdBy;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -144,6 +148,11 @@ public abstract class PDResource {
 
     public Builder properties(Properties properties) {
       this.properties = properties;
+      return this;
+    }
+
+    public Builder createdBy(String createdBy) {
+      this.createdBy = createdBy;
       return this;
     }
 
