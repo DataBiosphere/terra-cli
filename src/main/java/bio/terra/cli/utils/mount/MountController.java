@@ -206,7 +206,8 @@ public abstract class MountController {
    * reference to a file containing resource. E.g. GCS bucket, GCS object that points to a bucket
    * folder.
    */
-  private boolean isMountableResource(Resource r) {
+  @VisibleForTesting
+  public boolean isMountableResource(Resource r) {
     if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
       return true;
     }
@@ -326,7 +327,8 @@ public abstract class MountController {
    * @param r resource to get the bucket name from
    * @return bucket name, empty if resource is not a GCS bucket or object
    */
-  private String getBucketNameFromResource(Resource r) {
+  @VisibleForTesting
+  public String getBucketNameFromResource(Resource r) {
     return r.getResourceType().equals(Resource.Type.GCS_BUCKET)
         ? ((GcsBucket) r).getBucketName()
         : r.getResourceType().equals(Resource.Type.GCS_OBJECT)

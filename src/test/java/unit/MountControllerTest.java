@@ -54,23 +54,60 @@ public class MountControllerTest {
   private static Path mountPath1;
   private static Path mountPath2;
 
+  private InputStream getMountOutputStream() {
+    String linuxMountOutput =
+        ("mqueue on /dev/mqueue type mqueue (rw,relatime)\n"
+            + "/dev/sda15 on /boot/efi type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro)\n"
+            + "fusectl on /sys/fs/fuse/connections type fusectl (rw,relatime)\n"
+            + "bucket-1 on "
+            + tempWorkspaceDir
+            + "/bucket-1 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
+            + "bucket-2 on "
+            + tempWorkspaceDir
+            + "/bucket-2 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
+            + "bucket-3 on "
+            + tempWorkspaceDir
+            + "/bucket-3 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n");
+    String macMountOutput =
+        ("/dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)\n"
+            + "devfs on /dev (devfs, local, nobrowse)\n"
+            + "/dev/disk3s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)\n"
+            + "srcfsd_darwin@googleosxfuse0 on /Volumes/google/src (googleosxfuse, nodev, nosuid, synchronous, mounted by rogerwangcs)\n"
+            + "bucket-1 on "
+            + tempWorkspaceDir
+            + "/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+            + "bucket-2 on "
+            + tempWorkspaceDir
+            + "/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
+            + "bucket-3 on "
+            + tempWorkspaceDir
+            + "/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n");
+    return OSFamily.getOSFamily().equals(OSFamily.LINUX)
+        ? new ByteArrayInputStream(linuxMountOutput.getBytes())
+        : new ByteArrayInputStream(macMountOutput.getBytes());
+  }
+
   @BeforeEach
   public void setUpTest() {
     mountPath1 = tempWorkspaceDir.resolve(Path.of("bucket-1"));
     mountPath2 = tempWorkspaceDir.resolve(Path.of("bucket-2"));
 
     resource1 = mock(Resource.class);
+    when(resource1.getName()).thenReturn("bucket-1");
     when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
     when(resource1.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
     when(resource1.getCreatedBy()).thenReturn("johny.appleseed@verily.com");
 
     resource2 = mock(Resource.class);
+    when(resource2.getName()).thenReturn("bucket-2");
     when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
     when(resource2.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
     when(resource2.getCreatedBy()).thenReturn("bonny.bananabead@verily.com");
 
     workspace = mock(Workspace.class);
     when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
+    when(workspace.getResource(resource1.getName())).thenReturn(resource1);
+    when(workspace.getResource(resource2.getName())).thenReturn(resource2);
 
     user = mock(User.class);
     when(user.getEmail()).thenReturn("johny.appleseed@verily.com");
@@ -96,6 +133,8 @@ public class MountControllerTest {
     doReturn(mountPath1, mountPath2)
         .when(spyMountController)
         .getResourceMountPath(any(Resource.class), anyMap());
+
+    doReturn(true).when(spyMountController).isMountableResource(any(Resource.class));
 
     doReturn(mountHandler1, mountHandler2)
         .when(spyMountController)
@@ -183,43 +222,26 @@ public class MountControllerTest {
   }
 
   @Test
+  @DisplayName("mountController mount a single bucket")
+  void mountResource_succeeds() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class)) {
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+      mockStaticContext.when(Context::requireUser).thenReturn(user);
+
+      MountController spyMountController = getSpyMountController();
+      spyMountController.mountResource(
+          resource1.getName(), /*disableCache=*/ false, /*readOnly=*/ null);
+
+      // Validate that the mount handler has been created and mount method has been called
+      verify(spyMountController)
+          .getMountHandler(eq(resource1), eq(mountPath1), anyBoolean(), anyBoolean());
+      verify(mountHandler1, times(1)).mount();
+    }
+  }
+
+  @Test
   @DisplayName("mountController unmounts buckets on linux")
   void unmountResources_succeeds() {
-    // Example output of `mount` command on ubuntu
-    InputStream linuxMountOutput =
-        new ByteArrayInputStream(
-            ("mqueue on /dev/mqueue type mqueue (rw,relatime)\n"
-                    + "/dev/sda15 on /boot/efi type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro)\n"
-                    + "fusectl on /sys/fs/fuse/connections type fusectl (rw,relatime)\n"
-                    + "bucket-1 on "
-                    + tempWorkspaceDir
-                    + "/bucket-1 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
-                    + "bucket-2 on "
-                    + tempWorkspaceDir
-                    + "/bucket-2 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n"
-                    + "bucket-3 on "
-                    + tempWorkspaceDir
-                    + "/bucket-3 type fuse.gcsfuse (rw,nosuid,nodev,relatime,user_id=1000,group_id=1001,default_permissions)\n")
-                .getBytes());
-    InputStream macMountOutput =
-        new ByteArrayInputStream(
-            ("/dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)\n"
-                    + "devfs on /dev (devfs, local, nobrowse)\n"
-                    + "/dev/disk3s6 on /System/Volumes/VM (apfs, local, noexec, journaled, noatime, nobrowse)\n"
-                    + "srcfsd_darwin@googleosxfuse0 on /Volumes/google/src (googleosxfuse, nodev, nosuid, synchronous, mounted by rogerwangcs)\n"
-                    + "bucket-1 on "
-                    + tempWorkspaceDir
-                    + "/bucket-1 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                    + "bucket-2 on "
-                    + tempWorkspaceDir
-                    + "/bucket-2 (macfuse, nodev, nosuid, synchronous, mounted by me)\n"
-                    + "bucket-3 on "
-                    + tempWorkspaceDir
-                    + "/bucket-3 (macfuse, nodev, nosuid, synchronous, mounted by me)\n")
-                .getBytes());
-    InputStream mountOutput =
-        OSFamily.getOSFamily().equals(OSFamily.LINUX) ? linuxMountOutput : macMountOutput;
-
     try (MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
             mockStatic(LocalProcessLauncher.class);
         MockedStatic<MountController> mockStaticMountController =
@@ -230,7 +252,7 @@ public class MountControllerTest {
 
       LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
       when(launcherMock.waitForTerminate()).thenReturn(0);
-      when(launcherMock.getInputStream()).thenReturn(mountOutput);
+      when(launcherMock.getInputStream()).thenReturn(getMountOutputStream());
       mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
       mockStaticBaseMountHandler
@@ -248,6 +270,41 @@ public class MountControllerTest {
           () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-2"));
       mockStaticBaseMountHandler.verify(
           () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-3"));
+    }
+  }
+
+  @Test
+  @DisplayName("mountController unmounts a single bucket")
+  void unmountResource_succeeds() {
+    try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class);
+        MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
+            mockStatic(LocalProcessLauncher.class);
+        MockedStatic<MountController> mockStaticMountController =
+            mockStatic(MountController.class);
+        MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
+            mockStatic(BaseMountHandler.class)) {
+
+      mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+
+      mockStaticMountController.when(MountController::getWorkspaceDir).thenReturn(tempWorkspaceDir);
+
+      LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
+      when(launcherMock.waitForTerminate()).thenReturn(0);
+      when(launcherMock.getInputStream()).thenReturn(getMountOutputStream());
+      mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
+
+      mockStaticBaseMountHandler
+          .when(() -> BaseMountHandler.unmount(any(String.class)))
+          .then((Answer<Void>) invocation -> null);
+
+      // Run unmountResource
+      MountController spyMountController = getSpyMountController();
+      doReturn(resource1.getName()).when(spyMountController).getBucketNameFromResource(any(Resource.class));
+      spyMountController.unmountResource(resource1.getName());
+
+      // Verify that BaseMountHandler.unmount has been called the resource
+      mockStaticBaseMountHandler.verify(
+          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
     }
   }
 }
