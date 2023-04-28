@@ -299,7 +299,9 @@ public class MountControllerTest {
 
       // Run unmountResource
       MountController spyMountController = getSpyMountController();
-      doReturn(resource1.getName()).when(spyMountController).getBucketNameFromResource(any(Resource.class));
+      doReturn(resource1.getName())
+          .when(spyMountController)
+          .getBucketNameFromResource(any(Resource.class));
       spyMountController.unmountResource(resource1.getName());
 
       // Verify that BaseMountHandler.unmount has been called the resource

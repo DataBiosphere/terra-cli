@@ -112,7 +112,7 @@ public abstract class MountController {
     // Validate that the resource is a mountable resource
     if (!isMountableResource(resource)) {
       throw new UserActionableException(
-          resourceName + " is not a bucket or a referenced bucket folder.");
+          String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
     }
 
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
@@ -123,7 +123,8 @@ public abstract class MountController {
     BaseMountHandler handler = getMountHandler(resource, mountPath, disableCache, mountReadOnly);
 
     if (handler.mount() != 0) {
-      throw new UserActionableException("Failed to mount resource " + resourceName);
+      throw new UserActionableException(
+          String.format("Failed to mount resource {%s}.", resourceName));
     }
   }
 
@@ -133,22 +134,24 @@ public abstract class MountController {
         .map(this::getResourceMountEntry)
         .filter(Objects::nonNull)
         .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
-
+    // Delete empty directories in WORKSPACE_DIR, throw an error there are any nonempty directories
     FileUtils.deleteEmptyDirectories(getWorkspaceDir());
   }
 
-  /** Unmount single mountable resources for a given workspace */
-  public void unmountResource(String resourceName) {
-    unmountResource(resourceName, /*silent=*/ false);
-  }
-
+  /**
+   * Unmount a single resource with the provided name
+   *
+   * @param silent if true, do not throw an exception if the resource is not mounted.
+   *     <p>We unmount silently if we are calling this method as a part of cleaning the mount entry before
+   *     mounting. If the user directly unmounts a resource, we do want to throw an exception.
+   */
   public void unmountResource(String resourceName, boolean silent) {
     // Fetch resource with provided name, throw not found exception if not found
     Resource resource = Context.requireWorkspace().getResource(resourceName);
     // Validate that the resource is a mountable resource
     if (!isMountableResource(resource)) {
       throw new UserActionableException(
-          resourceName + " is not a bucket or a referenced bucket folder.");
+          String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
     }
 
     String bucketName = getBucketNameFromResource(resource);
@@ -160,16 +163,18 @@ public abstract class MountController {
             .filter(Objects::nonNull)
             .filter(entry -> entry.bucketName.equals(bucketName))
             .toList();
-
     // Validate that the resource is mounted in one or more locations.
     if (!silent && mountEntries.isEmpty()) {
-      throw new UserActionableException("Resource " + resourceName + " is not mounted.");
+      throw new UserActionableException(String.format("Resource %s is not mounted.", resourceName));
     }
     // Unmount the resource
     mountEntries.forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
-
-    // Delete any empty mount directories in WORKSPACE_DIR, do not throw error.
+    // Delete any empty directories in WORKSPACE_DIR silently.
     FileUtils.deleteEmptyDirectories(getWorkspaceDir(), /*throwOnFailure=*/ false);
+  }
+
+  public void unmountResource(String resourceName) {
+    unmountResource(resourceName, /*silent=*/ false);
   }
 
   /**

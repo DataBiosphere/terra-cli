@@ -41,7 +41,7 @@ public class Mount extends BaseCommand {
   @CommandLine.Option(names = "--read-only", description = "Mount with only read permissions.")
   private @Nullable Boolean readOnly;
 
-  /** The name of the resource to mount. */
+  /** Optionally mount an individual resource */
   @CommandLine.Option(names = "--name", description = "Specify an individual resource to mount.")
   private @Nullable String resourceName;
 
@@ -51,13 +51,14 @@ public class Mount extends BaseCommand {
 
     MountController mountController = MountControllerFactory.getMountController();
 
-    // Mount only a single resource if specified, throws error if mount fails.
+    // Mount an individual resource if resourceName is provided.
+    // Throws error if mount fails.
     if (resourceName != null) {
       mountController.unmountResource(resourceName, /*silent=*/ true);
       mountController.mountResource(resourceName, disableCache, readOnly);
       OUT.println("Successfully mounted resource " + resourceName + ".");
     }
-    // Mount all resources otherwise
+    // Mount all resources otherwise.
     else {
       if (MountController.workspaceDirExists()) {
         mountController.unmountResources();
