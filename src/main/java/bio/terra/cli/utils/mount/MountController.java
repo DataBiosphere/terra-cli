@@ -70,18 +70,11 @@ public abstract class MountController {
   /**
    * Mounts all mountable resources for a given workspace
    *
-   * @param disableCache Whether to disable caching for the mounts
-   * @param readOnly Whether to mount the resources as read only. If null, the resources will be
-   *     mounted with permissions based on if the resource was created by the user or not.
-   * @return number of resources that errored during mount
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
+   * @return number of resources returning a nonzero exit code from their mount process
    */
   public int mountResources(boolean disableCache, @Nullable Boolean readOnly) {
-    // Create workspace directory if it does not exist
-    if (!workspaceDirExists()) {
-      createWorkspaceDir();
-    }
-
-    // Fetch workspace resources and folders
     List<Resource> resources = Context.requireWorkspace().listResources();
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
 
@@ -90,42 +83,54 @@ public abstract class MountController {
         .mapToInt(
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
-              FileUtils.createDirectories(mountPath);
-
-              boolean mountReadOnly =
-                  Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(r));
-              BaseMountHandler handler = getMountHandler(r, mountPath, disableCache, mountReadOnly);
-              return handler.mount();
+              return mountResourceWorker(r, mountPath, disableCache, readOnly, false);
             })
         .sum();
   }
 
+  /** Mounts a single resource
+   *
+   * @param resourceName The name of the resource to mount
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
+   * */
   public void mountResource(String resourceName, boolean disableCache, @Nullable Boolean readOnly) {
-    // Create workspace directory if it does not exist
-    if (!workspaceDirExists()) {
-      createWorkspaceDir();
-    }
-
     // Fetch resource with provided name, throw not found exception if not found
     Resource resource = Context.requireWorkspace().getResource(resourceName);
-
     // Validate that the resource is a mountable resource
     if (!isMountableResource(resource)) {
       throw new UserActionableException(
           String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
     }
-
+    // Get the path to mount the resource to
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
     Path mountPath = getResourceMountPath(resource, folderPaths);
-    FileUtils.createDirectories(mountPath);
+    // Mount the resource
+    mountResourceWorker(resource, mountPath, disableCache, readOnly, true);
+  }
 
+  /** Builds and runs a mount handler a given resource, mount path, and mount options.
+   *
+   * @param resource The resource to mount
+   * @param mountPath The path to mount the resource to
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
+   * @param throwOnError Whether to throw an exception if the mount fails
+   * @return the exit code of the mount subprocess
+   */
+  public int mountResourceWorker(Resource resource, Path mountPath, boolean disableCache, @Nullable Boolean readOnly, Boolean throwOnError) {
+    // Create the mount directory if it doesn't exist
+    FileUtils.createDirectories(mountPath);
+    // Build and run the mount handler
     boolean mountReadOnly = Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(resource));
     BaseMountHandler handler = getMountHandler(resource, mountPath, disableCache, mountReadOnly);
-
-    if (handler.mount() != 0) {
+    int exitCode = handler.mount();
+    // Throw an exception if the mount failed
+    if (throwOnError && exitCode != 0) {
       throw new UserActionableException(
-          String.format("Failed to mount resource %s.", resourceName));
+          String.format("Failed to mount resource %s.", resource.getName()));
     }
+    return exitCode;
   }
 
   /** Unmount all mountable resources for a given workspace */
@@ -147,7 +152,7 @@ public abstract class MountController {
    *     exception.
    */
   public void unmountResource(String resourceName, boolean silent) {
-    // Fetch resource with provided name, throw not found exception if not found
+    // Fetch resource with provided name, throw exception if not found
     Resource resource = Context.requireWorkspace().getResource(resourceName);
     // Validate that the resource is a mountable resource
     if (!isMountableResource(resource)) {
