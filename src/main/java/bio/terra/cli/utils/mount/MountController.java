@@ -142,8 +142,9 @@ public abstract class MountController {
    * Unmount a single resource with the provided name
    *
    * @param silent if true, do not throw an exception if the resource is not mounted.
-   *     <p>We unmount silently if we are calling this method as a part of cleaning the mount entry before
-   *     mounting. If the user directly unmounts a resource, we do want to throw an exception.
+   *     <p>We unmount silently if we are calling this method as a part of cleaning the mount entry
+   *     before mounting. If the user directly unmounts a resource, we do want to throw an
+   *     exception.
    */
   public void unmountResource(String resourceName, boolean silent) {
     // Fetch resource with provided name, throw not found exception if not found
