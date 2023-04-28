@@ -124,7 +124,7 @@ public abstract class MountController {
 
     if (handler.mount() != 0) {
       throw new UserActionableException(
-          String.format("Failed to mount resource {%s}.", resourceName));
+          String.format("Failed to mount resource %s.", resourceName));
     }
   }
 
