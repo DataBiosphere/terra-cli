@@ -41,7 +41,7 @@ public class Mount extends BaseCommand {
   @CommandLine.Option(names = "--read-only", description = "Mount with only read permissions.")
   private @Nullable Boolean readOnly;
 
-  /** Optionally mount an individual resource */
+  /** Optionally mount an individual resource instead of all resources */
   @CommandLine.Option(names = "--name", description = "Specify an individual resource to mount.")
   private @Nullable String resourceName;
 

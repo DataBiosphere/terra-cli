@@ -304,7 +304,7 @@ public class MountControllerTest {
           .getBucketNameFromResource(any(Resource.class));
       spyMountController.unmountResource(resource1.getName());
 
-      // Verify that BaseMountHandler.unmount has been called the resource
+      // Verify that BaseMountHandler.unmount has been called on the resource
       mockStaticBaseMountHandler.verify(
           () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
     }
