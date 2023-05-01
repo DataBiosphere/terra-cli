@@ -109,8 +109,18 @@ public class ConfigureAws extends WsmBaseCommand {
 
     if (cacheWithAwsVault) {
       // Add Caching Profiles
-      addCachingProfile(builder, region, profileName, isDefault, profileName += "_");
-      addCachingProfile(builder, region, readOnlyProfileName, false, readOnlyProfileName += "_");
+
+      // Caching profile names should track resource names.  We append an underscore to "real"
+      // profile names, which now serve as targets for the caching profiles.  Note that this side
+      // effect is intentionally applied to all subsequent statements, including those outside this
+      // block.
+      String cachingProfileName = profileName;
+      String cachingReadOnlyProfileName = readOnlyProfileName;
+      profileName += "_";
+      readOnlyProfileName += "_";
+
+      addCachingProfile(builder, region, cachingProfileName, isDefault, profileName);
+      addCachingProfile(builder, region, cachingReadOnlyProfileName, false, readOnlyProfileName);
 
       // clear isDefault flag
       isDefault = false;

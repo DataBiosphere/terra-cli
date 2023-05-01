@@ -1,5 +1,6 @@
 package bio.terra.cli.utils;
 
+import bio.terra.cli.exception.SystemException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class AwsConfiguration {
    * @param credentialProcess executable to execute in order to obtain a temporary credential to
    *     access the resource.
    */
-  public static record Profile(String region, List<String> credentialProcess) {}
+  public record Profile(String region, List<String> credentialProcess) {}
 
   /**
    * Factory method for creating {@link Profile} instances to pass to {@link Builder#addProfile}.
@@ -89,28 +90,28 @@ public class AwsConfiguration {
     try {
       ini.store(stream);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new SystemException("Writing configuration to file failed.", e);
     }
-    return new String(stream.toByteArray());
+    return stream.toString();
   }
 
   public static class Builder {
 
     private Builder() {
-      profileMap = new HashMap();
+      profileMap = new HashMap<>();
       defaultProfile = Optional.empty();
     }
 
-    private Map<String, Profile> profileMap;
+    private final Map<String, Profile> profileMap;
     private Optional<Profile> defaultProfile;
 
     /**
      * Adds a profile to the configuration being built. Expects a {@link Profile} created with the
      * {@link #createProfile(String, List)} method.
      *
-     * @param name
-     * @param profile
-     * @param isDefault
+     * @param name name of the profile to create
+     * @param profile {@link Profile} class describing profile settings
+     * @param isDefault indicate whether this profile should be considered default
      * @return a reference to the Builder
      */
     public Builder addProfile(String name, Profile profile, boolean isDefault) {
