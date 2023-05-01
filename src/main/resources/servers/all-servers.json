@@ -10,7 +10,6 @@
   "verily-autopush.json",
   "verily-devel.json",
   "verily-mc-feature-dev.json",
-  "verily-mc-feature-dev-flagged.json",
   "verily-preprod.json",
   "verily-staging.json"
 ]
