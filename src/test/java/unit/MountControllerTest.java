@@ -279,14 +279,10 @@ public class MountControllerTest {
     try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class);
         MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
             mockStatic(LocalProcessLauncher.class);
-        MockedStatic<MountController> mockStaticMountController =
-            mockStatic(MountController.class);
         MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
             mockStatic(BaseMountHandler.class)) {
 
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
-
-      mockStaticMountController.when(MountController::getWorkspaceDir).thenReturn(tempWorkspaceDir);
 
       LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
       when(launcherMock.waitForTerminate()).thenReturn(0);

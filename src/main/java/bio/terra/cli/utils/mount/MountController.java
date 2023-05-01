@@ -173,26 +173,20 @@ public abstract class MountController {
           String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
     }
 
-    String bucketName = getBucketNameFromResource(resource);
+    // Get the path to mount the resource to
+    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
+    Path mountPath = getResourceMountPath(resource, folderPaths);
 
-    // Get the mount entry for the resource
-    List<MountEntry> mountEntries =
-        listMountEntries()
-            .map(this::getResourceMountEntry)
-            .filter(Objects::nonNull)
-            .filter(entry -> entry.bucketName.equals(bucketName))
-            .toList();
-    // Validate that the resource is mounted in one or more locations.
-    if (!silent && mountEntries.isEmpty()) {
-      throw new UserActionableException(String.format("Resource %s is not mounted.", resourceName));
-    }
     // Unmount the resource
-    mountEntries.forEach(
-        mountEntry -> {
-          Path path = Path.of(mountEntry.mountPath);
-          BaseMountHandler.unmount(path);
-          BaseMountHandler.cleanupMountPath(path);
-        });
+    try {
+      BaseMountHandler.unmount(mountPath);
+      BaseMountHandler.cleanupMountPath(mountPath);
+    } catch (UserActionableException e) {
+      if (!silent) {
+        throw new SystemException(
+            String.format("Failed to unmount resource %s.", resource.getName()));
+      }
+    }
   }
 
   public void unmountResource(String resourceName) {

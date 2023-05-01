@@ -138,7 +138,7 @@ public class FileUtils {
    * itself.
    *
    * @param root the root directory to delete empty subdirectories from.
-   * @throws SystemException if an error occurs during deletion
+   * @throws SystemException if an error occurs while deleting the empty directories.
    */
   public static void deleteEmptyDirectories(Path root) {
     try {
