@@ -71,7 +71,8 @@ public abstract class MountController {
    * Mounts all mountable resources for a given workspace
    *
    * @param disableCache Whether to disable file metadata caching for the mount
-   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
    * @return number of resources returning a nonzero exit code from their mount process
    */
   public int mountResources(boolean disableCache, @Nullable Boolean readOnly) {
@@ -88,12 +89,14 @@ public abstract class MountController {
         .sum();
   }
 
-  /** Mounts a single resource
+  /**
+   * Mounts a single resource
    *
    * @param resourceName The name of the resource to mount
    * @param disableCache Whether to disable file metadata caching for the mount
-   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
-   * */
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
+   */
   public void mountResource(String resourceName, boolean disableCache, @Nullable Boolean readOnly) {
     // Fetch resource with provided name, throw not found exception if not found
     Resource resource = Context.requireWorkspace().getResource(resourceName);
@@ -109,16 +112,26 @@ public abstract class MountController {
     mountResourceWorker(resource, mountPath, disableCache, readOnly, true);
   }
 
-  /** Builds and runs a mount handler a given resource, mount path, and mount options.
+  /**
+   * Builds and runs a mount handler a given resource, mount path, and mount options.
    *
    * @param resource The resource to mount
    * @param mountPath The path to mount the resource to
    * @param disableCache Whether to disable file metadata caching for the mount
-   * @param readOnly Whether override the default mount behavior and mount as read-only if true and read-write if false
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
    * @param throwOnError Whether to throw an exception if the mount fails
    * @return the exit code of the mount subprocess
    */
-  public int mountResourceWorker(Resource resource, Path mountPath, boolean disableCache, @Nullable Boolean readOnly, Boolean throwOnError) {
+  public int mountResourceWorker(
+      Resource resource,
+      Path mountPath,
+      boolean disableCache,
+      @Nullable Boolean readOnly,
+      Boolean throwOnError) {
+
+    // Clean up the mount path directory and error state directories if they exist
+    BaseMountHandler.cleanupMountPath(mountPath);
     // Create the mount directory if it doesn't exist
     FileUtils.createDirectories(mountPath);
     // Build and run the mount handler
@@ -138,7 +151,7 @@ public abstract class MountController {
     listMountEntries()
         .map(this::getResourceMountEntry)
         .filter(Objects::nonNull)
-        .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
+        .forEach(mountEntry -> BaseMountHandler.unmount(Path.of(mountEntry.mountPath)));
     // Delete empty directories in WORKSPACE_DIR, throw an error there are any nonempty directories
     FileUtils.deleteEmptyDirectories(getWorkspaceDir());
   }
@@ -174,9 +187,12 @@ public abstract class MountController {
       throw new UserActionableException(String.format("Resource %s is not mounted.", resourceName));
     }
     // Unmount the resource
-    mountEntries.forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
-    // Delete any empty directories in WORKSPACE_DIR silently.
-    FileUtils.deleteEmptyDirectories(getWorkspaceDir(), /*throwOnFailure=*/ false);
+    mountEntries.forEach(
+        mountEntry -> {
+          Path path = Path.of(mountEntry.mountPath);
+          BaseMountHandler.unmount(path);
+          BaseMountHandler.cleanupMountPath(path);
+        });
   }
 
   public void unmountResource(String resourceName) {

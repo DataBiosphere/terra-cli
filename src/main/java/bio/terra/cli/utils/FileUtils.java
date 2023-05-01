@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,15 +94,17 @@ public class FileUtils {
    */
   public static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
       throws IOException {
-    Files.walk(root)
-        .sorted(Comparator.reverseOrder())
-        .forEach(
-            childPath -> {
-              // only process children of the root, not the root itself
-              if (!skipRoot || !childPath.equals(root)) {
-                processChildPath.accept(childPath);
-              }
-            });
+    try (Stream<Path> paths = Files.walk(root)) {
+      paths
+          .sorted(Comparator.reverseOrder())
+          .forEach(
+              childPath -> {
+                // only process children of the root, not the root itself
+                if (!skipRoot || !childPath.equals(root)) {
+                  processChildPath.accept(childPath);
+                }
+              });
+    }
   }
 
   /**
@@ -135,11 +138,9 @@ public class FileUtils {
    * itself.
    *
    * @param root the root directory to delete empty subdirectories from.
-   * @param throwOnFailure whether to throw a {@link SystemException} if an error occurs during
-   *     deletion or to silently ignore the error.
-   * @throws SystemException if throwOnFailure is true and an error occurs during deletion
+   * @throws SystemException if an error occurs during deletion
    */
-  public static void deleteEmptyDirectories(Path root, boolean throwOnFailure) {
+  public static void deleteEmptyDirectories(Path root) {
     try {
       FileUtils.walkUpFileTree(
           root,
@@ -153,12 +154,7 @@ public class FileUtils {
           },
           false);
     } catch (Exception ex) {
-      if (throwOnFailure)
-        throw new SystemException(String.format("Error deleting empty directory %s", root), ex);
+      throw new SystemException(String.format("Error deleting empty directory %s", root), ex);
     }
-  }
-
-  public static void deleteEmptyDirectories(Path root) {
-    deleteEmptyDirectories(root, /*throwOnFailure=*/ true);
   }
 }

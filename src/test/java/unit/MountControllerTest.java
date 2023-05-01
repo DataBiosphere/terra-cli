@@ -256,7 +256,7 @@ public class MountControllerTest {
       mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
       mockStaticBaseMountHandler
-          .when(() -> BaseMountHandler.unmount(any(String.class)))
+          .when(() -> BaseMountHandler.unmount(any(Path.class)))
           .then((Answer<Void>) invocation -> null);
 
       // Run unmountResources
@@ -265,11 +265,11 @@ public class MountControllerTest {
 
       // Verify that BaseMountHandler.unmount has been called for each bucket
       mockStaticBaseMountHandler.verify(
-          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
+          () -> BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/bucket-1")));
       mockStaticBaseMountHandler.verify(
-          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-2"));
+          () -> BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/bucket-2")));
       mockStaticBaseMountHandler.verify(
-          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-3"));
+          () -> BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/bucket-3")));
     }
   }
 
@@ -294,7 +294,7 @@ public class MountControllerTest {
       mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
       mockStaticBaseMountHandler
-          .when(() -> BaseMountHandler.unmount(any(String.class)))
+          .when(() -> BaseMountHandler.unmount(any(Path.class)))
           .then((Answer<Void>) invocation -> null);
 
       // Run unmountResource
@@ -306,7 +306,7 @@ public class MountControllerTest {
 
       // Verify that BaseMountHandler.unmount has been called on the resource
       mockStaticBaseMountHandler.verify(
-          () -> BaseMountHandler.unmount(tempWorkspaceDir + "/bucket-1"));
+          () -> BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/bucket-1")));
     }
   }
 }

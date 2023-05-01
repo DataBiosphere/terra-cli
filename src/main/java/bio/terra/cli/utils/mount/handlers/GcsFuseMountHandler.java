@@ -74,13 +74,13 @@ public class GcsFuseMountHandler extends BaseMountHandler {
   public void addErrorToMountPoint(String errorMessage, String bucketOutputName) {
     logger.error(errorMessage);
     if (errorMessage.contains("forbidden")) {
-      addPermissionErrorToMountPoint();
+      addErrorStateToMountPoint(BaseMountHandler.PERMISSION_ERROR);
       logger.info("Insufficient permissions. Unable to access GCS bucket " + bucketOutputName);
     } else if (errorMessage.contains("bucket doesn't exist")) {
-      addNotFoundErrorToMountPoint();
+      addErrorStateToMountPoint(BaseMountHandler.NOT_FOUND_ERROR);
       logger.info("GCS bucket not found: " + bucketOutputName);
     } else {
-      addErrorStateToMountPoint();
+      addErrorStateToMountPoint(BaseMountHandler.MOUNT_FAILED_ERROR);
       logger.info("Failed to mount GCS bucket " + bucketOutputName);
     }
   }
