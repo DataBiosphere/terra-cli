@@ -984,7 +984,7 @@ file:
 ``` shell
 $ eval "$(terra workspace configure-aws)"
 $ echo $AWS_CONFIG_FILE 
-/Users/jczerk/.terra/aws/jczerk_aws_202304131028.conf
+/Users/jczerk/.terra/aws/verily_devel/jczerk_aws_202304131028.conf
 ```
 Now we can use profile `aws_folder_20230422` to copy a file into our S3 Storage
 Folder:
