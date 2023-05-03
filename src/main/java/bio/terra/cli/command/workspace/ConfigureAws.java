@@ -10,7 +10,6 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.AwsConfiguration;
 import bio.terra.cli.utils.FileUtils;
 import com.google.common.annotations.VisibleForTesting;
-import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -57,7 +56,9 @@ public class ConfigureAws extends WsmBaseCommand {
   private String defaultResourceName;
 
   private static Path getAwsContextDir() {
-    return Context.getContextDir().resolve("aws");
+    return Context.getContextDir()
+        .resolve(AWS_CONTEXT_SUBDIRECTORY_NAME)
+        .resolve(Context.getServer().getName());
   }
 
   private static Path getConfigFilePath(Workspace workspace) {
