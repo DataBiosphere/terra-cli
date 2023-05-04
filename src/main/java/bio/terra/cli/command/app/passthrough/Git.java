@@ -87,13 +87,15 @@ public class Git extends ToolCommand {
                         resource.getResourceType(), resource.getName()));
               }
               return new Repo(resource.getName(), resource.resolve());
-            }).toList();
+            })
+        .toList();
   }
 
   private void clone(List<Repo> gitRepos) {
     gitRepos.forEach(
         gitRepo -> {
-          List<String> cloneCommands = ImmutableList.of("git", "clone", gitRepo.url, gitRepo.resourceName);
+          List<String> cloneCommands =
+              ImmutableList.of("git", "clone", gitRepo.url, gitRepo.resourceName);
           try {
             Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);
           } catch (PassthroughException e) {
