@@ -6,10 +6,7 @@ import bio.terra.cli.exception.PassthroughException;
 import bio.terra.cli.exception.UserActionableException;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -18,6 +15,8 @@ import picocli.CommandLine.Command;
 @Command(name = "git", description = "Call git in the Terra workspace.")
 public class Git extends ToolCommand {
   private static final Logger logger = LoggerFactory.getLogger(Git.class);
+
+  private record Repo(String resourceName, String url) {}
 
   @CommandLine.Option(
       names = "--resource",
@@ -69,17 +68,16 @@ public class Git extends ToolCommand {
     }
   }
 
-  private Set<String> getGitReposInWorkspace() {
+  private List<Repo> getGitReposInWorkspace() {
     return Context.requireWorkspace().listResources().stream()
         .filter(resource -> Resource.Type.GIT_REPO == resource.getResourceType())
-        .map(Resource::resolve)
-        .collect(Collectors.toSet());
+        .map(resource -> new Repo(resource.getName(), resource.resolve()))
+        .toList();
   }
 
-  private Set<String> getGitReposByNames() {
-    Set<String> gitResources = new HashSet<>();
-    Arrays.stream(names)
-        .forEach(
+  private List<Repo> getGitReposByNames() {
+    return Arrays.stream(names)
+        .map(
             name -> {
               Resource resource = Context.requireWorkspace().getResource(name);
               if (Resource.Type.GIT_REPO != resource.getResourceType()) {
@@ -88,15 +86,14 @@ public class Git extends ToolCommand {
                         "%s %s cannot be cloned because it is not a git resource",
                         resource.getResourceType(), resource.getName()));
               }
-              gitResources.add(resource.resolve());
-            });
-    return gitResources;
+              return new Repo(resource.getName(), resource.resolve());
+            }).toList();
   }
 
-  private void clone(Set<String> gitRepos) {
+  private void clone(List<Repo> gitRepos) {
     gitRepos.forEach(
         gitRepo -> {
-          List<String> cloneCommands = ImmutableList.of("git", "clone", gitRepo);
+          List<String> cloneCommands = ImmutableList.of("git", "clone", gitRepo.url, gitRepo.resourceName);
           try {
             Context.getConfig().getCommandRunnerOption().getRunner().runToolCommand(cloneCommands);
           } catch (PassthroughException e) {
