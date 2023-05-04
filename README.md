@@ -810,6 +810,7 @@ Setup a Terra workspace.
 Commands:
   add-user         Add a user or group to the workspace.
   break-glass      Grant break-glass access to a workspace user.
+  configure-aws    Generate an AWS configuration file for a workspace.
   duplicate        Duplicate an existing workspace.
   create           Create a new workspace.
   delete           Delete an existing workspace.
@@ -949,6 +950,67 @@ terra app execute dsub \
 (Note: The command above came from
 the `dsub` [README](https://github.com/DataBiosphere/dsub/blob/main/README.md#getting-started-on-google-cloud)
 .)
+
+#### Configuring Credentials for AWS Resources
+Accessing AWS Workspace resources via the AWS CLI or SDK can be configured
+using the `terra configure-aws` command.  This command writes an 
+[AWS configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
+with two profiles for each AWS resource in the workspace to a file named after
+the Workspace in `$HOME/terra/aws/`.
+
+The output of this command is meant to be used with the 
+[bash `eval` command](https://ss64.com/bash/eval.html) to set up the current
+environment to access resource in the current workspace by outputting a bash
+command to set the `AWS_CONFIG_FILE` environment variable to the newly created
+AWS configuration file.  In turn this file contains two profiles for each
+resource, one named after the resource, and one suffixed with `-ro`; the former
+provides write/read access to the resource, the latter provides read-only.
+
+##### AWS Configuration Example
+Workspace has a single AWS S3 Storage folder (output truncated):
+``` shell
+$ terra resource describe --name aws_folder_20230422
+Name:         aws_folder_20230422
+Description:  My First Storage Folder
+Type:         S3_STORAGE_FOLDER
+Region:       us-east-1
+...
+AWS S3 Storage Folder: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
+# Objects: 0
+```
+Call `terra workspace configure-aws` wrapped in a bash `eval` command and note
+that environment variable `AWS_CONFIG_FILE` points at the newly written config
+file:
+``` shell
+$ eval "$(terra workspace configure-aws)"
+$ echo $AWS_CONFIG_FILE 
+/Users/jczerk/.terra/aws/verily_devel/jczerk_aws_202304131028.conf
+```
+Now we can use profile `aws_folder_20230422` to copy a file into our S3 Storage
+Folder:
+``` shell
+$ aws --profile=aws_folder_20230422 s3 cp /tmp/hello.txt s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
+upload: /tmp/hello.txt to s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+```
+And using read-only profile `aws_folder_20230422-ro` allows us to list this
+file:
+```shell
+$ aws --profile=aws_folder_20230422-ro s3 ls s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
+2023-04-22 09:53:15          0 
+2023-05-01 11:32:10         14 hello.txt
+```
+But not delete it:
+```shell
+$ aws --profile=aws_folder_20230422-ro s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+delete failed: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt An error occurred (AccessDenied) when calling the DeleteObject operation: Access Denied
+```
+Switching back to profile `aws_folder_20230422`, delete succeeds:
+```shell
+$ aws --profile=aws_folder_20230422 s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+delete: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+```
+Caching credentials using tool [`aws-vault`](https://github.com/99designs/aws-vault) is recommended, and can be
+configured using options ` --cache-with-aws-vault` and `--aws-vault-path`.
 
 ### Exit codes
 
