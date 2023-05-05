@@ -4,12 +4,15 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
 import bio.terra.cli.cloud.gcp.GoogleOauth;
 import bio.terra.cli.exception.SystemException;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.auth.oauth2.*;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdToken;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.FileInputStream;
@@ -252,8 +255,6 @@ public class TestUser {
    * that the context have a workspace backed by a Google project.
    *
    * @return Credentials of the user's pet SA
-   * @throws UserActionableException if the current workspace does not have a backing GCP cloud
-   *     context
    */
   public GoogleCredentials getPetSaCredentials() throws IOException {
     String googleProjectId = Context.requireWorkspace().getRequiredGoogleProjectId();
