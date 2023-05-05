@@ -300,11 +300,10 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     // `terra git clone --all`
     TestCommand.runCommandExpectSuccess("git", "clone", "--all");
 
-    assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), resource1Name, ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), resource2Name, ".git")));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/" + resource1Name));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/" + resource2Name));
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resource1Name, "--quiet");
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + resource2Name, "--quiet");
   }
@@ -343,13 +342,12 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     // `terra git clone --resource=$bucketResourceName`
     TestCommand.runCommandExpectExitCode(1, "git", "clone", "--resource=" + bucketResourceName);
 
-    assertTrue(
-        Files.exists(Paths.get(System.getProperty("user.dir"), "terra-example-notebooks", ".git")));
-    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), "terra", ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), repo1, ".git")));
+    assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"), repo2, ".git")));
 
     // cleanup
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra-example-notebooks"));
-    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + "/terra"));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + repo1));
+    FileUtils.deleteQuietly(new File(System.getProperty("user.dir") + repo2));
   }
 
   @Test
