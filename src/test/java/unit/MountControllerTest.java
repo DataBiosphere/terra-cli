@@ -134,8 +134,6 @@ public class MountControllerTest {
         .when(spyMountController)
         .getResourceMountPath(any(Resource.class), anyMap());
 
-    doReturn(true).when(spyMountController).isMountableResource(any(Resource.class));
-
     doReturn(mountHandler1, mountHandler2)
         .when(spyMountController)
         .getMountHandler(any(Resource.class), eq(mountPath1), anyBoolean(), anyBoolean());
@@ -248,7 +246,11 @@ public class MountControllerTest {
             mockStatic(MountController.class);
         MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
             mockStatic(BaseMountHandler.class)) {
+
       mockStaticMountController.when(MountController::getWorkspaceDir).thenReturn(tempWorkspaceDir);
+      mockStaticMountController
+          .when(() -> MountController.isMountableResource(any(Resource.class)))
+          .thenReturn(true);
 
       LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
       when(launcherMock.waitForTerminate()).thenReturn(0);
@@ -277,12 +279,18 @@ public class MountControllerTest {
   @DisplayName("mountController unmounts a single bucket")
   void unmountResource_succeeds() {
     try (MockedStatic<Context> mockStaticContext = mockStatic(Context.class);
+        MockedStatic<MountController> mockStaticMountController =
+            mockStatic(MountController.class);
         MockedStatic<LocalProcessLauncher> mockStaticLocalProcessLauncher =
             mockStatic(LocalProcessLauncher.class);
         MockedStatic<BaseMountHandler> mockStaticBaseMountHandler =
             mockStatic(BaseMountHandler.class)) {
 
       mockStaticContext.when(Context::requireWorkspace).thenReturn(workspace);
+
+      mockStaticMountController
+          .when(() -> MountController.isMountableResource(any(Resource.class)))
+          .thenReturn(true);
 
       LocalProcessLauncher launcherMock = mock(LocalProcessLauncher.class);
       when(launcherMock.waitForTerminate()).thenReturn(0);
@@ -295,9 +303,6 @@ public class MountControllerTest {
 
       // Run unmountResource
       MountController spyMountController = getSpyMountController();
-      doReturn(resource1.getName())
-          .when(spyMountController)
-          .getBucketNameFromResource(any(Resource.class));
       spyMountController.unmountResource(resource1.getName());
 
       // Verify that BaseMountHandler.unmount has been called on the resource

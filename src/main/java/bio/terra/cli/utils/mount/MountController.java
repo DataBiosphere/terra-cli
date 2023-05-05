@@ -80,7 +80,7 @@ public abstract class MountController {
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
 
     return resources.stream()
-        .filter(this::isMountableResource)
+        .filter(MountController::isMountableResource)
         .mapToInt(
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
@@ -123,7 +123,7 @@ public abstract class MountController {
    * @param throwOnError Whether to throw an exception if the mount fails
    * @return the exit code of the mount subprocess
    */
-  public int mountResourceWorker(
+  private int mountResourceWorker(
       Resource resource,
       Path mountPath,
       boolean disableCache,
@@ -228,7 +228,7 @@ public abstract class MountController {
    * folder.
    */
   @VisibleForTesting
-  public boolean isMountableResource(Resource r) {
+  public static boolean isMountableResource(Resource r) {
     if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
       return true;
     }
@@ -340,20 +340,5 @@ public abstract class MountController {
     return r.getResourceType().equals(Resource.Type.GCS_BUCKET)
         && r.getStewardshipType().equals(StewardshipType.CONTROLLED)
         && r.getCreatedBy().equals(Context.requireUser().getEmail());
-  }
-
-  /**
-   * Helper method to get the bucket name from a resource.
-   *
-   * @param r resource to get the bucket name from
-   * @return bucket name, empty if resource is not a GCS bucket or object
-   */
-  @VisibleForTesting
-  public String getBucketNameFromResource(Resource r) {
-    return r.getResourceType().equals(Resource.Type.GCS_BUCKET)
-        ? ((GcsBucket) r).getBucketName()
-        : r.getResourceType().equals(Resource.Type.GCS_OBJECT)
-            ? ((GcsObject) r).getBucketName()
-            : "";
   }
 }
