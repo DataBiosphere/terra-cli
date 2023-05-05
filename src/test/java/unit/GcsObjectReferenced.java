@@ -68,19 +68,13 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
 
     // upload an object to the bucket
     ExternalGCSBuckets.writeBlob(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
-        externalBucket.getName(),
-        externalBucketBlobName);
+        workspaceCreator.getPetSaCredentials(), externalBucket.getName(), externalBucketBlobName);
 
     ExternalGCSBuckets.writeBlob(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
-        externalBucket.getName(),
-        externalBucketBlobName2);
+        workspaceCreator.getPetSaCredentials(), externalBucket.getName(), externalBucketBlobName2);
 
     ExternalGCSBuckets.writeBlob(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
-        externalBucket2.getName(),
-        externalBucketBlobName2);
+        workspaceCreator.getPetSaCredentials(), externalBucket2.getName(), externalBucketBlobName2);
   }
 
   @AfterAll
@@ -90,6 +84,7 @@ public class GcsObjectReferenced extends SingleWorkspaceUnitGcp {
 
     // need to delete all the objects in the bucket before we can delete the bucket
     try {
+      // This cannot use the user's pet SA, as the project it lived in was deleted above.
       Storage storageClient =
           ExternalGCSBuckets.getStorageClient(
               workspaceCreator.getCredentialsWithCloudPlatformScope());

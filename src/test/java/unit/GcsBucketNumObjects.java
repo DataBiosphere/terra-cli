@@ -43,9 +43,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
     // upload a file to the bucket
     ExternalGCSBuckets.writeBlob(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
-        externalBucket.getName(),
-        externalBucketBlobName);
+        workspaceCreator.getPetSaCredentials(), externalBucket.getName(), externalBucketBlobName);
   }
 
   @AfterAll
@@ -55,6 +53,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
     // need to delete all the objects in the bucket before we can delete the bucket
     try {
+      // This cannot use the user's pet SA, as the project it lived in was deleted above.
       Storage storageClient =
           ExternalGCSBuckets.getStorageClient(
               workspaceCreator.getCredentialsWithCloudPlatformScope());
@@ -103,8 +102,7 @@ public class GcsBucketNumObjects extends SingleWorkspaceUnitGcp {
 
     // write a blob to the bucket
     String blobName = "testBlob";
-    ExternalGCSBuckets.writeBlob(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(), bucketName, blobName);
+    ExternalGCSBuckets.writeBlob(workspaceCreator.getPetSaCredentials(), bucketName, blobName);
 
     // `terra resource describe --name=$name`
     UFGcsBucket describedBucket =

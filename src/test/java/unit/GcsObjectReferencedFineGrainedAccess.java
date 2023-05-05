@@ -54,7 +54,7 @@ public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp
 
     sharedBlob =
         ExternalGCSBuckets.writeBlob(
-            workspaceCreator.getCredentialsWithCloudPlatformScope(),
+            workspaceCreator.getPetSaCredentials(),
             externalBucket.getName(),
             sharedExternalBlobName);
 
@@ -75,6 +75,7 @@ public class GcsObjectReferencedFineGrainedAccess extends SingleWorkspaceUnitGcp
 
     // need to delete all the objects in the bucket before we can delete the bucket
     try {
+      // This cannot use the user's pet SA, as the project it lived in was deleted above.
       Storage storageClient =
           ExternalGCSBuckets.getStorageClient(
               workspaceCreator.getCredentialsWithCloudPlatformScope());

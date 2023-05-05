@@ -69,19 +69,19 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
 
     // create a table in the dataset
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
         externalDataTableName);
 
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
         externalDataTableName2);
 
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         externalDataset2.getProjectId(),
         externalDataset2.getDatasetId(),
         externalDataTableName2);
@@ -502,7 +502,7 @@ public class BqTableReferenced extends SingleWorkspaceUnitGcp {
             "--dataset-id=" + datasetId);
     String tableInControlledDataset = "tableInControlledDataset";
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         createdDataset.projectId,
         createdDataset.datasetId,
         tableInControlledDataset);

@@ -208,7 +208,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     Storage localProjectStorageClient =
         StorageOptions.newBuilder()
             .setProjectId(createdWorkspace.googleProjectId)
-            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .setCredentials(workspaceCreator.getPetSaCredentials())
             .build()
             .getService();
 

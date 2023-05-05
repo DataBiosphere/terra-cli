@@ -301,7 +301,7 @@ public class WorkspaceOverrideGcp extends ClearContextUnit {
     Storage localProjectStorageClient =
         StorageOptions.newBuilder()
             .setProjectId(workspace2.googleProjectId)
-            .setCredentials(workspaceCreator.getCredentialsWithCloudPlatformScope())
+            .setCredentials(workspaceCreator.getPetSaCredentials())
             .build()
             .getService();
     Page<Bucket> createdBucketOnCloud =

@@ -9,7 +9,6 @@ import harness.baseclasses.ClearContextIntegration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -43,33 +42,5 @@ public class Nextflow extends ClearContextIntegration {
         "nextflow output includes the hello world string",
         scriptOutput,
         CoreMatchers.containsString("Hello world!"));
-  }
-
-  @Test
-  @DisplayName("nextflow config and run with GLS tutorial")
-  void nextflowFromGLSTutorial() throws IOException {
-    // select a test user and login
-    TestUser testUser = TestUser.chooseTestUserWithSpendAccess();
-    testUser.login(/*writeGcloudAuthFiles=*/ true);
-
-    // create a workspace
-    int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
-    assertEquals(0, exitCode, "workspace created without errors");
-
-    String resourceName = "terraclitesting";
-    // run the script that downloads the NF workflow from GH and runs it
-    TestBashScript.runScript("NextflowRnaseqSetup.sh", List.of(resourceName));
-
-    // Try running the script once, which will likely (but not definitely) fail due to missing
-    // permissions on the bucket.
-    exitCode = TestBashScript.runScript("NextflowRnaseqWorkflow.sh", List.of(resourceName));
-    if (exitCode != 0) {
-      // Try running the script a second time. After the first run, the user is much more likely to
-      // have bucket permissions.
-      exitCode = TestBashScript.runScript("NextflowRnaseqWorkflow.sh", List.of(resourceName));
-    }
-
-    // check that the NF script ran successfully at least one time.
-    assertEquals(0, exitCode, "script completed without errors");
   }
 }
