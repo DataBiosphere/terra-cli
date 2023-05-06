@@ -1,6 +1,7 @@
 package bio.terra.cli.utils;
 
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
@@ -10,7 +11,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,15 +94,17 @@ public class FileUtils {
    */
   public static void walkUpFileTree(Path root, Consumer<Path> processChildPath, boolean skipRoot)
       throws IOException {
-    Files.walk(root)
-        .sorted(Comparator.reverseOrder())
-        .forEach(
-            childPath -> {
-              // only process children of the root, not the root itself
-              if (!skipRoot || !childPath.equals(root)) {
-                processChildPath.accept(childPath);
-              }
-            });
+    try (Stream<Path> paths = Files.walk(root)) {
+      paths
+          .sorted(Comparator.reverseOrder())
+          .forEach(
+              childPath -> {
+                // only process children of the root, not the root itself
+                if (!skipRoot || !childPath.equals(root)) {
+                  processChildPath.accept(childPath);
+                }
+              });
+    }
   }
 
   /**
@@ -115,6 +120,20 @@ public class FileUtils {
   }
 
   /**
+   * Helper method to check if a directory is empty.
+   *
+   * @param path The path to check.
+   * @return True if the path is a directory and is empty, false otherwise.
+   */
+  public static boolean isEmptyDirectory(Path path) {
+    try {
+      return Files.isDirectory(path) && Objects.requireNonNull(path.toFile().list()).length == 0;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
    * Recursively deletes empty subdirectories in the given root directory, excluding the root
    * itself.
    *
@@ -123,9 +142,19 @@ public class FileUtils {
    */
   public static void deleteEmptyDirectories(Path root) {
     try {
-      FileUtils.walkUpFileTree(root, childPath -> childPath.toFile().delete(), false);
-    } catch (IOException ex) {
-      throw new SystemException("Error deleting empty directories", ex);
+      FileUtils.walkUpFileTree(
+          root,
+          childPath -> {
+            if (isEmptyDirectory(childPath)) {
+              childPath.toFile().delete();
+            } else {
+              throw new UserActionableException(
+                  String.format("Directory is not empty: %s", childPath));
+            }
+          },
+          false);
+    } catch (Exception ex) {
+      throw new SystemException(String.format("Error deleting empty directory %s", root), ex);
     }
   }
 }

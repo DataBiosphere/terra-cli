@@ -152,7 +152,7 @@ public class MountHandlerTest {
       mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
       // Run unmount
-      BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
+      BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/" + bucketName));
 
       // Check that we get the successful unmounted message
       verify(mockLogger).info("Unmounted " + tempWorkspaceDir + "/" + bucketName);
@@ -176,7 +176,7 @@ public class MountHandlerTest {
       mockStaticLocalProcessLauncher.when(LocalProcessLauncher::create).thenReturn(launcherMock);
 
       // Run unmount
-      BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName);
+      BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/" + bucketName));
 
       // Check that no messages are logged
       verifyNoInteractions(mockLogger);
@@ -211,7 +211,7 @@ public class MountHandlerTest {
       Exception exception =
           assertThrows(
               UserActionableException.class,
-              () -> BaseMountHandler.unmount(tempWorkspaceDir + "/" + bucketName));
+              () -> BaseMountHandler.unmount(Path.of(tempWorkspaceDir + "/" + bucketName)));
 
       // Check that exception is thrown
       assertEquals(
