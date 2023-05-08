@@ -41,7 +41,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
 
     // create a table in the dataset
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         externalDataset.getProjectId(),
         externalDataset.getDatasetId(),
         externalTable);
@@ -90,7 +90,7 @@ public class BqDatasetNumTables extends SingleWorkspaceUnitGcp {
     // create a table in the dataset
     String tableName = "testTable";
     ExternalBQDatasets.createTable(
-        workspaceCreator.getCredentialsWithCloudPlatformScope(),
+        workspaceCreator.getPetSaCredentials(),
         createdDataset.projectId,
         createdDataset.datasetId,
         tableName);

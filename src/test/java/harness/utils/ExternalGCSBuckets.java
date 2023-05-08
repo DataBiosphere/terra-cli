@@ -207,8 +207,7 @@ public class ExternalGCSBuckets {
   public static List<? extends LifecycleRule> getLifecycleRulesFromCloud(
       String bucketName, TestUser workspaceCreator) throws IOException {
     Bucket createdBucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getPetSaCredentials()).get(bucketName);
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
 
     List<? extends BucketInfo.LifecycleRule> lifecycleRules =

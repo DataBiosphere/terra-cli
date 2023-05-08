@@ -321,8 +321,7 @@ public class BqDatasetControlled extends SingleWorkspaceUnitGcp {
     Dataset createdDatasetOnCloud =
         CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
-                ExternalBQDatasets.getBQClient(
-                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                ExternalBQDatasets.getBQClient(workspaceCreator.getPetSaCredentials())
                     .getDataset(DatasetId.of(workspace.googleProjectId, datasetId)));
     assertNotNull(createdDatasetOnCloud, "looking up dataset via BQ API succeeded");
     assertEquals(

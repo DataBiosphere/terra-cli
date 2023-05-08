@@ -295,8 +295,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
     Bucket createdBucketOnCloud =
         CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
-                ExternalGCSBuckets.getStorageClient(
-                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                ExternalGCSBuckets.getStorageClient(workspaceCreator.getPetSaCredentials())
                     .get(bucketName));
     assertNotNull(createdBucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
@@ -400,8 +399,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
 
     // check the updated storage class from GCS directly
     Bucket bucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getPetSaCredentials()).get(bucketName);
     assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         newStorage.toString(),
@@ -458,8 +456,7 @@ public class GcsBucketControlled extends SingleWorkspaceUnitGcp {
 
     // check the storage class from GCS directly
     Bucket bucketOnCloud =
-        ExternalGCSBuckets.getStorageClient(workspaceCreator.getCredentialsWithCloudPlatformScope())
-            .get(bucketName);
+        ExternalGCSBuckets.getStorageClient(workspaceCreator.getPetSaCredentials()).get(bucketName);
     assertNotNull(bucketOnCloud, "looking up bucket via GCS API succeeded");
     assertEquals(
         newStorage.toString(),

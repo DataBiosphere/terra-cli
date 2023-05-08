@@ -185,8 +185,7 @@ public class BqDatasetLifetime extends SingleWorkspaceUnitGcp {
     Dataset dataset =
         CrlUtils.callGcpWithPermissionExceptionRetries(
             () ->
-                ExternalBQDatasets.getBQClient(
-                        workspaceCreator.getCredentialsWithCloudPlatformScope())
+                ExternalBQDatasets.getBQClient(workspaceCreator.getPetSaCredentials())
                     .getDataset(datasetId));
 
     assertNotNull(dataset, "looking up dataset via BQ API succeeded");

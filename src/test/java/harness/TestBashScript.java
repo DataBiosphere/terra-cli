@@ -22,7 +22,7 @@ public class TestBashScript {
    * Executes a test script in a separate process from the current working directory.
    *
    * @param scriptName name of the script in the test/resources/testscripts directory (e.g.
-   *     NextflowRnaseqSetup.sh)
+   *     NextflowHelloWorld.sh)
    * @param args arguments to pass to the test script
    * @return process exit code
    */

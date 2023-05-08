@@ -41,7 +41,8 @@ public class User {
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
   // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status
   // of a GCP notebook)
-  private static final List<String> PET_SA_SCOPES =
+  @VisibleForTesting
+  public static final List<String> PET_SA_SCOPES =
       ImmutableList.of(
           "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
   // Number of milliseconds early to consider auth credentials as expired.
