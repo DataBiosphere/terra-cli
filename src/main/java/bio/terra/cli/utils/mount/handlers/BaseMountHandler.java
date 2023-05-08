@@ -3,6 +3,7 @@ package bio.terra.cli.utils.mount.handlers;
 import bio.terra.cli.app.utils.LocalProcessLauncher;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.utils.FileUtils;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,6 +22,10 @@ public abstract class BaseMountHandler {
   protected Path mountPoint;
   protected boolean disableCache;
   protected boolean readOnly;
+
+  public static final String PERMISSION_ERROR = "_NO_ACCESS";
+  public static final String NOT_FOUND_ERROR = "_NOT_FOUND";
+  public static final String MOUNT_FAILED_ERROR = "_MOUNT_FAILED";
 
   @VisibleForTesting
   public static void setLogger(Logger newLogger) {
@@ -44,10 +49,10 @@ public abstract class BaseMountHandler {
    * @throws SystemException if the unmount fails because there is no existing mount entry or any
    *     other error.
    */
-  public static void unmount(String mountPath) throws UserActionableException, SystemException {
+  public static void unmount(Path mountPath) throws UserActionableException, SystemException {
     // Build unmount command
     List<String> command = new java.util.ArrayList<>(getUnmountCommand());
-    command.add(mountPath);
+    command.add(mountPath.toString());
 
     // Run unmount command
     LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
@@ -103,25 +108,13 @@ public abstract class BaseMountHandler {
     return false;
   }
 
-  protected void addPermissionErrorToMountPoint() {
-    addErrorStateToMountPoint("_NO_ACCESS");
-  }
-
-  protected void addNotFoundErrorToMountPoint() {
-    addErrorStateToMountPoint("_NOT_FOUND");
-  }
-
-  protected void addErrorStateToMountPoint() {
-    addErrorStateToMountPoint("_MOUNT_FAILED");
-  }
-
   /**
    * Appends an error string to the mount point directory. This is done by renaming the mount point
    * to mountPoint_errorString.
    *
    * @param errorString the error string.
    */
-  private void addErrorStateToMountPoint(String errorString) {
+  protected void addErrorStateToMountPoint(String errorString) {
     // Add error state to mount point
     Path pathWithErrorString = mountPoint.resolveSibling(mountPoint.toAbsolutePath() + errorString);
     try {
@@ -130,5 +123,33 @@ public abstract class BaseMountHandler {
       throw new SystemException(
           "Failed to set error state to mounted resource at: " + mountPoint, e);
     }
+  }
+
+  /**
+   * Delete any directories of a given mount path and sibling directories that have error states
+   * their names.
+   *
+   * @param mountPath the path to the mounted resource.
+   * @throws SystemException if the deletion fails.
+   */
+  public static void cleanupMountPath(Path mountPath) {
+    Path parentDir = mountPath.getParent();
+    List<Path> dirs =
+        List.of(
+            mountPath,
+            parentDir.resolve(mountPath + PERMISSION_ERROR),
+            parentDir.resolve(mountPath + NOT_FOUND_ERROR),
+            parentDir.resolve(mountPath + MOUNT_FAILED_ERROR));
+
+    dirs.forEach(
+        dir -> {
+          try {
+            if (FileUtils.isEmptyDirectory(dir)) {
+              Files.delete(dir);
+            }
+          } catch (IOException e) {
+            throw new SystemException("Failed to delete directory: " + dir, e);
+          }
+        });
   }
 }

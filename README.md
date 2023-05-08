@@ -735,6 +735,11 @@ allowed).
 Users can mount GCS buckets and referenced folder objects locally to the user's
 home directory in `$HOME/workspace/` by running `terra resource mount`.
 
+Users can specify the `--name` flag with the name of a GCS bucket or GCS object
+resource to only mount that individual resource. This flag is useful for
+remounting a resource that had failed to mount or has been moved to a different
+folder in the workspace.
+
 By default, controlled GCS buckets and referenced folder objects created by the
 user will be mounted with read-write permissions while controlled buckets
 created by other users and referenced bucket folders will be mounted with
@@ -750,6 +755,19 @@ state of the bucket. This is useful when working with collaborators in a shared
 workspace. See more details in
 the [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#caching)
 repository.
+
+###### Mount Failures
+
+If a mount has failed, an empty directory will be left at mount point with the
+resource name and a suffix error string indicating the failure. Users can
+remount the bucket after resolving bucket access or bucket reference issues.
+
+Unmounting a single resource can fail if the resource has been renamed or moved
+to a different workspace folder. In this case, users can either
+run `terra resource unmount` to unmount all mounted resources
+in `$HOME/workspace/`. Or, users can directly list out all mounted filesytems
+with `mount` and then unmount the resource using its mount path
+with `fusermount -u` (for linux) or `umount` for (MacOS).
 
 #### Server
 

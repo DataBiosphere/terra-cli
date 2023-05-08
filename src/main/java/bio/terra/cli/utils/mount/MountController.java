@@ -6,6 +6,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
 import bio.terra.cli.exception.SystemException;
+import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.utils.FileUtils;
 import bio.terra.cli.utils.mount.handlers.BaseMountHandler;
 import bio.terra.cli.utils.mount.handlers.GcsFuseMountHandler;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /** This class provides utility methods for mounting and unmount workspace resources */
@@ -40,7 +42,7 @@ public abstract class MountController {
   // String to look for in mount entry to determine if it is a user created fuse mount
   private static final String FUSE_MOUNT_ENTRY = "fuse";
 
-  protected record MountEntry(String resourceName, String mountPath, String mountDetails) {}
+  protected record MountEntry(String bucketName, String mountPath, String mountDetails) {}
 
   // Helper method to stub static WORKSPACE_DIR
   public static Path getWorkspaceDir() {
@@ -68,37 +70,135 @@ public abstract class MountController {
   /**
    * Mounts all mountable resources for a given workspace
    *
-   * @param disableCache Whether to disable caching for the mounts
-   * @param readOnly Whether to mount the resources as read only. If null, the resources will be
-   *     mounted with permissions based on if the resource was created by the user or not.
-   * @return number of resources that errored during mount
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
+   * @return number of resources returning a nonzero exit code from their mount process
    */
   public int mountResources(boolean disableCache, @Nullable Boolean readOnly) {
-    // Create root workspace directory if it does not exist
-    createWorkspaceDir();
-
-    // Fetch workspace resources and folders
     List<Resource> resources = Context.requireWorkspace().listResources();
     Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
 
     return resources.stream()
-        .filter(this::isMountableResource)
+        .filter(MountController::isMountableResource)
         .mapToInt(
             r -> {
               Path mountPath = getResourceMountPath(r, folderPaths);
-              FileUtils.createDirectories(mountPath);
-
-              boolean mountReadOnly =
-                  Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(r));
-              BaseMountHandler handler = getMountHandler(r, mountPath, disableCache, mountReadOnly);
-              return handler.mount();
+              return mountResourceWorker(r, mountPath, disableCache, readOnly, false);
             })
         .sum();
   }
 
+  /**
+   * Mounts a single resource
+   *
+   * @param resourceName The name of the resource to mount
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
+   */
+  public void mountResource(String resourceName, boolean disableCache, @Nullable Boolean readOnly) {
+    // Fetch resource with provided name, throw not found exception if not found
+    Resource resource = Context.requireWorkspace().getResource(resourceName);
+    // Validate that the resource is a mountable resource
+    if (!isMountableResource(resource)) {
+      throw new UserActionableException(
+          String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
+    }
+    // Get the path to mount the resource to
+    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
+    Path mountPath = getResourceMountPath(resource, folderPaths);
+    // Mount the resource
+    mountResourceWorker(resource, mountPath, disableCache, readOnly, true);
+  }
+
+  /**
+   * Builds and runs a mount handler a given resource, mount path, and mount options.
+   *
+   * @param resource The resource to mount
+   * @param mountPath The path to mount the resource to
+   * @param disableCache Whether to disable file metadata caching for the mount
+   * @param readOnly Whether override the default mount behavior and mount as read-only if true and
+   *     read-write if false
+   * @param throwOnError Whether to throw an exception if the mount fails
+   * @return the exit code of the mount subprocess
+   */
+  private int mountResourceWorker(
+      Resource resource,
+      Path mountPath,
+      boolean disableCache,
+      @Nullable Boolean readOnly,
+      Boolean throwOnError) {
+
+    // Clean up the mount path directory and error state directories if they exist
+    BaseMountHandler.cleanupMountPath(mountPath);
+    // Create the mount directory if it doesn't exist
+    FileUtils.createDirectories(mountPath);
+    // Build and run the mount handler
+    boolean mountReadOnly = Objects.requireNonNullElseGet(readOnly, () -> !createdByUser(resource));
+    BaseMountHandler handler = getMountHandler(resource, mountPath, disableCache, mountReadOnly);
+    int exitCode = handler.mount();
+    // Throw an exception if the mount failed
+    if (throwOnError && exitCode != 0) {
+      throw new UserActionableException(
+          String.format("Failed to mount resource %s.", resource.getName()));
+    }
+    return exitCode;
+  }
+
   /** Unmount all mountable resources for a given workspace */
   public void unmountResources() {
-    // List all mounted directories
+    listMountEntries()
+        .map(this::getResourceMountEntry)
+        .filter(Objects::nonNull)
+        .forEach(mountEntry -> BaseMountHandler.unmount(Path.of(mountEntry.mountPath)));
+    // Delete empty directories in WORKSPACE_DIR, throw an error there are any nonempty directories
+    FileUtils.deleteEmptyDirectories(getWorkspaceDir());
+  }
+
+  /**
+   * Unmount a single resource with the provided name
+   *
+   * @param silent if true, do not throw an exception if the resource is not mounted.
+   *     <p>We unmount silently if we are calling this method as a part of cleaning the mount entry
+   *     before mounting. If the user directly unmounts a resource, we do want to throw an
+   *     exception.
+   */
+  public void unmountResource(String resourceName, boolean silent) {
+    // Fetch resource with provided name, throw exception if not found
+    Resource resource = Context.requireWorkspace().getResource(resourceName);
+    // Validate that the resource is a mountable resource
+    if (!isMountableResource(resource)) {
+      throw new UserActionableException(
+          String.format("%s is not a bucket or a referenced bucket folder.", resourceName));
+    }
+
+    // Get the path to mount the resource to
+    Map<UUID, Path> folderPaths = getFolderIdToFolderPathMap();
+    Path mountPath = getResourceMountPath(resource, folderPaths);
+
+    // Unmount the resource
+    try {
+      BaseMountHandler.unmount(mountPath);
+      BaseMountHandler.cleanupMountPath(mountPath);
+    } catch (UserActionableException e) {
+      if (!silent) {
+        throw new SystemException(
+            String.format("Failed to unmount resource %s.", resource.getName()));
+      }
+    }
+  }
+
+  public void unmountResource(String resourceName) {
+    unmountResource(resourceName, /*silent=*/ false);
+  }
+
+  /**
+   * Helper method to list mount entries from the `mount` command
+   *
+   * @return the command output as a stream of lines
+   */
+  private Stream<String> listMountEntries() {
     List<String> command = new ArrayList<>(Collections.singleton(LIST_MOUNT_ENTRIES_COMMAND));
     LocalProcessLauncher localProcessLauncher = LocalProcessLauncher.create();
     localProcessLauncher.launchProcess(command, null, null);
@@ -107,16 +207,7 @@ public abstract class MountController {
     if (exitCode != 0) {
       throw new SystemException("Failed to query mounted resources.");
     }
-    BufferedReader stdout =
-        new BufferedReader(new InputStreamReader(localProcessLauncher.getInputStream()));
-
-    stdout
-        .lines()
-        .map(this::getResourceMountEntry)
-        .filter(Objects::nonNull)
-        .forEach(mountEntry -> BaseMountHandler.unmount(mountEntry.mountPath));
-
-    FileUtils.deleteEmptyDirectories(getWorkspaceDir());
+    return new BufferedReader(new InputStreamReader(localProcessLauncher.getInputStream())).lines();
   }
 
   /** Helper method to get the mount path for a given resource */
@@ -133,9 +224,11 @@ public abstract class MountController {
 
   /**
    * Helper method to get mountable resources in the workspace, any file containing resource or
-   * reference to a file containing resource.
+   * reference to a file containing resource. E.g. GCS bucket, GCS object that points to a bucket
+   * folder.
    */
-  private boolean isMountableResource(Resource r) {
+  @VisibleForTesting
+  public static boolean isMountableResource(Resource r) {
     if (r.getResourceType() == Resource.Type.GCS_BUCKET) {
       return true;
     }
