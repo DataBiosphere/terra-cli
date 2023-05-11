@@ -1,7 +1,7 @@
 package bio.terra.cli.command.resource;
 
 import bio.terra.cli.command.resource.create.AwsS3StorageFolder;
-import bio.terra.cli.command.resource.create.AwsSagemakerNotebook;
+import bio.terra.cli.command.resource.create.AwsSageMakerNotebook;
 import bio.terra.cli.command.resource.create.BqDataset;
 import bio.terra.cli.command.resource.create.GcpNotebook;
 import bio.terra.cli.command.resource.create.GcsBucket;
@@ -21,6 +21,6 @@ import picocli.CommandLine;
       GcpNotebook.class,
       BqDataset.class,
       AwsS3StorageFolder.class,
-      AwsSagemakerNotebook.class
+      AwsSageMakerNotebook.class
     })
 public class Create {}

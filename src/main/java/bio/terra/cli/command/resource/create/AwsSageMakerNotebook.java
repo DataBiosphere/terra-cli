@@ -4,9 +4,9 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsSagemakerNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsSagemakerNotebook;
+import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -14,10 +14,10 @@ import picocli.CommandLine;
 /** This class corresponds to the fourth-level "terra resource create aws-notebook" command. */
 @CommandLine.Command(
     name = "sagemaker-notebook",
-    description = "Add a controlled AWS Sagemaker Notebook instance.",
+    description = "Add a controlled AWS SageMaker Notebook instance.",
     showDefaultValues = true,
     sortOptions = false)
-public class AwsSagemakerNotebook extends WsmBaseCommand {
+public class AwsSageMakerNotebook extends WsmBaseCommand {
   @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -25,7 +25,7 @@ public class AwsSagemakerNotebook extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--instance-name",
       description =
-          "Name of the Sagemaker Notebook instance. If not provided, a unique folder name will be generated (https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_CreateNotebookInstance.html#sagemaker-CreateNotebookInstance-request-NotebookInstanceName).")
+          "Name of the SageMaker Notebook instance. If not provided, a unique folder name will be generated (https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_CreateNotebookInstance.html#sagemaker-CreateNotebookInstance-request-NotebookInstanceName).")
   private String instanceName;
 
   @CommandLine.Option(
@@ -39,16 +39,16 @@ public class AwsSagemakerNotebook extends WsmBaseCommand {
       names = "--region",
       defaultValue = "us-east-1",
       description =
-          "The AWS region of the Sagemaker Notebook instance (https://docs.aws.amazon.com/general/latest/gr/sagemaker.html).")
+          "The AWS region of the SageMaker Notebook instance (https://docs.aws.amazon.com/general/latest/gr/sagemaker.html).")
   private String region;
 
   /** Print this command's output in text format. */
-  private static void printText(UFAwsSagemakerNotebook returnValue) {
-    OUT.println("Successfully added controlled AWS Sagemaker Notebook.");
+  private static void printText(UFAwsSageMakerNotebook returnValue) {
+    OUT.println("Successfully added controlled AWS SageMaker Notebook.");
     returnValue.print();
   }
 
-  /** Add a controlled AWS Sagemaker Notebook to the workspace. */
+  /** Add a controlled AWS SageMaker Notebook to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -61,17 +61,17 @@ public class AwsSagemakerNotebook extends WsmBaseCommand {
             .accessScope(AccessScope.PRIVATE_ACCESS)
             .build();
 
-    CreateAwsSagemakerNotebookParams.Builder createParams =
-        new CreateAwsSagemakerNotebookParams.Builder()
+    CreateAwsSageMakerNotebookParams.Builder createParams =
+        new CreateAwsSageMakerNotebookParams.Builder()
             .resourceFields(createResourceParams)
             .instanceName(instanceName)
             .instanceType(instanceType)
             .region(region);
 
-    bio.terra.cli.businessobject.resource.AwsSagemakerNotebook createdResource =
-        bio.terra.cli.businessobject.resource.AwsSagemakerNotebook.createControlled(
+    bio.terra.cli.businessobject.resource.AwsSageMakerNotebook createdResource =
+        bio.terra.cli.businessobject.resource.AwsSageMakerNotebook.createControlled(
             createParams.build());
     formatOption.printReturnValue(
-        new UFAwsSagemakerNotebook(createdResource), AwsSagemakerNotebook::printText);
+        new UFAwsSageMakerNotebook(createdResource), AwsSageMakerNotebook::printText);
   }
 }

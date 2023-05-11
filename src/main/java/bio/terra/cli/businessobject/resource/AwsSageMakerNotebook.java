@@ -3,9 +3,9 @@ package bio.terra.cli.businessobject.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.serialization.persisted.resource.PDAwsSagemakerNotebook;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsSagemakerNotebookParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsSagemakerNotebook;
+import bio.terra.cli.serialization.persisted.resource.PDAwsSageMakerNotebook;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
+import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSagemakerNotebookResource;
@@ -14,16 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal representation of a AWS Sagemaker Notebook workspace resource. Instances of this class
+ * Internal representation of a AWS SageMaker Notebook workspace resource. Instances of this class
  * are part of the current context or state.
  */
-public class AwsSagemakerNotebook extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(AwsSagemakerNotebook.class);
+public class AwsSageMakerNotebook extends Resource {
+  private static final Logger logger = LoggerFactory.getLogger(AwsSageMakerNotebook.class);
   private final String instanceName;
   private final String instanceType;
 
   /** Deserialize an instance of the disk format to the internal object. */
-  public AwsSagemakerNotebook(PDAwsSagemakerNotebook configFromDisk) {
+  public AwsSageMakerNotebook(PDAwsSageMakerNotebook configFromDisk) {
     super(configFromDisk);
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName = configFromDisk.instanceName;
@@ -31,7 +31,7 @@ public class AwsSagemakerNotebook extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
-  public AwsSagemakerNotebook(ResourceDescription wsmObject) {
+  public AwsSageMakerNotebook(ResourceDescription wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName =
@@ -41,7 +41,7 @@ public class AwsSagemakerNotebook extends Resource {
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AwsSagemakerNotebook(AwsSagemakerNotebookResource wsmObject) {
+  public AwsSageMakerNotebook(AwsSagemakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName = wsmObject.getAttributes().getInstanceName();
@@ -51,61 +51,61 @@ public class AwsSagemakerNotebook extends Resource {
   /**
    * Serialize the internal representation of the resource to the format for command input/output.
    */
-  public UFAwsSagemakerNotebook serializeToCommand() {
-    return new UFAwsSagemakerNotebook(this);
+  public UFAwsSageMakerNotebook serializeToCommand() {
+    return new UFAwsSageMakerNotebook(this);
   }
 
   /** Serialize the internal representation of the resource to the format for writing to disk. */
-  public PDAwsSagemakerNotebook serializeToDisk() {
-    return new PDAwsSagemakerNotebook(this);
+  public PDAwsSageMakerNotebook serializeToDisk() {
+    return new PDAwsSageMakerNotebook(this);
   }
 
   /**
-   * Add a AWS Sagemaker Notebook as a referenced resource in the workspace.
+   * Add a AWS SageMaker Notebook as a referenced resource in the workspace.
    *
    * @return the resource that was added
    */
-  public static AwsSagemakerNotebook addReferenced(CreateAwsSagemakerNotebookParams createParams) {
+  public static AwsSageMakerNotebook addReferenced(CreateAwsSageMakerNotebookParams createParams) {
     throw new UserActionableException(
-        "Referenced resources not supported for AWS Sagemaker Notebook.");
+        "Referenced resources not supported for AWS SageMaker Notebook.");
   }
 
   /**
-   * Create a AWS Sagemaker Notebook as a controlled resource in the workspace.
+   * Create a AWS SageMaker Notebook as a controlled resource in the workspace.
    *
    * @return the resource that was created
    */
-  public static AwsSagemakerNotebook createControlled(
-      CreateAwsSagemakerNotebookParams createParams) {
+  public static AwsSageMakerNotebook createControlled(
+      CreateAwsSageMakerNotebookParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
     AwsSagemakerNotebookResource createdResource =
         WorkspaceManagerServiceAws.fromContext()
-            .createControlledAwsSagemakerNotebook(
+            .createControlledAwsSageMakerNotebook(
                 Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created AWS Sagemaker Notebook: {}", createdResource);
+    logger.info("Created AWS SageMaker Notebook: {}", createdResource);
 
-    return new AwsSagemakerNotebook(createdResource);
+    return new AwsSageMakerNotebook(createdResource);
   }
 
   /**
-   * Delete a AWS Sagemaker Notebook referenced resource in the workspace. Currently unsupported.
+   * Delete a AWS SageMaker Notebook referenced resource in the workspace. Currently unsupported.
    */
   protected void deleteReferenced() {
     throw new UserActionableException(
-        "Referenced resources not supported for AWS Sagemaker Notebook.");
+        "Referenced resources not supported for AWS SageMaker Notebook.");
   }
 
-  /** Delete a AWS Sagemaker Notebook controlled resource in the workspace. */
+  /** Delete a AWS SageMaker Notebook controlled resource in the workspace. */
   protected void deleteControlled() {
     // call WSM to delete the resource
     WorkspaceManagerServiceAws.fromContext()
-        .deleteControlledAwsSagemakerNotebook(Context.requireWorkspace().getUuid(), id);
+        .deleteControlledAwsSageMakerNotebook(Context.requireWorkspace().getUuid(), id);
   }
 
   /**
-   * Resolve a AWS Sagemaker Notebook resource to its cloud identifier.
+   * Resolve a AWS SageMaker Notebook resource to its cloud identifier.
    * https://[region].console.aws.amazon.com/sagemaker/home?region=[region]#/notebook-instances/[instance-name]
    */
   public String resolve() {
@@ -117,7 +117,7 @@ public class AwsSagemakerNotebook extends Resource {
   public Object getCredentials(CredentialsAccessScope scope, int duration) {
     // call WSM to get credentials
     return WorkspaceManagerServiceAws.fromContext()
-        .getAwsSagemakerNotebookCredential(
+        .getAwsSageMakerNotebookCredential(
             Context.requireWorkspace().getUuid(),
             id,
             scope == CredentialsAccessScope.READ_ONLY

@@ -1,6 +1,6 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
-import bio.terra.cli.businessobject.resource.AwsSagemakerNotebook;
+import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -8,20 +8,20 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
 
 /**
- * External representation of a workspace AWS Sagemaker Notebook resource for command input/output.
+ * External representation of a workspace AWS SageMaker Notebook resource for command input/output.
  *
  * <p>This is a POJO class intended for serialization. This JSON format is user-facing.
  *
- * <p>See the {@link AwsSagemakerNotebook} class for a notebook's internal representation.
+ * <p>See the {@link AwsSageMakerNotebook} class for a notebook's internal representation.
  */
-@JsonDeserialize(builder = UFAwsSagemakerNotebook.Builder.class)
-public class UFAwsSagemakerNotebook extends UFResource {
+@JsonDeserialize(builder = UFAwsSageMakerNotebook.Builder.class)
+public class UFAwsSageMakerNotebook extends UFResource {
   public final String instanceName;
   public final String instanceType;
   public final String instanceStatus;
 
   /** Serialize an instance of the internal class to the command format. */
-  public UFAwsSagemakerNotebook(AwsSagemakerNotebook internalObj) {
+  public UFAwsSageMakerNotebook(AwsSageMakerNotebook internalObj) {
     super(internalObj);
     this.instanceName = internalObj.getInstanceName();
     this.instanceType = internalObj.getInstanceType();
@@ -34,7 +34,7 @@ public class UFAwsSagemakerNotebook extends UFResource {
   }
 
   /** Constructor for Jackson deserialization during testing. */
-  private UFAwsSagemakerNotebook(Builder builder) {
+  private UFAwsSageMakerNotebook(Builder builder) {
     super(builder);
     this.instanceName = builder.instanceName;
     this.instanceType = builder.instanceType;
@@ -46,14 +46,14 @@ public class UFAwsSagemakerNotebook extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "Sagemaker Notebook instance name:   " + instanceName);
+    OUT.println(prefix + "SageMaker Notebook instance name:   " + instanceName);
     OUT.println(
         prefix
-            + "Sagemaker Notebook instance type:   "
+            + "SageMaker Notebook instance type:   "
             + (instanceType == null ? "(unknown)" : instanceType));
     OUT.println(
         prefix
-            + "Sagemaker Notebook instance status: "
+            + "SageMaker Notebook instance status: "
             + (instanceStatus == null ? "(unknown)" : instanceStatus));
   }
 
@@ -82,8 +82,8 @@ public class UFAwsSagemakerNotebook extends UFResource {
     }
 
     /** Call the private constructor. */
-    public UFAwsSagemakerNotebook build() {
-      return new UFAwsSagemakerNotebook(this);
+    public UFAwsSageMakerNotebook build() {
+      return new UFAwsSageMakerNotebook(this);
     }
   }
 }

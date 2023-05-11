@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class GcsObject extends Resource {
-
   private static final Logger logger = LoggerFactory.getLogger(GcsObject.class);
   private String bucketName;
   private String objectName;
