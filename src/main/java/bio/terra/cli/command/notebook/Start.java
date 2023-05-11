@@ -25,4 +25,5 @@ public class Start extends BaseCommand {
     notebooks.start(instanceName);
     OUT.println("Notebook instance starting. It may take a few minutes before it is available");
   }
+  // TODO(TERRA-320) add start support for AWS
 }

@@ -30,6 +30,7 @@ public class GcpNotebook extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public GcpNotebook(PDGcpNotebook configFromDisk) {
     super(configFromDisk);
+    this.resourceType = Type.AI_NOTEBOOK;
     this.projectId = configFromDisk.projectId;
     this.instanceId = configFromDisk.instanceId;
     this.location = configFromDisk.location;

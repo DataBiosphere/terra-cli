@@ -25,4 +25,5 @@ public class Stop extends BaseCommand {
     notebooks.stop(instanceName);
     OUT.println("Notebook instance stopped");
   }
+  // TODO(TERRA-320) add stop support for AWS
 }

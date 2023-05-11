@@ -34,6 +34,7 @@ public class GcsObject extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsObject(PDGcsObject configFromDisk) {
     super(configFromDisk);
+    this.resourceType = Type.GCS_OBJECT;
     this.bucketName = configFromDisk.bucketName;
     this.objectName = configFromDisk.objectName;
   }
