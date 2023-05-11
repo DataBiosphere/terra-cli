@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
 public class AwsSagemakerNotebook extends Resource {
   private static final Logger logger = LoggerFactory.getLogger(AwsSagemakerNotebook.class);
   private final String instanceName;
-  // private final String instanceType; // TODO(TERRA-320) (is this needed?)
+  private final String instanceType;
 
   /** Deserialize an instance of the disk format to the internal object. */
   public AwsSagemakerNotebook(PDAwsSagemakerNotebook configFromDisk) {
     super(configFromDisk);
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName = configFromDisk.instanceName;
-    // this.instanceType = configFromDisk.instanceType;
+    this.instanceType = configFromDisk.instanceType;
   }
 
   /** Deserialize an instance of the WSM client library object to the internal object. */
@@ -36,8 +36,8 @@ public class AwsSagemakerNotebook extends Resource {
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName =
         wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceName();
-    // this.instanceType =
-    // wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceType();
+    this.instanceType =
+        wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceType();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
@@ -45,7 +45,7 @@ public class AwsSagemakerNotebook extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName = wsmObject.getAttributes().getInstanceName();
-    // this.instanceType = wsmObject.getAttributes().getInstanceType();
+    this.instanceType = wsmObject.getAttributes().getInstanceType();
   }
 
   /**
@@ -133,7 +133,7 @@ public class AwsSagemakerNotebook extends Resource {
     return instanceName;
   }
 
-  // public String getInstanceType() {
-  // return instanceType;
-  // }
+  public String getInstanceType() {
+    return instanceType;
+  }
 }

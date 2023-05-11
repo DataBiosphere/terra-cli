@@ -24,13 +24,12 @@ public class UFAwsSagemakerNotebook extends UFResource {
   public UFAwsSagemakerNotebook(AwsSagemakerNotebook internalObj) {
     super(internalObj);
     this.instanceName = internalObj.getInstanceName();
-    this.instanceType = null;
+    this.instanceType = internalObj.getInstanceType();
     this.instanceStatus = null;
-    /* this.instanceType = internalObj.getInstanceType();
-    this.state =
-             AwsNotebook.getInstanceStatus(location, instanceId)
-                     .orElse(NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
-                     .toString();*/
+    /*this.instanceStatus =
+    AwsNotebook.getInstanceStatus(location, instanceId)
+            .orElse(NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
+            .toString();*/
     // TODO(TERRA-320) fill status
   }
 
@@ -56,7 +55,6 @@ public class UFAwsSagemakerNotebook extends UFResource {
         prefix
             + "Sagemaker Notebook instance status: "
             + (instanceStatus == null ? "(unknown)" : instanceStatus));
-    // TODO(TERRA-320) is ProxyUrl needed here?
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

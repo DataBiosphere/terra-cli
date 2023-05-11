@@ -251,5 +251,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   public AwsCredential getAwsSagemakerNotebookCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
     return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
+    // TODO(TERRA-320) add ProxyUrl here
   }
 }
