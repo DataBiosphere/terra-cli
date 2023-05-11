@@ -117,7 +117,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
             workspaceId, resourceId));
   }
 
-  public AwsCredential getAwsResourceCredential(
+  private AwsCredential getAwsResourceCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
 
     return callWithRetries(
@@ -285,7 +285,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   public AwsCredential getAwsSageMakerNotebookCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
     return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
-    // TODO(TERRA-320) add ProxyUrl here
+    // TODO(TERRA-564) add ProxyUrl here
   }
 
   // TODO(TERRA-563) move these to CRL
@@ -453,7 +453,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     }
   }
 
-  public static void checkException(Exception ex) {
+  private static void checkException(Exception ex) {
     if (ex instanceof SdkException) {
       String message = ex.getMessage();
       if (message.contains("not authorized to perform")) {
