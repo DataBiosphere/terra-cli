@@ -2,10 +2,11 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
-import bio.terra.cli.serialization.userfacing.input.CreateAwsSagemakerNotebookParams;
+import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledAwsResourceApi;
 import bio.terra.workspace.model.AwsCredential;
@@ -22,14 +23,39 @@ import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.JobControl;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
+import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
+import software.amazon.awssdk.core.waiters.WaiterResponse;
+import software.amazon.awssdk.http.SdkHttpResponse;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sagemaker.SageMakerClient;
+import software.amazon.awssdk.services.sagemaker.model.DescribeNotebookInstanceRequest;
+import software.amazon.awssdk.services.sagemaker.model.DescribeNotebookInstanceResponse;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
+import software.amazon.awssdk.services.sagemaker.model.StartNotebookInstanceRequest;
+import software.amazon.awssdk.services.sagemaker.model.StopNotebookInstanceRequest;
+import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 
 /** Utility methods for calling Workspace Manager's AWS endpoints. */
 public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceAws.class);
+  private static final int CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
+  private static final Duration SAGEMAKER_CLIENT_WAITER_TIMEOUT = Duration.ofSeconds(1800);
+  public static final Set<NotebookInstanceStatus> notebookStatusSetCanStart =
+      Set.of(NotebookInstanceStatus.STOPPED, NotebookInstanceStatus.FAILED);
+  public static final Set<NotebookInstanceStatus> notebookStatusSetCanStop =
+      Set.of(
+          NotebookInstanceStatus.PENDING,
+          NotebookInstanceStatus.IN_SERVICE,
+          NotebookInstanceStatus.UPDATING);
 
   /**
    * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
@@ -162,16 +188,16 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
   }
 
-  // Sagemaker Notebook
+  // SageMaker Notebook
 
   /**
    * This method converts this CLI-defined POJO class into the WSM client library-defined request
    * object.
    *
-   * @return AWS Sagemaker Notebook attributes in the format expected by the WSM client library
+   * @return AWS SageMaker Notebook attributes in the format expected by the WSM client library
    */
   private static AwsSagemakerNotebookCreationParameters fromCLIObject(
-      CreateAwsSagemakerNotebookParams createParams) {
+      CreateAwsSageMakerNotebookParams createParams) {
     return new AwsSagemakerNotebookCreationParameters()
         .instanceName(createParams.instanceName)
         .instanceType(createParams.instanceType)
@@ -185,10 +211,10 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams creation parameters
-   * @return the AWS Sagemaker Notebook resource object
+   * @return the AWS SageMaker Notebook resource object
    */
-  public AwsSagemakerNotebookResource createControlledAwsSagemakerNotebook(
-      UUID workspaceId, CreateAwsSagemakerNotebookParams createParams) {
+  public AwsSagemakerNotebookResource createControlledAwsSageMakerNotebook(
+      UUID workspaceId, CreateAwsSageMakerNotebookParams createParams) {
     String asyncJobId = UUID.randomUUID().toString();
     CreateControlledAwsSagemakerNotebookRequestBody createRequest =
         new CreateControlledAwsSagemakerNotebookRequestBody()
@@ -215,26 +241,34 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                   WorkspaceManagerService::isRetryable,
                   60,
                   Duration.ofSeconds(10));
-          logger.debug("create controlled AWS Sagemaker Notebook result: {}", createResult);
+          logger.debug("create controlled AWS SageMaker Notebook result: {}", createResult);
 
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
           return createResult.getAwsSagemakerNotebook();
         },
-        "Error creating controlled AWS Sagemaker Notebook in the workspace.");
+        "Error creating controlled AWS SageMaker Notebook in the workspace.");
   }
 
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/notebook/{resourceId}" endpoint to
-   * delete a AWS Sagemaker Notebook as a controlled resource in the workspace.
+   * delete a AWS SageMaker Notebook as a controlled resource in the workspace.
    *
    * @param workspaceId the workspace to remove the resource from
    * @param resourceId the resource id
    * @throws SystemException if the job to delete the notebook fails
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
-  public void deleteControlledAwsSagemakerNotebook(UUID workspaceId, UUID resourceId) {
+  public void deleteControlledAwsSageMakerNotebook(UUID workspaceId, UUID resourceId) {
     deleteControlledAwsResource(workspaceId, resourceId);
+  }
+
+  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId) {
+    return getAwsSageMakerNotebookCredential(
+        workspaceId,
+        resourceId,
+        AwsCredentialAccessScope.READ_ONLY,
+        CREDENTIAL_EXPIRATION_SECONDS_DEFAULT);
   }
 
   /**
@@ -248,9 +282,186 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @param duration the duration for credential in seconds
    * @return AWS Bucket access credentials
    */
-  public AwsCredential getAwsSagemakerNotebookCredential(
+  public AwsCredential getAwsSageMakerNotebookCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
     return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
     // TODO(TERRA-320) add ProxyUrl here
+  }
+
+  // TODO(TERRA-563) move these to CRL
+
+  public static SageMakerClient getSageMakerClient(AwsCredential awsCredential, String region) {
+    return SageMakerClient.builder()
+        .region(Region.of(region))
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsSessionCredentials.create(
+                    awsCredential.getAccessKeyId(),
+                    awsCredential.getSecretAccessKey(),
+                    awsCredential.getSessionToken())))
+        .build();
+  }
+
+  public NotebookInstanceStatus getAwsSageMakerNotebookInstanceStatus(
+      AwsSageMakerNotebook awsNotebook, SageMakerClient sageMakerClient) {
+    try {
+      DescribeNotebookInstanceResponse describeResponse =
+          sageMakerClient.describeNotebookInstance(
+              DescribeNotebookInstanceRequest.builder()
+                  .notebookInstanceName(awsNotebook.getInstanceName())
+                  .build());
+      SdkHttpResponse httpResponse = describeResponse.sdkHttpResponse();
+      if (!httpResponse.isSuccessful()) {
+        throw new SystemException(
+            "Error getting notebook instance, "
+                + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
+      }
+      return describeResponse.notebookInstanceStatus();
+
+    } catch (SdkException e) {
+      checkException(e);
+      throw new SystemException("Error getting notebook instance", e);
+    }
+  }
+
+  public static void waitForSageMakerNotebookStatus(
+      AwsSageMakerNotebook awsNotebook,
+      NotebookInstanceStatus desiredStatus,
+      SageMakerClient sageMakerClient) {
+    SageMakerWaiter sageMakerWaiter =
+        SageMakerWaiter.builder()
+            .client(sageMakerClient)
+            .overrideConfiguration(
+                WaiterOverrideConfiguration.builder()
+                    .waitTimeout(SAGEMAKER_CLIENT_WAITER_TIMEOUT)
+                    .build())
+            .build();
+
+    DescribeNotebookInstanceRequest describeRequest =
+        DescribeNotebookInstanceRequest.builder()
+            .notebookInstanceName(awsNotebook.getInstanceName())
+            .build();
+
+    try {
+      WaiterResponse<DescribeNotebookInstanceResponse> waiterResponse =
+          switch (desiredStatus) {
+            case IN_SERVICE -> sageMakerWaiter.waitUntilNotebookInstanceInService(describeRequest);
+            case STOPPED -> sageMakerWaiter.waitUntilNotebookInstanceStopped(describeRequest);
+            default -> throw new UserActionableException(
+                "Can only wait for notebook InService or Stopped");
+          };
+
+      ResponseOrException<DescribeNotebookInstanceResponse> responseOrException =
+          waiterResponse.matched();
+      if (responseOrException.exception().isPresent()) {
+        throw responseOrException.exception().get();
+      }
+
+    } catch (Throwable t) {
+      if (t instanceof SdkException e) {
+        checkException(e);
+      }
+      throw new SystemException("Error waiting for desired sagemaker notebook status,", t);
+    }
+  }
+
+  public void startAwsSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
+    SageMakerClient sageMakerClient =
+        getSageMakerClient(
+            getAwsSageMakerNotebookCredential(
+                workspaceId,
+                awsNotebook.getId(),
+                AwsCredentialAccessScope.READ_ONLY,
+                CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            awsNotebook.getRegion());
+
+    try {
+      NotebookInstanceStatus currentStatus =
+          getAwsSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
+      if (currentStatus == NotebookInstanceStatus.IN_SERVICE) {
+        return;
+      }
+      checkNotebookStatus(notebookStatusSetCanStart, currentStatus);
+
+      SdkHttpResponse httpResponse =
+          sageMakerClient
+              .startNotebookInstance(
+                  StartNotebookInstanceRequest.builder()
+                      .notebookInstanceName(awsNotebook.getInstanceName())
+                      .build())
+              .sdkHttpResponse();
+      if (!httpResponse.isSuccessful()) {
+        throw new SystemException(
+            "Error starting notebook instance, "
+                + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
+      }
+      waitForSageMakerNotebookStatus(
+          awsNotebook, NotebookInstanceStatus.IN_SERVICE, sageMakerClient);
+
+    } catch (SdkException e) {
+      checkException(e);
+      throw new SystemException("Error starting notebook instance", e);
+    }
+  }
+
+  public void stopAwsSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
+    SageMakerClient sageMakerClient =
+        getSageMakerClient(
+            getAwsSageMakerNotebookCredential(
+                workspaceId,
+                awsNotebook.getId(),
+                AwsCredentialAccessScope.READ_ONLY,
+                CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            awsNotebook.getRegion());
+
+    try {
+      NotebookInstanceStatus currentStatus =
+          getAwsSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
+      if (notebookStatusSetCanStart.contains(currentStatus)) {
+        return;
+      }
+      checkNotebookStatus(notebookStatusSetCanStop, currentStatus);
+
+      SdkHttpResponse httpResponse =
+          sageMakerClient
+              .stopNotebookInstance(
+                  StopNotebookInstanceRequest.builder()
+                      .notebookInstanceName(awsNotebook.getInstanceName())
+                      .build())
+              .sdkHttpResponse();
+      if (!httpResponse.isSuccessful()) {
+        throw new SystemException(
+            "Error stopping notebook instance, "
+                + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
+      }
+      waitForSageMakerNotebookStatus(awsNotebook, NotebookInstanceStatus.STOPPED, sageMakerClient);
+
+    } catch (SdkException e) {
+      checkException(e);
+      throw new SystemException("Error stopping notebook instance", e);
+    }
+  }
+
+  private void checkNotebookStatus(
+      Set<NotebookInstanceStatus> expectedStatusSet, NotebookInstanceStatus currentStatus) {
+    if (!expectedStatusSet.contains(currentStatus)) {
+      throw new UserActionableException(
+          "Expected notebook instance status is "
+              + expectedStatusSet
+              + " but current status is "
+              + currentStatus);
+    }
+  }
+
+  public static void checkException(Exception ex) {
+    if (ex instanceof SdkException) {
+      String message = ex.getMessage();
+      if (message.contains("not authorized to perform")) {
+        throw new UserActionableException(
+            "Error performing notebook operation, check the instance name / permissions and retry");
+      } else if (message.contains("Unable to transition to")) {
+        throw new UserActionableException("Unable to perform notebook operation on cloud platform");
+      }
+    }
   }
 }

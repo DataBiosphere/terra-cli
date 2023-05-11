@@ -1,11 +1,14 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.WorkspaceManagerServiceAws;
 import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /**
  * External representation of a workspace AWS SageMaker Notebook resource for command input/output.
@@ -25,12 +28,20 @@ public class UFAwsSageMakerNotebook extends UFResource {
     super(internalObj);
     this.instanceName = internalObj.getInstanceName();
     this.instanceType = internalObj.getInstanceType();
-    this.instanceStatus = null;
-    /*this.instanceStatus =
-    AwsNotebook.getInstanceStatus(location, instanceId)
-            .orElse(NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
-            .toString();*/
-    // TODO(TERRA-320) fill status
+
+    NotebookInstanceStatus notebookStatus =
+        WorkspaceManagerServiceAws.fromContext()
+            .getAwsSageMakerNotebookInstanceStatus(
+                internalObj,
+                WorkspaceManagerServiceAws.getSageMakerClient(
+                    WorkspaceManagerServiceAws.fromContext()
+                        .getAwsSageMakerNotebookCredential(
+                            Context.requireWorkspace().getUuid(), internalObj.getId()),
+                    internalObj.getRegion()));
+    this.instanceStatus =
+        (notebookStatus != NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
+            ? notebookStatus.toString()
+            : null;
   }
 
   /** Constructor for Jackson deserialization during testing. */
