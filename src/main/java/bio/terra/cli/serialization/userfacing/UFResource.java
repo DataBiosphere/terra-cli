@@ -41,7 +41,7 @@ import java.util.UUID;
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),
   @Type(value = UFGcsObject.class, name = "GCS_OBJECT"),
   @Type(value = UFGitRepo.class, name = "GIT_REPO"),
-  @Type(value = UFAwsS3StorageFolder.class, name = "S3_STORAGE_FOLDER"),
+  @Type(value = UFAwsS3StorageFolder.class, name = "AWS_S3_STORAGE_FOLDER"),
 })
 @JsonDeserialize(builder = UFResource.Builder.class)
 public abstract class UFResource {

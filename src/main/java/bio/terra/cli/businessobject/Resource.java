@@ -275,7 +275,7 @@ public abstract class Resource {
     BQ_TABLE,
     AI_NOTEBOOK,
     GIT_REPO,
-    S3_STORAGE_FOLDER,
+    AWS_S3_STORAGE_FOLDER,
     AWS_SAGEMAKER_NOTEBOOK
   }
 

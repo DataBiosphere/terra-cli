@@ -23,6 +23,7 @@ public class GitRepo extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public GitRepo(PDGitRepo configFromDisk) {
     super(configFromDisk);
+    this.resourceType = Type.GIT_REPO;
     this.gitRepoUrl = configFromDisk.gitRepoUrl;
   }
 

@@ -52,7 +52,8 @@ public class Resolve extends WsmBaseCommand {
           case GCS_OBJECT -> ((GcsObject) resource).resolve(!excludeBucketPrefix);
           case BQ_DATASET -> ((BqDataset) resource).resolve(bqPathFormat);
           case BQ_TABLE -> ((BqTable) resource).resolve(bqPathFormat);
-          case S3_STORAGE_FOLDER -> ((AwsS3StorageFolder) resource).resolve(!excludeBucketPrefix);
+          case AWS_S3_STORAGE_FOLDER -> ((AwsS3StorageFolder) resource)
+              .resolve(!excludeBucketPrefix);
           default -> resource.resolve();
         };
     JSONObject object = new JSONObject();

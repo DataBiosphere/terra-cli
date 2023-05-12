@@ -30,6 +30,7 @@ public class GcsBucket extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsBucket(PDGcsBucket configFromDisk) {
     super(configFromDisk);
+    this.resourceType = Type.GCS_BUCKET;
     this.bucketName = configFromDisk.bucketName;
   }
 
