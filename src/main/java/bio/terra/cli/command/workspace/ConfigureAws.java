@@ -13,6 +13,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra workspace configure-aws" command. */
@@ -20,7 +22,9 @@ import picocli.CommandLine;
     name = "configure-aws",
     description = "Generate an AWS configuration file for a workspace.")
 public class ConfigureAws extends WsmBaseCommand {
+  private static final Logger logger = LoggerFactory.getLogger(ConfigureAws.class);
   private static final String AWS_CONTEXT_SUBDIRECTORY_NAME = "aws";
+
   public static final String DEFAULT_TERRA_PATH = "/usr/local/bin/terra";
   public static final String DEFAULT_AWS_VAULT_PATH = "/usr/local/bin/aws-vault";
   public static final String AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE = "AWS_CONFIG_FILE";
@@ -72,7 +76,7 @@ public class ConfigureAws extends WsmBaseCommand {
 
     for (Resource resource : resourceList) {
       switch (resource.getResourceType()) {
-        case AWS_S3_STORAGE_FOLDER -> generateAwsResourceProfiles(builder, resource);
+        case S3_STORAGE_FOLDER -> generateAwsResourceProfiles(builder, resource);
       }
     }
 
@@ -91,7 +95,8 @@ public class ConfigureAws extends WsmBaseCommand {
       throw new SystemException("Error writing configuration file to disk.", e);
     }
 
-    OUT.printf("export %s=%s%n", AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE, configFilePath);
+    OUT.println(
+        String.format("export %s=%s", AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE, configFilePath));
   }
 
   private void generateAwsResourceProfiles(AwsConfiguration.Builder builder, Resource resource) {

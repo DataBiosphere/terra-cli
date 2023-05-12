@@ -27,7 +27,6 @@ public class BqTable extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public BqTable(PDBqTable configFromDisk) {
     super(configFromDisk);
-    this.resourceType = Type.BQ_TABLE;
     this.projectId = configFromDisk.projectId;
     this.datasetId = configFromDisk.datasetId;
     this.dataTableId = configFromDisk.dataTableId;

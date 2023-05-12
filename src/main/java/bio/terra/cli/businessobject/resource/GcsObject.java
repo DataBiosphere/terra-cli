@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class GcsObject extends Resource {
+
   private static final Logger logger = LoggerFactory.getLogger(GcsObject.class);
   private String bucketName;
   private String objectName;
@@ -33,7 +34,6 @@ public class GcsObject extends Resource {
   /** Deserialize an instance of the disk format to the internal object. */
   public GcsObject(PDGcsObject configFromDisk) {
     super(configFromDisk);
-    this.resourceType = Type.GCS_OBJECT;
     this.bucketName = configFromDisk.bucketName;
     this.objectName = configFromDisk.objectName;
   }

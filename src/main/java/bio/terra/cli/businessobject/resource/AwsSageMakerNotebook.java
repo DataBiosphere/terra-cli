@@ -8,7 +8,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookPa
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
-import bio.terra.workspace.model.AwsSagemakerNotebookResource;
+import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +35,13 @@ public class AwsSageMakerNotebook extends Resource {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName =
-        wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceName();
+        wsmObject.getResourceAttributes().getAwsSageMakerNotebook().getInstanceName();
     this.instanceType =
-        wsmObject.getResourceAttributes().getAwsSagemakerNotebook().getInstanceType();
+        wsmObject.getResourceAttributes().getAwsSageMakerNotebook().getInstanceType();
   }
 
   /** Deserialize an instance of the WSM client library create object to the internal object. */
-  public AwsSageMakerNotebook(AwsSagemakerNotebookResource wsmObject) {
+  public AwsSageMakerNotebook(AwsSageMakerNotebookResource wsmObject) {
     super(wsmObject.getMetadata());
     this.resourceType = Type.AWS_SAGEMAKER_NOTEBOOK;
     this.instanceName = wsmObject.getAttributes().getInstanceName();
@@ -80,7 +80,7 @@ public class AwsSageMakerNotebook extends Resource {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    AwsSagemakerNotebookResource createdResource =
+    AwsSageMakerNotebookResource createdResource =
         WorkspaceManagerServiceAws.fromContext()
             .createControlledAwsSageMakerNotebook(
                 Context.requireWorkspace().getUuid(), createParams);

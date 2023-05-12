@@ -45,7 +45,9 @@ public class UFAwsS3StorageFolder extends UFResource {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
     OUT.println(
-        prefix + "S3 Storage Folder: " + AwsS3StorageFolder.resolve(bucketName, this.prefix, true));
+        prefix
+            + "AWS S3 Storage Folder: "
+            + AwsS3StorageFolder.resolve(bucketName, this.prefix, true));
     OUT.println(
         prefix
             + "# Objects: "

@@ -23,14 +23,14 @@ public class AwsS3StorageFolder extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--folder-name",
       description =
-          "Name of the S3 Storage Folder, without the prefix. (e.g. 'my-folder', not 's3://my-folder'). If not provided, a unique folder name will be generated.")
+          "Name of the S3 Storage folder, without the prefix. (e.g. 'my-folder', not 's3://my-folder'). If not provided, a unique folder name will be generated.")
   private String folderName;
 
   @CommandLine.Option(
       names = "--region",
       defaultValue = "us-east-1",
       description =
-          "The AWS region of the S3 Storage Folder (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
+          "The AWS region of the storage folder (https://docs.aws.amazon.com/general/latest/gr/s3.html).")
   private String region;
 
   /** Print this command's output in text format. */

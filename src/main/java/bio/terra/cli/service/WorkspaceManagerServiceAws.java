@@ -13,11 +13,11 @@ import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderCreationParameters;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
-import bio.terra.workspace.model.AwsSagemakerNotebookCreationParameters;
-import bio.terra.workspace.model.AwsSagemakerNotebookResource;
+import bio.terra.workspace.model.AwsSageMakerNotebookCreationParameters;
+import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.CreateControlledAwsS3StorageFolderRequestBody;
-import bio.terra.workspace.model.CreateControlledAwsSagemakerNotebookRequestBody;
-import bio.terra.workspace.model.CreateControlledAwsSagemakerNotebookResult;
+import bio.terra.workspace.model.CreateControlledAwsSageMakerNotebookRequestBody;
+import bio.terra.workspace.model.CreateControlledAwsSageMakerNotebookResult;
 import bio.terra.workspace.model.DeleteControlledAwsResourceRequestBody;
 import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.JobControl;
@@ -196,9 +196,9 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    *
    * @return AWS SageMaker Notebook attributes in the format expected by the WSM client library
    */
-  private static AwsSagemakerNotebookCreationParameters fromCLIObject(
+  private static AwsSageMakerNotebookCreationParameters fromCLIObject(
       CreateAwsSageMakerNotebookParams createParams) {
-    return new AwsSagemakerNotebookCreationParameters()
+    return new AwsSageMakerNotebookCreationParameters()
         .instanceName(createParams.instanceName)
         .instanceType(createParams.instanceType)
         .region(createParams.region);
@@ -213,13 +213,13 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @param createParams creation parameters
    * @return the AWS SageMaker Notebook resource object
    */
-  public AwsSagemakerNotebookResource createControlledAwsSageMakerNotebook(
+  public AwsSageMakerNotebookResource createControlledAwsSageMakerNotebook(
       UUID workspaceId, CreateAwsSageMakerNotebookParams createParams) {
     String asyncJobId = UUID.randomUUID().toString();
-    CreateControlledAwsSagemakerNotebookRequestBody createRequest =
-        new CreateControlledAwsSagemakerNotebookRequestBody()
+    CreateControlledAwsSageMakerNotebookRequestBody createRequest =
+        new CreateControlledAwsSageMakerNotebookRequestBody()
             .common(createCommonFields(createParams.resourceFields))
-            .awsSagemakerNotebook(fromCLIObject(createParams))
+            .awsSageMakerNotebook(fromCLIObject(createParams))
             .jobControl(new JobControl().id(asyncJobId));
 
     return handleClientExceptions(
@@ -228,14 +228,14 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
               new ControlledAwsResourceApi(apiClient);
           // make the initial create request
           HttpUtils.callWithRetries(
-              () -> controlledAwsResourceApi.createAwsSagemakerNotebook(createRequest, workspaceId),
+              () -> controlledAwsResourceApi.createAwsSageMakerNotebook(createRequest, workspaceId),
               WorkspaceManagerService::isRetryable);
 
           // poll the result endpoint until the job is no longer RUNNING
-          CreateControlledAwsSagemakerNotebookResult createResult =
+          CreateControlledAwsSageMakerNotebookResult createResult =
               HttpUtils.pollWithRetries(
                   () ->
-                      controlledAwsResourceApi.getCreateAwsSagemakerNotebookResult(
+                      controlledAwsResourceApi.getCreateAwsSageMakerNotebookResult(
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
@@ -244,7 +244,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
           logger.debug("create controlled AWS SageMaker Notebook result: {}", createResult);
 
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
-          return createResult.getAwsSagemakerNotebook();
+          return createResult.getAwsSageMakerNotebook();
         },
         "Error creating controlled AWS SageMaker Notebook in the workspace.");
   }
@@ -361,7 +361,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
       if (t instanceof SdkException e) {
         checkException(e);
       }
-      throw new SystemException("Error waiting for desired sagemaker notebook status,", t);
+      throw new SystemException("Error waiting for desired SageMaker Notebook status,", t);
     }
   }
 
