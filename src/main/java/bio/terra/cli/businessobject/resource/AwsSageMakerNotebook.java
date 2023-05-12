@@ -117,7 +117,7 @@ public class AwsSageMakerNotebook extends Resource {
   public Object getCredentials(CredentialsAccessScope scope, int duration) {
     // call WSM to get credentials
     return WorkspaceManagerServiceAws.fromContext()
-        .getAwsSageMakerNotebookCredential(
+        .getControlledAwsSageMakerNotebookCredential(
             Context.requireWorkspace().getUuid(),
             id,
             scope == CredentialsAccessScope.READ_ONLY

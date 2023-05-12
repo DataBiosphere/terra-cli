@@ -35,7 +35,7 @@ public class Stop extends BaseCommand {
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsSageMakerNotebook awsNotebook = instanceOption.toAwsNotebookResource();
       WorkspaceManagerServiceAws.fromContext()
-          .stopAwsSageMakerNotebook(workspace.getUuid(), awsNotebook);
+          .stopSageMakerNotebook(workspace.getUuid(), awsNotebook);
 
     } else {
       throw new UserActionableException(

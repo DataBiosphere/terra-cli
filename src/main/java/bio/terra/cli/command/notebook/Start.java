@@ -36,7 +36,7 @@ public class Start extends BaseCommand {
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsSageMakerNotebook awsNotebook = instanceOption.toAwsNotebookResource();
       WorkspaceManagerServiceAws.fromContext()
-          .startAwsSageMakerNotebook(workspace.getUuid(), awsNotebook);
+          .startSageMakerNotebook(workspace.getUuid(), awsNotebook);
       OUT.println("Notebook instance started");
 
     } else {

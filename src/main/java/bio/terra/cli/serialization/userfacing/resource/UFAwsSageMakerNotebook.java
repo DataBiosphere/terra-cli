@@ -8,6 +8,8 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /**
@@ -19,6 +21,8 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
  */
 @JsonDeserialize(builder = UFAwsSageMakerNotebook.Builder.class)
 public class UFAwsSageMakerNotebook extends UFResource {
+  private static final Logger logger = LoggerFactory.getLogger(UFAwsSageMakerNotebook.class);
+
   public final String instanceName;
   public final String instanceType;
   public final String instanceStatus;
@@ -29,15 +33,20 @@ public class UFAwsSageMakerNotebook extends UFResource {
     this.instanceName = internalObj.getInstanceName();
     this.instanceType = internalObj.getInstanceType();
 
-    NotebookInstanceStatus notebookStatus =
-        WorkspaceManagerServiceAws.fromContext()
-            .getAwsSageMakerNotebookInstanceStatus(
-                internalObj,
-                WorkspaceManagerServiceAws.getSageMakerClient(
-                    WorkspaceManagerServiceAws.fromContext()
-                        .getAwsSageMakerNotebookCredential(
-                            Context.requireWorkspace().getUuid(), internalObj.getId()),
-                    internalObj.getRegion()));
+    NotebookInstanceStatus notebookStatus = NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION;
+    try {
+      notebookStatus =
+          WorkspaceManagerServiceAws.fromContext()
+              .getSageMakerNotebookInstanceStatus(
+                  internalObj,
+                  WorkspaceManagerServiceAws.getSageMakerClient(
+                      WorkspaceManagerServiceAws.fromContext()
+                          .getControlledAwsSageMakerNotebookCredential(
+                              Context.requireWorkspace().getUuid(), internalObj.getId()),
+                      internalObj.getRegion()));
+    } catch (Exception e) {
+      logger.error(e.toString());
+    }
     this.instanceStatus =
         (notebookStatus != NotebookInstanceStatus.UNKNOWN_TO_SDK_VERSION)
             ? notebookStatus.toString()

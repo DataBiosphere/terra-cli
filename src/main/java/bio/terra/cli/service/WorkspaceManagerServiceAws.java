@@ -1,7 +1,9 @@
 package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Server;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
@@ -56,6 +58,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
           NotebookInstanceStatus.PENDING,
           NotebookInstanceStatus.IN_SERVICE,
           NotebookInstanceStatus.UPDATING);
+  public static final Set<NotebookInstanceStatus> notebookStatusSetCanDelete =
+      Set.of(NotebookInstanceStatus.STOPPED, NotebookInstanceStatus.FAILED);
 
   /**
    * Constructor for class that talks to WSM. If the access token is null, only unauthenticated
@@ -79,54 +83,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   public static WorkspaceManagerServiceAws fromContext() {
     return new WorkspaceManagerServiceAws(
         Context.requireUser().getTerraToken(), Context.getServer());
-  }
-
-  private void deleteControlledAwsResource(UUID workspaceId, UUID resourceId) {
-    String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledAwsResourceRequestBody deleteRequest =
-        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
-
-    handleClientExceptions(
-        () -> {
-          ControlledAwsResourceApi controlledAwsResourceApi =
-              new ControlledAwsResourceApi(apiClient);
-          // make the initial delete request
-          HttpUtils.callWithRetries(
-              () ->
-                  controlledAwsResourceApi.deleteAwsS3StorageFolder(
-                      deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
-
-          // poll the result endpoint until the job is no longer RUNNING
-          DeleteControlledAwsResourceResult deleteResult =
-              HttpUtils.pollWithRetries(
-                  () ->
-                      controlledAwsResourceApi.getDeleteAwsS3StorageFolderResult(
-                          workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  60,
-                  Duration.ofSeconds(10));
-          logger.debug("delete controlled AWS resource result: {}", deleteResult);
-
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
-          return true;
-        },
-        String.format(
-            "Error deleting controlled AWS resource %s in the workspace %s.",
-            workspaceId, resourceId));
-  }
-
-  private AwsCredential getAwsResourceCredential(
-      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
-
-    return callWithRetries(
-        () ->
-            new ControlledAwsResourceApi(apiClient)
-                .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
-        String.format(
-            "Error getting AWS resource %s credential in the workspace %s.",
-            workspaceId, resourceId));
   }
 
   // S3 Storage Folder
@@ -169,7 +125,37 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsS3StorageFolder(UUID workspaceId, UUID resourceId) {
-    deleteControlledAwsResource(workspaceId, resourceId);
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledAwsResourceRequestBody deleteRequest =
+        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
+
+    handleClientExceptions(
+        () -> {
+          ControlledAwsResourceApi controlledAwsResourceApi =
+              new ControlledAwsResourceApi(apiClient);
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () ->
+                  controlledAwsResourceApi.deleteAwsS3StorageFolder(
+                      deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledAwsResourceResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledAwsResourceApi.getDeleteAwsS3StorageFolderResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  60,
+                  Duration.ofSeconds(10));
+          logger.debug("delete controlled AWS S3 Storage Folder result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          return true;
+        },
+        "Error deleting controlled AWS S3 Storage Folder in the workspace.");
   }
 
   /**
@@ -183,9 +169,13 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @param duration the duration for credential in seconds
    * @return AWS Bucket access credentials
    */
-  public AwsCredential getAwsS3StorageFolderCredential(
+  public AwsCredential getControlledAwsS3StorageFolderCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
-    return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
+        "Error getting AWS S3 Storage Folder credential.");
   }
 
   // SageMaker Notebook
@@ -260,11 +250,60 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsSageMakerNotebook(UUID workspaceId, UUID resourceId) {
-    deleteControlledAwsResource(workspaceId, resourceId);
+    // TODO(TERRA-560): Remove this check after correct error message is returned by WSM
+    Workspace workspace = Context.requireWorkspace();
+    AwsSageMakerNotebook awsNotebook =
+        workspace.getResource(resourceId).castToType(Resource.Type.AWS_SAGEMAKER_NOTEBOOK);
+    NotebookInstanceStatus notebookStatus =
+        getSageMakerNotebookInstanceStatus(
+            awsNotebook,
+            getSageMakerClient(
+                getControlledAwsSageMakerNotebookCredential(workspace.getUuid(), resourceId),
+                awsNotebook.getRegion()));
+    if (!notebookStatusSetCanDelete.contains(notebookStatus)
+        && (notebookStatus != NotebookInstanceStatus.DELETING)) {
+      throw new UserActionableException(
+          String.format(
+              "Expected notebook instance %s status in %s, but actual status is %s",
+              resourceId, notebookStatusSetCanDelete, notebookStatus));
+    }
+
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledAwsResourceRequestBody deleteRequest =
+        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
+
+    handleClientExceptions(
+        () -> {
+          ControlledAwsResourceApi controlledAwsResourceApi =
+              new ControlledAwsResourceApi(apiClient);
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () ->
+                  controlledAwsResourceApi.deleteAwsSageMakerNotebook(
+                      deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledAwsResourceResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledAwsResourceApi.getDeleteAwsSageMakerNotebookResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  90,
+                  Duration.ofSeconds(10));
+          logger.debug("delete controlled AWS SageMaker Notebook result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          return true;
+        },
+        "Error deleting controlled AWS SageMaker Notebook in the workspace.");
   }
 
-  public AwsCredential getAwsSageMakerNotebookCredential(UUID workspaceId, UUID resourceId) {
-    return getAwsSageMakerNotebookCredential(
+  public AwsCredential getControlledAwsSageMakerNotebookCredential(
+      UUID workspaceId, UUID resourceId) {
+    return getControlledAwsSageMakerNotebookCredential(
         workspaceId,
         resourceId,
         AwsCredentialAccessScope.READ_ONLY,
@@ -282,9 +321,13 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @param duration the duration for credential in seconds
    * @return AWS Bucket access credentials
    */
-  public AwsCredential getAwsSageMakerNotebookCredential(
+  public AwsCredential getControlledAwsSageMakerNotebookCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
-    return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .getAwsSageMakerNotebookCredential(workspaceId, resourceId, accessScope, duration),
+        "Error getting AWS SageMaker Notebook credential.");
     // TODO(TERRA-564) add ProxyUrl here
   }
 
@@ -302,7 +345,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
         .build();
   }
 
-  public NotebookInstanceStatus getAwsSageMakerNotebookInstanceStatus(
+  public NotebookInstanceStatus getSageMakerNotebookInstanceStatus(
       AwsSageMakerNotebook awsNotebook, SageMakerClient sageMakerClient) {
     try {
       DescribeNotebookInstanceResponse describeResponse =
@@ -365,10 +408,10 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     }
   }
 
-  public void startAwsSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
+  public void startSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
     SageMakerClient sageMakerClient =
         getSageMakerClient(
-            getAwsSageMakerNotebookCredential(
+            getControlledAwsSageMakerNotebookCredential(
                 workspaceId,
                 awsNotebook.getId(),
                 AwsCredentialAccessScope.READ_ONLY,
@@ -377,7 +420,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
 
     try {
       NotebookInstanceStatus currentStatus =
-          getAwsSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
+          getSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
       if (currentStatus == NotebookInstanceStatus.IN_SERVICE) {
         return;
       }
@@ -404,10 +447,10 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     }
   }
 
-  public void stopAwsSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
+  public void stopSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
     SageMakerClient sageMakerClient =
         getSageMakerClient(
-            getAwsSageMakerNotebookCredential(
+            getControlledAwsSageMakerNotebookCredential(
                 workspaceId,
                 awsNotebook.getId(),
                 AwsCredentialAccessScope.READ_ONLY,
@@ -416,7 +459,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
 
     try {
       NotebookInstanceStatus currentStatus =
-          getAwsSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
+          getSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
       if (notebookStatusSetCanStart.contains(currentStatus)) {
         return;
       }
