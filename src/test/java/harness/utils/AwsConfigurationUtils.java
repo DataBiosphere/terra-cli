@@ -13,7 +13,7 @@ import software.amazon.awssdk.profiles.Profile;
 import software.amazon.awssdk.profiles.ProfileFile;
 
 public class AwsConfigurationUtils {
-  private static Pattern configOutputPattern = Pattern.compile("export (.*)=(.*)");
+  private static final Pattern configOutputPattern = Pattern.compile("export (.*)=(.*)");
 
   public static Path getProfilePathFromOutput(String configOutput) {
     Matcher matcher = configOutputPattern.matcher(configOutput);

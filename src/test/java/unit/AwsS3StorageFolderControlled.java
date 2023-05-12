@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra resource` commands that handle controlled AWS S3 Storage Folders. */
 @Tag("unit-aws")
 public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
-
   @Test
   @DisplayName(
       "list, describe and resolve reflect creating and deleting a controlled storage folder")
@@ -46,27 +45,27 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
             "--name=" + name,
             "--folder-name=" + folderName);
 
-    // check the created workspace has an id and aws details
-    assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
-    assertEquals(folderName, createdResource.prefix, "create resource prefix matches folder name");
+    // check the created resource has required details
     assertEquals(name, createdResource.name, "create resource name matches name");
+    assertNotNull(createdResource.bucketName, "create resource returned a aws bucket name");
+    assertEquals(folderName, createdResource.prefix, "create resource prefix name matches folder name");
     assertEquals(0, createdResource.numObjects, "create resource contains no objects");
 
-    // check that the storage folder is in the list
+    // check that the storage folder is in the resource list
     UFAwsS3StorageFolder matchedResource =
-        AwsS3StorageFolderUtils.listOneStorageFolderResourceWithName(name);
-    AwsS3StorageFolderUtils.assertAwsS3StorageFolderFields(
+        AwsS3StorageFolderUtils.listOneS3StorageFolderResourceWithName(name);
+    AwsS3StorageFolderUtils.assertS3StorageFolderFields(
         createdResource, matchedResource, "list");
 
     // `terra resource describe --name=$name --format=json`
-    UFAwsS3StorageFolder describeResource =
+    UFAwsS3StorageFolder describedResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + name);
 
     // check the new storage folder is returned by describe
-    TestUtils.assertResourceProperties(createdResource, describeResource, "describe");
-    AwsS3StorageFolderUtils.assertAwsS3StorageFolderFields(
-        createdResource, describeResource, "describe");
+    TestUtils.assertResourceProperties(createdResource, describedResource, "describe");
+    AwsS3StorageFolderUtils.assertS3StorageFolderFields(
+        createdResource, describedResource, "describe");
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
@@ -113,11 +112,11 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
 
     // confirm it no longer appears in the resources list
-    List<UFAwsS3StorageFolder> listedBuckets =
-        AwsS3StorageFolderUtils.listStorageFolderResourcesWithName(name);
+    List<UFAwsS3StorageFolder> listedFolders =
+        AwsS3StorageFolderUtils.listS3StorageFolderResourcesWithName(name);
     assertThat(
         "deleted storage folder no longer appears in the resources list",
-        listedBuckets,
+            listedFolders,
         Matchers.empty());
   }
 }
