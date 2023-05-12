@@ -16,14 +16,11 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class NotebookInstance {
-  @CommandLine.Option(
-      names = "--location",
-      defaultValue = "us-central1-a",
-      description = "The Google Cloud location of the instance (if using --instance-id).")
-  public String location;
-
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
+
+  // TODO(TERRA-563) Combine toGcpNotebookInstanceName & toAwsNotebookResource a cloud agnostic
+  // function. GCP & AWS COWs would need to extend a base class to avoid returning a generic Object
 
   public InstanceName toGcpNotebookInstanceName() {
     Workspace workspace = Context.requireWorkspace();

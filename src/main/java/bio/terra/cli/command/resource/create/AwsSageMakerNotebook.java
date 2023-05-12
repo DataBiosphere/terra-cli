@@ -11,7 +11,9 @@ import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
-/** This class corresponds to the fourth-level "terra resource create aws-notebook" command. */
+/**
+ * This class corresponds to the fourth-level "terra resource create sagemaker-notebook" command.
+ */
 @CommandLine.Command(
     name = "sagemaker-notebook",
     description = "Add a controlled AWS SageMaker Notebook instance.",
