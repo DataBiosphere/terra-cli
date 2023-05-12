@@ -126,7 +126,7 @@ public class AwsS3StorageFolder extends Resource {
   public Object getCredentials(CredentialsAccessScope scope, int duration) {
     // call WSM to get credentials
     return WorkspaceManagerServiceAws.fromContext()
-        .getAwsS3StorageFolderCredential(
+        .getControlledAwsS3StorageFolderCredential(
             Context.requireWorkspace().getUuid(),
             id,
             scope == CredentialsAccessScope.READ_ONLY
