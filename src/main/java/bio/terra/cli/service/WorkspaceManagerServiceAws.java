@@ -50,6 +50,56 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
         Context.requireUser().getTerraToken(), Context.getServer());
   }
 
+  private void deleteControlledAwsResource(UUID workspaceId, UUID resourceId) {
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledAwsResourceRequestBody deleteRequest =
+        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
+
+    handleClientExceptions(
+        () -> {
+          ControlledAwsResourceApi controlledAwsResourceApi =
+              new ControlledAwsResourceApi(apiClient);
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () ->
+                  controlledAwsResourceApi.deleteAwsS3StorageFolder(
+                      deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledAwsResourceResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledAwsResourceApi.getDeleteAwsS3StorageFolderResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  60,
+                  Duration.ofSeconds(10));
+          logger.debug("delete controlled AWS resource result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          return true;
+        },
+        String.format(
+            "Error deleting controlled AWS resource %s in the workspace %s.",
+            workspaceId, resourceId));
+  }
+
+  private AwsCredential getAwsResourceCredential(
+      UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
+
+    return callWithRetries(
+        () ->
+            new ControlledAwsResourceApi(apiClient)
+                .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
+        String.format(
+            "Error getting AWS resource %s credential in the workspace %s.",
+            workspaceId, resourceId));
+  }
+
+  // S3 Storage Folder
+
   /**
    * Call the Workspace Manager POST
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder" endpoint to add a AWS
@@ -88,44 +138,12 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    * @throws UserActionableException if the CLI times out waiting for the job to complete
    */
   public void deleteControlledAwsS3StorageFolder(UUID workspaceId, UUID resourceId) {
-    String asyncJobId = UUID.randomUUID().toString();
-    DeleteControlledAwsResourceRequestBody deleteRequest =
-        new DeleteControlledAwsResourceRequestBody().jobControl(new JobControl().id(asyncJobId));
-
-    handleClientExceptions(
-        () -> {
-          ControlledAwsResourceApi controlledAwsResourceApi =
-              new ControlledAwsResourceApi(apiClient);
-          // make the initial delete request
-          HttpUtils.callWithRetries(
-              () ->
-                  controlledAwsResourceApi.deleteAwsS3StorageFolder(
-                      deleteRequest, workspaceId, resourceId),
-              WorkspaceManagerService::isRetryable);
-
-          // poll the result endpoint until the job is no longer RUNNING
-          DeleteControlledAwsResourceResult deleteResult =
-              HttpUtils.pollWithRetries(
-                  () ->
-                      controlledAwsResourceApi.getDeleteAwsS3StorageFolderResult(
-                          workspaceId, asyncJobId),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  60,
-                  Duration.ofSeconds(10));
-          logger.debug("delete controlled AWS S3 Storage Folder result: {}", deleteResult);
-
-          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
-          return true;
-        },
-        "Error deleting controlled AWS S3 Storage Folder in the workspace.");
+    deleteControlledAwsResource(workspaceId, resourceId);
   }
 
   /**
    * Call the Workspace Manager
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}/credential"
-   * endpoint
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}/credential"
    * endpoint to get AWS credentials to access the controlled storage folder
    *
    * @param workspaceId the workspace that contains the resource
@@ -136,10 +154,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    */
   public AwsCredential getAwsS3StorageFolderCredential(
       UUID workspaceId, UUID resourceId, AwsCredentialAccessScope accessScope, Integer duration) {
-    return callWithRetries(
-        () ->
-            new ControlledAwsResourceApi(apiClient)
-                .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
-        "Error getting AWS storage folder credential.");
+    return getAwsResourceCredential(workspaceId, resourceId, accessScope, duration);
   }
 }

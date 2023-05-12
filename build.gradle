@@ -45,7 +45,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.101.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.708-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.721-SNAPSHOT'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
@@ -69,7 +69,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.4'
 
-    // GCP
+    // GCP dependencies
     // TODO(PF-1928) - update versions after Terra-client JDK updates
     implementation group: 'com.google.auth', name: 'google-auth-library-credentials', version: '1.6.0'
     implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.6.0'
