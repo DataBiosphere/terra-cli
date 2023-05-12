@@ -124,8 +124,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   /**
    * Call the Workspace Manager
    * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/storageFolder/{resourceId}/credential"
-   * endpoint
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/aws/buckets/{resourceId}/credential"
    * endpoint to get AWS credentials to access the controlled storage folder
    *
    * @param workspaceId the workspace that contains the resource
@@ -140,6 +138,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
         () ->
             new ControlledAwsResourceApi(apiClient)
                 .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
-        "Error getting AWS storage folder credential.");
+        "Error getting AWS S3 Storage Folder credential.");
   }
 }
