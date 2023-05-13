@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
   private static boolean verifySageMakerPath(
       String SageMakerPath, String instanceName, String region) {
-    return SageMakerPath.matches(
+    return SageMakerPath.equals(
         String.format(
             "https://%s.console.aws.amazon.com/sagemaker/home?region=%s#/notebook-instances/%s",
             region, region, instanceName));
@@ -61,7 +61,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
 
     // `terra resource create sagemaker-notebook --name=$name --folder-name=folderName`
     String instanceName = UUID.randomUUID().toString();
-    String name = "listDescribeResolveReflectCreateDelete" + instanceName;
+    String name = "listDescribeResolveReflectCreateDelete-" + instanceName;
     UFAwsSageMakerNotebook createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsSageMakerNotebook.class,
@@ -77,8 +77,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(AWS_REGION, createdResource.region, "created resource matches region");
     assertEquals(
         instanceName, createdResource.instanceName, "created resource matches instance name");
-    assertEquals(
-        instanceName, createdResource.instanceType, "created resource matches instance type");
+    assertNotNull(createdResource.instanceType, "created resource returned instance type");
     assertNotNull(createdResource.instanceStatus, "created resource returned instance status");
 
     // sagemaker notebooks are always private

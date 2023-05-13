@@ -260,12 +260,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
             getSageMakerClient(
                 getControlledAwsSageMakerNotebookCredential(workspace.getUuid(), resourceId),
                 awsNotebook.getRegion()));
-    if (!notebookStatusSetCanDelete.contains(notebookStatus)
-        && (notebookStatus != NotebookInstanceStatus.DELETING)) {
-      throw new UserActionableException(
-          String.format(
-              "Expected notebook instance %s status in %s, but actual status is %s",
-              resourceId, notebookStatusSetCanDelete, notebookStatus));
+    if (notebookStatus != NotebookInstanceStatus.DELETING) {
+      checkNotebookStatus(notebookStatusSetCanDelete, notebookStatus);
     }
 
     String asyncJobId = UUID.randomUUID().toString();
