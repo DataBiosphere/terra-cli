@@ -47,7 +47,8 @@ public class SingleWorkspaceUnit extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + userFacingId);
 
     // `terra workspace delete`
-    TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+    // Use retries since delete resources within workspace may take few minutes
+    TestCommand.runCommandExpectSuccessWithRetries("workspace", "delete", "--quiet");
   }
 
   protected void createBucket(String resourceName, String bucketName) {
