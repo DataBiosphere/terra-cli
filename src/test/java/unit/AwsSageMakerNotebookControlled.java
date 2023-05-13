@@ -77,8 +77,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertEquals(AWS_REGION, createdResource.region, "created resource matches region");
     assertEquals(
         instanceName, createdResource.instanceName, "created resource matches instance name");
-    assertEquals(
-        instanceName, createdResource.instanceType, "created resource matches instance type");
+    assertNotNull(createdResource.instanceType, "created resource returned instance type");
     assertNotNull(createdResource.instanceStatus, "created resource returned instance status");
 
     // sagemaker notebooks are always private
