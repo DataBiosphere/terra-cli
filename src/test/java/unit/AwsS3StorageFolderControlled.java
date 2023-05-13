@@ -51,7 +51,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
 
     // `terra resource create s3-storage-folder --name=$name --folder-name=folderName`
     String folderName = UUID.randomUUID().toString();
-    String name = "listDescribeResolveReflectCreateDelete" + folderName;
+    String name = "listDescribeResolveReflectCreateDelete-" + folderName;
     UFAwsS3StorageFolder createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class,
