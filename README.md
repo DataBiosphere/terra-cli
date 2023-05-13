@@ -990,7 +990,7 @@ Workspace has a single AWS S3 Storage folder (output truncated):
 $ terra resource describe --name aws_folder_20230422
 Name:         aws_folder_20230422
 Description:  My First Storage Folder
-Type:         S3_STORAGE_FOLDER
+Type:         AWS_S3_STORAGE_FOLDER
 Region:       us-east-1
 ...
 AWS S3 Storage Folder: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
