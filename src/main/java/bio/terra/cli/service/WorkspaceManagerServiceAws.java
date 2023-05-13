@@ -229,8 +229,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                           workspaceId, asyncJobId),
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  60,
-                  Duration.ofSeconds(10));
+                  120,
+                  Duration.ofSeconds(15));
           logger.debug("create controlled AWS SageMaker Notebook result: {}", createResult);
 
           throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
@@ -292,7 +292,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
                   90,
-                  Duration.ofSeconds(10));
+                  Duration.ofSeconds(15));
           logger.debug("delete controlled AWS SageMaker Notebook result: {}", deleteResult);
 
           throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
