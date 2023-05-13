@@ -27,7 +27,7 @@ public class AwsSageMakerNotebook extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--instance-name",
       description =
-          "Name of the SageMaker Notebook instance. If not provided, a unique folder name will be generated (https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_CreateNotebookInstance.html#sagemaker-CreateNotebookInstance-request-NotebookInstanceName).")
+          "Name of the SageMaker Notebook instance. If not provided, a unique notebook name will be generated (https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_CreateNotebookInstance.html#sagemaker-CreateNotebookInstance-request-NotebookInstanceName).")
   private String instanceName;
 
   @CommandLine.Option(

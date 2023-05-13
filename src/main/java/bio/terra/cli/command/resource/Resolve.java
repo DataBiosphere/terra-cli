@@ -25,7 +25,7 @@ public class Resolve extends WsmBaseCommand {
       names = "--exclude-bucket-prefix",
       description =
           "[For GCS_BUCKET and GCS_OBJECT] Exclude the 'gs://' prefix, "
-              + "[For S3_STORAGE_FOLDER] Exclude the 's3://' prefix.")
+              + "[For AWS_S3_STORAGE_FOLDER] Exclude the 's3://' prefix.")
   private boolean excludeBucketPrefix;
 
   @CommandLine.Option(
