@@ -45,7 +45,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.101.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.708-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.725-SNAPSHOT'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
@@ -69,7 +69,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.4'
 
-    // GCP
+    // GCP dependencies
     // TODO(PF-1928) - update versions after Terra-client JDK updates
     implementation group: 'com.google.auth', name: 'google-auth-library-credentials', version: '1.6.0'
     implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.6.0'
@@ -77,6 +77,11 @@ dependencies {
     implementation group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.33.3'
     implementation group: 'com.google.cloud', name: 'google-cloud-bigquery', version: '1.116.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.7.2'
+
+    // AWS dependencies
+    implementation platform('software.amazon.awssdk:bom:2.20.22')
+    implementation 'software.amazon.awssdk:regions'
+    implementation 'software.amazon.awssdk:sagemaker'
 
     // Ini for writing AWS configuration files
     implementation group: 'org.ini4j', name: 'ini4j', version: '0.5.4'

@@ -5,26 +5,29 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Parameters for creating a AWS S3 Storage Folder resource. This class is not currently
+ * Parameters for creating a AWS SageMaker Notebook workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonDeserialize(builder = CreateAwsS3StorageFolderParams.Builder.class)
-public class CreateAwsS3StorageFolderParams {
+@JsonDeserialize(builder = CreateAwsSageMakerNotebookParams.Builder.class)
+public class CreateAwsSageMakerNotebookParams {
   public final CreateResourceParams resourceFields;
-  public final String folderName;
+  public final String instanceName;
+  public final String instanceType;
   public final String region;
 
-  protected CreateAwsS3StorageFolderParams(CreateAwsS3StorageFolderParams.Builder builder) {
+  protected CreateAwsSageMakerNotebookParams(CreateAwsSageMakerNotebookParams.Builder builder) {
     this.resourceFields = builder.resourceFields;
-    this.folderName = builder.folderName;
+    this.instanceName = builder.instanceName;
+    this.instanceType = builder.instanceType;
     this.region = builder.region;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder {
     private CreateResourceParams resourceFields;
-    private String folderName;
+    private String instanceName;
+    private String instanceType;
     private String region;
 
     /** Default constructor for Jackson. */
@@ -35,8 +38,13 @@ public class CreateAwsS3StorageFolderParams {
       return this;
     }
 
-    public Builder folderName(String folderName) {
-      this.folderName = folderName;
+    public Builder instanceName(String instanceName) {
+      this.instanceName = instanceName;
+      return this;
+    }
+
+    public Builder instanceType(String instanceType) {
+      this.instanceType = instanceType;
       return this;
     }
 
@@ -46,8 +54,8 @@ public class CreateAwsS3StorageFolderParams {
     }
 
     /** Call the private constructor. */
-    public CreateAwsS3StorageFolderParams build() {
-      return new CreateAwsS3StorageFolderParams(this);
+    public CreateAwsSageMakerNotebookParams build() {
+      return new CreateAwsSageMakerNotebookParams(this);
     }
   }
 }

@@ -1,6 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.businessobject.resource.AwsS3StorageFolder;
+import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
@@ -115,6 +116,7 @@ public abstract class Resource {
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
       case AWS_S3_STORAGE_FOLDER -> new AwsS3StorageFolder(wsmObject);
+      case AWS_SAGEMAKER_NOTEBOOK -> new AwsSageMakerNotebook(wsmObject);
         // Omit other resource types are not supported by the CLI.
       default -> null;
     };
@@ -273,7 +275,8 @@ public abstract class Resource {
     BQ_TABLE,
     AI_NOTEBOOK,
     GIT_REPO,
-    S3_STORAGE_FOLDER
+    AWS_S3_STORAGE_FOLDER,
+    AWS_SAGEMAKER_NOTEBOOK
   }
 
   public enum CredentialsAccessScope {
