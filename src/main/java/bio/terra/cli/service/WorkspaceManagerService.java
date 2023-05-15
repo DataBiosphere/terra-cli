@@ -186,6 +186,11 @@ public class WorkspaceManagerService {
                 () -> workspaceApi.createWorkspace(workspaceRequestBody),
                 WorkspaceManagerService::isRetryable);
           } catch (ApiException e) {
+            // TODO(PF-2460): This check is currently on the createWorkspace call, but will likely
+            //   be moved to the createContext call in the future.
+
+            // Surface a more user-friendly error if the user does not have access to the
+            // appropriate spend profile.
             if (e.getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN
                 && e.getMessage().contains("spend profile")) {
               throw new UserActionableException(
