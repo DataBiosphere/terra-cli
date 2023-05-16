@@ -1,5 +1,6 @@
 package bio.terra.cli.command;
 
+import bio.terra.cli.command.notebook.Launch;
 import bio.terra.cli.command.notebook.Start;
 import bio.terra.cli.command.notebook.Stop;
 import picocli.CommandLine;
@@ -12,9 +13,10 @@ import picocli.CommandLine;
     name = "notebook",
     header = "Use GCP Notebooks in the workspace.",
     description =
-        "Commands to create and manage GCP Notebook resources within the workspace. \n\n"
-            + "You can create a https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution[GCP Notebook] controlled resource "
-            + "with `terra resource create gcp-notebook`. The `stop`, `start` commands are provided for convenience. \n\n"
-            + "You can also stop and start the notebook using the `gcloud notebooks instances start/stop` commands.",
-    subcommands = {Start.class, Stop.class})
+        "Commands to manage Notebook resources within the workspace. \n\n"
+            + "You can create a GCP Notebook controlled resource [https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution]"
+            + "with `terra resource create gcp-notebook`, and a AWS Notebook controlled resource [https://aws.amazon.com/sagemaker] "
+            + "with `terra resource create sagemaker-notebook`. The `stop`, `start` and `launch` commands are provided for convenience. \n\n"
+            + "You can also stop and start the gcp-notebook using the `gcloud notebooks instances start/stop` commands.",
+    subcommands = {Start.class, Stop.class, Launch.class})
 public class Notebook {}

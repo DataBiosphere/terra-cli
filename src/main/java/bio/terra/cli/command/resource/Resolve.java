@@ -58,14 +58,10 @@ public class Resolve extends WsmBaseCommand {
         };
     JSONObject object = new JSONObject();
     object.put(resource.getName(), cloudId);
-    formatOption.printReturnValue(object, this::printText, this::printJson);
+    formatOption.printReturnValue(object, this::printText);
   }
 
   private void printText(JSONObject object) {
     OUT.println(object.get(resourceNameOption.name));
-  }
-
-  private void printJson(JSONObject object) {
-    OUT.println(object);
   }
 }
