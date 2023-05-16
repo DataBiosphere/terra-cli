@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.workspace.model.AccessScope;
 import harness.TestCommand;
@@ -126,6 +127,29 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertNotNull(
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
+    // `terra notebook launch --name=$name` // classic view
+    TestCommand.runCommandExpectSuccessWithRetries("notebook", "launch", "--name=" + name);
+    JSONObject proxyUrl =
+        TestCommand.runAndGetJsonObjectExpectSuccess("notebook", "launch", "--name=" + name);
+    Object url = proxyUrl.get("proxy_url");
+    assertNotNull(url, "launch notebook returned proxy url for classic view");
+    assertTrue(
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toString()),
+        "proxy url view is classic");
+
+    // `terra notebook launch --name=$name --proxy-view=$proxyView` // lab view
+    proxyUrl =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "notebook",
+            "launch",
+            "--name=" + name,
+            "--proxy-view=" + AwsSageMakerNotebook.ProxyView.JUPYTERLAB);
+    url = proxyUrl.get("proxy_url");
+    assertNotNull(url, "launch notebook returned proxy url for lab view");
+    assertTrue(
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toString()),
+        "proxy url view is lab");
+
     // `terra resources check-access --name=$name`
     String stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
@@ -138,7 +162,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     stdErr =
         TestCommand.runCommandExpectExitCode(1, "resource", "delete", "--name=" + name, "--quiet");
     assertThat(
-        "Expected notebook instance status is [Failed, Stopped] but current status is InService",
+        "error message includes expected and current statuses",
         stdErr,
         CoreMatchers.containsString(
             "Expected notebook instance status is [Failed, Stopped] but current status is InService"));
@@ -151,6 +175,14 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+
+    // `terra notebook launch --name=$name`
+    stdErr = TestCommand.runCommandExpectExitCode(1, "notebook", "launch", "--name=" + name);
+    assertThat(
+        "error message includes expected and current statuses",
+        stdErr,
+        CoreMatchers.containsString(
+            "Expected notebook instance status is [InService] but current status is STOPPED"));
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
