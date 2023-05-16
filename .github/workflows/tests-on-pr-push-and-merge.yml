@@ -31,7 +31,7 @@ jobs:
   tests-against-source-code:
     strategy:
       matrix:
-        testTag: [ "unit", "integration" ]
+        testTag: [ "unit-gcp", "integration" ]
       fail-fast: false
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"

@@ -76,7 +76,7 @@ jobs:
       run: |
         echo "Running unit tests for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-unit
-        ./gradlew runTestsWithTag -PtestTag=unit --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit -PquietConsole
+        ./gradlew runTestsWithTag -PtestTag=unit-gcp --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-unit -PquietConsole
 
     - name: Run integration tests against source code
       id: run_integration_tests_against_source_code
