@@ -141,8 +141,7 @@ public class AwsSageMakerNotebook extends Resource {
     JUPYTER,
     JUPYTERLAB;
 
-    @Override
-    public String toString() {
+    public String toParam() {
       return (this == ProxyView.JUPYTERLAB) ? "lab" : "classic";
     }
   }

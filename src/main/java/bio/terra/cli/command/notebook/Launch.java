@@ -48,7 +48,7 @@ public class Launch extends BaseCommand {
 
       JSONObject object = new JSONObject();
       object.put(PROXY_URL, proxyUrl.toString());
-      formatOption.printReturnValue(object, this::printText);
+      formatOption.printReturnValue(object, this::printText, this::printJson);
 
     } else {
       throw new UserActionableException(
@@ -58,5 +58,9 @@ public class Launch extends BaseCommand {
 
   private void printText(JSONObject object) {
     OUT.println(object.get(PROXY_URL));
+  }
+
+  private void printJson(JSONObject object) {
+    OUT.println(object);
   }
 }

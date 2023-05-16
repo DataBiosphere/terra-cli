@@ -25,6 +25,8 @@ import bio.terra.workspace.model.DeleteControlledAwsResourceRequestBody;
 import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.JobControl;
 import com.google.auth.oauth2.AccessToken;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Set;
@@ -521,11 +523,11 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                 + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
       }
       return new URIBuilder(createPresignedUrlResponse.authorizedUrl())
-          .addParameter("view", proxyView.toString())
+          .addParameter("view", proxyView.toParam())
           .build()
           .toURL();
 
-    } catch (Exception e) {
+    } catch (SdkException | URISyntaxException | MalformedURLException e) {
       if (e instanceof SdkException sdkE) {
         checkException(sdkE);
       }
