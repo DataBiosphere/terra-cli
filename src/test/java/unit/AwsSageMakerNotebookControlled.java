@@ -134,7 +134,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     Object url = proxyUrl.get("proxy_url");
     assertNotNull(url, "launch notebook returned proxy url for classic view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toString()),
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toParam()),
         "proxy url view is classic");
 
     // `terra notebook launch --name=$name --proxy-view=$proxyView` // lab view
@@ -147,7 +147,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     url = proxyUrl.get("proxy_url");
     assertNotNull(url, "launch notebook returned proxy url for lab view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toString()),
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()),
         "proxy url view is lab");
 
     // `terra resources check-access --name=$name`
@@ -182,7 +182,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
         "error message includes expected and current statuses",
         stdErr,
         CoreMatchers.containsString(
-            "Expected notebook instance status is [InService] but current status is STOPPED"));
+            "Expected notebook instance status is [InService] but current status is Stopped"));
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
