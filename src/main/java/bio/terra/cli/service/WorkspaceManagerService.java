@@ -181,9 +181,24 @@ public class WorkspaceManagerService {
 
           // make the create workspace request
           WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
-          HttpUtils.callWithRetries(
-              () -> workspaceApi.createWorkspace(workspaceRequestBody),
-              WorkspaceManagerService::isRetryable);
+          try {
+            HttpUtils.callWithRetries(
+                () -> workspaceApi.createWorkspace(workspaceRequestBody),
+                WorkspaceManagerService::isRetryable);
+          } catch (ApiException e) {
+            // TODO(PF-2460): This check is currently on the createWorkspace call, but will likely
+            //   be moved to the createContext call in the future.
+
+            // Surface a more user-friendly error if the user does not have access to the
+            // appropriate spend profile.
+            if (e.getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN
+                && e.getMessage().contains("spend profile")) {
+              throw new UserActionableException(
+                  "Accessing the spend profile failed. Ask an administrator to grant you access.");
+            } else {
+              throw e;
+            }
+          }
 
           // create the cloud context that backs the Terra workspace object
           UUID jobId = UUID.randomUUID();
@@ -220,26 +235,7 @@ public class WorkspaceManagerService {
                   workspaceId,
                   ex);
             }
-            // if this is a spend profile access denied error, then throw a more user-friendly error
-            // message
-            if (createContextResult.getErrorReport().getMessage().contains("spend profile")
-                && createContextResult.getErrorReport().getStatusCode()
-                    == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
-              final String errorMessage;
-              if (workspaceSuccessfullyDeleted) {
-                errorMessage =
-                    "Accessing the spend profile failed. Ask an administrator to grant you access.";
-              } else {
-                errorMessage =
-                    String.format(
-                        "Accessing the spend profile failed. Ask an administrator to grant you access. "
-                            + "There was a problem cleaning up the partially created workspace ID %s",
-                        workspaceId);
-              }
-              throw new UserActionableException(errorMessage);
-            }
           }
-          // handle non-spend-profile-related failures
           throwIfJobNotCompleted(
               createContextResult.getJobReport(), createContextResult.getErrorReport());
 

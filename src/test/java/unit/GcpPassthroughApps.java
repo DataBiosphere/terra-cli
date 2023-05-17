@@ -9,16 +9,11 @@ import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.service.WorkspaceManagerService;
-import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.StewardshipType;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.api.gax.paging.Page;
 import com.google.cloud.Identity;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import harness.TestCommand;
 import harness.TestContext;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
@@ -191,13 +186,12 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("`gsutil ls` and `gcloud alpha storage ls`")
-  void gsutilGcloudAlphaStorageLs() throws IOException, InterruptedException {
+  void gsutilGcloudAlphaStorageLs() throws IOException {
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
 
     // `terra workspace set --id=$id`
-    UFWorkspace createdWorkspace =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFWorkspace.class, "workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcs-bucket --name=$name --bucket-name=$bucketName --format=json`
     String name = "resourceName";
@@ -205,19 +199,8 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "gcs-bucket", "--name=" + name, "--bucket-name=" + bucketName);
 
-    Storage localProjectStorageClient =
-        StorageOptions.newBuilder()
-            .setProjectId(createdWorkspace.googleProjectId)
-            .setCredentials(workspaceCreator.getPetSaCredentials())
-            .build()
-            .getService();
-
-    // Poll until the test user can list GCS buckets in the workspace project, which may be delayed.
-    Page<Bucket> createdBucketOnCloud =
-        CrlUtils.callGcpWithPermissionExceptionRetries(localProjectStorageClient::list);
-
     // `terra gsutil ls`
-    TestCommand.Result cmd = TestCommand.runCommand("gsutil", "ls");
+    TestCommand.Result cmd = TestCommand.runCommandExpectSuccessWithRetries("gsutil", "ls");
     assertTrue(
         cmd.stdOut.contains(ExternalGCSBuckets.getGsPath(bucketName)),
         "`gsutil ls` returns bucket");
@@ -254,7 +237,10 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
             "--dataset-id=" + datasetId);
 
     // `terra bq show --format=prettyjson [project id]:[dataset id]`
-    TestCommand.Result cmd = TestCommand.runCommand("bq", "show", "--format=prettyjson", datasetId);
+    // Run with retries as bq uses end-user credentials via ADC rather than pet SA credentials.
+    TestCommand.Result cmd =
+        TestCommand.runCommandExpectSuccessWithRetries(
+            "bq", "show", "--format=prettyjson", datasetId);
     assertThat(
         "bq show includes the dataset id",
         cmd.stdOut,

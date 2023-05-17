@@ -118,7 +118,8 @@ jobs:
         # runs against the default server: broad-dev
         echo "Running tests with tag: ${{ matrix.testTag }}"
         echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
-        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} --scan $TEST_DOCKER_IMAGE -PquietConsole
+        # Run "unit" and "unit-gcp" tags, but not "unit-aws"
+        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} -Pplatform=GCP --scan $TEST_DOCKER_IMAGE -PquietConsole
       env:
         TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
 
