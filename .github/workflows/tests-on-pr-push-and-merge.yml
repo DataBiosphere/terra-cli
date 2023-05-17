@@ -119,7 +119,7 @@ jobs:
         echo "Running tests with tag: ${{ matrix.testTag }}"
         echo "Using docker image (uses default if blank): $TEST_DOCKER_IMAGE"
         # Run "unit" and "unit-gcp" tags, but not "unit-aws"
-        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} -Pplatform=GCP --scan $TEST_DOCKER_IMAGE -PquietConsole
+        ./gradlew runTestsWithTag -PtestTag=${{ matrix.testTag }} -Pplatform=gcp --scan $TEST_DOCKER_IMAGE -PquietConsole
       env:
         TEST_DOCKER_IMAGE: ${{ steps.build_docker_image.outputs.test_docker_image }}
 
