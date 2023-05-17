@@ -11,7 +11,7 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "notebook",
-    header = "Use GCP Notebooks in the workspace.",
+    header = "Use Notebooks in the workspace.",
     description =
         "Commands to manage Notebook resources within the workspace. \n\n"
             + "You can create a GCP Notebook controlled resource [https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution]"
