@@ -5,6 +5,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
+import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook.ProxyView;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
@@ -24,10 +25,14 @@ import bio.terra.workspace.model.DeleteControlledAwsResourceRequestBody;
 import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.JobControl;
 import com.google.auth.oauth2.AccessToken;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -39,6 +44,8 @@ import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sagemaker.SageMakerClient;
+import software.amazon.awssdk.services.sagemaker.model.CreatePresignedNotebookInstanceUrlRequest;
+import software.amazon.awssdk.services.sagemaker.model.CreatePresignedNotebookInstanceUrlResponse;
 import software.amazon.awssdk.services.sagemaker.model.DescribeNotebookInstanceRequest;
 import software.amazon.awssdk.services.sagemaker.model.DescribeNotebookInstanceResponse;
 import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
@@ -51,6 +58,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceAws.class);
   private static final int CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
   private static final Duration SAGEMAKER_CLIENT_WAITER_TIMEOUT = Duration.ofSeconds(1800);
+  private static final Integer SAGEMAKER_SESSION_DURATION_SECONDS_MAX = 43200; // 12 hours
   public static final Set<NotebookInstanceStatus> notebookStatusSetCanStart =
       Set.of(NotebookInstanceStatus.STOPPED, NotebookInstanceStatus.FAILED);
   public static final Set<NotebookInstanceStatus> notebookStatusSetCanStop =
@@ -261,7 +269,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                 getControlledAwsSageMakerNotebookCredential(workspace.getUuid(), resourceId),
                 awsNotebook.getRegion()));
     if (notebookStatus != NotebookInstanceStatus.DELETING) {
-      checkNotebookStatus(notebookStatusSetCanDelete, notebookStatus);
+      checkNotebookStatus(
+          notebookStatusSetCanDelete, notebookStatus, "Cannot delete notebook instance");
     }
 
     String asyncJobId = UUID.randomUUID().toString();
@@ -420,7 +429,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
       if (currentStatus == NotebookInstanceStatus.IN_SERVICE) {
         return;
       }
-      checkNotebookStatus(notebookStatusSetCanStart, currentStatus);
+      checkNotebookStatus(
+          notebookStatusSetCanStart, currentStatus, "Cannot start notebook instance");
 
       SdkHttpResponse httpResponse =
           sageMakerClient
@@ -459,7 +469,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
       if (notebookStatusSetCanStart.contains(currentStatus)) {
         return;
       }
-      checkNotebookStatus(notebookStatusSetCanStop, currentStatus);
+      checkNotebookStatus(notebookStatusSetCanStop, currentStatus, "Cannot stop notebook instance");
 
       SdkHttpResponse httpResponse =
           sageMakerClient
@@ -481,14 +491,59 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     }
   }
 
+  public URL getSageMakerNotebookProxyUrl(
+      UUID workspaceId, AwsSageMakerNotebook awsNotebook, ProxyView proxyView) {
+    SageMakerClient sageMakerClient =
+        getSageMakerClient(
+            getControlledAwsSageMakerNotebookCredential(
+                workspaceId,
+                awsNotebook.getId(),
+                AwsCredentialAccessScope.READ_ONLY,
+                CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            awsNotebook.getRegion());
+
+    try {
+      NotebookInstanceStatus currentStatus =
+          getSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
+      checkNotebookStatus(
+          Set.of(NotebookInstanceStatus.IN_SERVICE),
+          currentStatus,
+          "Cannot launch notebook instance");
+
+      CreatePresignedNotebookInstanceUrlResponse createPresignedUrlResponse =
+          sageMakerClient.createPresignedNotebookInstanceUrl(
+              CreatePresignedNotebookInstanceUrlRequest.builder()
+                  .notebookInstanceName(awsNotebook.getInstanceName())
+                  .sessionExpirationDurationInSeconds(SAGEMAKER_SESSION_DURATION_SECONDS_MAX)
+                  .build());
+      SdkHttpResponse httpResponse = createPresignedUrlResponse.sdkHttpResponse();
+      if (!httpResponse.isSuccessful()) {
+        throw new SystemException(
+            "Error creating presigned notebook instance url, "
+                + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
+      }
+      return new URIBuilder(createPresignedUrlResponse.authorizedUrl())
+          .addParameter("view", proxyView.toParam())
+          .build()
+          .toURL();
+
+    } catch (SdkException | URISyntaxException | MalformedURLException e) {
+      if (e instanceof SdkException sdkE) {
+        checkException(sdkE);
+      }
+      throw new SystemException("Error creating presigned notebook instance url", e);
+    }
+  }
+
   private void checkNotebookStatus(
-      Set<NotebookInstanceStatus> expectedStatusSet, NotebookInstanceStatus currentStatus) {
+      Set<NotebookInstanceStatus> expectedStatusSet,
+      NotebookInstanceStatus currentStatus,
+      String message) {
     if (!expectedStatusSet.contains(currentStatus)) {
       throw new UserActionableException(
-          "Expected notebook instance status is "
-              + expectedStatusSet
-              + " but current status is "
-              + currentStatus);
+          String.format(
+              "%s: Expected notebook instance status is %s but current status is %s",
+              message, expectedStatusSet, currentStatus));
     }
   }
 

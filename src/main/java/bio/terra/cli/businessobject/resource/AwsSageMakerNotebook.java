@@ -136,4 +136,13 @@ public class AwsSageMakerNotebook extends Resource {
   public String getInstanceType() {
     return instanceType;
   }
+
+  public enum ProxyView {
+    JUPYTER,
+    JUPYTERLAB;
+
+    public String toParam() {
+      return (this == ProxyView.JUPYTERLAB) ? "lab" : "classic";
+    }
+  }
 }

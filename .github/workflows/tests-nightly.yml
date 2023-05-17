@@ -84,7 +84,7 @@ jobs:
       run: |
         echo "Running integration tests against source code for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-integration-source
-        ./gradlew runTestsWithTag -PtestTag=integration --scan -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source -PquietConsole
+        ./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-source -PquietConsole --scan
 
     - name: Run integration tests against release
       id: run_integration_tests_against_release
@@ -92,7 +92,7 @@ jobs:
       run: |
         echo "Running integration tests against release for server: ${{ matrix.testServer }}"
         mkdir -p ~/logs-integration-release
-        ./gradlew runTestsWithTag -PtestTag=integration --scan -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release -PquietConsole
+        ./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp -PtestInstallFromGitHub -Pserver=${{ matrix.testServer }} -PcontextDir=$HOME/logs-integration-release -PquietConsole --scan
 
     - name: Compile logs and context files for all test runs
       id: compile_logs_and_context_files
