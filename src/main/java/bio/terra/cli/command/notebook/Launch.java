@@ -28,7 +28,7 @@ public class Launch extends BaseCommand {
   @CommandLine.Option(
       names = "--proxy-view",
       description = "AWS Sagemaker Notebook view to be launched: ${COMPLETION-CANDIDATES}.",
-      defaultValue = "JUPYTER",
+      defaultValue = "JUPYTERLAB",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private AwsSageMakerNotebook.ProxyView proxyView;
 
