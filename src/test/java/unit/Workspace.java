@@ -267,10 +267,14 @@ public class Workspace extends ClearContextUnit {
     assertEquals(
         createdWorkspace1.id, describedWorkspace.id, "describe matches set workspace id (1)");
 
-    // set current workspace = workspace 2
+    // check the workspace describe reflects the workspace set
+    assertEquals(
+        createdWorkspace1.uuid, describedWorkspace.uuid, "describe matches set workspace uuid (1)");
+
+    // set current workspace = workspace 2 (use --uuid this time)
     UFWorkspace setWorkspace2 =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFWorkspace.class, "workspace", "set", "--id=" + createdWorkspace2.id);
+            UFWorkspace.class, "workspace", "set", "--uuid=" + createdWorkspace2.uuid);
     assertEquals(createdWorkspace2.id, setWorkspace2.id, "set returned the expected workspace (2)");
 
     // `terra status --format=json`
@@ -286,6 +290,10 @@ public class Workspace extends ClearContextUnit {
     // check the workspace describe reflects the workspace set
     assertEquals(
         createdWorkspace2.id, describedWorkspace.id, "describe matches set workspace id (2)");
+
+    // check the workspace describe reflects the workspace set
+    assertEquals(
+        createdWorkspace2.uuid, describedWorkspace.uuid, "describe matches set workspace uuid (2)");
 
     // `terra workspace delete` (workspace 2)
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");

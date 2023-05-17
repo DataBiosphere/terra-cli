@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /** This is used instead of UFWorkspace, if workspace resources aren't needed. */
@@ -20,6 +21,7 @@ public class UFWorkspaceLight {
   // "id" instead of "userFacingId" because user sees this with "terra workspace describe
   // --format=json"
   public String id;
+  public UUID uuid;
   public CloudPlatform cloudPlatform;
 
   // GCP
@@ -48,6 +50,7 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(Workspace internalObj) {
     this.id = internalObj.getUserFacingId();
+    this.uuid = internalObj.getUuid();
     this.cloudPlatform = internalObj.getCloudPlatform();
     this.googleProjectId = internalObj.getGoogleProjectId().orElse(null);
     this.awsMajorVersion = internalObj.getAwsMajorVersion().orElse(null);
@@ -74,6 +77,7 @@ public class UFWorkspaceLight {
    */
   public UFWorkspaceLight(WorkspaceDescription workspaceDescription) {
     this.id = workspaceDescription.getUserFacingId();
+    this.uuid = workspaceDescription.getId();
 
     if (workspaceDescription.getGcpContext() != null) {
       this.cloudPlatform = CloudPlatform.GCP;
@@ -105,6 +109,7 @@ public class UFWorkspaceLight {
   /** Constructor for Jackson deserialization during testing. */
   protected UFWorkspaceLight(Builder builder) {
     this.id = builder.id;
+    this.uuid = builder.uuid;
     this.cloudPlatform = builder.cloudPlatform;
     this.googleProjectId = builder.googleProjectId;
     this.awsMajorVersion = builder.awsMajorVersion;
@@ -125,6 +130,7 @@ public class UFWorkspaceLight {
   /** Default constructor for subclass Builder constructor */
   protected UFWorkspaceLight() {
     this.id = null;
+    this.uuid = null;
     this.cloudPlatform = null;
     this.googleProjectId = null;
     this.awsMajorVersion = null;
@@ -179,6 +185,7 @@ public class UFWorkspaceLight {
     // "id" instead of "userFacingId" because user sees this with "terra workspace describe
     // --format=json"
     protected String id;
+    protected UUID uuid;
     protected CloudPlatform cloudPlatform;
 
     // GCP
@@ -204,6 +211,11 @@ public class UFWorkspaceLight {
 
     public Builder id(String id) {
       this.id = id;
+      return this;
+    }
+
+    public Builder uuid(UUID uuid) {
+      this.uuid = uuid;
       return this;
     }
 
