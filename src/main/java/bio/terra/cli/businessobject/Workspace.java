@@ -119,10 +119,7 @@ public class Workspace {
     return workspace;
   }
 
-  /** Load an existing workspace and set it as the current workspace. */
-  public static Workspace load(String userFacingId) {
-    Workspace workspace = Workspace.getByUserFacingId(userFacingId);
-
+  private static Workspace load(Workspace workspace) {
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
 
@@ -133,6 +130,16 @@ public class Workspace {
     Context.requireUser().fetchPetSaEmail();
 
     return workspace;
+  }
+
+  /** Load an existing workspace and set it as the current workspace. */
+  public static Workspace load(String userFacingId) {
+    return load(Workspace.getByUserFacingId(userFacingId));
+  }
+
+  /** Load an existing workspace and set it as the current workspace. */
+  public static Workspace load(UUID id) {
+    return load(Workspace.get(id));
   }
 
   /** Fetch an existing workspace by uuid, with resources populated */

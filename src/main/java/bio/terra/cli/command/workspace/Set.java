@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
+import java.util.UUID;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -12,14 +13,14 @@ import picocli.CommandLine.Command;
 public class Set extends WsmBaseCommand {
   @CommandLine.Mixin Format formatOption;
 
-  @CommandLine.Option(names = "--id", required = true, description = "Workspace id.")
-  // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace set`
-  private String id;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+  WorkspaceIdArgGroup argGroup;
 
   /** Load an existing workspace. */
   @Override
   protected void execute() {
-    Workspace workspace = Workspace.load(id);
+    Workspace workspace =
+        argGroup.id != null ? Workspace.load(argGroup.id) : Workspace.load(argGroup.uuid);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
@@ -27,5 +28,14 @@ public class Set extends WsmBaseCommand {
   private void printText(UFWorkspace returnValue) {
     OUT.println("Workspace successfully loaded.");
     returnValue.print();
+  }
+
+  static class WorkspaceIdArgGroup {
+    @CommandLine.Option(names = "--id", description = "Workspace id.")
+    // Variable is `id` instead of `userFacingId` because user sees it with `terra workspace set`
+    private String id;
+
+    @CommandLine.Option(names = "--uuid", description = "Workspace UUID.")
+    private UUID uuid;
   }
 }
