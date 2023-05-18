@@ -70,10 +70,9 @@ public class AwsSageMakerNotebook extends WsmBaseCommand {
             .instanceType(instanceType)
             .region(region);
 
-    bio.terra.cli.businessobject.resource.AwsSageMakerNotebook createdResource =
-        bio.terra.cli.businessobject.resource.AwsSageMakerNotebook.createControlled(
-            createParams.build());
-    formatOption.printReturnValue(
-        new UFAwsSageMakerNotebook(createdResource), AwsSageMakerNotebook::printText);
+    bio.terra.cli.businessobject.resource.AwsSageMakerNotebook.createControlled(
+        createParams.build());
+
+    OUT.println("Creating notebook instance. It may take a few minutes before it is available");
   }
 }

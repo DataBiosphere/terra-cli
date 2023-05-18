@@ -61,6 +61,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -795,6 +796,20 @@ public class WorkspaceManagerService {
       case FAILED -> throw new SystemException("Job failed: " + errorReport.getMessage());
       case RUNNING -> throw new UserActionableException(
           "CLI timed out waiting for the job to complete. It's still running on the server.");
+    }
+  }
+
+  /**
+   * Helper method that checks a JobReport's status and throws an exception if it's failed.
+   *
+   * <p>- Throws a {@link SystemException} if the job FAILED.
+   *
+   * @param jobReport WSM job report object
+   * @param errorReport WSM error report object
+   */
+  public static void throwIfJobFailed(JobReport jobReport, ErrorReport errorReport) {
+    if (Objects.requireNonNull(jobReport.getStatus()) == StatusEnum.FAILED) {
+      throw new SystemException("Job failed: " + errorReport.getMessage());
     }
   }
 

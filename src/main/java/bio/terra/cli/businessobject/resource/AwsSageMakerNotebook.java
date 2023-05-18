@@ -70,23 +70,13 @@ public class AwsSageMakerNotebook extends Resource {
         "Referenced resources not supported for AWS SageMaker Notebook.");
   }
 
-  /**
-   * Create a AWS SageMaker Notebook as a controlled resource in the workspace.
-   *
-   * @return the resource that was created
-   */
-  public static AwsSageMakerNotebook createControlled(
-      CreateAwsSageMakerNotebookParams createParams) {
+  /** Create a AWS SageMaker Notebook as a controlled resource in the workspace. */
+  public static void createControlled(CreateAwsSageMakerNotebookParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    AwsSageMakerNotebookResource createdResource =
-        WorkspaceManagerServiceAws.fromContext()
-            .createControlledAwsSageMakerNotebook(
-                Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created AWS SageMaker Notebook: {}", createdResource);
-
-    return new AwsSageMakerNotebook(createdResource);
+    WorkspaceManagerServiceAws.fromContext()
+        .createControlledAwsSageMakerNotebook(Context.requireWorkspace().getUuid(), createParams);
   }
 
   /**

@@ -74,7 +74,7 @@ public class UFAwsSageMakerNotebook extends UFResource {
     OUT.println(
         prefix
             + "SageMaker Notebook instance status: "
-            + (instanceStatus == null ? "(unknown)" : instanceStatus));
+            + (instanceStatus == null ? "(unavailable)" : instanceStatus));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
