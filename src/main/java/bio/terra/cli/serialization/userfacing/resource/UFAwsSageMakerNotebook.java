@@ -66,15 +66,10 @@ public class UFAwsSageMakerNotebook extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "SageMaker Notebook instance name:   " + instanceName);
+    OUT.println(prefix + "Instance name:   " + instanceName);
+    OUT.println(prefix + "Instance type:   " + (instanceType == null ? "(unknown)" : instanceType));
     OUT.println(
-        prefix
-            + "SageMaker Notebook instance type:   "
-            + (instanceType == null ? "(unknown)" : instanceType));
-    OUT.println(
-        prefix
-            + "SageMaker Notebook instance status: "
-            + (instanceStatus == null ? "(unavailable)" : instanceStatus));
+        prefix + "Instance status: " + (instanceStatus == null ? "(unavailable)" : instanceStatus));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

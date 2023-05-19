@@ -74,7 +74,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
         ResourceUtils.listOneResourceWithName(name, AWS_S3_STORAGE_FOLDER);
     assertS3StorageFolderFields(createdResource, matchedResource, "list");
 
-    // `terra resource describe --name=$name --format=json`
+    // `terra resource describe --name=$name`
     UFAwsS3StorageFolder describedResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + name);
