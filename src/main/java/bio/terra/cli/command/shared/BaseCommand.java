@@ -8,6 +8,7 @@ import bio.terra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
+import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -84,5 +85,9 @@ public abstract class BaseCommand implements Callable<Integer> {
    */
   protected boolean requiresLogin() {
     return true;
+  }
+
+  protected void printJson(JSONObject object) {
+    OUT.println(object);
   }
 }

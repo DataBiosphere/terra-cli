@@ -2,23 +2,27 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
+import bio.terra.cli.service.utils.AwsUtils;
+import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
 import bio.terra.workspace.model.ResourceDescription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Internal representation of a AWS SageMaker Notebook workspace resource. Instances of this class
  * are part of the current context or state.
  */
 public class AwsSageMakerNotebook extends Resource {
-  private static final Logger logger = LoggerFactory.getLogger(AwsSageMakerNotebook.class);
   private final String instanceName;
   private final String instanceType;
 
@@ -114,6 +118,25 @@ public class AwsSageMakerNotebook extends Resource {
                 ? AwsCredentialAccessScope.READ_ONLY
                 : AwsCredentialAccessScope.WRITE_READ,
             duration);
+  }
+
+  public URL getConsoleUrl(CredentialsAccessScope scope, int duration) {
+    try {
+      URL destinationUrl =
+          new URIBuilder()
+              .setScheme("https")
+              .setHost(String.format("%s.console.aws.amazon.com", region))
+              .setPath("sagemaker/home")
+              .setParameter("region", region)
+              .setFragment(String.format("/notebook-instances/%s", instanceName))
+              .build()
+              .toURL();
+      return AwsUtils.createConsoleUrl(
+          (AwsCredential) getCredentials(scope, duration), duration, destinationUrl);
+
+    } catch (URISyntaxException | IOException e) {
+      throw new SystemException("Failed to create destination URL.", e);
+    }
   }
 
   // ====================================================

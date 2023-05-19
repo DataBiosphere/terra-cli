@@ -9,6 +9,7 @@ import bio.terra.cli.command.resource.Describe;
 import bio.terra.cli.command.resource.List;
 import bio.terra.cli.command.resource.ListTree;
 import bio.terra.cli.command.resource.Mount;
+import bio.terra.cli.command.resource.OpenConsole;
 import bio.terra.cli.command.resource.Resolve;
 import bio.terra.cli.command.resource.Unmount;
 import bio.terra.cli.command.resource.Update;
@@ -38,6 +39,7 @@ import picocli.CommandLine;
       List.class,
       ListTree.class,
       Mount.class,
+      OpenConsole.class,
       Resolve.class,
       Unmount.class,
       Update.class

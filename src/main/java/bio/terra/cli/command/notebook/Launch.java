@@ -20,7 +20,6 @@ import picocli.CommandLine;
     description = "Launch a running Notebook instance within your workspace.",
     showDefaultValues = true)
 public class Launch extends BaseCommand {
-  private static final String PROXY_URL = "proxy_url";
   @CommandLine.Mixin NotebookInstance instanceOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
@@ -45,9 +44,8 @@ public class Launch extends BaseCommand {
       URL proxyUrl =
           WorkspaceManagerServiceAws.fromContext()
               .getSageMakerNotebookProxyUrl(workspace.getUuid(), awsNotebook, proxyView);
-
-      JSONObject object = new JSONObject();
-      object.put(PROXY_URL, proxyUrl.toString());
+      JSONObject object =
+          new JSONObject().put(instanceOption.getResourceName(), proxyUrl.toString());
       formatOption.printReturnValue(object, this::printText, this::printJson);
 
     } else {
@@ -57,10 +55,6 @@ public class Launch extends BaseCommand {
   }
 
   private void printText(JSONObject object) {
-    OUT.println(object.get(PROXY_URL));
-  }
-
-  private void printJson(JSONObject object) {
-    OUT.println(object);
+    OUT.println(object.getString(instanceOption.getResourceName()));
   }
 }

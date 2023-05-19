@@ -16,6 +16,7 @@ import harness.utils.ResourceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -115,7 +116,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
             "credentials",
             "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
-            "--duration=" + 1500);
+            "--duration=" + 900);
     assertNotNull(resolvedCredentials.get("Version"), "get credentials returned version");
     assertNotNull(resolvedCredentials.get("AccessKeyId"), "get credentials returned access key id");
     assertNotNull(
@@ -125,14 +126,24 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertNotNull(
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
+    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500 --format=json`
+    JSONObject consoleUrl =
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource",
+            "open-console",
+            "--name=" + name,
+            "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
+            "--duration=" + 900);
+    String url = consoleUrl.getString(name);
+    assertTrue(StringUtils.isNotBlank(url), "open console returned console url");
+
     // `terra notebook launch --name=$name --format=json` // lab view
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess("notebook", "launch", "--name=" + name);
-    Object url = proxyUrl.get("proxy_url");
+    url = proxyUrl.getString(name);
     assertNotNull(url, "launch notebook returned proxy url for lab view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()),
-        "proxy url view is lab");
+        url.endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()), "proxy url view is lab");
 
     // `terra notebook launch --name=$name --proxy-view=$proxyView --format=json` // lab view
     proxyUrl =
@@ -141,10 +152,10 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
             "launch",
             "--name=" + name,
             "--proxy-view=" + AwsSageMakerNotebook.ProxyView.JUPYTER);
-    url = proxyUrl.get("proxy_url");
+    url = proxyUrl.getString(name);
     assertNotNull(url, "launch notebook returned proxy url for classic view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toParam()),
+        url.endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toParam()),
         "proxy url view is classic");
 
     // `terra resources check-access --name=$name`

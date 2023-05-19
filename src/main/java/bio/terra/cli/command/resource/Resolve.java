@@ -44,8 +44,8 @@ public class Resolve extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
 
+    Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     String cloudId =
         switch (resource.getResourceType()) {
           case GCS_BUCKET -> ((GcsBucket) resource).resolve(!excludeBucketPrefix);
@@ -56,16 +56,12 @@ public class Resolve extends WsmBaseCommand {
               .resolve(!excludeBucketPrefix);
           default -> resource.resolve();
         };
-    JSONObject object = new JSONObject();
-    object.put(resource.getName(), cloudId);
+
+    JSONObject object = new JSONObject().put(resource.getName(), cloudId);
     formatOption.printReturnValue(object, this::printText, this::printJson);
   }
 
   private void printText(JSONObject object) {
-    OUT.println(object.get(resourceNameOption.name));
-  }
-
-  private void printJson(JSONObject object) {
-    OUT.println(object);
+    OUT.println(object.getString(resourceNameOption.name));
   }
 }
