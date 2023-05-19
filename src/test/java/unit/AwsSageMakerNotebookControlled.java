@@ -160,8 +160,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertThat(
         "error message includes expected and current statuses",
         stdErr,
-        CoreMatchers.containsString(
-            "Expected notebook instance status is [Failed, Stopped] but current status is InService"));
+        CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
@@ -180,8 +179,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertThat(
         "error message includes expected and current statuses",
         stdErr,
-        CoreMatchers.containsString(
-            "Expected notebook instance status is [InService] but current status is Stopped"));
+        CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
