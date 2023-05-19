@@ -50,8 +50,9 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create s3-storage-folder --name=$name --folder-name=folderName`
-    String folderName = UUID.randomUUID().toString();
-    String name = "listDescribeResolveReflectCreateDelete-" + folderName;
+    UUID uuid = UUID.randomUUID();
+    String folderName = "cli-unit-aws-" + uuid;
+    String name = "listDescribeResolveReflectCreateDelete-" + uuid;
     UFAwsS3StorageFolder createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class,
@@ -74,7 +75,7 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
         ResourceUtils.listOneResourceWithName(name, AWS_S3_STORAGE_FOLDER);
     assertS3StorageFolderFields(createdResource, matchedResource, "list");
 
-    // `terra resource describe --name=$name --format=json`
+    // `terra resource describe --name=$name`
     UFAwsS3StorageFolder describedResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class, "resource", "describe", "--name=" + name);

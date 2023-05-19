@@ -1,14 +1,18 @@
 package harness.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.UFResource;
+import bio.terra.cli.service.utils.HttpUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.json.JSONObject;
 
 public class ResourceUtils {
   /**
@@ -66,5 +70,41 @@ public class ResourceUtils {
     return listedResources.stream()
         .filter(resource -> resource.name.equals(resourceName))
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Helper method to poll `terra resources describe` until the resource field value equals that
+   * specified. Uses the current workspace.
+   */
+  public static <T extends UFResource> void pollDescribeForResourceField(
+      String resourceName, String fieldName, String fieldValue) throws InterruptedException {
+    pollDescribeForResourceField(resourceName, fieldName, fieldValue, null);
+  }
+
+  /**
+   * Helper method to poll `terra resources describe` until the resource field value equals that
+   * specified. Filters on the specified workspace id; Uses the current workspace if null.
+   */
+  public static <T extends UFResource> void pollDescribeForResourceField(
+      String resourceName, String fieldName, String fieldValue, String workspaceUserFacingId)
+      throws InterruptedException {
+    JSONObject resource =
+        HttpUtils.pollWithRetries(
+            () ->
+                workspaceUserFacingId == null
+                    ? TestCommand.runAndGetJsonObjectExpectSuccess(
+                        "resource", "describe", "--name=" + resourceName)
+                    : TestCommand.runAndGetJsonObjectExpectSuccess(
+                        "resource",
+                        "describe",
+                        "--name=" + resourceName,
+                        "--workspace=" + workspaceUserFacingId),
+            (result) -> fieldValue.equals(result.get(fieldName)),
+            (ex) -> false, // no retries
+            30, // up to 30 minutes
+            Duration.ofMinutes(1)); // every 1 minute
+
+    assertNotNull(resource, "resource poll returned a resource");
+    assertEquals(fieldValue, resource.get(fieldName), "resource field matches expected value");
   }
 }

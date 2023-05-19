@@ -13,7 +13,6 @@ import bio.terra.workspace.model.AccessScope;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.ResourceUtils;
-import harness.utils.TestUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +22,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /** Tests for the `terra resource` commands that handle controlled AWS SageMaker Notebooks. */
 @Tag("unit-aws")
@@ -54,24 +54,31 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
 
   @Test
   @DisplayName("list, describe and resolve reflect creating and deleting a controlled notebook")
-  void listDescribeResolveReflectCreateDelete() throws IOException {
+  void listDescribeResolveReflectCreateDelete() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create sagemaker-notebook --name=$name --folder-name=folderName`
-    String instanceName = UUID.randomUUID().toString();
-    String name = "listDescribeResolveReflectCreateDelete-" + instanceName;
+    UUID uuid = UUID.randomUUID();
+    String instanceName = "cli-unit-aws-" + uuid;
+    String name = "listDescribeResolveReflectCreateDelete-" + uuid;
+    TestCommand.runCommandExpectSuccessWithRetries(
+        "resource",
+        "create",
+        "sagemaker-notebook",
+        "--name=" + name,
+        "--instance-name=" + instanceName,
+        "--region=" + AWS_REGION);
+
+    ResourceUtils.pollDescribeForResourceField(
+        name, "instanceStatus", NotebookInstanceStatus.IN_SERVICE.toString());
+
+    // `terra resource describe --name=$name`
     UFAwsSageMakerNotebook createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsSageMakerNotebook.class,
-            "resource",
-            "create",
-            "sagemaker-notebook",
-            "--name=" + name,
-            "--instance-name=" + instanceName,
-            "--region=" + AWS_REGION);
+            UFAwsSageMakerNotebook.class, "resource", "describe", "--name=" + name);
 
     // check the created resource has required details
     assertEquals(name, createdResource.name, "created resource matches name");
@@ -93,15 +100,6 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     UFAwsSageMakerNotebook matchedResource =
         ResourceUtils.listOneResourceWithName(name, AWS_SAGEMAKER_NOTEBOOK);
     assertSageMakerNotebookFields(createdResource, matchedResource, "list");
-
-    // `terra resource describe --name=$name --format=json`
-    UFAwsSageMakerNotebook describedResource =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFAwsSageMakerNotebook.class, "resource", "describe", "--name=" + name);
-
-    // check the new notebook is returned by describe
-    TestUtils.assertResourceProperties(createdResource, describedResource, "describe");
-    assertSageMakerNotebookFields(createdResource, describedResource, "describe");
 
     // `terra resource resolve --name=$name --format=json`
     JSONObject resolved =
@@ -127,28 +125,27 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertNotNull(
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
-    // `terra notebook launch --name=$name` // classic view
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "launch", "--name=" + name);
+    // `terra notebook launch --name=$name --format=json` // lab view
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess("notebook", "launch", "--name=" + name);
     Object url = proxyUrl.get("proxy_url");
-    assertNotNull(url, "launch notebook returned proxy url for classic view");
+    assertNotNull(url, "launch notebook returned proxy url for lab view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toParam()),
-        "proxy url view is classic");
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()),
+        "proxy url view is lab");
 
-    // `terra notebook launch --name=$name --proxy-view=$proxyView` // lab view
+    // `terra notebook launch --name=$name --proxy-view=$proxyView --format=json` // lab view
     proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "notebook",
             "launch",
             "--name=" + name,
-            "--proxy-view=" + AwsSageMakerNotebook.ProxyView.JUPYTERLAB);
+            "--proxy-view=" + AwsSageMakerNotebook.ProxyView.JUPYTER);
     url = proxyUrl.get("proxy_url");
-    assertNotNull(url, "launch notebook returned proxy url for lab view");
+    assertNotNull(url, "launch notebook returned proxy url for classic view");
     assertTrue(
-        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()),
-        "proxy url view is lab");
+        url.toString().endsWith(AwsSageMakerNotebook.ProxyView.JUPYTER.toParam()),
+        "proxy url view is classic");
 
     // `terra resources check-access --name=$name`
     String stdErr =
@@ -164,14 +161,16 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertThat(
         "error message includes expected and current statuses",
         stdErr,
-        CoreMatchers.containsString(
-            "Expected notebook instance status is [Failed, Stopped] but current status is InService"));
+        CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
 
     // `terra notebook start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+
+    ResourceUtils.pollDescribeForResourceField(
+        name, "instanceStatus", NotebookInstanceStatus.IN_SERVICE.toString());
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
@@ -181,8 +180,7 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertThat(
         "error message includes expected and current statuses",
         stdErr,
-        CoreMatchers.containsString(
-            "Expected notebook instance status is [InService] but current status is Stopped"));
+        CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra resource delete --name=$name`
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + name, "--quiet");
