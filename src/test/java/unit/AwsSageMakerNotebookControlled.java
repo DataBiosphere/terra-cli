@@ -61,8 +61,9 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create sagemaker-notebook --name=$name --folder-name=folderName`
-    String instanceName = UUID.randomUUID().toString();
-    String name = "listDescribeResolveReflectCreateDelete-" + instanceName;
+    UUID uuid = UUID.randomUUID();
+    String instanceName = "cli-unit-aws-" + uuid;
+    String name = "listDescribeResolveReflectCreateDelete-" + uuid;
     TestCommand.runCommandExpectSuccessWithRetries(
         "resource",
         "create",
