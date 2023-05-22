@@ -24,6 +24,7 @@ import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceMetadata;
 import bio.terra.workspace.model.StewardshipType;
+import java.net.URL;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -177,12 +178,18 @@ public abstract class Resource {
   }
 
   /**
-   * Retrieve and print temporary credentials to access a cloud resource as a JSONObject Resources
-   * to override this as necessary
+   * Retrieve temporary credentials to access a cloud resource as a JSONObject. Resources to
+   * override this as necessary
    */
   public Object getCredentials(CredentialsAccessScope scope, int duration) {
     throw new UserActionableException(
         "Credentials not supported for resource type: " + resourceType);
+  }
+
+  /** Retrieve console link to access a cloud resource. Resources to override this as necessary */
+  public URL getConsoleUrl(CredentialsAccessScope scope, int duration) {
+    throw new UserActionableException(
+        "Console link not supported for resource type: " + resourceType);
   }
 
   /**

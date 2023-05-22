@@ -19,6 +19,7 @@ public class Delete extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
     Resource resourceToDelete = Context.requireWorkspace().getResource(resourceNameOption.name);
 
     // print details about the resource before showing the delete prompt

@@ -2,14 +2,20 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
+import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
 import bio.terra.workspace.model.ResourceDescription;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +139,26 @@ public class AwsS3StorageFolder extends Resource {
                 ? AwsCredentialAccessScope.READ_ONLY
                 : AwsCredentialAccessScope.WRITE_READ,
             duration);
+  }
+
+  public URL getConsoleUrl(CredentialsAccessScope scope, int duration) {
+    try {
+      URL destinationUrl =
+          new URIBuilder()
+              .setScheme("https")
+              .setHost("s3.console.aws.amazon.com")
+              .setPath(String.format("s3/buckets/%s", bucketName))
+              .setParameter("region", region)
+              .setParameter("prefix", String.format("%s/", prefix))
+              .build()
+              .toURL();
+
+      return WorkspaceManagerServiceAws.createConsoleUrl(
+          (AwsCredential) getCredentials(scope, duration), duration, destinationUrl);
+
+    } catch (URISyntaxException | MalformedURLException e) {
+      throw new SystemException("Failed to create destination URL.", e);
+    }
   }
 
   /**
