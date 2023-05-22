@@ -140,8 +140,8 @@ public class AwsS3StorageFolder extends Resource {
    * was an error looking it up. This behavior is useful for display purposes.
    */
   public Integer numObjects(long limit) {
-    // TODO(TERRA-146) implement numObjects
-    return 0;
+    return WorkspaceManagerServiceAws.fromContext()
+        .getNumObjects(Context.requireWorkspace().getUuid(), this, limit);
   }
 
   // ====================================================

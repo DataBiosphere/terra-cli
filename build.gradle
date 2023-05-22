@@ -81,6 +81,7 @@ dependencies {
     // AWS dependencies
     implementation platform('software.amazon.awssdk:bom:2.20.22')
     implementation 'software.amazon.awssdk:regions'
+    implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:sagemaker'
 
     // Ini for writing AWS configuration files
