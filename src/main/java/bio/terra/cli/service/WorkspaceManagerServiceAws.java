@@ -229,7 +229,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
                   ListObjectsV2Request.builder()
                       .bucket(awsStorageFolder.getBucketName())
                       .prefix(awsStorageFolder.getPrefix() + "/")
-                      .maxKeys(S3_CLIENT_RESULTS_PER_CALL)
+                      .maxKeys((int) Math.min(limit, S3_CLIENT_RESULTS_PER_CALL))
                       .build())
               .iterator();
 
