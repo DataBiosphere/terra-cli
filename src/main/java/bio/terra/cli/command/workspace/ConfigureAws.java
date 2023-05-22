@@ -53,12 +53,11 @@ public class ConfigureAws extends WsmBaseCommand {
 
   private static Path getAwsContextDir() {
     return Context.getContextDir()
-        .resolve(AWS_CONTEXT_SUBDIRECTORY_NAME)
-        .resolve(Context.getServer().getName());
+        .resolve(AWS_CONTEXT_SUBDIRECTORY_NAME);
   }
 
   private static Path getConfigFilePath(Workspace workspace) {
-    return getAwsContextDir().resolve(String.format("%s.conf", workspace.getUserFacingId()));
+    return getAwsContextDir().resolve(String.format("%s.conf", workspace.getUuid()));
   }
 
   @Override
@@ -72,7 +71,7 @@ public class ConfigureAws extends WsmBaseCommand {
 
     for (Resource resource : resourceList) {
       switch (resource.getResourceType()) {
-        case AWS_S3_STORAGE_FOLDER -> generateAwsResourceProfiles(builder, resource);
+        case AWS_S3_STORAGE_FOLDER, AWS_SAGEMAKER_NOTEBOOK -> generateAwsResourceProfiles(builder, resource);
       }
     }
 
