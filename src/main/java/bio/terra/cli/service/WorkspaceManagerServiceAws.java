@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.businessobject.resource.AwsS3StorageFolder;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook.ProxyView;
 import bio.terra.cli.exception.SystemException;
@@ -32,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -47,6 +49,11 @@ import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.InvalidObjectStateException;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.sagemaker.SageMakerClient;
 import software.amazon.awssdk.services.sagemaker.model.CreatePresignedNotebookInstanceUrlRequest;
 import software.amazon.awssdk.services.sagemaker.model.CreatePresignedNotebookInstanceUrlResponse;
@@ -61,6 +68,7 @@ import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceAws.class);
   private static final int CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
+  private static final int S3_CLIENT_RESULTS_PER_CALL = 1000;
   private static final Duration SAGEMAKER_CLIENT_WAITER_TIMEOUT = Duration.ofSeconds(1800);
   private static final Integer SAGEMAKER_SESSION_DURATION_SECONDS_MAX = 43200; // 12 hours
   public static final Set<NotebookInstanceStatus> notebookStatusSetCanStart =
@@ -188,6 +196,67 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
             new ControlledAwsResourceApi(apiClient)
                 .getAwsS3StorageFolderCredential(workspaceId, resourceId, accessScope, duration),
         "Error getting AWS S3 Storage Folder credential.");
+  }
+
+  // TODO(BENCH-598) move these to CRL / Axon
+
+  public static S3Client getS3Client(AwsCredential awsCredential, String region) {
+    return S3Client.builder()
+        .region(Region.of(region))
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsSessionCredentials.create(
+                    awsCredential.getAccessKeyId(),
+                    awsCredential.getSecretAccessKey(),
+                    awsCredential.getSessionToken())))
+        .build();
+  }
+
+  public Integer getNumObjects(UUID workspaceId, AwsS3StorageFolder awsStorageFolder, long limit) {
+    S3Client s3Client =
+        getS3Client(
+            getControlledAwsS3StorageFolderCredential(
+                workspaceId,
+                awsStorageFolder.getId(),
+                AwsCredentialAccessScope.READ_ONLY,
+                CREDENTIAL_EXPIRATION_SECONDS_DEFAULT),
+            awsStorageFolder.getRegion());
+
+    try {
+      Iterator<ListObjectsV2Response> listIterator =
+          s3Client
+              .listObjectsV2Paginator(
+                  ListObjectsV2Request.builder()
+                      .bucket(awsStorageFolder.getBucketName())
+                      .prefix(awsStorageFolder.getPrefix() + "/")
+                      .maxKeys((int) Math.min(limit, S3_CLIENT_RESULTS_PER_CALL))
+                      .build())
+              .iterator();
+
+      int numObjectsCtr = 0;
+      while (listIterator.hasNext() && (numObjectsCtr < limit)) {
+        numObjectsCtr +=
+            listIterator.next().contents().stream()
+                .filter(s3Object -> !s3Object.key().endsWith("/"))
+                .limit(limit - numObjectsCtr)
+                .count();
+      }
+      return numObjectsCtr;
+
+    } catch (Exception e) {
+      checkS3StorageFolderException(e);
+      throw new SystemException("Error listing objects in S3 storage folder", e);
+    }
+  }
+
+  public static void checkS3StorageFolderException(Exception ex) {
+    if (ex instanceof NoSuchKeyException
+        || (ex instanceof SdkException && ex.getMessage().contains("Access Denied"))) {
+      throw new UserActionableException(
+          "Error accessing S3 storage folder, check the name / permissions and retry");
+    } else if (ex instanceof InvalidObjectStateException) {
+      throw new UserActionableException("Cannot access archived S3 storage folder until restored");
+    }
   }
 
   // SageMaker Notebook
