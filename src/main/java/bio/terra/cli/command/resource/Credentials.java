@@ -32,7 +32,7 @@ public class Credentials extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Resolve a resource in the workspace to its cloud identifier. */
+  /** Get credentials to access the cloud resource. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
