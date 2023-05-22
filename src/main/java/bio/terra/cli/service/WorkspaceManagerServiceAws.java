@@ -211,7 +211,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   public Integer getNumObjects(UUID workspaceId, AwsS3StorageFolder awsStorageFolder, long limit) {
     S3Client s3Client =
         getS3Client(
-            getControlledAwsSageMakerNotebookCredential(
+            getControlledAwsS3StorageFolderCredential(
                 workspaceId,
                 awsStorageFolder.getId(),
                 AwsCredentialAccessScope.READ_ONLY,
