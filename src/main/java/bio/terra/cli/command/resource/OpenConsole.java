@@ -32,7 +32,7 @@ public class OpenConsole extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Resolve a resource in the workspace to its cloud identifier. */
+  /** Get an authenticated URL to directly access the resource in AWS console. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
