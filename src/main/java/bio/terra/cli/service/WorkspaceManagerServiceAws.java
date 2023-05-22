@@ -24,14 +24,19 @@ import bio.terra.workspace.model.DeleteControlledAwsResourceRequestBody;
 import bio.terra.workspace.model.DeleteControlledAwsResourceResult;
 import bio.terra.workspace.model.JobControl;
 import com.google.auth.oauth2.AccessToken;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.apache.http.client.utils.URIBuilder;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -329,7 +334,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
         "Error getting AWS SageMaker Notebook credential.");
   }
 
-  // TODO(TERRA-563) move these to CRL
+  // TODO(TERRA-563) move these to CRL / Axon
 
   public static SageMakerClient getSageMakerClient(AwsCredential awsCredential, String region) {
     return SageMakerClient.builder()
@@ -536,6 +541,59 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
           String.format(
               "%s: Expected notebook instance status is %s but current status is %s",
               message, expectedStatusSet, currentStatus));
+    }
+  }
+
+  // Common
+
+  /**
+   * Create a console URL for a given destination URL
+   *
+   * @param awsCredential {@link AwsCredential}
+   * @param duration duration of access in seconds
+   * @param destinationUrl destination of the console URL
+   * @return console URL
+   * @throws SystemException Error in URL creation
+   */
+  public static URL createConsoleUrl(AwsCredential awsCredential, int duration, URL destinationUrl)
+      throws SystemException {
+    JSONObject credentialObject = new JSONObject();
+    credentialObject.put("sessionId", awsCredential.getAccessKeyId());
+    credentialObject.put("sessionKey", awsCredential.getSecretAccessKey());
+    credentialObject.put("sessionToken", awsCredential.getSessionToken());
+
+    try {
+      URLConnection urlConnection =
+          new URIBuilder()
+              .setScheme("https")
+              .setHost("signin.aws.amazon.com")
+              .setPath("federation")
+              .setParameter("Action", "getSigninToken")
+              .setParameter("DurationSeconds", String.valueOf(duration))
+              .setParameter("SessionType", "json")
+              .setParameter("Session", credentialObject.toString())
+              .build()
+              .toURL()
+              .openConnection();
+
+      BufferedReader bufferReader =
+          new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+      String urlSigninToken = new JSONObject(bufferReader.readLine()).getString("SigninToken");
+      bufferReader.close();
+
+      return new URIBuilder()
+          .setScheme("https")
+          .setHost("signin.aws.amazon.com")
+          .setPath("federation")
+          .setParameter("Action", "login")
+          .setParameter("Issuer", "terra.verily.com")
+          .setParameter("Destination", destinationUrl.toString())
+          .setParameter("SigninToken", urlSigninToken)
+          .build()
+          .toURL();
+
+    } catch (URISyntaxException | IOException e) {
+      throw new SystemException("Failed to create destination URL.", e);
     }
   }
 

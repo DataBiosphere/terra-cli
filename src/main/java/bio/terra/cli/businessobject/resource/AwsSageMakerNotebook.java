@@ -8,7 +8,6 @@ import bio.terra.cli.serialization.persisted.resource.PDAwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
-import bio.terra.cli.service.utils.AwsUtils;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
@@ -131,7 +130,7 @@ public class AwsSageMakerNotebook extends Resource {
               .setFragment(String.format("/notebook-instances/%s", instanceName))
               .build()
               .toURL();
-      return AwsUtils.createConsoleUrl(
+      return WorkspaceManagerServiceAws.createConsoleUrl(
           (AwsCredential) getCredentials(scope, duration), duration, destinationUrl);
 
     } catch (URISyntaxException | IOException e) {

@@ -8,7 +8,6 @@ import bio.terra.cli.serialization.persisted.resource.PDAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
-import bio.terra.cli.service.utils.AwsUtils;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
@@ -154,7 +153,7 @@ public class AwsS3StorageFolder extends Resource {
               .build()
               .toURL();
 
-      return AwsUtils.createConsoleUrl(
+      return WorkspaceManagerServiceAws.createConsoleUrl(
           (AwsCredential) getCredentials(scope, duration), duration, destinationUrl);
 
     } catch (URISyntaxException | MalformedURLException e) {
