@@ -19,6 +19,12 @@ public class NotebookInstance {
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
   ArgGroup argGroup;
 
+  String resourceName;
+
+  public String getResourceName() {
+    return resourceName;
+  }
+
   // TODO(TERRA-563) Combine toGcpNotebookInstanceName & toAwsNotebookResource a cloud agnostic
   // function. GCP & AWS COWs would need to extend a base class to avoid returning a generic Object
 
@@ -28,6 +34,7 @@ public class NotebookInstance {
         (argGroup.resourceName != null)
             ? workspace.getResource(argGroup.resourceName)
             : workspace.getResource(argGroup.instanceId);
+    this.resourceName = resource.getName();
 
     if (resource.getResourceType().equals(Resource.Type.AI_NOTEBOOK)) {
       GcpNotebook gcpNotebook = (GcpNotebook) resource;
@@ -49,6 +56,7 @@ public class NotebookInstance {
         (argGroup.resourceName != null)
             ? workspace.getResource(argGroup.resourceName)
             : workspace.getResource(argGroup.instanceId);
+    this.resourceName = resource.getName();
 
     if (resource.getResourceType().equals(Resource.Type.AWS_SAGEMAKER_NOTEBOOK)) {
       return (AwsSageMakerNotebook) resource;

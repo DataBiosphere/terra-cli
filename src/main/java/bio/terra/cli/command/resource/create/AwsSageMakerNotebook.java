@@ -7,7 +7,9 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -54,6 +56,7 @@ public class AwsSageMakerNotebook extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.AWS);
 
     // build the resource object to create. force the resource to be private
     CreateResourceParams createResourceParams =

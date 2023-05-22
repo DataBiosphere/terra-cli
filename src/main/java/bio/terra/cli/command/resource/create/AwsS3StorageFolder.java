@@ -7,6 +7,8 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
+import bio.terra.cli.utils.CommandUtils;
+import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
 
@@ -43,6 +45,7 @@ public class AwsS3StorageFolder extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    CommandUtils.checkWorkspaceSupport(CloudPlatform.AWS);
 
     // build the resource object to create
     CreateResourceParams.Builder createResourceParams =

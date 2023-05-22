@@ -6,14 +6,14 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import java.net.URL;
+import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-/** This class corresponds to the third-level "terra resource credentials" command. */
-@Command(
-    name = "credentials",
-    description = "Retrieve temporary credentials to access a cloud resource.")
-public class Credentials extends WsmBaseCommand {
+/** This class corresponds to the third-level "terra resource open-console" command. */
+@Command(name = "open-console", description = "Retrieve console link to access a cloud resource.")
+public class OpenConsole extends WsmBaseCommand {
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(
@@ -32,12 +32,19 @@ public class Credentials extends WsmBaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
-  /** Get credentials to access the cloud resource. */
+  /** Get an authenticated URL to directly access the resource in AWS console. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    Object object = resource.getCredentials(scope, duration);
-    formatOption.printReturnValue(object);
+    URL consoleUrl = resource.getConsoleUrl(scope, duration);
+
+    JSONObject object = new JSONObject().put(resource.getName(), consoleUrl.toString());
+    formatOption.printReturnValue(object, this::printText, this::printJson);
+  }
+
+  private void printText(JSONObject object) {
+    OUT.println(object.getString(resourceNameOption.name));
   }
 }
