@@ -63,8 +63,7 @@ import software.amazon.awssdk.services.sagemaker.waiters.SageMakerWaiter;
 public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
   private static final Logger logger = LoggerFactory.getLogger(WorkspaceManagerServiceAws.class);
   private static final int CREDENTIAL_EXPIRATION_SECONDS_DEFAULT = 900;
-
-  public static final int S3_CLIENT_RESULTS_PER_CALL = 1000;
+  private static final int S3_CLIENT_RESULTS_PER_CALL = 1000;
   private static final Duration SAGEMAKER_CLIENT_WAITER_TIMEOUT = Duration.ofSeconds(1800);
   private static final Integer SAGEMAKER_SESSION_DURATION_SECONDS_MAX = 43200; // 12 hours
   public static final Set<NotebookInstanceStatus> notebookStatusSetCanStart =
