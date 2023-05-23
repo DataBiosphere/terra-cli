@@ -10,5 +10,5 @@
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
   "userManagerUri": "https://terra-preprod-user.api.verily.com",
   "supportsIdToken": true,
-  "supportedCloudPlatforms": ["GCP"]
+  "supportedCloudPlatforms": ["GCP", "AWS"]
 }
