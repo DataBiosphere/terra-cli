@@ -35,20 +35,38 @@ public class LocalProcessCommandRunner extends CommandRunner {
     List<String> bashCommands = new ArrayList<>();
     boolean isGcpWorkspace =
         CloudPlatform.GCP.equals(Context.requireWorkspace().getCloudPlatform());
+
+    String cmdPre = "";
+    String cmdPost = "";
+
     if (isGcpWorkspace) {
-      bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
-      bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
-      bashCommands.add(
-          "gcloud config set project " + Context.requireWorkspace().getRequiredGoogleProjectId());
+      cmdPre = String.format("""
+        TERRA_GCLOUD_PROJECT='%s'
+        """, Context.requireWorkspace().getRequiredGoogleProjectId()) +
+        """
+        TERRA_PREV_GCLOUD_PROJECT="$(gcloud config get-value project)"
+        if [[ "${TERRA_PREV_GCLOUD_PROJECT}" != "${TERRA_GCLOUD_PROJECT}" ]]; then
+          echo 'Setting the gcloud project to the workspace project: ${TERRA_GCLOUD_PROJECT}'
+          gcloud config set project "${TERRA_GCLOUD_PROJECT}"
+        fi
+        """;
+
+      cmdPost = """
+        if [[ -z "${TERRA_PREV_GCLOUD_PROJECT}" ]]; then
+          echo "Restoring the original gcloud project configuration: (unset)"
+          gcloud config unset project
+        elif [[ "${TERRA_PREV_GCLOUD_PROJECT}" != "${TERRA_GCLOUD_PROJECT}" ]]; then
+          echo "Restoring the original gcloud project configuration:' ${TERRA_PREV_GCLOUD_PROJECT}"
+          gcloud config set project "${TERRA_PREV_GCLOUD_PROJECT}"
+        fi
+      """;
     }
+
+    bashCommands.add(cmdPre);
     bashCommands.add(buildFullCommand(command));
-    if (isGcpWorkspace) {
-      bashCommands.add(
-          "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
-      bashCommands.add(
-          "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config unset project; else gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; fi");
-    }
-    return String.join("; ", bashCommands);
+    bashCommands.add(cmdPost);
+
+    return String.join("\n", bashCommands);
   }
 
   /**
