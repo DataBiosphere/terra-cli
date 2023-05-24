@@ -52,6 +52,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
         """;
 
       cmdPost = """
+
         if [[ -z "${TERRA_PREV_GCLOUD_PROJECT}" ]]; then
           echo "Restoring the original gcloud project configuration: (unset)"
           gcloud config unset project
@@ -59,7 +60,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
           echo "Restoring the original gcloud project configuration: ${TERRA_PREV_GCLOUD_PROJECT}"
           gcloud config set project "${TERRA_PREV_GCLOUD_PROJECT}"
         fi
-      """;
+        """;
     }
 
     bashCommands.add(cmdPre);
