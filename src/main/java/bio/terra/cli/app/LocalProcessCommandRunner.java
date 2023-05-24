@@ -46,7 +46,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
         """
         TERRA_PREV_GCLOUD_PROJECT="$(gcloud config get-value project)"
         if [[ "${TERRA_PREV_GCLOUD_PROJECT}" != "${TERRA_GCLOUD_PROJECT}" ]]; then
-          echo 'Setting the gcloud project to the workspace project: ${TERRA_GCLOUD_PROJECT}'
+          echo "Setting the gcloud project to the workspace project: ${TERRA_GCLOUD_PROJECT}"
           gcloud config set project "${TERRA_GCLOUD_PROJECT}"
         fi
         """;
@@ -56,7 +56,7 @@ public class LocalProcessCommandRunner extends CommandRunner {
           echo "Restoring the original gcloud project configuration: (unset)"
           gcloud config unset project
         elif [[ "${TERRA_PREV_GCLOUD_PROJECT}" != "${TERRA_GCLOUD_PROJECT}" ]]; then
-          echo "Restoring the original gcloud project configuration:' ${TERRA_PREV_GCLOUD_PROJECT}"
+          echo "Restoring the original gcloud project configuration: ${TERRA_PREV_GCLOUD_PROJECT}"
           gcloud config set project "${TERRA_PREV_GCLOUD_PROJECT}"
         fi
       """;
