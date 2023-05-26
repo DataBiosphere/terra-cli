@@ -1,6 +1,6 @@
 {
   "name": "broad-wsmtest",
-  "clientCredentialsFile": "broad_secret.json",
+  "clientCredentialsFile": "rendered/broad/broad_secret.json",
   "cloudBuildEnabled": false,
   "description": "Broad WSM test server and Broad development environment for other services.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",

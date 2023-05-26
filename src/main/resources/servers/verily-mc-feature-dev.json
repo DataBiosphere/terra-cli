@@ -1,6 +1,6 @@
 {
   "name": "verily-mc-feature-dev",
-  "clientCredentialsFile": "verily_secret.json",
+  "clientCredentialsFile": "rendered/verily/verily_secret.json",
   "description": "Verily mc-feature-dev environment",
   "samUri": "https://terra-mc-feature-dev-sam.api.verily.com",
   "samInviteRequiresAdmin": true,
