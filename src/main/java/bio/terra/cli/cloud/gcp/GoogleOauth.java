@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -60,18 +59,17 @@ public final class GoogleOauth {
   private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
-  private static GoogleClientSecrets readClientSecrets() {
+  private static GoogleClientSecrets readRenderedClientSecrets() {
     String clientCredentialsFileName =
         StringUtils.isEmpty(Context.getServer().getClientCredentialsFile())
-            ? "broad_secret.json"
+            ? "rendered/broad/broad_secret.json"
             : Context.getServer().getClientCredentialsFile();
 
-    try (InputStream inputStream =
-        GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
-
+    try {
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
-          new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+          new InputStreamReader(
+              new FileInputStream(clientCredentialsFileName), StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(
@@ -83,7 +81,7 @@ public final class GoogleOauth {
 
   /** Get the client secrets to pass to oauth API's. */
   public static GoogleClientSecrets getClientSecrets() {
-    return readClientSecrets();
+    return readRenderedClientSecrets();
   }
 
   /**
@@ -109,7 +107,7 @@ public final class GoogleOauth {
 
     // setup the Google OAuth2 flow
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readRenderedClientSecrets(), dataStoreDir);
     GoogleAuthorizationCodeFlow flow = helper.getGoogleAuthorizationCodeFlow();
 
     // exchange an authorization code for a refresh token
@@ -127,7 +125,8 @@ public final class GoogleOauth {
       credential =
           new AuthorizationCodeInstalledApp(
                   flow,
-                  new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+                  new StdinReceiver(
+                      readRenderedClientSecrets().getInstalled().getRedirectUris().get(0)),
                   new NoLaunchBrowser())
               .authorize(CREDENTIAL_STORE_KEY);
     }
@@ -142,8 +141,8 @@ public final class GoogleOauth {
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
-            .setClientId(readClientSecrets().getDetails().getClientId())
-            .setClientSecret(readClientSecrets().getDetails().getClientSecret())
+            .setClientId(readRenderedClientSecrets().getDetails().getClientId())
+            .setClientSecret(readRenderedClientSecrets().getDetails().getClientSecret())
             .setRefreshToken(credential.getRefreshToken())
             .setAccessToken(
                 new AccessToken(
@@ -165,7 +164,7 @@ public final class GoogleOauth {
 
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readRenderedClientSecrets(), dataStoreDir);
     helper.deleteStoredCredential();
     helper.deleteStoredIdToken();
   }
@@ -182,7 +181,7 @@ public final class GoogleOauth {
       throws IOException, GeneralSecurityException {
     // get a pointer to the credential datastore
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
+        TerraAuthenticationHelper.create(scopes, readRenderedClientSecrets(), dataStoreDir);
 
     // fetch the stored credential for the specified userId
     UserCredentials credentials;
@@ -195,8 +194,8 @@ public final class GoogleOauth {
       // identity and consent
       credentials =
           UserCredentials.newBuilder()
-              .setClientId(readClientSecrets().getDetails().getClientId())
-              .setClientSecret(readClientSecrets().getDetails().getClientSecret())
+              .setClientId(readRenderedClientSecrets().getDetails().getClientId())
+              .setClientSecret(readRenderedClientSecrets().getDetails().getClientSecret())
               .setRefreshToken(storedCredential.getRefreshToken())
               .setAccessToken(
                   new AccessToken(
