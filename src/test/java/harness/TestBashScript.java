@@ -72,11 +72,13 @@ public class TestBashScript {
     Path workingDirectory = Path.of(System.getProperty("TERRA_WORKING_DIR"));
 
     // copy client credential files
-    File sourceFile =
-        Path.of("rendered", TestConfig.getTestConfigName(), "broad_secret.json")
-            .toFile(); // TODO-Dex
+    String clientCredentialsFileName =
+        String.format(
+            "rendered/%s/%s_secret.json",
+            TestConfig.getTestConfigName(), TestConfig.getTestConfigName());
+    File sourceFile = new File(clientCredentialsFileName);
     File destinationFile =
-        Path.of(System.getProperty("TERRA_WORKING_DIR"), "rendered", "broad_secret.json").toFile();
+        new File(System.getProperty("TERRA_WORKING_DIR") + "/", clientCredentialsFileName);
     FileUtils.copyFile(sourceFile, destinationFile);
 
     // run the commands in a child process
