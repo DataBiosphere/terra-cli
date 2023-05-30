@@ -75,20 +75,20 @@ while IFS= read -r line; do
 done <<< "${testUsers}"
 
 echo "Fetching Broad client id and client secrets"
-clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."broad-client-id"')
-clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
                 vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
                 jq -r '.data."broad-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/broad_secret.json" "rendered/broad/broad_secret.json" \
                               "${clientId}" "${clientSecret}"
 
 echo "Fetching Verily client id and client secrets"
-clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."verily-client-id"')
-clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
                 vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
                 jq -r '.data."verily-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/verily_secret.json" "rendered/verily/verily_secret.json" \
