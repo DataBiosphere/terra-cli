@@ -3,6 +3,7 @@ package harness;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEmptyString.emptyOrNullString;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 
@@ -26,7 +28,7 @@ public class TestBashScript {
    * @param args arguments to pass to the test script
    * @return process exit code
    */
-  public static int runScript(String scriptName, List<String> args) {
+  public static int runScript(String scriptName, List<String> args) throws IOException {
     // build the command from the script name
     Path script = TestBashScript.getPathFromScriptName(scriptName);
     String joinedArgs = StringUtils.join(args, " ");
@@ -35,7 +37,7 @@ public class TestBashScript {
     return runCommands(List.of(fullCommand), Collections.emptyMap());
   }
 
-  public static int runScript(String scriptName) {
+  public static int runScript(String scriptName) throws IOException {
     return runScript(scriptName, List.of());
   }
 
@@ -48,7 +50,8 @@ public class TestBashScript {
    * @param envVars the environment variables to set or overwrite if already defined
    * @return process exit code
    */
-  public static int runCommands(List<String> commands, Map<String, String> envVars) {
+  public static int runCommands(List<String> commands, Map<String, String> envVars)
+      throws IOException {
     // execute the commands via bash
     List<String> bashCommand = new ArrayList<>();
     bashCommand.add("bash");
@@ -67,6 +70,14 @@ public class TestBashScript {
     // use a working directory inside the gradle build directory, so it gets cleaned up with the
     // clean task
     Path workingDirectory = Path.of(System.getProperty("TERRA_WORKING_DIR"));
+
+    // copy client credential files
+    File sourceFile =
+        Path.of("rendered", TestConfig.getTestConfigName(), "broad_secret.json")
+            .toFile(); // TODO-Dex
+    File destinationFile =
+        Path.of(System.getProperty("TERRA_WORKING_DIR"), "rendered", "broad_secret.json").toFile();
+    FileUtils.copyFile(sourceFile, destinationFile);
 
     // run the commands in a child process
     return launchChildProcess(bashCommand, envVarsCopy, workingDirectory);

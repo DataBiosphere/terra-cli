@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +59,17 @@ public final class GoogleOauth {
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readRenderedClientSecrets() {
-    String clientCredentialsFileName =
-        StringUtils.isEmpty(Context.getServer().getClientCredentialsFile())
-            ? "rendered/broad/broad_secret.json"
-            : Context.getServer().getClientCredentialsFile();
+    String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
 
     try {
+      // Path clientCredentialsFilePath = Path.of(System.getProperty("user.dir"), "rendered",
+      // clientCredentialsFileName);
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
           new InputStreamReader(
               new FileInputStream(clientCredentialsFileName), StandardCharsets.UTF_8));
+      // new FileInputStream(clientCredentialsFilePath.toAbsolutePath().toFile()),
+      // StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(
