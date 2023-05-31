@@ -1,7 +1,6 @@
 #!/bin/bash
 set -o errexit
 set -o nounset
-set -o pipefail
 
 ## This script adds client id and secrets into relevant files
 #
