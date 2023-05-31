@@ -6,8 +6,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import java.net.URL;
-import org.json.JSONObject;
+import bio.terra.cli.utils.UserIO;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -30,7 +29,6 @@ public class OpenConsole extends WsmBaseCommand {
   private int duration;
 
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
 
   /** Get an authenticated URL to directly access the resource in AWS console. */
   @Override
@@ -38,13 +36,6 @@ public class OpenConsole extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
 
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
-    URL consoleUrl = resource.getConsoleUrl(scope, duration);
-
-    JSONObject object = new JSONObject().put(resource.getName(), consoleUrl.toString());
-    formatOption.printReturnValue(object, this::printText, this::printJson);
-  }
-
-  private void printText(JSONObject object) {
-    OUT.println(object.getString(resourceNameOption.name));
+    UserIO.browse(resource.getConsoleUrl(scope, duration).toString());
   }
 }
