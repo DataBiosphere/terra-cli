@@ -23,6 +23,11 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 17
+    - name: Run linter
+      id: run_linter
+      run: |
+        cd terra-cli
+        ./gradlew spotlessCheck
     - name: Run static analysis
       id: run_static_analysis
       run: |
