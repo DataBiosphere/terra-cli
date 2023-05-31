@@ -26,7 +26,6 @@ jobs:
     - name: Run linter
       id: run_linter
       run: |
-        cd terra-cli
         ./gradlew spotlessCheck
     - name: Run static analysis
       id: run_static_analysis
