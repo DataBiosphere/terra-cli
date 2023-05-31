@@ -1,6 +1,7 @@
 #!/bin/bash
 set -o errexit
 set -o nounset
+set -o pipefail
 
 ## This script renders configuration files needed for development and CI/CD.
 ## Dependencies: vault
