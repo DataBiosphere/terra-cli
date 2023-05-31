@@ -30,18 +30,17 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,22 +60,20 @@ public final class GoogleOauth {
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
-    String clientCredentialsFileName =
-        StringUtils.isEmpty(Context.getServer().getClientCredentialsFile())
-            ? "broad_secret.json"
-            : Context.getServer().getClientCredentialsFile();
-
-    try (InputStream inputStream =
-        GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
-
+    String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
+    try {
+      Path clientCredentialsFilePath =
+          Path.of(System.getProperty("user.dir"), clientCredentialsFileName);
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
-          new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+          new InputStreamReader(
+              new FileInputStream(clientCredentialsFilePath.toFile()), StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(
           String.format(
-              "Failure reading client secrets from file: '%s'.", clientCredentialsFileName),
+              "Failure reading client secrets from file: '%s', %s.",
+              clientCredentialsFileName, ioException),
           ioException);
     }
   }

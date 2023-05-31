@@ -1,6 +1,6 @@
 {
   "name": "verily-staging",
-  "clientCredentialsFile": "verily_secret.json",
+  "clientCredentialsFile": "rendered/verily/verily_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily staging environment",
   "samUri": "https://terra-staging-sam.api.verily.com",

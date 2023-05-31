@@ -1,6 +1,6 @@
 {
   "name": "verily-autopush",
-  "clientCredentialsFile": "verily_secret.json",
+  "clientCredentialsFile": "rendered/verily/verily_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily auto-push environment",
   "samUri": "https://terra-autopush-sam.api.verily.com",
