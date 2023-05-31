@@ -3,7 +3,6 @@ package bio.terra.cli.command.resource;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.command.shared.WsmBaseCommand;
-import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.utils.UserIO;
