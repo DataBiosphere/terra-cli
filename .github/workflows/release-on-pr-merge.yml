@@ -63,6 +63,7 @@ jobs:
       run: |
         ./tools/client-credentials.sh "src/main/resources/broad_secret.json" "rendered/broad/broad_secret.json" \
                                       ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
+        mkdir -p rendered/verily
         ./tools/client-credentials.sh "src/main/resources/verily_secret.json" "rendered/verily/verily_secret.json" \
                                       ${{ secrets.VERILY_CLIENT_ID }} ${{ secrets.VERILY_CLIENT_SECRET }}
 

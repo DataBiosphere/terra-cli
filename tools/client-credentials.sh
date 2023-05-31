@@ -1,6 +1,7 @@
 #!/bin/bash
 set -o errexit
 set -o nounset
+set -o pipefail
 
 ## This script adds client id and secrets into relevant files
 #
@@ -16,21 +17,13 @@ readonly renderedSecretsFile="$2"
 readonly clientId="$3"
 readonly clientSecret="$4"
 
-if [[ -z "${secretsFile}" ]] || \
-   [[ -z "${renderedSecretsFile}" ]] || \
-   [[ "${secretsFile}" == "${renderedSecretsFile}" ]]; then
-  echo "secretsFile & renderedSecretsFile paths are required and must be different"
+if [[ "${secretsFile}" == "${renderedSecretsFile}" ]]; then
+  echo "secretsFile & renderedSecretsFile paths must be different"
   exit 1
 fi
 
 if [[ ! -f "${secretsFile}" ]]; then
-  echo "secrets file ${secretsFile} not available"
-  exit 1
-fi
-
-if [[ -z "${clientId}" ]] || \
-   [[ -z "${clientSecret}" ]]; then
-  echo "client_id & client_secret not available for ${secretsFile}"
+  echo "secretsFile ${secretsFile} not available"
   exit 1
 fi
 

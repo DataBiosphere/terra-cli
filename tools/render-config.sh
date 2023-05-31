@@ -1,6 +1,7 @@
 #!/bin/bash
 set -o errexit
 set -o nounset
+set -o pipefail
 
 ## This script renders configuration files needed for development and CI/CD.
 ## Dependencies: vault
@@ -87,6 +88,7 @@ clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_D
                               "${clientId}" "${clientSecret}"
 
 echo "Fetching Verily client id and client secrets"
+mkdir -p rendered/verily
 clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."verily-client-id"')
