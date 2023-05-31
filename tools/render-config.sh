@@ -1,4 +1,7 @@
 #!/bin/bash
+set -o errexit
+set -o nounset
+set -o pipefail
 
 ## This script renders configuration files needed for development and CI/CD.
 ## Dependencies: vault
@@ -26,19 +29,19 @@ CLIENT_CRED_VAULT_PATH=secret/dsde/terra/cli/oauth-client-credentials
 # Usage: readFromVault $CI_SA_VAULT_PATH ci-account.json
 #        readFromValue $JANITOR_CLIENT_SA_VAULT_PATH janitor-client.json base64
 readFromVault () {
-  vaultPath=$1
-  fileName=$2
-  decodeBase64=$3
+  vaultPath="$1"
+  fileName="$2"
+  decodeBase64="$3"
   if [[ -z "${vaultPath}" ]] || [[ -z "${fileName}" ]]; then
     >&2 echo "ERROR: Two arguments required for readFromVault function"
     exit 1
   fi
   if [[ -z "${decodeBase64}" ]]; then
-    docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+    docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
               vault read -format json "${vaultPath}" \
               | jq -r .data > "rendered/broad/${fileName}"
   else
-    docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" ${DSDE_TOOLBOX_DOCKER_IMAGE} \
+    docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
               vault read -format json "${vaultPath}" \
               | jq -r .data.key | base64 -d > "rendered/broad/${fileName}"
   fi

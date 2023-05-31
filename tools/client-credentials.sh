@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e
+set -o errexit
+set -o nounset
+set -o pipefail
+
 ## This script adds client id and secrets into relevant files
 #
 ## Dependencies: jq
@@ -9,10 +12,10 @@ set -e
 ##         clientSecret (arg, required) client secret
 ## Usage: ./client-credentials.sh <file> <renderedFile> <id> <secret> --> rendered client_id & client_secret to file saving it as renderedFile
 
-secretsFile=$1
-renderedSecretsFile=$2
-clientId=$3
-clientSecret=$4
+readonly secretsFile="$1"
+readonly renderedSecretsFile="$2"
+readonly clientId="$3"
+readonly clientSecret="$4"
 
 if [[ -z "${secretsFile}" ]] || \
    [[ -z "${renderedSecretsFile}" ]] || \
@@ -22,13 +25,13 @@ if [[ -z "${secretsFile}" ]] || \
 fi
 
 if [[ ! -f "${secretsFile}" ]]; then
-  echo "secrets file $secretsFile not available"
+  echo "secrets file ${secretsFile} not available"
   exit 1
 fi
 
 if [[ -z "${clientId}" ]] || \
    [[ -z "${clientSecret}" ]]; then
-  echo "client_id & client_secret not available for $secretsFile"
+  echo "client_id & client_secret not available for ${secretsFile}"
   exit 1
 fi
 
