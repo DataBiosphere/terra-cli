@@ -35,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Date;
@@ -54,40 +55,27 @@ public final class GoogleOauth {
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
   public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
-  // google OAuth client secret file
-  // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
+    // google OAuth client secret file
+    // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
     String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
     if (StringUtils.isEmpty(clientCredentialsFileName)) {
       throw new SystemException("Client secrets from file not supplied");
     }
+    logger.debug("Reading client secret file: {}", clientCredentialsFileName);
 
     try {
-      InputStream inputStream = GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
-      if (inputStream == null) {
-        // Local dev writes secrets to 'rendered' folder, check if file exists under this path
-        // published releases do not have this folder, read it as a resource
-        inputStream = new FileInputStream(Paths.get(clientCredentialsFileName).toFile());
-      }
-       /*if (Files.isDirectory(Paths.get("rendered"))) {
-        System.out.println("Testing - 1");
-
-      } else {
-        System.out.println("Testing - 2");
-        inputStream = GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
-      }
-
-     InputStream inputStream =
-          Files.isDirectory(Paths.get("rendered"))
-              ? new FileInputStream(Paths.get(clientCredentialsFileName).toFile())
-              : ;
-
-       */
+      // Local dev writes secrets to 'rendered' folder, read it as a file path
+      // published releases do not have this folder, read it as a resource
+      InputStream inputStream =
+          (Files.isDirectory(Paths.get("rendered")))
+              ? new FileInputStream(Paths.get("rendered", clientCredentialsFileName).toFile())
+              : GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
           new InputStreamReader(inputStream, StandardCharsets.UTF_8));
