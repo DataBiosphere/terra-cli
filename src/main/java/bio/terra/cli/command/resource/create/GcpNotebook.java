@@ -1,5 +1,6 @@
 package bio.terra.cli.command.resource.create;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
@@ -11,6 +12,7 @@ import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.AccessScope;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -109,6 +111,17 @@ public class GcpNotebook extends WsmBaseCommand {
     OUT.println("Successfully added controlled GCP Notebook instance.");
     returnValue.print();
   }
+  
+  /* Generate an instance ID by combining user email and current time. */
+  private static String generateInstanceId(){
+    String instanceId = "";
+    String userEmail = Context.requireUser().getEmail();
+    instanceId += userEmail;
+    instanceId += '-';
+    String dateTime = LocalDateTime.now().toString();
+    instanceId += dateTime;
+    return(instanceId);
+  }
 
   /** Add a controlled GCP Notebook instance to the workspace. */
   @Override
@@ -130,7 +143,10 @@ public class GcpNotebook extends WsmBaseCommand {
             .machineType(machineType)
             .postStartupScript(postStartupScript)
             .metadata(Optional.ofNullable(metadata).orElse(Collections.emptyMap()));
-
+    if (instanceId == null){
+        createParams
+            .instanceId(generateInstanceId());
+    }
     if (acceleratorConfig != null) {
       createParams
           .acceleratorType(acceleratorConfig.type)
