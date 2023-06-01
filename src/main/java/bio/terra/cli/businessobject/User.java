@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
-import bio.terra.cli.cloud.gcp.GoogleOauth;
+import bio.terra.cli.cloud.auth.GoogleOauth;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
@@ -314,17 +314,18 @@ public class User {
 
     Date accessTokenExpiration = getUserAccessToken().getExpirationTime();
     logger.debug("Access token expiration date: {}", accessTokenExpiration);
-    Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
-    logger.debug("ID token expiration date: {}", idTokenExipration);
-    Date earliestExpiration =
-        accessTokenExpiration.before(idTokenExipration) ? accessTokenExpiration : idTokenExipration;
+    // Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
+    // logger.debug("ID token expiration date: {}", idTokenExipration);
+    // Date earliestExpiration =
+    //     accessTokenExpiration.before(idTokenExipration) ? accessTokenExpiration :
+    // idTokenExipration;
 
     // check if the token is expired
     Date cutOffDate = new Date();
     cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
 
     // If either token expires before the cutoff, return true to trigger a re-authentication.
-    return (earliestExpiration.before(cutOffDate));
+    return (accessTokenExpiration.before(cutOffDate));
   }
 
   /** Get the access token from the user's credentials. */

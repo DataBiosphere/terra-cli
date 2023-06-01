@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.cloud.gcp.GoogleOauth;
+import bio.terra.cli.cloud.auth.GoogleOauth;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;

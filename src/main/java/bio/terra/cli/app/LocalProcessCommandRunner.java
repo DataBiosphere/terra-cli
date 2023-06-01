@@ -40,9 +40,10 @@ public class LocalProcessCommandRunner extends CommandRunner {
       // For the wrapped command, set the CLOUDSDK_CORE_PROJECT environment
       // variable, which is respected by gcloud, gsutil, and bq.
       // See https://cloud.google.com/sdk/docs/configurations
-      bashCommands.add(String.format(
-        "export CLOUDSDK_CORE_PROJECT='%s'", 
-        Context.requireWorkspace().getRequiredGoogleProjectId()));
+      bashCommands.add(
+          String.format(
+              "export CLOUDSDK_CORE_PROJECT='%s'",
+              Context.requireWorkspace().getRequiredGoogleProjectId()));
     }
     bashCommands.add(buildFullCommand(command));
 

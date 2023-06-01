@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
-import bio.terra.cli.cloud.gcp.GoogleOauth;
+import bio.terra.cli.cloud.auth.GoogleOauth;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.SystemException;
