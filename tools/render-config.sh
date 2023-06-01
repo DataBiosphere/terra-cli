@@ -31,7 +31,7 @@ CLIENT_CRED_VAULT_PATH=secret/dsde/terra/cli/oauth-client-credentials
 readFromVault () {
   vaultPath="$1"
   fileName="$2"
-  decodeBase64="$3"
+  decodeBase64="${3:-}" # empty string if $3 not set
   if [[ -z "${vaultPath}" ]] || [[ -z "${fileName}" ]]; then
     >&2 echo "ERROR: Two arguments required for readFromVault function"
     exit 1
