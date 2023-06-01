@@ -50,7 +50,7 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for manipulating Google credentials. */
+/** Utility methods for manipulating user credentials. */
 public final class Oauth {
   // key names for the credentials persisted in the file data store.
   // the CLI only stores a single set of credentials at a time, so this key is hard-coded here
