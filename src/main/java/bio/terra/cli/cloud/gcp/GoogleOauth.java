@@ -34,13 +34,16 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,13 +64,25 @@ public final class GoogleOauth {
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
     String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
+    if (StringUtils.isEmpty(clientCredentialsFileName)) {
+      throw new SystemException("Client secrets from file not supplied");
+    }
+    if (!Files.isDirectory(Paths.get("rendered"))) {
+      clientCredentialsFileName = Paths.get(clientCredentialsFileName).getFileName().toString();
+    }
+
     try {
-      Path clientCredentialsFilePath =
-          Path.of(System.getProperty("user.dir"), clientCredentialsFileName);
+
+      // InputStream inputStream =
+      //   GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
+
+      Path clientCredentialsFilePath = Paths.get(clientCredentialsFileName);
+      System.out.println("dexamundsen-530-fix: looking for file: " + clientCredentialsFilePath);
+      FileInputStream inputStream = new FileInputStream(clientCredentialsFilePath.toFile());
+
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
-          new InputStreamReader(
-              new FileInputStream(clientCredentialsFilePath.toFile()), StandardCharsets.UTF_8));
+          new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(

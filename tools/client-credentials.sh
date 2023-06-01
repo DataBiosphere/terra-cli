@@ -21,7 +21,8 @@ if [[ ! -f "${secretsFile}" ]]; then
   echo "secretsFile ${secretsFile} not available"
   exit 1
 fi
+tmpFile=$1+".tmp"
 
 jq --arg CLIENT_ID "${clientId}" --arg CLIENT_SECRET "${clientSecret}" \
   '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
-  "${secretsFile}" > "${renderedSecretsFile}"
+  "${secretsFile}" > "$tmpFile" && mv "$tmpFile" "${renderedSecretsFile}"
