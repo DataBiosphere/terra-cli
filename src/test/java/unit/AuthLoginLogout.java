@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.cloud.auth.GoogleOauth;
+import bio.terra.cli.cloud.auth.Oauth;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.util.store.DataStore;
@@ -43,12 +43,12 @@ public class AuthLoginLogout extends ClearContextUnit {
     DataStore<StoredCredential> credentialStore = TestUser.getCredentialStore();
     assertThat("credential store contains two entries", credentialStore.keySet(), hasSize(2));
     assertTrue(
-        credentialStore.containsKey(GoogleOauth.CREDENTIAL_STORE_KEY),
+        credentialStore.containsKey(Oauth.CREDENTIAL_STORE_KEY),
         "credential store contains hard-coded user key");
     assertTrue(
-        credentialStore.containsKey(GoogleOauth.ID_TOKEN_STORE_KEY),
+        credentialStore.containsKey(Oauth.ID_TOKEN_STORE_KEY),
         "credential store contains  id token");
-    StoredCredential storedCredential = credentialStore.get(GoogleOauth.CREDENTIAL_STORE_KEY);
+    StoredCredential storedCredential = credentialStore.get(Oauth.CREDENTIAL_STORE_KEY);
     assertThat(storedCredential.getAccessToken(), CoreMatchers.not(emptyOrNullString()));
 
     DataStore<IdToken> idTokenStore = TestUser.getCredentialStore();
@@ -57,7 +57,7 @@ public class AuthLoginLogout extends ClearContextUnit {
         credentialStore.keySet(),
         "credentialStore and idTokenStore are different views of same underlying datastore");
     assertThat(
-        idTokenStore.get(GoogleOauth.ID_TOKEN_STORE_KEY).getTokenValue(),
+        idTokenStore.get(Oauth.ID_TOKEN_STORE_KEY).getTokenValue(),
         CoreMatchers.not(emptyOrNullString()));
 
     // check that the current user in the global context = the test user

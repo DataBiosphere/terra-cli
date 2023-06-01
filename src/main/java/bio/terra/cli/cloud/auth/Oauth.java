@@ -51,18 +51,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for manipulating Google credentials. */
-public final class GoogleOauth {
+public final class Oauth {
   // key names for the credentials persisted in the file data store.
   // the CLI only stores a single set of credentials at a time, so this key is hard-coded here
   // instead of setting to generated ids per user
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
   public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
-  private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
+  private static final Logger logger = LoggerFactory.getLogger(Oauth.class);
   // google OAuth client secret file
   // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-  private GoogleOauth() {}
+  private Oauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
@@ -127,7 +127,6 @@ public final class GoogleOauth {
     } else {
       credential.refreshToken();
     }
-    logger.error(credential.getAccessToken());
 
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
@@ -145,15 +144,6 @@ public final class GoogleOauth {
   }
 
   private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledApp(
-      AuthorizationCodeFlow flow, LocalServerReceiver receiver, GoogleClientSecrets secrets) {
-    if (!Context.getServer().getAuth0Enabled()) {
-      return new AuthorizationCodeInstalledApp(flow, receiver);
-    } else {
-      return new Auth0AuthorizationCodeInstalledApp(flow, receiver, secrets);
-    }
-  }
-
-  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledApp(
       AuthorizationCodeFlow flow,
       boolean launchBrowserAutomatically,
       String loginLandingPage,
@@ -167,8 +157,8 @@ public final class GoogleOauth {
                   .build()
               : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
           new NoLaunchBrowser());
-    } else {
-      return new Auth0AuthorizationCodeInstalledApp(
+    }
+    return new Auth0AuthorizationCodeInstalledApp(
           flow,
           launchBrowserAutomatically
               ? new LocalServerReceiver.Builder()
@@ -179,7 +169,6 @@ public final class GoogleOauth {
               : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
           new NoLaunchBrowser(),
           secrets);
-    }
   }
 
   /**
@@ -343,7 +332,7 @@ public final class GoogleOauth {
    * Helper class that asks the user to copy/paste the token response manually to stdin.
    * https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server
    */
-  static class StdinReceiver extends AbstractPromptReceiver {
+  private static class StdinReceiver extends AbstractPromptReceiver {
     private final String redirectUri;
 
     public StdinReceiver(String redirectUri) {
@@ -360,7 +349,7 @@ public final class GoogleOauth {
    * Helper class that prints the URL to follow the OAuth flow to stdout, and does not try to open a
    * browser locally (i.e. on this machine).
    */
-  static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
+  private static class NoLaunchBrowser implements AuthorizationCodeInstalledApp.Browser {
     @Override
     public void browse(String url) {
       PrintStream out = UserIO.getOut();
@@ -435,7 +424,7 @@ public final class GoogleOauth {
    * IdCredentialListener} instance required to obtain an ID Token from the flow, and the Credential
    * store used for both storing and retrieving credentials.
    */
-  static class TerraAuthenticationHelper {
+  private static class TerraAuthenticationHelper {
 
     private final IdCredentialListener idCredentialListener;
     private final AuthorizationCodeFlow authorizationCodeFlow;
@@ -474,13 +463,15 @@ public final class GoogleOauth {
                 .addRefreshListener(idCredentialListener)
                 .build();
       } else {
+        String clientId = clientSecrets.getDetails().getClientId();
+        String clientSecret = clientSecrets.getDetails().getClientSecret();
         AuthAPI auth =
             new AuthAPI(
-                "verily-terra-dev.us.auth0.com",
-                clientSecrets.getDetails().getClientId(),
-                clientSecrets.getDetails().getClientSecret());
+                Context.getServer().getAuth0Domain(),
+                clientId,
+                clientSecret);
         String url =
-            auth.authorizeUrl("https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
+            auth.authorizeUrl(/*redirectUrl=*/"https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
                 .withResponseType("code token id_token")
                 .build();
         authorizationCodeFlow =
@@ -490,9 +481,9 @@ public final class GoogleOauth {
                     JSON_FACTORY,
                     new GenericUrl(clientSecrets.getDetails().getTokenUri()),
                     new ClientParametersAuthentication(
-                        clientSecrets.getDetails().getClientId(),
-                        clientSecrets.getDetails().getClientSecret()),
-                    clientSecrets.getDetails().getClientId(),
+                        clientId,
+                        clientSecret),
+                clientId,
                     url)
                 .setDataStoreFactory(fileDataStoreFactory)
                 .setScopes(scopes)

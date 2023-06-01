@@ -16,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Auth0AuthorizationCodeInstalledApp extends AuthorizationCodeInstalledApp {
-  private static final Logger logger =
-      LoggerFactory.getLogger(Auth0AuthorizationCodeInstalledApp.class);
 
   private final GoogleClientSecrets secrets;
 

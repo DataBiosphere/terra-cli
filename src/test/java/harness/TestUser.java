@@ -2,7 +2,7 @@ package harness;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.User;
-import bio.terra.cli.cloud.auth.GoogleOauth;
+import bio.terra.cli.cloud.auth.Oauth;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.service.SamService;
 import com.google.api.client.auth.oauth2.StoredCredential;
@@ -172,10 +172,10 @@ public class TestUser {
     // update the credential store on disk
     // set the single entry to the stored credential for the test user
     DataStore<StoredCredential> dataStore = getCredentialStore();
-    dataStore.set(GoogleOauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
+    dataStore.set(Oauth.CREDENTIAL_STORE_KEY, dwdStoredCredential);
 
     DataStore<IdToken> tokenStore = getCredentialStore();
-    tokenStore.set(GoogleOauth.ID_TOKEN_STORE_KEY, idToken);
+    tokenStore.set(Oauth.ID_TOKEN_STORE_KEY, idToken);
   }
 
   /** Writes ADC credential files. */

@@ -3,7 +3,7 @@ package bio.terra.cli.command.workspace;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
-import bio.terra.cli.cloud.auth.GoogleOauth;
+import bio.terra.cli.cloud.auth.Oauth;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.SystemException;
@@ -86,10 +86,10 @@ public class BreakGlass extends WsmBaseCommand {
       final List<String> SA_SCOPES =
           ImmutableList.of("https://www.googleapis.com/auth/cloud-platform");
       userProjectsAdminCredentials =
-          GoogleOauth.getServiceAccountCredential(
+          Oauth.getServiceAccountCredential(
               Path.of(userProjectAdminSAKeyFile).toFile(), SA_SCOPES);
       bigQueryCredentials =
-          GoogleOauth.getServiceAccountCredential(Path.of(bigQuerySAKeyFile).toFile(), SA_SCOPES);
+          Oauth.getServiceAccountCredential(Path.of(bigQuerySAKeyFile).toFile(), SA_SCOPES);
     } catch (IOException ioEx) {
       throw new UserActionableException("Error reading break-glass SA key files.", ioEx);
     }
