@@ -15,13 +15,13 @@ set -o pipefail
 readonly secretsFile="$1"
 readonly clientId="$2"
 readonly clientSecret="$3"
-readonly renderedSecretsFile="${4:-${1}}"
+readonly renderedSecretsFile="${4:-$1}"
 
 if [[ ! -f "${secretsFile}" ]]; then
   echo "secretsFile ${secretsFile} not available"
   exit 1
 fi
-tmpFile=$1+".tmp"
+declare tmpFile="$1.tmp"
 
 jq --arg CLIENT_ID "${clientId}" --arg CLIENT_SECRET "${clientSecret}" \
   '.installed.client_id = $CLIENT_ID | .installed.client_secret = $CLIENT_SECRET' \
