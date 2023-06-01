@@ -30,17 +30,20 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,22 +55,30 @@ public final class GoogleOauth {
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
   public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
   private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
-  // google OAuth client secret file
-  // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
   private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
+    // google OAuth client secret file
+    // (https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret)
     String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
+    if (StringUtils.isEmpty(clientCredentialsFileName)) {
+      throw new SystemException("Client secrets from file not supplied");
+    }
+    logger.debug("Reading client secret file: {}", clientCredentialsFileName);
+
     try {
-      Path clientCredentialsFilePath =
-          Path.of(System.getProperty("user.dir"), clientCredentialsFileName);
+      // Local dev writes secrets to 'rendered' folder, read it as a file path
+      // published releases do not have this folder, read it as a resource
+      InputStream inputStream =
+          (Files.isDirectory(Paths.get("rendered")))
+              ? new FileInputStream(Paths.get("rendered", clientCredentialsFileName).toFile())
+              : GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
-          new InputStreamReader(
-              new FileInputStream(clientCredentialsFilePath.toFile()), StandardCharsets.UTF_8));
+          new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
     } catch (IOException ioException) {
       throw new SystemException(

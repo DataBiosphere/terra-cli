@@ -1,6 +1,6 @@
 {
   "name": "verily",
-  "clientCredentialsFile": "rendered/verily/verily_secret.json",
+  "clientCredentialsFile": "verily_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily production environment",
   "samUri": "https://terra-sam.api.verily.com",

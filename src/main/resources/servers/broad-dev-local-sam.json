@@ -1,6 +1,6 @@
 {
   "name": "broad-dev-local-sam",
-  "clientCredentialsFile": "rendered/broad/broad_secret.json",
+  "clientCredentialsFile": "broad_secret.json",
   "cloudBuildEnabled": false,
   "description": "Local SAM and Broad development environment for other services.",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
