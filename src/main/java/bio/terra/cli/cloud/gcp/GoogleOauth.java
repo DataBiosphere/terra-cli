@@ -30,12 +30,11 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Date;
@@ -67,19 +66,28 @@ public final class GoogleOauth {
     if (StringUtils.isEmpty(clientCredentialsFileName)) {
       throw new SystemException("Client secrets from file not supplied");
     }
-    if (!Files.isDirectory(Paths.get("rendered"))) {
-      clientCredentialsFileName = Paths.get(clientCredentialsFileName).getFileName().toString();
-    }
 
     try {
+      InputStream inputStream = GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
+      if (inputStream == null) {
+        // Local dev writes secrets to 'rendered' folder, check if file exists under this path
+        // published releases do not have this folder, read it as a resource
+        inputStream = new FileInputStream(Paths.get(clientCredentialsFileName).toFile());
+      }
+       /*if (Files.isDirectory(Paths.get("rendered"))) {
+        System.out.println("Testing - 1");
 
-      // InputStream inputStream =
-      //   GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
+      } else {
+        System.out.println("Testing - 2");
+        inputStream = GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
+      }
 
-      Path clientCredentialsFilePath = Paths.get(clientCredentialsFileName);
-      System.out.println("dexamundsen-530-fix: looking for file: " + clientCredentialsFilePath);
-      FileInputStream inputStream = new FileInputStream(clientCredentialsFilePath.toFile());
+     InputStream inputStream =
+          Files.isDirectory(Paths.get("rendered"))
+              ? new FileInputStream(Paths.get(clientCredentialsFileName).toFile())
+              : ;
 
+       */
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
           new InputStreamReader(inputStream, StandardCharsets.UTF_8));
