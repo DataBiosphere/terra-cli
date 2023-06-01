@@ -38,7 +38,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
@@ -47,11 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-<<<<<<< HEAD:src/main/java/bio/terra/cli/cloud/auth/GoogleOauth.java
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
-=======
->>>>>>> main:src/main/java/bio/terra/cli/cloud/gcp/GoogleOauth.java
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,23 +65,11 @@ public final class GoogleOauth {
   private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
-<<<<<<< HEAD:src/main/java/bio/terra/cli/cloud/auth/GoogleOauth.java
-  static GoogleClientSecrets readClientSecrets() {
-    String clientCredentialsFileName =
-        StringUtils.isEmpty(Context.getServer().getClientCredentialsFile())
-            ? "broad_secret.json"
-            : Context.getServer().getClientCredentialsFile();
-
-    try (InputStream inputStream =
-        GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName)) {
-
-=======
   private static GoogleClientSecrets readClientSecrets() {
     String clientCredentialsFileName = Context.getServer().getClientCredentialsFile();
     try {
       Path clientCredentialsFilePath =
           Path.of(System.getProperty("user.dir"), clientCredentialsFileName);
->>>>>>> main:src/main/java/bio/terra/cli/cloud/gcp/GoogleOauth.java
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
           new InputStreamReader(
@@ -171,7 +154,10 @@ public final class GoogleOauth {
   }
 
   private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledApp(
-      AuthorizationCodeFlow flow, boolean launchBrowserAutomatically, String loginLandingPage, GoogleClientSecrets secrets) {
+      AuthorizationCodeFlow flow,
+      boolean launchBrowserAutomatically,
+      String loginLandingPage,
+      GoogleClientSecrets secrets) {
     if (!Context.getServer().getAuth0Enabled()) {
       return new AuthorizationCodeInstalledApp(
           flow,
@@ -191,7 +177,8 @@ public final class GoogleOauth {
                   .setPort(3000)
                   .build()
               : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-          new NoLaunchBrowser(), secrets);
+          new NoLaunchBrowser(),
+          secrets);
     }
   }
 
@@ -324,7 +311,13 @@ public final class GoogleOauth {
       String endpoint;
       if (Context.getServer().getAuth0Enabled()) {
         try {
-          endpoint = new URIBuilder().setHost(Context.getServer().getAuth0Domain()).setScheme("https").setPath("/v2/logout").build().toString();
+          endpoint =
+              new URIBuilder()
+                  .setHost(Context.getServer().getAuth0Domain())
+                  .setScheme("https")
+                  .setPath("/v2/logout")
+                  .build()
+                  .toString();
         } catch (URISyntaxException e) {
           logger.error("Invalid logout url");
           throw new SystemException("Unable to revoke token", e);
