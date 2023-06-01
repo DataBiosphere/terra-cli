@@ -12,8 +12,6 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Auth0AuthorizationCodeInstalledApp extends AuthorizationCodeInstalledApp {
 
@@ -62,7 +60,7 @@ public class Auth0AuthorizationCodeInstalledApp extends AuthorizationCodeInstall
               Context.getServer().getAuth0Domain(),
               secrets.getDetails().getClientId(),
               secrets.getDetails().getClientSecret());
-      TokenRequest tokenRequest = authAPI.exchangeCode(code, "http://localhost:3000");
+      TokenRequest tokenRequest = authAPI.exchangeCode(code, redirectUri);
       TokenHolder result = tokenRequest.execute().getBody();
 
       var tokenResponse =

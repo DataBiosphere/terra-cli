@@ -86,8 +86,7 @@ public class BreakGlass extends WsmBaseCommand {
       final List<String> SA_SCOPES =
           ImmutableList.of("https://www.googleapis.com/auth/cloud-platform");
       userProjectsAdminCredentials =
-          Oauth.getServiceAccountCredential(
-              Path.of(userProjectAdminSAKeyFile).toFile(), SA_SCOPES);
+          Oauth.getServiceAccountCredential(Path.of(userProjectAdminSAKeyFile).toFile(), SA_SCOPES);
       bigQueryCredentials =
           Oauth.getServiceAccountCredential(Path.of(bigQuerySAKeyFile).toFile(), SA_SCOPES);
     } catch (IOException ioEx) {

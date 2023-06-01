@@ -159,16 +159,19 @@ public final class Oauth {
           new NoLaunchBrowser());
     }
     return new Auth0AuthorizationCodeInstalledApp(
-          flow,
-          launchBrowserAutomatically
-              ? new LocalServerReceiver.Builder()
-                  .setLandingPages(loginLandingPage, loginLandingPage)
-                  .setHost("localhost")
-                  .setPort(3000)
-                  .build()
-              : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-          new NoLaunchBrowser(),
-          secrets);
+        flow,
+        launchBrowserAutomatically
+            ? new LocalServerReceiver.Builder()
+                .setLandingPages(loginLandingPage, loginLandingPage)
+                .setHost("localhost")
+                // specify the port because auth0 needs to specify a callback url. If not
+                // specified, a random number will be picked and will be unknown to auth0 thus
+                // rejected.
+                .setPort(3000)
+                .build()
+            : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+        new NoLaunchBrowser(),
+        secrets);
   }
 
   /**
@@ -465,13 +468,10 @@ public final class Oauth {
       } else {
         String clientId = clientSecrets.getDetails().getClientId();
         String clientSecret = clientSecrets.getDetails().getClientSecret();
-        AuthAPI auth =
-            new AuthAPI(
-                Context.getServer().getAuth0Domain(),
-                clientId,
-                clientSecret);
+        AuthAPI auth = new AuthAPI(Context.getServer().getAuth0Domain(), clientId, clientSecret);
         String url =
-            auth.authorizeUrl(/*redirectUrl=*/"https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
+            auth.authorizeUrl(
+                    /*redirectUrl=*/ "https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
                 .withResponseType("code token id_token")
                 .build();
         authorizationCodeFlow =
@@ -480,10 +480,8 @@ public final class Oauth {
                     GoogleNetHttpTransport.newTrustedTransport(),
                     JSON_FACTORY,
                     new GenericUrl(clientSecrets.getDetails().getTokenUri()),
-                    new ClientParametersAuthentication(
-                        clientId,
-                        clientSecret),
-                clientId,
+                    new ClientParametersAuthentication(clientId, clientSecret),
+                    clientId,
                     url)
                 .setDataStoreFactory(fileDataStoreFactory)
                 .setScopes(scopes)

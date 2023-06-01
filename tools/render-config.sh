@@ -1,6 +1,5 @@
 #!/bin/bash
 set -o errexit
-set -o nounset
 set -o pipefail
 
 ## This script renders configuration files needed for development and CI/CD.
@@ -106,4 +105,4 @@ auth0_dev_clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE
                 vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
                 jq -r '.data."verily-auth0-dev-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" "rendered/verily/verily_auth0_dev_secret.json" \
-                              "${clientId}" "${clientSecret}"
+                              "${auth0_dev_clientId}" "${auth0_dev_clientSecret}"
