@@ -1,6 +1,6 @@
 {
   "name": "broad-dev",
-  "clientCredentialsFile": "broad_secret.json",
+  "clientCredentialsFile": "rendered/broad/broad_secret.json",
   "cloudBuildEnabled": false,
   "description": "Broad main development environment",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
