@@ -91,8 +91,8 @@ jobs:
 
     - name: Update client credentials
       run: |
-        ./tools/client-credentials.sh "src/main/resources/broad_secret.json" "rendered/broad/broad_secret.json" \
-                                      ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
+        ./tools/client-credentials.sh "src/main/resources/broad_secret.json" ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }} \
+                                      "rendered/broad_secret.json"
 
     - name: Build Docker image
       id: build_docker_image

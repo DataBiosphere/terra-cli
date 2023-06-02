@@ -1,6 +1,6 @@
 {
   "name": "broad-dev-zloery",
-  "clientCredentialsFile": "rendered/broad/broad_secret.json",
+  "clientCredentialsFile": "broad_secret.json",
   "cloudBuildEnabled": false,
   "description": "Broad developer environment (zloery)",
   "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",

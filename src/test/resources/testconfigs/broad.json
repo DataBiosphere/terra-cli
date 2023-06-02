@@ -28,5 +28,6 @@
   "projectForExternalResources": "terra-cli-test",
   "useJanitor": true,
   "janitorPubSubTopic": "crljanitor-tools-pubsub-topic",
-  "janitorPubSubProjectId": "terra-kernel-k8s"
+  "janitorPubSubProjectId": "terra-kernel-k8s",
+  "secretFileName": "broad_secret.json"
 }
