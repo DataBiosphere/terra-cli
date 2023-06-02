@@ -58,9 +58,6 @@ public class Server {
   private final boolean supportsIdToken;
   private final Set<CloudPlatform> supportedCloudPlatforms;
 
-  private final boolean auth0Enabled;
-  private final String auth0Domain;
-
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
     this.name = configFromDisk.name;
@@ -79,8 +76,6 @@ public class Server {
         configFromDisk.supportedCloudPlatforms != null
             ? configFromDisk.supportedCloudPlatforms
             : Collections.EMPTY_SET;
-    this.auth0Enabled = configFromDisk.auth0Enabled;
-    this.auth0Domain = configFromDisk.auth0Domain;
   }
 
   /** Return an instance of this class with default values. */
@@ -258,13 +253,5 @@ public class Server {
 
   public Set<CloudPlatform> getSupportedCloudPlatforms() {
     return supportedCloudPlatforms;
-  }
-
-  public boolean getAuth0Enabled() {
-    return auth0Enabled;
-  }
-
-  public String getAuth0Domain() {
-    return auth0Domain;
   }
 }

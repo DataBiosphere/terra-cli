@@ -82,27 +82,18 @@ clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKE
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."broad-client-id"')
 clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
-            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
-            jq -r '.data."broad-client-secret"')
+                vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+                jq -r '.data."broad-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/broad_secret.json" "${clientId}" "${clientSecret}" \
                               "rendered/broad_secret.json"
 
 echo "Fetching Verily client id and client secrets"
+mkdir -p rendered/verily
 clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."verily-client-id"')
 clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
-            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
-            jq -r '.data."verily-client-secret"')
+                vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+                jq -r '.data."verily-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/verily_secret.json" "${clientId}" "${clientSecret}" \
                               "rendered/verily_secret.json"
-
-echo "Fetching Verily auth0 dev client id and client secrets"
-clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
-            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
-            jq -r '.data."verily-auth0-dev-client-id"')
-clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
-            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
-            jq -r '.data."verily-auth0-dev-client-secret"')
-./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" "${clientId}" "${clientSecret}" \
-                              "rendered/verily_auth0_dev_secret.json"

@@ -1,4 +1,4 @@
-package bio.terra.cli.cloud.auth;
+package bio.terra.cli.cloud.gcp;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.SystemException;
@@ -6,10 +6,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
-import com.auth0.client.auth.AuthAPI;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
-import com.google.api.client.auth.oauth2.BearerToken;
-import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.CredentialRefreshListener;
 import com.google.api.client.auth.oauth2.StoredCredential;
@@ -21,7 +18,6 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.GenericUrl;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.DataStore;
@@ -38,7 +34,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,21 +44,20 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utility methods for manipulating user credentials. */
-public final class Oauth {
+/** Utility methods for manipulating Google credentials. */
+public final class GoogleOauth {
   // key names for the credentials persisted in the file data store.
   // the CLI only stores a single set of credentials at a time, so this key is hard-coded here
   // instead of setting to generated ids per user
   public static final String CREDENTIAL_STORE_KEY = "TERRA_USER";
   public static final String ID_TOKEN_STORE_KEY = "TERRA_ID_TOKEN";
-  private static final Logger logger = LoggerFactory.getLogger(Oauth.class);
+  private static final Logger logger = LoggerFactory.getLogger(GoogleOauth.class);
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-  private Oauth() {}
+  private GoogleOauth() {}
 
   /** Load the client secrets file to pass to oauth API's. */
   private static GoogleClientSecrets readClientSecrets() {
@@ -81,7 +75,7 @@ public final class Oauth {
       InputStream inputStream =
           (Files.isDirectory(Paths.get("rendered")))
               ? new FileInputStream(Paths.get("rendered", clientCredentialsFileName).toFile())
-              : Oauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
+              : GoogleOauth.class.getClassLoader().getResourceAsStream(clientCredentialsFileName);
       return GoogleClientSecrets.load(
           GsonFactory.getDefaultInstance(),
           new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -122,15 +116,29 @@ public final class Oauth {
       throws IOException, GeneralSecurityException {
 
     // setup the Google OAuth2 flow
-    var secret = readClientSecrets();
     TerraAuthenticationHelper helper =
-        TerraAuthenticationHelper.create(scopes, secret, dataStoreDir);
-    AuthorizationCodeFlow flow = helper.getAuthorizationCodeFlow();
+        TerraAuthenticationHelper.create(scopes, readClientSecrets(), dataStoreDir);
+    GoogleAuthorizationCodeFlow flow = helper.getGoogleAuthorizationCodeFlow();
 
     // exchange an authorization code for a refresh token
-    Credential credential =
-        getAuthorizationCodeInstalledApp(flow, launchBrowserAutomatically, loginLandingPage, secret)
-            .authorize(CREDENTIAL_STORE_KEY);
+    Credential credential;
+    if (launchBrowserAutomatically) {
+      // launch a browser window on this machine and listen on a local port for the token response
+      LocalServerReceiver receiver =
+          new LocalServerReceiver.Builder()
+              .setLandingPages(loginLandingPage, loginLandingPage)
+              .build();
+      credential =
+          new AuthorizationCodeInstalledApp(flow, receiver).authorize(CREDENTIAL_STORE_KEY);
+    } else {
+      // print the url to stdout and ask the user to copy/paste the token response to stdin
+      credential =
+          new AuthorizationCodeInstalledApp(
+                  flow,
+                  new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+                  new NoLaunchBrowser())
+              .authorize(CREDENTIAL_STORE_KEY);
+    }
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
       logger.info(
@@ -152,37 +160,6 @@ public final class Oauth {
             .build();
 
     return new TerraCredentials(credentials, helper.getStoredIdToken());
-  }
-
-  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledApp(
-      AuthorizationCodeFlow flow,
-      boolean launchBrowserAutomatically,
-      String loginLandingPage,
-      GoogleClientSecrets secrets) {
-    if (!Context.getServer().getAuth0Enabled()) {
-      return new AuthorizationCodeInstalledApp(
-          flow,
-          launchBrowserAutomatically
-              ? new LocalServerReceiver.Builder()
-                  .setLandingPages(loginLandingPage, loginLandingPage)
-                  .build()
-              : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-          new NoLaunchBrowser());
-    }
-    return new Auth0AuthorizationCodeInstalledApp(
-        flow,
-        launchBrowserAutomatically
-            ? new LocalServerReceiver.Builder()
-                .setLandingPages(loginLandingPage, loginLandingPage)
-                .setHost("localhost")
-                // specify the port because auth0 needs to specify a callback url. If not
-                // specified, a random number will be picked and will be unknown to auth0 thus
-                // rejected.
-                .setPort(3000)
-                .build()
-            : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-        new NoLaunchBrowser(),
-        secrets);
   }
 
   /**
@@ -311,23 +288,7 @@ public final class Oauth {
   public static void revokeToken(Optional<TerraCredentials> credential) {
     if (credential.isPresent()
         && credential.get().getGoogleCredentials().getAccessToken() != null) {
-      String endpoint;
-      if (Context.getServer().getAuth0Enabled()) {
-        try {
-          endpoint =
-              new URIBuilder()
-                  .setHost(Context.getServer().getAuth0Domain())
-                  .setScheme("https")
-                  .setPath("/v2/logout")
-                  .build()
-                  .toString();
-        } catch (URISyntaxException e) {
-          logger.error("Invalid logout url");
-          throw new SystemException("Unable to revoke token", e);
-        }
-      } else {
-        endpoint = "https://oauth2.googleapis.com/revoke";
-      }
+      String endpoint = "https://oauth2.googleapis.com/revoke";
       Map<String, String> headers =
           ImmutableMap.of("Content-type", "application/x-www-form-urlencoded");
       Map<String, String> params =
@@ -441,7 +402,7 @@ public final class Oauth {
   private static class TerraAuthenticationHelper {
 
     private final IdCredentialListener idCredentialListener;
-    private final AuthorizationCodeFlow authorizationCodeFlow;
+    private final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow;
 
     /**
      * Private ctor called by create() method to create and associate idCredentialListener and
@@ -463,43 +424,15 @@ public final class Oauth {
       // create the code flow object, pointing at the credential datastore in order to store and
       // retrieve ID tokens, and registering our IdCredentialListener for callbacks on token
       // creation/refresh
-      if (!Context.getServer().getAuth0Enabled()) {
-        authorizationCodeFlow =
-            new GoogleAuthorizationCodeFlow.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    JSON_FACTORY,
-                    clientSecrets,
-                    scopes)
-                .setDataStoreFactory(fileDataStoreFactory)
-                .setAccessType("offline")
-                .setApprovalPrompt("force")
-                .setCredentialCreatedListener(idCredentialListener)
-                .addRefreshListener(idCredentialListener)
-                .build();
-      } else {
-        String clientId = clientSecrets.getDetails().getClientId();
-        String clientSecret = clientSecrets.getDetails().getClientSecret();
-        AuthAPI auth = new AuthAPI(Context.getServer().getAuth0Domain(), clientId, clientSecret);
-        String url =
-            auth.authorizeUrl(
-                    /*redirectUrl=*/ "https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
-                .withResponseType("code token id_token")
-                .build();
-        authorizationCodeFlow =
-            new AuthorizationCodeFlow.Builder(
-                    BearerToken.authorizationHeaderAccessMethod(),
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    JSON_FACTORY,
-                    new GenericUrl(clientSecrets.getDetails().getTokenUri()),
-                    new ClientParametersAuthentication(clientId, clientSecret),
-                    clientId,
-                    url)
-                .setDataStoreFactory(fileDataStoreFactory)
-                .setScopes(scopes)
-                .setCredentialCreatedListener(idCredentialListener)
-                .addRefreshListener(idCredentialListener)
-                .build();
-      }
+      googleAuthorizationCodeFlow =
+          new GoogleAuthorizationCodeFlow.Builder(
+                  GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, clientSecrets, scopes)
+              .setDataStoreFactory(fileDataStoreFactory)
+              .setAccessType("offline")
+              .setApprovalPrompt("force")
+              .setCredentialCreatedListener(idCredentialListener)
+              .addRefreshListener(idCredentialListener)
+              .build();
     }
 
     /**
@@ -528,8 +461,8 @@ public final class Oauth {
       dataStore.delete(key);
     }
 
-    public AuthorizationCodeFlow getAuthorizationCodeFlow() {
-      return authorizationCodeFlow;
+    public GoogleAuthorizationCodeFlow getGoogleAuthorizationCodeFlow() {
+      return googleAuthorizationCodeFlow;
     }
 
     /** Delete stored ID token from the credential store */
@@ -539,7 +472,8 @@ public final class Oauth {
 
     /** Delete stored GoogleCredential (access and refresh tokens) from the credential store */
     public void deleteStoredCredential() throws IOException {
-      deleteFromDataStore(authorizationCodeFlow.getCredentialDataStore(), CREDENTIAL_STORE_KEY);
+      deleteFromDataStore(
+          googleAuthorizationCodeFlow.getCredentialDataStore(), CREDENTIAL_STORE_KEY);
     }
 
     /** Get ID token from credential store. */
@@ -549,7 +483,7 @@ public final class Oauth {
 
     /** Get GoogleCrendential (access and refresh tokens) from the credential store */
     public StoredCredential getStoredCredential() throws IOException {
-      return authorizationCodeFlow.getCredentialDataStore().get(CREDENTIAL_STORE_KEY);
+      return googleAuthorizationCodeFlow.getCredentialDataStore().get(CREDENTIAL_STORE_KEY);
     }
   }
 }
