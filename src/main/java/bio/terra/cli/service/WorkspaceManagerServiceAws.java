@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -285,7 +286,6 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
    *
    * @param workspaceId the workspace to add the resource to
    * @param createParams creation parameters
-   * @return the AWS SageMaker Notebook resource object, if available
    */
   public void createControlledAwsSageMakerNotebook(
       UUID workspaceId, CreateAwsSageMakerNotebookParams createParams) {
@@ -480,7 +480,8 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
     }
   }
 
-  public void startSageMakerNotebook(UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
+  public Optional<Boolean> startSageMakerNotebook(
+      UUID workspaceId, AwsSageMakerNotebook awsNotebook) {
     SageMakerClient sageMakerClient =
         getSageMakerClient(
             getControlledAwsSageMakerNotebookCredential(
@@ -494,7 +495,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
       NotebookInstanceStatus currentStatus =
           getSageMakerNotebookInstanceStatus(awsNotebook, sageMakerClient);
       if (currentStatus == NotebookInstanceStatus.IN_SERVICE) {
-        return;
+        return Optional.of(true); // successful, complete
       }
       checkNotebookStatus(
           notebookStatusSetCanStart, currentStatus, "Cannot start notebook instance");
@@ -511,6 +512,7 @@ public class WorkspaceManagerServiceAws extends WorkspaceManagerService {
             "Error starting notebook instance, "
                 + httpResponse.statusText().orElse(String.valueOf(httpResponse.statusCode())));
       }
+      return Optional.empty(); // successful, no completion status
 
     } catch (SdkException e) {
       checkException(e);

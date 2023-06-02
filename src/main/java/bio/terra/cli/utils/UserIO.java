@@ -1,8 +1,14 @@
 package bio.terra.cli.utils;
 
+import bio.terra.cli.businessobject.Config;
+import bio.terra.cli.businessobject.Context;
+import com.google.api.client.util.Preconditions;
+import java.awt.Desktop;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
@@ -121,5 +127,27 @@ public class UserIO {
   public static <F, T> List<T> sortAndMap(
       List<F> fromList, Comparator<F> sorter, Function<F, T> mapper) {
     return fromList.stream().sorted(sorter).map(mapper).collect(Collectors.toList());
+  }
+
+  /**
+   * Open a browser at the given URL using {@link Desktop} if available, or alternatively output the
+   * URL to {@link System#out} for command-line applications. (copied from google-oauth-client-java)
+   *
+   * @param url URL to browse
+   */
+  public static void browse(String url) {
+    Preconditions.checkNotNull(url);
+    getOut().println("Please open the following address in your browser:");
+    getOut().println("  " + url);
+    try {
+      if ((Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO))
+          && Desktop.isDesktopSupported()
+          && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        getOut().println("Attempting to open that address in the default browser now...");
+        Desktop.getDesktop().browse(URI.create(url));
+      }
+    } catch (IOException | InternalError e) {
+      logger.warn("Unable to open browser", e);
+    }
   }
 }
