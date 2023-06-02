@@ -137,16 +137,14 @@ public class UserIO {
    */
   public static void browse(String url) {
     Preconditions.checkNotNull(url);
+    getOut().println("Please open the following address in your browser:");
+    getOut().println("  " + url);
     try {
       if ((Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO))
-          && Desktop.isDesktopSupported()) {
-        Desktop desktop = Desktop.getDesktop();
-        if (desktop.isSupported(Desktop.Action.BROWSE)) {
-          System.out.println("Attempting to open that address in the default browser now...");
-          desktop.browse(URI.create(url));
-        }
-      } else {
-        getOut().println(url);
+          && Desktop.isDesktopSupported()
+          && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        getOut().println("Attempting to open that address in the default browser now...");
+        Desktop.getDesktop().browse(URI.create(url));
       }
     } catch (IOException | InternalError e) {
       logger.warn("Unable to open browser", e);
