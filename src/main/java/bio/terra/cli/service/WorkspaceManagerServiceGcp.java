@@ -65,6 +65,7 @@ import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketReferenceRequestBody;
 import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -122,6 +123,14 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
             .bootDiskSizeGb(createParams.bootDiskSizeGb)
             .dataDiskType(createParams.dataDiskType)
             .dataDiskSizeGb(createParams.dataDiskSizeGb);
+    if (createParams.instanceId.isBlank()) {
+        String generatedInstanceId = "";
+        String userEmail = Context.requireUser().getEmail();
+        String hyphen = "-";
+        String creationDateTime = LocalDateTime.now().toString();
+        generatedInstanceId  = String.format("%s%s%s",userEmail,hyphen,creationDateTime);
+        notebookParams.instanceId(generatedInstanceId);
+    }
     if (createParams.acceleratorType != null || createParams.acceleratorCoreCount != null) {
       notebookParams.acceleratorConfig(
           new GcpAiNotebookInstanceAcceleratorConfig()
