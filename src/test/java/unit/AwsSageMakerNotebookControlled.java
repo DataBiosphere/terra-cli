@@ -135,14 +135,19 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
             "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
             "--duration=" + 1500);
-    assertThat(result.stdOut, containsString("Please open the following address in your browser"));
     assertThat(
+        "console link is displayed",
+        result.stdOut,
+        containsString("Please open the following address in your browser"));
+    assertThat(
+        "console link is opened in the browser",
         result.stdOut,
         containsString("Attempting to open that address in the default browser now..."));
 
     TestCommand.runCommandExpectSuccess("config", "set", "browser", "MANUAL");
     result = TestCommand.runCommandExpectSuccess("resource", "open-console", "--name=" + name);
     assertThat(
+        "console link is not opened in the browser",
         result.stdOut,
         not(containsString("Attempting to open that address in the default browser now...")));
 
@@ -184,13 +189,28 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
         CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+    assertThat(
+        "notebook successfully stopped",
+        result.stdOut,
+        containsString("Notebook instance stopped"));
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    assertThat(
+        "notebook start requested",
+        result.stdOut,
+        containsString(
+            "Notebook instance starting. It may take a few minutes before it is available"));
 
     ResourceUtils.pollDescribeForResourceField(
         name, "instanceStatus", NotebookInstanceStatus.IN_SERVICE.toString());
+
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    assertThat(
+        "notebook start request on a inService notebook returned immediately",
+        result.stdOut,
+        containsString("Notebook instance started"));
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);

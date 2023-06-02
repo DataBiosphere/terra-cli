@@ -129,14 +129,19 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
             "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
             "--duration=" + 1500);
-    assertThat(result.stdOut, containsString("Please open the following address in your browser"));
     assertThat(
+        "console link is displayed",
+        result.stdOut,
+        containsString("Please open the following address in your browser"));
+    assertThat(
+        "console link is opened in the browser",
         result.stdOut,
         containsString("Attempting to open that address in the default browser now..."));
 
     TestCommand.runCommandExpectSuccess("config", "set", "browser", "MANUAL");
     result = TestCommand.runCommandExpectSuccess("resource", "open-console", "--name=" + name);
     assertThat(
+        "console link is not opened in the browser",
         result.stdOut,
         not(containsString("Attempting to open that address in the default browser now...")));
 
