@@ -8,5 +8,6 @@
   "workspaceManagerUri": "https://workspace.dsde-dev.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://externalcreds.dsde-dev.broadinstitute.org",
+  "auth0Enabled": false,
   "supportedCloudPlatforms": ["GCP"]
 }
