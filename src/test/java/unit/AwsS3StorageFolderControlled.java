@@ -2,6 +2,8 @@ package unit;
 
 import static bio.terra.cli.businessobject.Resource.CredentialsAccessScope.READ_ONLY;
 import static bio.terra.cli.businessobject.Resource.Type.AWS_S3_STORAGE_FOLDER;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +18,6 @@ import harness.utils.TestUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -120,16 +121,29 @@ public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
     assertNotNull(
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
-    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500 --format=json`
-    JSONObject consoleUrl =
-        TestCommand.runAndGetJsonObjectExpectSuccess(
+    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
+    TestCommand.Result result =
+        TestCommand.runCommandExpectSuccess(
             "resource",
             "open-console",
             "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
-            "--duration=" + 900);
-    String url = consoleUrl.getString(name);
-    assertTrue(StringUtils.isNotBlank(url), "open console returned console url");
+            "--duration=" + 1500);
+    assertThat(
+        "console link is displayed",
+        result.stdOut,
+        containsString("Please open the following address in your browser"));
+    assertThat(
+        "console link is opened in the browser",
+        result.stdOut,
+        containsString("Attempting to open that address in the default browser now..."));
+
+    TestCommand.runCommandExpectSuccess("config", "set", "browser", "MANUAL");
+    result = TestCommand.runCommandExpectSuccess("resource", "open-console", "--name=" + name);
+    assertThat(
+        "console link is not opened in the browser",
+        result.stdOut,
+        not(containsString("Attempting to open that address in the default browser now...")));
 
     // `terra resources check-access --name=$name`
     String stdErr =
