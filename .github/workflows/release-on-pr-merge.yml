@@ -23,23 +23,6 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    - name: Bump tag and build version
-      id: bump_tag
-      uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-        DEFAULT_BUMP: minor
-        RELEASE_BRANCHES: main
-        VERSION_FILE_PATH: settings.gradle
-        VERSION_LINE_MATCH: "^\\s*gradle.ext.cliVersion\\s*=\\s*'.*'"
-
-    - name: Updating code to get the version bump changes
-      id: update_code_post_version_bump
-      run: |
-        git pull
-      env:
-        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
-
     - name: Render config
       id: render_config
       run: |
@@ -65,6 +48,23 @@ jobs:
         ./tools/client-credentials.sh "src/main/resources/verily_secret.json" ${{ secrets.VERILY_CLIENT_ID }} ${{ secrets.VERILY_CLIENT_SECRET }}
         ./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" \
                                       ${{ secrets.VERILY_AUTH0_DEV_CLIENT_ID }} ${{ secrets.VERILY_AUTH0_DEV_CLIENT_SECRET }}
+
+    - name: Bump tag and build version
+      id: bump_tag
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
+        DEFAULT_BUMP: minor
+        RELEASE_BRANCHES: main
+        VERSION_FILE_PATH: settings.gradle
+        VERSION_LINE_MATCH: "^\\s*gradle.ext.cliVersion\\s*=\\s*'.*'"
+
+    - name: Updating code to get the version bump changes
+      id: update_code_post_version_bump
+      run: |
+        git pull
+      env:
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_GITHUB_TOKEN }}
 
     - name: Publish a release
       id: publish_release
