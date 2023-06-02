@@ -8,6 +8,5 @@
   "workspaceManagerUri": "https://workspace.verilycli.integ.envs.broadinstitute.org",
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
-  "auth0Enabled": false,
   "supportedCloudPlatforms": ["GCP"]
 }
