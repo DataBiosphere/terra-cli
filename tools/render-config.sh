@@ -98,11 +98,11 @@ clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_D
                               "rendered/verily_secret.json"
 
 echo "Fetching Verily auth0 dev client id and client secrets"
-auth0_dev_clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."verily-auth0-dev-client-id"')
-auth0_dev_clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
             vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
             jq -r '.data."verily-auth0-dev-client-secret"')
-./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" "rendered/verily_auth0_dev_secret.json" \
-                              "${auth0_dev_clientId}" "${auth0_dev_clientSecret}"
+./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" "${clientId}" "${clientSecret}" \
+                              "rendered/verily_auth0_dev_secret.json"
