@@ -1,6 +1,6 @@
 {
   "name": "verily-devel",
-  "clientCredentialsFile": "verily_auth0_dev_secret.json",
+  "clientCredentialsFile": "verily_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily devel environment",
   "samUri": "https://terra-devel-sam.api.verily.com",
@@ -10,7 +10,5 @@
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
   "userManagerUri": "https://terra-devel-user.api.verily.com",
   "supportsIdToken": true,
-  "auth0Enabled": true,
-  "auth0Domain": "verily-terra-dev.us.auth0.com",
   "supportedCloudPlatforms": ["GCP", "AWS"]
 }

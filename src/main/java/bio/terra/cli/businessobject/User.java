@@ -1,7 +1,7 @@
 package bio.terra.cli.businessobject;
 
 import bio.terra.cli.app.utils.AppDefaultCredentialUtils;
-import bio.terra.cli.cloud.auth.Oauth;
+import bio.terra.cli.cloud.gcp.GoogleOauth;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.serialization.persisted.PDUser;
@@ -145,7 +145,7 @@ public class User {
     }
     try {
       terraCredentials =
-          Oauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
+          GoogleOauth.getExistingUserCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error fetching user credentials.", ex);
     }
@@ -169,7 +169,7 @@ public class User {
   public void logout() {
     deleteOauthCredentials();
     deletePetSaEmail();
-    Oauth.revokeToken(getTerraCredentials());
+    GoogleOauth.revokeToken(getTerraCredentials());
 
     // unset the current user in the global context
     Context.setUser(null);
@@ -233,7 +233,7 @@ public class User {
     try {
 
       // delete the user credentials
-      Oauth.deleteExistingCredential(USER_SCOPES, Context.getContextDir().toFile());
+      GoogleOauth.deleteExistingCredential(USER_SCOPES, Context.getContextDir().toFile());
     } catch (IOException | GeneralSecurityException ex) {
       throw new SystemException("Error deleting credentials.", ex);
     }
@@ -255,7 +255,7 @@ public class User {
       boolean launchBrowserAutomatically =
           Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO);
       terraCredentials =
-          Oauth.doLoginAndConsent(
+          GoogleOauth.doLoginAndConsent(
               USER_SCOPES,
               Context.getContextDir().toFile(),
               launchBrowserAutomatically,
@@ -329,12 +329,12 @@ public class User {
 
   /** Get the access token from the user's credentials. */
   public AccessToken getUserAccessToken() {
-    return Oauth.getAccessToken(terraCredentials);
+    return GoogleOauth.getAccessToken(terraCredentials);
   }
 
   /** Get the ID token from the user's credentials. */
   public IdToken getUserIdToken() {
-    return Oauth.getIdToken(terraCredentials);
+    return GoogleOauth.getIdToken(terraCredentials);
   }
 
   /**

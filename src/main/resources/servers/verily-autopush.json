@@ -10,6 +10,5 @@
   "externalCredsUri": "https://terra-autopush-ecm.api.verily.com",
   "userManagerUri": "https://terra-autopush-user.api.verily.com",
   "supportsIdToken": true,
-  "auth0Enabled": false,
   "supportedCloudPlatforms": ["GCP", "AWS"]
 }
