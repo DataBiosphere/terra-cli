@@ -392,7 +392,8 @@ a useful reminder to kick off the cleanup GitHub action, so we haven't done that
 yet. If you see unexpected failures around listing workspaces, try kicking off
 the cleanup action and re-running.
 
-TODO-Dex: add cleanup info
+The workflow can be found
+at [cleanup-test-user-workspaces.yml](https://github.com/DataBiosphere/terra-cli/blob/main/.github/workflows/cleanup-test-user-workspaces.yml)
 
 #### Test config per deployment
 
@@ -762,8 +763,9 @@ instead of `terra resources`.
 
 ### Keep cloud specific code separated
 
-Always prefer to keep cloud specific functions separate from each other and from cloud-agnostic functions, but containing them in 
-separate classes and/or packages.
+Always prefer to keep cloud specific functions separate from each other and from
+cloud-agnostic functions, but containing them in separate classes and/or
+packages.
 
 -----
 
