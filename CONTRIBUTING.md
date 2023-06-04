@@ -5,13 +5,11 @@
     * [Logging](#logging)
     * [Troubleshooting](#troubleshooting)
 2. [Publish a release](#publish-a-release)
-    * [download-install.sh](#download-installsh)
-    * [install.sh](#installsh)
-    * [terra](#terra)
 3. [Testing](#testing)
+    * [Requirements](#requirements)
     * [Two types of tests](#two-types-of-tests)
     * [Run tests](#run-tests)
-    * [Docker and Tests](#docker-and-tests)
+    * [Override default test config](#override-default-test-config)
     * [Override default server](#override-default-server)
     * [Override default Docker image](#override-default-docker-image)
     * [Override context directory](#override-context-directory)
@@ -45,36 +43,57 @@
 
 -----
 
-### Setup development environment
+## Setup development environment
 
 The TERRA_CLI_DOCKER_MODE environment variable controls Docker support. Set it
 to DOCKER_NOT_AVAILABLE (default) to skip pulling the Docker image or
 DOCKER_AVAILABLE to pull the image (requires Docker to be installed and running)
 
-- From the top-level directory, run: `source tools/local-dev.sh`
-- To rebuild after changing code: `./gradlew installDist`
+* From the top-level directory, run:
+  ```shell
+  source tools/local-dev.sh
+  ```
+
+* To rebuild after changing code:
+  ```shell
+  ./gradlew installDist
+  ```
 
 ### Dependencies
 
-We use [Gradle's dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
-to ensure that builds use the same transitive dependencies, so they're reproducible. This means that
-adding or updating a dependency requires telling Gradle to save the change. If you're getting errors
-that mention "dependency lock state" after changing a dep, you need to do this step.
+We
+use [Gradle's dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
+to ensure that builds use the same transitive dependencies, so they're
+reproducible. This means that adding or updating a dependency requires telling
+Gradle to save the change. If you're getting errors that mention "dependency
+lock state" after changing a dep, you need to do this step.
 
-To update version dependencies: `./gradlew dependencies --write-locks`
+To update version dependencies:
 
-#### Logging
+```shell 
+./gradlew dependencies --write-locks
+```
+
+### Logging
 
 Logging is turned off by default. Modify the level with
 the `terra config set logging` command. Available levels are listed in the
 command usage.
 
-#### Troubleshooting
+### Troubleshooting
 
-- Wipe the global context directory. `rm -R $HOME/.terra`.
-- Re-run the setup script. `source tools/local-dev.sh`.
+* Wipe the global context directory.
+  ```shell 
+  rm -R $HOME/.terra
+  ```
+* Re-run the setup script.
+  ```shell
+  source tools/local-dev.sh
+  ```
 
-### Publish a release
+-----
+
+## Publish a release
 
 A release includes a GitHub release of the `terra-cli` repository and a
 corresponding Docker image pushed to GCR.
@@ -89,103 +108,101 @@ To publish a release manually, from the current local code:
 
 1. Create a tag (e.g. `test123`) and push it to the remote repository. The tag
    should not include any uppercase letters.
+    ```shell
+    git tag -a test123 -m "testing version 123"
+    git push --tags
     ```
-    > git tag -a test123 -m "testing version 123"
-    > git push --tags
-    ```
+
 2. Update the version in `settings.gradle`.
     ```
-    version = 'test123'
+    gradle.ext.cliVersion = 'test123'
     ```
+
 3. Login to GitHub and run the `tools/publish-release.sh` script. This will
    publish a pre-release, which does not affect the "Latest release" tag.
-    ```
-    > gh auth login
-    > ./tools/publish-release.sh test123
+    ```shell
+    gh auth login
+   ./tools/publish-release.sh test123
     ```
    To publish a regular release, add `true` as a second argument.
-     ```
-    > gh auth login
-    > ./tools/publish-release.sh test123 true
+     ```shell
+    gh auth login
+    ./tools/publish-release.sh test123 true
     ```
 
 Note that GitHub automatically attaches an archive of the source code to the
 release. If you have local changes that are not yet committed, then they may not
 be reflected in the source code archive, but they will be included in the
-install package. We don't use the source code archive for install.
+installation package. We don't use the source code archive for install.
 
 Three shell scripts are published for users.
 
-##### `download-install.sh`
+* `download-install.sh`: This is convenience script that:
+    - Downloads the latest (or specific version) of the installation package
+    - Unarchives it
+    - Runs the `install.sh` script included inside
+    - Deletes the installation package
 
-This is convenience script that:
+  It is published as a separate file in each GitHub release. The intent is to
+  have a one-line install command  `curl -L download-install.sh | bash`. Note
+  that this installs the CLI in the current directory. Afterwards, the user can
+  optionally add it to their `$PATH`.
 
-- Downloads the latest (or specific version) of the install package
-- Unarchives it
-- Runs the `install.sh` script included inside
-- Deletes the install package
+* `install.sh`: This is an installer script that:
+    - Moves all the JARs to `$HOME/.terra/lib`
+    - Moves the `terra` run script and the `README.md` file outside the
+      unarchived install package directory
+    - Deletes the unarchived install package directory
+    - Sets the Docker image id to the default
+    - Pulls the default Docker image id
 
-It is published as a separate file in each GitHub release. The intent is to have
-a one-line install command  `curl -L download-install.sh | bash`.
+      It is included in the `terra-cli.tar` install package in each GitHub
+      release. It needs to be run from the same directory: `./install.sh`
 
-Note that this installs the CLI in the current directory. Afterwards, the user
-can optionally add it to their `$PATH`.
+* `terra`: This is the run script that wraps the Java call to the CLI.
+    - It looks for the JARs on the classpath in the `$HOME/.terra/lib`
+      directory.
+    - This script is generated by the Gradle application plugin, so any changes
+      should be made there.
 
-##### `install.sh`
+  It is included in the `terra-cli.tar` install package in each GitHub release.
+  This is the script users can add to their `$PATH` to invoke the CLI more
+  easily from another directory.
 
-This is an installer script that:
+-----
 
-- Moves all the JARs to `$HOME/.terra/lib`
-- Moves the `terra` run script and the `README.md` file outside the unarchived
-  install package directory
-- Deletes the unarchived install package directory
-- Sets the Docker image id to the default
-- Pulls the default Docker image id
+## Testing
 
-It is included in the `terra-cli.tar` install package in each GitHub release. It
-needs to be run from the same directory: `./install.sh`
+### Requirements
 
-##### `terra`
+The tests require the Docker daemon to be running (install mode
+DOCKER_AVAILABLE).
 
-This is the run script that wraps the Java call to the CLI.
-
-- It looks for the JARs on the classpath in the `$HOME/.terra/lib` directory.
-- This script is generated by the Gradle application plugin, so any changes
-  should be made there.
-
-It is included in the `terra-cli.tar` install package in each GitHub release.
-This is the script users can add to their `$PATH` to invoke the CLI more easily
-from another directory.
-
-### Testing
-
-#### Two types of tests
+### Two types of tests
 
 There are two types of CLI tests:
 
-- Unit tests call commands directly in Java. They run against source code; no
+* Unit tests call commands directly in Java. They run against source code; no
   CLI installation is required. By default, unit tests will run in parallel on
-  up half the available cores in order to run faster. This behavior is
+  up to half the available cores in order to run faster. This behavior is
   controlled by the `maxParallelForks` setting in `build.gradle`. Example unit
   test code:
+  ```
+  // `terra auth status --format=json`
+  TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
+  ```
 
-```
-    // `terra auth status --format=json`
-    TestCommand.Result cmd = TestCommand.runCommand("auth", "status", "--format=json");
-```
-
-- Integration tests call commands from a bash script run in a separate process.
+* Integration tests call commands from a bash script run in a separate process.
   They run against a CLI installation, either one built directly from source
   code via `./gradlew install` or one built from the latest GitHub release.
   Integration tests often use passthrough apps (e.g. nextflow, gcloud, gsutil,
   bq, etc.) which maintain their own global state, so by default we do not run
   them in parallel to avoid clobbering state across runners. Example integration
   test code:
-
-```
-    // run a script that includes a Nextflow workflow
-    int exitCode = new TestBashScript().runScript("NextflowRnaseq.sh");
-```
+  ```
+  // run a script that includes a Nextflow workflow
+  int exitCode = new TestBashScript().runScript("NextflowRnaseq.sh");
+  ```
 
 While it's possible to mix both types of testing in the same JUnit method, that
 should be avoided because then the test is running commands against two
@@ -195,62 +212,81 @@ could be confusing to track down errors.
 
 Both types of tests:
 
-- Use the same code to authenticate a test user without requiring browser
+* Use the same code to authenticate a test user without requiring browser
   interaction.
-- Override the context directory to `build/test-context/`, so that tests don't
+* Override the context directory to `build/test-context/`, so that tests don't
   overwrite the context for an existing CLI installation on the same machine.
   Unit tests additionally create sub-directories inside `build/test-context/`
   based on the runner number, so each process's logs will live in a directory
   like `build/test-context/1`
 
-#### Run tests
+### Run tests
 
-- Run unit tests directly against the source code:
-  `./gradlew runTestsWithTag -PtestTag=unit`
-- Run integration tests against an installation built from source code:
-  `./gradlew runTestsWithTag -PtestTag=integration`
-- Run integration tests against an installation built from the latest GitHub
+* Run unit tests (TestTag `unit`) directly against the source code:
+  ```shell
+  ./gradlew runTestsWithTag -PtestTag=unit`
+  ```
+* Run integration tests (TestTag `integration`) against an installation built
+  from source code:
+  ```shell
+  ./gradlew runTestsWithTag -PtestTag=integration
+  ```
+* Run integration tests against an installation built from the latest GitHub
   release:
-  `./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub`
-- Run a single test by specifying the `--tests` option:
-  `./gradlew runTestsWithTag -PtestTag=unit --tests Workspace.createFailsWithoutSpendAccess`
-- Suppress console display of the test command's stdIn & stdOut by specifying the `-PquietConsole` option
+  ```shell
+  ./gradlew runTestsWithTag -PtestTag=integration -PtestInstallFromGitHub
+  ```
+* Run a single test by specifying the `--tests` option:
+  ```shell
+  ./gradlew runTestsWithTag -PtestTag=unit --tests Workspace.createFailsWithoutSpendAccess
+  ```
+* Suppress console display of the test command's stdIn & stdOut by specifying
+  the `-PquietConsole` option
+  ```shell
   `./gradlew runTestsWithTag -PtestTag=unit -PquietConsole`
+  ```
+* By default, tests are run against all cloud platforms supported by the CLI
+  server. Add the platform to target tests for a single platform
+  ```shell
+  ./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp
+  ```
 
-By default, tests are run against all cloud platforms supported by the CLI server. Add the platform to target tests for a single platform
-- CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=unit -Pplatform=gcp`
-- CloudPlatform.GCS `./gradlew runTestsWithTag -PtestTag=integration -Pplatform=gcp`
+## Override default test config
 
-#### Docker and Tests
-
-The tests require the Docker daemon to be running (install mode
-DOCKER_AVAILABLE).
-
-#### Override default server
+### Override default server
 
 The tests run against the `broad-dev` server by default. You can run them
 against a different server by specifying the Gradle `server` property. e.g.:
-`./gradlew runTestsWithTag -PtestTag=unit -Pserver=broad-dev-cli-testing -PtestConfig=broad`
 
-#### Override default Docker image
+```shell
+./gradlew runTestsWithTag -PtestTag=unit -Pserver=broad-dev-cli-testing -PtestConfig=broad
+```
+
+### Override default Docker image
 
 The tests use the default Docker image by default. This is the image in GCR that
 corresponds the current version in
 `build.gradle`. This default image does not include any changes to the `docker/`
 directory that have not yet been released. You can run the tests with a
 different Docker image by specifying the Gradle `dockerImage` property. e.g.:
-`./gradlew runTestsWithTag -PtestTag=unit -PdockerImage=terra-cli/local:7094e3f`
+
+```shell
+./gradlew runTestsWithTag -PtestTag=unit -PdockerImage=terra-cli/local:7094e3f
+```
 
 The on-PR-push GitHub action uses this flag to run against a locally built image
-if there are any changes to the
-`docker/` directory.
+if there are any changes to the `docker/` directory.
 
-#### Override context directory
+### Override context directory
 
 The `.terra` context directory is stored in the user's home directory (`$HOME`)
 by default. You can override this default by setting the Gradle `contextDir`
 property to a valid directory. e.g.:
-`./gradlew runTestsWithTag -PtestTag=unit -PcontextDir=$HOME/context/for/tests`
+
+```shell
+./gradlew runTestsWithTag -PtestTag=unit -PcontextDir=$HOME/context/for/tests
+```
+
 If the property does not point to a valid directory, then the CLI will throw
 a `SystemException`.
 
@@ -270,12 +306,12 @@ the `TERRA_CONTEXT_PARENT_DIR`
 environment variable. This can be helpful for debugging without clobbering an
 existing installation. e.g.:
 
-```
+```shell
 export TERRA_CONTEXT_PARENT_DIR="/Desktop/cli-testing"
 terra config list
 ```
 
-#### Setup test users
+### Setup test users
 
 Tests use domain-wide delegation (i.e. Harry Potter users). This avoids the
 Google OAuth flow, which requires interacting with a browser. Before running
@@ -286,11 +322,11 @@ to the same SAM instance, then you only need to do this setup once.
 The CLI uses the test users defined in test config (eg `testconfig/broad.json`).
 This includes:
 
-- Have permission to use the default WSM spend profile via the `cli-test-users`
+* Have permission to use the default WSM spend profile via the `cli-test-users`
   SAM group.
-- Have permission to use the default WSM spend profile directly on the SAM
+* Have permission to use the default WSM spend profile directly on the SAM
   resource.
-- Do not have permission to use the default WSM spend profile.
+* Do not have permission to use the default WSM spend profile.
 
 You can see the available test users on the users
 admin [page](https://admin.google.com/ac/users) with a
@@ -301,7 +337,7 @@ in `tools/setup-test-users.sh`. Note that the current testing setup uses
 pre-defined users in the `test.firecloud.org` domain. There would be some
 refactoring involved in varying this domain.
 
-Note that the script takes an ADMIN groupemail as a required argument. This
+Note that the script takes an ADMIN group email as a required argument. This
 should be the email address of a SAM group that contains several admin emails (
 e.g. developer-admins group on the dev SAM deployment at the Broad contains the
 corporate emails of all PF team developers as of Sept 23, 2021). This is to
@@ -310,19 +346,31 @@ is not available.
 
 If the current server requires users to be invited before they can register,
 then the user who runs this script must be an admin user (i.e. a member of
-the `fc-admins` Google group in the SAM Gsuite). The script invites all the test
+the `fc-admins` Google group in the SAM GSuite). The script invites all the test
 users if they do not already exist in SAM, and this requires admin permissions.
 
 For each test user, store refresh token in vault:
 
-- Run `gcloud auth login` for test user. For password, see Test Horde
-  spreadsheet in Broad Google Drive.
-- Look for file `~/.config/gcloud/legacy_credentials/<TEST_USER_EMAIL>/adc.json`
-  , line `refresh_token`.
-- `docker run -it --rm -v ${HOME}/.vault-token:/root/.vault-token broadinstitute/dsde-toolbox:consul-0.20.0 vault write secret/dsde/terra/cli-test/test-users/<TEST_USER_EMAIL> refresh_token=<REFRESH_TOKEN>`
-- Create GHA secret. Update workflows `Render config` jobs to read secrets.
+* Login as the test user via gcloud. For password, see Test Horde spreadsheet in
+  Broad Google Drive.
+  ```shell
+  gcloud auth login
+  ```
 
-#### Automated tests
+* Look for test user's refresh token
+  in `~/.config/gcloud/legacy_credentials/<TEST_USER_EMAIL/adc.json`
+  , and line `refresh_token`.
+
+* Write the refresh token to Broad Vault
+  ```shell
+  docker run -it --rm -v ${HOME}/.vault-token:/root/.vault-token 
+  broadinstitute/dsde-toolbox:consul-0.20.0 vault write secret/dsde/terra/cli-test/test-users/<TEST_USER_EMAIL> refresh_token=<REFRESH_TOKEN>
+  ```
+
+* Create GHA secret. Update workflows' `Render config` jobs (
+  id: `render_config`) to read secrets.
+
+### Automated tests
 
 All unit and integration tests are run nightly via GitHub action
 against `broad-dev`. On test completion, a Slack notification is sent to the
@@ -338,72 +386,77 @@ cleanup in `dry-run` mode, which should show whether there are any leaked
 resources without actually deleting them.
 
 Some tests may start failing once the number of leaked resources gets too high.
-Usually, this is a
-`terra workspace list` test that does not page through more than ~30 workspaces.
-We could fix this test to be more resilient, but it's been a useful reminder to
-kick off the cleanup GitHub action, so we haven't done that yet. If you see
-unexpected failures around listing workspaces, try kicking off the cleanup
-action and re-running.
+Usually, this is a `terra workspace list` test that does not page through more
+than ~30 workspaces. We could fix this test to be more resilient, but it's been
+a useful reminder to kick off the cleanup GitHub action, so we haven't done that
+yet. If you see unexpected failures around listing workspaces, try kicking off
+the cleanup action and re-running.
+
+TODO-Dex: add cleanup info
 
 #### Test config per deployment
 
 By default, tests run against Broad deployment. To run against a different
 deployment:
 
-- Create a new file
+* Create a new file
   under [Test config](https://github.com/DataBiosphere/terra-cli/tree/main/src/test/resources/testconfigs)
-- Create a new `render-config.sh` which renders config for your deployment. Put
+* Create a new `render-config.sh` which renders config for your deployment. Put
   the configs in a new directory under `rendered`, eg `rendered/<mydeployment>`.
   The name of this directory must match the name of the testConfig in the next
   step.
-- Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
+* Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
 
 For example, consider the project that external resources are created in. The
 Broad deployment uses a project in Broad GCP org; Verily deployment uses a
 project in Verily GCP org.
 
-#### Test cromwell.config generation in notebook
-By default, you can run `terra cromwell generate-config` in the CLI. To run in a jupyter notebook:
-- Open a terminal in notebook, source build terra and set it up with a workspace
-- run `terra cromwell generate-config` or `terra cromwell generate-config --dir=xxx`
-- The cromwell.config will be generated.
+### Test cromwell.config generation in notebook
 
-#### Troubleshooting
+* Open a terminal in Jupyter notebook, source build terra and set it up with a
+  workspace
+* Generate the config
+  ```shell
+  terra cromwell generate-config
+  ```
+  Optionally add `--dir=xxx` to specify the directory
 
-If you
-see `Connecting to Docker daemon failed. Check that Docker is installed and running.`
-on Linux and this is the first time you're running tests on your machine,
-try `sudo chmod 666 /var/run/docker.sock`.
+### Troubleshooting
 
-#### Debugging tips
+* If you see the
+  error `Connecting to Docker daemon failed. Check that Docker is installed and running.`,
+  check if Docker is running with correct permissions
+  ```shell
+  sudo chmod 666 /var/run/docker.sock
+  ```
 
-ssh into Docker container where you can run `terra`:
+### Debugging tips
 
-- Put in your
-  test: `TestCommand.runCommand("app", "execute", "sleep 10000000000");`
-- Run test
-- After `sleep` runs, go to Docker Desktop and click on `cli` icon. Then you'll
-  have a shell in the Docker container.
+* ssh into Docker container where you can run `terra`:
+    - Add to your
+      test: `TestCommand.runCommand("app", "execute", "sleep 10000000000");`
+    - Run test
+    - After `sleep` executes, go to Docker Desktop and click on `cli` icon. Then
+      you'll have a shell in the Docker container.
 
-Skip creating workspace, since it's slow:
+* Skip creating workspace, since it's slow:
 
--
+* Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.
+  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18)
+  to `TestUser.chooseTestUserWithOwnerAccess()`. Without this, you might get
+  different users on different runs, and they won't have access to each other's
+  workspaces.
 
-Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18)
-to `TestUser.chooseTestUserWithOwnerAccess()`. Without this, you might get
-different users on different runs, and they won't have access to each other's
-workspaces.
+* Comment out [deleting workspace](https://github.
+  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L37-L49)
 
-- Comment
-  out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L37-L49)
-  .
-- Run test
--
+* Replace [creating workspace](https://github.
+  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
+  with `userFacingId = <id-from-earlier-workspace>;`
 
-Replace [creating workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
-with `userFacingId = <id-from-earlier-workspace>;`
+-----
 
-### Docker
+## Docker
 
 The `docker/` directory contains files required to build the Docker image. All
 files in the `scripts/` sub-directory are copied to the image, into a

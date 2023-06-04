@@ -6,12 +6,13 @@
     * [Spend profile access](#spend-profile-access)
     * [External data](#external-data)
     * [Local tools installation](#local-tools-installation)
-    * [Troubleshooting](#troubleshooting)
-        * [Clear context](#clear-context)
-        * [Manual Install](#manual-install)
-        * [Manual Uninstall](#manual-uninstall)
-2. [Example usage](#example-usage)
-3. [Commands description](#commands-description)
+2. [Troubleshooting](#troubleshooting)
+    * [Clear context](#clear-context)
+    * [Manual Install](#manual-install)
+    * [Manual Uninstall](#manual-uninstall)
+3. [Example usage](#example-usage)
+    * [Nextflow examples](#nextflow-examples)
+4. [Commands description](#commands-description)
     * [Applications](#applications)
     * [Authentication](#authentication)
     * [Config](#config)
@@ -30,19 +31,21 @@
             * [Reference to a file or folder](#reference-to-a-file-or-folder)
             * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
         * [Update A Reference resource](#update-a-reference-resource)
-4. [Workspace context for applications](#workspace-context-for-applications)
+5. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
     * [See all environment variables](#see-all-environment-variables)
-5. [Exit codes](#exit-codes)
+    * [Run unsupported tools](#run-unsupported-tools)
+    * [Configuring Credentials for AWS Resources](#configuring-credentials-for-aws-resources)
+6. [Exit codes](#exit-codes)
 
 -----
 
-### Install and run
+## Install and run
 
 To install the latest version:
 
-```
+```shell
 curl -L https://github.com/DataBiosphere/terra-cli/releases/latest/download/download-install.sh | bash && export SUPPRESS_GCLOUD_CREDS_WARNING=true
 
 # Optional: Move to somewhere in PATH
@@ -52,8 +55,11 @@ sudo mv terra /usr/local/bin
 terra server set --name=verily --quiet
 ```
 
-To install a specific version, run before above
-commands: `export TERRA_CLI_VERSION=0.106.0`
+To install a specific version, set the version as a environment variable
+
+```shell
+export TERRA_CLI_VERSION=0.106.0
+```
 
 By default, the CLI will be installed without support for Docker (i.e. it won't
 pull the Docker image). The TERRA_CLI_DOCKER_MODE environment variable controls
@@ -64,10 +70,11 @@ Docker support. Set it to
   running).
 
 Re-installing will overwrite any existing installation (i.e. all JARs and
-scripts will be overwritten), but will not modify the `$PATH`. If you have
-added the location of the Terra CLI to your `$PATH`, you will therefore need to add its location to your path again after each install.
+scripts will be overwritten), but will not modify the `$PATH`. If you have added
+the location of the Terra CLI to your `$PATH`, you will therefore need to add
+its location to your path again after each install.
 
-#### Requirements
+### Requirements
 
 1. Java 17
 2. Docker 20.10.2 (Must be running if installing in DOCKER_AVAILABLE mode)
@@ -76,158 +83,177 @@ added the location of the Terra CLI to your `$PATH`, you will therefore need to 
 Note: The CLI doesn't use `gcloud` directly either during installation or normal
 operation.
 However, `docker pull` [may use](https://cloud.google.com/container-registry/docs/quickstart#auth) `gcloud`
-under the covers to pull the default Docker image from GCR; therefore, `gcloud` is required for installation.
+under the covers to pull the default Docker image from GCR; therefore, `gcloud`
+is required for installation.
 
-#### Login
-Note: If you are using the CLI on a Terra cloud environment, you do not need to run the commands below. You are already logged in. You can verify this by running `terra auth status`.
+### Login
 
+Note: If you are using the CLI on a Terra cloud environment, you do not need to
+run the commands below. You are already logged in. You can verify this by
+running
 
-1. `terra auth login` launches an OAuth flow that creates a new tab in your browser window where you will
-   complete the login.
-2. If the machine where you're running the CLI does not have a browser available
-   to it, then use the manual login flow by setting the browser flag using `terra config set browser MANUAL`. See
-   the [Authentication](#authentication)
-   section below for more details.
+```shell
+terra auth status
+```
 
-#### Spend profile access
+* To Launch an OAuth flow that creates a new tab in your browser window where
+  you will complete the login
+  ```shell
+  terra auth login
+  ```
 
-In order to spend money 
-in Terra (e.g. by creating a workspace and resources within it), you need access to a billing account via a spend profile. Currently, there is a single spend profile used by {{% et-name %}}. An admin user can
-grant you access. Admins, see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend)
-for more details.
+* If the machine where you're running the CLI does not have a browser available
+  to it, then use the manual login flow by setting the browser flag using. See
+  the [Authentication](#authentication) section below for more details.
+  ```shell
+  terra config set browser MANUAL
+  ```
 
-#### External data
+### Spend profile access
 
-In order to read data from or write data to a private external resource in Terra, you must grant the appropriate data access permissions
-to your proxy group.
-Run `terra auth status` to view the email address of your proxy group. 
+In order to spend money in Terra (e.g. by creating a workspace and resources
+within it), you need access to a billing account via a spend profile. Currently,
+there is a single spend profile used by each team. An admin user can grant you
+access. Admins, see [ADMIN.md](https://github.
+com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend) for more details.
 
-#### Local tools installation
+### External data
+
+In order to read data from or write data to a private external resource in
+Terra, you must grant the appropriate data access permissions to your proxy
+group. To view the email address of your proxy group, run `terra auth status`
+
+### Local tools installation
 
 When running `terra app` commands in `LOCAL_PROCESS` `app-launch` mode (the
 default), it's necessary to install various tools locally. The following
-instructions are for both MacOS and Linux.
+instructions are for both macOS and Linux.
 
-- `gcloud` - Make sure you have Python installed, then download the .tar.gz
-  archive file from
-  the [installation page](https://cloud.google.com/sdk/docs/install).
-  Run `gcloud version` to verify the installation.
-  - `gcloud builds submit` has `--gcs-bucket-resource` option to specify the `--gcs-source-staging-dir` and `--gcs-log-dir` options as default.
-- `gsutil` - This command is included in
+* `gcloud` - Make sure you have Python installed, then download the .tar.gz
+  archive file from the [installation page](https://cloud.google.
+  com/sdk/docs/install). Run `gcloud version` to verify the installation.
+    - `gcloud builds submit` has `--gcs-bucket-resource` option to specify
+      the `--gcs-source-staging-dir` and `--gcs-log-dir`
+      options as default.
+
+* `gsutil` - This command is included in
   the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install), or available
   separately [here](https://cloud.google.com/storage/docs/gsutil_install).
-  Verify its installation with `gsutil version` (also printed as part
-  of `gcloud version`)
-- `bq` - This command is included with `gcloud`. More details are
-  available [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
+  Verify its installation with `gsutil version`
+  (also printed as part of `gcloud version`)
+
+* `bq` - This command is included with `gcloud`. More details are available
+  [here](https://cloud.google.com/bigquery/docs/bq-command-line-tool).
   Similarly, verify its installation with `bq version`.
-- `nextflow` - Install by downloading a `bash` script and running it locally.
+
+* `nextflow` - Install by downloading a `bash` script and running it locally.
   Create a `nextflow` directory somewhere convenient (e.g. `$HOME/nextflow`) and
   switch to it. Then run `curl -s https://get.nextflow.io | bash`. Finally, move
-  the `nextflow` executable script to a location on
-  the `$PATH`: the `$PATH` by running `sudo mv nextflow /usr/local/bin/`. Verify the installation
+  the `nextflow` executable script to a location on the `$PATH`: the `$PATH` by
+  running `sudo mv nextflow /usr/local/bin/`. Verify the installation
   with `nextflow -version`.
-- `git` -
-  Follow these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for installing Git on your platform.
 
+* `git` - Follow
+  these [instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+  for installing Git on your platform.
 
 Now, these applications are available in `terra` by running, for
 example, `terra gsutil ls`. When run with `terra`, environment variables are set
 based on resources in the active workspace, and context such as the active GCP
 project is set up automatically.
 
-#### Troubleshooting
+-----
 
-##### Clear context
+## Troubleshooting
+
+### Clear context
 
 Clear the context file and all credentials. This will require you to login and
 select a workspace again.
 
-```
+```shell
 cd $HOME/.terra
 rm context.json
 rm StoredCredential
 ```
 
-##### Manual install
+### Manual install
 
 A Terra CLI release includes a GitHub release of the `terra-cli` repository and
-a corresponding Docker image in GCR.
-`download-install.sh` is a convenience script that downloads the latest (or
-specific) version of the install package, unarchives it, runs the `install.sh`
-script included inside, and then deletes the install package.
+a corresponding Docker image in GCR. `download-install.sh` is a convenience
+script that downloads the latest (or specific) version of the installation
+package, unarchives it, runs the `install.sh` script included inside, and then
+deletes the installation package.
 
-You can also skip the `download-install.sh` script and do the install manually.
+You can also skip the `download-install.sh` script and do the installation
+manually.
 
-- Download the `terra-cli.tar` install package directly from the
+* Download the `terra-cli.tar` install package directly from the
   [GitHub releases page.](https://github.com/DataBiosphere/terra-cli/releases)
-- Unarchive the `tar` file.
-- Run the install script from the unarchived directory: `./install.sh`
+* Unarchive the `tar` file.
+* Run the installation script from the unarchived directory: `./install.sh`
 
-##### Manual uninstall
+### Manual uninstall
 
 There is not yet an uninstaller. You can clear the entire context directory,
 which includes the context file, all credentials, and all JARs. This will then
-require a re-install (see above).
+require a re-installation (see above).
 
-```
+```shell
 rm -R $HOME/.terra
+rm /usr/local/bin/terra
 ```
 
-### Example usage
+-----
+
+## Example usage
 
 The commands below walk through a brief demo of the existing commands.
 
-Fetch the user's credentials. Check the authentication status to confirm the
-login was successful.
+* Fetch the user's credentials. Check the authentication status to confirm the
+  login was successful.
+  ```shell
+  terra auth login
+  terra auth status
+  ```
 
-```
-terra auth login
-terra auth status
-```
+* Ping the Terra server.
+  ```shell
+  terra server status
+  ```
 
-Ping the Terra server.
+* Create a new Terra workspace and backing Google project. Check the current
+  context to confirm it was created successfully.
+  ```shell
+  terra workspace create --id=<my-workspace-id>
+  terra status
+  ```
 
-```
-terra server status
-```
+* List all workspaces the user has read or write access to.
+  ```shell
+  terra workspace list
+  ```
 
-Create a new Terra workspace and backing Google project. Check the current
-context to confirm it was created successfully.
+* If you want to use an existing Terra workspace, use the `set` command instead
+  of `create`.
+  ```shell
+  terra workspace set --id=eb0753f9-5c45-46b3-b3b4-80b4c7bea248
+  ```
 
-```
-terra workspace create --id=<my-workspace-id>
-terra status
-```
+* Set the Gcloud user and application default credentials.
+  ```shell
+  gcloud auth login
+  gcloud auth application-default login
+  ```
 
-List all workspaces the user has read or write access to.
-
-```
-terra workspace list
-```
-
-If you want to use an existing Terra workspace, use the `set` command instead
-of `create`.
-
-```
-terra workspace set --id=eb0753f9-5c45-46b3-b3b4-80b4c7bea248
-```
-
-Set the Gcloud user and application default credentials.
-
-```
-gcloud auth login
-gcloud auth application-default login
-```
-
-#### Nextflow Examples
+### Nextflow Examples
 
 Run a Nextflow hello world example (requires Docker image set and container
 running, or Nextflow to be installed locally. For Docker
 support, `export TERRA_CLI_DOCKER_MODE=DOCKER_AVAILABLE` before
 installing `terra`):
 
-```
+```shell
 terra nextflow run hello
 ```
 
@@ -236,77 +262,84 @@ the context of the Terra workspace (i.e. in the workspace's backing Google
 project). This is the same example workflow used in the
 [GCLS tutorial](https://cloud.google.com/life-sciences/docs/tutorials/nextflow).
 
-- Download the workflow code from GitHub.
-    ```
-    git clone https://github.com/nextflow-io/rnaseq-nf.git
-    cd rnaseq-nf
-    git checkout v2.0
-    cd ..
-    ```
-- Create a bucket in the workspace for Nextflow to use.
-    ```
-    terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket
-    ```
-- Update the `gls` section of the `rnaseq-nf/nextflow.config` file to point to
+* Download the workflow code from GitHub.
+  ```shell
+  git clone https://github.com/nextflow-io/rnaseq-nf.git
+  cd rnaseq-nf
+  git checkout v2.0
+  cd ..
+  ```
+
+* Create a bucket in the workspace for Nextflow to use.
+  ```shell
+  terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket
+  ```
+
+* Update the `gls` section of the `rnaseq-nf/nextflow.config` file to point to
   the workspace project and bucket we just created.
-    ```
-      gls {
-          params.transcriptome = 'gs://rnaseq-nf/data/ggal/transcript.fa'
-          params.reads = 'gs://rnaseq-nf/data/ggal/gut_{1,2}.fq'
-          params.multiqc = 'gs://rnaseq-nf/multiqc'
-          process.executor = 'google-lifesciences'
-          process.container = 'nextflow/rnaseq-nf:latest'
-          workDir = "$TERRA_mybucket/scratch"
+  ```config
+  gls {
+      params.transcriptome = 'gs://rnaseq-nf/data/ggal/transcript.fa'
+      params.reads = 'gs://rnaseq-nf/data/ggal/gut_{1,2}.fq'
+      params.multiqc = 'gs://rnaseq-nf/multiqc'
+      process.executor = 'google-lifesciences'
+      process.container = 'nextflow/rnaseq-nf:latest'
+      workDir = "$TERRA_mybucket/scratch"
 
-          google.region  = 'us-east1'
-          google.project = "$GOOGLE_CLOUD_PROJECT"
+      google.region  = 'us-east1'
+      google.project = "$GOOGLE_CLOUD_PROJECT"
 
-          google.lifeSciences.serviceAccountEmail = "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
-          google.lifeSciences.network = 'network'
-          google.lifeSciences.subnetwork = 'subnetwork'
-      }
-    ```
-- Do a dry-run to confirm the config is set correctly.
-    ```
-    terra nextflow config rnaseq-nf/main.nf -profile gls
-    ```
-- Kick off the workflow. (This takes about 10 minutes to complete.)
-    ```
-    terra nextflow run rnaseq-nf/main.nf -profile gls
-    ```
+      google.lifeSciences.serviceAccountEmail = "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
+      google.lifeSciences.network = 'network'
+      google.lifeSciences.subnetwork = 'subnetwork'
+  }
+  ```
 
-- To send metrics about the workflow run to a Nextflow Tower server, first
+* Perform a dry-run to confirm the config is set correctly.
+  ```shell
+  terra nextflow config rnaseq-nf/main.nf -profile gls
+  ```
+
+* Kick off the workflow. (This takes about 10 minutes to complete.)
+  ```shell
+  terra nextflow run rnaseq-nf/main.nf -profile gls
+  ```
+
+* To send metrics about the workflow run to a Nextflow Tower server, first
   define an environment variable with the Tower access token. Then specify
   the `-with-tower` flag when kicking off the workflow.
-    ```
-    export TOWER_ACCESS_TOKEN=*****
-    terra nextflow run hello -with-tower
-    terra nextflow run rnaseq-nf/main.nf -profile gls -with-tower
-    ```
+  ```shell
+  export TOWER_ACCESS_TOKEN=*****
+  terra nextflow run hello -with-tower
+  terra nextflow run rnaseq-nf/main.nf -profile gls -with-tower
+  ```
 
-- Call the Gcloud CLI tools in the current workspace context. This means that
+* Call the Gcloud CLI tools in the current workspace context. This means that
   Gcloud is configured with the backing Google project and environment variables
   are defined that contain workspace and resource properties (e.g. bucket names,
   pet service account email).
-    ```
-    terra gcloud config get-value project
-    terra gsutil ls
-    terra bq version
-    ```
+  ```shell
+  terra gcloud config get-value project
+  terra gsutil ls
+  terra bq version
+  ```
 
-- See the list of supported third-party tools. The CLI runs these tools in a
+* See the list of supported third-party tools. The CLI runs these tools in a
   Docker image, if `app-launch` mode is `DOCKER_CONTAINER`. If the
   `app-launch` mode is `LOCAL_PROCESS`, the CLI will assume the tools are
   available in the current shell environment and launch them there.
-    ```
-    terra app list
-    ```
-- Print the image tag that the CLI is currently using.
-    ```
-    terra config get image
-    ```
+  ```shell
+  terra app list
+  ```
 
-### Commands description
+* Print the image tag that the CLI is currently using.
+  ```shell
+  terra config get image
+  ```
+
+-----
+
+## Commands description
 
 ```
 Usage: terra [COMMAND]
@@ -378,24 +411,24 @@ container, or a local child process.
 
 If you pass `--workspace` flag, it must come immediately after the tool:
 
-```
+```shell
 # Works
-> terra bq --workspace=<workpspace-id> ls
+terra bq --workspace=<workpspace-id> ls
 
 # Doesn't work, --workspace is passed to bq instead of terra
-> terra bq ls --workspace=<workpspace-id>
+terra bq ls --workspace=<workpspace-id>
 ```
 
 For creating resources such as BigQuery dataset or GCS bucket, you must create
 through terra rather than through tool. This is because terra configures
 permissions for you.
 
-```
+```shell
 # Works
-> terra resource create gcs-bucket --name=<resource-name>
+terra resource create gcs-bucket --name=<resource-name>
 
 # Doesn't work
-> terra gsutil mb gs://<bucket-name>
+terra gsutil mb gs://<bucket-name>
 ```
 
 #### Authentication
@@ -452,7 +485,7 @@ Commands:
 ```
 
 These commands are property getters and setters for configuring the Terra CLI.
-Currently the available configuration properties are:
+Currently, the available configuration properties are:
 
 ```
 OPTION                VALUE                                          DESCRIPTION                                                 
@@ -469,7 +502,9 @@ format                TEXT                                           output form
 
 #### Cromwell
 
-Utility commands for using the [Cromwell](https://cromwell.readthedocs.io/en/stable/) workflow engine with Terra.
+Utility commands for using
+the [Cromwell](https://cromwell.readthedocs.io/en/stable/) workflow engine with
+Terra.
 
 ```
 Usage: terra cromwell [COMMAND]
@@ -481,17 +516,28 @@ Commands:
 To run Cromwell in a notebook instance:
 
 * Run
+
 ```
 terra cromwell generate-config \
     (--workspace-bucket-name=bucket_name | --google-bucket-name=gs://my-bucket) \
     [--dir=my/path]
 ```
-* One of `workspace-bucket-name` or `google-bucket-name` is required to specify the bucket used by Cromwell for workflow orchestration.
-  * `workspace-bucket-name` is a Terra resource name.
-  * `google-bucket-name` is a Google Cloud Storage bucket. If `google-bucket-name` does not begin with the `gs://` prefix, it will be automatically added.
-* Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`. This starts Cromwell server on `localhost:8000`.
-* In another terminal window, run `cromshell`. Enter `localhost:8000` for cromwell server.
-* Start workflow through cromshell: e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
+
+* One of `workspace-bucket-name` or `google-bucket-name` is required to specify
+  the bucket used by Cromwell for workflow orchestration.
+    * `workspace-bucket-name` is a Terra resource name.
+    * `google-bucket-name` is a Google Cloud Storage bucket.
+      If `google-bucket-name` does not begin with the `gs://` prefix, it will be
+      automatically added.
+*
+
+Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`.
+This starts Cromwell server on `localhost:8000`.
+
+* In another terminal window, run `cromshell`. Enter `localhost:8000` for
+  cromwell server.
+* Start workflow through cromshell:
+  e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
 
 For more information, see https://github.com/broadinstitute/cromshell.
 
@@ -508,7 +554,7 @@ Commands:
 To add a git repo:
 
 ```
-> terra resource add-ref git-repo --name=<resource_name> --repo-url=<repo_url>
+terra resource add-ref git-repo --name=<resource_name> --repo-url=<repo_url>
 ```
 
 #### Groups
@@ -532,11 +578,14 @@ group endpoints.
 Say a Terra group's email is `mygroup@mydomain.com`. `name` is `mygroup`,
 not `mygroup@mydomain.com`:
 
-```
-> terra group list-users --name=mygroup
+```shell
+terra group list-users --name=mygroup
 ```
 
-Adding a member to a Terra group implicitly adds their pet service accounts. For example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is granted access to a resource, `terra-user` is able to access that resource from any of their Terra workspaces.
+Adding a member to a Terra group implicitly adds their pet service accounts. For
+example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is
+granted access to a resource, `terra-user` is able to access that resource from
+any of their Terra workspaces.
 
 #### gsutil
 
@@ -683,7 +732,7 @@ December 3, 2007.
 
 There is also a command shortcut for specifying this type of lifecycle rule (3).
 
-```
+```shell
 terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
 ```
 
@@ -691,7 +740,7 @@ terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-d
 
 A reference to an GCS bucket object can be created by calling
 
-```
+```shell
 terra resource add-ref gcs-object --name=referencename --bucket-name=mybucket --object-name=myobject
 ```
 
@@ -706,7 +755,7 @@ and/or `READER` access to the folder. Same with a file.
 ###### Reference to multiple objects under a folder
 
 Different from other referenced resource type, there is also support for
-creating a reference to objects in the folder. For instance, a user may create a
+creating a reference to objects in the folder. For instance, a user may create
 a `foo/` folder with `bar.txt` and `secret.txt` in it. If the user have at least
 READ access to foo/ folder, they have access to anything in the foo/ folder. So
 they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`.
@@ -748,8 +797,8 @@ the `--read-only` flag. Ex: `terra resource mount --read-only` for all mounts to
 be read-only or `terra resource mount --name=mybucket --read-only=false` for all
 mounts to be read-write.
 
-Users can specify the `--disable-cache` flag. This will disable file
-metadata caching and file type caching for objects in the mounted buckets. List
+Users can specify the `--disable-cache` flag. This will disable file metadata
+caching and file type caching for objects in the mounted buckets. List
 operations such as `ls` will be slower, but will reflect the most up-to-date
 state of the bucket. This is useful when working with collaborators in a shared
 workspace. See more details in
@@ -765,7 +814,7 @@ remount the bucket after resolving bucket access or bucket reference issues.
 Unmounting a single resource can fail if the resource has been renamed or moved
 to a different workspace folder. In this case, users can either
 run `terra resource unmount` to unmount all mounted resources
-in `$HOME/workspace/`. Or, users can directly list out all mounted filesytems
+in `$HOME/workspace/`. Or, users can directly list out all mounted filesystems
 with `mount` and then unmount the resource using its mount path
 with `fusermount -u` (for linux) or `umount` for (MacOS).
 
@@ -800,21 +849,21 @@ for more details.
 [manually uninstall](#manual-uninstall) existing CLI `rm -R ~/.terra` and then
 [install](#install-and-run) the latest CLI.
 
-`terra user ssh-key` is how Terra do source control in a notebook environment. 
+`terra user ssh-key` is how Terra do source control in a notebook environment.
 It handles the ssh key of the current user. There is one single Terra ssh key
 per user in a given server (e.g. broad-dev). With this SSH key, you can perform
 source control in a terra-managed notebook instance using git.
 
-To set up an ssh key, run `terra user ssh-key add` to add the terra ssh key
-to your local machine. You should see in the output an ssh public key starting 
-with `ssh-rsa`. Then copy the public key from the command output and 
-add it to GitHub. [Github instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+To set up an ssh key, run `terra user ssh-key add` to add the terra ssh key to
+your local machine. You should see in the output an ssh public key starting
+with `ssh-rsa`. Then copy the public key from the command output and add it to
+GitHub. [GitHub's instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
 If you think your key is compromised (e.g. the private key on your local machine
-is leaked to other user), you must delete the key from your Github account and
-run `terra user ssh-key generate` to generate a new Terra ssh key. Once a new 
+is leaked to other user), you must delete the key from your GitHub account and
+run `terra user ssh-key generate` to generate a new Terra ssh key. Once a new
 key is generated, you need to associate this new key with your GitHub account
-again. [Github instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+again. [GitHub's instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
 These commands are intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#users)
@@ -849,21 +898,23 @@ The `break-glass` command is intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#break-glass)
 for more details.
 
-### Workspace context for applications
+-----
+
+## Workspace context for applications
 
 The Terra CLI defines a workspace context for applications to run in. This
 context includes:
 
-- `GOOGLE_CLOUD_PROJECT` environment variable set to the backing google project
+* `GOOGLE_CLOUD_PROJECT` environment variable set to the backing google project
   id.
-- `GOOGLE_SERVICE_ACCOUNT_EMAIL` environment variable set to the current user's
+* `GOOGLE_SERVICE_ACCOUNT_EMAIL` environment variable set to the current user's
   pet SA email in the current workspace.
-- Environment variables that are the name of the workspace resources, prefixed
+* Environment variables that are the name of the workspace resources, prefixed
   with `TERRA_` are set to the resolved cloud identifier for those resources (
   e.g. `mybucket` -> `TERRA_mybucket` set to `gs://mybucket`). Applies to
   referenced and controlled resources.
 
-#### Reference in a CLI command
+### Reference in a CLI command
 
 To use a workspace reference in a Terra CLI command, escape the environment
 variable to bypass the shell substitution on the host machine.
@@ -871,35 +922,34 @@ variable to bypass the shell substitution on the host machine.
 Example commands for creating a new controlled bucket resource and then
 using `gsutil` to get its IAM bindings.
 
-```
+```shell
 > terra resource create gcs-bucket --name=mybucket --bucket_name=mybucket
 Successfully added controlled GCS bucket.
 
 > terra gsutil iam get \$TERRA_mybucket
-  Setting the gcloud project to the workspace project
-  Updated property [core/project].
-  
-  {
-    "bindings": [
-      {
-        "members": [
-          "projectEditor:terra-wsm-dev-e3d8e1f5",
-          "projectOwner:terra-wsm-dev-e3d8e1f5"
-        ],
-        "role": "roles/storage.legacyBucketOwner"
-      },
-      {
-        "members": [
-          "projectViewer:terra-wsm-dev-e3d8e1f5"
-        ],
-        "role": "roles/storage.legacyBucketReader"
-      }
-    ],
-    "etag": "CAE="
-  }
+Setting the gcloud project to the workspace project
+Updated property [core/project].  
+{
+  "bindings": [
+    {
+      "members": [
+        "projectEditor:terra-wsm-dev-e3d8e1f5",
+        "projectOwner:terra-wsm-dev-e3d8e1f5"
+      ],
+      "role": "roles/storage.legacyBucketOwner"
+    },
+    {
+      "members": [
+        "projectViewer:terra-wsm-dev-e3d8e1f5"
+      ],
+      "role": "roles/storage.legacyBucketReader"
+    }
+  ],
+  "etag": "CAE="
+}
 ```
 
-#### Reference in file
+### Reference in file
 
 To use a workspace reference in a file or config that will be read by an
 application, do not escape the environment variable. Since this will be running
@@ -909,7 +959,7 @@ substitution.
 Example `nextflow.config` file that includes a reference to a bucket resource in
 the workspace, the backing Google project, and the workspace pet SA email.
 
-```
+```config
 profiles {
   gls {
       params.transcriptome = 'gs://rnaseq-nf/data/ggal/transcript.fa'
@@ -929,23 +979,26 @@ profiles {
 }
 ```
 
-#### See all environment variables
+### See all environment variables
 
-Run `terra app execute env` to see all environment variables defined in the
-Docker container or local process when applications are launched.
+To see all environment variables defined in the Docker container or local
+process when applications are launched
+
+```shell
+terra app execute env
+```
 
 The `terra app execute ...` command is intended for debugging. It lets you
 execute any command in the Docker container or local process, not just the ones
 we've officially supported (i.e. `gsutil`, `bq`, `gcloud`, `nextflow`).
 
-#### Run unsupported tools
+### Run unsupported tools
 
 To run tools that are not yet supported by the Terra CLI, or to use local
-versions of tools, set the `app-launch`
-configuration property to launch a child process on the local machine instead of
-inside a Docker container.
+versions of tools, set the `app-launch` configuration property to launch a child
+process on the local machine instead of inside a Docker container.
 
-```
+```shell
 terra config set app-launch LOCAL_PROCESS
 ```
 
@@ -954,7 +1007,7 @@ the CLI defines environment variables for each workspace resource and
 configures `gcloud` with the workspace project. After running the tool command,
 the CLI restores the original `gcloud` project configuration.
 
-```
+```shell
 terra app execute dsub \
     --provider google-v2 \
     --project \$GOOGLE_CLOUD_PROJECT \
@@ -969,25 +1022,28 @@ terra app execute dsub \
 the `dsub` [README](https://github.com/DataBiosphere/dsub/blob/main/README.md#getting-started-on-google-cloud)
 .)
 
-#### Configuring Credentials for AWS Resources
-Accessing AWS Workspace resources via the AWS CLI or SDK can be configured
-using the `terra configure-aws` command.  This command writes an 
+### Configuring Credentials for AWS Resources
+
+Accessing AWS Workspace resources via the AWS CLI or SDK can be configured using
+the `terra workspace configure-aws` command. This command writes an
 [AWS configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 with two profiles for each AWS resource in the workspace to a file named after
 the Workspace in `$HOME/terra/aws/`.
 
-The output of this command is meant to be used with the 
+The output of this command is meant to be used with the
 [bash `eval` command](https://ss64.com/bash/eval.html) to set up the current
 environment to access resource in the current workspace by outputting a bash
 command to set the `AWS_CONFIG_FILE` environment variable to the newly created
-AWS configuration file.  In turn this file contains two profiles for each
+AWS configuration file. In turn this file contains two profiles for each
 resource, one named after the resource, and one suffixed with `-ro`; the former
 provides write/read access to the resource, the latter provides read-only.
 
-##### AWS Configuration Example
+#### AWS Configuration Example
+
 Workspace has a single AWS S3 Storage folder (output truncated):
-``` shell
-$ terra resource describe --name aws_folder_20230422
+
+```shell
+> terra resource describe --name aws_folder_20230422
 Name:         aws_folder_20230422
 Description:  My First Storage Folder
 Type:         AWS_S3_STORAGE_FOLDER
@@ -996,41 +1052,56 @@ Region:       us-east-1
 AWS S3 Storage Folder: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
 # Objects: 0
 ```
+
 Call `terra workspace configure-aws` wrapped in a bash `eval` command and note
 that environment variable `AWS_CONFIG_FILE` points at the newly written config
 file:
+
 ``` shell
-$ eval "$(terra workspace configure-aws)"
-$ echo $AWS_CONFIG_FILE 
+> eval "$(terra workspace configure-aws)"
+> echo $AWS_CONFIG_FILE 
 /Users/jczerk/.terra/aws/verily_devel/jczerk_aws_202304131028.conf
 ```
+
 Now we can use profile `aws_folder_20230422` to copy a file into our S3 Storage
 Folder:
+
 ``` shell
-$ aws --profile=aws_folder_20230422 s3 cp /tmp/hello.txt s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
+> aws --profile=aws_folder_20230422 s3 cp /tmp/hello.txt s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
 upload: /tmp/hello.txt to s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
 ```
+
 And using read-only profile `aws_folder_20230422-ro` allows us to list this
 file:
+
 ```shell
-$ aws --profile=aws_folder_20230422-ro s3 ls s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
+> aws --profile=aws_folder_20230422-ro s3 ls s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/
 2023-04-22 09:53:15          0 
 2023-05-01 11:32:10         14 hello.txt
 ```
+
 But not delete it:
+
 ```shell
-$ aws --profile=aws_folder_20230422-ro s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+> aws --profile=aws_folder_20230422-ro s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
 delete failed: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt An error occurred (AccessDenied) when calling the DeleteObject operation: Access Denied
 ```
+
 Switching back to profile `aws_folder_20230422`, delete succeeds:
+
 ```shell
-$ aws --profile=aws_folder_20230422 s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
+> aws --profile=aws_folder_20230422 s3 rm s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
 delete: s3://v0-saas-devel-us-east-1-terra/aws_folder_20230422/hello.txt
 ```
-Caching credentials using tool [`aws-vault`](https://github.com/99designs/aws-vault) is recommended, and can be
-configured using options ` --cache-with-aws-vault` and `--aws-vault-path`.
 
-### Exit codes
+Caching credentials using
+tool [`aws-vault`](https://github.com/99designs/aws-vault) is recommended, and
+can be configured using options ` --cache-with-aws-vault` and
+`--aws-vault-path`.
+
+-----
+
+## Exit codes
 
 The CLI sets the process exit code as follows.
 

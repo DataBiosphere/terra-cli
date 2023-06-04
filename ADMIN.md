@@ -33,7 +33,8 @@ access to users.
 
 Until that new service is built, setting up a new spend profile entails:
 
-* Adding WSM configuration (helm charts) which associates spend profile name with a billing account ID
+* Adding WSM configuration (helm charts) which associates spend profile name
+  with a billing account ID
 * Creating the SAM spend profile resource with `terra spend create-profile`
 
 Note that these commands are intended for admin users. In the context of spend,
@@ -41,25 +42,35 @@ admin means a user who is an owner of the target spend profile resource.
 
 ### Grant spend access
 
-- [Preferred] Add a user to a Terra group that is a user of the spend profile.
+* [Preferred] Add a user to a Terra group that is a user of the spend profile.
   To also grant permission to add new members to the group, use `policy=ADMIN`
   instead.
-  `terra group add-user --name=enterprise-pilot-testers --policy=MEMBER --email=testuser@gmail.com`
+  ```shell
+  terra group add-user --name=enterprise-pilot-testers --policy=MEMBER --email=testuser@gmail.com
+  ```
 
-- Add a user directly to a spend profile. To also grant permission to add new
-  users to the spend profile, user `policy=OWNER` instead. This will target the 
+* Add a user directly to a spend profile. To also grant permission to add new
+  users to the spend profile, user `policy=OWNER` instead. This will target the
   WSM default spend profile.
-  `terra spend enable --policy=USER --email=testuser@gmail.com`
+  ```shell
+  terra spend enable --policy=USER --email=testuser@gmail.com
+  ```
 
-  To use an alternative spend profile, add the `--profile` option.
-  `terra spend enable --policy=USER --email=testuser@gmail.com --profile=wm-alt-spend-profile`
+* To use an alternative spend profile, add the `--profile` option.
+  ```shell
+  terra spend enable --policy=USER --email=testuser@gmail.com --profile=wm-alt-spend-profile
+  ```
 
 ### Setup spend profile
 
 To create the spend profile:
-`terra spend create-profile`
-This command uses the `wm-default-spend-profile` by default, or the name specified
-by the `--profile` option.
+
+```shell
+terra spend create-profile
+```
+
+This command uses the `wm-default-spend-profile` by default, or the name
+specified by the `--profile` option.
 
 The user who runs the create command will automatically be added as an OWNER of
 the spend profile, with permissions to add new users. You should also make sure
@@ -77,7 +88,11 @@ terra spend enable --email=developer-admins@gmail.com --policy=OWNER
 ```
 
 To delete the spend profile:
-`terra spend delete-profile`
+
+```shell
+terra spend delete-profile
+```
+
 This is helpful if you accidentally create the spend profile with e.g. the wrong
 name and need to start over.
 
@@ -102,21 +117,27 @@ WSM endpoint.
 To grant break-glass access to someone:
 
 1. Ask the requester to:
-    - Make your Terra user an owner of the workspace they want break-glass
+    * Make your Terra user an owner of the workspace they want break-glass
       access to.
-      `terra workspace add-user --email=breakglassgranter@gmail.com --role=OWNER`
-    - Confirm that they are an owner of the workspace.
-      `terra workspace list-users`
-    - Relay any brief notes about the reason for the request.
+      ```shell
+      terra workspace add-user --email=breakglassgranter@gmail.com --role=OWNER
+      ```
+    * Confirm that they are an owner of the workspace.
+      ```shell
+      terra workspace list-users
+      ```
+    * Relay any brief notes about the reason for the request.
+
 2. Download two SA key files:
-    - One that has permission to set IAM policy on all workspace projects. This
+    * One that has permission to set IAM policy on all workspace projects. This
       will be specific to the server (i.e. WSM deployment) where the workspaces
       live.
-    - One that has permission to update a central BigQuery dataset that tracks
+    * One that has permission to update a central BigQuery dataset that tracks
       break-glass requests.
-    - The `tools/render-config.sh` script downloads two SA key files that will
+    * The `tools/render-config.sh` script downloads two SA key files that will
       work for workspaces on the `broad-dev-*` servers and the central BigQuery
       dataset in the `terra-cli-dev` project.
+
 3. Run the `terra workspace break-glass` command.
 
 Example commands for granting break-glass access for a workspace in
@@ -175,7 +196,7 @@ before they can register.
 When inviting a new user, admins can also optionally enable the user on the
 default spend profile.
 
-```
+```shell
 > terra user invite --email=newuser@gmail.com --enable-spend
 Successfully invited user.
 User enabled on the default spend profile.
@@ -189,25 +210,27 @@ will trigger the login flow.
 
 The `terra user status` command indicates whether:
 
-- A user has no record in the system (i.e. not been invited or registered).
-    ```
-      > terra user status --email=notinvited@gmail.com
-      User not found: notinvited@gmail.com
-    ```
-- A user has been invited, but not yet registered by logging in for the first
+* A user has no record in the system (i.e. not been invited or registered).
+  ```shell
+  > terra user status --email=notinvited@gmail.com
+  User not found: notinvited@gmail.com
+  ```
+
+* A user has been invited, but not yet registered by logging in for the first
   time.
-    ```
-      > terra user status --email=invited@gmail.com
-      Email: invited@gmail.com
-      Subject ID: 263543418278082e7fc11
-      NOT REGISTERED
-      DISABLED
-    ```
-- A user has registered by logging in for the first time.
-    ```   
-      > terra user status --email=registered@gmail.com
-      Email: registered@gmail.com
-      Subject ID: 263543418278082e7fc11
-      REGISTERED
-      ENABLED
-    ```
+  ```shell
+  > terra user status --email=invited@gmail.com
+  Email: invited@gmail.com
+  Subject ID: 263543418278082e7fc11
+  NOT REGISTERED
+  DISABLED
+  ```
+
+* A user has registered by logging in for the first time.
+  ```shell
+  > terra user status --email=registered@gmail.com
+  Email: registered@gmail.com
+  Subject ID: 263543418278082e7fc11
+  REGISTERED
+  ENABLED
+  ```
