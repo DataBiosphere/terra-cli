@@ -21,16 +21,16 @@
     * [gsutil](#gsutil)
     * [Notebooks](#notebooks)
     * [Resources](#resources)
-    * [Server](#server)
-    * [Spend](#spend)
-    * [User](#user)
-    * [Workspace](#workspace)
-    * [Resources](#resources)
+        * [Update A Reference resource](#update-a-reference-resource)
         * [GCS bucket lifecycle rules](#gcs-bucket-lifecycle-rules)
         * [GCS bucket object reference](#gcs-bucket-object-reference)
             * [Reference to a file or folder](#reference-to-a-file-or-folder)
             * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
-        * [Update A Reference resource](#update-a-reference-resource)
+        * [Mounting GCS buckets & objects](#mounting-gcs-buckets--objects)]
+    * [Server](#server)
+    * [Spend](#spend)
+    * [User](#user)
+    * [Workspace](#workspace)
 5. [Workspace context for applications](#workspace-context-for-applications)
     * [Reference in a CLI command](#reference-in-a-cli-command)
     * [Reference in file](#reference-in-file)
@@ -55,7 +55,7 @@ sudo mv terra /usr/local/bin
 terra server set --name=verily --quiet
 ```
 
-To install a specific version, set the version as a environment variable
+To install a specific version, set the version as an environment variable
 
 ```shell
 export TERRA_CLI_VERSION=0.106.0
@@ -366,14 +366,12 @@ Commands:
   workspace  Setup a Terra workspace.
 ```
 
-The `status` command prints details about the current workspace and server.
-
-The `version` command prints the installed version string.
-
-The `gcloud`, `git`, `gsutil`, `bq`, and `nextflow` commands call third-party
-applications in the context of a Terra workspace.
-
-The `resolve` command is an alias for the `terra resource resolve` command.
+* The `resolve` command is an alias for the `terra resource resolve` command.
+* The `status` command prints details about the current workspace and server.
+* The `version` command prints the installed version string.
+* The `bq`, `gcloud`, `git`, `gsutil` and `nextflow` commands call third-party
+  applications in the context of a Terra workspace and are aliases for the
+  `terra app [application]` command
 
 The other commands are groupings of sub-commands, described in the sections
 below.
@@ -392,7 +390,7 @@ below.
 * `user` [User](#user)
 * `workspace` [Workspace](#workspace)
 
-#### Applications
+### Applications
 
 ```
 Usage: terra app [COMMAND]
@@ -404,7 +402,11 @@ Commands:
 ```
 
 The Terra CLI allows running supported third-party tools within the context of a
-workspace. To see supported tools, run `terra app list`.
+workspace. To see supported tools, run
+
+```shell
+terra app list
+```
 
 The `app-launch` configuration property controls how tools are run: in a Docker
 container, or a local child process.
@@ -431,7 +433,7 @@ terra resource create gcs-bucket --name=<resource-name>
 terra gsutil mb gs://<bucket-name>
 ```
 
-#### Authentication
+### Authentication
 
 ```
 Usage: terra auth [COMMAND]
@@ -442,12 +444,14 @@ Commands:
   status  Print details about the currently authorized account.
 ```
 
-Only one user can be logged in at a time. Call `terra auth login` to login as a
-different user.
+Only one user can be logged in at a time. To login as a different user, run
+
+```shell
+terra auth login
+```
 
 Login uses the Google OAuth 2.0 installed
-application [flow](https://developers.google.com/identity/protocols/oauth2/native-app)
-.
+application [flow](https://developers.google.com/identity/protocols/oauth2/native-app).
 
 You don't need to login again after switching workspaces. You will need to login
 again after switching servers, because different Terra deployments may have
@@ -456,16 +460,17 @@ different OAuth flows.
 By default, the CLI opens a browser window for the user to click through the
 OAuth flow. For some use cases (e.g. CloudShell, notebook VM), this is not
 practical because there is no default (or any) browser on the machine. The CLI
-has a browser option that controls this
-behavior. `terra config set browser MANUAL` means the user can copy the URL into
-a browser on a different machine (e.g. their laptop), complete the login prompt,
-and then copy/paste the response token back into a shell on the machine where
-they want to use the Terra CLI. Example usage:
+has a browser option that controls this behavior. The below command displays a
+URL, which the user can copy to a browser on a different machine (e.g. their
+laptop), complete the login prompt, and then copy/paste the response token back
+into a shell on the machine where they want to use the Terra CLI.
 
-```
+```shell
+# set the browse option
 > terra config set browser MANUAL
 Browser launch mode for login is MANUAL (CHANGED).
 
+# auth flow
 > terra auth login
 Please open the following address in a browser on any machine:
   https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force&client_id=[...]
@@ -473,7 +478,7 @@ Please enter code: *****
 Login successful: testuser@gmail.com
 ```
 
-#### Config
+### Config
 
 ```
 Usage: terra config [COMMAND]
@@ -500,7 +505,7 @@ workspace             (unset)                                        (unset)
 format                TEXT                                           output format 
 ```
 
-#### Cromwell
+### Cromwell
 
 Utility commands for using
 the [Cromwell](https://cromwell.readthedocs.io/en/stable/) workflow engine with
@@ -515,13 +520,12 @@ Commands:
 
 To run Cromwell in a notebook instance:
 
-* Run
-
-```
-terra cromwell generate-config \
-    (--workspace-bucket-name=bucket_name | --google-bucket-name=gs://my-bucket) \
-    [--dir=my/path]
-```
+* Generate the config
+    ```shell
+    terra cromwell generate-config \
+        (--workspace-bucket-name=bucket_name | --google-bucket-name=gs://my-bucket) \
+        [--dir=my/path]
+    ```
 
 * One of `workspace-bucket-name` or `google-bucket-name` is required to specify
   the bucket used by Cromwell for workflow orchestration.
@@ -529,19 +533,21 @@ terra cromwell generate-config \
     * `google-bucket-name` is a Google Cloud Storage bucket.
       If `google-bucket-name` does not begin with the `gs://` prefix, it will be
       automatically added.
-*
 
-Run `java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server`.
-This starts Cromwell server on `localhost:8000`.
+* Start the Cromwell server on `localhost:8000`, run
+    ```shell
+    java -Dconfig.file=path/to/cromwell.conf -jar cromwell/cromwell-81.jar server
+    ```
 
 * In another terminal window, run `cromshell`. Enter `localhost:8000` for
   cromwell server.
+
 * Start workflow through cromshell:
   e.g. `cromshell submit workflow.wdl inputs.json [options.json] [dependencies.zip]`
 
 For more information, see https://github.com/broadinstitute/cromshell.
 
-#### Git
+### Git
 
 ```
 Usage: terra git [COMMAND]
@@ -553,11 +559,11 @@ Commands:
 
 To add a git repo:
 
-```
+```shell
 terra resource add-ref git-repo --name=<resource_name> --repo-url=<repo_url>
 ```
 
-#### Groups
+### Groups
 
 ```
 Usage: terra group [COMMAND]
@@ -587,33 +593,43 @@ example, say `terra-user` is added to `mygroup@mydomain.com`. When `mygroup` is
 granted access to a resource, `terra-user` is able to access that resource from
 any of their Terra workspaces.
 
-#### gsutil
+### gsutil
 
-You can run `terra gsutil` or `terra gcloud alpha storage`
-. `gcloud alpha storage`
+You can run `terra gsutil`
+or `terra gcloud alpha storage`. `gcloud alpha storage`
 is a newer version of `gsutil`. It doesn't support everything, but what it does
-support [may be significantly faster](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
-.
+support [may be significantly faster](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line).
 
-#### Notebooks
+### Notebooks
 
 ```
 Usage: terra notebook [COMMAND]
 Use GCP Notebooks in the workspace.
 Commands:
-  start  Start a stopped GCP Notebook instance within your workspace.
-  stop   Stop a running GCP Notebook instance within your workspace.
+  start   Start a stopped Notebook instance within your workspace.
+  stop    Stop a running Notebook instance within your workspace.
+  launch  Launch a running Notebook instance within your workspace.
 ```
 
-You can create
-a [GCP Notebook](https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution)
-controlled resource
-with `terra resource create gcp-notebook --name=<resourcename> [--workspace=<id>]`
-. These `stop`, `start`
-commands are provided for convenience. You can also stop and start the notebook
-using the `gcloud notebooks instances start/stop` commands.
+You can create a notebook (controlled resource) with
 
-#### Resources
+```shell
+terra resource create [notebook-type] --name=<resourcename> [--workspace=<id>]
+```
+
+These `stop`, `start` and `launch` commands are provided for convenience.
+
+* [gcp-notebooks](https://cloud.google.
+  com/vertex-ai/docs/workbench/notebook-solution) are supported on workspaces
+  created on cloud platform GCP. You can also stop and start the notebook using
+  the
+  `gcloud notebooks instances [start|stop]` commands.
+* [sagemaker-notebooks]() are supported on workspaces created on cloud platform
+  AWS. You can also stop and start the notebook using the
+  `aws --profile=profile-name sagemaker
+  [start-notebook-instance|stop-notebook-instance]` commands.
+
+### Resources
 
 ```
 Usage: terra resource [COMMAND]
@@ -621,13 +637,14 @@ Manage resources in the workspace.
 Commands:
   add-ref, add-referenced    Add a new referenced resource.
   check-access               Check if you have access to a referenced resource.
-  create, create-controlled  Add a new controlled resource.
   credentials                Retrieve temporary credentials to access a cloud resource.
+  create, create-controlled  Add a new controlled resource.
   delete                     Delete a resource from the workspace.
   describe                   Describe a resource.
   list                       List all resources.
   list-tree                  List all resources and folders in tree view.
   mount                      Mounts all workspace bucket resources.
+  open-console               Retrieve console link to access a cloud resource.
   resolve                    Resolve a resource to its cloud id or path.
   unmount                    Unmounts all workspace bucket resources.
   update                     Update the properties of a resource.
@@ -643,11 +660,11 @@ hosted outside of Terra or in another workspace. You can add these with the
 `add-ref` command. The workspace currently supports the following referenced
 resource:
 
-- `gcs-bucket`
-- `gcs-object`
-- `bq-dataset`
-- `bq-table`
-- `git-repo`
+* `gcs-bucket`
+* `gcs-object`
+* `bq-dataset`
+* `bq-table`
+* `git-repo`
 
 The `check-access` command lets you see whether you have access to a particular
 resource. This is useful when a different user created or added the resource and
@@ -656,79 +673,84 @@ returns true for `git-repo` reference type because workspace doesn't support
 authentication to external git services yet.
 
 The list of resources in a workspace is maintained on the Terra Workspace
-Manager server. The CLI caches this list of resources locally. Third-party tools
-can access resource details via environment variables (e.g. $TERRA_mybucket
-holds the `gs://` URL of the workspace bucket resource named `mybucket`). The
-CLI updates the cache on every call to a `terra resource` command. So, if you
-are working in a shared workspace, you can run `terra resource list` (for
-example) to pick up any changes that your collaborators have made.
+Manager server.
 
-##### GCS bucket lifecycle rules
+#### Update A Reference resource
+
+User can update the name and description of a reference resource. User can also
+update a reference resource to another of the same type. For instance, if a user
+creates a reference resource to Bq dataset `foo` and later on wants to point to
+Bq dataset `bar` in the same project, one can use the below command to update
+the reference. However, one is not allowed to update the reference to a
+different type (e.g. update a dataset reference to a data table reference is not
+allowed).
+
+```shell
+terra resource udpate --name=<fooReferenceName> --new-dataset-id=bar
+```
+
+#### GCS bucket lifecycle rules
 
 GCS bucket lifecycle rules are specified by passing a JSON-formatted file path
-to the
-`terra resource create gcs-bucket` command. The expected JSON structure matches
-the one used by the `gsutil lifecycle`
+to the `terra resource create gcs-bucket` command. The expected JSON structure
+matches the one used by the `gsutil lifecycle`
 [command](https://cloud.google.com/storage/docs/gsutil/commands/lifecycle). This
 structure is a subset of the GCS
-resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle)
-. Below are some example file contents for specifying a lifecycle rule.
+resource [specification](https://cloud.google.com/storage/docs/json_api/v1/buckets#lifecycle).
+Below are some example file contents for specifying a lifecycle rule.
 
-(1) Change the storage class to `ARCHIVE` after 10 days.
-
-```json
-{
-  "rule": [
+1. Change the storage class to `ARCHIVE` after 10 days.
+    ```json
     {
-      "action": {
-        "type": "SetStorageClass",
-        "storageClass": "ARCHIVE"
-      },
-      "condition": {
-        "age": 10
-      }
+      "rule": [
+        {
+          "action": {
+            "type": "SetStorageClass",
+            "storageClass": "ARCHIVE"
+          },
+          "condition": {
+            "age": 10
+          }
+        }
+      ]
     }
-  ]
-}
-```
+    ```
 
-(2) Delete any objects with storage class `STANDARD` that were created before
-December 3, 2007.
-
-```json
-{
-  "rule": [
+2. Delete any objects with storage class `STANDARD` that were created before
+   December 3, 2007.
+    ```json
     {
-      "action": {
-        "type": "Delete"
-      },
-      "condition": {
-        "createdBefore": "2007-12-03",
-        "matchesStorageClass": [
-          "STANDARD"
-        ]
-      }
+      "rule": [
+        {
+          "action": {
+            "type": "Delete"
+          },
+          "condition": {
+            "createdBefore": "2007-12-03",
+            "matchesStorageClass": [
+              "STANDARD"
+            ]
+          }
+        }
+      ]
     }
-  ]
-}
-```
+    ```
 
-(3) Delete any objects that are more than 365 days old.
-
-```json
-{
-  "rule": [
+3. Delete any objects that are more than 365 days old.
+    ```json
     {
-      "action": {
-        "type": "Delete"
-      },
-      "condition": {
-        "age": 365
-      }
+      "rule": [
+        {
+          "action": {
+            "type": "Delete"
+          },
+          "condition": {
+            "age": 365
+          }
+        }
+      ]
     }
-  ]
-}
-```
+    ```
 
 There is also a command shortcut for specifying this type of lifecycle rule (3).
 
@@ -736,7 +758,7 @@ There is also a command shortcut for specifying this type of lifecycle rule (3).
 terra resource create gcs-bucket --name=mybucket --bucket-name=mybucket --auto-delete=365
 ```
 
-##### GCS bucket object reference
+#### GCS bucket object reference
 
 A reference to an GCS bucket object can be created by calling
 
@@ -744,7 +766,7 @@ A reference to an GCS bucket object can be created by calling
 terra resource add-ref gcs-object --name=referencename --bucket-name=mybucket --object-name=myobject
 ```
 
-###### Reference to a file or folder
+##### Reference to a file or folder
 
 A file or folder is treated as an object in GCS bucket. By either creating a
 folder through the cloud console UI or copying an existing folder of files to
@@ -752,7 +774,7 @@ the GCS bucket, a user can create a folder object. So the user can create a
 reference to the folder if they have at least `READER` access to the bucket
 and/or `READER` access to the folder. Same with a file.
 
-###### Reference to multiple objects under a folder
+##### Reference to multiple objects under a folder
 
 Different from other referenced resource type, there is also support for
 creating a reference to objects in the folder. For instance, a user may create
@@ -768,21 +790,14 @@ they can add a reference to `foo/bar.txt`, `foo/\*` or `foo/\*.txt`.
 > the user has `READER` access to the bucket or `foo/\*.png` (where there is no
 > png files) if they have access to the `foo/` folder.
 
-##### Update A Reference resource
-
-User can update the name and description of a reference resource. User can also
-update a reference resource to another of the same type. For instance, if a user
-creates a reference resource to Bq dataset `foo` and later on wants to point to
-Bq dataset `bar` in the same project, one can use
-`terra resource udpate --name=<fooReferenceName> --new-dataset-id=bar` to update
-the reference. However, one is not allowed to update the reference to a
-different type (e.g. update a dataset reference to a data table reference is not
-allowed).
-
-##### Mounting workspace Resources
+#### Mounting GCS buckets & objects
 
 Users can mount GCS buckets and referenced folder objects locally to the user's
-home directory in `$HOME/workspace/` by running `terra resource mount`.
+home directory in `$HOME/workspace/` by running
+
+```shell
+terra resource mount
+```
 
 Users can specify the `--name` flag with the name of a GCS bucket or GCS object
 resource to only mount that individual resource. This flag is useful for
@@ -793,9 +808,15 @@ By default, controlled GCS buckets and referenced folder objects created by the
 user will be mounted with read-write permissions while controlled buckets
 created by other users and referenced bucket folders will be mounted with
 read-only permissions. Users can override this default behavior by specifying
-the `--read-only` flag. Ex: `terra resource mount --read-only` for all mounts to
-be read-only or `terra resource mount --name=mybucket --read-only=false` for all
-mounts to be read-write.
+the `--read-only` flag.
+
+```shell
+# all mounts to be read-only
+terra resource mount --read-only
+
+# all mounts to be read-write
+terra resource mount --name=mybucket --read-only=false
+```
 
 Users can specify the `--disable-cache` flag. This will disable file metadata
 caching and file type caching for objects in the mounted buckets. List
@@ -805,7 +826,7 @@ workspace. See more details in
 the [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#caching)
 repository.
 
-###### Mount Failures
+##### Mount Failures
 
 If a mount has failed, an empty directory will be left at mount point with the
 resource name and a suffix error string indicating the failure. Users can
@@ -818,7 +839,7 @@ in `$HOME/workspace/`. Or, users can directly list out all mounted filesystems
 with `mount` and then unmount the resource using its mount path
 with `fusermount -u` (for linux) or `umount` for (MacOS).
 
-#### Server
+### Server
 
 ```
 Usage: terra server [COMMAND]
@@ -835,7 +856,7 @@ Workspace Manager, Data Repo, SAM).
 Workspaces exist on a single server, so switching servers will change the list
 of workspaces available to you.
 
-#### Spend
+### Spend
 
 These commands are intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend)
@@ -843,33 +864,45 @@ for more details.
 
 #### User
 
+These user management commands are intended for admin users. Admins,
+see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#users)
+for more details.
+
 #### ssh-key
 
 > **Ensure you have the latest CLI version.** To install new CLI version, first
-[manually uninstall](#manual-uninstall) existing CLI `rm -R ~/.terra` and then
+[manually uninstall](#manual-uninstall) the existing CLI and then
 [install](#install-and-run) the latest CLI.
 
-`terra user ssh-key` is how Terra do source control in a notebook environment.
+`terra user ssh-key` is how Terra does source control in a notebook environment.
 It handles the ssh key of the current user. There is one single Terra ssh key
 per user in a given server (e.g. broad-dev). With this SSH key, you can perform
 source control in a terra-managed notebook instance using git.
 
-To set up an ssh key, run `terra user ssh-key add` to add the terra ssh key to
-your local machine. You should see in the output an ssh public key starting
-with `ssh-rsa`. Then copy the public key from the command output and add it to
+To set up an ssh key, add the terra ssh key to your local machine using the
+below command
+
+```shell
+terra user ssh-key add
+```
+
+You should see in the output an ssh public key starting with `ssh-rsa`. Then
+copy the public key from the command output and add it to
 GitHub. [GitHub's instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
 If you think your key is compromised (e.g. the private key on your local machine
 is leaked to other user), you must delete the key from your GitHub account and
-run `terra user ssh-key generate` to generate a new Terra ssh key. Once a new
-key is generated, you need to associate this new key with your GitHub account
+generate a new Terra ssh key using the below command
+
+```shell
+terra user ssh-key generate
+```
+
+Once a new key is generated, you need to associate this new key with your GitHub
+account
 again. [GitHub's instruction link](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
-These commands are intended for admin users. Admins,
-see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#users)
-for more details.
-
-#### Workspace
+### Workspace
 
 ```
 Usage: terra workspace [COMMAND]
@@ -891,8 +924,8 @@ Commands:
   update           Update an existing workspace.
 ```
 
-A Terra workspace is backed by a Google project. Creating/deleting a workspace
-also creates/deletes the project.
+A Terra workspace created on cloud platform GCP is backed by a Google project.
+Creating/deleting a workspace also creates/deletes the project.
 
 The `break-glass` command is intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#break-glass)
@@ -1105,11 +1138,11 @@ can be configured using options ` --cache-with-aws-vault` and
 
 The CLI sets the process exit code as follows.
 
-- 0 = Successful program execution
-- 1 = User-actionable error (e.g. missing parameter, workspace not defined in
+* 0 = Successful program execution
+* 1 = User-actionable error (e.g. missing parameter, workspace not defined in
   the current context)
-- 2 = System or internal error (e.g. error making a request to a Terra service)
-- 3 = Unexpected error (e.g. null pointer exception)
+* 2 = System or internal error (e.g. error making a request to a Terra service)
+* 3 = Unexpected error (e.g. null pointer exception)
 
 App exit codes will be passed through to the caller. e.g.
 If `gcloud --malformedOption` returns exit code `2`, then
