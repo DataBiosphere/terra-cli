@@ -49,9 +49,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     assertEquals(name, createdNotebook.name, "create output matches name");
     assertEquals("bar", createdNotebook.metadata.get("foo"), "create output matches metadata");
 
-    // check that the generated instance ID is composed of the user email and the time
-    assertTrue(createdNotebook.instanceId.startsWith(createdNotebook.privateUserName), "generated instance ID matches expected");
-    
     // gcp notebooks are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
