@@ -445,17 +445,14 @@ project in Verily GCP org.
 
 * Skip creating workspace, since it's slow:
 
-* Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.
-  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18)
+* Change [`TestUser.chooseTestUserWithSpendAccess()`](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L18)
   to `TestUser.chooseTestUserWithOwnerAccess()`. Without this, you might get
   different users on different runs, and they won't have access to each other's
   workspaces.
 
-* Comment out [deleting workspace](https://github.
-  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L37-L49)
+* Comment out [deleting workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L37-L49)
 
-* Replace [creating workspace](https://github.
-  com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
+* Replace [creating workspace](https://github.com/DataBiosphere/terra-cli/blob/main/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L33)
   with `userFacingId = <id-from-earlier-workspace>;`
 
 -----
