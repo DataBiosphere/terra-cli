@@ -34,11 +34,6 @@
     * [Workspace & Resource Ids](#workspace--resource-ids)
     * [Adding a new resource type](#adding-a-new-resource-type)
 6. [Command style guide](#command-style-guide)
-    * [Options instead of parameters](#options-instead-of-parameters)
-    * [Always specify a description](#always-specify-a-description)
-    * [Alphabetize command lists](#alphabetize-command-lists)
-    * [User readable exception messages](#user-readable-exception-messages)
-    * [Singular command group names](#singular-command-group-names)
 7. [Auth overview](#auth-overview)
     * [Regular terra commands](#regular-terra-commands--eg-terra-workspace-)
     * [Resource terra commands](#tool-terra-commands--eg-terra-bq-)
@@ -246,7 +241,7 @@ Both types of tests:
 * Suppress console display of the test command's stdIn & stdOut by specifying
   the `-PquietConsole` option
   ```shell
-  `./gradlew runTestsWithTag -PtestTag=unit -PquietConsole`
+  ./gradlew runTestsWithTag -PtestTag=unit -PquietConsole`
   ```
 * By default, tests are run against all cloud platforms supported by the CLI
   server. Add the platform to target tests for a single platform
