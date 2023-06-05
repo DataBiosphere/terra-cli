@@ -35,9 +35,6 @@
     * [Adding a new resource type](#adding-a-new-resource-type)
 6. [Command style guide](#command-style-guide)
 7. [Auth overview](#auth-overview)
-    * [Regular terra commands](#regular-terra-commands-eg-terra-workspace-)
-    * [Resource terra commands](#tool-terra-commands-eg-terra-bq-)
-    * [Resource terra commands](#resource-terra-commands-eg-terra-notebook-)
 
 -----
 
