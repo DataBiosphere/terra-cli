@@ -40,6 +40,9 @@
     * [User readable exception messages](#user-readable-exception-messages)
     * [Singular command group names](#singular-command-group-names)
 7. [Auth overview](#auth-overview)
+    * [Regular terra commands](#regular-terra-commands--eg-terra-workspace-)
+    * [Resource terra commands](#tool-terra-commands--eg-terra-bq-)
+    * [Resource terra commands](#resource-terra-commands--eg-terra-notebook-)
 
 -----
 
@@ -771,10 +774,44 @@ packages.
 
 ## Auth overview
 
-`terra` commands (`terra workspace`) run as user or pet SA, depending on where
-they run. Tool
-commands (`terra bq`) [always run as pet SA](https://github.com/DataBiosphere/terra-cli/search?q=getPetSACredentials)
-, for two reasons:
+`terra` commands (`terra workspace`) run as the user, pet SA (GCP backed
+workspaces) or WSM SA on behalf of the user (AWS backed workspaces)
+depending on the cloud platform and where they run.
+
+### Regular terra commands (eg. `terra workspace`)
+
+* On Local Computer - **user terra oauth**
+    * `terra auth login` CLI goes through oauth flow and saves credentials
+      in `.terra/StoredCredential`.
+    * No `gcloud` involved. Requests to services such as WorkspaceManager use an
+      access token obtained from `.terra/StoredCredential`.
+
+* In Unit & Integration tests - **test-user terra oauth**
+    * At the beginning of each test, before running terra
+      CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/a753ddee48adbf68c2cf40e807ffbbe5efc7db5d/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L27).
+    * `TestUser.login()` [writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#LL76C5-L76C43),
+      using [domain-wide delegation](https://developers.google.com/admin-sdk/directory/v1/guides/delegation)
+      to avoid browser flow.
+
+* In GCP Notebook - **Pet ADC**
+    * [Notebook startup script runs `terra auth login --mode=APP_DEFAULT_CREDENTIALS`.](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L71)
+    * So notebook `terra` commands will use ADC, which is automatically
+      configured for GCE VMs, rather than OAuth (which involves interacting with
+      a browser).
+
+Some tests use test user refresh
+tokens ([example](https://github.com/DataBiosphere/terra-cli/blob/1f6e18eb7922cbc6c1ea6e7e80048ae79a8e3892/src/test/java/harness/TestUser.java#L120)).
+These refresh tokens are stored in vault. Most places uses service account keys
+to bypass manual OAuth in tests. However, our employer prohibits the use of
+service account keys for security reasons, so we use refresh tokens instead.
+Note
+that [refresh tokens never expire](https://developers.google.com/identity/protocols/oauth2#expiration).
+
+### Tool terra commands (eg. `terra bq`)
+
+These are currently applicable only for GCP backed workspaces. Tool
+commands [always run as pet SA](https://github.com/DataBiosphere/terra-cli/search?q=getPetSACredentials),
+for two reasons:
 
 * `terra` cli should not have access to *all* of a user's cloud resources --
   just the ones they use with `terra`.
@@ -786,162 +823,68 @@ commands (`terra bq`) [always run as pet SA](https://github.com/DataBiosphere/te
   have `https://www.googleapis.com/auth/cloud-platform` scope. (SAM stores pet
   SA keys, so SAM is able to generate an access token with that scope.)
 
-Some tests use test user refresh
-tokens ([example](https://github.com/DataBiosphere/terra-cli/blob/1f6e18eb7922cbc6c1ea6e7e80048ae79a8e3892/src/test/java/harness/TestUser.java#L120))
-. These refresh tokens are stored in vault. Most places uses service account
-keys to bypass manual OAuth in tests. However, our employer prohibits the use of
-service account keys for security reasons, so we use refresh tokens instead.
-Note that
-[refresh tokens never expire](https://developers.google.com/identity/protocols/oauth2#expiration)
-.
+Auth used depends on where they run
 
-<table>
-<tr>
-<td></td>
-<td>
+* On Local Computer - **Pet user credentials or ADC, depending on tool**
+    * Most tools accept both (user credentials or ADC). Even though we don't
+      need ADC for most
+      tools, [we currently require ADC for all tools](https://github.com/DataBiosphere/terra-cli/blob/79a938e56f2d95111aeec54175b6d38d9e5deb79/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L98).
+    * Normally ADC is used with SA. When running Terra on a local computer, you
+      are using ADC with your user credentials. This is unusual. (And as
+      mentioned earlier, this is because we currently require ADC for all
+      tools.) Please ignore this
+      warning:`WARNING: Your application has authenticated using end user credentials from Google Cloud SDK. We recommend that most server applications use service accounts instead`.
+    * [Nextflow only works with ADC.](https://www.nextflow.io/docs/latest/google.html#credentials).
+      User is asked to run `gcloud auth application-default login`, which
+      writes  `.config/gcloud/application_default_credentials.json`.
+    * In Docker
+      mode, [we mount `.config/gcloud`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80).
 
-Regular command (eg `terra workspace`)
-</td>
-<td>Tool command (Docker and local process mode)</td>
-</tr>
-<tr>
-<td>Local computer</td>
-<td valign="top">
 
-**User Terra OAuth**
+* In Unit tests - **Pet**
+    * Auth is complicated because we are not using Pet SA key.
+    * *Access token*
+        * TestCommand.runCommand(): Set `IS_TEST` system property.
+        * DockerCommand: If `IS_TEST` system property is set and there's a user
+          and workspace, set `CLOUDSDK_AUTH_ACCESS_TOKEN` to pet SA access token
+          in container. (Tests run in docker mode by default, so don't need this
+          in LocalProcessCommandrunner.)
 
-`terra auth login` CLI goes through oauth flow and saves credentials
-in `.terra/StoredCredential`. No `gcloud` involved. Requests to services such as
-WorkspaceManager use an access token obtained from `.terra/StoredCredential`.
-</td>
-<td>
+    * *bq*
+        * Here's what makes `cloudsdk/component_build/wrapper_scripts/bq.py`
+          happy:
+            - Set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token
+            - Populate `.config/gcloud/legacy_credentials/default/adc.json`.
+        * In general for gcloud, you only need
+          `--access_token_file`/`CLOUDSDK_AUTH_ACCESS_TOKEN`, not `adc.json`.
+          However, [implementation of `CLOUDSDK_AUTH_ACCESS_TOKEN`](https://cloud.
+          google.com/sdk/docs/release-notes#cloud_sdk_2) did not
+          include `bq.py`, so we also need `adc.json`.
 
-**Pet user credentials or ADC, depending on tool**
+    * *gsutil*
+        * There are 3 versions of `gsutil` and the auth depends on the
+            1. Standalone `gsutil`. This is the oldest, and predates `gcloud`.
+            2. `gsutil` as part of gcloud. For Auth write
+               the `~/. config/gcloud/legacy_credentials/default/.boto`
+               that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects.
+            3. `gcloud alpha storage`. This is the newest.
+               [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line).
+               For Auth set `CLOUDSDK_AUTH_ACCESS_TOKEN`
 
-Most tools accept both (user credentials or ADC). Even though we don't need ADC
-for most
-tools, [we currently require ADC for all tools](https://github.com/DataBiosphere/terra-cli/blob/79a938e56f2d95111aeec54175b6d38d9e5deb79/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L98)
-.
+    * *docker configuration*
+        * [Mount `.config/gcloud`.](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80)
 
-Normally ADC is used with SA. When running Terra on a local computer, you are
-using ADC with your user credentials. This is unusual. (And as mentioned
-earlier, this is because we currently require ADC for all tools.) Please ignore
-this warning:
-`WARNING: Your application has authenticated using end user credentials from Google Cloud SDK. We recommend that most server applications use service accounts instead`
-.
 
-[Nextflow only works with ADC.](https://www.nextflow.io/docs/latest/google.html#credentials)
-User is asked to run `gcloud auth application-default login`, which
-writes  `.config/gcloud/application_default_credentials.json`.
+* In Integration tests - **Pet ADC**
+    * Nextflow: Populate `.config/gcloud/application_default_credentials. json`.
 
-In Docker
-mode, [we mount `.config/gcloud`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80)
-.
+* In GCP Notebook - **Pet ADC**
+    * ADC is automatically configured for GCE VMs.
 
-</td>
-</tr>
-<tr>
-<td>GCP notebook</td>
-<td>
+### Resource terra commands (eg. `terra notebook`)
 
-**Pet ADC**
-
-[Notebook startup script runs `terra auth login --mode=APP_DEFAULT_CREDENTIALS`.](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/service/src/main/java/bio/terra/workspace/service/resource/controlled/cloud/gcp/ainotebook/post-startup.sh#L71)
-So notebook `terra` commands will use ADC, which is automatically configured for
-GCE VMs, rather than OAuth (which involves interacting with a browser).
-</td>
-<td valign="top">
-
-**Pet ADC**
-
-ADC is automatically configured for GCE VMs.
-</td>
-</tr>
-<tr>
-<td>Unit test</td>
-<td valign="top">
-
-**Test user Terra OAuth**
-
-At the beginning of each test, before running terra
-CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30)
-.
-
-`TestUser.login()` [writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76)
-,
-using [domain-wide delegation](https://developers.google.com/admin-sdk/directory/v1/guides/delegation)
-to avoid browser flow.
-</td>
-<td>
-
-**Pet**
-
-Auth is complicated because we are not using Pet SA key.
-
-*Access token*
-
-TestCommand.runCommand(): Set `IS_TEST` system property.
-
-DockerCommand: If `IS_TEST` system property is set and there's a user and
-workspace, set `CLOUDSDK_AUTH_ACCESS_TOKEN` to pet SA access token in container.
-(Tests run in docker mode by default, so don't need this in
-LocalProcessCommandrunner.)
-
-*bq*
-
-Here's what makes `cloudsdk/component_build/wrapper_scripts/bq.py` happy:
-
-- Set `CLOUDSDK_AUTH_ACCESS_TOKEN` to access token
-- Populate `.config/gcloud/legacy_credentials/default/adc.json`.
-
-In general for gcloud, you only need `--access_token_file`
-/`CLOUDSDK_AUTH_ACCESS_TOKEN`, not `adc.json`.
-However, [implementation of `CLOUDSDK_AUTH_ACCESS_TOKEN`](https://cloud.google.com/sdk/docs/release-notes#cloud_sdk_2)
-did not include `bq.py`, so we also need `adc.json`.
-
-*gsutil*
-
-There are 3 versions of `gsutil`:
-
-1. Standalone `gsutil`. This is the oldest, and predates `gcloud`.
-2. `gsutil` as part of gcloud
-3. `gcloud alpha storage`. This is the
-   newest. [Faster than 2.](https://stackoverflow.com/collectives/google-cloud/articles/68475140/faster-cloud-storage-transfers-using-the-gcloud-command-line)
-
-For 2, we write the `~/.config/gcloud/legacy_credentials/default/.boto`
-that  `google-cloud-sdk/bin/bootstrapping/gsutil.py` expects.
-
-For 3, we set `CLOUDSDK_AUTH_ACCESS_TOKEN`.
-
-*docker configuration*
-
-[Mount `.config/gcloud`.](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/main/java/bio/terra/cli/app/DockerCommandRunner.java#L80)
-</td>
-</tr>
-<tr>
-<td>Integration test</td>
-<td>
-
-**Test user Terra OAuth**
-
-At the beginning of each test, before running terra
-CLI, [test user is logged in](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/baseclasses/SingleWorkspaceUnit.java#L30)
-.
-
-[`TestUser.login()` writes `.terra/StoredCredential`](https://github.com/DataBiosphere/terra-cli/blob/8adf7cdaaa1f74f9407c10cccc8f7c0c4623eb6b/src/test/java/harness/TestUser.java#L76)
-,
-using [domain-wide delegation](https://developers.google.com/admin-sdk/directory/v1/guides/delegation)
-to avoid browser flow.
-
-</td>
-<td valign="top">
-
-**Pet ADC**
-
-*Nextflow*
-
-Populate `.config/gcloud/application_default_credentials.json`.
-
-</td>
-</tr>
-</table>
+* GCP resources - Pet SA
+* AWS resources - Temporary credentials
+    * WSM obtains temporary credentials on behalf of the user to provide
+      Attribute based access control (ABAC) to AWS resources. These credentials
+      are obtained by CLI to perform resource specific operations
