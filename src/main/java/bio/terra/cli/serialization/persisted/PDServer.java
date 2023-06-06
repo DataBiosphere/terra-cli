@@ -29,6 +29,8 @@ public class PDServer {
   public final String userManagerUri;
   public final boolean supportsIdToken;
   public final Set<CloudPlatform> supportedCloudPlatforms;
+  public final boolean auth0Enabled;
+  public final String auth0Domain;
 
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
@@ -45,6 +47,8 @@ public class PDServer {
     this.userManagerUri = internalObj.getUserManagerUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
     this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
+    this.auth0Enabled = internalObj.getAuth0Enabled();
+    this.auth0Domain = internalObj.getAuth0Domain();
   }
 
   private PDServer(PDServer.Builder builder) {
@@ -64,6 +68,8 @@ public class PDServer {
         builder.supportedCloudPlatforms != null
             ? builder.supportedCloudPlatforms
             : Collections.EMPTY_SET;
+    this.auth0Enabled = builder.auth0Enabled;
+    this.auth0Domain = builder.auth0Domain;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -81,6 +87,10 @@ public class PDServer {
     private String userManagerUri;
     private boolean supportsIdToken;
     private Set<CloudPlatform> supportedCloudPlatforms;
+
+    private boolean auth0Enabled;
+
+    private String auth0Domain;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -147,6 +157,16 @@ public class PDServer {
 
     public Builder supportedCloudPlatforms(Set<CloudPlatform> supportedCloudPlatforms) {
       this.supportedCloudPlatforms = supportedCloudPlatforms;
+      return this;
+    }
+
+    public Builder auth0Enabled(boolean auth0Enabled) {
+      this.auth0Enabled = auth0Enabled;
+      return this;
+    }
+
+    public Builder auth0Domain(String auth0Domain) {
+      this.auth0Domain = auth0Domain;
       return this;
     }
 

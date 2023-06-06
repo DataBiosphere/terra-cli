@@ -32,6 +32,8 @@ public final class TestConfig {
   // The project ID of the Janitor PubSub topic
   @JsonProperty private String janitorPubSubProjectId;
 
+  @JsonProperty private String secretFileName;
+
   private TestConfig() {}
 
   // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
@@ -123,5 +125,9 @@ public final class TestConfig {
 
   public static boolean getQuietConsole() {
     return quietConsole;
+  }
+
+  public String getSecretFileName() {
+    return secretFileName;
   }
 }
