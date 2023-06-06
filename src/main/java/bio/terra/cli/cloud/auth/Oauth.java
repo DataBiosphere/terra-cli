@@ -129,9 +129,10 @@ public final class Oauth {
 
     // exchange an authorization code for a refresh token
     Credential credential =
-        (launchBrowserAutomatically?
-            getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(flow, loginLandingPage, secret) :
-            getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(flow, secret))
+        (launchBrowserAutomatically
+                ? getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(
+                    flow, loginLandingPage, secret)
+                : getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(flow, secret))
             .authorize(CREDENTIAL_STORE_KEY);
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
@@ -156,9 +157,9 @@ public final class Oauth {
     return new TerraCredentials(credentials, helper.getStoredIdToken());
   }
 
-  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(
-      AuthorizationCodeFlow flow,
-      GoogleClientSecrets secrets) {
+  private static AuthorizationCodeInstalledApp
+      getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(
+          AuthorizationCodeFlow flow, GoogleClientSecrets secrets) {
     if (!Context.getServer().getAuth0Enabled()) {
       return new AuthorizationCodeInstalledApp(
           flow,
@@ -172,10 +173,9 @@ public final class Oauth {
         secrets);
   }
 
-  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(
-      AuthorizationCodeFlow flow,
-      String loginLandingPage,
-      GoogleClientSecrets secrets) {
+  private static AuthorizationCodeInstalledApp
+      getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(
+          AuthorizationCodeFlow flow, String loginLandingPage, GoogleClientSecrets secrets) {
     if (!Context.getServer().getAuth0Enabled()) {
       return new AuthorizationCodeInstalledApp(
           flow,
