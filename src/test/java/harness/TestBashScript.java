@@ -73,7 +73,7 @@ public class TestBashScript {
 
     // copy client credential files
     String clientCredentialsFileName =
-        String.format("rendered/%s_secret.json", TestConfig.getTestConfigName());
+        String.format("rendered/%s", TestConfig.get().getSecretFileName());
     File sourceFile = new File(clientCredentialsFileName);
     File destinationFile =
         new File(System.getProperty("TERRA_WORKING_DIR") + "/", clientCredentialsFileName);
