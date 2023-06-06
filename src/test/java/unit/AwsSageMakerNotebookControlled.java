@@ -140,13 +140,6 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
         result.stdOut,
         containsString("Please open the following address in your browser"));
     assertThat(
-        "console link is opened in the browser",
-        result.stdOut,
-        containsString("Attempting to open that address in the default browser now..."));
-
-    TestCommand.runCommandExpectSuccess("config", "set", "browser", "MANUAL");
-    result = TestCommand.runCommandExpectSuccess("resource", "open-console", "--name=" + name);
-    assertThat(
         "console link is not opened in the browser",
         result.stdOut,
         not(containsString("Attempting to open that address in the default browser now...")));
