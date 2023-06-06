@@ -63,11 +63,11 @@ public class GcpNotebook extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--instance-id",
       description =
-          "The unique name to give to the notebook instance. Cannot be changed later. "
+          "The unique name to give to the cloud environment. Cannot be changed later. "
               + "The instance name must be 1 to 63 characters long and contain only lowercase "
               + "letters, numeric characters, and dashes. The first character must be a lowercase "
-              + "letter and the last character cannot be a dash. If not specified, the provided"
-              + "resource name will be used (with underscores removed and capital letters swapped for lowercase).")
+              + "letter and the last character cannot be a dash. If not specified, a value will"
+              + " be auto-generated for you.")
   private String instanceId;
 
   @CommandLine.Option(
