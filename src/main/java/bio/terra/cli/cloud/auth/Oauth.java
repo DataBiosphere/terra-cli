@@ -129,7 +129,9 @@ public final class Oauth {
 
     // exchange an authorization code for a refresh token
     Credential credential =
-        getAuthorizationCodeInstalledApp(flow, launchBrowserAutomatically, loginLandingPage, secret)
+        (launchBrowserAutomatically?
+            getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(flow, loginLandingPage, secret) :
+            getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(flow, secret))
             .authorize(CREDENTIAL_STORE_KEY);
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
@@ -154,34 +156,43 @@ public final class Oauth {
     return new TerraCredentials(credentials, helper.getStoredIdToken());
   }
 
-  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledApp(
+  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(
       AuthorizationCodeFlow flow,
-      boolean launchBrowserAutomatically,
+      GoogleClientSecrets secrets) {
+    if (!Context.getServer().getAuth0Enabled()) {
+      return new AuthorizationCodeInstalledApp(
+          flow,
+          new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+          new NoLaunchBrowser());
+    }
+    return new Auth0AuthorizationCodeInstalledApp(
+        flow,
+        new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
+        new NoLaunchBrowser(),
+        secrets);
+  }
+
+  private static AuthorizationCodeInstalledApp getAuthorizationCodeInstalledAppWithAutomaticLaunchBrowser(
+      AuthorizationCodeFlow flow,
       String loginLandingPage,
       GoogleClientSecrets secrets) {
     if (!Context.getServer().getAuth0Enabled()) {
       return new AuthorizationCodeInstalledApp(
           flow,
-          launchBrowserAutomatically
-              ? new LocalServerReceiver.Builder()
-                  .setLandingPages(loginLandingPage, loginLandingPage)
-                  .build()
-              : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-          new NoLaunchBrowser());
+          new LocalServerReceiver.Builder()
+              .setLandingPages(loginLandingPage, loginLandingPage)
+              .build());
     }
     return new Auth0AuthorizationCodeInstalledApp(
         flow,
-        launchBrowserAutomatically
-            ? new LocalServerReceiver.Builder()
-                .setLandingPages(loginLandingPage, loginLandingPage)
-                .setHost("localhost")
-                // specify the port because auth0 needs to specify a callback url. If not
-                // specified, a random number will be picked and will be unknown to auth0 thus
-                // rejected.
-                .setPort(3000)
-                .build()
-            : new StdinReceiver(readClientSecrets().getInstalled().getRedirectUris().get(0)),
-        new NoLaunchBrowser(),
+        new LocalServerReceiver.Builder()
+            .setLandingPages(loginLandingPage, loginLandingPage)
+            .setHost("localhost")
+            // specify the port because auth0 needs to specify a callback url. If not
+            // specified, a random number will be picked and will be unknown to auth0 thus
+            // rejected.
+            .setPort(3000)
+            .build(),
         secrets);
   }
 
