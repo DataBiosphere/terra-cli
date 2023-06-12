@@ -183,10 +183,6 @@ public class Workspace {
     return properties;
   }
 
-  private static Map<String, String> propertiesToStringMap(Properties properties) {
-    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
-  }
-
   /**
    * Update the mutable properties of the current workspace.
    *

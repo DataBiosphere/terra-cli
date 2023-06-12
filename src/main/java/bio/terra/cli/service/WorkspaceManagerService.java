@@ -22,10 +22,7 @@ import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
-import bio.terra.workspace.model.CreateCloudContextRequest;
-import bio.terra.workspace.model.CreateCloudContextResult;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
-import bio.terra.workspace.model.CreateWorkspaceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceV2Request;
 import bio.terra.workspace.model.CreateWorkspaceV2Result;
 import bio.terra.workspace.model.DeleteWorkspaceV2Request;
@@ -147,109 +144,6 @@ public class WorkspaceManagerService {
         () ->
             new WorkspaceApi(apiClient).listWorkspaces(offset, limit, /*minimumHighestRole=*/ null),
         "Error fetching list of workspaces");
-  }
-
-  /**
-   * Call the Workspace Manager POST "/api/workspaces/v1" endpoint to create a new workspace, then
-   * call the POST "/api/workspaces/v1/{workspaceId}/cloudcontexts" endpoint to create a new backing
-   * Google context. Poll the "/api/workspaces/v1/{workspaceId}/cloudcontexts/results/{jobId}"
-   * endpoint to wait for the job to finish.
-   *
-   * @param userFacingId required user-facing ID
-   * @param name optional display name
-   * @param description optional description
-   * @param properties optional properties
-   * @param spendProfile spend profile
-   * @return the Workspace Manager workspace description object
-   * @throws SystemException if the job to create the workspace cloud context fails
-   * @throws UserActionableException if the CLI times out waiting for the job to complete
-   */
-  public WorkspaceDescription createWorkspace(
-      String userFacingId,
-      CloudPlatform cloudPlatform,
-      @Nullable String name,
-      @Nullable String description,
-      @Nullable Map<String, String> properties,
-      String spendProfile) {
-    return handleClientExceptions(
-        () -> {
-          // create the Terra workspace object
-          UUID workspaceId = UUID.randomUUID();
-          CreateWorkspaceRequestBody workspaceRequestBody = new CreateWorkspaceRequestBody();
-          workspaceRequestBody.setId(workspaceId);
-          workspaceRequestBody.setUserFacingId(userFacingId);
-          workspaceRequestBody.setStage(WorkspaceStageModel.MC_WORKSPACE);
-          workspaceRequestBody.setSpendProfile(spendProfile);
-          workspaceRequestBody.setDisplayName(name);
-          workspaceRequestBody.setDescription(description);
-          workspaceRequestBody.setProperties(Workspace.stringMapToProperties(properties));
-
-          // make the create workspace request
-          WorkspaceApi workspaceApi = new WorkspaceApi(apiClient);
-          try {
-            HttpUtils.callWithRetries(
-                () -> workspaceApi.createWorkspace(workspaceRequestBody),
-                WorkspaceManagerService::isRetryable);
-          } catch (ApiException e) {
-            // TODO(PF-2460): This check is currently on the createWorkspace call, but will likely
-            //   be moved to the createContext call in the future.
-
-            // Surface a more user-friendly error if the user does not have access to the
-            // appropriate spend profile.
-            if (e.getCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN
-                && e.getMessage().contains("spend profile")) {
-              throw new UserActionableException(
-                  "Accessing the spend profile failed. Ask an administrator to grant you access.");
-            } else {
-              throw e;
-            }
-          }
-
-          // create the cloud context that backs the Terra workspace object
-          UUID jobId = UUID.randomUUID();
-          CreateCloudContextRequest cloudContextRequest = new CreateCloudContextRequest();
-          cloudContextRequest.setCloudPlatform(cloudPlatform);
-          cloudContextRequest.setJobControl(new JobControl().id(jobId.toString()));
-
-          // make the initial create context request
-          HttpUtils.callWithRetries(
-              () -> workspaceApi.createCloudContext(cloudContextRequest, workspaceId),
-              WorkspaceManagerService::isRetryable);
-
-          // poll the result endpoint until the job is no longer RUNNING
-          CreateCloudContextResult createContextResult =
-              HttpUtils.pollWithRetries(
-                  () -> workspaceApi.getCreateCloudContextResult(workspaceId, jobId.toString()),
-                  (result) -> isDone(result.getJobReport()),
-                  WorkspaceManagerService::isRetryable,
-                  // Context creation will wait for cloud IAM permissions to sync, so poll for up to
-                  // 30 minutes.
-                  /*maxCalls=*/ 30,
-                  /*sleepDuration=*/ Duration.ofSeconds(60));
-          logger.debug("create workspace context result: {}", createContextResult);
-          StatusEnum status = createContextResult.getJobReport().getStatus();
-          if (StatusEnum.FAILED == status) {
-            // need to delete the empty workspace before continuing
-            boolean workspaceSuccessfullyDeleted = false;
-            try {
-              deleteWorkspace(workspaceId);
-              workspaceSuccessfullyDeleted = true;
-            } catch (RuntimeException ex) {
-              logger.error(
-                  "Failed to delete workspace {} when cleaning up failed creation of cloud context. ",
-                  workspaceId,
-                  ex);
-            }
-          }
-          throwIfJobNotCompleted(
-              createContextResult.getJobReport(), createContextResult.getErrorReport());
-
-          // call the get workspace endpoint to get the full description object
-          return HttpUtils.callWithRetries(
-              () -> workspaceApi.getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
-              WorkspaceManagerService::isRetryable);
-        },
-        "Error creating a new workspace");
   }
 
   /**
@@ -378,17 +272,6 @@ public class WorkspaceManagerService {
         workspaceWithContext.getUserFacingId(),
         gcpContext,
         awsContext);
-  }
-
-  /**
-   * Call the Workspace Manager DELETE "/api/workspaces/v1/{id}" endpoint to delete an existing
-   * workspace.
-   *
-   * @param workspaceId the id of the workspace to delete
-   */
-  public void deleteWorkspace(UUID workspaceId) {
-    callWithRetries(
-        () -> new WorkspaceApi(apiClient).deleteWorkspace(workspaceId), "Error deleting workspace");
   }
 
   /**
