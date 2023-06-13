@@ -135,10 +135,10 @@ public final class Oauth {
                 : getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(flow, secret))
             .authorize(CREDENTIAL_STORE_KEY);
 
-    if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty() || Context.getServer()
-        .getAuth0Enabled()) {
-      logger.info(
-          "Refresh token is not set. This is expected when testing or auth0 is enabled.");
+    if (credential.getRefreshToken() == null
+        || credential.getRefreshToken().isEmpty()
+        || Context.getServer().getAuth0Enabled()) {
+      logger.info("Refresh token is not set. This is expected when testing or auth0 is enabled.");
     } else {
       credential.refreshToken();
     }

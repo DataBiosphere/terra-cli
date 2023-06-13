@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
 public class User {
   // these are the same scopes requested by Terra service swagger pages
-  // Auth0 requires offline_access scope to get a refresh token. Read more in https://auth0.com/docs/secure/tokens/refresh-tokens/get-refresh-tokens.
+  // Auth0 requires offline_access scope to get a refresh token. Read more in
+  // https://auth0.com/docs/secure/tokens/refresh-tokens/get-refresh-tokens.
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 
