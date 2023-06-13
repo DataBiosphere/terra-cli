@@ -306,7 +306,7 @@ public class WorkspaceManagerService {
                   },
                   (result) -> isDone(result.getJobReport()),
                   WorkspaceManagerService::isRetryable,
-                  // Resource deletion may take 15+ minutes, so poll for uu to 30 minutes.
+                  // Resource deletion may take 15+ minutes, so poll for up to 30 minutes.
                   /*maxCalls=*/ 30,
                   /*sleepDuration=*/ Duration.ofSeconds(60));
           logger.debug("delete workspace with cloud context result: {}", jobResult);
