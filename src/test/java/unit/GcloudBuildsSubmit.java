@@ -62,16 +62,5 @@ public class GcloudBuildsSubmit extends SingleWorkspaceUnitGcp {
         // gcloud builds submit requires --tag flag and follows the format in
         // https://cloud.google.com/sdk/gcloud/reference/builds/submit#--tag.
         "--tag=us-central1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/image_`date +'%Y%m%d'`");
-
-    // `terra resource delete --name=$name`
-    // TODO:remove the timeout after PF-2205 done.
-    TestCommand.Result cmd =
-        TestCommand.runCommand("resource", "delete", "--name=" + bucketResourceName, "--quiet");
-
-    boolean cliTimedOut =
-        cmd.exitCode == 1
-            && cmd.stdErr.contains(
-                "CLI timed out waiting for the job to complete. It's still running on the server.");
-    assertTrue(cmd.exitCode == 0 || cliTimedOut, "delete either succeeds or times out");
   }
 }
