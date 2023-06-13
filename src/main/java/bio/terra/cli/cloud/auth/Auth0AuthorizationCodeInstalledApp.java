@@ -63,6 +63,7 @@ public class Auth0AuthorizationCodeInstalledApp extends AuthorizationCodeInstall
       TokenRequest tokenRequest = authAPI.exchangeCode(code, redirectUri);
       TokenHolder result = tokenRequest.execute().getBody();
 
+      System.out.println(result.getRefreshToken());
       var tokenResponse =
           new TokenResponse()
               .setAccessToken(result.getAccessToken())

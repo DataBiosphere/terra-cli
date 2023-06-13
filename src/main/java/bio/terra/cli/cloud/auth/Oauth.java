@@ -135,9 +135,10 @@ public final class Oauth {
                 : getAuthorizationCodeInstalledAppWithNoAutomaticLaunchBrowser(flow, secret))
             .authorize(CREDENTIAL_STORE_KEY);
 
-    if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
+    if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty() || Context.getServer()
+        .getAuth0Enabled()) {
       logger.info(
-          "Refresh token is not set. This is expected when testing, not during normal operation.");
+          "Refresh token is not set. This is expected when testing or auth0 is enabled.");
     } else {
       credential.refreshToken();
     }
@@ -232,7 +233,6 @@ public final class Oauth {
     if (storedCredential == null) {
       return null; // there is no credential, return here
     } else {
-
       // now turn the stored credential into a regular OAuth2 Credentials representing a user's
       // identity and consent
       credentials =
@@ -279,6 +279,9 @@ public final class Oauth {
    * @return access token
    */
   public static AccessToken getAccessToken(TerraCredentials credential) {
+    if (Context.getServer().getAuth0Enabled()) {
+      return credential.getGoogleCredentials().getAccessToken();
+    }
     try {
       credential.getGoogleCredentials().refreshIfExpired();
     } catch (IOException ioEx) {
@@ -295,8 +298,10 @@ public final class Oauth {
    * @return id token
    */
   public static IdToken getIdToken(TerraCredentials credentials) {
+    System.out.println("getId token");
     IdToken idToken = credentials.getIdToken();
     Date now = new Date();
+    System.out.println(idToken.getExpirationTime());
     if (idToken.getExpirationTime().before(now)) {
       // We shouldn't get here based on prior checks, specifically a preceding call to
       // User.requiresReauthentication(), which will trigger a full credential refresh if the ID
@@ -494,7 +499,7 @@ public final class Oauth {
         String url =
             auth.authorizeUrl(
                     /*redirectUrl=*/ "https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
-                .withResponseType("code token id_token")
+                .withResponseType("code")
                 .build();
         authorizationCodeFlow =
             new AuthorizationCodeFlow.Builder(
