@@ -298,10 +298,8 @@ public final class Oauth {
    * @return id token
    */
   public static IdToken getIdToken(TerraCredentials credentials) {
-    System.out.println("getId token");
     IdToken idToken = credentials.getIdToken();
     Date now = new Date();
-    System.out.println(idToken.getExpirationTime());
     if (idToken.getExpirationTime().before(now)) {
       // We shouldn't get here based on prior checks, specifically a preceding call to
       // User.requiresReauthentication(), which will trigger a full credential refresh if the ID
