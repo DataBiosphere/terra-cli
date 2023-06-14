@@ -10,5 +10,6 @@
   "externalCredsUri": "https://terra-ecm.api.verily.com",
   "userManagerUri": "https://terra-user.api.verily.com",
   "supportsIdToken": true,
+  "auth0Enabled": false,
   "supportedCloudPlatforms": ["GCP"]
 }

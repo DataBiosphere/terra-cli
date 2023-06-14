@@ -11,6 +11,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
 import bio.terra.cloudres.google.notebooks.InstanceName;
 import bio.terra.workspace.model.CloudPlatform;
+import java.util.Optional;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra notebook start" command. */
@@ -34,8 +35,13 @@ public class Start extends BaseCommand {
 
     } else if (workspace.getCloudPlatform() == CloudPlatform.AWS) {
       AwsSageMakerNotebook awsNotebook = instanceOption.toAwsNotebookResource();
-      WorkspaceManagerServiceAws.fromContext()
-          .startSageMakerNotebook(workspace.getUuid(), awsNotebook);
+      Optional<Boolean> isSuccessful =
+          WorkspaceManagerServiceAws.fromContext()
+              .startSageMakerNotebook(workspace.getUuid(), awsNotebook);
+      if (isSuccessful.orElse(false)) {
+        OUT.println("Notebook instance started");
+        return;
+      }
 
     } else {
       throw new UserActionableException(

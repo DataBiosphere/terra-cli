@@ -1,7 +1,7 @@
 package bio.terra.cli.app.utils;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.cloud.gcp.GoogleOauth;
+import bio.terra.cli.cloud.auth.Oauth;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.TerraCredentials;
@@ -114,7 +114,7 @@ public class AppDefaultCredentialUtils {
     IdTokenCredentials idTokenCredentials =
         IdTokenCredentials.newBuilder()
             .setIdTokenProvider((IdTokenProvider) applicationDefaultCredentials)
-            .setTargetAudience(GoogleOauth.getClientSecrets().getDetails().getClientId())
+            .setTargetAudience(Oauth.getClientSecrets().getDetails().getClientId())
             .setOptions(List.of(IdTokenProvider.Option.FORMAT_FULL))
             .build();
 

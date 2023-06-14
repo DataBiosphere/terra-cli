@@ -1,6 +1,8 @@
 package unit;
 
 import static bio.terra.cli.businessobject.Resource.Type.AWS_SAGEMAKER_NOTEBOOK;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +18,6 @@ import harness.utils.ResourceUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -126,21 +127,27 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertNotNull(
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
-    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500 --format=json`
-    JSONObject consoleUrl =
-        TestCommand.runAndGetJsonObjectExpectSuccess(
+    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
+    TestCommand.Result result =
+        TestCommand.runCommandExpectSuccess(
             "resource",
             "open-console",
             "--name=" + name,
             "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
-            "--duration=" + 900);
-    String url = consoleUrl.getString(name);
-    assertTrue(StringUtils.isNotBlank(url), "open console returned console url");
+            "--duration=" + 1500);
+    assertThat(
+        "console link is displayed",
+        result.stdOut,
+        containsString("Please open the following address in your browser"));
+    assertThat(
+        "console link is not opened in the browser",
+        result.stdOut,
+        not(containsString("Attempting to open that address in the default browser now...")));
 
     // `terra notebook launch --name=$name --format=json` // lab view
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess("notebook", "launch", "--name=" + name);
-    url = proxyUrl.getString(name);
+    String url = proxyUrl.getString(name);
     assertNotNull(url, "launch notebook returned proxy url for lab view");
     assertTrue(
         url.endsWith(AwsSageMakerNotebook.ProxyView.JUPYTERLAB.toParam()), "proxy url view is lab");
@@ -175,13 +182,28 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
         CoreMatchers.containsString("Expected notebook instance status is"));
 
     // `terra notebook stop --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);
+    assertThat(
+        "notebook successfully stopped",
+        result.stdOut,
+        containsString("Notebook instance stopped"));
 
     // `terra notebook start --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    assertThat(
+        "notebook start requested",
+        result.stdOut,
+        containsString(
+            "Notebook instance starting. It may take a few minutes before it is available"));
 
     ResourceUtils.pollDescribeForResourceField(
         name, "instanceStatus", NotebookInstanceStatus.IN_SERVICE.toString());
+
+    result = TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
+    assertThat(
+        "notebook start request on a inService notebook returned immediately",
+        result.stdOut,
+        containsString("Notebook instance started"));
 
     // `terra notebook stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "stop", "--name=" + name);

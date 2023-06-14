@@ -35,20 +35,19 @@ public class LocalProcessCommandRunner extends CommandRunner {
     List<String> bashCommands = new ArrayList<>();
     boolean isGcpWorkspace =
         CloudPlatform.GCP.equals(Context.requireWorkspace().getCloudPlatform());
+
     if (isGcpWorkspace) {
-      bashCommands.add("echo 'Setting the gcloud project to the workspace project'");
-      bashCommands.add("TERRA_PREV_GCLOUD_PROJECT=$(gcloud config get-value project)");
+      // For the wrapped command, set the CLOUDSDK_CORE_PROJECT environment
+      // variable, which is respected by gcloud, gsutil, and bq.
+      // See https://cloud.google.com/sdk/docs/configurations
       bashCommands.add(
-          "gcloud config set project " + Context.requireWorkspace().getRequiredGoogleProjectId());
+          String.format(
+              "export CLOUDSDK_CORE_PROJECT='%s'",
+              Context.requireWorkspace().getRequiredGoogleProjectId()));
     }
     bashCommands.add(buildFullCommand(command));
-    if (isGcpWorkspace) {
-      bashCommands.add(
-          "echo 'Restoring the original gcloud project configuration:' $TERRA_PREV_GCLOUD_PROJECT");
-      bashCommands.add(
-          "if [[ -z \"$TERRA_PREV_GCLOUD_PROJECT\" ]]; then gcloud config unset project; else gcloud config set project $TERRA_PREV_GCLOUD_PROJECT; fi");
-    }
-    return String.join("; ", bashCommands);
+
+    return String.join("\n", bashCommands);
   }
 
   /**
