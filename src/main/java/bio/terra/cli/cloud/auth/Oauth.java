@@ -136,8 +136,7 @@ public final class Oauth {
             .authorize(CREDENTIAL_STORE_KEY);
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
-      logger.info(
-          "Refresh token is not set. This is expected when testing, not during normal operation.");
+      logger.info("Refresh token is not set. This is expected when testing or auth0 is enabled.");
     } else {
       credential.refreshToken();
     }
@@ -232,7 +231,6 @@ public final class Oauth {
     if (storedCredential == null) {
       return null; // there is no credential, return here
     } else {
-
       // now turn the stored credential into a regular OAuth2 Credentials representing a user's
       // identity and consent
       credentials =
@@ -279,6 +277,9 @@ public final class Oauth {
    * @return access token
    */
   public static AccessToken getAccessToken(TerraCredentials credential) {
+    if (Context.getServer().getAuth0Enabled()) {
+      return credential.getGoogleCredentials().getAccessToken();
+    }
     try {
       credential.getGoogleCredentials().refreshIfExpired();
     } catch (IOException ioEx) {
@@ -494,7 +495,7 @@ public final class Oauth {
         String url =
             auth.authorizeUrl(
                     /*redirectUrl=*/ "https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
-                .withResponseType("code token id_token")
+                .withResponseType("code")
                 .build();
         authorizationCodeFlow =
             new AuthorizationCodeFlow.Builder(
