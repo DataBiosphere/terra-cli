@@ -1,7 +1,5 @@
 package unit;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
