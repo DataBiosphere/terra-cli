@@ -339,7 +339,6 @@ public class User {
    * configured Server instance.
    */
   public AccessToken getTerraToken() {
-    // google oauth has an opaque access token so we are using id token for google oauth2 login.
     return Context.getServer().getSupportsIdToken() ? getUserIdToken() : getUserAccessToken();
   }
 
