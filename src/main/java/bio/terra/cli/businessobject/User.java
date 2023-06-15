@@ -309,16 +309,7 @@ public class User {
     if (terraCredentials == null) {
       return true;
     }
-    // check if the token is expired
-    Date cutOffDate = new Date();
-    cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
-
-    if (Context.getServer().getAuth0Enabled()) {
-      Date accessTokenExpiration = getTerraToken().getExpirationTime();
-      return accessTokenExpiration.before(cutOffDate);
-    }
     // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired
-
     Date accessTokenExpiration = getUserAccessToken().getExpirationTime();
     logger.debug("Access token expiration date: {}", accessTokenExpiration);
     Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
@@ -326,6 +317,9 @@ public class User {
     Date earliestExpiration =
         accessTokenExpiration.before(idTokenExipration) ? accessTokenExpiration : idTokenExipration;
 
+    // check if the token is expired
+    Date cutOffDate = new Date();
+    cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
     // If either token expires before the cutoff, return true to trigger a re-authentication.
     return (earliestExpiration.before(cutOffDate));
   }
@@ -346,11 +340,6 @@ public class User {
    */
   public AccessToken getTerraToken() {
     // google oauth has an opaque access token so we are using id token for google oauth2 login.
-    // But for auth0, access token is a jwt token and it is discouraged to use id token for calling
-    // API. To be consistent with the UI, we are using access token when auth0 is enabled.
-    if (Context.getServer().getAuth0Enabled()) {
-      return getUserAccessToken();
-    }
     return Context.getServer().getSupportsIdToken() ? getUserIdToken() : getUserAccessToken();
   }
 
