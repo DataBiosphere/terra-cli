@@ -309,9 +309,7 @@ public class User {
     if (terraCredentials == null) {
       return true;
     }
-
     // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired
-
     Date accessTokenExpiration = getUserAccessToken().getExpirationTime();
     logger.debug("Access token expiration date: {}", accessTokenExpiration);
     Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
@@ -322,7 +320,6 @@ public class User {
     // check if the token is expired
     Date cutOffDate = new Date();
     cutOffDate.setTime(cutOffDate.getTime() + CREDENTIAL_EXPIRATION_OFFSET_MS);
-
     // If either token expires before the cutoff, return true to trigger a re-authentication.
     return (earliestExpiration.before(cutOffDate));
   }
