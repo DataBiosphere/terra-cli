@@ -123,7 +123,7 @@ public class GcpNotebook extends WsmBaseCommand {
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS)
-            .cloningInstructions(CloningInstructionsEnum.RESOURCE);
+            .cloningInstructions(CloningInstructionsEnum.NOTHING);
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
