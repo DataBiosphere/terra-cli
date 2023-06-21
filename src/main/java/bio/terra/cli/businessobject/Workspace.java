@@ -100,7 +100,7 @@ public class Workspace {
     // call WSM to create the workspace object and backing Google context
     WorkspaceDescription createdWorkspace =
         WorkspaceManagerService.fromContext()
-            .createWorkspace(
+            .createWorkspaceV2(
                 userFacingId, cloudPlatform, name, description, properties, spendProfile);
     logger.info("Created workspace: {}", createdWorkspace);
 
@@ -183,10 +183,6 @@ public class Workspace {
     return properties;
   }
 
-  private static Map<String, String> propertiesToStringMap(Properties properties) {
-    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
-  }
-
   /**
    * Update the mutable properties of the current workspace.
    *
@@ -234,7 +230,7 @@ public class Workspace {
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object
-    WorkspaceManagerService.fromContext().deleteWorkspace(uuid);
+    WorkspaceManagerService.fromContext().deleteWorkspaceV2(uuid);
     logger.info("Deleted workspace: {}", this);
 
     // delete the pet SA email for the user
