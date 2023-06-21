@@ -1,8 +1,8 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.command.shared.WsmBaseCommand;
-import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
