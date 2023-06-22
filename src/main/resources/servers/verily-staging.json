@@ -1,6 +1,6 @@
 {
   "name": "verily-staging",
-  "clientCredentialsFile": "verily_secret.json",
+  "clientCredentialsFile": "verily_auth0_dev_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily staging environment",
   "samUri": "https://terra-staging-sam.api.verily.com",
@@ -10,6 +10,7 @@
   "externalCredsUri": "https://terra-staging-ecm.api.verily.com",
   "userManagerUri": "https://terra-staging-user.api.verily.com",
   "supportsIdToken": true,
-  "auth0Enabled": false,
+  "auth0Enabled": true,
+  "auth0Domain": "verily-terra-dev.us.auth0.com",
   "supportedCloudPlatforms": ["GCP"]
 }

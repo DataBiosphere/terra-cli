@@ -1,6 +1,6 @@
 {
   "name": "verily-preprod",
-  "clientCredentialsFile": "verily_secret.json",
+  "clientCredentialsFile": "verily_auth0_secret.json",
   "cloudBuildEnabled": true,
   "description": "Verily pre-prod environment",
   "samUri": "https://terra-preprod-sam.api.verily.com",
@@ -10,6 +10,7 @@
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
   "userManagerUri": "https://terra-preprod-user.api.verily.com",
   "supportsIdToken": true,
-  "auth0Enabled": false,
+  "auth0Enabled": true,
+  "auth0Domain": "verily-terra-prod.us.auth0.com",
   "supportedCloudPlatforms": ["GCP", "AWS"]
 }
