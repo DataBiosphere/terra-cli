@@ -12,6 +12,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.ResourceUtils;
@@ -28,7 +29,7 @@ import software.amazon.awssdk.services.sagemaker.model.NotebookInstanceStatus;
 
 /** Tests for the `terra resource` commands that handle controlled AWS SageMaker Notebooks. */
 @Tag("unit-aws")
-public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
+public class AwsSageMakerNotebookControlledTest extends SingleWorkspaceUnitAws {
   private static boolean verifySageMakerPath(
       String SageMakerPath, String instanceName, String region) {
     return SageMakerPath.equals(
@@ -90,13 +91,17 @@ public class AwsSageMakerNotebookControlled extends SingleWorkspaceUnitAws {
     assertNotNull(createdResource.instanceType, "created resource returned instance type");
     assertNotNull(createdResource.instanceStatus, "created resource returned instance status");
 
-    // sagemaker notebooks are always private
+    // sagemaker notebooks are always private, no clone support
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdResource.accessScope, "created resource matches access");
     assertEquals(
         workspaceCreator.email.toLowerCase(),
         createdResource.privateUserName.toLowerCase(),
         "created resource matches private user name");
+    assertEquals(
+        CloningInstructionsEnum.NOTHING,
+        createdResource.cloningInstructions,
+        "created resource matches access");
 
     // check that the notebook is in the resource list
     UFAwsSageMakerNotebook matchedResource =
