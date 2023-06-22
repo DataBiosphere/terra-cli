@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.GcpNotebookUtils;
@@ -158,13 +159,17 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     assertEquals(location, createdNotebook.location, "create output matches location");
     assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
 
-    // gcp notebooks are always private
+    // gcp notebooks are always private, no clone support
     assertEquals(
         AccessScope.PRIVATE_ACCESS, createdNotebook.accessScope, "create output matches access");
     assertEquals(
         workspaceCreator.email.toLowerCase(),
         createdNotebook.privateUserName.toLowerCase(),
         "create output matches private user name");
+    assertEquals(
+        CloningInstructionsEnum.NOTHING,
+        createdNotebook.cloningInstructions,
+        "created resource matches cloning instruction");
 
     // `terra resource describe --name=$name --format=json`
     UFGcpNotebook describeResource =

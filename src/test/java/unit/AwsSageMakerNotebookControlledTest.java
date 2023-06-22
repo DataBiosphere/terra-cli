@@ -101,7 +101,7 @@ public class AwsSageMakerNotebookControlledTest extends SingleWorkspaceUnitAws {
     assertEquals(
         CloningInstructionsEnum.NOTHING,
         createdResource.cloningInstructions,
-        "created resource matches access");
+        "created resource matches cloning instruction");
 
     // check that the notebook is in the resource list
     UFAwsSageMakerNotebook matchedResource =
