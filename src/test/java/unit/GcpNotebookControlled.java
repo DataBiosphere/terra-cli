@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.workspace.model.AccessScope;
-import bio.terra.workspace.model.CloningInstructionsEnum;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.GcpNotebookUtils;
@@ -136,10 +135,9 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create gcp-notebook --name=$name
-    // --cloning=$cloning --description=$description
+    // --description=$description
     // --location=$location --instance-id=$instanceId`
     String name = "overrideLocationAndInstanceId";
-    CloningInstructionsEnum cloning = CloningInstructionsEnum.RESOURCE;
     String description = "\"override default location and instance id\"";
     String location = "us-central1-b";
     String instanceId = "a" + UUID.randomUUID(); // instance id must start with a letter
@@ -150,14 +148,12 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
             "create",
             "gcp-notebook",
             "--name=" + name,
-            "--cloning=" + cloning,
             "--description=" + description,
             "--location=" + location,
             "--instance-id=" + instanceId);
 
     // check that the properties match
     assertEquals(name, createdNotebook.name, "create output matches name");
-    assertEquals(cloning, createdNotebook.cloningInstructions, "create output matches cloning");
     assertEquals(description, createdNotebook.description, "create output matches description");
     assertEquals(location, createdNotebook.location, "create output matches location");
     assertEquals(instanceId, createdNotebook.instanceId, "create output matches instance id");
@@ -177,7 +173,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
     // check that the properties match
     assertEquals(name, describeResource.name, "describe resource output matches name");
-    assertEquals(cloning, describeResource.cloningInstructions, "describe output matches cloning");
     assertEquals(description, describeResource.description, "describe output matches description");
     assertEquals(location, describeResource.location, "describe resource output matches location");
     assertEquals(
