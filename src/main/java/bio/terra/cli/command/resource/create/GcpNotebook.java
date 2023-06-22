@@ -1,14 +1,15 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.command.shared.WsmBaseCommand;
-import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class GcpNotebook extends WsmBaseCommand {
   private static final String DEFAULT_VM_IMAGE_PROJECT = "deeplearning-platform-release";
   private static final String DEFAULT_VM_IMAGE_FAMILY = "r-latest-cpu-experimental";
 
-  @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+  @CommandLine.Mixin ResourceCreation resourceCreationOptions;
 
   @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
   GcpNotebook.VmOrContainerImage vmOrContainerImage;
@@ -118,10 +119,11 @@ public class GcpNotebook extends WsmBaseCommand {
 
     // build the resource object to create. force the resource to be private
     CreateResourceParams.Builder createResourceParams =
-        controlledResourceCreationOptions
+        resourceCreationOptions
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
-            .accessScope(AccessScope.PRIVATE_ACCESS);
+            .accessScope(AccessScope.PRIVATE_ACCESS)
+            .cloningInstructions(CloningInstructionsEnum.NOTHING);
     CreateGcpNotebookParams.Builder createParams =
         new CreateGcpNotebookParams.Builder()
             .resourceFields(createResourceParams.build())
