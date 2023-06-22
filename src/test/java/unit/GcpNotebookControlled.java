@@ -169,7 +169,7 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
     assertEquals(
         CloningInstructionsEnum.NOTHING,
         createdNotebook.cloningInstructions,
-        "created resource matches cloning instruction");
+        "create output matches cloning instruction");
 
     // `terra resource describe --name=$name --format=json`
     UFGcpNotebook describeResource =
