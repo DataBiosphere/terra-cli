@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled AWS S3 Storage Folders. */
 @Tag("unit-aws")
-public class AwsS3StorageFolderControlled extends SingleWorkspaceUnitAws {
+public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
   private static boolean verifyS3Path(String s3Path, String prefix, boolean includesS3Prefix) {
     return s3Path.matches(
         String.format("^%s[a-zA-Z0-9_-]+/%s/?$", (includesS3Prefix ? "[sS]3://" : ""), prefix));
