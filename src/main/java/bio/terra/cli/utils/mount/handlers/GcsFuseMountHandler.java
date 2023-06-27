@@ -43,7 +43,7 @@ public class GcsFuseMountHandler extends BaseMountHandler {
       command.addAll(List.of("--only-dir", subDir));
     }
     if (readOnly) {
-      command.addAll(List.of("-o", "ro"));
+      command.addAll(List.of("-o", "ro", "--file-mode", "444", "--dir-mode", "555"));
     }
     command.addAll(List.of(bucketName, mountPoint.toString()));
 
