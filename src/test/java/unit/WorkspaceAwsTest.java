@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit-aws")
-public class WorkspaceAws extends ClearContextUnit {
+public class WorkspaceAwsTest extends ClearContextUnit {
   @BeforeAll
   protected void setupOnce() throws Exception {
     setCloudPlatform(CloudPlatform.AWS);

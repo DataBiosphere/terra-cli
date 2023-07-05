@@ -1,14 +1,14 @@
 package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.command.shared.WsmBaseCommand;
-import bio.terra.cli.command.shared.options.ControlledResourceCreation;
 import bio.terra.cli.command.shared.options.Format;
+import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
-import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.AccessScope;
+import bio.terra.workspace.model.CloningInstructionsEnum;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.StewardshipType;
 import picocli.CommandLine;
@@ -22,7 +22,7 @@ import picocli.CommandLine;
     showDefaultValues = true,
     sortOptions = false)
 public class AwsSageMakerNotebook extends WsmBaseCommand {
-  @CommandLine.Mixin ControlledResourceCreation controlledResourceCreationOptions;
+  @CommandLine.Mixin ResourceCreation resourceCreationOption;
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
   @CommandLine.Mixin Format formatOption;
 
@@ -46,12 +46,6 @@ public class AwsSageMakerNotebook extends WsmBaseCommand {
           "The AWS region of the SageMaker Notebook instance (https://docs.aws.amazon.com/general/latest/gr/sagemaker.html).")
   private String region;
 
-  /** Print this command's output in text format. */
-  private static void printText(UFAwsSageMakerNotebook returnValue) {
-    OUT.println("Successfully added controlled AWS SageMaker Notebook.");
-    returnValue.print();
-  }
-
   /** Add a controlled AWS SageMaker Notebook to the workspace. */
   @Override
   protected void execute() {
@@ -60,10 +54,11 @@ public class AwsSageMakerNotebook extends WsmBaseCommand {
 
     // build the resource object to create. force the resource to be private
     CreateResourceParams createResourceParams =
-        controlledResourceCreationOptions
+        resourceCreationOption
             .populateMetadataFields()
             .stewardshipType(StewardshipType.CONTROLLED)
             .accessScope(AccessScope.PRIVATE_ACCESS)
+            .cloningInstructions(CloningInstructionsEnum.NOTHING)
             .build();
 
     CreateAwsSageMakerNotebookParams.Builder createParams =
