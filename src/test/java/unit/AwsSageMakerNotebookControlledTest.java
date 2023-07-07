@@ -66,7 +66,7 @@ public class AwsSageMakerNotebookControlledTest extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create sagemaker-notebook --name=$name --folder-name=folderName`
-    String notebookName = TestUtils.appendRandomNumber(namePrefix);
+    String notebookName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccessWithRetries(
         "resource",
         "create",

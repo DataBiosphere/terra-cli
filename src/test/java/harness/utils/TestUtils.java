@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class TestUtils {
   // appendRandomNumber: definition copied from Workspace Manager
-  public static String appendRandomNumber(String prefix) {
+  public static String appendRandomString(String prefix) {
     // Can't have dash because BQ dataset names can't have dash.
     // Can't have underscore because for controlled buckets, GCP recommends not having underscore
     // in bucket name.

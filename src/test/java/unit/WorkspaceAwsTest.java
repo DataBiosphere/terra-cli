@@ -130,7 +130,7 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create s3-storage-folder --name=$name`
-    String storageName = TestUtils.appendRandomNumber(namePrefix);
+    String storageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
         "resource", "create", "s3-storage-folder", "--name=" + storageName);
 
@@ -163,7 +163,7 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "workspace", "configure-aws");
 
     // `terra resource create s3-storage-folder --name=$name --region $region`
-    String firstStorageName = TestUtils.appendRandomNumber(namePrefix);
+    String firstStorageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
@@ -172,7 +172,7 @@ public class WorkspaceAwsTest extends ClearContextUnit {
         "--region=" + folderRegion);
 
     // `terra resource create s3-storage-folder --name=$name --region $region`
-    String secondStorageName = TestUtils.appendRandomNumber(namePrefix);
+    String secondStorageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",

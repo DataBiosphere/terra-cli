@@ -54,7 +54,7 @@ public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create s3-storage-folder --name=$name --folder-name=folderName`
-    String storageName = TestUtils.appendRandomNumber(namePrefix);
+    String storageName = TestUtils.appendRandomString(namePrefix);
     UFAwsS3StorageFolder createdResource =
         TestCommand.runAndParseCommandExpectSuccess(
             UFAwsS3StorageFolder.class,
