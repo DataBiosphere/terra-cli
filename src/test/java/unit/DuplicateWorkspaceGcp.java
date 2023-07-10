@@ -189,7 +189,7 @@ public class DuplicateWorkspaceGcp extends ClearContextUnit {
             UFDuplicatedWorkspace.class,
             "workspace",
             "duplicate",
-            "--new-id=" + TestUtils.appendRandomNumber("duplicated-workspace-id"),
+            "--new-id=" + TestUtils.appendRandomString("duplicated-workspace-id"),
             "--name=duplicated_workspace",
             "--description=A duplicate.");
 

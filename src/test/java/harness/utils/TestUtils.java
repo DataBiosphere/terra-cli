@@ -3,14 +3,16 @@ package harness.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.serialization.userfacing.UFResource;
-import java.util.Random;
+import java.util.UUID;
 
 public class TestUtils {
-  private static final Random RANDOM = new Random();
-
-  public static String appendRandomNumber(String string) {
-    // This might be used for BQ datasets, so can't have "-". (BQ dataset names can't have "-".)
-    return string + RANDOM.nextInt(10000);
+  // appendRandomNumber: definition copied from Workspace Manager
+  public static String appendRandomString(String prefix) {
+    // Can't have dash because BQ dataset names can't have dash.
+    // Can't have underscore because for controlled buckets, GCP recommends not having underscore
+    // in bucket name.
+    String randomString = prefix + UUID.randomUUID();
+    return randomString.replaceAll("[-_]", "");
   }
 
   public static <T extends UFResource, E extends UFResource> void assertResourceProperties(

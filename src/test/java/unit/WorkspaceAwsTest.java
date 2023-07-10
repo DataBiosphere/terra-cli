@@ -14,13 +14,13 @@ import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
 import harness.utils.AwsConfigurationUtils;
+import harness.utils.TestUtils;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit-aws")
 public class WorkspaceAwsTest extends ClearContextUnit {
+  private static final String namePrefix = "cliTestWorkspaceResource";
+
   @BeforeAll
   protected void setupOnce() throws Exception {
     setCloudPlatform(CloudPlatform.AWS);
@@ -128,9 +130,9 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
     // `terra resource create s3-storage-folder --name=$name`
-    String name = "describeReflectsNumResources" + UUID.randomUUID();
+    String storageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
-        "resource", "create", "s3-storage-folder", "--name=" + name);
+        "resource", "create", "s3-storage-folder", "--name=" + storageName);
 
     // `terra workspace describe`
     UFWorkspace describedWorkspace =
@@ -161,27 +163,27 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     TestCommand.runCommandExpectExitCode(1, "workspace", "configure-aws");
 
     // `terra resource create s3-storage-folder --name=$name --region $region`
-    String defaultResourceName = UUID.randomUUID().toString();
+    String firstStorageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
         "s3-storage-folder",
-        "--name=" + defaultResourceName,
+        "--name=" + firstStorageName,
         "--region=" + folderRegion);
 
     // `terra resource create s3-storage-folder --name=$name --region $region`
-    String secondaryResourceName = UUID.randomUUID().toString();
+    String secondStorageName = TestUtils.appendRandomString(namePrefix);
     TestCommand.runCommandExpectSuccess(
         "resource",
         "create",
         "s3-storage-folder",
-        "--name=" + secondaryResourceName,
+        "--name=" + secondStorageName,
         "--region=" + folderRegion);
 
     String terraPath = "/fake/path/to/terra";
     String awsVaultPath = "/fake/path/to/aws-vault";
 
-    Collection<String> resourceNames = Set.of(defaultResourceName, secondaryResourceName);
+    Collection<String> resourceNames = Set.of(firstStorageName, secondStorageName);
 
     // 'terra workspace configure-aws'
     TestCommand.Result configureResult =
@@ -199,13 +201,13 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     // 'terra workspace configure-aws --default-resource $name'
     configureResult =
         TestCommand.runCommandExpectSuccess(
-            "workspace", "configure-aws", "--default-resource", defaultResourceName);
+            "workspace", "configure-aws", "--default-resource", firstStorageName);
 
     AwsConfigurationUtils.validateConfiguration(
         configureResult.stdOut,
         folderRegion,
         resourceNames,
-        Optional.of(defaultResourceName),
+        Optional.of(firstStorageName),
         false,
         Optional.empty(),
         Optional.empty());
@@ -229,14 +231,14 @@ public class WorkspaceAwsTest extends ClearContextUnit {
             "workspace",
             "configure-aws",
             "--default-resource",
-            defaultResourceName,
+            firstStorageName,
             "--cache-with-aws-vault");
 
     AwsConfigurationUtils.validateConfiguration(
         configureResult.stdOut,
         folderRegion,
         resourceNames,
-        Optional.of(defaultResourceName),
+        Optional.of(firstStorageName),
         true,
         Optional.empty(),
         Optional.empty());

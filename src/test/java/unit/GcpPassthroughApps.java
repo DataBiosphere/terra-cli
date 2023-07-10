@@ -225,7 +225,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource create bq-dataset --name=$name --dataset-id=$datasetId --format=json`
-    String name = TestUtils.appendRandomNumber("bqShow");
+    String name = TestUtils.appendRandomString("bqShow");
     String datasetId = randomDatasetId();
     UFBqDataset dataset =
         TestCommand.runAndParseCommandExpectSuccess(
@@ -270,7 +270,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("git clone --all")
   void gitCloneAll() throws IOException {
-    String resource1Name = TestUtils.appendRandomNumber("repo1");
+    String resource1Name = TestUtils.appendRandomString("repo1");
 
     workspaceCreator.login(/*writeGcloudAuthFiles=*/ true);
     // `terra workspace set --id=$id`
@@ -301,14 +301,14 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
 
     // `terra workspace set --id=$id`
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-    String repo1 = TestUtils.appendRandomNumber("repo");
+    String repo1 = TestUtils.appendRandomString("repo");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
         "git-repo",
         "--name=" + repo1,
         "--repo-url=https://github.com/DataBiosphere/terra-example-notebooks.git");
-    String repo2 = TestUtils.appendRandomNumber("repo2");
+    String repo2 = TestUtils.appendRandomString("repo2");
     TestCommand.runCommandExpectSuccess(
         "resource",
         "add-ref",
@@ -321,7 +321,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
         "add-ref",
         "gcs-bucket",
         "--name=" + bucketResourceName,
-        "--bucket-name=" + TestUtils.appendRandomNumber("bucket-name"));
+        "--bucket-name=" + TestUtils.appendRandomString("bucket-name"));
 
     // `terra git clone --resource=$repo1,repo2`
     TestCommand.runCommandExpectSuccess("git", "clone", "--resource=" + repo1 + "," + repo2);
@@ -471,7 +471,7 @@ public class GcpPassthroughApps extends SingleWorkspaceUnitGcp {
 
   /** This is to re-create a scenario when a resource is created through UI. */
   private String createAGitRepoReferenceByCallingWsmEndpoint() {
-    String gitResourceName = TestUtils.appendRandomNumber("git-referenced-url");
+    String gitResourceName = TestUtils.appendRandomString("git-referenced-url");
     UUID workspaceUuid =
         WorkspaceManagerService.fromContext().getWorkspaceByUserFacingId(getUserFacingId()).getId();
     WorkspaceManagerService.fromContext()
