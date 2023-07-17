@@ -309,13 +309,21 @@ public class User {
     if (terraCredentials == null) {
       return true;
     }
+
     // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired
-    Date accessTokenExpiration = getUserAccessToken().getExpirationTime();
-    logger.debug("Access token expiration date: {}", accessTokenExpiration);
-    Date idTokenExipration = terraCredentials.getIdToken().getExpirationTime();
-    logger.debug("ID token expiration date: {}", idTokenExipration);
+    AccessToken terraToken = Optional.ofNullable(getUserAccessToken()).orElse(getTerraToken());
+    if (terraToken == null) {
+      // there is no access token or id token.
+      return true;
+    }
+    Date terraTokenExpirationTime = terraToken.getExpirationTime();
+    logger.debug("Terra token expiration date: {}", terraTokenExpirationTime);
+    Date idTokenExpiration = terraCredentials.getIdToken().getExpirationTime();
+    logger.debug("ID token expiration date: {}", idTokenExpiration);
     Date earliestExpiration =
-        accessTokenExpiration.before(idTokenExipration) ? accessTokenExpiration : idTokenExipration;
+        terraTokenExpirationTime.before(idTokenExpiration)
+            ? terraTokenExpirationTime
+            : idTokenExpiration;
 
     // check if the token is expired
     Date cutOffDate = new Date();
