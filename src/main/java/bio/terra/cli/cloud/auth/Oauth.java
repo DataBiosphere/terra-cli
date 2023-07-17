@@ -1,6 +1,7 @@
 package bio.terra.cli.cloud.auth;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.utils.HttpUtils;
@@ -277,7 +278,9 @@ public final class Oauth {
    * @return access token
    */
   public static AccessToken getAccessToken(TerraCredentials credential) {
-    if (Context.getServer().getAuth0Enabled()) {
+    if (Context.getServer().getAuth0Enabled()
+        && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
+      // Auth0 login doesn't support token refresh.
       return credential.getGoogleCredentials().getAccessToken();
     }
     try {

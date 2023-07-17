@@ -306,7 +306,7 @@ public class User {
 
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
-    if (terraCredentials == null) {
+    if (terraCredentials == null || getUserAccessToken() == null) {
       return true;
     }
     // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired
