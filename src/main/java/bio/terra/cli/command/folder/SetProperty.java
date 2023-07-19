@@ -39,7 +39,6 @@ public class SetProperty extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
     Folder updatedFolder =
         Context.requireWorkspace().updateFolderProperties(folderId, folderProperties);
-    System.out.println(new UFFolder(updatedFolder));
     formatOption.printReturnValue(new UFFolder(updatedFolder), this::printText);
   }
 
