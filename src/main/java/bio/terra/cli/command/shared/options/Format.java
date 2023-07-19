@@ -35,6 +35,7 @@ public class Format {
     // use Jackson to map the object to a JSON-formatted text block
     ObjectWriter objectWriter = JacksonMapper.getMapper().writerWithDefaultPrettyPrinter();
     try {
+      System.out.println(objectWriter.writeValueAsString(returnValue));
       UserIO.getOut().println(objectWriter.writeValueAsString(returnValue));
     } catch (JsonProcessingException jsonEx) {
       throw new SystemException("Error JSON-formatting the command return value.", jsonEx);

@@ -2,7 +2,6 @@ package bio.terra.cli.service;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddGitRepoParams;
@@ -11,6 +10,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGitRepoParam
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.utils.HttpClients;
 import bio.terra.cli.utils.JacksonMapper;
+import bio.terra.cli.utils.PropertiesUtils;
 import bio.terra.workspace.api.FolderApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.api.ResourceApi;
@@ -184,7 +184,7 @@ public class WorkspaceManagerService {
                             .displayName(name)
                             .description(description)
                             .stage(WorkspaceStageModel.MC_WORKSPACE)
-                            .properties(Workspace.stringMapToProperties(properties))
+                            .properties(PropertiesUtils.stringMapToProperties(properties))
                             .cloudPlatform(cloudPlatform)
                             .spendProfile(spendProfile)
                             .jobControl(new JobControl().id(jobId))),
@@ -355,6 +355,18 @@ public class WorkspaceManagerService {
     return callWithRetries(
         () -> new WorkspaceApi(apiClient).getWorkspace(workspaceId, /*minimumHighestRole=*/ null),
         "Error getting the workspace after updating properties");
+  }
+
+
+  public Folder updateFolderProperties(UUID workspaceId, UUID folderId, Map<String, String> folderProperties) {
+    callWithRetries(
+        () ->
+            new FolderApi(apiClient).updateFolderProperties(buildProperties(folderProperties), workspaceId, folderId),
+        "Error updating folder properties"
+    );
+    return callWithRetries(
+        () -> new FolderApi(apiClient).getFolder(workspaceId, folderId),
+        "Error getting the folder after updating properties");
   }
 
   /**
