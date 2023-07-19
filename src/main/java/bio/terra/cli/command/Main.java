@@ -66,6 +66,7 @@ import picocli.CommandLine.ParseResult;
       Bq.class,
       Config.class,
       Cromwell.class,
+      Folder.class,
       Gcloud.class,
       GenerateCompletion.class,
       Git.class,
@@ -80,8 +81,7 @@ import picocli.CommandLine.ParseResult;
       Status.class,
       User.class,
       Version.class,
-      Workspace.class,
-      Folder.class
+      Workspace.class
     })
 public class Main implements Runnable {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);

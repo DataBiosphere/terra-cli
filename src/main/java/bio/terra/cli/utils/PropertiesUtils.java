@@ -21,10 +21,7 @@ public class PropertiesUtils {
     if (map == null) {
       return properties;
     }
-    for (Map.Entry<String, String> entry : map.entrySet()) {
-      Property property = new Property().key(entry.getKey()).value(entry.getValue());
-      properties.add(property);
-    }
+    map.forEach((key, value) -> properties.add(new Property().key(key).value(value)));
     return properties;
   }
 }

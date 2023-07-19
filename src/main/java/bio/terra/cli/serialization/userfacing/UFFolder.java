@@ -39,7 +39,7 @@ public class UFFolder {
     OUT.println("ID:                " + id);
     OUT.println("Name:              " + displayName);
     OUT.println("Description:       " + description);
-    OUT.println("Parent folder ID:  " + parentId);
+    OUT.println("Parent ID:  " + parentId);
     if (properties != null) {
       OUT.println("Properties:");
       PropertiesUtils.propertiesToStringMap(properties)

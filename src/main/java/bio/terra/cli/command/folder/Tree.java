@@ -60,7 +60,7 @@ public class Tree extends WsmBaseCommand {
         StringBuilder sb = new StringBuilder(prefix);
         sb.append(isLast ? "└── " : "├── ");
         sb.append(childFolder.getDisplayName());
-        sb.append("(");
+        sb.append(" (");
         sb.append(childFolder.getId());
         sb.append(")");
         System.out.println(sb);
