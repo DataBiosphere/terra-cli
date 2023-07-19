@@ -11,8 +11,6 @@ import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.Folder;
-import bio.terra.workspace.model.Properties;
-import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
@@ -171,18 +169,6 @@ public class Workspace {
     return WorkspaceManagerService.fromContext().listWorkspaces(offset, limit).getWorkspaces();
   }
 
-  public static Properties stringMapToProperties(@Nullable Map<String, String> map) {
-    Properties properties = new Properties();
-    if (map == null) {
-      return properties;
-    }
-    for (Map.Entry<String, String> entry : map.entrySet()) {
-      Property property = new Property().key(entry.getKey()).value(entry.getValue());
-      properties.add(property);
-    }
-    return properties;
-  }
-
   /**
    * Update the mutable properties of the current workspace.
    *
@@ -225,6 +211,10 @@ public class Workspace {
     // update the global context with the current workspace
     Context.setWorkspace(workspace);
     return workspace;
+  }
+
+  public Folder updateFolderProperties(UUID folderId, Map<String, String> properties) {
+    return WorkspaceManagerService.fromContext().updateFolderProperties(uuid, folderId, properties);
   }
 
   /** Delete the current workspace. */

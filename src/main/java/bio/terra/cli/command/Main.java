@@ -66,6 +66,7 @@ import picocli.CommandLine.ParseResult;
       Bq.class,
       Config.class,
       Cromwell.class,
+      Folder.class,
       Gcloud.class,
       GenerateCompletion.class,
       Git.class,

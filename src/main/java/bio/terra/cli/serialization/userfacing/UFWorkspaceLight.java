@@ -2,11 +2,10 @@ package bio.terra.cli.serialization.userfacing;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
+import bio.terra.cli.utils.PropertiesUtils;
 import bio.terra.cli.utils.UserIO;
 import bio.terra.workspace.model.AwsContext;
 import bio.terra.workspace.model.CloudPlatform;
-import bio.terra.workspace.model.Properties;
-import bio.terra.workspace.model.Property;
 import bio.terra.workspace.model.WorkspaceDescription;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -14,7 +13,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /** This is used instead of UFWorkspace, if workspace resources aren't needed. */
 public class UFWorkspaceLight {
@@ -62,7 +60,7 @@ public class UFWorkspaceLight {
     WorkspaceDescription workspaceDescription = internalObj.getWorkspaceDescription();
     this.name = workspaceDescription.getDisplayName();
     this.description = workspaceDescription.getDescription();
-    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.properties = PropertiesUtils.propertiesToStringMap(workspaceDescription.getProperties());
     this.userEmail = Context.requireUser().getEmail();
     this.serverName = Context.getServer().getName();
     this.createdDate = workspaceDescription.getCreatedDate();
@@ -99,7 +97,7 @@ public class UFWorkspaceLight {
 
     this.name = workspaceDescription.getDisplayName();
     this.description = workspaceDescription.getDescription();
-    this.properties = propertiesToStringMap(workspaceDescription.getProperties());
+    this.properties = PropertiesUtils.propertiesToStringMap(workspaceDescription.getProperties());
     this.userEmail = Context.requireUser().getEmail();
     this.serverName = Context.getServer().getName();
     this.createdDate = workspaceDescription.getCreatedDate();
@@ -293,9 +291,5 @@ public class UFWorkspaceLight {
     public UFWorkspaceLight build() {
       return new UFWorkspaceLight(this);
     }
-  }
-
-  private static Map<String, String> propertiesToStringMap(Properties properties) {
-    return properties.stream().collect(Collectors.toMap(Property::getKey, Property::getValue));
   }
 }
