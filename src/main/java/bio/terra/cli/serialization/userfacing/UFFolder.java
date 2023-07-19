@@ -36,10 +36,10 @@ public class UFFolder {
 
   public void print() {
     PrintStream OUT = UserIO.getOut();
-    OUT.println("ID:                " + id);
-    OUT.println("Name:              " + displayName);
-    OUT.println("Description:       " + description);
-    OUT.println("Parent ID:  " + parentId);
+    OUT.println("ID:          " + id);
+    OUT.println("Name:        " + displayName);
+    OUT.println("Description: " + description);
+    OUT.println("Parent ID:   " + parentId);
     if (properties != null) {
       OUT.println("Properties:");
       PropertiesUtils.propertiesToStringMap(properties)
