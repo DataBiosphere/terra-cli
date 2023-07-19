@@ -214,9 +214,8 @@ public class Workspace {
   }
 
   public Folder updateFolderProperties(UUID folderId, Map<String, String> properties) {
-   return WorkspaceManagerService.fromContext().updateFolderProperties(uuid, folderId, properties);
+    return WorkspaceManagerService.fromContext().updateFolderProperties(uuid, folderId, properties);
   }
-
 
   /** Delete the current workspace. */
   public void delete() {

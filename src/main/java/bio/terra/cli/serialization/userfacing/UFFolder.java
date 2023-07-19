@@ -40,9 +40,10 @@ public class UFFolder {
     OUT.println("Name:              " + displayName);
     OUT.println("Description:       " + description);
     OUT.println("Parent folder ID:  " + parentId);
-    if (properties != null){
+    if (properties != null) {
       OUT.println("Properties:");
-      PropertiesUtils.propertiesToStringMap(properties).forEach((key, value) -> OUT.println("  " + key + ": " + value));
+      PropertiesUtils.propertiesToStringMap(properties)
+          .forEach((key, value) -> OUT.println("  " + key + ": " + value));
     }
   }
 
@@ -83,7 +84,6 @@ public class UFFolder {
       this.properties = properties;
       return this;
     }
-
 
     /** Call the private constructor. */
     public UFFolder build() {

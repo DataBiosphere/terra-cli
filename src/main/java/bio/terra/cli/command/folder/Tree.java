@@ -3,12 +3,9 @@ package bio.terra.cli.command.folder;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.workspace.api.FolderApi;
 import bio.terra.workspace.model.Folder;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -18,21 +15,15 @@ import picocli.CommandLine.Command;
 @Command(name = "tree", description = "show the folder hierarchy.")
 public class Tree extends WsmBaseCommand {
 
-  /**
-   * Map for folder id to folder.
-   */
+  /** Map for folder id to folder. */
   private static final Map<UUID, Folder> ID_TO_FOLDER = new HashMap<>();
-  /**
-   * Map for folder to all of its children folders.
-   */
+  /** Map for folder to all of its children folders. */
   private static final Map<Folder, ArrayList<Folder>> EDGES = new HashMap<>();
 
-  /**
-   * An imaginary root folder of a workspace.
-   */
+  /** An imaginary root folder of a workspace. */
   private static final Folder ROOT = new Folder().id(UUID.randomUUID()).displayName("root");
-  @CommandLine.Mixin
-  WorkspaceOverride workspaceOption;
+
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   /** List the resources and folders in the workspace. */
   @Override
@@ -49,7 +40,9 @@ public class Tree extends WsmBaseCommand {
     for (Folder folder : ID_TO_FOLDER.values()) {
       EDGES
           .computeIfAbsent(
-              folder.getParentFolderId() != null ? ID_TO_FOLDER.get(folder.getParentFolderId()) : ROOT,
+              folder.getParentFolderId() != null
+                  ? ID_TO_FOLDER.get(folder.getParentFolderId())
+                  : ROOT,
               k -> new ArrayList<>())
           .add(folder);
     }

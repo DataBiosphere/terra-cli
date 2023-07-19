@@ -292,5 +292,4 @@ public class UFWorkspaceLight {
       return new UFWorkspaceLight(this);
     }
   }
-
 }

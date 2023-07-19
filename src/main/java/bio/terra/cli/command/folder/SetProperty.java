@@ -1,14 +1,11 @@
 package bio.terra.cli.command.folder;
 
 import bio.terra.cli.businessobject.Context;
-import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.serialization.userfacing.UFFolder;
-import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.workspace.model.Folder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -33,15 +30,15 @@ public class SetProperty extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--id",
       required = true,
-      description = "Id of the folder. Hint: Obtain the id by running terra folder tree first."
-  )
+      description = "Id of the folder. Hint: Obtain the id by running terra folder tree first.")
   public UUID folderId;
 
   /** Set folder properties. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    Folder updatedFolder = Context.requireWorkspace().updateFolderProperties(folderId, folderProperties);
+    Folder updatedFolder =
+        Context.requireWorkspace().updateFolderProperties(folderId, folderProperties);
     System.out.println(new UFFolder(updatedFolder));
     formatOption.printReturnValue(new UFFolder(updatedFolder), this::printText);
   }

@@ -357,13 +357,13 @@ public class WorkspaceManagerService {
         "Error getting the workspace after updating properties");
   }
 
-
-  public Folder updateFolderProperties(UUID workspaceId, UUID folderId, Map<String, String> folderProperties) {
+  public Folder updateFolderProperties(
+      UUID workspaceId, UUID folderId, Map<String, String> folderProperties) {
     callWithRetries(
         () ->
-            new FolderApi(apiClient).updateFolderProperties(buildProperties(folderProperties), workspaceId, folderId),
-        "Error updating folder properties"
-    );
+            new FolderApi(apiClient)
+                .updateFolderProperties(buildProperties(folderProperties), workspaceId, folderId),
+        "Error updating folder properties");
     return callWithRetries(
         () -> new FolderApi(apiClient).getFolder(workspaceId, folderId),
         "Error getting the folder after updating properties");
