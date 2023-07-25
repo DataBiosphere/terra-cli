@@ -45,7 +45,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.101.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.812-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.849-SNAPSHOT'
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
 
     // TODO(PF-1928) - update versions after Terra-client JDK updates
@@ -54,9 +54,6 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
-
-    // hk2 is required to use WSM client, but not correctly exposed by the client
-    implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.36'
 
     // command parsing
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'
