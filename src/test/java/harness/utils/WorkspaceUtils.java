@@ -31,7 +31,7 @@ public class WorkspaceUtils {
    *     the WSM workspaceDelete request.
    */
   public static UFWorkspace createWorkspace(
-      TestUser workspaceCreator, Optional<CloudPlatform> platform)
+      TestUser workspaceCreator, Optional<CloudPlatform> platform, Optional<String> spend)
       throws IOException, InterruptedException {
     // `terra workspace create --format=json`
     List<String> argsList =
@@ -41,6 +41,9 @@ public class WorkspaceUtils {
     // defaults to GCP otherwise
     platform.ifPresent(cloudPlatform -> argsList.add("--platform=" + cloudPlatform));
 
+    // defaults to user's default spend profile otherwise
+    spend.ifPresent(spendProfile -> argsList.add("--spend-profile=" + spendProfile));
+
     UFWorkspace workspace =
         TestCommand.runAndParseCommandExpectSuccess(
             UFWorkspace.class, argsList.toArray(new String[0]));
@@ -48,26 +51,18 @@ public class WorkspaceUtils {
     return workspace;
   }
 
-  /**
-   * Create a new workspace and register it with Janitor if this test is running in an environment
-   * where Janitor is enabled.
-   *
-   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
-   *     the WSM workspaceDelete request.
-   */
+  public static UFWorkspace createWorkspace(
+      TestUser workspaceCreator, Optional<CloudPlatform> platform)
+      throws IOException, InterruptedException {
+    return createWorkspace(workspaceCreator, platform, Optional.empty());
+  }
+
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator, String name, String description, String properties)
       throws IOException, InterruptedException {
     return createWorkspace(workspaceCreator, name, description, properties, Optional.empty());
   }
 
-  /**
-   * Create a new workspace and register it with Janitor if this test is running in an environment
-   * where Janitor is enabled.
-   *
-   * @param workspaceCreator The user who owns the workspace. This user will be impersonated to in
-   *     the WSM workspaceDelete request.
-   */
   public static UFWorkspace createWorkspace(
       TestUser workspaceCreator,
       String name,

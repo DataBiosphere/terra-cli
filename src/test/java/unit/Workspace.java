@@ -30,10 +30,11 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands. */
 @Tag("unit")
 public class Workspace extends ClearContextUnit {
+  private static final String altSpendProfile = "wm-alt-spend-profile";
+
   @Test
   @DisplayName("workspace create uses spend profile stored in user manager")
   void create_spendProfileFromUserManager() throws IOException, InterruptedException {
-    String altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -58,7 +59,6 @@ public class Workspace extends ClearContextUnit {
   @Test
   @DisplayName("workspace duplicate uses spend profile stored in user manager")
   void duplicate_spendProfileFromUserManager() throws IOException, InterruptedException {
-    String altSpendProfile = "wm-alt-spend-profile";
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
@@ -341,5 +341,29 @@ public class Workspace extends ClearContextUnit {
         "error message indicate user must set ID",
         stdErr,
         CoreMatchers.containsString("Missing required option: '--id=<id>'"));
+  }
+
+  @Test
+  @DisplayName("workspace create with specified spend profile")
+  void createWorkspaceWithSpendProfile() throws Exception {
+    assumeTrue(Context.getServer().getUserManagerUri() != null);
+
+    // Use the spend owner account
+    TestUser spendProfileUser = TestUser.chooseTestUserWithSpendAccess();
+    spendProfileUser.login();
+
+    // Create the workspace using the default spend profile, verify
+    WorkspaceUtils.createWorkspace(spendProfileUser, Optional.empty());
+    WorkspaceDescription workspaceDescription =
+        WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
+    assertEquals(
+        UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null),
+        workspaceDescription.getSpendProfile());
+
+    // Create the workspace using the alternate spend profile, verify
+    WorkspaceUtils.createWorkspace(spendProfileUser, Optional.empty());
+    workspaceDescription =
+        WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
+    assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
   }
 }
