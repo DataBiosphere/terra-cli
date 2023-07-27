@@ -36,11 +36,20 @@ public class Create extends WsmBaseCommand {
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private CloudPlatform cloudPlatform;
 
+  @CommandLine.Option(
+      names = "--spend-profile",
+      required = false,
+      description = "Spend profile to use for this workspace.")
+  public String spendProfile;
+
   /** Create a new workspace. */
   @Override
   protected void execute() {
-
     CommandUtils.checkServerSupport(cloudPlatform);
+
+    if (spendProfile == null) {
+      spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
+    }
 
     Workspace workspace =
         Workspace.create(
@@ -49,7 +58,7 @@ public class Create extends WsmBaseCommand {
             workspaceNameAndDescription.name,
             workspaceNameAndDescription.description,
             workspaceProperties,
-            UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null));
+            spendProfile);
     formatOption.printReturnValue(new UFWorkspace(workspace), this::printText);
   }
 
