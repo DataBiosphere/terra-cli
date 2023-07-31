@@ -311,7 +311,7 @@ public class Workspace extends ClearContextUnit {
     // select a test user and login
     TestUser testUser = TestUser.chooseTestUserWithoutSpendAccess();
     testUser.login();
-    final String workspaceName = "bad-profile-6789";
+    String workspaceName = "bad-profile-6789";
     // `terra workspace create --id=<user-facing-id>`
     String stdErr =
         TestCommand.runCommandExpectExitCode(
@@ -349,11 +349,14 @@ public class Workspace extends ClearContextUnit {
     assumeTrue(Context.getServer().getUserManagerUri() != null);
 
     // Use the spend owner account
-    TestUser spendProfileUser = TestUser.chooseTestUserWithSpendAccess();
-    spendProfileUser.login();
+    TestUser spendProfileOwner = TestUser.chooseTestUserWithOwnerAccess();
+    spendProfileOwner.login();
 
     // Create the workspace using the default spend profile, verify
-    WorkspaceUtils.createWorkspace(spendProfileUser, Optional.empty());
+    WorkspaceUtils.createWorkspace(
+        spendProfileOwner,
+        /* cloudPlatform= */ Optional.empty(),
+        /* spendProfile= */ Optional.empty());
     WorkspaceDescription workspaceDescription =
         WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
     assertEquals(
@@ -361,7 +364,10 @@ public class Workspace extends ClearContextUnit {
         workspaceDescription.getSpendProfile());
 
     // Create the workspace using the alternate spend profile, verify
-    WorkspaceUtils.createWorkspace(spendProfileUser, Optional.empty());
+    WorkspaceUtils.createWorkspace(
+        spendProfileOwner,
+        /* cloudPlatform= */ Optional.empty(),
+        /* spendProfile= */ Optional.of(altSpendProfile));
     workspaceDescription =
         WorkspaceManagerService.fromContext().getWorkspace(Context.requireWorkspace().getUuid());
     assertEquals(altSpendProfile, workspaceDescription.getSpendProfile());
