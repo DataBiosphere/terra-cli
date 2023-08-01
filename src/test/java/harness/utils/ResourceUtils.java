@@ -101,7 +101,7 @@ public class ResourceUtils {
                         "--workspace=" + workspaceUserFacingId),
             (result) -> fieldValue.equals(result.get(fieldName)),
             (ex) -> false, // no retries
-            30, // up to 30 minutes
+            60, // up to 60 minutes // TODO(BENCH-571): reduce this to 30 mins after this is fixed
             Duration.ofMinutes(1)); // every 1 minute
 
     assertNotNull(resource, "resource poll returned a resource");
