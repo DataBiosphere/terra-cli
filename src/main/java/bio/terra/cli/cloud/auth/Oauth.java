@@ -286,7 +286,12 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
-      return refreshIfExpireAuth0Token(credential);
+      try {
+        return useRefreshToken(credential);
+      } catch (UnirestException e) {
+        logger.warn("Failed to refresh token, using the existing access token", e);
+        return credential.getGoogleCredentials().getAccessToken();
+      }
     }
     try {
       credential.getGoogleCredentials().refreshIfExpired();
@@ -299,28 +304,23 @@ public final class Oauth {
     return credential.getGoogleCredentials().getAccessToken();
   }
 
-  private static AccessToken refreshIfExpireAuth0Token(TerraCredentials credential) {
+  private static AccessToken useRefreshToken(TerraCredentials credential) throws UnirestException {
     URL url = buildRequestTokenUrl();
-    try {
-      var googleClientSecrets = Oauth.getClientSecrets();
-      HttpResponse<String> response =
-          Unirest.post(url.toString())
-              .header("content-type", "application/x-www-form-urlencoded")
-              .body(
-                  String.format(
-                      "grant_type=refresh_token&client_id=%s&client_secret=%s&refresh_token=%s",
-                      googleClientSecrets.getDetails().getClientId(),
-                      googleClientSecrets.getDetails().getClientSecret(),
-                      ((UserCredentials) credential.getGoogleCredentials()).getRefreshToken()))
-              .asString();
-      JSONObject tokenResponse = new JSONObject(response.getBody());
+    var googleClientSecrets = Oauth.getClientSecrets();
+    HttpResponse<String> response =
+        Unirest.post(url.toString())
+            .header("content-type", "application/x-www-form-urlencoded")
+            .body(
+                String.format(
+                    "grant_type=refresh_token&client_id=%s&client_secret=%s&refresh_token=%s",
+                    googleClientSecrets.getDetails().getClientId(),
+                    googleClientSecrets.getDetails().getClientSecret(),
+                    ((UserCredentials) credential.getGoogleCredentials()).getRefreshToken()))
+            .asString();
+    JSONObject tokenResponse = new JSONObject(response.getBody());
 
-      Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
-      return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
-    } catch (UnirestException e) {
-      logger.warn("Failed to refresh token, using the existing access token", e);
-      return credential.getGoogleCredentials().getAccessToken();
-    }
+    Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
+    return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
   }
 
   private static URL buildRequestTokenUrl() {
