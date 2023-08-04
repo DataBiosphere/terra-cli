@@ -292,7 +292,7 @@ public final class Oauth {
           .isFeatureEnabled("vwb__cli_token_refresh_enabled")
           .orElse(false)) {
         try {
-          return useRefreshToken(credential);
+          return useAuth0RefreshToken(credential);
         } catch (UnirestException e) {
           logger.warn("Failed to refresh token, using the existing access token", e);
           return credential.getGoogleCredentials().getAccessToken();
@@ -311,10 +311,11 @@ public final class Oauth {
     return credential.getGoogleCredentials().getAccessToken();
   }
 
-  private static AccessToken useRefreshToken(TerraCredentials credential) throws UnirestException {
+  private static AccessToken useAuth0RefreshToken(TerraCredentials credential)
+      throws UnirestException {
     URL url = buildRequestTokenUrl();
     var googleClientSecrets = Oauth.getClientSecrets();
-    // https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens
+    // https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens#use-post-authentication
     HttpResponse<String> response =
         Unirest.post(url.toString())
             .header("content-type", "application/x-www-form-urlencoded")
