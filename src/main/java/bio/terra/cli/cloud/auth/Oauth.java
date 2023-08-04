@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.FeatureService;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -286,6 +287,11 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
+      if (!FeatureService.fromContext()
+          .isFeatureEnabled("vwb__cli_token_refresh_enabled")
+          .orElse(false)) {
+        return credential.getGoogleCredentials().getAccessToken();
+      }
       try {
         return useRefreshToken(credential);
       } catch (UnirestException e) {

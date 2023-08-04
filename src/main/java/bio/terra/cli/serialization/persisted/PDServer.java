@@ -32,6 +32,10 @@ public class PDServer {
   public final boolean auth0Enabled;
   public final String auth0Domain;
 
+  public final String flagsmithApiUrl;
+
+  public final String flagsmithClientSideKey;
+
   /** Serialize an instance of the internal class to the disk format. */
   public PDServer(Server internalObj) {
     this.name = internalObj.getName();
@@ -49,6 +53,8 @@ public class PDServer {
     this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
     this.auth0Enabled = internalObj.getAuth0Enabled();
     this.auth0Domain = internalObj.getAuth0Domain();
+    this.flagsmithApiUrl = internalObj.getFlagsmithApiUrl();
+    this.flagsmithClientSideKey = internalObj.getFlagsmithClientSideKey();
   }
 
   private PDServer(PDServer.Builder builder) {
@@ -70,6 +76,8 @@ public class PDServer {
             : Collections.EMPTY_SET;
     this.auth0Enabled = builder.auth0Enabled;
     this.auth0Domain = builder.auth0Domain;
+    this.flagsmithApiUrl = builder.flagsmithApiUrl;
+    this.flagsmithClientSideKey = builder.flagsmithClientSideKey;
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -91,6 +99,10 @@ public class PDServer {
     private boolean auth0Enabled;
 
     private String auth0Domain;
+
+    private String flagsmithApiUrl;
+
+    private String flagsmithClientSideKey;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -167,6 +179,16 @@ public class PDServer {
 
     public Builder auth0Domain(String auth0Domain) {
       this.auth0Domain = auth0Domain;
+      return this;
+    }
+
+    public Builder flagsmithApiUrl(String flagsmithApiUrl) {
+      this.flagsmithApiUrl = flagsmithApiUrl;
+      return this;
+    }
+
+    public Builder flagsmithClientSideKey(String flagsmithClientSideKey) {
+      this.flagsmithClientSideKey = flagsmithClientSideKey;
       return this;
     }
 

@@ -61,6 +61,10 @@ public class Server {
   private final boolean auth0Enabled;
   private final String auth0Domain;
 
+  private final String flagsmithApiUrl;
+
+  private final String flagsmithClientSideKey;
+
   /** Build an instance of this class from the serialized format on disk. */
   public Server(PDServer configFromDisk) {
     this.name = configFromDisk.name;
@@ -81,6 +85,8 @@ public class Server {
             : Collections.EMPTY_SET;
     this.auth0Enabled = configFromDisk.auth0Enabled;
     this.auth0Domain = configFromDisk.auth0Domain;
+    this.flagsmithApiUrl = configFromDisk.flagsmithApiUrl;
+    this.flagsmithClientSideKey = configFromDisk.flagsmithClientSideKey;
   }
 
   /** Return an instance of this class with default values. */
@@ -266,5 +272,13 @@ public class Server {
 
   public String getAuth0Domain() {
     return auth0Domain;
+  }
+
+  public String getFlagsmithApiUrl() {
+    return flagsmithApiUrl;
+  }
+
+  public String getFlagsmithClientSideKey() {
+    return flagsmithClientSideKey;
   }
 }
