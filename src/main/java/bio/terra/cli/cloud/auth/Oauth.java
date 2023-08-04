@@ -58,6 +58,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -287,17 +288,17 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
-      if (!FeatureService.fromContext()
+      if (FeatureService.fromContext()
           .isFeatureEnabled("vwb__cli_token_refresh_enabled")
           .orElse(false)) {
-        return credential.getGoogleCredentials().getAccessToken();
+        try {
+          return useRefreshToken(credential);
+        } catch (UnirestException e) {
+          logger.warn("Failed to refresh token, using the existing access token", e);
+          return credential.getGoogleCredentials().getAccessToken();
+        }
       }
-      try {
-        return useRefreshToken(credential);
-      } catch (UnirestException e) {
-        logger.warn("Failed to refresh token, using the existing access token", e);
-        return credential.getGoogleCredentials().getAccessToken();
-      }
+      return credential.getGoogleCredentials().getAccessToken();
     }
     try {
       credential.getGoogleCredentials().refreshIfExpired();
@@ -313,6 +314,7 @@ public final class Oauth {
   private static AccessToken useRefreshToken(TerraCredentials credential) throws UnirestException {
     URL url = buildRequestTokenUrl();
     var googleClientSecrets = Oauth.getClientSecrets();
+    // https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens
     HttpResponse<String> response =
         Unirest.post(url.toString())
             .header("content-type", "application/x-www-form-urlencoded")
@@ -323,10 +325,14 @@ public final class Oauth {
                     googleClientSecrets.getDetails().getClientSecret(),
                     ((UserCredentials) credential.getGoogleCredentials()).getRefreshToken()))
             .asString();
-    JSONObject tokenResponse = new JSONObject(response.getBody());
+    if (HttpStatus.SC_OK == response.getStatus()) {
+      JSONObject tokenResponse = new JSONObject(response.getBody());
 
-    Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
-    return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
+      Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
+      return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
+    }
+    logger.debug("POST status: " + response.getStatusText());
+    return credential.getGoogleCredentials().getAccessToken();
   }
 
   private static URL buildRequestTokenUrl() {
