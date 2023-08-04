@@ -36,7 +36,10 @@ public class User {
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES =
-      ImmutableList.of("openid", "email", "profile", "offline_access");
+      Context.getServer().getAuth0Enabled()?
+          // offline_access scope is required for getting refresh token from Auth0
+          ImmutableList.of("openid", "email", "profile", "offline_access")
+      : ImmutableList.of("openid", "email", "profile");
 
   private static final Logger logger = LoggerFactory.getLogger(User.class);
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
@@ -104,9 +107,6 @@ public class User {
    */
   public static void login(LogInMode logInMode) {
     Optional<User> currentUser = Context.getUser();
-    if (!currentUser.isPresent()) {
-      logger.debug("current user is empty");
-    }
     currentUser.ifPresent(User::loadExistingCredentials);
 
     // populate the current user object or build a new one
@@ -117,7 +117,6 @@ public class User {
       user.loadAppDefaultCredentials();
     } else {
       if (currentUser.isEmpty() || currentUser.get().requiresReauthentication()) {
-        logger.debug("dooauthloginflow");
         user.doOauthLoginFlow();
       }
     }
@@ -312,10 +311,6 @@ public class User {
   /** Return true if the user credentials are expired or do not exist on disk. */
   public boolean requiresReauthentication() {
     if (terraCredentials == null || getUserAccessToken() == null) {
-      logger.debug("return true");
-      if (terraCredentials == null) {
-        logger.debug("terra credential is null");
-      }
       return true;
     }
     // NOTE: getUserAccessToken called to induce side effect of refreshing the token if expired

@@ -144,7 +144,7 @@ public final class Oauth {
             .authorize(CREDENTIAL_STORE_KEY);
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
-      logger.info("Refresh token is not set. This is expected when testing or auth0 is enabled.");
+      logger.info("Refresh token is not set. This is expected when testing.");
     } else if (!Context.getServer().getAuth0Enabled()) {
       credential.refreshToken();
     }
@@ -318,7 +318,7 @@ public final class Oauth {
       Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
       return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
     } catch (UnirestException e) {
-      logger.warn("Failed to refresh token", e);
+      logger.warn("Failed to refresh token, using the existing access token", e);
       return credential.getGoogleCredentials().getAccessToken();
     }
   }
