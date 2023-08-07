@@ -35,7 +35,12 @@ import org.slf4j.LoggerFactory;
 public class User {
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
-  public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
+  public static final List<String> USER_SCOPES =
+      Context.getServer().getAuth0Enabled()
+          ?
+          // offline_access scope is required for getting refresh token from Auth0
+          ImmutableList.of("openid", "email", "profile", "offline_access")
+          : ImmutableList.of("openid", "email", "profile");
 
   private static final Logger logger = LoggerFactory.getLogger(User.class);
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform

@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.FeatureService;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -32,6 +33,9 @@ import com.google.auth.oauth2.IdToken;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import com.google.common.collect.ImmutableMap;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,11 +43,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +58,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
+import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,11 +146,10 @@ public final class Oauth {
             .authorize(CREDENTIAL_STORE_KEY);
 
     if (credential.getRefreshToken() == null || credential.getRefreshToken().isEmpty()) {
-      logger.info("Refresh token is not set. This is expected when testing or auth0 is enabled.");
-    } else {
+      logger.info("Refresh token is not set. This is expected when testing.");
+    } else if (!Context.getServer().getAuth0Enabled()) {
       credential.refreshToken();
     }
-
     // OAuth2 Credentials representing a user's identity and consent
     UserCredentials credentials =
         UserCredentials.newBuilder()
@@ -280,7 +288,16 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
-      // Auth0 login doesn't support token refresh.
+      if (FeatureService.fromContext()
+          .isFeatureEnabled("vwb__cli_token_refresh_enabled")
+          .orElse(false)) {
+        try {
+          return useAuth0RefreshToken(credential);
+        } catch (UnirestException e) {
+          logger.warn("Failed to refresh token, using the existing access token", e);
+          return credential.getGoogleCredentials().getAccessToken();
+        }
+      }
       return credential.getGoogleCredentials().getAccessToken();
     }
     try {
@@ -292,6 +309,42 @@ public final class Oauth {
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getGoogleCredentials().getAccessToken();
+  }
+
+  private static AccessToken useAuth0RefreshToken(TerraCredentials credential)
+      throws UnirestException {
+    URL url = buildRequestTokenUrl();
+    var googleClientSecrets = Oauth.getClientSecrets();
+    // https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens#use-post-authentication
+    HttpResponse<String> response =
+        Unirest.post(url.toString())
+            .header("content-type", "application/x-www-form-urlencoded")
+            .body(
+                String.format(
+                    "grant_type=refresh_token&client_id=%s&client_secret=%s&refresh_token=%s",
+                    googleClientSecrets.getDetails().getClientId(),
+                    googleClientSecrets.getDetails().getClientSecret(),
+                    ((UserCredentials) credential.getGoogleCredentials()).getRefreshToken()))
+            .asString();
+    if (HttpStatus.SC_OK == response.getStatus()) {
+      JSONObject tokenResponse = new JSONObject(response.getBody());
+
+      Date expiresIn = Date.from(Instant.now().plusSeconds(tokenResponse.getLong("expires_in")));
+      return new AccessToken(tokenResponse.getString("access_token"), expiresIn);
+    }
+    logger.debug("POST status: " + response.getStatusText());
+    return credential.getGoogleCredentials().getAccessToken();
+  }
+
+  private static URL buildRequestTokenUrl() {
+    URL url;
+    try {
+      url = new URL("https", Context.getServer().getAuth0Domain(), "/oauth/token");
+    } catch (MalformedURLException e) {
+      logger.error("Invalid url for fetching oauth token");
+      throw new RuntimeException(e);
+    }
+    return url;
   }
 
   /**
