@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class CommandUtils {
   // Checks if current server supports cloud platform
@@ -23,7 +24,11 @@ public class CommandUtils {
       throws UserActionableException {
     if (!Arrays.asList(cloudPlatforms).contains(Context.requireWorkspace().getCloudPlatform())) {
       throw new UserActionableException(
-          "Workspace does not support operations on cloud platforms " + cloudPlatforms);
+          "Workspace does not support operations on cloud platforms: " +
+              Arrays.stream(cloudPlatforms)
+                  .map(CloudPlatform::getValue)
+                  .collect(Collectors.joining(", ")));
+
     }
   }
 }
