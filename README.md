@@ -26,7 +26,7 @@
         * [GCS bucket object reference](#gcs-bucket-object-reference)
             * [Reference to a file or folder](#reference-to-a-file-or-folder)
             * [Reference to multiple objects under a folder](#reference-to-multiple-objects-under-a-folder)
-        * [Mounting GCS buckets & objects](#mounting-gcs-buckets--objects)]
+        * [Mounting GCS buckets & objects](#mounting-gcs-buckets--objects)
     * [Server](#server)
     * [Spend](#spend)
     * [User](#user)
