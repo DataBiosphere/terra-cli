@@ -24,11 +24,10 @@ public class CommandUtils {
       throws UserActionableException {
     if (!Arrays.asList(cloudPlatforms).contains(Context.requireWorkspace().getCloudPlatform())) {
       throw new UserActionableException(
-          "Workspace does not support operations on cloud platforms: " +
-              Arrays.stream(cloudPlatforms)
+          "Workspace does not support operations on cloud platforms: "
+              + Arrays.stream(cloudPlatforms)
                   .map(CloudPlatform::getValue)
                   .collect(Collectors.joining(", ")));
-
     }
   }
 }
