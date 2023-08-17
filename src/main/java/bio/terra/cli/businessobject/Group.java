@@ -82,6 +82,7 @@ public class Group {
 
   /** Delete a SAM group. */
   public void delete() {
+    validateGroupAdmin();
     SamService.fromContext().deleteGroup(name);
     logger.info("Deleted group: name={}", name);
   }
@@ -93,6 +94,7 @@ public class Group {
    * @param policy policy to assign the user
    */
   public Member addPolicyToMember(String email, GroupPolicy policy) {
+    validateGroupAdmin();
     // call SAM to add a policy + email to the group
     SamService.fromContext().addUserToGroup(name, policy, email);
     logger.info("Added user to group: group={}, email={}, policy={}", name, email, policy);
@@ -108,6 +110,7 @@ public class Group {
    * @param policy policy to remove from the user
    */
   public void removePolicyFromMember(String email, GroupPolicy policy) {
+    validateGroupAdmin();
     // check that the email is a group member
     getMember(email);
 
@@ -121,7 +124,7 @@ public class Group {
    *
    * @throws UserActionableException if the member is not found
    */
-  public Member getMember(String email) {
+  private Member getMember(String email) {
     // lowercase the email so there is a consistent way of looking up the email address
     // the email address casing in SAM may not match the case of what is provided by the user
     Member foundMember = listMembersByEmail().get(email.toLowerCase());
@@ -133,6 +136,7 @@ public class Group {
 
   /** List the members of the group. */
   public List<Member> getMembers() {
+    validateGroupAdmin();
     return new ArrayList<>(listMembersByEmail().values());
   }
 
@@ -163,12 +167,24 @@ public class Group {
     return groupMembers;
   }
 
+  /**
+   * Throw a user-actionable exception if the current user is not an admin of this group, which is
+   * required for some operations.
+   */
+  private void validateGroupAdmin() {
+    if (!currentUserPolicies.contains(GroupPolicy.ADMIN)) {
+      throw new UserActionableException(
+          String.format(
+              "Cannot view or modify membership of group %s, user is not an administrator of this group.",
+              name));
+    }
+  }
+  // ====================================================
+  // Property getters.
+
   public String getName() {
     return name;
   }
-
-  // ====================================================
-  // Property getters.
 
   public String getEmail() {
     return email;
