@@ -23,6 +23,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectPar
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
+import bio.terra.workspace.model.ControlledDataprocClusterUpdateParameters;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpDataprocClusterRequestBody;
@@ -168,36 +169,30 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
    */
   private static GcpDataprocClusterCreationParameters fromCLIObject(
       CreateGcpDataprocClusterParams createParams) {
-    GcpDataprocClusterCreationParameters clusterParams =
-        new GcpDataprocClusterCreationParameters()
-            .clusterId(createParams.clusterId)
-            .region(createParams.region)
-            .imageVersion(createParams.imageVersion)
-            .initializationScripts(createParams.initializationActions)
-            .components(createParams.components)
-            .properties(createParams.properties)
-            .softwareFramework(createParams.softwareFramework)
-            .configBucket(createParams.configBucket)
-            .tempBucket(createParams.tempBucket)
-            .autoscalingPolicy(createParams.autoscalingPolicy)
-            .metadata(createParams.metadata)
-            .managerNodeConfig(buildInstanceGroupConfig(createParams.managerConfig))
-            .primaryWorkerConfig(buildInstanceGroupConfig(createParams.workerConfig))
-            .secondaryWorkerConfig(buildInstanceGroupConfig(createParams.secondaryWorkerConfig))
-            .lifecycleConfig(
-                new GcpDataprocClusterLifecycleConfig()
-                    .idleDeleteTtl(createParams.lifeCycleConfig.idleDeleteTtl())
-                    .autoDeleteTtl(createParams.lifeCycleConfig.autoDeleteTtl())
-                    .autoDeleteTime(createParams.lifeCycleConfig.autoDeleteTime()));
-
-    return clusterParams;
+    return new GcpDataprocClusterCreationParameters()
+        .clusterId(createParams.clusterId)
+        .region(createParams.region)
+        .imageVersion(createParams.imageVersion)
+        .initializationScripts(createParams.initializationActions)
+        .components(createParams.components)
+        .properties(createParams.properties)
+        .softwareFramework(createParams.softwareFramework)
+        .configBucket(createParams.configBucket)
+        .tempBucket(createParams.tempBucket)
+        .autoscalingPolicy(createParams.autoscalingPolicy)
+        .metadata(createParams.metadata)
+        .managerNodeConfig(buildInstanceGroupConfig(createParams.managerConfig))
+        .primaryWorkerConfig(buildInstanceGroupConfig(createParams.workerConfig))
+        .secondaryWorkerConfig(buildInstanceGroupConfig(createParams.secondaryWorkerConfig))
+        .lifecycleConfig(
+            new GcpDataprocClusterLifecycleConfig()
+                .idleDeleteTtl(createParams.lifeCycleConfig.idleDeleteTtl())
+                .autoDeleteTtl(createParams.lifeCycleConfig.autoDeleteTtl())
+                .autoDeleteTime(createParams.lifeCycleConfig.autoDeleteTime()));
   }
 
   private static GcpDataprocClusterInstanceGroupConfig buildInstanceGroupConfig(
       CreateGcpDataprocClusterParams.NodeConfig nodeConfig) {
-    if (nodeConfig == null) {
-      return null;
-    }
     return new GcpDataprocClusterInstanceGroupConfig()
         .numInstances(nodeConfig.numNodes())
         .machineType(nodeConfig.machineType())
@@ -642,16 +637,30 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
         new UpdateControlledGcpDataprocClusterRequestBody()
             .name(updateParams.resourceFields.name)
             .description(updateParams.resourceFields.description);
-    // if (updateParams.notebookUpdateParameters != null) {
-    //   updateRequest.updateParameters(
-    //       new GcpAiNotebookUpdateParameters()
-    //           .metadata(updateParams.notebookUpdateParameters.getMetadata()));
-    // }
-    // callWithRetries(
-    //     () ->
-    //         new ControlledGcpResourceApi(apiClient)
-    //             .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
-    //     "Error updating controlled GCP notebook in the workspace.");
+
+    if (updateParams.clusterUpdateParams != null) {
+      updateRequest.updateParameters(
+          new ControlledDataprocClusterUpdateParameters()
+              .numPrimaryWorkers(updateParams.clusterUpdateParams.getNumPrimaryWorkers())
+              .numSecondaryWorkers(updateParams.clusterUpdateParams.getNumSecondaryWorkers())
+              .autoscalingPolicy(updateParams.clusterUpdateParams.getAutoscalingPolicy())
+              .gracefulDecommissionTimeout(
+                  updateParams.clusterUpdateParams.getGracefulDecommissionTimeout())
+              .lifecycleConfig(
+                  Optional.ofNullable(updateParams.clusterUpdateParams.getLifecycleConfig())
+                      .map(
+                          lifecycleConfig ->
+                              new GcpDataprocClusterLifecycleConfig()
+                                  .idleDeleteTtl(lifecycleConfig.getIdleDeleteTtl())
+                                  .autoDeleteTtl(lifecycleConfig.getAutoDeleteTtl())
+                                  .autoDeleteTime(lifecycleConfig.getAutoDeleteTime()))
+                      .orElse(null)));
+    }
+    callWithRetries(
+        () ->
+            new ControlledGcpResourceApi(apiClient)
+                .updateDataprocCluster(updateRequest, workspaceId, resourceId),
+        "Error updating controlled GCP Dataproc cluster in the workspace.");
   }
 
   /**

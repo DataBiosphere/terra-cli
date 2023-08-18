@@ -9,6 +9,7 @@
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-preprod-ecm.api.verily.com",
   "userManagerUri": "https://terra-preprod-user.api.verily.com",
+  "axonServerUri": "https://terra-preprod-axon.api.verily.com",
   "supportsIdToken": true,
   "auth0Enabled": true,
   "auth0Domain": "verily-terra-prod.us.auth0.com",

@@ -2,10 +2,10 @@ package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.WsmBaseCommand;
+import bio.terra.cli.command.shared.options.DataprocClusterLifecycleConfig;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
-import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams.NodeConfig;
 import bio.terra.cli.serialization.userfacing.input.CreateResourceParams;
@@ -17,7 +17,6 @@ import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.GcpDataprocClusterCreationParameters.SoftwareFrameworkEnum;
 import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig.PreemptibilityEnum;
 import bio.terra.workspace.model.StewardshipType;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -135,7 +134,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
       exclusive = false,
       multiplicity = "0..1",
       heading = "Lifecycle configurations")
-  LifeCycleConfig lifeCycleConfig = new LifeCycleConfig();
+  DataprocClusterLifecycleConfig lifeCycleConfig = new DataprocClusterLifecycleConfig();
 
   /** Print this command's output in text format. */
   private static void printText(UFGcpDataprocCluster returnValue) {
@@ -148,80 +147,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
-
-    System.out.println("Creating GCP Dataproc cluster...");
-    System.out.println("clusterId: " + clusterId);
-    System.out.println("region: " + region);
-    System.out.println("imageVersion: " + imageVersion);
-    System.out.println("initializationActions: " + initializationActions);
-    System.out.println("components: " + components);
-    System.out.println("properties: " + properties);
-    System.out.println("softwareFramework: " + softwareFramework);
-    System.out.println("configBucket: " + configBucket);
-    System.out.println("tempBucket: " + tempBucket);
-    System.out.println("autoscalingPolicy: " + autoscalingPolicy);
-    System.out.println("metadata: " + metadata);
-
-    System.out.println("managerNodeConfig.numNodes: " + managerNodeConfig.numNodes);
-    System.out.println("managerNodeConfig.machineType: " + managerNodeConfig.machineType);
-    System.out.println(
-        "managerNodeConfig.acceleratorConfig.type: " + managerNodeConfig.acceleratorConfig.type);
-    System.out.println(
-        "managerNodeConfig.acceleratorConfig.count: " + managerNodeConfig.acceleratorConfig.count);
-    System.out.println(
-        "managerNodeConfig.diskConfig.diskSizeGb: " + managerNodeConfig.diskConfig.bootDiskSizeGb);
-    System.out.println(
-        "managerNodeConfig.diskConfig.diskType: " + managerNodeConfig.diskConfig.bootDiskType);
-    System.out.println(
-        "managerNodeConfig.diskConfig.numLocalSsds: " + managerNodeConfig.diskConfig.numLocalSsds);
-    System.out.println(
-        "managerNodeConfig.diskConfig.localSsdInterface "
-            + managerNodeConfig.diskConfig.localSsdInterface);
-
-    System.out.println("workerNodeConfig.numNodes: " + workerNodeConfig.numNodes);
-    System.out.println("workerNodeConfig.machineType: " + workerNodeConfig.machineType);
-    System.out.println(
-        "workerNodeConfig.acceleratorConfig.type: " + workerNodeConfig.acceleratorConfig.type);
-    System.out.println(
-        "workerNodeConfig.acceleratorConfig.count: " + workerNodeConfig.acceleratorConfig.count);
-    System.out.println(
-        "workerNodeConfig.diskConfig.diskSizeGb: " + workerNodeConfig.diskConfig.bootDiskSizeGb);
-    System.out.println(
-        "workerNodeConfig.diskConfig.diskType: " + workerNodeConfig.diskConfig.bootDiskType);
-    System.out.println(
-        "workerNodeConfig.diskConfig.numLocalSsds: " + workerNodeConfig.diskConfig.numLocalSsds);
-    System.out.println(
-        "workerNodeConfig.diskConfig.localSsdInterface "
-            + workerNodeConfig.diskConfig.localSsdInterface);
-
-    System.out.println("secondaryWorkerNodeConfig.numNodes: " + secondaryWorkerNodeConfig.numNodes);
-    System.out.println(
-        "secondaryWorkerNodeConfig.machineType: " + secondaryWorkerNodeConfig.machineType);
-    System.out.println(
-        "secondaryWorkerNodeConfig.acceleratorConfig.type: "
-            + secondaryWorkerNodeConfig.acceleratorConfig.type);
-    System.out.println(
-        "secondaryWorkerNodeConfig.acceleratorConfig.count: "
-            + secondaryWorkerNodeConfig.acceleratorConfig.count);
-    System.out.println(
-        "secondaryWorkerNodeConfig.diskConfig.diskSizeGb: "
-            + secondaryWorkerNodeConfig.diskConfig.bootDiskSizeGb);
-    System.out.println(
-        "secondaryWorkerNodeConfig.diskConfig.diskType: "
-            + secondaryWorkerNodeConfig.diskConfig.bootDiskType);
-    System.out.println(
-        "secondaryWorkerNodeConfig.diskConfig.numLocalSsds: "
-            + secondaryWorkerNodeConfig.diskConfig.numLocalSsds);
-    System.out.println(
-        "secondaryWorkerNodeConfig.diskConfig.localSsdInterface "
-            + secondaryWorkerNodeConfig.diskConfig.localSsdInterface);
-    System.out.println("secondaryWorkerNodeConfig.type: " + secondaryWorkerNodeConfig.type);
-
-    System.out.println("lifeCycleConfig.idleDeleteTtl: " + lifeCycleConfig.idleDeleteTtl);
-    System.out.println(
-        "lifeCycleConfig.autoDeleteTtl: " + lifeCycleConfig.autoDeleteOptions.autoDeleteTtl);
-    System.out.println(
-        "lifeCycleConfig.autoDeleteTime: " + lifeCycleConfig.autoDeleteOptions.autoDeleteTime);
 
     // Retrieve the staging and temp bucket resource UUIDs and throw if they don't exist
     UUID configBucketId = Context.requireWorkspace().getResource(configBucket).getId();
@@ -534,37 +459,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
     @Override
     public PreemptibilityEnum convert(String value) throws Exception {
       return PreemptibilityEnum.valueOf(value.replace("-", "_").toUpperCase());
-    }
-  }
-
-  static class LifeCycleConfig {
-    @CommandLine.Option(
-        names = "--idle-delete-ttl",
-        description = "Time-to-live after which the resource becomes idle and is deleted.")
-    private String idleDeleteTtl;
-
-    @CommandLine.ArgGroup(exclusive = true, multiplicity = "0..1")
-    private AutoDeleteOptions autoDeleteOptions = new AutoDeleteOptions();
-
-    static class AutoDeleteOptions {
-      @CommandLine.Option(
-          names = "--auto-delete-ttl",
-          description = "Time-to-live after which the resource is automatically deleted.")
-      private String autoDeleteTtl;
-
-      @CommandLine.Option(
-          names = "--auto-delete-time",
-          description = "Specific date and time after which the resource is automatically deleted.",
-          converter = OffsetDateTimeConverter.class)
-      private OffsetDateTime autoDeleteTime;
-    }
-  }
-
-  /** Helper class to convert a string to an {@link OffsetDateTime}. */
-  static class OffsetDateTimeConverter implements CommandLine.ITypeConverter<OffsetDateTime> {
-    @Override
-    public OffsetDateTime convert(String value) throws UserActionableException {
-      return OffsetDateTime.parse(value);
     }
   }
 }

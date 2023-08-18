@@ -3,6 +3,7 @@
 # This file is expected to be part of source control.
 bio.terra:datarepo-client:1.0.155-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:externalcreds-client-resttemplate:0.101.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra:terra-axon-server:0.43.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-cloud-resource-lib:1.2.23-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.29-SNAPSHOT=runtimeClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.5-SNAPSHOT=compileClasspath,testCompileClasspath

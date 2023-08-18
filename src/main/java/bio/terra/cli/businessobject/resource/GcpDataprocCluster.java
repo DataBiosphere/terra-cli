@@ -1,5 +1,7 @@
 package bio.terra.cli.businessobject.resource;
 
+import bio.terra.axonserver.model.ClusterMetadata;
+import bio.terra.axonserver.model.ClusterStatus;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
@@ -7,10 +9,12 @@ import bio.terra.cli.serialization.persisted.resource.PDGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
+import bio.terra.cli.service.AxonServerService;
 import bio.terra.cli.service.WorkspaceManagerServiceGcp;
 import bio.terra.cloudres.google.dataproc.ClusterName;
 import bio.terra.workspace.model.GcpDataprocClusterResource;
 import bio.terra.workspace.model.ResourceDescription;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +117,46 @@ public class GcpDataprocCluster extends Resource {
         .deleteControlledGcpDataprocCluster(Context.requireWorkspace().getUuid(), id);
   }
 
+  /** Retrieve cluster status from axon server */
+  public Optional<ClusterStatus> getClusterStatus() {
+    try {
+      return Optional.of(
+          AxonServerService.fromContext()
+              .getClusterStatus(Context.requireWorkspace().getUuid(), id));
+    } catch (Exception ex) {
+      logger.error("Caught exception retrieving cluster status", ex);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Retrieve cluster component proxy url from axon server
+   *
+   * @param componentKey component key to retrieve proxy url for, e.g. "JupyterLab"
+   */
+  public Optional<bio.terra.axonserver.model.Url> getClusterComponentUrl(String componentKey) {
+    try {
+      return Optional.of(
+          AxonServerService.fromContext()
+              .getClusterComponentUrl(Context.requireWorkspace().getUuid(), id, componentKey));
+    } catch (Exception ex) {
+      logger.error("Caught exception retrieving cluster component", ex);
+      return Optional.empty();
+    }
+  }
+
+  /** Retrieve cluster attributes not stored in WSM from axon server */
+  public Optional<ClusterMetadata> getClusterMetadata() {
+    try {
+      return Optional.of(
+          AxonServerService.fromContext()
+              .getClusterMetadata(Context.requireWorkspace().getUuid(), id));
+    } catch (Exception ex) {
+      logger.error("Caught exception querying dataproc cluster", ex);
+      return Optional.empty();
+    }
+  }
+
   /**
    * Resolve a GCP dataproc cluster resource to its cloud identifier. Return the cluster name
    * projects/[project_id]/regions/[region]/clusters/[clusterId].
@@ -123,23 +167,20 @@ public class GcpDataprocCluster extends Resource {
     return clusterName.formatName();
   }
 
-  /** Query the cloud for information about the dataproc cluster VM. */
-  // public Optional<Instance> getDataprocCluster() {
-  // ClusterName clusterName =
-  //     ClusterName.builder()
-  //         .projectId(projectId)
-  //         .region(region)
-  //         .name(clusterId)
-  //         .build();
-  // GoogleNotebooks dataproc clusters = new
-  // GoogleNotebooks(Context.requireUser().getPetSACredentials());
-  // try {
-  //   return Optional.of(dataproc clusters.get(clusterName));
-  // } catch (Exception ex) {
-  //   logger.error("Caught exception looking up dataproc cluster", ex);
-  //   return Optional.empty();
-  // }
-  // }
+  public enum ProxyView {
+    JUPYTER("Jupyter"),
+    JUPYTERLAB("JupyterLab");
+
+    private final String param;
+
+    ProxyView(String param) {
+      this.param = param;
+    }
+
+    public String toParam() {
+      return this.param;
+    }
+  }
 
   public ClusterName getClusterName() {
     return clusterName;

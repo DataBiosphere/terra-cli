@@ -9,6 +9,7 @@
   "wsmDefaultSpendProfile": "wm-default-spend-profile",
   "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
   "userManagerUri": "https://terra-devel-user.api.verily.com",
+  "axonServerUri": "https://terra-devel-axon.api.verily.com",
   "supportsIdToken": true,
   "auth0Enabled": true,
   "auth0Domain": "verily-terra-dev.us.auth0.com",
