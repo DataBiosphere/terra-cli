@@ -160,9 +160,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .accessScope(AccessScope.PRIVATE_ACCESS)
             .cloningInstructions(CloningInstructionsEnum.NOTHING);
 
-    System.out.println(managerNodeConfig.numNodes);
-    System.out.println(managerNodeConfig);
-
     // build the dataproc creation parameters
     CreateGcpDataprocClusterParams.Builder createParams =
         new CreateGcpDataprocClusterParams.Builder()
@@ -265,7 +262,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
 
   static class ManagerNodeConfig {
     // Number of manager nodes cannot be specified by the user. It is always 1.
-    private final int numNodes = 1;
+    private static final int numNodes = 1;
 
     @CommandLine.Option(
         names = "--manager-machine-type",

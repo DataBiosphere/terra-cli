@@ -32,7 +32,8 @@ public class GcpDataprocCluster extends WsmBaseCommand {
 
   @CommandLine.Option(
       names = "--autoscaling-policy",
-      description = "Autoscaling policy url to attach to the cluster.")
+      description =
+          "Autoscaling policy url to attach to the cluster. Format: projects/[projectId]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]")
   private String autoscalingPolicy;
 
   @CommandLine.ArgGroup(

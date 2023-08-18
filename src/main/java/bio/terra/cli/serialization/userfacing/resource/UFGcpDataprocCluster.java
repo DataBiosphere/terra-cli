@@ -1,6 +1,9 @@
 package bio.terra.cli.serialization.userfacing.resource;
 
+import static bio.terra.cli.businessobject.resource.GcpDataprocCluster.JUPYTER_LAB_COMPONENT_KEY;
+
 import bio.terra.axonserver.model.ClusterInstanceGroupConfig;
+import bio.terra.axonserver.model.ClusterLifecycleConfig;
 import bio.terra.axonserver.model.ClusterMetadata;
 import bio.terra.axonserver.model.ClusterStatus;
 import bio.terra.cli.businessobject.resource.GcpDataprocCluster;
@@ -10,6 +13,7 @@ import bio.terra.cloudres.google.dataproc.ClusterName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,48 +26,61 @@ import java.util.Optional;
  */
 @JsonDeserialize(builder = UFGcpDataprocCluster.Builder.class)
 public class UFGcpDataprocCluster extends UFResource {
-  private final String JUPYTER_LAB_COMPONENT_KEY = "JupyterLab";
-  public final ClusterName clusterName;
-
-  public final ClusterStatus status;
+  public final String clusterId;
+  public final String status;
   public final String proxyUri;
-  public final ClusterInstanceGroupConfig managerConfig;
-  public final ClusterInstanceGroupConfig workerConfig;
-  public final ClusterInstanceGroupConfig secondaryWorkerConfig;
+  public final int numWorkers;
+  public final int numSecondaryWorkers;
   public final String autoscalingPolicy;
   public final Map<String, String> metadata;
+  public final String idleDeleteTtl;
+  public final String autoDeleteTtl;
+  public Date autoDeleteTime;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcpDataprocCluster(GcpDataprocCluster internalObj) {
     super(internalObj);
-    this.clusterName = internalObj.getClusterName();
+    this.clusterId = internalObj.getClusterName().name();
 
+    // Fetch cluster status, proxy URL, and metadata
     Optional<ClusterStatus> status = internalObj.getClusterStatus();
     Optional<bio.terra.axonserver.model.Url> proxyUrl =
         internalObj.getClusterComponentUrl(JUPYTER_LAB_COMPONENT_KEY);
     Optional<ClusterMetadata> metadata = internalObj.getClusterMetadata();
+    Optional<ClusterInstanceGroupConfig> workerConfig =
+        metadata.map(ClusterMetadata::getPrimaryWorkerConfig);
+    Optional<ClusterInstanceGroupConfig> secondaryWorkerConfig =
+        metadata.map(ClusterMetadata::getSecondaryWorkerConfig);
+    Optional<ClusterLifecycleConfig> lifecycleConfig =
+        metadata.map(ClusterMetadata::getLifecycleConfig);
 
-    this.status = status.orElse(null);
+    // Set fields to display
+    this.status = String.valueOf(status.map(ClusterStatus::getStatus).orElse(null));
     this.proxyUri = proxyUrl.map(bio.terra.axonserver.model.Url::getUrl).orElse(null);
+    this.numWorkers = workerConfig.map(ClusterInstanceGroupConfig::getNumInstances).orElse(0);
+    this.numSecondaryWorkers =
+        secondaryWorkerConfig.map(ClusterInstanceGroupConfig::getNumInstances).orElse(0);
     this.autoscalingPolicy = metadata.map(ClusterMetadata::getAutoscalingPolicy).orElse(null);
     this.metadata = metadata.map(ClusterMetadata::getMetadata).orElse(null);
-    this.managerConfig = metadata.map(ClusterMetadata::getManagerNodeConfig).orElse(null);
-    this.workerConfig = metadata.map(ClusterMetadata::getPrimaryWorkerConfig).orElse(null);
-    this.secondaryWorkerConfig =
-        metadata.map(ClusterMetadata::getSecondaryWorkerConfig).orElse(null);
+    this.idleDeleteTtl = lifecycleConfig.map(ClusterLifecycleConfig::getIdleDeleteTtl).orElse(null);
+    this.autoDeleteTtl = lifecycleConfig.map(ClusterLifecycleConfig::getAutoDeleteTtl).orElse(null);
+    this.autoDeleteTime =
+        lifecycleConfig.map(ClusterLifecycleConfig::getAutoDeleteTime).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
   private UFGcpDataprocCluster(Builder builder) {
     super(builder);
-    this.clusterName = builder.clusterName;
+    this.clusterId = builder.clusterName.name();
     this.status = builder.status;
     this.proxyUri = builder.proxyUri;
+    this.numWorkers = builder.numWorkers;
+    this.numSecondaryWorkers = builder.numSecondaryWorkers;
     this.autoscalingPolicy = builder.autoscalingPolicy;
     this.metadata = builder.metadata;
-    this.managerConfig = builder.managerConfig;
-    this.workerConfig = builder.workerConfig;
-    this.secondaryWorkerConfig = builder.secondaryWorkerConfig;
+    this.idleDeleteTtl = builder.idleDeleteTtl;
+    this.autoDeleteTtl = builder.autoDeleteTtl;
+    this.autoDeleteTime = builder.autoDeleteTime;
   }
 
   /** Print out this object in text format. */
@@ -71,22 +88,41 @@ public class UFGcpDataprocCluster extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
-    OUT.println(prefix + "Cluster Name: " + clusterName.name());
-    // OUT.println(prefix + String.format("Manager Node: %s, %s", managerConfig.getNumInstances(),
-    // managerConfig.getBootDiskSizeGb()));
-    OUT.println(prefix + "Status: " + status.getStatus());
+    OUT.println(prefix + "Cluster Id:   " + clusterId);
+    OUT.println(prefix + "Status:       " + status);
+    OUT.println(prefix + "Proxy URL:    " + (proxyUri == null ? "(undefined)" : proxyUri));
+    OUT.println(prefix + "Workers:      " + numWorkers);
+    OUT.println(prefix + "Secondary Workers:  " + numSecondaryWorkers);
+    OUT.println(
+        prefix
+            + "Autoscaling Policy: "
+            + (autoscalingPolicy == null ? "(undefined)" : autoscalingPolicy));
+    if (metadata != null) {
+      OUT.println(prefix + "Metadata:");
+      metadata.forEach((key, value) -> OUT.println("   " + key + ": " + value));
+    } else {
+      OUT.println(prefix + "Metadata:           (undefined)");
+    }
+    OUT.println(
+        prefix + "Idle Delete Ttl:   " + (idleDeleteTtl == null ? "(undefined)" : idleDeleteTtl));
+    OUT.println(
+        prefix + "Auto Delete Ttl:   " + (autoDeleteTtl == null ? "(undefined)" : autoDeleteTtl));
+    OUT.println(
+        prefix + "Auto Delete Time:  " + (autoDeleteTime == null ? "(undefined)" : autoDeleteTime));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private ClusterName clusterName;
-    private ClusterStatus status;
+    private String status;
     private String proxyUri;
+    private int numWorkers;
+    private int numSecondaryWorkers;
     private String autoscalingPolicy;
     private Map<String, String> metadata;
-    private ClusterInstanceGroupConfig managerConfig;
-    private ClusterInstanceGroupConfig workerConfig;
-    private ClusterInstanceGroupConfig secondaryWorkerConfig;
+    private String idleDeleteTtl;
+    private String autoDeleteTtl;
+    private Date autoDeleteTime;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -96,13 +132,23 @@ public class UFGcpDataprocCluster extends UFResource {
       return this;
     }
 
-    public Builder status(ClusterStatus status) {
+    public Builder status(String status) {
       this.status = status;
       return this;
     }
 
     public Builder proxyUri(String proxyUri) {
       this.proxyUri = proxyUri;
+      return this;
+    }
+
+    public Builder numWorkers(int numWorkers) {
+      this.numWorkers = numWorkers;
+      return this;
+    }
+
+    public Builder numSecondaryWorkers(int numSecondaryWorkers) {
+      this.numSecondaryWorkers = numSecondaryWorkers;
       return this;
     }
 
@@ -116,18 +162,18 @@ public class UFGcpDataprocCluster extends UFResource {
       return this;
     }
 
-    public Builder managerConfig(ClusterInstanceGroupConfig managerConfig) {
-      this.managerConfig = managerConfig;
+    public Builder idleDeleteTtl(String idleDeleteTtl) {
+      this.idleDeleteTtl = idleDeleteTtl;
       return this;
     }
 
-    public Builder workerConfig(ClusterInstanceGroupConfig workerConfig) {
-      this.workerConfig = workerConfig;
+    public Builder autoDeleteTtl(String autoDeleteTtl) {
+      this.autoDeleteTtl = autoDeleteTtl;
       return this;
     }
 
-    public Builder secondaryWorkerConfig(ClusterInstanceGroupConfig secondaryWorkerConfig) {
-      this.secondaryWorkerConfig = secondaryWorkerConfig;
+    public Builder autoDeleteTime(Date autoDeleteTime) {
+      this.autoDeleteTime = autoDeleteTime;
       return this;
     }
 

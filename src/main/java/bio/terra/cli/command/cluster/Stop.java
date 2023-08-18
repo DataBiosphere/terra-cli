@@ -33,6 +33,6 @@ public class Stop extends BaseCommand {
           "Clusters not supported on workspace cloud platform " + workspace.getCloudPlatform());
     }
 
-    OUT.println("Cluster starting. It may take a few minutes before it is available.");
+    OUT.println("Cluster stopping. It may take a few minutes for the cluster to be stopped.");
   }
 }

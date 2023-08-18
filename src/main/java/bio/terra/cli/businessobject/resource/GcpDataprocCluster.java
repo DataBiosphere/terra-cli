@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class GcpDataprocCluster extends Resource {
+  public static final String JUPYTER_LAB_COMPONENT_KEY = "JupyterLab";
   private static final Logger logger = LoggerFactory.getLogger(GcpDataprocCluster.class);
   private final ClusterName clusterName;
 
@@ -168,8 +169,19 @@ public class GcpDataprocCluster extends Resource {
   }
 
   public enum ProxyView {
+    // These values are pulled from the HttpEndpointConfig from the Dataproc cluster api
+    YARN_RESOURCE_MANAGER("YARN ResourceManager"),
+    MAPREDUCE_JOB_HISTORY("MapReduce Job History"),
+    SPARK_HISTORY_SERVER("Spark History Server"),
+    HDFS_NAMENODE("HDFS NameNode"),
+    YARN_APPLICATION_TIMELINE("YARN Application Timeline"),
+    HIVESERVER2("HiveServer2 (all-components-m)"),
+    TEZ("Tez"),
     JUPYTER("Jupyter"),
-    JUPYTERLAB("JupyterLab");
+    JUPYTER_LAB("JupyterLab"),
+    ZEPPELIN("Zeppelin"),
+    SOLR("Solr"),
+    FLINK_HISTORY_SERVER("Flink History Server");
 
     private final String param;
 

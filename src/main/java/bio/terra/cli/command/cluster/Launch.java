@@ -27,7 +27,7 @@ public class Launch extends BaseCommand {
   @CommandLine.Option(
       names = "--proxy-view",
       description =
-          "Dataproc cluster component interface proxy view. Possible components are: ${COMPLETION-CANDIDATES}.",
+          "Dataproc cluster component interface proxy view. Available components: ${COMPLETION-CANDIDATES}.",
       defaultValue = "JUPYTERLAB",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private GcpDataprocCluster.ProxyView proxyView;
@@ -47,7 +47,7 @@ public class Launch extends BaseCommand {
       formatOption.printReturnValue(object, this::printText, this::printJson);
     } else {
       throw new UserActionableException(
-          "Notebooks not supported on workspace cloud platform " + workspace.getCloudPlatform());
+          "Clusters not supported on workspace cloud platform " + workspace.getCloudPlatform());
     }
   }
 

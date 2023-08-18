@@ -113,7 +113,7 @@ public class AxonServerService {
   public void putStartCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, true),
+        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
         "Failed to start cluster");
   }
 
@@ -127,7 +127,7 @@ public class AxonServerService {
   public void putStopCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, true),
+        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
         "Failed to stop cluster");
   }
 
@@ -143,8 +143,7 @@ public class AxonServerService {
     }
     logErrorMessage((ApiException) ex);
     int statusCode = ((ApiException) ex).getCode();
-    return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
-        || statusCode == HttpStatus.SC_BAD_GATEWAY
+    return statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT;
   }
