@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * <p>See the {@link GcpDataprocCluster} class for a Dataproc cluster's internal representation.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 @JsonDeserialize(builder = PDGcpDataprocCluster.Builder.class)
 public class PDGcpDataprocCluster extends PDResource {
   public final ClusterName clusterName;

@@ -177,7 +177,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .metadata(metadata)
             .managerConfig(
                 new NodeConfig.Builder()
-                    .numNodes(managerNodeConfig.numNodes)
+                    .numNodes(ManagerNodeConfig.NUM_NODES)
                     .machineType(managerNodeConfig.machineType)
                     .imageUri(managerNodeConfig.imageUri)
                     .acceleratorConfig(
@@ -262,7 +262,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
 
   static class ManagerNodeConfig {
     // Number of manager nodes cannot be specified by the user. It is always 1.
-    private static final int numNodes = 1;
+    private static final int NUM_NODES = 1;
 
     @CommandLine.Option(
         names = "--manager-machine-type",

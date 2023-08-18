@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * Parameters for updating a GCP Dataproc cluster workspace controlled resource. This class is not
  * currently user-facing, but could be exposed as a command input format in the future.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 @JsonDeserialize(builder = UpdateResourceParams.Builder.class)
 public class UpdateControlledGcpDataprocClusterParams {
   /** When null, the name of the resource should not be updated. */

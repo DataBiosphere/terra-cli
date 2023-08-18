@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * Parameters for creating a GCP dataproc cluster workspace resource. This class is not currently
  * user-facing, but could be exposed as a command input format in the future.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 @JsonDeserialize(builder = CreateGcpDataprocClusterParams.Builder.class)
 public class CreateGcpDataprocClusterParams {
 
