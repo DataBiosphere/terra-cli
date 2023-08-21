@@ -61,7 +61,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,8 +311,13 @@ public final class Oauth {
     return credential.getGoogleCredentials().getAccessToken();
   }
 
-  @NotNull
-  private static Boolean isAuth0RefreshTokenEnabled() {
+  /**
+   * whether auth0 response contains a refresh token which we use to get a newer access token. scope
+   * needs to include "offline_access" to receive a refresh token from Auth0.
+   *
+   * @return false by default.
+   */
+  private static boolean isAuth0RefreshTokenEnabled() {
     return FeatureService.fromContext()
         .isFeatureEnabled("vwb__cli_token_refresh_enabled")
         .orElse(false);
