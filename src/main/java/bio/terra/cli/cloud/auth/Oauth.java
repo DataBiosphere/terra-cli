@@ -1,6 +1,7 @@
 package bio.terra.cli.cloud.auth;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
@@ -51,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -288,9 +291,7 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
-      if (FeatureService.fromContext()
-          .isFeatureEnabled("vwb__cli_token_refresh_enabled")
-          .orElse(false)) {
+      if (isAuth0RefreshTokenEnabled()) {
         try {
           return useAuth0RefreshToken(credential);
         } catch (UnirestException e) {
@@ -311,9 +312,16 @@ public final class Oauth {
     return credential.getGoogleCredentials().getAccessToken();
   }
 
+  @NotNull
+  private static Boolean isAuth0RefreshTokenEnabled() {
+    return FeatureService.fromContext()
+        .isFeatureEnabled("vwb__cli_token_refresh_enabled")
+        .orElse(false);
+  }
+
   private static AccessToken useAuth0RefreshToken(TerraCredentials credential)
       throws UnirestException {
-    URL url = buildRequestTokenUrl();
+    URL url = buildAuth0OauthUrl();
     var googleClientSecrets = Oauth.getClientSecrets();
     // https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens#use-post-authentication
     HttpResponse<String> response =
@@ -336,7 +344,7 @@ public final class Oauth {
     return credential.getGoogleCredentials().getAccessToken();
   }
 
-  private static URL buildRequestTokenUrl() {
+  private static URL buildAuth0OauthUrl() {
     URL url;
     try {
       url = new URL("https", Context.getServer().getAuth0Domain(), "/oauth/token");
@@ -553,6 +561,9 @@ public final class Oauth {
                     /*redirectUrl=*/ "https://github.com/DataBiosphere/terra-cli/blob/main/README.md")
                 .withResponseType("code")
                 .build();
+        List<String> scopesWithOfflineAccess = new ArrayList<>(User.USER_SCOPES);
+        // offline_access scope is required for getting refresh token from Auth0
+        scopesWithOfflineAccess.add("offline_access");
         authorizationCodeFlow =
             new AuthorizationCodeFlow.Builder(
                     BearerToken.authorizationHeaderAccessMethod(),
@@ -563,7 +574,8 @@ public final class Oauth {
                     clientId,
                     url)
                 .setDataStoreFactory(fileDataStoreFactory)
-                .setScopes(scopes)
+                .setScopes(
+                    isAuth0RefreshTokenEnabled() ? scopesWithOfflineAccess : User.USER_SCOPES)
                 .setCredentialCreatedListener(idCredentialListener)
                 .addRefreshListener(idCredentialListener)
                 .build();

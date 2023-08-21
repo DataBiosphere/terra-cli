@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -224,9 +223,8 @@ public class TestUser {
    * or another Terra service.
    */
   public GoogleCredentials getCredentialsWithCloudPlatformScope() throws IOException {
-    List<String> scopesWithCloudPlatform = new ArrayList<>(User.USER_SCOPES);
-    scopesWithCloudPlatform.add(CLOUD_PLATFORM_SCOPE);
-    return getCredentials(scopesWithCloudPlatform);
+    // USER_SCOPE + "https://www.googleapis.com/auth/cloud-platform"
+    return getCredentials(User.PET_SA_SCOPES);
   }
 
   /** Get domain-wide delegated Google credentials for this user. */
