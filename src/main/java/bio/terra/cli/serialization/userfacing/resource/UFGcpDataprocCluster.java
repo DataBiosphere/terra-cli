@@ -9,7 +9,6 @@ import bio.terra.axonserver.model.ClusterStatus;
 import bio.terra.cli.businessobject.resource.GcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.UFResource;
 import bio.terra.cli.utils.UserIO;
-import bio.terra.cloudres.google.dataproc.ClusterName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
@@ -26,6 +25,8 @@ import java.util.Optional;
  */
 @JsonDeserialize(builder = UFGcpDataprocCluster.Builder.class)
 public class UFGcpDataprocCluster extends UFResource {
+  public final String projectId;
+  public final String region;
   public final String clusterId;
   public final String status;
   public final String proxyUri;
@@ -35,11 +36,13 @@ public class UFGcpDataprocCluster extends UFResource {
   public final Map<String, String> metadata;
   public final String idleDeleteTtl;
   public final String autoDeleteTtl;
-  public Date autoDeleteTime;
+  public final Date autoDeleteTime;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcpDataprocCluster(GcpDataprocCluster internalObj) {
     super(internalObj);
+    this.projectId = internalObj.getClusterName().projectId();
+    this.region = internalObj.getClusterName().region();
     this.clusterId = internalObj.getClusterName().name();
 
     // Fetch cluster status, proxy URL, and metadata
@@ -53,6 +56,13 @@ public class UFGcpDataprocCluster extends UFResource {
         metadata.map(ClusterMetadata::getSecondaryWorkerConfig);
     Optional<ClusterLifecycleConfig> lifecycleConfig =
         metadata.map(ClusterMetadata::getLifecycleConfig);
+
+    // Optional<Cluster> cluster = internalObj.getCluster();
+    // if(cluster.isPresent()) {
+    //   Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    // String json = gson.toJson(cluster.get());
+    // System.out.println(json);
+    // }
 
     // Set fields to display
     this.status = String.valueOf(status.map(ClusterStatus::getStatus).orElse(null));
@@ -71,7 +81,9 @@ public class UFGcpDataprocCluster extends UFResource {
   /** Constructor for Jackson deserialization during testing. */
   private UFGcpDataprocCluster(Builder builder) {
     super(builder);
-    this.clusterId = builder.clusterName.name();
+    this.projectId = builder.projectId;
+    this.region = builder.region;
+    this.clusterId = builder.clusterId;
     this.status = builder.status;
     this.proxyUri = builder.proxyUri;
     this.numWorkers = builder.numWorkers;
@@ -88,8 +100,10 @@ public class UFGcpDataprocCluster extends UFResource {
   public void print(String prefix) {
     super.print(prefix);
     PrintStream OUT = UserIO.getOut();
+    OUT.println(prefix + "Project Id:   " + projectId);
+    OUT.println(prefix + "Region:       " + region);
     OUT.println(prefix + "Cluster Id:   " + clusterId);
-    OUT.println(prefix + "Status:       " + status);
+    OUT.println(prefix + "Status:       " + (status == null ? "(undefined)" : status));
     OUT.println(prefix + "Proxy URL:    " + (proxyUri == null ? "(undefined)" : proxyUri));
     OUT.println(prefix + "Workers:      " + numWorkers);
     OUT.println(prefix + "Secondary Workers:  " + numSecondaryWorkers);
@@ -113,7 +127,9 @@ public class UFGcpDataprocCluster extends UFResource {
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
-    private ClusterName clusterName;
+    private String projectId;
+    private String region;
+    private String clusterId;
     private String status;
     private String proxyUri;
     private int numWorkers;
@@ -127,8 +143,18 @@ public class UFGcpDataprocCluster extends UFResource {
     /** Default constructor for Jackson. */
     public Builder() {}
 
-    public Builder clusterName(ClusterName clusterName) {
-      this.clusterName = clusterName;
+    public Builder projectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public Builder region(String region) {
+      this.region = region;
+      return this;
+    }
+
+    public Builder clusterId(String clusterId) {
+      this.clusterId = clusterId;
       return this;
     }
 

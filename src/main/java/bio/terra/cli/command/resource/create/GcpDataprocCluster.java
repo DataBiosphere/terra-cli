@@ -168,7 +168,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .region(region)
             .imageVersion(imageVersion)
             .initializationActions(initializationActions)
-            .components(components)
+            .components(List.of("JUPYTER"))
             .properties(properties)
             .softwareFramework(softwareFramework)
             .configBucket(configBucketId)

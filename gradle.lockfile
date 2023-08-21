@@ -3,7 +3,7 @@
 # This file is expected to be part of source control.
 bio.terra:datarepo-client:1.0.155-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:externalcreds-client-resttemplate:0.101.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-bio.terra:terra-axon-server:0.44.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra:terra-axon-server:0.45.0-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-cloud-resource-lib:1.2.23-SNAPSHOT=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.29-SNAPSHOT=runtimeClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.5-SNAPSHOT=compileClasspath,testCompileClasspath
@@ -254,7 +254,7 @@ org.glassfish.hk2:hk2-api:2.6.1=compileClasspath,runtimeClasspath,testCompileCla
 org.glassfish.hk2:hk2-locator:2.6.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.glassfish.hk2:hk2-utils:2.6.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.glassfish.hk2:osgi-resource-locator:1.0.3=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-org.glassfish.jersey.connectors:jersey-jdk-connector:2.32=runtimeClasspath,testRuntimeClasspath
+org.glassfish.jersey.connectors:jersey-jdk-connector:2.35=runtimeClasspath,testRuntimeClasspath
 org.glassfish.jersey.core:jersey-client:2.30.1=compileClasspath,testCompileClasspath
 org.glassfish.jersey.core:jersey-client:2.35=runtimeClasspath,testRuntimeClasspath
 org.glassfish.jersey.core:jersey-common:2.32=compileClasspath,testCompileClasspath

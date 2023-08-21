@@ -1,7 +1,6 @@
 package bio.terra.cli.service;
 
 import bio.terra.axonserver.api.GcpResourceApi;
-import bio.terra.axonserver.api.PublicApi;
 import bio.terra.axonserver.client.ApiClient;
 import bio.terra.axonserver.client.ApiException;
 import bio.terra.axonserver.model.ClusterMetadata;
@@ -39,24 +38,6 @@ public class AxonServerService {
 
   public static AxonServerService fromContext() {
     return new AxonServerService(Context.requireUser().getTerraToken(), Context.getServer());
-  }
-
-  /**
-   * Factory method for class that talks to Axon Server. No user credentials are used, so only
-   * unauthenticated endpoints can be called.
-   */
-  public static AxonServerService unauthenticated(Server server) {
-    return new AxonServerService(null, server);
-  }
-
-  /** Call the Axon Server "/status" endpoint to get the status of the server. */
-  public void getStatus() {
-    PublicApi publicApi = new PublicApi(apiClient);
-    try {
-      publicApi.serviceStatus();
-    } catch (ApiException ex) {
-      throw new SystemException("Error getting Axon Server status", ex);
-    }
   }
 
   /**
@@ -113,7 +94,7 @@ public class AxonServerService {
   public void putStartCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
+        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ true),
         "Failed to start cluster");
   }
 
@@ -127,7 +108,7 @@ public class AxonServerService {
   public void putStopCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
+        () -> gcpResourceApi.putDataprocClusterStop(workspaceId, resourceId, /* wait=*/ true),
         "Failed to stop cluster");
   }
 
