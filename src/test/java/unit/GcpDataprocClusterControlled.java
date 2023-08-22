@@ -36,6 +36,8 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
       "staging-bucket-" + UUID.randomUUID().toString().substring(0, 8);
   private final String tempBucketName =
       "temp-bucket-" + UUID.randomUUID().toString().substring(0, 8);
+  private UFGcsBucket stagingBucket;
+  private UFGcsBucket tempBucket;
 
   // Create controlled cluster resource to use for all tests in this class.
   @BeforeAll
@@ -44,7 +46,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // Create staging and temp buckets needed by cluster
-    UFGcsBucket stagingBucket =
+    stagingBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
@@ -53,7 +55,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "--name=" + stagingBucketName,
             "--bucket-name=" + stagingBucketName);
 
-    UFGcsBucket tempBucket =
+    tempBucket =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcsBucket.class,
             "resource",
@@ -101,7 +103,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
 
-    // check that the name matches and the instance id is populated
+    // check that the name matches and the cluster id is populated
     assertEquals(name, describeResource.name, "describe resource output matches name");
     assertNotNull(describeResource.clusterId, "describe resource output includes cluster id");
 
@@ -150,7 +152,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
     // Poll until the test user can get the cluster IAM bindings directly to confirm cloud
     // permissions have
-    // synced. This works because we give "clusters.instances.getIamPolicy" to cluster editors.
+    // synced. This works because we give "dataproc.clusters.getIamPolicy" to cluster editors.
     // The UFGcpDataprocCluster object is not fully populated at creation time, so we need an
     // additional `describe` call here.
     UFGcpDataprocCluster createdCluster =
@@ -179,6 +181,57 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
+  @DisplayName("update cluster worker count and idle deletion time")
+  void overrideLocationAndInstanceId() throws IOException, InterruptedException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // `terra resource update gcp-cluster --name=$name
+    String newName = "NewClusterName";
+    String newDescription = "\"new cluster description\"";
+    int newPrimaryWorkerCount = 3;
+    int newSecondaryWorkerCount = 3;
+    String newIdleDeleteTtl = "2000s";
+    UFGcpDataprocCluster updatedCluster =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpDataprocCluster.class,
+            "resource",
+            "update",
+            "gcp-cluster",
+            "--name=" + name,
+            "--new-name=" + newName,
+            "--new-description=" + newDescription,
+            "--num-workers=" + newPrimaryWorkerCount,
+            "--num-secondary-workers=" + newSecondaryWorkerCount,
+            "--idle-delete-ttl=" + newIdleDeleteTtl);
+
+    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "UPDATING");
+    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
+
+    // check that the fields are correctly updated
+    assertEquals(newName, updatedCluster.name, "cluster name updated matches expected");
+    assertEquals(
+        newDescription, updatedCluster.description, "cluster description matches expected");
+
+    UFGcpDataprocCluster describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
+
+    assertEquals(
+        newPrimaryWorkerCount, describeResource.numWorkers, "cluster num workers matches expected");
+    assertEquals(
+        newSecondaryWorkerCount,
+        describeResource.numSecondaryWorkers,
+        "cluster num secondary workers matches expected");
+    assertEquals(
+        newIdleDeleteTtl,
+        describeResource.idleDeleteTtl,
+        "cluster idle delete ttl matches expected");
+  }
+
+  @Test
   @DisplayName("list and describe reflect a deleting cluster")
   void listDescribeReflectDelete() throws IOException {
     workspaceCreator.login();
@@ -204,107 +257,4 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
           Matchers.empty());
     }
   }
-
-  //
-  // @Test
-  // @DisplayName("override the default region and cluster id of a controlled cluster")
-  // void overrideLocationAndInstanceId() throws IOException {
-  //   workspaceCreator.login();
-  //
-  //   // `terra workspace set --id=$id`
-  //   TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-  //
-  //   // `terra resource create gcp-cluster --name=$name
-  //   // --description=$description
-  //   // --location=$location --instance-id=$instanceId`
-  //   String name = "overrideLocationAndInstanceId";
-  //   String description = "\"override default location and instance id\"";
-  //   String region = "us-central1";
-  //   String clusterId = "a" + UUID.randomUUID(); // instance id must start with a letter
-  //   UFGcpDataprocCluster createdCluster =
-  //       TestCommand.runAndParseCommandExpectSuccess(
-  //           UFGcpDataprocCluster.class,
-  //           "resource",
-  //           "create",
-  //           "gcp-cluster",
-  //           "--name=" + name,
-  //           "--description=" + description,
-  //           "--region=" + region,
-  //           "--cluster-id=" + clusterId);
-  //
-  //   // check that the properties match
-  //   assertEquals(name, createdCluster.name, "create output matches name");
-  //   assertEquals(description, createdCluster.description, "create output matches description");
-  //   assertEquals(region, createdCluster.region, "create output matches location");
-  //   assertEquals(clusterId, createdCluster.clusterId, "create output matches cluster id");
-  //
-  //   // gcp clusters are always private, no clone support
-  //   assertEquals(
-  //       AccessScope.PRIVATE_ACCESS, createdCluster.accessScope, "create output matches access");
-  //   assertEquals(
-  //       workspaceCreator.email.toLowerCase(),
-  //       createdCluster.privateUserName.toLowerCase(),
-  //       "create output matches private user name");
-  //   assertEquals(
-  //       CloningInstructionsEnum.NOTHING,
-  //       createdCluster.cloningInstructions,
-  //       "create output matches cloning instruction");
-  //
-  //   // `terra resource describe --name=$name --format=json`
-  //   UFGcpDataprocCluster describeResource =
-  //       TestCommand.runAndParseCommandExpectSuccess(
-  //           UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
-  //
-  //   // check that the properties match
-  //   assertEquals(name, describeResource.name, "describe resource output matches name");
-  //   assertEquals(description, describeResource.description, "describe output matches
-  // description");
-  //   assertEquals(region, describeResource.region, "describe resource output matches location");
-  //   assertEquals(
-  //       clusterId, describeResource.clusterId, "describe resource output matches instance id");
-  //
-  //   // gcp clusters are always private
-  //   assertEquals(
-  //       AccessScope.PRIVATE_ACCESS, describeResource.accessScope, "describe output matches
-  // access");
-  //   assertEquals(
-  //       workspaceCreator.email.toLowerCase(),
-  //       describeResource.privateUserName.toLowerCase(),
-  //       "describe output matches private user name");
-  //
-  //   // new key-value pair will be appended, existing key-value pair will be updated.
-  //   String newName = "NewOverrideLocationAndInstanceId";
-  //   String newDescription = "\"new override default location and instance id\"";
-  //   String newKey1 = "NewMetadata1";
-  //   String newKey2 = "NewMetadata2";
-  //   String newValue1 = "metadata1";
-  //   String newValue2 = "metadata2";
-  //   String newEntry1 = newKey1 + "=" + newValue1;
-  //   String newEntry2 = newKey2 + "=" + newValue2;
-  //   UFGcpDataprocCluster updatedNotebook =
-  //       TestCommand.runAndParseCommandExpectSuccess(
-  //           UFGcpDataprocCluster.class,
-  //           "resource",
-  //           "update",
-  //           "gcp-cluster",
-  //           "--name=" + name,
-  //           "--new-name=" + newName,
-  //           "--new-description=" + newDescription,
-  //           "--new-metadata=" + newEntry1 + "," + newEntry2);
-  //
-  //   // check that the properties match
-  //   // the metadata supports multiple entries, we can't assert on the metadata because it's not
-  //   // stored in or accessible via Workspace Manager.
-  //   assertEquals(newName, updatedNotebook.name, "create output matches name");
-  //   assertEquals(newDescription, updatedNotebook.description, "create output matches
-  // description");
-  //   assertEquals(
-  //       newValue1,
-  //       updatedNotebook.metadata.get(newKey1),
-  //       "create output matches metadata" + newKey1 + ": " + newValue1);
-  //   assertEquals(
-  //       newValue2,
-  //       updatedNotebook.metadata.get(newKey2),
-  //       "create output matches metadata" + newKey2 + ": " + newValue2);
-  // }
 }

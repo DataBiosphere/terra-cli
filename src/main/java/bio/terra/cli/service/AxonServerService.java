@@ -94,7 +94,7 @@ public class AxonServerService {
   public void putStartCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ true),
+        () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
         "Failed to start cluster");
   }
 
@@ -108,7 +108,7 @@ public class AxonServerService {
   public void putStopCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
-        () -> gcpResourceApi.putDataprocClusterStop(workspaceId, resourceId, /* wait=*/ true),
+        () -> gcpResourceApi.putDataprocClusterStop(workspaceId, resourceId, /* wait=*/ false),
         "Failed to stop cluster");
   }
 
