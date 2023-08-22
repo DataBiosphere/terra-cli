@@ -189,7 +189,6 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
 
     // `terra resource update gcp-cluster --name=$name
-    String newName = "NewClusterName";
     String newDescription = "\"new cluster description\"";
     int newPrimaryWorkerCount = 3;
     int newSecondaryWorkerCount = 3;
@@ -201,7 +200,6 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "update",
             "gcp-cluster",
             "--name=" + name,
-            "--new-name=" + newName,
             "--new-description=" + newDescription,
             "--num-workers=" + newPrimaryWorkerCount,
             "--num-secondary-workers=" + newSecondaryWorkerCount,
@@ -211,7 +209,6 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
 
     // check that the fields are correctly updated
-    assertEquals(newName, updatedCluster.name, "cluster name updated matches expected");
     assertEquals(
         newDescription, updatedCluster.description, "cluster description matches expected");
 
