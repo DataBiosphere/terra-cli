@@ -114,8 +114,14 @@ terra auth status
 In order to spend money in Terra (e.g. by creating a workspace and resources
 within it), you need access to a billing account via a spend profile. Currently,
 there is a single spend profile used by each team. An admin user can grant you
-access. Admins, see [ADMIN.md](https://github.
-com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend) for more details.
+access. Admins,
+see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#spend)
+for more details.
+
+A user can be given access to multiple spend profiles, and an admin can set the
+default spend profile to use. Users can override the default spend profile used
+to create a workspace by using the `--spend-profile` option during workspace
+create. See usage under [example usage](#example-usage).
 
 ### External data
 
@@ -222,10 +228,18 @@ The commands below walk through a brief demo of the existing commands.
   terra server status
   ```
 
-* Create a new Terra workspace and backing Google project. Check the current
+* Create a new Terra workspace and backing Google project, using the user's
+  default spend profile. Check the current
   context to confirm it was created successfully.
   ```shell
   terra workspace create --id=<my-workspace-id>
+  terra status
+  ```
+
+* Create a new Terra workspace and backing Google project, overriding the user's
+  default spend profile. User must have access to the alternate spend profile.
+  ```shell
+  terra workspace create --id=<my-workspace-id> --spend-profile=<alt-spend-profile>
   terra status
   ```
 
