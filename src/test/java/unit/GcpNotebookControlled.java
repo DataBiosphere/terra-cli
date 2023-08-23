@@ -261,6 +261,6 @@ public class GcpNotebookControlled extends SingleWorkspaceUnitGcp {
 
     // `terra notebook start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("notebook", "start", "--name=" + name);
-    GcpNotebookUtils.assertNotebookState(name, "ACTIVE");
+    GcpNotebookUtils.pollDescribeForNotebookState(name, "ACTIVE");
   }
 }
