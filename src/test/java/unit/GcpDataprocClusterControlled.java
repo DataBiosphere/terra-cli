@@ -26,7 +26,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the `terra resource` commands that handle controlled GCP clusters. */
-/** This test only executes on verily environments. Add a tag prefix to prevent it from running in the main repo */
+/**
+ * This test only executes on verily environments. Add a tag prefix to prevent it from running in
+ * the main repo
+ */
 @Tag("unit-verily-gcp")
 public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
