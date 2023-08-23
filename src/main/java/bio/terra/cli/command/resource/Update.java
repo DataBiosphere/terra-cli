@@ -2,7 +2,6 @@ package bio.terra.cli.command.resource;
 
 import bio.terra.cli.command.resource.update.BqDataset;
 import bio.terra.cli.command.resource.update.BqTable;
-import bio.terra.cli.command.resource.update.GcpDataprocCluster;
 import bio.terra.cli.command.resource.update.GcpNotebook;
 import bio.terra.cli.command.resource.update.GcsBucket;
 import bio.terra.cli.command.resource.update.GcsObject;
@@ -20,7 +19,6 @@ import picocli.CommandLine;
       BqDataset.class,
       BqTable.class,
       GcpNotebook.class,
-      GcpDataprocCluster.class,
       GcsBucket.class,
       GcsObject.class,
       GitRepo.class

@@ -12,7 +12,6 @@ import bio.terra.cli.utils.UserIO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.io.PrintStream;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,8 +34,6 @@ public class UFGcpDataprocCluster extends UFResource {
   public final String autoscalingPolicy;
   public final Map<String, String> metadata;
   public final String idleDeleteTtl;
-  public final String autoDeleteTtl;
-  public final Date autoDeleteTime;
 
   /** Serialize an instance of the internal class to the command format. */
   public UFGcpDataprocCluster(GcpDataprocCluster internalObj) {
@@ -57,13 +54,6 @@ public class UFGcpDataprocCluster extends UFResource {
     Optional<ClusterLifecycleConfig> lifecycleConfig =
         metadata.map(ClusterMetadata::getLifecycleConfig);
 
-    // Optional<Cluster> cluster = internalObj.getCluster();
-    // if(cluster.isPresent()) {
-    //   Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    // String json = gson.toJson(cluster.get());
-    // System.out.println(json);
-    // }
-
     // Set fields to display
     this.status = String.valueOf(status.map(ClusterStatus::getStatus).orElse(null));
     this.proxyUri = proxyUrl.map(bio.terra.axonserver.model.Url::getUrl).orElse(null);
@@ -73,9 +63,6 @@ public class UFGcpDataprocCluster extends UFResource {
     this.autoscalingPolicy = metadata.map(ClusterMetadata::getAutoscalingPolicy).orElse(null);
     this.metadata = metadata.map(ClusterMetadata::getMetadata).orElse(null);
     this.idleDeleteTtl = lifecycleConfig.map(ClusterLifecycleConfig::getIdleDeleteTtl).orElse(null);
-    this.autoDeleteTtl = lifecycleConfig.map(ClusterLifecycleConfig::getAutoDeleteTtl).orElse(null);
-    this.autoDeleteTime =
-        lifecycleConfig.map(ClusterLifecycleConfig::getAutoDeleteTime).orElse(null);
   }
 
   /** Constructor for Jackson deserialization during testing. */
@@ -91,8 +78,6 @@ public class UFGcpDataprocCluster extends UFResource {
     this.autoscalingPolicy = builder.autoscalingPolicy;
     this.metadata = builder.metadata;
     this.idleDeleteTtl = builder.idleDeleteTtl;
-    this.autoDeleteTtl = builder.autoDeleteTtl;
-    this.autoDeleteTime = builder.autoDeleteTime;
   }
 
   /** Print out this object in text format. */
@@ -119,10 +104,6 @@ public class UFGcpDataprocCluster extends UFResource {
     }
     OUT.println(
         prefix + "Idle Delete Ttl:   " + (idleDeleteTtl == null ? "(undefined)" : idleDeleteTtl));
-    OUT.println(
-        prefix + "Auto Delete Ttl:   " + (autoDeleteTtl == null ? "(undefined)" : autoDeleteTtl));
-    OUT.println(
-        prefix + "Auto Delete Time:  " + (autoDeleteTime == null ? "(undefined)" : autoDeleteTime));
   }
 
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -137,8 +118,6 @@ public class UFGcpDataprocCluster extends UFResource {
     private String autoscalingPolicy;
     private Map<String, String> metadata;
     private String idleDeleteTtl;
-    private String autoDeleteTtl;
-    private Date autoDeleteTime;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -190,16 +169,6 @@ public class UFGcpDataprocCluster extends UFResource {
 
     public Builder idleDeleteTtl(String idleDeleteTtl) {
       this.idleDeleteTtl = idleDeleteTtl;
-      return this;
-    }
-
-    public Builder autoDeleteTtl(String autoDeleteTtl) {
-      this.autoDeleteTtl = autoDeleteTtl;
-      return this;
-    }
-
-    public Builder autoDeleteTime(Date autoDeleteTime) {
-      this.autoDeleteTime = autoDeleteTime;
       return this;
     }
 

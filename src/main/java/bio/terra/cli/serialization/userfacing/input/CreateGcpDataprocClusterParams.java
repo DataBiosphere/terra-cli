@@ -4,7 +4,6 @@ import bio.terra.workspace.model.GcpDataprocClusterCreationParameters.SoftwareFr
 import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig.PreemptibilityEnum;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,8 +35,7 @@ public class CreateGcpDataprocClusterParams {
   public final NodeConfig workerConfig;
   public final NodeConfig secondaryWorkerConfig;
 
-  // Lifecycle config
-  public final LifeCycleConfig lifeCycleConfig;
+  public final String idleDeleteTtl;
 
   protected CreateGcpDataprocClusterParams(Builder builder) {
     this.resourceFields = builder.resourceFields;
@@ -55,7 +53,7 @@ public class CreateGcpDataprocClusterParams {
     this.managerConfig = builder.managerConfig;
     this.workerConfig = builder.workerConfig;
     this.secondaryWorkerConfig = builder.secondaryWorkerConfig;
-    this.lifeCycleConfig = builder.lifeCycleConfig;
+    this.idleDeleteTtl = builder.idleDeleteTtl;
   }
 
   public record AcceleratorConfig(String type, int count) {
@@ -165,34 +163,6 @@ public class CreateGcpDataprocClusterParams {
     }
   }
 
-  public record LifeCycleConfig(
-      String idleDeleteTtl, String autoDeleteTtl, OffsetDateTime autoDeleteTime) {
-    public static class Builder {
-      private String idleDeleteTtl;
-      private String autoDeleteTtl;
-      private OffsetDateTime autoDeleteTime;
-
-      public Builder idleDeleteTtl(String idleDeleteTtl) {
-        this.idleDeleteTtl = idleDeleteTtl;
-        return this;
-      }
-
-      public Builder autoDeleteTtl(String autoDeleteTtl) {
-        this.autoDeleteTtl = autoDeleteTtl;
-        return this;
-      }
-
-      public Builder autoDeleteTime(OffsetDateTime autoDeleteTime) {
-        this.autoDeleteTime = autoDeleteTime;
-        return this;
-      }
-
-      public LifeCycleConfig build() {
-        return new LifeCycleConfig(idleDeleteTtl, autoDeleteTtl, autoDeleteTime);
-      }
-    }
-  }
-
   public static class Builder {
     private CreateResourceParams resourceFields;
     private String clusterId;
@@ -210,7 +180,7 @@ public class CreateGcpDataprocClusterParams {
     private NodeConfig workerConfig;
     private NodeConfig secondaryWorkerConfig;
 
-    private LifeCycleConfig lifeCycleConfig;
+    private String idleDeleteTtl;
 
     /** Default constructor for Jackson. */
     public Builder() {}
@@ -290,8 +260,8 @@ public class CreateGcpDataprocClusterParams {
       return this;
     }
 
-    public Builder lifeCycleConfig(LifeCycleConfig lifeCycleConfig) {
-      this.lifeCycleConfig = lifeCycleConfig;
+    public Builder idleDeleteTtl(String idleDeleteTtl) {
+      this.idleDeleteTtl = idleDeleteTtl;
       return this;
     }
 

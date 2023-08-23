@@ -127,7 +127,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // `terra resource resolve --name=$name --format=json`
     String expectedResolved =
         String.format(
-            "%s/regions/%s/clusters/%s",
+            "projects/%s/regions/%s/clusters/%s",
             testCluster.projectId, testCluster.region, testCluster.clusterId);
     JSONObject resolved =
         TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
@@ -178,54 +178,6 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // `terra cluster start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("cluster", "start", "--name=" + name);
     GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
-  }
-
-  @Test
-  @DisplayName("update cluster worker count and idle deletion time")
-  void overrideLocationAndInstanceId() throws IOException, InterruptedException {
-    workspaceCreator.login();
-
-    // `terra workspace set --id=$id`
-    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
-
-    // `terra resource update gcp-cluster --name=$name
-    String newDescription = "\"new cluster description\"";
-    int newPrimaryWorkerCount = 3;
-    int newSecondaryWorkerCount = 3;
-    String newIdleDeleteTtl = "2000s";
-    UFGcpDataprocCluster updatedCluster =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpDataprocCluster.class,
-            "resource",
-            "update",
-            "gcp-cluster",
-            "--name=" + name,
-            "--new-description=" + newDescription,
-            "--num-workers=" + newPrimaryWorkerCount,
-            "--num-secondary-workers=" + newSecondaryWorkerCount,
-            "--idle-delete-ttl=" + newIdleDeleteTtl);
-
-    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "UPDATING");
-    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
-
-    // check that the fields are correctly updated
-    assertEquals(
-        newDescription, updatedCluster.description, "cluster description matches expected");
-
-    UFGcpDataprocCluster describeResource =
-        TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
-
-    assertEquals(
-        newPrimaryWorkerCount, describeResource.numWorkers, "cluster num workers matches expected");
-    assertEquals(
-        newSecondaryWorkerCount,
-        describeResource.numSecondaryWorkers,
-        "cluster num secondary workers matches expected");
-    assertEquals(
-        newIdleDeleteTtl,
-        describeResource.idleDeleteTtl,
-        "cluster idle delete ttl matches expected");
   }
 
   @Test

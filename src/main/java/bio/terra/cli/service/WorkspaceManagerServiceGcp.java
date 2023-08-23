@@ -13,7 +13,6 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
-import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
@@ -23,7 +22,6 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectPar
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
-import bio.terra.workspace.model.ControlledDataprocClusterUpdateParameters;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpDataprocClusterRequestBody;
@@ -73,7 +71,6 @@ import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
-import bio.terra.workspace.model.UpdateControlledGcpDataprocClusterRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketReferenceRequestBody;
@@ -185,10 +182,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
         .primaryWorkerConfig(buildInstanceGroupConfig(createParams.workerConfig))
         .secondaryWorkerConfig(buildInstanceGroupConfig(createParams.secondaryWorkerConfig))
         .lifecycleConfig(
-            new GcpDataprocClusterLifecycleConfig()
-                .idleDeleteTtl(createParams.lifeCycleConfig.idleDeleteTtl())
-                .autoDeleteTtl(createParams.lifeCycleConfig.autoDeleteTtl())
-                .autoDeleteTime(createParams.lifeCycleConfig.autoDeleteTime()));
+            new GcpDataprocClusterLifecycleConfig().idleDeleteTtl(createParams.idleDeleteTtl));
   }
 
   private static GcpDataprocClusterInstanceGroupConfig buildInstanceGroupConfig(
@@ -618,49 +612,6 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
             new ControlledGcpResourceApi(apiClient)
                 .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
         "Error updating controlled GCP notebook in the workspace.");
-  }
-
-  /**
-   * Call the Workspace Manager POST
-   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/dataproc-clusters/{resourceId}"
-   * endpoint to update a GCP Dataproc cluster controlled resource in the workspace.
-   *
-   * @param workspaceId the workspace where the resource exists
-   * @param resourceId the resource id
-   * @param updateParams resource properties to update
-   */
-  public void updateControlledDataprocCluster(
-      UUID workspaceId, UUID resourceId, UpdateControlledGcpDataprocClusterParams updateParams) {
-
-    // convert the CLI object to a WSM request object
-    UpdateControlledGcpDataprocClusterRequestBody updateRequest =
-        new UpdateControlledGcpDataprocClusterRequestBody()
-            .name(updateParams.resourceFields.name)
-            .description(updateParams.resourceFields.description);
-
-    if (updateParams.clusterUpdateParams != null) {
-      updateRequest.updateParameters(
-          new ControlledDataprocClusterUpdateParameters()
-              .numPrimaryWorkers(updateParams.clusterUpdateParams.getNumPrimaryWorkers())
-              .numSecondaryWorkers(updateParams.clusterUpdateParams.getNumSecondaryWorkers())
-              .autoscalingPolicy(updateParams.clusterUpdateParams.getAutoscalingPolicy())
-              .gracefulDecommissionTimeout(
-                  updateParams.clusterUpdateParams.getGracefulDecommissionTimeout())
-              .lifecycleConfig(
-                  Optional.ofNullable(updateParams.clusterUpdateParams.getLifecycleConfig())
-                      .map(
-                          lifecycleConfig ->
-                              new GcpDataprocClusterLifecycleConfig()
-                                  .idleDeleteTtl(lifecycleConfig.getIdleDeleteTtl())
-                                  .autoDeleteTtl(lifecycleConfig.getAutoDeleteTtl())
-                                  .autoDeleteTime(lifecycleConfig.getAutoDeleteTime()))
-                      .orElse(null)));
-    }
-    callWithRetries(
-        () ->
-            new ControlledGcpResourceApi(apiClient)
-                .updateDataprocCluster(updateRequest, workspaceId, resourceId),
-        "Error updating controlled GCP Dataproc cluster in the workspace.");
   }
 
   /**

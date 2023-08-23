@@ -2,7 +2,6 @@ package bio.terra.cli.command.resource.create;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.command.shared.WsmBaseCommand;
-import bio.terra.cli.command.shared.options.DataprocClusterLifecycleConfig;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceCreation;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
@@ -130,11 +129,10 @@ public class GcpDataprocCluster extends WsmBaseCommand {
       heading = "Secondary worker node configurations")
   SecondaryWorkerNodeConfig secondaryWorkerNodeConfig = new SecondaryWorkerNodeConfig();
 
-  @CommandLine.ArgGroup(
-      exclusive = false,
-      multiplicity = "0..1",
-      heading = "Lifecycle configurations")
-  DataprocClusterLifecycleConfig lifeCycleConfig = new DataprocClusterLifecycleConfig();
+  @CommandLine.Option(
+      names = "--idle-delete-ttl",
+      description = "Time-to-live after which the resource becomes idle and is deleted.")
+  public String idleDeleteTtl;
 
   /** Print this command's output in text format. */
   private static void printText(UFGcpDataprocCluster returnValue) {
@@ -246,12 +244,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
                                 secondaryWorkerNodeConfig.diskConfig.localSsdInterface)
                             .build())
                     .build())
-            .lifeCycleConfig(
-                new CreateGcpDataprocClusterParams.LifeCycleConfig.Builder()
-                    .idleDeleteTtl(lifeCycleConfig.idleDeleteTtl)
-                    .autoDeleteTtl(lifeCycleConfig.autoDeleteOptions.autoDeleteTtl)
-                    .autoDeleteTime(lifeCycleConfig.autoDeleteOptions.autoDeleteTime)
-                    .build());
+            .idleDeleteTtl(idleDeleteTtl);
 
     bio.terra.cli.businessobject.resource.GcpDataprocCluster createdResource =
         bio.terra.cli.businessobject.resource.GcpDataprocCluster.createControlled(
