@@ -158,6 +158,7 @@ public class GcpDataprocCluster extends Resource {
     return clusterName.formatName();
   }
 
+  // Maps user provided proxy view option to the component key used to fetch the component proxy url
   public enum ProxyView {
     // These values are pulled from the HttpEndpointConfig from the Dataproc cluster api
     YARN_RESOURCE_MANAGER("YARN ResourceManager"),
