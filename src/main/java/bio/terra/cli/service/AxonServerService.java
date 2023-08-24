@@ -91,7 +91,7 @@ public class AxonServerService {
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the cluster resource id
    */
-  public void putStartCluster(UUID workspaceId, UUID resourceId) {
+  public void startCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
         () -> gcpResourceApi.putDataprocClusterStart(workspaceId, resourceId, /* wait=*/ false),
@@ -105,7 +105,7 @@ public class AxonServerService {
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the cluster resource id
    */
-  public void putStopCluster(UUID workspaceId, UUID resourceId) {
+  public void stopCluster(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
     callWithRetries(
         () -> gcpResourceApi.putDataprocClusterStop(workspaceId, resourceId, /* wait=*/ false),

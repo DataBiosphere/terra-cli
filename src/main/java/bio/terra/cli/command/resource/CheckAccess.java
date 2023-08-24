@@ -7,6 +7,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.utils.CommandUtils;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource check-access" command. */
@@ -25,6 +26,9 @@ public class CheckAccess extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
+    if (resource.getResourceType().equals(Resource.Type.DATAPROC_CLUSTER)) {
+      CommandUtils.checkDataprocSupport();
+    }
     boolean proxyGroupHasAccess = resource.checkAccess();
     formatOption.printReturnValue(proxyGroupHasAccess, this::printText);
   }

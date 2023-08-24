@@ -6,6 +6,7 @@ import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.DeletePrompt;
 import bio.terra.cli.command.shared.options.ResourceName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
+import bio.terra.cli.utils.CommandUtils;
 import picocli.CommandLine;
 
 /** This class corresponds to the third-level "terra resource delete" command. */
@@ -21,6 +22,10 @@ public class Delete extends WsmBaseCommand {
     workspaceOption.overrideIfSpecified();
 
     Resource resourceToDelete = Context.requireWorkspace().getResource(resourceNameOption.name);
+
+    if (resourceToDelete.getResourceType().equals(Resource.Type.DATAPROC_CLUSTER)) {
+      CommandUtils.checkDataprocSupport();
+    }
 
     // print details about the resource before showing the delete prompt
     resourceToDelete.serializeToCommand().print();

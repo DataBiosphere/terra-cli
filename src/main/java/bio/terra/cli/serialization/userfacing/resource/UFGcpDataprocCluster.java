@@ -44,8 +44,7 @@ public class UFGcpDataprocCluster extends UFResource {
 
     // Fetch cluster status, proxy URL, and metadata
     Optional<ClusterStatus> status = internalObj.getClusterStatus();
-    Optional<bio.terra.axonserver.model.Url> proxyUrl =
-        internalObj.getClusterComponentUrl(JUPYTER_LAB_COMPONENT_KEY);
+    Optional<String> proxyUrl = internalObj.getClusterComponentUrl(JUPYTER_LAB_COMPONENT_KEY);
     Optional<ClusterMetadata> metadata = internalObj.getClusterMetadata();
     Optional<ClusterInstanceGroupConfig> workerConfig =
         metadata.map(ClusterMetadata::getPrimaryWorkerConfig);
@@ -56,7 +55,7 @@ public class UFGcpDataprocCluster extends UFResource {
 
     // Set fields to display
     this.status = String.valueOf(status.map(ClusterStatus::getStatus).orElse(null));
-    this.proxyUri = proxyUrl.map(bio.terra.axonserver.model.Url::getUrl).orElse(null);
+    this.proxyUri = proxyUrl.orElse(null);
     this.numWorkers = workerConfig.map(ClusterInstanceGroupConfig::getNumInstances).orElse(0);
     this.numSecondaryWorkers =
         secondaryWorkerConfig.map(ClusterInstanceGroupConfig::getNumInstances).orElse(0);

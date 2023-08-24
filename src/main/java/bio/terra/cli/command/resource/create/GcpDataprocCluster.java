@@ -26,9 +26,9 @@ import picocli.CommandLine;
  * This class corresponds to the fourth-level "terra resource create gcp-dataproc-cluster" command.
  */
 @CommandLine.Command(
-    name = "gcp-dataproc-cluster",
+    name = "dataproc-cluster",
     description =
-        "Add a controlled GCP Dataproc cluster.\n"
+        "Add a controlled GCP Dataproc cluster resource with Jupyter.\n"
             + "For a detailed explanation of parameters, see https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters#Cluster",
     showDefaultValues = true,
     sortOptions = false)
@@ -140,11 +140,12 @@ public class GcpDataprocCluster extends WsmBaseCommand {
     returnValue.print();
   }
 
-  /** Add a controlled GCP Notebook instance to the workspace. */
+  /** Add a controlled GCP Dataproc cluster to the workspace. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
+    CommandUtils.checkDataprocSupport();
 
     // Retrieve the staging and temp bucket resource UUIDs and throw if they don't exist
     UUID configBucketId = Context.requireWorkspace().getResource(configBucket).getId();

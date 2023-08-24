@@ -5,7 +5,7 @@ import bio.terra.cli.businessobject.User;
 import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
-import bio.terra.cli.service.FeatureService;
+import bio.terra.cli.service.FeatureFlags;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -290,7 +290,7 @@ public final class Oauth {
   public static AccessToken getAccessToken(TerraCredentials credential) {
     if (Context.getServer().getAuth0Enabled()
         && LogInMode.BROWSER == Context.requireUser().getLogInMode()) {
-      if (isAuth0RefreshTokenEnabled()) {
+      if (FeatureFlags.isAuth0RefreshTokenEnabled()) {
         try {
           return useAuth0RefreshToken(credential);
         } catch (UnirestException e) {
@@ -309,18 +309,6 @@ public final class Oauth {
       // error when we try to re-use it anyway, and this log statement may help with debugging.
     }
     return credential.getGoogleCredentials().getAccessToken();
-  }
-
-  /**
-   * whether auth0 response contains a refresh token which we use to get a newer access token. scope
-   * needs to include "offline_access" to receive a refresh token from Auth0.
-   *
-   * @return false by default.
-   */
-  private static boolean isAuth0RefreshTokenEnabled() {
-    return FeatureService.fromContext()
-        .isFeatureEnabled("vwb__cli_token_refresh_enabled")
-        .orElse(false);
   }
 
   private static AccessToken useAuth0RefreshToken(TerraCredentials credential)
@@ -579,7 +567,9 @@ public final class Oauth {
                     url)
                 .setDataStoreFactory(fileDataStoreFactory)
                 .setScopes(
-                    isAuth0RefreshTokenEnabled() ? scopesWithOfflineAccess : User.USER_SCOPES)
+                    FeatureFlags.isAuth0RefreshTokenEnabled()
+                        ? scopesWithOfflineAccess
+                        : User.USER_SCOPES)
                 .setCredentialCreatedListener(idCredentialListener)
                 .addRefreshListener(idCredentialListener)
                 .build();

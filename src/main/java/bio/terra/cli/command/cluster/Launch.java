@@ -9,6 +9,7 @@ import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.AxonServerService;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.UUID;
 import org.json.JSONObject;
@@ -17,7 +18,7 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra cluster launch" command. */
 @CommandLine.Command(
     name = "launch",
-    description = "Launch a running Dataproc cluster within your workspace.",
+    description = "Launch a Dataproc cluster proxy view within your workspace.",
     showDefaultValues = true)
 public class Launch extends BaseCommand {
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
@@ -28,7 +29,7 @@ public class Launch extends BaseCommand {
       names = "--proxy-view",
       description =
           "Dataproc cluster component interface proxy view. Available components: ${COMPLETION-CANDIDATES}.",
-      defaultValue = "JUPYTERLAB",
+      defaultValue = "JUPYTER_LAB",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   private GcpDataprocCluster.ProxyView proxyView;
 
@@ -36,6 +37,7 @@ public class Launch extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace workspace = Context.requireWorkspace();
+    CommandUtils.checkDataprocSupport();
 
     if (workspace.getCloudPlatform() == CloudPlatform.GCP) {
       UUID resourceId = dataprocClusterName.toClusterResourceId();

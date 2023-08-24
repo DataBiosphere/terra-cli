@@ -2,6 +2,7 @@ package bio.terra.cli.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.FeatureFlags;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -28,6 +29,13 @@ public class CommandUtils {
               + Arrays.stream(cloudPlatforms)
                   .map(CloudPlatform::getValue)
                   .collect(Collectors.joining(", ")));
+    }
+  }
+
+  // Checks if the dataproc is supported
+  public static void checkDataprocSupport() throws UserActionableException {
+    if (!FeatureFlags.isDataprocEnabled()) {
+      throw new UserActionableException("Dataproc is not enabled for the current server or user.");
     }
   }
 }

@@ -1,11 +1,17 @@
 package bio.terra.cli.serialization.userfacing.input;
 
+import bio.terra.workspace.model.GcpDataprocClusterAcceleratorConfig;
+import bio.terra.workspace.model.GcpDataprocClusterCreationParameters;
 import bio.terra.workspace.model.GcpDataprocClusterCreationParameters.SoftwareFrameworkEnum;
+import bio.terra.workspace.model.GcpDataprocClusterDiskConfig;
+import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig;
 import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig.PreemptibilityEnum;
+import bio.terra.workspace.model.GcpDataprocClusterLifecycleConfig;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -268,5 +274,57 @@ public class CreateGcpDataprocClusterParams {
     public CreateGcpDataprocClusterParams build() {
       return new CreateGcpDataprocClusterParams(this);
     }
+  }
+
+  /**
+   * This method converts this CLI-defined POJO class into the WSM client library-defined request
+   * object.
+   *
+   * @return GCP Dataproc cluster creation parameters in the format expected by the WSM client
+   *     library
+   */
+  public static GcpDataprocClusterCreationParameters toWsmCreateClusterParams(
+      CreateGcpDataprocClusterParams createParams) {
+    return new GcpDataprocClusterCreationParameters()
+        .clusterId(createParams.clusterId)
+        .region(createParams.region)
+        .imageVersion(createParams.imageVersion)
+        .initializationScripts(createParams.initializationActions)
+        .components(createParams.components)
+        .properties(createParams.properties)
+        .softwareFramework(createParams.softwareFramework)
+        .configBucket(createParams.configBucket)
+        .tempBucket(createParams.tempBucket)
+        .autoscalingPolicy(createParams.autoscalingPolicy)
+        .metadata(createParams.metadata)
+        .managerNodeConfig(buildInstanceGroupConfig(createParams.managerConfig))
+        .primaryWorkerConfig(buildInstanceGroupConfig(createParams.workerConfig))
+        .secondaryWorkerConfig(buildInstanceGroupConfig(createParams.secondaryWorkerConfig))
+        .lifecycleConfig(
+            new GcpDataprocClusterLifecycleConfig().idleDeleteTtl(createParams.idleDeleteTtl));
+  }
+
+  private static GcpDataprocClusterInstanceGroupConfig buildInstanceGroupConfig(
+      CreateGcpDataprocClusterParams.NodeConfig nodeConfig) {
+    return new GcpDataprocClusterInstanceGroupConfig()
+        .numInstances(nodeConfig.numNodes())
+        .machineType(nodeConfig.machineType())
+        .imageUri(nodeConfig.imageUri())
+        .acceleratorConfig(
+            Optional.ofNullable(nodeConfig.acceleratorConfig())
+                .map(
+                    ac ->
+                        new GcpDataprocClusterAcceleratorConfig()
+                            .type(ac.type())
+                            .cardCount(ac.count()))
+                .orElse(null))
+        .diskConfig(
+            new GcpDataprocClusterDiskConfig()
+                .bootDiskType(nodeConfig.diskConfig().bootDiskType())
+                .bootDiskType(nodeConfig.diskConfig().bootDiskType())
+                .bootDiskSizeGb(nodeConfig.diskConfig().bootDiskSizeGb())
+                .numLocalSsds(nodeConfig.diskConfig().numLocalSsds())
+                .localSsdInterface(nodeConfig.diskConfig().localSsdInterface()))
+        .preemptibility(nodeConfig.preemptibility());
   }
 }

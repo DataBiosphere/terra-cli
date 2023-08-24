@@ -125,11 +125,12 @@ public class GcpDataprocCluster extends Resource {
    *
    * @param componentKey component key to retrieve proxy url for, e.g. "JupyterLab"
    */
-  public Optional<bio.terra.axonserver.model.Url> getClusterComponentUrl(String componentKey) {
+  public Optional<String> getClusterComponentUrl(String componentKey) {
     try {
       return Optional.of(
           AxonServerService.fromContext()
-              .getClusterComponentUrl(Context.requireWorkspace().getUuid(), id, componentKey));
+              .getClusterComponentUrl(Context.requireWorkspace().getUuid(), id, componentKey)
+              .getUrl());
     } catch (Exception ex) {
       logger.error("Caught exception retrieving cluster component", ex);
       return Optional.empty();

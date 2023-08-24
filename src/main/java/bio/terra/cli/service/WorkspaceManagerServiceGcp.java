@@ -1,5 +1,7 @@
 package bio.terra.cli.service;
 
+import static bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams.toWsmCreateClusterParams;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
@@ -50,11 +52,6 @@ import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
-import bio.terra.workspace.model.GcpDataprocClusterAcceleratorConfig;
-import bio.terra.workspace.model.GcpDataprocClusterCreationParameters;
-import bio.terra.workspace.model.GcpDataprocClusterDiskConfig;
-import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig;
-import bio.terra.workspace.model.GcpDataprocClusterLifecycleConfig;
 import bio.terra.workspace.model.GcpDataprocClusterResource;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
@@ -78,7 +75,6 @@ import com.google.auth.oauth2.AccessToken;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -155,58 +151,6 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
       throw new SystemException("Expected either VM or Container image definition.");
     }
     return notebookParams;
-  }
-
-  /**
-   * This method converts this CLI-defined POJO class into the WSM client library-defined request
-   * object.
-   *
-   * @return GCP Dataproc cluster creation parameters in the format expected by the WSM client
-   *     library
-   */
-  private static GcpDataprocClusterCreationParameters fromCLIObject(
-      CreateGcpDataprocClusterParams createParams) {
-    return new GcpDataprocClusterCreationParameters()
-        .clusterId(createParams.clusterId)
-        .region(createParams.region)
-        .imageVersion(createParams.imageVersion)
-        .initializationScripts(createParams.initializationActions)
-        .components(createParams.components)
-        .properties(createParams.properties)
-        .softwareFramework(createParams.softwareFramework)
-        .configBucket(createParams.configBucket)
-        .tempBucket(createParams.tempBucket)
-        .autoscalingPolicy(createParams.autoscalingPolicy)
-        .metadata(createParams.metadata)
-        .managerNodeConfig(buildInstanceGroupConfig(createParams.managerConfig))
-        .primaryWorkerConfig(buildInstanceGroupConfig(createParams.workerConfig))
-        .secondaryWorkerConfig(buildInstanceGroupConfig(createParams.secondaryWorkerConfig))
-        .lifecycleConfig(
-            new GcpDataprocClusterLifecycleConfig().idleDeleteTtl(createParams.idleDeleteTtl));
-  }
-
-  private static GcpDataprocClusterInstanceGroupConfig buildInstanceGroupConfig(
-      CreateGcpDataprocClusterParams.NodeConfig nodeConfig) {
-    return new GcpDataprocClusterInstanceGroupConfig()
-        .numInstances(nodeConfig.numNodes())
-        .machineType(nodeConfig.machineType())
-        .imageUri(nodeConfig.imageUri())
-        .acceleratorConfig(
-            Optional.ofNullable(nodeConfig.acceleratorConfig())
-                .map(
-                    ac ->
-                        new GcpDataprocClusterAcceleratorConfig()
-                            .type(ac.type())
-                            .cardCount(ac.count()))
-                .orElse(null))
-        .diskConfig(
-            new GcpDataprocClusterDiskConfig()
-                .bootDiskType(nodeConfig.diskConfig().bootDiskType())
-                .bootDiskType(nodeConfig.diskConfig().bootDiskType())
-                .bootDiskSizeGb(nodeConfig.diskConfig().bootDiskSizeGb())
-                .numLocalSsds(nodeConfig.diskConfig().numLocalSsds())
-                .localSsdInterface(nodeConfig.diskConfig().localSsdInterface()))
-        .preemptibility(nodeConfig.preemptibility());
   }
 
   /**
@@ -411,7 +355,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
     CreateControlledGcpDataprocClusterRequestBody createRequest =
         new CreateControlledGcpDataprocClusterRequestBody()
             .common(createCommonFields(createParams.resourceFields))
-            .dataprocCluster(fromCLIObject(createParams))
+            .dataprocCluster(toWsmCreateClusterParams(createParams))
             .jobControl(new JobControl().id(jobId));
     logger.debug("Create controlled GCP Dataproc cluster request {}", createRequest);
 
