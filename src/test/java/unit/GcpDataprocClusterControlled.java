@@ -91,6 +91,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect creating a controlled cluster")
   void listDescribeReflectCreate() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
     // gcp clusters are always private
     assertEquals(
         AccessScope.PRIVATE_ACCESS, testCluster.accessScope, "create output matches access");
@@ -125,6 +130,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("resolve and check-access for a controlled cluster")
   void resolveAndCheckAccess() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
     // `terra resource resolve --name=$name --format=json`
     String expectedResolved =
         String.format(
@@ -146,6 +156,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   @Test // NOTE: This test takes ~10 minutes to run.
   @DisplayName("start, stop a cluster and poll until they complete")
   void startStop() throws IOException, InterruptedException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
     // Poll until the test user can get the cluster IAM bindings directly to confirm cloud
     // permissions have
     // synced. This works because we give "dataproc.clusters.getIamPolicy" to cluster editors.
@@ -178,14 +193,19 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("launch cluster jupyterlab proxy url")
-  void launchProxy() {
+  void launchProxy() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
     // `terra cluster launch --name=$name --proxy-view=JUPYTER_LAB --format=json`
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess(
             "cluster",
             "launch",
-            "--name=" + testCluster,
-            "--proxy-view=" + GcpDataprocCluster.ProxyView.JUPYTER);
+            "--name=" + name,
+            "--proxy-view=JUPYTER_LAB");
     String jupyterProxyViewUrl = proxyUrl.getString("JupyterLab");
     assertNotNull(jupyterProxyViewUrl, "launch cluster jupyterlab proxy url is not null");
   }
@@ -193,6 +213,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   @Test
   @DisplayName("list and describe reflect a deleting cluster")
   void listDescribeReflectDelete() throws IOException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
     // `terra cluster delete --name=$name`
     TestCommand.Result cmd =
         TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
