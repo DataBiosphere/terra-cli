@@ -78,7 +78,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             UFGcpDataprocCluster.class,
             "resource",
             "create",
-            "gcp-dataproc-cluster",
+            "dataproc-cluster",
             "--name=" + name,
             "--bucket=" + stagingBucket.bucketName,
             "--temp-bucket=" + tempBucket.bucketName,
@@ -187,7 +187,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "--name=" + testCluster,
             "--proxy-view=" + GcpDataprocCluster.ProxyView.JUPYTER);
     String jupyterProxyViewUrl = proxyUrl.getString("JupyterLab");
-    assertNotNull(jupyterProxyViewUrl, "launch notebook returned proxy url for classic view");
+    assertNotNull(jupyterProxyViewUrl, "launch cluster jupyterlab proxy url is not null");
   }
 
   @Test

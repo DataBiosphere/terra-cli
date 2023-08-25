@@ -11,7 +11,7 @@ task runInstallForTesting(type: Exec) {
 //      testType:       'unit' / 'integration'      -> not null
 //      testTag:        input from gradle command   -> not null
 //      cloudPlatform:  input from gradle command   -> may be null
-// in: unit / unit      / null  ->  out:    [unit, unit-gcp, unit-aws, unit-azure]
+// in: unit / unit      / null  ->  out:    [unit, unit-gcp, unit-verily-gcp, unit-aws, unit-azure]
 // in: unit / unit      / gcp   ->  out:    [unit, unit-gcp]
 // in: unit / unit-gcp  / null  ->  out:    [unit-gcp]
 // in: unit / unit-gcp  / gcp   ->  out:    [unit-gcp]
@@ -28,13 +28,19 @@ static def getAllTestTagsToRun(String testType, String testTag, String cloudPlat
             } else if (cloudPlatform == 'azure') {
                 allTestTags.add(testType + '-azure')
             } else if (cloudPlatform == null) {  // run all tests
-                allTestTags.addAll([testType + '-gcp', testType + '-aws', testType + '-azure'])
+                allTestTags.addAll([testType + '-gcp', testType + '-verily-gcp', testType + '-aws', testType + '-azure'])
             }
             break
 
         case testType + '-gcp':
             if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
                 allTestTags.add(testType + '-gcp')
+            }
+            break
+
+        case testType + '-verily-gcp':
+            if ((cloudPlatform == 'gcp') || (cloudPlatform == null)) {
+                allTestTags.add(testType + '-verily-gcp')
             }
             break
 

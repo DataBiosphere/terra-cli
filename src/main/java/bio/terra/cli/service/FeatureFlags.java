@@ -1,7 +1,6 @@
 package bio.terra.cli.service;
 
 public class FeatureFlags {
-
   /**
    * whether auth0 response contains a refresh token which we use to get a newer access token. scope
    * needs to include "offline_access" to receive a refresh token from Auth0.
