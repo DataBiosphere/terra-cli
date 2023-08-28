@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.businessobject.resource.GcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
@@ -209,10 +208,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // `terra cluster launch --name=$name --proxy-view=JUPYTER_LAB --format=json`
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess(
-            "cluster",
-            "launch",
-            "--name=" + name,
-            "--proxy-view=JUPYTER_LAB");
+            "cluster", "launch", "--name=" + name, "--proxy-view=JUPYTER_LAB");
     String jupyterProxyViewUrl = proxyUrl.getString("JupyterLab");
     assertNotNull(jupyterProxyViewUrl, "launch cluster jupyterlab proxy url is not null");
   }
