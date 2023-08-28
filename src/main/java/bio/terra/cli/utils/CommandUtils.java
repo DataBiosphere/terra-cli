@@ -38,5 +38,4 @@ public class CommandUtils {
       throw new UserActionableException("Dataproc is not enabled for the current server or user.");
     }
   }
-
 }
