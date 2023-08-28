@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
+import bio.terra.cli.service.FeatureFlags;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cli.utils.CommandUtils;
 import bio.terra.cloudres.google.dataproc.ClusterName;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -50,8 +52,8 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
   // Only run this test suite if dataproc clusters are enabled in the environment
   @BeforeAll
-  void checkDataprocSupport() {
-    CommandUtils.checkDataprocSupport();
+  static void checkDataprocSupport() {
+    Assumptions.assumeTrue(FeatureFlags.isDataprocEnabled(), "Dataproc is not supported in the current environment. Skipping tests.");
   }
 
   // Create controlled cluster resource to use for all tests in this class.
