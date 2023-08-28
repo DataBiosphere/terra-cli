@@ -9,6 +9,7 @@ import bio.terra.cli.businessobject.resource.GcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cli.utils.CommandUtils;
 import bio.terra.cloudres.google.dataproc.ClusterName;
 import bio.terra.workspace.model.AccessScope;
 import harness.TestCommand;
@@ -47,6 +48,12 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
       "temp-bucket-" + UUID.randomUUID().toString().substring(0, 8);
   private UFGcsBucket stagingBucket;
   private UFGcsBucket tempBucket;
+
+  // Only run this test suite if dataproc clusters are enabled in the environment
+  @BeforeAll
+  void checkDataprocSupport() {
+    CommandUtils.checkDataprocSupport();
+  }
 
   // Create controlled cluster resource to use for all tests in this class.
   @BeforeAll
