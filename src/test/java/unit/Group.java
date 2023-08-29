@@ -209,15 +209,15 @@ public class Group extends ClearContextUnit {
 
     // `terra group delete --name=$name` as member
     groupMember.login();
-    TestCommand.runCommandExpectExitCode(2, "group", "delete", "--name=" + name, "--quiet");
+    TestCommand.runCommandExpectExitCode(1, "group", "delete", "--name=" + name, "--quiet");
 
     // `terra group add-user --email=$email --policy=ADMIN` as member
     TestCommand.runCommandExpectExitCode(
-        2, "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
+        1, "group", "add-user", "--name=" + name, "--email=" + groupMember.email, "--policy=ADMIN");
 
     // `terra group remove-user --email=$email --policy=MEMBER` as member
     TestCommand.runCommandExpectExitCode(
-        2,
+        1,
         "group",
         "remove-user",
         "--name=" + name,
