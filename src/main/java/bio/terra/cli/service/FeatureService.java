@@ -4,20 +4,13 @@ import static org.slf4j.LoggerFactory.*;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
-import bio.terra.cli.exception.SystemException;
 import com.flagsmith.FlagsmithClient;
 import com.flagsmith.exceptions.FlagsmithClientError;
 import com.flagsmith.models.Flags;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.http.HttpStatus;
 import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 
@@ -28,11 +21,11 @@ public class FeatureService {
 
   private FeatureService(Server server) {
     if (!TextUtils.isEmpty(server.getFlagsmithApiUrl())) {
-      flagsmith = FlagsmithClient
-          .newBuilder()
-          .withApiUrl(server.getFlagsmithApiUrl())
-          .setApiKey(server.getFlagsmithClientSideKey())
-          .build();
+      flagsmith =
+          FlagsmithClient.newBuilder()
+              .withApiUrl(server.getFlagsmithApiUrl())
+              .setApiKey(server.getFlagsmithClientSideKey())
+              .build();
     } else {
       flagsmith = null;
     }
@@ -43,7 +36,7 @@ public class FeatureService {
   }
 
   public Optional<Boolean> isFeatureEnabled(String feature) {
-    return isFeatureEnabled(feature, /*userEmail=*/null);
+    return isFeatureEnabled(feature, /*userEmail=*/ null);
   }
 
   /**
@@ -57,11 +50,11 @@ public class FeatureService {
       return Optional.empty();
     }
     try {
-        return Optional.of(getFlags(flagsmith, userEmail).isFeatureEnabled(feature));
-      } catch (Exception e) {
-        LOGGER.debug("failed to fetch feature flag value");
-        return Optional.empty();
-      }
+      return Optional.of(getFlags(flagsmith, userEmail).isFeatureEnabled(feature));
+    } catch (Exception e) {
+      LOGGER.debug("failed to fetch feature flag value", e);
+      return Optional.empty();
+    }
   }
 
   private static Flags getFlags(FlagsmithClient flagsmith, String userEmail)
@@ -73,6 +66,4 @@ public class FeatureService {
     traits.put("email_address", userEmail);
     return flagsmith.getIdentityFlags(userEmail, traits);
   }
-
-
 }
