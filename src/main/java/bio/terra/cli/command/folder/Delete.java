@@ -14,7 +14,7 @@ public class Delete extends BaseCommand {
 
   @CommandLine.Mixin FolderId folderId;
 
-  /** Create a spend profile. */
+  /** Delete a folder */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
