@@ -14,6 +14,7 @@ import bio.terra.workspace.model.AccessScope;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.GcpDataprocClusterUtils;
+import harness.utils.ResourceUtils;
 import harness.utils.TestCrlUtils;
 import java.io.IOException;
 import java.util.List;
@@ -90,7 +91,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "--metadata=foo=bar",
             "--idle-delete-ttl=1800s");
 
-    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "RUNNING");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "RUNNING");
   }
 
   @Test
@@ -191,11 +192,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
     // `terra cluster stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("cluster", "stop", "--name=" + clusterName);
-    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "STOPPED");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "STOPPED");
 
     // `terra cluster start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("cluster", "start", "--name=" + clusterName);
-    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "RUNNING");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "RUNNING");
   }
 
   @Test

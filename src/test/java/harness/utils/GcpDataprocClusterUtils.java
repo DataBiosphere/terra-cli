@@ -3,79 +3,13 @@ package harness.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
-import bio.terra.cli.service.utils.HttpUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import harness.TestCommand;
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GcpDataprocClusterUtils {
-  /**
-   * Helper method to poll `terra resources describe` until the cluster state equals that specified.
-   * Uses the current workspace.
-   */
-  public static void pollDescribeForClusterState(String resourceName, String clusterState)
-      throws InterruptedException, JsonProcessingException {
-    pollDescribeForClusterState(resourceName, clusterState, null);
-  }
-
-  /**
-   * Helper method to poll `terra resources describe` until the cluster state equals that specified.
-   * Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  public static void pollDescribeForClusterState(
-      String resourceName, String clusterState, String workspaceUserFacingId)
-      throws InterruptedException, JsonProcessingException {
-    HttpUtils.pollWithRetries(
-        () ->
-            workspaceUserFacingId == null
-                ? TestCommand.runAndParseCommandExpectSuccess(
-                    UFGcpDataprocCluster.class, "resource", "describe", "--name=" + resourceName)
-                : TestCommand.runAndParseCommandExpectSuccess(
-                    UFGcpDataprocCluster.class,
-                    "resource",
-                    "describe",
-                    "--name=" + resourceName,
-                    "--workspace=" + workspaceUserFacingId),
-        (result) -> clusterState.equals(result.status),
-        (ex) -> false, // no retries
-        2 * 20, // up to 20 minutes
-        Duration.ofSeconds(30)); // every 30 seconds
-
-    assertClusterState(resourceName, clusterState, workspaceUserFacingId);
-  }
-
-  /**
-   * Helper method to call `terra resource describe` and assert that the cluster state matches that
-   * given. Uses the current workspace.
-   */
-  public static void assertClusterState(String resourceName, String clusterState)
-      throws JsonProcessingException {
-    assertClusterState(resourceName, clusterState, null);
-  }
-
-  /**
-   * Helper method to call `terra resource describe` and assert that the cluster state matches that
-   * given. Filters on the specified workspace id; Uses the current workspace if null.
-   */
-  public static void assertClusterState(
-      String resourceName, String clusterState, String workspaceUserFacingId)
-      throws JsonProcessingException {
-    UFGcpDataprocCluster describeCluster =
-        workspaceUserFacingId == null
-            ? TestCommand.runAndParseCommandExpectSuccess(
-                UFGcpDataprocCluster.class, "resource", "describe", "--name=" + resourceName)
-            : TestCommand.runAndParseCommandExpectSuccess(
-                UFGcpDataprocCluster.class,
-                "resource",
-                "describe",
-                "--name=" + resourceName,
-                "--workspace=" + workspaceUserFacingId);
-    assertEquals(clusterState, describeCluster.status, "cluster state matches");
-  }
-
   /**
    * Helper method to call `terra resources list` and expect one resource with this name. Uses the
    * current workspace.

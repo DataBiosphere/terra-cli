@@ -16,6 +16,8 @@ import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.GcpDataprocClusterCreationParameters.SoftwareFrameworkEnum;
 import bio.terra.workspace.model.GcpDataprocClusterInstanceGroupConfig.PreemptibilityEnum;
 import bio.terra.workspace.model.StewardshipType;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -161,8 +163,16 @@ public class GcpDataprocCluster extends WsmBaseCommand {
 
     // Add additional properties and allow user to override
     Map<String, String> createProperties =
-        new java.util.HashMap<>(Map.of("dataproc:dataproc.allow.zero.workers", "true"));
-    createProperties.putAll(properties);
+        new HashMap<>(Map.of("dataproc:dataproc.allow.zero.workers", "true"));
+    if (properties != null) {
+      createProperties.putAll(properties);
+    }
+
+    // build components list
+    List<String> createComponents = new ArrayList<>(List.of("JUPYTER"));
+    if (components != null) {
+      createComponents.addAll(components);
+    }
 
     // build the dataproc creation parameters
     CreateGcpDataprocClusterParams.Builder createParams =
@@ -172,7 +182,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .region(region)
             .imageVersion(imageVersion)
             .initializationActions(initializationActions)
-            .components(List.of("JUPYTER"))
+            .components(createComponents)
             .properties(createProperties)
             .softwareFramework(softwareFramework)
             .configBucket(configBucketId)
@@ -278,7 +288,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
     private ManagerDiskConfig diskConfig = new ManagerDiskConfig();
 
     static class ManagerAcceleratorConfig {
-
       @CommandLine.Option(
           names = "--manager-accelerator-type",
           description = "The type of accelerator for the manager.")
@@ -291,7 +300,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
     }
 
     static class ManagerDiskConfig {
-
       @CommandLine.Option(
           names = "--manager-boot-disk-type",
           description = "The type of boot disk for the manager node.")
