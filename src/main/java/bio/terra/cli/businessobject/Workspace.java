@@ -289,7 +289,7 @@ public class Workspace {
   }
 
   /** Fetch the list of folders for this workspace */
-  public ImmutableList<bio.terra.workspace.model.Folder> listFolders() {
+  public ImmutableList<Folder> listFolders() {
     return WorkspaceManagerService.fromContext().listFolders(uuid);
   }
 
