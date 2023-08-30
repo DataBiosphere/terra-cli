@@ -25,7 +25,6 @@ import java.util.Optional;
 @JsonDeserialize(builder = UFGcpDataprocCluster.Builder.class)
 public class UFGcpDataprocCluster extends UFResource {
   public final String projectId;
-  public final String region;
   public final String clusterId;
   public final String status;
   public final String proxyUri;
@@ -39,7 +38,6 @@ public class UFGcpDataprocCluster extends UFResource {
   public UFGcpDataprocCluster(GcpDataprocCluster internalObj) {
     super(internalObj);
     this.projectId = internalObj.getClusterName().projectId();
-    this.region = internalObj.getClusterName().region();
     this.clusterId = internalObj.getClusterName().name();
 
     // Fetch cluster status, proxy URL, and metadata
@@ -68,7 +66,6 @@ public class UFGcpDataprocCluster extends UFResource {
   private UFGcpDataprocCluster(Builder builder) {
     super(builder);
     this.projectId = builder.projectId;
-    this.region = builder.region;
     this.clusterId = builder.clusterId;
     this.status = builder.status;
     this.proxyUri = builder.proxyUri;
@@ -108,7 +105,6 @@ public class UFGcpDataprocCluster extends UFResource {
   @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
   public static class Builder extends UFResource.Builder {
     private String projectId;
-    private String region;
     private String clusterId;
     private String status;
     private String proxyUri;
@@ -123,11 +119,6 @@ public class UFGcpDataprocCluster extends UFResource {
 
     public Builder projectId(String projectId) {
       this.projectId = projectId;
-      return this;
-    }
-
-    public Builder region(String region) {
-      this.region = region;
       return this;
     }
 

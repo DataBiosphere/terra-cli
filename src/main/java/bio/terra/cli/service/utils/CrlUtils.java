@@ -4,7 +4,6 @@ import bio.terra.cli.exception.SystemException;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.bigquery.BigQueryCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.cloudres.google.dataproc.DataprocCow;
 import bio.terra.cloudres.google.notebooks.AIPlatformNotebooksCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -35,15 +34,6 @@ public class CrlUtils {
       return AIPlatformNotebooksCow.create(clientConfig, googleCredentials);
     } catch (GeneralSecurityException | IOException e) {
       throw new SystemException("Error creating notebooks client.", e);
-    }
-  }
-
-  /** This method is used for testing only. */
-  public static DataprocCow createDataprocCow(GoogleCredentials googleCredentials) {
-    try {
-      return DataprocCow.create(clientConfig, googleCredentials);
-    } catch (GeneralSecurityException | IOException e) {
-      throw new SystemException("Error creating dataproc client.", e);
     }
   }
 

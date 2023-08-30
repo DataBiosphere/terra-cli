@@ -14,6 +14,7 @@ import bio.terra.workspace.model.AccessScope;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnitGcp;
 import harness.utils.GcpDataprocClusterUtils;
+import harness.utils.TestCrlUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -36,16 +37,14 @@ import org.junit.jupiter.api.Test;
  * <p>This test only executes on verily environments. Add a tag prefix to prevent it from running in
  * the main repo
  */
-@Tag("unit-verily-gcp")
+@Tag("unit-gcp")
 public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
-  private UFGcpDataprocCluster testCluster;
-  private final String name =
-      "cliTestUserDataprocCluster" + UUID.randomUUID().toString().substring(0, 8);
-  private final String stagingBucketName =
-      "staging-bucket-" + UUID.randomUUID().toString().substring(0, 8);
-  private final String tempBucketName =
-      "temp-bucket-" + UUID.randomUUID().toString().substring(0, 8);
+  private UFGcpDataprocCluster createdCluster;
+  private final String randomUuid8 = UUID.randomUUID().toString();
+  private final String clusterName = "cliTestUserDataprocCluster" + randomUuid8;
+  private final String stagingBucketName = "staging-bucket-" + randomUuid8;
+  private final String tempBucketName = "temp-bucket-" + randomUuid8;
   private UFGcsBucket stagingBucket;
   private UFGcsBucket tempBucket;
 
@@ -79,19 +78,19 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "--name=" + tempBucketName,
             "--bucket-name=" + tempBucketName);
 
-    testCluster =
+    createdCluster =
         TestCommand.runAndParseCommandExpectSuccess(
             UFGcpDataprocCluster.class,
             "resource",
             "create",
             "dataproc-cluster",
-            "--name=" + name,
+            "--name=" + clusterName,
             "--bucket=" + stagingBucket.bucketName,
             "--temp-bucket=" + tempBucket.bucketName,
             "--metadata=foo=bar",
             "--idle-delete-ttl=1800s");
 
-    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
+    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "RUNNING");
   }
 
   @Test
@@ -104,24 +103,24 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
     // gcp clusters are always private
     assertEquals(
-        AccessScope.PRIVATE_ACCESS, testCluster.accessScope, "create output matches access");
+        AccessScope.PRIVATE_ACCESS, createdCluster.accessScope, "create output matches access");
     assertEquals(
         workspaceCreator.email.toLowerCase(),
-        testCluster.privateUserName.toLowerCase(),
+        createdCluster.privateUserName.toLowerCase(),
         "create output matches private user name");
 
     // check that the cluster is in the list
     UFGcpDataprocCluster matchedResource =
-        GcpDataprocClusterUtils.listOneClusterResourceWithName(name);
-    assertEquals(name, matchedResource.name, "list output matches name");
+        GcpDataprocClusterUtils.listOneClusterResourceWithName(clusterName);
+    assertEquals(clusterName, matchedResource.name, "list output matches name");
 
     // `terra resource describe --name=$name --format=json`
     UFGcpDataprocCluster describeResource =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
+            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + clusterName);
 
     // check that the name matches and the cluster id is populated
-    assertEquals(name, describeResource.name, "describe resource output matches name");
+    assertEquals(clusterName, describeResource.name, "describe resource output matches name");
     assertNotNull(describeResource.clusterId, "describe resource output includes cluster id");
 
     // gcp clusters are always private
@@ -145,14 +144,16 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     String expectedResolved =
         String.format(
             "projects/%s/regions/%s/clusters/%s",
-            testCluster.projectId, testCluster.region, testCluster.clusterId);
+            createdCluster.projectId, createdCluster.region, createdCluster.clusterId);
     JSONObject resolved =
-        TestCommand.runAndGetJsonObjectExpectSuccess("resource", "resolve", "--name=" + name);
-    assertEquals(expectedResolved, resolved.get(name), "resolve returns the cluster id");
+        TestCommand.runAndGetJsonObjectExpectSuccess(
+            "resource", "resolve", "--name=" + clusterName);
+    assertEquals(expectedResolved, resolved.get(clusterName), "resolve returns the cluster id");
 
     // `terra resource check-access --name=$name`
     String stdErr =
-        TestCommand.runCommandExpectExitCode(1, "resource", "check-access", "--name=" + name);
+        TestCommand.runCommandExpectExitCode(
+            1, "resource", "check-access", "--name=" + clusterName);
     assertThat(
         "check-access error because gcp clusters are controlled resources",
         stdErr,
@@ -174,10 +175,10 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // additional `describe` call here.
     UFGcpDataprocCluster createdCluster =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + name);
+            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + clusterName);
     CrlUtils.callGcpWithPermissionExceptionRetries(
         () ->
-            CrlUtils.createDataprocCow(workspaceCreator.getPetSaCredentials())
+            TestCrlUtils.createDataprocCow(workspaceCreator.getPetSaCredentials())
                 .clusters()
                 .getIamPolicy(
                     ClusterName.builder()
@@ -189,12 +190,12 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
         Objects::nonNull);
 
     // `terra cluster stop --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("cluster", "stop", "--name=" + name);
-    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "STOPPED");
+    TestCommand.runCommandExpectSuccessWithRetries("cluster", "stop", "--name=" + clusterName);
+    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "STOPPED");
 
     // `terra cluster start --name=$name`
-    TestCommand.runCommandExpectSuccessWithRetries("cluster", "start", "--name=" + name);
-    GcpDataprocClusterUtils.pollDescribeForClusterState(name, "RUNNING");
+    TestCommand.runCommandExpectSuccessWithRetries("cluster", "start", "--name=" + clusterName);
+    GcpDataprocClusterUtils.pollDescribeForClusterState(clusterName, "RUNNING");
   }
 
   @Test
@@ -208,7 +209,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // `terra cluster launch --name=$name --proxy-view=JUPYTER_LAB --format=json`
     JSONObject proxyUrl =
         TestCommand.runAndGetJsonObjectExpectSuccess(
-            "cluster", "launch", "--name=" + name, "--proxy-view=JUPYTER_LAB");
+            "cluster", "launch", "--name=" + clusterName, "--proxy-view=JUPYTER_LAB");
     String jupyterProxyViewUrl = proxyUrl.getString("JupyterLab");
     assertNotNull(jupyterProxyViewUrl, "launch cluster jupyterlab proxy url is not null");
   }
@@ -223,7 +224,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
     // `terra cluster delete --name=$name`
     TestCommand.Result cmd =
-        TestCommand.runCommand("resource", "delete", "--name=" + name, "--quiet");
+        TestCommand.runCommand("resource", "delete", "--name=" + clusterName, "--quiet");
     // TODO (PF-745): use long-running job commands here
     boolean cliTimedOut =
         cmd.exitCode == 1
@@ -234,7 +235,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     if (!cliTimedOut) {
       // confirm it no longer appears in the resources list
       List<UFGcpDataprocCluster> listedClusters =
-          GcpDataprocClusterUtils.listClusterResourcesWithName(name);
+          GcpDataprocClusterUtils.listClusterResourcesWithName(clusterName);
       assertThat(
           "deleted cluster no longer appears in the resources list",
           listedClusters,

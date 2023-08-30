@@ -46,6 +46,7 @@ public class AxonServerService {
    *
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the cluster resource id
+   * @return the cluster metadata
    */
   public ClusterMetadata getClusterMetadata(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
@@ -61,6 +62,7 @@ public class AxonServerService {
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the cluster resource id
    * @param componentKey the component key, e.g. "JupyterLab"
+   * @return the cluster component url
    */
   public bio.terra.axonserver.model.Url getClusterComponentUrl(
       UUID workspaceId, UUID resourceId, String componentKey) {
@@ -76,6 +78,7 @@ public class AxonServerService {
    *
    * @param workspaceId the workspace that contains the resource
    * @param resourceId the cluster resource id
+   * @return the cluster status
    */
   public ClusterStatus getClusterStatus(UUID workspaceId, UUID resourceId) {
     GcpResourceApi gcpResourceApi = new GcpResourceApi(apiClient);
@@ -172,6 +175,7 @@ public class AxonServerService {
    * @param makeRequest function with a return value
    * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
    *     by the User client or the retries
+   * @return the return value of the makeRequest function
    */
   private <T> T callWithRetries(
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {
@@ -187,6 +191,7 @@ public class AxonServerService {
    * @param makeRequest function with a return value
    * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
    *     by the Axon Server client or the retries
+   * @return the return value of the makeRequest function
    */
   private <T> T handleClientExceptions(
       HttpUtils.SupplierWithCheckedException<T, ApiException> makeRequest, String errorMsg) {

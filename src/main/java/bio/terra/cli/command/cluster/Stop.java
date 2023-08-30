@@ -7,7 +7,6 @@ import bio.terra.cli.command.shared.options.DataprocClusterName;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.AxonServerService;
-import bio.terra.cli.utils.CommandUtils;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.UUID;
 import picocli.CommandLine;
@@ -25,7 +24,6 @@ public class Stop extends BaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Workspace workspace = Context.requireWorkspace();
-    CommandUtils.checkDataprocSupport();
 
     if (workspace.getCloudPlatform() == CloudPlatform.GCP) {
       UUID resourceId = dataprocClusterName.toClusterResourceId();

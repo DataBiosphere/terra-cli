@@ -22,16 +22,15 @@ import org.slf4j.LoggerFactory;
  * part of the current context or state.
  */
 public class GcpDataprocCluster extends Resource {
-  public static final String JUPYTER_LAB_COMPONENT_KEY = "JupyterLab";
   private static final Logger logger = LoggerFactory.getLogger(GcpDataprocCluster.class);
   private final ClusterName clusterName;
+  public static final String JUPYTER_LAB_COMPONENT_KEY = "JupyterLab";
 
   /** Deserialize a cluster of the disk format to the internal object. */
   public GcpDataprocCluster(PDGcpDataprocCluster configFromDisk) {
     super(configFromDisk);
     this.resourceType = Type.DATAPROC_CLUSTER;
     this.clusterName = configFromDisk.clusterName;
-    this.region = configFromDisk.region;
   }
 
   /** Deserialize a cluster of the WSM client library object to the internal object. */
@@ -66,21 +65,14 @@ public class GcpDataprocCluster extends Resource {
         "Referenced resources not supported for GCP dataproc clusters.");
   }
 
-  /**
-   * Create a GCP dataproc cluster as a controlled resource in the workspace.
-   *
-   * @return the resource that was created
-   */
-  public static GcpDataprocCluster createControlled(CreateGcpDataprocClusterParams createParams) {
+  /** Create a GCP dataproc cluster as a controlled resource in the workspace. */
+  public static void createControlled(CreateGcpDataprocClusterParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    GcpDataprocClusterResource createdResource =
-        WorkspaceManagerServiceGcp.fromContext()
-            .createControlledGcpDataprocCluster(Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created GCP dataproc cluster: {}", createdResource);
-
-    return new GcpDataprocCluster(createdResource);
+    WorkspaceManagerServiceGcp.fromContext()
+        .createControlledGcpDataprocCluster(Context.requireWorkspace().getUuid(), createParams);
+    logger.info("Created GCP dataproc cluster: {}", createParams.clusterId);
   }
 
   /**

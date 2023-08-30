@@ -159,6 +159,11 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .accessScope(AccessScope.PRIVATE_ACCESS)
             .cloningInstructions(CloningInstructionsEnum.NOTHING);
 
+    // Add additional properties and allow user to override
+    Map<String, String> createProperties =
+        new java.util.HashMap<>(Map.of("dataproc:dataproc.allow.zero.workers", "true"));
+    createProperties.putAll(properties);
+
     // build the dataproc creation parameters
     CreateGcpDataprocClusterParams.Builder createParams =
         new CreateGcpDataprocClusterParams.Builder()
@@ -168,7 +173,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .imageVersion(imageVersion)
             .initializationActions(initializationActions)
             .components(List.of("JUPYTER"))
-            .properties(properties)
+            .properties(createProperties)
             .softwareFramework(softwareFramework)
             .configBucket(configBucketId)
             .tempBucket(tempBucketId)
@@ -247,11 +252,8 @@ public class GcpDataprocCluster extends WsmBaseCommand {
                     .build())
             .idleDeleteTtl(idleDeleteTtl);
 
-    bio.terra.cli.businessobject.resource.GcpDataprocCluster createdResource =
-        bio.terra.cli.businessobject.resource.GcpDataprocCluster.createControlled(
-            createParams.build());
-    formatOption.printReturnValue(
-        new UFGcpDataprocCluster(createdResource), GcpDataprocCluster::printText);
+    bio.terra.cli.businessobject.resource.GcpDataprocCluster.createControlled(createParams.build());
+    OUT.println("Creating Dataproc cluster. It may take a few minutes before it is available.");
   }
 
   static class ManagerNodeConfig {
