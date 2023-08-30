@@ -6,6 +6,7 @@ import bio.terra.cli.command.auth.Login.LogInMode;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.FeatureService;
+import bio.terra.cli.service.FeatureService.Features;
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.cli.service.utils.TerraCredentials;
 import bio.terra.cli.utils.UserIO;
@@ -318,9 +319,7 @@ public final class Oauth {
    * @return false by default.
    */
   private static boolean isAuth0RefreshTokenEnabled() {
-    return FeatureService.fromContext()
-        .isFeatureEnabled("vwb__cli_token_refresh_enabled")
-        .orElse(false);
+    return FeatureService.fromContext().isFeatureEnabled(Features.CLI_AUTH0_TOKEN_REFRESH_ENABLED);
   }
 
   private static AccessToken useAuth0RefreshToken(TerraCredentials credential)

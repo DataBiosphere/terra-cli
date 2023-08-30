@@ -2,13 +2,15 @@ package bio.terra.cli.utils;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
+import bio.terra.cli.service.FeatureService;
+import bio.terra.cli.service.FeatureService.Features;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class CommandUtils {
   // Checks if current server supports cloud platform
-  public static void checkServerSupport(CloudPlatform cloudPlatform)
+  private static void checkServerSupport(CloudPlatform cloudPlatform)
       throws UserActionableException {
     if (!Context.getServer().getSupportedCloudPlatforms().contains(cloudPlatform)) {
       throw new UserActionableException(
@@ -17,6 +19,18 @@ public class CommandUtils {
               + " not supported for server "
               + Context.getServer().getName());
     }
+  }
+
+  public static void checkPlatformEnabled(CloudPlatform cloudPlatform)
+      throws UserActionableException {
+    if (switch (cloudPlatform) {
+      case AWS -> FeatureService.fromContext().isFeatureEnabled(Features.AWS_ENABLED);
+      case GCP -> FeatureService.fromContext().isFeatureEnabled(Features.GCP_ENABLED);
+      default -> false;
+    }) return;
+
+    // fallback: if feature service is not enabled check server config
+    checkServerSupport(cloudPlatform);
   }
 
   // Checks if workspace cloud platform is one of the cloud platforms

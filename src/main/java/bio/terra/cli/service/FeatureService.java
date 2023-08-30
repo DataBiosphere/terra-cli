@@ -15,9 +15,28 @@ import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 
 public class FeatureService {
-
   private static final Logger LOGGER = getLogger(FeatureService.class);
   private final FlagsmithClient flagsmith;
+
+  // list of features
+  public enum Features {
+    AWS_ENABLED("vwb__aws_enabled"),
+    GCP_ENABLED("vwb__gcp_enabled"),
+
+    // CLI specific
+    CLI_AUTH0_TOKEN_REFRESH_ENABLED("vwb__cli_token_refresh_enabled"),
+    CLI_DATAPROC_ENABLED("vwb__cli_dataproc_enabled");
+
+    private final String featureName;
+
+    Features(String featureName) {
+      this.featureName = featureName;
+    }
+
+    public String toString() {
+      return featureName;
+    }
+  }
 
   private FeatureService(Server server) {
     if (!TextUtils.isEmpty(server.getFlagsmithApiUrl())) {
@@ -35,8 +54,12 @@ public class FeatureService {
     return new FeatureService(Context.getServer());
   }
 
-  public Optional<Boolean> isFeatureEnabled(String feature) {
-    return isFeatureEnabled(feature, /*userEmail=*/ null);
+  public boolean isFeatureEnabled(Features feature) {
+    return isFeatureEnabled(feature.featureName, /*userEmail=*/ null).orElse(false);
+  }
+
+  public boolean isFeatureEnabled(Features feature, @Nullable String userEmail) {
+    return isFeatureEnabled(feature.featureName, userEmail).orElse(false);
   }
 
   /**
