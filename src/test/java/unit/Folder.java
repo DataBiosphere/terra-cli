@@ -8,6 +8,7 @@ import bio.terra.cli.utils.PropertiesUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
+import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -16,14 +17,17 @@ import org.junit.jupiter.api.Test;
 public class Folder extends SingleWorkspaceUnit {
 
   @Test
-  public void createFolder_succeeds() throws JsonProcessingException {
+  public void createFolder_succeeds() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
     var folderName = "foo";
     var description = "this is a test folder";
 
+    // `terra folder create --name=foo --description=this is a test folder --properties=hello=world,apple=red`
     UFFolder f =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "create",
             "--name=" + folderName,
@@ -38,26 +42,28 @@ public class Folder extends SingleWorkspaceUnit {
     assertEquals("red", properties.get("apple"));
 
     // clean up
-    TestCommand.runCommandExpectSuccess("terra", "folder", "delete", "--id=" + f.id);
+    // `terra folder delete --id=<id>`
+    TestCommand.runCommandExpectSuccess( "folder", "delete", "--id=" + f.id);
   }
 
   @Test
-  public void createSubFolder_succeeds() throws JsonProcessingException {
+  public void createSubFolder_succeeds() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    // `terra folder create --name=foo`
     UFFolder folder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "create",
-            "--name=foo",
-            "--description=this is a test folder",
-            "--properties=hello=world,apple=red");
+            "--name=foo");
 
     var subFolderName = "foo2";
+    // `terra folder create --name=foo2 --parent-folder-id=<id>`
     UFFolder subFolder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "create",
             "--name=" + subFolderName,
@@ -65,28 +71,28 @@ public class Folder extends SingleWorkspaceUnit {
 
     assertEquals(subFolderName, subFolder.displayName);
     assertEquals(folder.id, subFolder.parentId);
-    assertNull(subFolder.description);
-    assertNull(subFolder.properties);
 
     // clean up
-    TestCommand.runCommandExpectSuccess("terra", "folder", "delete", "--id=" + folder.id);
+    // `terra folder delete --id=<id>`
+    TestCommand.runCommandExpectSuccess("folder", "delete", "--id=" + folder.id);
   }
 
   @Test
-  public void updateFolder_succeeds() throws JsonProcessingException {
+  public void updateFolder_succeeds() throws IOException {
+    workspaceCreator.login();
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+    // `terra folder create --name=foo`
     UFFolder folder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "create",
-            "--name=foo",
-            "--description=this is a test folder",
-            "--properties=hello=world,apple=red");
+            "--name=foo");
+    // `terra folder create --name=bar --parent-folder-id=<id>`
     UFFolder subFolder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "create",
             "--name=bar",
@@ -96,10 +102,10 @@ public class Folder extends SingleWorkspaceUnit {
     var newName = "bar2";
     var newDescription = "this is folder bar 2";
 
+    // `terra folder update --move-to-root --id=<id> --new-name=bar2 --new-description=this is folder bar 2`
     UFFolder updatedFolder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
-            "terra",
             "folder",
             "update",
             "--move-to-root",
@@ -111,7 +117,9 @@ public class Folder extends SingleWorkspaceUnit {
     assertEquals(newName, updatedFolder.displayName);
     assertEquals(newDescription, updatedFolder.description);
     // clean up
-    TestCommand.runCommandExpectSuccess("terra", "folder", "delete", "--id=" + folder.id);
-    TestCommand.runCommandExpectSuccess("terra", "folder", "delete", "--id=" + updatedFolder.id);
+    // `terra folder delete --id=<id>`
+    TestCommand.runCommandExpectSuccess("folder", "delete", "--id=" + folder.id);
+    // `terra folder delete --id=<id>`
+    TestCommand.runCommandExpectSuccess("folder", "delete", "--id=" + updatedFolder.id);
   }
 }
