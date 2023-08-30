@@ -289,8 +289,34 @@ public class Workspace {
   }
 
   /** Fetch the list of folders for this workspace */
-  public ImmutableList<Folder> listFolders() {
+  public ImmutableList<bio.terra.workspace.model.Folder> listFolders() {
     return WorkspaceManagerService.fromContext().listFolders(uuid);
+  }
+
+  public Folder createFolder(
+      String displayName, String description, UUID parentId, Map<String, String> properties) {
+    return WorkspaceManagerService.fromContext()
+        .createFolder(uuid, displayName, description, parentId, properties);
+  }
+
+  public void deleteFolder(UUID folderId) {
+    try {
+      WorkspaceManagerService.fromContext().deleteFolder(uuid, folderId);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new SystemException("Failed to delete folder");
+    }
+    logger.info(String.format("folder %s is deleted", folderId));
+  }
+
+  public Folder updateFolder(
+      UUID folderId,
+      @Nullable String newDisplayName,
+      @Nullable String newDescription,
+      @Nullable UUID newParentId,
+      boolean moveToRoot) {
+    return WorkspaceManagerService.fromContext()
+        .updateFolder(uuid, folderId, newDisplayName, newDescription, newParentId, moveToRoot);
   }
 
   /**
