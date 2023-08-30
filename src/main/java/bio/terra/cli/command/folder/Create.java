@@ -36,7 +36,7 @@ public class Create extends BaseCommand {
       description = "Id of the parent folder, if not set, create a folder under root")
   private UUID parentFolderId;
 
-  /** Create a spend profile. */
+  /** Create a folder. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
@@ -47,7 +47,7 @@ public class Create extends BaseCommand {
   }
 
   private void printText(UFFolder returnValue) {
-    OUT.println("Successfully created a folder.");
+    OUT.println("Successfully added a folder.");
     returnValue.print();
   }
 }
