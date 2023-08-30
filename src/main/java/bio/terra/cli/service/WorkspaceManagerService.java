@@ -552,7 +552,7 @@ public class WorkspaceManagerService {
   /**
    * Delete folder and all the sub-folders and resources within it.
    *
-   * <p>Delete folder is an async endpoint. Resource deletion may takes a long time.
+   * <p>Delete folder is an async endpoint. Resource deletion may take a long time.
    *
    * @throws InterruptedException
    */
