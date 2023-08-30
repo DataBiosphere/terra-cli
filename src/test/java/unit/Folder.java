@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cli.serialization.userfacing.UFFolder;
 import bio.terra.cli.utils.PropertiesUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import harness.TestCommand;
 import harness.baseclasses.SingleWorkspaceUnit;
 import java.io.IOException;
@@ -24,7 +23,8 @@ public class Folder extends SingleWorkspaceUnit {
     var folderName = "foo";
     var description = "this is a test folder";
 
-    // `terra folder create --name=foo --description=this is a test folder --properties=hello=world,apple=red`
+    // `terra folder create --name=foo --description=this is a test folder
+    // --properties=hello=world,apple=red`
     UFFolder f =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
@@ -43,7 +43,7 @@ public class Folder extends SingleWorkspaceUnit {
 
     // clean up
     // `terra folder delete --id=<id>`
-    TestCommand.runCommandExpectSuccess( "folder", "delete", "--id=" + f.id);
+    TestCommand.runCommandExpectSuccess("folder", "delete", "--id=" + f.id);
   }
 
   @Test
@@ -54,10 +54,7 @@ public class Folder extends SingleWorkspaceUnit {
     // `terra folder create --name=foo`
     UFFolder folder =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFFolder.class,
-            "folder",
-            "create",
-            "--name=foo");
+            UFFolder.class, "folder", "create", "--name=foo");
 
     var subFolderName = "foo2";
     // `terra folder create --name=foo2 --parent-folder-id=<id>`
@@ -85,24 +82,18 @@ public class Folder extends SingleWorkspaceUnit {
     // `terra folder create --name=foo`
     UFFolder folder =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFFolder.class,
-            "folder",
-            "create",
-            "--name=foo");
+            UFFolder.class, "folder", "create", "--name=foo");
     // `terra folder create --name=bar --parent-folder-id=<id>`
     UFFolder subFolder =
         TestCommand.runAndParseCommandExpectSuccess(
-            UFFolder.class,
-            "folder",
-            "create",
-            "--name=bar",
-            "--parent-folder-id=" + folder.id);
+            UFFolder.class, "folder", "create", "--name=bar", "--parent-folder-id=" + folder.id);
     assertEquals(folder.id, subFolder.parentId);
 
     var newName = "bar2";
     var newDescription = "this is folder bar 2";
 
-    // `terra folder update --move-to-root --id=<id> --new-name=bar2 --new-description=this is folder bar 2`
+    // `terra folder update --move-to-root --id=<id> --new-name=bar2 --new-description=this is
+    // folder bar 2`
     UFFolder updatedFolder =
         TestCommand.runAndParseCommandExpectSuccess(
             UFFolder.class,
