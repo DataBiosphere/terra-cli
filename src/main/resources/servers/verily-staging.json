@@ -13,6 +13,5 @@
   "auth0Enabled": true,
   "auth0Domain": "verily-terra-dev.us.auth0.com",
   "flagsmithClientSideKey": "4w63mhUZZKzisZgNJ8okUC",
-  "flagsmithApiUrl": "https://terra-flagsmith.api.verily.com/api/v1/",
-  "supportedCloudPlatforms": ["GCP"]
+  "flagsmithApiUrl": "https://terra-flagsmith.api.verily.com/api/v1/"
 }
