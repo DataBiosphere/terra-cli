@@ -66,13 +66,16 @@ public class GcpDataprocCluster extends Resource {
   }
 
   /** Create a GCP dataproc cluster as a controlled resource in the workspace. */
-  public static void createControlled(CreateGcpDataprocClusterParams createParams) {
+  public static GcpDataprocCluster createControlled(CreateGcpDataprocClusterParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
     // call WSM to create the resource
-    WorkspaceManagerServiceGcp.fromContext()
-        .createControlledGcpDataprocCluster(Context.requireWorkspace().getUuid(), createParams);
-    logger.info("Created GCP dataproc cluster: {}", createParams.clusterId);
+    GcpDataprocClusterResource createdResource =
+        WorkspaceManagerServiceGcp.fromContext()
+            .createControlledGcpDataprocCluster(Context.requireWorkspace().getUuid(), createParams);
+    logger.info("Created GCP dataproc cluster: {}", createdResource);
+
+    return new GcpDataprocCluster(createdResource);
   }
 
   /**

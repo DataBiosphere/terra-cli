@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Test;
 public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
   private UFGcpDataprocCluster createdCluster;
-  private final String randomUuid8 = UUID.randomUUID().toString();
-  private final String clusterName = "cliTestUserDataprocCluster" + randomUuid8;
+  private final String randomUuid8 = UUID.randomUUID().toString().substring(0, 8);
+  private final String clusterName = "cliTestUserDataprocCluster-" + randomUuid8;
   private final String stagingBucketName = "staging-bucket-" + randomUuid8;
   private final String tempBucketName = "temp-bucket-" + randomUuid8;
   private UFGcsBucket stagingBucket;
@@ -91,7 +91,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             "--metadata=foo=bar",
             "--idle-delete-ttl=1800s");
 
-    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "RUNNING");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "status", "RUNNING");
   }
 
   @Test

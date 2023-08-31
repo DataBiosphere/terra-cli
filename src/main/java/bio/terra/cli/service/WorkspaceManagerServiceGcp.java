@@ -52,6 +52,7 @@ import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
+import bio.terra.workspace.model.GcpDataprocClusterResource;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
@@ -347,7 +348,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
    * @param workspaceId the workspace to add the resource to
    * @param createParams resource definition to create
    */
-  public void createControlledGcpDataprocCluster(
+  public GcpDataprocClusterResource createControlledGcpDataprocCluster(
       UUID workspaceId, CreateGcpDataprocClusterParams createParams) {
     // convert the CLI object to a WSM request object
     String jobId = UUID.randomUUID().toString();
@@ -358,19 +359,29 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
             .jobControl(new JobControl().id(jobId));
     logger.debug("Create controlled GCP Dataproc cluster request {}", createRequest);
 
-    handleClientExceptions(
+    return handleClientExceptions(
         () -> {
           ControlledGcpResourceApi controlledGcpResourceApi =
               new ControlledGcpResourceApi(apiClient);
-          // Call GCP Dataproc cluster creation and immediately return result
-          CreatedControlledGcpDataprocClusterResult createResult =
-              controlledGcpResourceApi.createDataprocCluster(createRequest, workspaceId);
-          logger.debug("create controlled GCP Dataproc cluster result: {}", createResult);
+          // Start the GCP Dataproc cluster creation job.
+          HttpUtils.callWithRetries(
+              () -> controlledGcpResourceApi.createDataprocCluster(createRequest, workspaceId),
+              WorkspaceManagerService::isRetryable);
 
-          throwIfJobFailed(createResult.getJobReport(), createResult.getErrorReport());
-          return null;
+          // Poll the result endpoint until the job is no longer RUNNING.
+          CreatedControlledGcpDataprocClusterResult createResult =
+              HttpUtils.pollWithRetries(
+                  () -> controlledGcpResourceApi.getCreateDataprocClusterResult(workspaceId, jobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  // Creating a GCP Dataproc cluster should take less than ~15 minutes.
+                  90,
+                  Duration.ofSeconds(10));
+          logger.debug("Create controlled GCP Dataproc cluster result {}", createResult);
+          throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+          return createResult.getDataprocCluster();
         },
-        "Error creating controlled Gcp Dataproc cluster.");
+        "Error creating controlled GCP Dataproc cluster in the workspace.");
   }
 
   /**

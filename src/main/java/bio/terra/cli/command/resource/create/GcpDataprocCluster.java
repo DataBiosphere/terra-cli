@@ -262,8 +262,11 @@ public class GcpDataprocCluster extends WsmBaseCommand {
                     .build())
             .idleDeleteTtl(idleDeleteTtl);
 
-    bio.terra.cli.businessobject.resource.GcpDataprocCluster.createControlled(createParams.build());
-    OUT.println("Creating Dataproc cluster. It may take a few minutes before it is available.");
+    bio.terra.cli.businessobject.resource.GcpDataprocCluster createdResource =
+        bio.terra.cli.businessobject.resource.GcpDataprocCluster.createControlled(
+            createParams.build());
+    formatOption.printReturnValue(
+        new UFGcpDataprocCluster(createdResource), GcpDataprocCluster::printText);
   }
 
   static class ManagerNodeConfig {
