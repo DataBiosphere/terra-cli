@@ -45,7 +45,7 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    CommandUtils.checkServerSupport(cloudPlatform);
+    CommandUtils.checkPlatformEnabled(cloudPlatform);
 
     if (spendProfile == null) {
       spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
