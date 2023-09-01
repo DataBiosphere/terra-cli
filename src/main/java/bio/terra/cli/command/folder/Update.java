@@ -29,7 +29,7 @@ public class Update extends BaseCommand {
 
   @CommandLine.Option(
       names = "--new-parent-folder-id",
-      description = "Id of the new parent folder id")
+      description = "ID of the new parent folder")
   private UUID parentFolderId;
 
   @CommandLine.Option(
