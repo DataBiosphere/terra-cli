@@ -26,8 +26,7 @@ public class CommandUtils {
     if (switch (cloudPlatform) {
       case AWS -> FeatureService.fromContext()
           .isFeatureEnabled(FeatureService.AWS_ENABLED, userEmail);
-      case GCP -> FeatureService.fromContext()
-          .isFeatureEnabled(FeatureService.GCP_ENABLED, userEmail);
+      case GCP -> true;
       default -> false;
     }) return;
 
