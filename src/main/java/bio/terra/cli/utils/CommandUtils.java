@@ -3,10 +3,10 @@ package bio.terra.cli.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.FeatureService;
-import bio.terra.cli.service.FeatureService.Features;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class CommandUtils {
   // Checks if current server supports cloud platform
@@ -21,11 +21,12 @@ public class CommandUtils {
     }
   }
 
-  public static void checkPlatformEnabled(CloudPlatform cloudPlatform)
+  public static void checkPlatformEnabled(CloudPlatform cloudPlatform, @Nullable String userEmail)
       throws UserActionableException {
     if (switch (cloudPlatform) {
-      case AWS -> FeatureService.fromContext().isFeatureEnabled(Features.AWS_ENABLED);
-      case GCP -> FeatureService.fromContext().isFeatureEnabled(Features.GCP_ENABLED);
+      case AWS -> FeatureService.fromContext()
+          .isFeatureEnabled(FeatureService.AWS_ENABLED, userEmail);
+      case GCP -> true;
       default -> false;
     }) return;
 
@@ -47,7 +48,7 @@ public class CommandUtils {
 
   // Checks if the dataproc is supported
   public static void checkDataprocSupport() throws UserActionableException {
-    if (FeatureService.fromContext().isFeatureEnabled(Features.CLI_DATAPROC_ENABLED)) {
+    if (FeatureService.fromContext().isFeatureEnabled(FeatureService.CLI_DATAPROC_ENABLED)) {
       throw new UserActionableException("Dataproc is not enabled for the current server or user.");
     }
   }
