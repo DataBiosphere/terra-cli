@@ -1,5 +1,7 @@
 package bio.terra.cli.service;
 
+import static bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams.toWsmCreateClusterParams;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Server;
 import bio.terra.cli.exception.SystemException;
@@ -7,6 +9,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.AddBqTableParams;
 import bio.terra.cli.serialization.userfacing.input.AddGcsObjectParams;
 import bio.terra.cli.serialization.userfacing.input.CreateBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
@@ -23,14 +26,18 @@ import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
+import bio.terra.workspace.model.CreateControlledGcpDataprocClusterRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsBucketReferenceRequestBody;
 import bio.terra.workspace.model.CreateGcpGcsObjectReferenceRequestBody;
 import bio.terra.workspace.model.CreatedControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.CreatedControlledGcpDataprocClusterResult;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceRequest;
 import bio.terra.workspace.model.DeleteControlledGcpAiNotebookInstanceResult;
+import bio.terra.workspace.model.DeleteControlledGcpDataprocClusterRequest;
+import bio.terra.workspace.model.DeleteControlledGcpDataprocClusterResult;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketRequest;
 import bio.terra.workspace.model.DeleteControlledGcpGcsBucketResult;
 import bio.terra.workspace.model.GcpAiNotebookInstanceAcceleratorConfig;
@@ -45,6 +52,7 @@ import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
+import bio.terra.workspace.model.GcpDataprocClusterResource;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
 import bio.terra.workspace.model.GcpGcsBucketLifecycle;
@@ -329,6 +337,51 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
           return createResult.getAiNotebookInstance();
         },
         "Error creating controlled GCP Notebook instance in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/dataproc-clusters" endpoint to add a
+   * GCP dataproc cluster as a controlled resource in the workspace. Clusters can take 5-10 minutes
+   * to create, so we do not wait for it to complete.
+   *
+   * @param workspaceId the workspace to add the resource to
+   * @param createParams resource definition to create
+   */
+  public GcpDataprocClusterResource createControlledGcpDataprocCluster(
+      UUID workspaceId, CreateGcpDataprocClusterParams createParams) {
+    // convert the CLI object to a WSM request object
+    String jobId = UUID.randomUUID().toString();
+    CreateControlledGcpDataprocClusterRequestBody createRequest =
+        new CreateControlledGcpDataprocClusterRequestBody()
+            .common(createCommonFields(createParams.resourceFields))
+            .dataprocCluster(toWsmCreateClusterParams(createParams))
+            .jobControl(new JobControl().id(jobId));
+    logger.debug("Create controlled GCP Dataproc cluster request {}", createRequest);
+
+    return handleClientExceptions(
+        () -> {
+          ControlledGcpResourceApi controlledGcpResourceApi =
+              new ControlledGcpResourceApi(apiClient);
+          // Start the GCP Dataproc cluster creation job.
+          HttpUtils.callWithRetries(
+              () -> controlledGcpResourceApi.createDataprocCluster(createRequest, workspaceId),
+              WorkspaceManagerService::isRetryable);
+
+          // Poll the result endpoint until the job is no longer RUNNING.
+          CreatedControlledGcpDataprocClusterResult createResult =
+              HttpUtils.pollWithRetries(
+                  () -> controlledGcpResourceApi.getCreateDataprocClusterResult(workspaceId, jobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable,
+                  // Creating a GCP Dataproc cluster should take less than ~15 minutes.
+                  90,
+                  Duration.ofSeconds(10));
+          logger.debug("Create controlled GCP Dataproc cluster result {}", createResult);
+          throwIfJobNotCompleted(createResult.getJobReport(), createResult.getErrorReport());
+          return createResult.getDataprocCluster();
+        },
+        "Error creating controlled GCP Dataproc cluster in the workspace.");
   }
 
   /**
@@ -690,6 +743,46 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
           return true;
         },
         "Error deleting controlled GCP Notebook instance in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/dataproc-clusters/{resourceId}"
+   * endpoint to delete a GCP Dataproc cluster as a controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace to remove the resource from
+   * @param resourceId the resource id
+   * @throws SystemException if the job to delete the GCP Dataproc cluster fails
+   * @throws UserActionableException if the CLI times out waiting for the job to complete
+   */
+  public void deleteControlledGcpDataprocCluster(UUID workspaceId, UUID resourceId) {
+    ControlledGcpResourceApi controlledGcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String asyncJobId = UUID.randomUUID().toString();
+    DeleteControlledGcpDataprocClusterRequest deleteRequest =
+        new DeleteControlledGcpDataprocClusterRequest().jobControl(new JobControl().id(asyncJobId));
+    handleClientExceptions(
+        () -> {
+          // make the initial delete request
+          HttpUtils.callWithRetries(
+              () ->
+                  controlledGcpResourceApi.deleteDataprocCluster(
+                      deleteRequest, workspaceId, resourceId),
+              WorkspaceManagerService::isRetryable);
+
+          // poll the result endpoint until the job is no longer RUNNING
+          DeleteControlledGcpDataprocClusterResult deleteResult =
+              HttpUtils.pollWithRetries(
+                  () ->
+                      controlledGcpResourceApi.getDeleteDataprocClusterResult(
+                          workspaceId, asyncJobId),
+                  (result) -> isDone(result.getJobReport()),
+                  WorkspaceManagerService::isRetryable);
+          logger.debug("delete controlled GCP Dataproc cluster result: {}", deleteResult);
+
+          throwIfJobNotCompleted(deleteResult.getJobReport(), deleteResult.getErrorReport());
+          return true;
+        },
+        "Error deleting controlled GCP Dataproc cluster in the workspace.");
   }
 
   /**

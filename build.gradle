@@ -38,6 +38,8 @@ repositories {
 dependencies {
     // Needed for Mac M1
     implementation group: 'net.java.dev.jna', name: 'jna', version: '5.12.1'
+    // Needed for terra cloud resource library
+    implementation 'com.google.guava:listenablefuture:1.0'
 
     // Terra deps
     // TODO(PF-1928) - update versions after Terra-client JDK updates
@@ -45,15 +47,10 @@ dependencies {
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.101.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.849-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.879-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-axon-server', version: '0.45.0-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: "1.2.23-SNAPSHOT"
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
-
-    // TODO(PF-1928) - update versions after Terra-client JDK updates
-    implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-bigquery'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-notebooks'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
 
     // command parsing
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'
