@@ -1,5 +1,6 @@
 package bio.terra.cli.command.workspace;
 
+import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -38,14 +39,13 @@ public class Create extends WsmBaseCommand {
 
   @CommandLine.Option(
       names = "--spend-profile",
-      required = false,
       description = "Spend profile to use for this workspace.")
   public String spendProfile;
 
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    CommandUtils.checkPlatformEnabled(cloudPlatform);
+    CommandUtils.checkPlatformEnabled(cloudPlatform, Context.requireUser().getEmail());
 
     if (spendProfile == null) {
       spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
