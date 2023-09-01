@@ -45,4 +45,11 @@ public class CommandUtils {
                   .collect(Collectors.joining(", ")));
     }
   }
+
+  // Checks if the dataproc is supported
+  public static void checkDataprocSupport() throws UserActionableException {
+    if (FeatureService.fromContext().isFeatureEnabled(Features.CLI_DATAPROC_ENABLED)) {
+      throw new UserActionableException("Dataproc is not enabled for the current server or user.");
+    }
+  }
 }

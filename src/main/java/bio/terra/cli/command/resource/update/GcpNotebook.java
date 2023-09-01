@@ -14,7 +14,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(
     name = "gcp-notebook",
-    description = "Update the GCP notebook.",
+    description = "Update a GCP notebook.",
     showDefaultValues = true)
 public class GcpNotebook extends WsmBaseCommand {
   @CommandLine.Mixin ResourceUpdate resourceUpdateOptions;

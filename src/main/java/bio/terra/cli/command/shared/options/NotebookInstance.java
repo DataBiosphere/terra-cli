@@ -33,6 +33,7 @@ public class NotebookInstance {
     Resource resource =
         (argGroup.resourceName != null)
             ? workspace.getResource(argGroup.resourceName)
+            // TODO: PF-2952 - Correctly handle instanceId arg to identify the notebook
             : workspace.getResource(argGroup.instanceId);
     this.resourceName = resource.getName();
 

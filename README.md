@@ -15,6 +15,7 @@
 4. [Commands description](#commands-description)
     * [Applications](#applications)
     * [Authentication](#authentication)
+    * [Clusters](#clusters)
     * [Config](#config)
     * [Git](#git)
     * [Groups](#groups)
@@ -491,6 +492,42 @@ Please open the following address in a browser on any machine:
 Please enter code: *****
 Login successful: testuser@gmail.com
 ```
+
+### Clusters
+
+```
+Usage: terra cluster [COMMAND]
+Use spark clusters in the workspace.
+
+Commands:
+  start   Start a stopped Dataproc cluster within your workspace.
+  stop    Stop a started Dataproc cluster within your workspace.
+  launch  Launch a running Dataproc cluster within your workspace.
+```
+
+You can create a Dataproc (controlled resource) with
+
+```shell
+terra resource create gcp-dataproc-cluster --name=<resourcename> --bucket=<configBucket> --temp-bucket=<tempBucket> [--workspace=<id>]
+```
+
+> Note: You must have controlled config and temp gcs buckets created within your workspace before creating a cluster.
+
+These `stop`, `start` and `launch` commands are provided for convenience.
+
+* [gcp-dataproc-clusters](https://cloud.google.com/dataproc/docs/concepts/overview) are supported on workspaces
+  created on cloud platform GCP. You can also stop and start the notebook using
+  the `gcloud dataproc clusters [start|stop]` commands.
+
+To launch a component web interface, ensure that the component has been enabled during cluster creation via the `--components` flag, then run:
+
+```shell
+terra cluster launch --name=<cluster-name> --proxy-view=<component>
+```
+
+The supported components are: YARN_RESOURCE_MANAGER, MAPREDUCE_JOB_HISTORY, SPARK_HISTORY_SERVER,  HDFS_NAMENODE, YARN_APPLICATION_TIMELINE, HIVESERVER2, TEZ, JUPYTER, JUPYTERLAB, ZEPPELIN, SOLR, FLINK_HISTORY_SERVER.
+
+See [Dataproc optional components](https://cloud.google.com/dataproc/docs/concepts/components/overview) for more details.
 
 ### Config
 
