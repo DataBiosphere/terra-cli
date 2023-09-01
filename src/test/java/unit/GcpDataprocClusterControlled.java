@@ -192,11 +192,11 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
     // `terra cluster stop --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("cluster", "stop", "--name=" + clusterName);
-    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "STOPPED");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "status", "STOPPED");
 
     // `terra cluster start --name=$name`
     TestCommand.runCommandExpectSuccessWithRetries("cluster", "start", "--name=" + clusterName);
-    ResourceUtils.pollDescribeForResourceField(clusterName, "clusterState", "RUNNING");
+    ResourceUtils.pollDescribeForResourceField(clusterName, "status", "RUNNING");
   }
 
   @Test
