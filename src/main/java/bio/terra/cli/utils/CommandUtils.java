@@ -48,7 +48,7 @@ public class CommandUtils {
 
   // Checks if the dataproc is supported
   public static void checkDataprocSupport() throws UserActionableException {
-    if (FeatureService.fromContext().isFeatureEnabled(Features.CLI_DATAPROC_ENABLED)) {
+    if (FeatureService.fromContext().isFeatureEnabled(FeatureService.CLI_DATAPROC_ENABLED)) {
       throw new UserActionableException("Dataproc is not enabled for the current server or user.");
     }
   }

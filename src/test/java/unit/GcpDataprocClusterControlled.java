@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.service.FeatureService;
-import bio.terra.cli.service.FeatureService.Features;
 import bio.terra.cli.service.utils.CrlUtils;
 import bio.terra.cloudres.google.dataproc.ClusterName;
 import bio.terra.workspace.model.AccessScope;
@@ -52,7 +51,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   void setupCluster() throws Exception {
     // Only run this test suite if dataproc clusters are enabled in the environment
     Assumptions.assumeTrue(
-        FeatureService.fromContext().isFeatureEnabled(Features.CLI_DATAPROC_ENABLED),
+        FeatureService.fromContext().isFeatureEnabled(FeatureService.CLI_DATAPROC_ENABLED),
         "Dataproc is not supported in the current environment. Skipping tests.");
 
     // `terra workspace set --id=$id`
