@@ -33,7 +33,7 @@ public class Create extends BaseCommand {
 
   @CommandLine.Option(
       names = "--parent-folder-id",
-      description = "Id of the parent folder, if not set, create a folder under root")
+      description = "Id of the parent folder; if not set, create a folder under root.")
   private UUID parentFolderId;
 
   /** Create a folder. */
