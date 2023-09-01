@@ -6,4 +6,4 @@ set -e
 
 terra status
 
-terra nextflow run hello > nextflowHelloWorld_stdout.txt
+terra nextflow run hello.nf > nextflowHelloWorld_stdout.txt

@@ -9,6 +9,8 @@ import harness.baseclasses.ClearContextIntegration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -26,6 +28,13 @@ public class Nextflow extends ClearContextIntegration {
     // create a workspace
     int exitCode = TestBashScript.runScript("CreateWorkspace.sh");
     assertEquals(0, exitCode, "workspace created without errors");
+
+    // copy the local Nextflow configuration to the current working dir, which will be mounted for
+    // commands running in the CLI Docker container
+    Files.copy(
+        TestBashScript.getPathFromScriptName("nextflow_hello/hello.nf"),
+        Path.of(System.getProperty("TERRA_WORKING_DIR"), "hello.nf"),
+        StandardCopyOption.REPLACE_EXISTING);
 
     // run the script that runs the NF hello world workflow
     exitCode = TestBashScript.runScript("NextflowHelloWorld.sh");
