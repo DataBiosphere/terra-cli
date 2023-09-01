@@ -64,6 +64,7 @@ import picocli.CommandLine.ParseResult;
       App.class,
       Auth.class,
       Bq.class,
+      Cluster.class,
       Config.class,
       Cromwell.class,
       Folder.class,

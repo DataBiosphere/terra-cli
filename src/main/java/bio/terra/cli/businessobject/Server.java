@@ -53,6 +53,7 @@ public class Server {
   private final String dataRepoUri;
   private final String externalCredsUri;
   private final String userManagerUri;
+  private final String axonServerUri;
   // Terra services in the service instance are configured to accept JWT ID tokens for
   // authentication.
   private final boolean supportsIdToken;
@@ -78,6 +79,7 @@ public class Server {
     this.dataRepoUri = configFromDisk.dataRepoUri;
     this.externalCredsUri = configFromDisk.externalCredsUri;
     this.userManagerUri = configFromDisk.userManagerUri;
+    this.axonServerUri = configFromDisk.axonServerUri;
     this.supportsIdToken = configFromDisk.supportsIdToken;
     this.supportedCloudPlatforms =
         configFromDisk.supportedCloudPlatforms != null
@@ -256,6 +258,10 @@ public class Server {
 
   public String getUserManagerUri() {
     return userManagerUri;
+  }
+
+  public String getAxonServerUri() {
+    return axonServerUri;
   }
 
   public boolean getSupportsIdToken() {
