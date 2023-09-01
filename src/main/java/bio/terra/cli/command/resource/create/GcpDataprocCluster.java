@@ -76,7 +76,6 @@ public class GcpDataprocCluster extends WsmBaseCommand {
   @CommandLine.Option(
       names = "--properties",
       split = ",",
-      type = Map.class,
       description = "Properties in the format key=value.")
   private Map<String, String> properties;
 
