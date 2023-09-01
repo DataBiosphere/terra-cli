@@ -557,7 +557,6 @@ public class WorkspaceManagerService {
    * @throws InterruptedException
    */
   public void deleteFolder(UUID workspaceId, UUID folderId) throws InterruptedException {
-
     var folderApi = new FolderApi(apiClient);
     var jobResult =
         callWithRetries(

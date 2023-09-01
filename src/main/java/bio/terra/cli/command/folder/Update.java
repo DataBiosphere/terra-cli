@@ -9,7 +9,7 @@ import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.UFFolder;
 import bio.terra.workspace.model.Folder;
 import java.util.UUID;
-import org.apache.http.util.TextUtils;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -27,33 +27,40 @@ public class Update extends BaseCommand {
   @CommandLine.Option(names = "--new-description", description = "Description name of the folder")
   private String description;
 
-  @CommandLine.Option(
-      names = "--new-parent-folder-id",
-      description = "ID of the new parent folder")
-  private UUID parentFolderId;
+  @CommandLine.ArgGroup(exclusive = true, multiplicity = "1")
+  ParentFolderIdArgGroup argGroup;
 
-  @CommandLine.Option(
-      names = "--move-to-root",
-      description = "Remove all of its parents and make it into a root folder")
-  private boolean moveToRoot;
+  static class ParentFolderIdArgGroup {
+    @CommandLine.Option(
+        names = "--new-parent-folder-id",
+        description = "ID of the new parent folder")
+    private UUID parentFolderId;
+
+    @CommandLine.Option(
+        names = "--move-to-root",
+        description = "Remove all of its parents and make it into a root folder")
+    private boolean moveToRoot;
+  }
 
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
-    if (TextUtils.isEmpty(displayName)
-        && TextUtils.isEmpty(description)
-        && parentFolderId == null
-        && !moveToRoot) {
+    if (StringUtils.isEmpty(displayName)
+        && StringUtils.isEmpty(description)
+        && argGroup.parentFolderId == null
+        && !argGroup.moveToRoot) {
       throw new UserActionableException(
           "new-name, new-description, new-parent-folder-id or move-to-root must be specified.");
     }
-    if (parentFolderId != null && moveToRoot) {
-      throw new UserActionableException(
-          "received conflicting input. move-to-root and new-parent-folder-id cannot both be set");
-    }
+
     Folder folder =
         Context.requireWorkspace()
-            .updateFolder(folderId.folderId, displayName, description, parentFolderId, moveToRoot);
+            .updateFolder(
+                folderId.folderId,
+                displayName,
+                description,
+                argGroup.parentFolderId,
+                argGroup.moveToRoot);
     formatOption.printReturnValue(new UFFolder(folder), this::printText);
   }
 
