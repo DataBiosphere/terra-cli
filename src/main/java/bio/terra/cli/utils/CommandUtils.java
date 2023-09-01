@@ -3,10 +3,10 @@ package bio.terra.cli.utils;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.service.FeatureService;
-import bio.terra.cli.service.FeatureService.Features;
 import bio.terra.workspace.model.CloudPlatform;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class CommandUtils {
   // Checks if current server supports cloud platform
@@ -21,11 +21,13 @@ public class CommandUtils {
     }
   }
 
-  public static void checkPlatformEnabled(CloudPlatform cloudPlatform)
+  public static void checkPlatformEnabled(CloudPlatform cloudPlatform, @Nullable String userEmail)
       throws UserActionableException {
     if (switch (cloudPlatform) {
-      case AWS -> FeatureService.fromContext().isFeatureEnabled(Features.AWS_ENABLED);
-      case GCP -> FeatureService.fromContext().isFeatureEnabled(Features.GCP_ENABLED);
+      case AWS -> FeatureService.fromContext()
+          .isFeatureEnabled(FeatureService.AWS_ENABLED, userEmail);
+      case GCP -> FeatureService.fromContext()
+          .isFeatureEnabled(FeatureService.GCP_ENABLED, userEmail);
       default -> false;
     }) return;
 
