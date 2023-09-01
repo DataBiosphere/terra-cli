@@ -20,7 +20,6 @@ public class FeatureService {
 
   // list of features
   public static final String AWS_ENABLED = "vwb__aws_enabled";
-  public static final String GCP_ENABLED = "vwb__gcp_enabled";
   public static final String CLI_AUTH0_TOKEN_REFRESH_ENABLED = "vwb__cli_token_refresh_enabled";
   public static final String CLI_DATAPROC_ENABLED = "vwb__cli_dataproc_enabled";
   private final FlagsmithClient flagsmith;
