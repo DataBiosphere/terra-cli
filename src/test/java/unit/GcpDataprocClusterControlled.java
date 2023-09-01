@@ -34,9 +34,6 @@ import org.junit.jupiter.api.Test;
  *
  * <p>These tests share a single controlled cluster resource created before the tests run.
  * Additional tests must be added before {@link #listDescribeReflectDelete()}
- *
- * <p>This test only executes on verily environments. Add a tag prefix to prevent it from running in
- * the main repo
  */
 @Tag("unit-gcp")
 public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
