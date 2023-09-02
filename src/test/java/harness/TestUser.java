@@ -45,13 +45,9 @@ import org.slf4j.LoggerFactory;
  * user (e.g. they have some permission that should've been deleted).
  */
 public class TestUser {
+  private static final Logger logger = LoggerFactory.getLogger(TestUser.class);
   // name of the group that includes CLI test users and has spend profile access
   public static final String CLI_TEST_USERS_GROUP_NAME = "cli-test-users";
-  // test users need the cloud platform scope when they talk to GCP directly (e.g. to check the
-  // lifecycle property of a GCS bucket, which is not stored as WSM metadata)
-  public static final String CLOUD_PLATFORM_SCOPE =
-      "https://www.googleapis.com/auth/cloud-platform";
-  private static final Logger logger = LoggerFactory.getLogger(TestUser.class);
   // See https://medium.com/datamindedbe/mastering-the-google-cloud-platform-sdk-tools-ddcb16b62886
   private static final String GCLOUD_CLIENT_ID = "32555940559.apps.googleusercontent.com";
   private static final String GCLOUD_CLIENT_SECRET = "ZmssLNjJy2998hD4CTg2ejr2";
@@ -223,14 +219,14 @@ public class TestUser {
    * or another Terra service.
    */
   public GoogleCredentials getCredentialsWithCloudPlatformScope() throws IOException {
-    // USER_SCOPE + "https://www.googleapis.com/auth/cloud-platform"
+    // USER_SCOPE + CLOUD_PLATFORM_SCOPE
     return getCredentials(User.PET_SA_SCOPES);
   }
 
   /** Get domain-wide delegated Google credentials for this user. */
   private GoogleCredentials getCredentials(List<String> scopes) throws IOException {
     // get a credential for the test-user SA
-    Path jsonKey = Path.of("rendered", TestConfig.getTestConfigName(), "test-user-account.json");
+    Path jsonKey = Path.of("rendered/test-user-account.json");
     if (!jsonKey.toFile().exists()) {
       throw new FileNotFoundException(
           "Test user SA key file for domain-wide delegation not found. Try re-running tools/render-config.sh. ("
@@ -288,19 +284,13 @@ public class TestUser {
 
   /** Read refresh_token from testconfig. */
   public String getRefreshToken() {
-    Path testUserFilePath =
-        Paths.get(
-            System.getProperty("user.dir"),
-            "rendered",
-            TestConfig.getTestConfigName(),
-            email + ".json");
+    Path testUserFilePath = Paths.get(System.getProperty("user.dir"), "rendered", email + ".json");
     logger.debug("Reading test user refresh token from {}", testUserFilePath);
 
-    Gson gson = new Gson();
-    Map<String, String> testUserMap = new HashMap<>();
+    Map<String, String> testUserMap;
     try {
       Reader reader = Files.newBufferedReader(testUserFilePath);
-      testUserMap = gson.fromJson(reader, Map.class);
+      testUserMap = new Gson().fromJson(reader, Map.class);
       reader.close();
     } catch (IOException e) {
       throw new SystemException("Error reading test user file " + testUserFilePath, e);

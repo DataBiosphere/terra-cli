@@ -398,10 +398,7 @@ deployment:
 * Create a new file
   under [Test config](https://github.com/DataBiosphere/terra-cli/tree/main/src/test/resources/testconfigs)
 * Create a new `render-config.sh` which renders config for your deployment. Put
-  the configs in a new directory under `rendered`, eg `rendered/<mydeployment>`.
-  The name of this directory must match the name of the testConfig in the next
-  step.
-* Run tests with `-PtestConfig=<testconfigfilenamewithout.json>`
+  the configs under `rendered`.
 
 For example, consider the project that external resources are created in. The
 Broad deployment uses a project in Broad GCP org; Verily deployment uses a

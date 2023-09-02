@@ -143,11 +143,18 @@ task runTestsWithTag(type: Test) {
     }
 
     // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to 'broad-dev'
-    String terraServer = project.hasProperty('server') ? project.findProperty('server') : 'broad-dev'
+    // testconfig is derived from the server
+    String terraServer = 'broad-dev'
+    String terraTestConfigName = 'broad'
+    if (project.hasProperty('server')) {
+        terraServer = project.findProperty('server')
+        if (terraServer == 'verily') {
+            terraTestConfigName = 'verily'
+        } else if (terraServer.startsWith('verily')) {
+            terraTestConfigName = 'verily-dev'
+        }
+    }
     environment 'TERRA_SERVER', terraServer
-
-    // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
     systemProperty('TERRA_TEST_CONFIG_NAME', terraTestConfigName)
 
     // suppress console logging ('stdin' & 'stdout' display)

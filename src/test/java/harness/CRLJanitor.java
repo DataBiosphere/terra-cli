@@ -1,6 +1,7 @@
 package harness;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.User;
 import bio.terra.cli.utils.JacksonMapper;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.common.JanitorException;
@@ -14,7 +15,6 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -32,19 +30,12 @@ import java.util.concurrent.ExecutionException;
  * create external resources that will get automatically cleaned up if e.g. the tests fail.
  */
 public class CRLJanitor {
-  // Map from CLI server to Janitor's identifier for WSM instance.
-  public static final Map<String, String> serverToWsmInstanceIdentifier =
-      ImmutableMap.of("broad-dev", "dev");
   // CRL janitor client SA
-  private static final String SA_KEY_FILE =
-      "./rendered/" + TestConfig.getTestConfigName() + "/janitor-client.json";
-  // default scope to request for the SA
-  private static final List<String> CLOUD_PLATFORM_SCOPE =
-      List.of("https://www.googleapis.com/auth/cloud-platform");
+  private static final String SA_KEY_FILE = "./rendered/janitor-client.json";
   private static final String DEFAULT_CLIENT_NAME = "cli-test";
   // How long Janitor should wait before cleaning test workspaces.
   private static final Duration WORKSPACE_TIME_TO_LIVE = Duration.ofHours(6);
-  // Publisher objects are heavyweight and we use the same credentials for all publishing, so
+  // Publisher objects are heavyweight, and we use the same credentials for all publishing, so
   // it's better to re-use a single Publisher instance.
   private static final Publisher publisher = initializeJanitorPubSubPublisher();
 
@@ -67,7 +58,7 @@ public class CRLJanitor {
   private static GoogleCredentials getSACredentials() {
     try {
       return ServiceAccountCredentials.fromStream(new FileInputStream(SA_KEY_FILE))
-          .createScoped(CLOUD_PLATFORM_SCOPE);
+          .createScoped(User.CLOUD_PLATFORM_SCOPES);
     } catch (IOException ioEx) {
       throw new RuntimeException("Error reading SA credentials for Janitor client.", ioEx);
     }

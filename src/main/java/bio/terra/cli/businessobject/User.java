@@ -33,28 +33,36 @@ import org.slf4j.LoggerFactory;
     justification =
         "Known false positive for certain try-with-resources blocks, which are used in several methods in this class. https://github.com/spotbugs/spotbugs/issues/1338 (Other similar issues linked from there.)")
 public class User {
+  private static final Logger logger = LoggerFactory.getLogger(User.class);
+
   // these are the same scopes requested by Terra service swagger pages
   @VisibleForTesting
   public static final List<String> USER_SCOPES = ImmutableList.of("openid", "email", "profile");
 
-  private static final Logger logger = LoggerFactory.getLogger(User.class);
+  // these are the same scopes requested by Terra service swagger pages
+  @VisibleForTesting
+  public static final List<String> CLOUD_PLATFORM_SCOPES =
+      ImmutableList.of("https://www.googleapis.com/auth/cloud-platform");
+
   // these are the same scopes requested by Terra service swagger pages, plus the cloud platform
   // scope. pet SAs need the cloud platform scope to talk to GCP directly (e.g. to check the status
   // of a GCP notebook)
   @VisibleForTesting
   public static final List<String> PET_SA_SCOPES =
-      ImmutableList.of(
-          "openid", "email", "profile", "https://www.googleapis.com/auth/cloud-platform");
+      ImmutableList.<String>builder().addAll(USER_SCOPES).addAll(CLOUD_PLATFORM_SCOPES).build();
+
   // Number of milliseconds early to consider auth credentials as expired.
   private static final int CREDENTIAL_EXPIRATION_OFFSET_MS = 60 * 1000;
   // URL of the landing page shown in the browser after completing the OAuth part of login
   // ideally this should point to product documentation or perhaps the UI, but for now the CLI
   // README seems like the best option. in the future, if we want to make this server-specific, then
   // it should become a property of the Server
+
   private static final String LOGIN_LANDING_PAGE =
       "https://github.com/DataBiosphere/terra-cli/blob/main/README.md";
   // id that Terra uses to identify a user. the CLI queries SAM for a user's subject id to populate
   // this field.
+
   private String id;
   // name that Terra associates with this user. the CLI queries SAM for a user's email to populate
   // this field.

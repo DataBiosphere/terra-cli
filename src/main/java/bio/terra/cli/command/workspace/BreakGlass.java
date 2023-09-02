@@ -1,5 +1,7 @@
 package bio.terra.cli.command.workspace;
 
+import static bio.terra.cli.businessobject.User.CLOUD_PLATFORM_SCOPES;
+
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.businessobject.WorkspaceUser;
@@ -18,7 +20,6 @@ import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.InsertAllRequest;
 import com.google.cloud.bigquery.InsertAllResponse;
 import com.google.cloud.bigquery.TableId;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
@@ -83,8 +84,7 @@ public class BreakGlass extends WsmBaseCommand {
     ServiceAccountCredentials userProjectsAdminCredentials;
     ServiceAccountCredentials bigQueryCredentials;
     try {
-      final List<String> SA_SCOPES =
-          ImmutableList.of("https://www.googleapis.com/auth/cloud-platform");
+      List<String> SA_SCOPES = CLOUD_PLATFORM_SCOPES;
       userProjectsAdminCredentials =
           Oauth.getServiceAccountCredential(Path.of(userProjectAdminSAKeyFile).toFile(), SA_SCOPES);
       bigQueryCredentials =

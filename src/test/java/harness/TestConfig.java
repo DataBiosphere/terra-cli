@@ -36,8 +36,7 @@ public final class TestConfig {
 
   private TestConfig() {}
 
-  // Returns name of file under `testconfigs/` without `.json`, eg `broad`. This is also name of the
-  // directory under `rendered` where credentials are stored.
+  // Returns name of file under `testconfigs/` without `.json`, eg `broad`.
   public static String getTestConfigName() {
     return System.getProperty("TERRA_TEST_CONFIG_NAME");
   }
