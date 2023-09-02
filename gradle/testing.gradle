@@ -214,11 +214,19 @@ task cleanupTestUserWorkspaces(type: JavaExec) {
     environment 'TERRA_CONTEXT_PARENT_DIR', "${buildDir}/test-context/"
     mkdir "${project.buildDir}/test-context/"
 
-    // [required] specify the server to cleanup (e.g. -Pserver=broad-dev). no default value, force caller to specify this
-    systemProperty('TERRA_SERVER', project.findProperty('server'))
-
-    // set which file in src/test/resources/testconfigs to use
-    String terraTestConfigName = project.hasProperty('testConfig') ? project.findProperty('testConfig') : 'broad'
+    // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to 'broad-dev'
+    // testconfig is derived from the server
+    String terraServer = 'broad-dev'
+    String terraTestConfigName = 'broad'
+    if (project.hasProperty('server')) {
+        terraServer = project.findProperty('server')
+        if (terraServer == 'verily') {
+            terraTestConfigName = 'verily'
+        } else if (terraServer.startsWith('verily')) {
+            terraTestConfigName = 'verily-dev'
+        }
+    }
+    environment 'TERRA_SERVER', terraServer
     systemProperty('TERRA_TEST_CONFIG_NAME', terraTestConfigName)
 
     // suppress console logging ('stdin' & 'stdout' display)

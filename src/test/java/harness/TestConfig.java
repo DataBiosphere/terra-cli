@@ -36,19 +36,9 @@ public final class TestConfig {
 
   private TestConfig() {}
 
-  // Returns name of file under `testconfigs/` without `.json`, eg `broad`.
-  public static String getTestConfigName() {
-    return System.getProperty("TERRA_TEST_CONFIG_NAME");
-  }
-
   public static TestConfig get() {
     if (INSTANCE == null) {
-      String testConfigName = getTestConfigName();
-      if (testConfigName == null || testConfigName.isEmpty()) {
-        throw new SystemException("TERRA_TEST_CONFIG_NAME must be set");
-      }
-
-      String testConfigFileName = testConfigName + ".json";
+      String testConfigFileName = System.getProperty("TERRA_TEST_CONFIG_NAME") + ".json";
       TestConfig testConfig = fromJsonFile(testConfigFileName);
       validateTestConfig(testConfig, testConfigFileName);
 
