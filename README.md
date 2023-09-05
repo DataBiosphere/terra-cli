@@ -404,6 +404,7 @@ below.
 * `spend` [Spend](#spend)
 * `user` [User](#user)
 * `workspace` [Workspace](#workspace)
+* `folder` [Folder](#folder)
 
 ### Applications
 
@@ -982,6 +983,17 @@ The `break-glass` command is intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#break-glass)
 for more details.
 
+### Folder
+```
+Usage: terra folder [COMMAND]
+Setup a folder in a Terra workspace.
+Comands:
+  create        create a folder
+  delete        delete a folder
+  update        update a folder's name, description, parent folder
+  set-property  set key-value properties on a folder
+  tree          print out the folders in the workspace in a tree hiearchy
+```
 -----
 
 ## Workspace context for applications

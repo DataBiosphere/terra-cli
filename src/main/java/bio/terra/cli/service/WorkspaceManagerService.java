@@ -22,6 +22,7 @@ import bio.terra.workspace.model.CloneWorkspaceRequest;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.CloudPlatform;
 import bio.terra.workspace.model.ControlledResourceCommonFields;
+import bio.terra.workspace.model.CreateFolderRequestBody;
 import bio.terra.workspace.model.CreateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.CreateWorkspaceV2Request;
 import bio.terra.workspace.model.CreateWorkspaceV2Result;
@@ -44,6 +45,7 @@ import bio.terra.workspace.model.ResourceDescription;
 import bio.terra.workspace.model.ResourceList;
 import bio.terra.workspace.model.RoleBindingList;
 import bio.terra.workspace.model.SystemVersion;
+import bio.terra.workspace.model.UpdateFolderRequestBody;
 import bio.terra.workspace.model.UpdateGitRepoReferenceRequestBody;
 import bio.terra.workspace.model.UpdateWorkspaceRequestBody;
 import bio.terra.workspace.model.WorkspaceDescription;
@@ -526,6 +528,79 @@ public class WorkspaceManagerService {
 
     List<Folder> allFolders = new ArrayList<>(result.getFolders());
     return ImmutableList.copyOf(allFolders);
+  }
+
+  public Folder createFolder(
+      UUID workspaceId,
+      String displayName,
+      String description,
+      UUID parentId,
+      Map<String, String> properties) {
+    return callWithRetries(
+        () ->
+            new FolderApi(apiClient)
+                .createFolder(
+                    new CreateFolderRequestBody()
+                        .displayName(displayName)
+                        .description(description)
+                        .parentFolderId(parentId)
+                        .properties(PropertiesUtils.stringMapToProperties(properties)),
+                    workspaceId),
+        "Error creating folder");
+  }
+
+  /**
+   * Delete folder and all the sub-folders and resources within it.
+   *
+   * <p>Delete folder is an async endpoint. Resource deletion may take a long time.
+   *
+   * @throws InterruptedException
+   */
+  public void deleteFolder(UUID workspaceId, UUID folderId) throws InterruptedException {
+    var folderApi = new FolderApi(apiClient);
+    var jobResult =
+        callWithRetries(
+            () -> folderApi.deleteFolderAsync(workspaceId, folderId), "Error deleting folder");
+
+    var jobId = jobResult.getJobReport().getId();
+    // poll the result endpoint until the job is no longer RUNNING
+    jobResult =
+        HttpUtils.pollWithRetries(
+            () -> {
+              try {
+                return folderApi.getDeleteFolderResult(workspaceId, folderId, jobId);
+              } catch (ApiException e) {
+                throw new RuntimeException(e);
+              }
+            },
+            (result) -> isDone(result.getJobReport()),
+            WorkspaceManagerService::isRetryable,
+            // Resource deletion may take 15+ minutes, so poll for up to 30 minutes.
+            /*maxCalls=*/ 30,
+            /*sleepDuration=*/ Duration.ofSeconds(60));
+    logger.debug("delete folder result: {}", jobResult);
+    throwIfJobNotCompleted(jobResult.getJobReport(), jobResult.getErrorReport());
+  }
+
+  public Folder updateFolder(
+      UUID workspaceId,
+      UUID folderId,
+      String newDisplayName,
+      String newDescription,
+      UUID newParentId,
+      boolean moveToRoot) {
+    return callWithRetries(
+        () ->
+            new FolderApi(apiClient)
+                .updateFolder(
+                    new UpdateFolderRequestBody()
+                        .displayName(newDisplayName)
+                        .parentFolderId(newParentId)
+                        .updateParent(newParentId != null || moveToRoot)
+                        .description(newDescription),
+                    workspaceId,
+                    folderId),
+        "error updating folder");
   }
 
   /**
