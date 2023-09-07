@@ -696,6 +696,7 @@ Commands:
   list                       List all resources.
   list-tree                  List all resources and folders in tree view.
   mount                      Mounts all workspace bucket resources.
+  move                       Move resource to a folder.
   open-console               Retrieve console link to access a cloud resource.
   resolve                    Resolve a resource to its cloud id or path.
   unmount                    Unmounts all workspace bucket resources.
