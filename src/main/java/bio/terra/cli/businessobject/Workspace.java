@@ -217,6 +217,11 @@ public class Workspace {
     return WorkspaceManagerService.fromContext().updateFolderProperties(uuid, folderId, properties);
   }
 
+  public Resource updateResourceProperties(UUID resourceId, Map<String, String> properties) {
+    WorkspaceManagerService.fromContext().updateResourceProperties(uuid, resourceId, properties);
+    return getResource(resourceId);
+  }
+
   /** Delete the current workspace. */
   public void delete() {
     // call WSM to delete the existing workspace object

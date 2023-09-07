@@ -359,6 +359,20 @@ public class WorkspaceManagerService {
         "Error getting the workspace after updating properties");
   }
 
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/{resourceId}/properties" endpoint to update
+   * properties in resource.
+   */
+  public void updateResourceProperties(
+      UUID workspaceId, UUID resourceId, Map<String, String> properties) {
+    callWithRetries(
+        () ->
+            new ResourceApi(apiClient)
+                .updateResourceProperties(buildProperties(properties), workspaceId, resourceId),
+        "Error updating resource properties");
+  }
+
   public Folder updateFolderProperties(
       UUID workspaceId, UUID folderId, Map<String, String> folderProperties) {
     callWithRetries(
