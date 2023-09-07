@@ -40,10 +40,10 @@ import picocli.CommandLine;
       List.class,
       ListTree.class,
       Mount.class,
+      MoveToFolder.class,
       OpenConsole.class,
       Resolve.class,
       Unmount.class,
       Update.class,
-      MoveToFolder.class,
     })
 public class Resource {}

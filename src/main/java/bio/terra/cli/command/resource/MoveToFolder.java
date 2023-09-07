@@ -16,21 +16,20 @@ import picocli.CommandLine;
 /** This class corresponds to the third-level "terra resource move" command. */
 @CommandLine.Command(name = "move", description = "move resource to a folder.")
 public class MoveToFolder extends WsmBaseCommand {
+  @CommandLine.Mixin WorkspaceOverride workspaceOption;
+  @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin ResourceName resourceNameOption;
 
   @CommandLine.Option(names = "--folder-id", required = true, description = "folder id")
-  public UUID folderId;
+  private UUID folderId;
 
-  @CommandLine.Mixin WorkspaceOverride workspaceOption;
-  @CommandLine.Mixin Format formatOption;
-
-  /** Describe a resource. */
+  /** Move a resource to a folder. */
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     Resource resource = Context.requireWorkspace().getResource(resourceNameOption.name);
     var properties = Map.of(TERRA_FOLDER_ID_PROPERTY_KEY, folderId.toString());
-    var updatedResource =
+    Resource updatedResource =
         Context.requireWorkspace().updateResourceProperties(resource.getId(), properties);
 
     formatOption.printReturnValue(updatedResource.serializeToCommand(), UFResource::print);
