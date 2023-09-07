@@ -1,6 +1,5 @@
 package bio.terra.cli.command.workspace;
 
-import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
@@ -45,7 +44,7 @@ public class Create extends WsmBaseCommand {
   /** Create a new workspace. */
   @Override
   protected void execute() {
-    CommandUtils.checkPlatformEnabled(cloudPlatform, Context.requireUser().getEmail());
+    CommandUtils.checkPlatformEnabled(cloudPlatform);
 
     if (spendProfile == null) {
       spendProfile = UserManagerService.fromContext().getDefaultSpendProfile(/*email=*/ null);
