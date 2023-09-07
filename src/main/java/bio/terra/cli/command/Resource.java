@@ -44,6 +44,6 @@ import picocli.CommandLine;
       OpenConsole.class,
       Resolve.class,
       Unmount.class,
-      Update.class,
+      Update.class
     })
 public class Resource {}
