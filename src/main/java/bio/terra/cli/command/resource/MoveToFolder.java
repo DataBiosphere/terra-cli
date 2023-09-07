@@ -20,7 +20,7 @@ public class MoveToFolder extends WsmBaseCommand {
   @CommandLine.Mixin Format formatOption;
   @CommandLine.Mixin ResourceName resourceNameOption;
 
-  @CommandLine.Option(names = "--folder-id", required = true, description = "folder id")
+  @CommandLine.Option(names = "--folder-id", required = true, description = "folder UUID")
   private UUID folderId;
 
   /** Move a resource to a folder. */
