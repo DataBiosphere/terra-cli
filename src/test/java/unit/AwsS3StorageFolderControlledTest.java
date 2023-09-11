@@ -9,9 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
+import bio.terra.cli.utils.UserIO;
 import harness.TestCommand;
+import harness.TestCommand.Result;
 import harness.baseclasses.SingleWorkspaceUnitAws;
 import harness.utils.ResourceUtils;
 import harness.utils.TestUtils;
@@ -64,25 +65,6 @@ public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
             "--name=" + storageName,
             "--folder-name=" + storageName,
             "--region=" + AWS_REGION);
-
-    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
-    TestCommand.Result result =
-        TestCommand.runCommandExpectSuccess(
-            "resource",
-            "open-console",
-            "--name=" + storageName,
-            "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
-            "--duration=" + 1500);
-    assertThat(
-        "console link is displayed",
-        result.stdOut,
-        containsString("Please open the following address in your browser"));
-    assertThat(
-        "console link is not opened in the browser",
-        result.stdOut,
-        not(containsString("Attempting to open that address in the default browser now...")));
-
-    if (true) return;
 
     // check the created resource has required details
     assertEquals(storageName, createdResource.name, "created resource matches name");
@@ -141,21 +123,28 @@ public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
     // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
-    result =
+    Result result =
         TestCommand.runCommandExpectSuccess(
             "resource",
             "open-console",
             "--name=" + storageName,
-            "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
+            "--scope=" + READ_ONLY,
             "--duration=" + 1500);
     assertThat(
         "console link is displayed",
         result.stdOut,
         containsString("Please open the following address in your browser"));
-    assertThat(
-        "console link is not opened in the browser",
-        result.stdOut,
-        not(containsString("Attempting to open that address in the default browser now...")));
+    if (UserIO.isBrowserSupported()) {
+      assertThat(
+          "console link is opened in the browser",
+          result.stdOut,
+          containsString("Attempting to open that address in the default browser now..."));
+    } else {
+      assertThat(
+          "console link is not opened in the browser",
+          result.stdOut,
+          not(containsString("Attempting to open that address in the default browser now...")));
+    }
 
     // `terra resources check-access --name=$name`
     String stdErr =
