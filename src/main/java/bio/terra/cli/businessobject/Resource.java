@@ -32,8 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
- * to all resource types. Sub-classes represent a specific resource type. Instances of the
- * sub-classes are part of the current context or state.
+ * to all resource types. Subclasses represent a specific resource type. Instances of the subclasses
+ * are part of the current context or state.
  */
 public abstract class Resource {
   // Copied from WSM: ResourceType specific validation performed in WSM
