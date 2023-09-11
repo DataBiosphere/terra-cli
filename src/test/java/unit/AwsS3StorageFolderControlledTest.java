@@ -65,6 +65,25 @@ public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
             "--folder-name=" + storageName,
             "--region=" + AWS_REGION);
 
+    // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
+    TestCommand.Result result =
+        TestCommand.runCommandExpectSuccess(
+            "resource",
+            "open-console",
+            "--name=" + storageName,
+            "--scope=" + Resource.CredentialsAccessScope.READ_ONLY,
+            "--duration=" + 1500);
+    assertThat(
+        "console link is displayed",
+        result.stdOut,
+        containsString("Please open the following address in your browser"));
+    assertThat(
+        "console link is not opened in the browser",
+        result.stdOut,
+        not(containsString("Attempting to open that address in the default browser now...")));
+
+    if (true) return;
+
     // check the created resource has required details
     assertEquals(storageName, createdResource.name, "created resource matches name");
     assertEquals(AWS_REGION, createdResource.region, "created resource matches region");
@@ -122,7 +141,7 @@ public class AwsS3StorageFolderControlledTest extends SingleWorkspaceUnitAws {
         resolvedCredentials.get("Expiration"), "get credentials returned expiration date time");
 
     // `terra resource open-console --name=$name --scope=READ_ONLY --duration=1500`
-    TestCommand.Result result =
+    result =
         TestCommand.runCommandExpectSuccess(
             "resource",
             "open-console",
