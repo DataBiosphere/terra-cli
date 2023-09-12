@@ -25,6 +25,7 @@ public class FileUtils {
   /**
    * Build a stream handle to a resource file.
    *
+   * @param resourceFilePath the file to read from
    * @return the new file handle
    * @throws FileNotFoundException if the resource file doesn't exist
    */
@@ -71,15 +72,20 @@ public class FileUtils {
     return Files.writeString(outputFile.toPath(), fileContents == null ? "" : fileContents);
   }
 
+  /** Delete the file or directory (recursively) if it exists. */
+  public static void delete(Path root) throws IOException {
+    walkUpFileTree(root, childPath -> childPath.toFile().delete(), false);
+  }
+
   /**
-   * Walks a file tree from the bottom up, excluding the root. This means that all children of a
-   * directory are walked before their parent.
+   * Walks a file tree from the bottom up. This means that all children of a directory are walked
+   * before their parent.
    *
    * <p>Outline of algorithm:
    *
    * <p>- Walk the file tree and build a list of child paths
    *
-   * <p>- Sort the list from longest paths to shortest
+   * <p>- Sort the list from the longest paths to shortest
    *
    * <p>- Process the paths in this order, skipping the root path
    *
@@ -134,13 +140,12 @@ public class FileUtils {
   }
 
   /**
-   * Recursively deletes empty subdirectories in the given root directory, excluding the root
-   * itself.
+   * Recursively deletes empty subdirectories in the given root directory, including the root.
    *
    * @param root the root directory to delete empty subdirectories from.
    * @throws SystemException if an error occurs while deleting the empty directories.
    */
-  public static void deleteEmptyDirectories(Path root) {
+  public static void deleteEmptyDirectories(Path root, boolean skipRoot) {
     try {
       FileUtils.walkUpFileTree(
           root,
@@ -152,7 +157,7 @@ public class FileUtils {
                   String.format("Directory is not empty: %s", childPath));
             }
           },
-          false);
+          skipRoot);
     } catch (Exception ex) {
       throw new SystemException(String.format("Error deleting empty directory %s", root), ex);
     }

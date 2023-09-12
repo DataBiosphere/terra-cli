@@ -21,7 +21,7 @@ import picocli.CommandLine;
  *
  * <p>- executing the command
  *
- * <p>Sub-classes define how to execute the command (i.e. the implementation of {@link #execute}).
+ * <p>Subclasses define how to execute the command (i.e. the implementation of {@link #execute}).
  */
 @CommandLine.Command
 @SuppressFBWarnings(
@@ -69,7 +69,7 @@ public abstract class BaseCommand implements Callable<Integer> {
   /**
    * Required override for executing this command and printing any output.
    *
-   * <p>Sub-classes should throw exceptions for errors. The Main class handles turning these
+   * <p>Subclasses should throw exceptions for errors. The Main class handles turning these
    * exceptions into the appropriate exit code.
    */
   protected abstract void execute();
@@ -78,7 +78,7 @@ public abstract class BaseCommand implements Callable<Integer> {
    * This method returns true if login is required for the command. Default implementation is to
    * always require login.
    *
-   * <p>Sub-classes can use the current global and workspace context to decide whether to require
+   * <p>Subclasses can use the current global and workspace context to decide whether to require
    * login.
    *
    * @return true if login is required for this command

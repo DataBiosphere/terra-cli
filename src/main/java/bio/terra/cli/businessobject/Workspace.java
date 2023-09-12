@@ -6,6 +6,7 @@ import bio.terra.cli.serialization.persisted.PDWorkspace;
 import bio.terra.cli.service.SamService;
 import bio.terra.cli.service.WorkspaceManagerService;
 import bio.terra.cli.service.utils.CrlUtils;
+import bio.terra.cli.utils.AwsConfiguration;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.workspace.model.CloneWorkspaceResult;
 import bio.terra.workspace.model.ClonedWorkspace;
@@ -109,10 +110,15 @@ public class Workspace {
     Context.setWorkspace(workspace);
 
     // fetch the pet SA email for the user + this workspace
-    // do this here so we have them stored locally before the user tries to run an app in the
+    // do this here, so we have them stored locally before the user tries to run an app in the
     // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
     // down an app call
     Context.requireUser().fetchPetSaEmail();
+
+    // CloudPlatform specific post-creation steps
+    if (cloudPlatform == CloudPlatform.AWS) {
+      AwsConfiguration.builder().setWorkspace(workspace).build().storeToDisk();
+    }
 
     return workspace;
   }
@@ -122,7 +128,7 @@ public class Workspace {
     Context.setWorkspace(workspace);
 
     // fetch the pet SA email for the user + this workspace
-    // do this here so we have them stored locally before the user tries to run an app in the
+    // do this here, so we have them stored locally before the user tries to run an app in the
     // workspace. this is so we pay the cost of a SAM round-trip ahead of time, instead of slowing
     // down an app call
     Context.requireUser().fetchPetSaEmail();
@@ -227,6 +233,11 @@ public class Workspace {
     // call WSM to delete the existing workspace object
     WorkspaceManagerService.fromContext().deleteWorkspaceV2(uuid);
     logger.info("Deleted workspace: {}", this);
+
+    // CloudPlatform specific post-deletion steps
+    if (cloudPlatform == CloudPlatform.AWS) {
+      AwsConfiguration.deleteFromDisk(uuid);
+    }
 
     // delete the pet SA email for the user
     Context.requireUser().deletePetSaEmail();

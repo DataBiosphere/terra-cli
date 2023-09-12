@@ -1,22 +1,29 @@
 package unit;
 
+import static bio.terra.cli.utils.AwsConfiguration.DEFAULT_AWS_VAULT_PATH;
+import static bio.terra.cli.utils.AwsConfiguration.DEFAULT_CACHE_WITH_AWS_VAULT;
+import static bio.terra.cli.utils.AwsConfiguration.DEFAULT_TERRA_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cli.serialization.userfacing.UFStatus;
 import bio.terra.cli.serialization.userfacing.UFWorkspace;
 import bio.terra.cli.serialization.userfacing.UFWorkspaceLight;
+import bio.terra.cli.utils.AwsConfiguration;
 import bio.terra.workspace.model.CloudPlatform;
 import harness.TestCommand;
 import harness.TestUser;
 import harness.baseclasses.ClearContextUnit;
-import harness.utils.AwsConfigurationUtils;
+import harness.utils.AwsConfigurationTestUtils;
 import harness.utils.TestUtils;
 import harness.utils.WorkspaceUtils;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +36,7 @@ import org.junit.jupiter.api.Test;
 /** Tests for the `terra workspace` commands specific to CloudPlatform.AWS. */
 @Tag("unit-aws")
 public class WorkspaceAwsTest extends ClearContextUnit {
-  private static final String namePrefix = "cliTestWorkspaceResource";
+  private static final String namePrefix = "cliTestAwsWorkspace";
 
   @BeforeAll
   protected void setupOnce() throws Exception {
@@ -157,114 +164,126 @@ public class WorkspaceAwsTest extends ClearContextUnit {
         WorkspaceUtils.createWorkspace(testUser, Optional.of(getCloudPlatform()));
     assertEquals(0, createdWorkspace.numResources, "new workspace has 0 resources");
 
-    String folderRegion = "us-east-1";
+    // verify config file created with defaults
+    Path configFilePath = AwsConfiguration.getConfigFilePath(createdWorkspace.uuid);
+    assertTrue(configFilePath.toFile().exists(), "AWS configuration file created");
 
-    // 'terra workspace configure-aws' - should error with no resources
-    TestCommand.runCommandExpectExitCode(1, "workspace", "configure-aws");
+    AwsConfiguration awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    assertEquals(
+        configFilePath.getFileName().toString(),
+        awsConfiguration.getFilePath().getFileName().toString(),
+        "file name in configuration matches expected");
+    assertEquals(
+        DEFAULT_TERRA_PATH,
+        awsConfiguration.getTerraPath(),
+        "terra path in configuration matches default");
+    assertEquals(
+        DEFAULT_AWS_VAULT_PATH,
+        awsConfiguration.getAwsVaultPath(),
+        "aws vault path in configuration matches default");
+    assertEquals(
+        DEFAULT_CACHE_WITH_AWS_VAULT,
+        awsConfiguration.getCacheWithAwsVault(),
+        "cache with aws vault path in configuration matches default");
+    assertFalse(
+        awsConfiguration.getDefaultResourceName().isPresent(),
+        "default resource name not set in configuration");
+    assertEquals(0, awsConfiguration.getResourceCount(), "configuration has no resources");
 
-    // `terra resource create s3-storage-folder --name=$name --region $region`
-    String firstStorageName = TestUtils.appendRandomString(namePrefix);
+    // 'terra workspace configure-aws' - should not error with no resources
+    TestCommand.Result configureResult =
+        TestCommand.runCommandExpectSuccess("workspace", "configure-aws");
+
+    Path configOutputPath =
+        AwsConfigurationTestUtils.getProfilePathFromOutput(configureResult.stdOut);
+    assertEquals(
+        configFilePath.getFileName().toString(),
+        configOutputPath.getFileName().toString(),
+        "file name in configure-aws output matches expected");
+
+    String folder1 = TestUtils.appendRandomString(namePrefix);
+    String awsRegion = "us-east-1";
+    Collection<String> resourceNames = Set.of(folder1);
+
+    // `terra resource create s3-storage-folder --name=$name --region=$region` - resource added
     TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "s3-storage-folder",
-        "--name=" + firstStorageName,
-        "--region=" + folderRegion);
+        "resource", "create", "s3-storage-folder", "--name=" + folder1, "--region=" + awsRegion);
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    assertTrue(
+        awsConfiguration.getDefaultResourceName().isEmpty(), "default resource name not set");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
 
-    // `terra resource create s3-storage-folder --name=$name --region $region`
-    String secondStorageName = TestUtils.appendRandomString(namePrefix);
+    // 'terra workspace configure-aws --default-resource=$name'
     TestCommand.runCommandExpectSuccess(
-        "resource",
-        "create",
-        "s3-storage-folder",
-        "--name=" + secondStorageName,
-        "--region=" + folderRegion);
+        "workspace",
+        "configure-aws",
+        "--default-resource=" + folder1,
+        "--cache-with-aws-vault=true");
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    assertTrue(awsConfiguration.getCacheWithAwsVault(), "cache with aws vault is true");
+    assertEquals(
+        folder1, awsConfiguration.getDefaultResourceName().get(), "default resource name is set");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
+
+    String folder2 = TestUtils.appendRandomString(namePrefix);
+    resourceNames = Set.of(folder1, folder2);
+
+    // `terra resource create s3-storage-folder --name=$name --region=$region` - resource added
+    TestCommand.runCommandExpectSuccess(
+        "resource", "create", "s3-storage-folder", "--name=" + folder2, "--region=" + awsRegion);
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    assertEquals(
+        folder1,
+        awsConfiguration.getDefaultResourceName().orElse(null),
+        "default resource name unchanged");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
 
     String terraPath = "/fake/path/to/terra";
     String awsVaultPath = "/fake/path/to/aws-vault";
 
-    Collection<String> resourceNames = Set.of(firstStorageName, secondStorageName);
+    // 'terra workspace configure-aws --terra-path=$path --aws-vault-path=$path
+    // --cache-with-aws-vault --default-resource=$name'
+    TestCommand.runCommandExpectSuccess(
+        "workspace",
+        "configure-aws",
+        "--terra-path=" + terraPath,
+        "--aws-vault-path=" + awsVaultPath,
+        "--cache-with-aws-vault",
+        "--default-resource=" + folder1);
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    String prevTerraPath = awsConfiguration.getTerraPath();
+    String prevAwsVaultPath = awsConfiguration.getAwsVaultPath();
+    boolean prevCacheWithAwsVault = awsConfiguration.getCacheWithAwsVault();
+    Optional<String> readDefaultResourceName = awsConfiguration.getDefaultResourceName();
+    assertEquals(terraPath, prevTerraPath, "terra path in configuration matches expected");
+    assertEquals(
+        awsVaultPath, prevAwsVaultPath, "aws vault path in configuration matches expected");
+    assertTrue(prevCacheWithAwsVault, "cache with aws vault is true");
+    assertEquals(folder1, readDefaultResourceName.orElse(null), "default resource name unchanged");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
 
-    // 'terra workspace configure-aws'
-    TestCommand.Result configureResult =
-        TestCommand.runCommandExpectSuccess("workspace", "configure-aws");
+    // 'terra resource delete --name=$defaultResourceName --quiet' - default resource deleted, other
+    // options are retained
+    TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + folder1, "--quiet");
+    resourceNames = Set.of(folder2);
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
 
-    AwsConfigurationUtils.validateConfiguration(
-        configureResult.stdOut,
-        folderRegion,
-        resourceNames,
-        Optional.empty(),
-        false,
-        Optional.empty(),
-        Optional.empty());
+    assertEquals(
+        prevTerraPath, awsConfiguration.getTerraPath(), "terra path in configuration unchanged");
+    assertEquals(
+        prevAwsVaultPath,
+        awsConfiguration.getAwsVaultPath(),
+        "aws vault path in configuration unchanged");
+    assertEquals(
+        prevCacheWithAwsVault,
+        awsConfiguration.getCacheWithAwsVault(),
+        "cache with aws vault in configuration unchanged");
+    assertTrue(
+        awsConfiguration.getDefaultResourceName().isEmpty(), "default resource name is removed");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
 
-    // 'terra workspace configure-aws --default-resource $name'
-    configureResult =
-        TestCommand.runCommandExpectSuccess(
-            "workspace", "configure-aws", "--default-resource", firstStorageName);
-
-    AwsConfigurationUtils.validateConfiguration(
-        configureResult.stdOut,
-        folderRegion,
-        resourceNames,
-        Optional.of(firstStorageName),
-        false,
-        Optional.empty(),
-        Optional.empty());
-
-    // 'terra workspace configure-aws --cache-with-aws-vault'
-    configureResult =
-        TestCommand.runCommandExpectSuccess("workspace", "configure-aws", "--cache-with-aws-vault");
-
-    AwsConfigurationUtils.validateConfiguration(
-        configureResult.stdOut,
-        folderRegion,
-        resourceNames,
-        Optional.empty(),
-        true,
-        Optional.empty(),
-        Optional.empty());
-
-    // 'terra workspace configure-aws --default-resource $name --cache-with-aws-vault'
-    configureResult =
-        TestCommand.runCommandExpectSuccess(
-            "workspace",
-            "configure-aws",
-            "--default-resource",
-            firstStorageName,
-            "--cache-with-aws-vault");
-
-    AwsConfigurationUtils.validateConfiguration(
-        configureResult.stdOut,
-        folderRegion,
-        resourceNames,
-        Optional.of(firstStorageName),
-        true,
-        Optional.empty(),
-        Optional.empty());
-
-    // 'terra workspace configure-aws --cache-with-aws-vault --terra-path $path --aws-vault-path
-    // $path'
-    configureResult =
-        TestCommand.runCommandExpectSuccess(
-            "workspace",
-            "configure-aws",
-            "--cache-with-aws-vault",
-            "--terra-path",
-            terraPath,
-            "--aws-vault-path",
-            awsVaultPath);
-
-    AwsConfigurationUtils.validateConfiguration(
-        configureResult.stdOut,
-        folderRegion,
-        resourceNames,
-        Optional.empty(),
-        true,
-        Optional.of(terraPath),
-        Optional.of(awsVaultPath));
-
-    // `terra workspace delete`
+    // `terra workspace delete` - configuration file deleted
     TestCommand.runCommandExpectSuccess("workspace", "delete", "--quiet");
+    assertFalse(configFilePath.toFile().exists(), "AWS configuration file deleted");
   }
 }

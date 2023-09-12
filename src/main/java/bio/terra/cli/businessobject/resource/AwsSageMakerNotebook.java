@@ -2,12 +2,14 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsSageMakerNotebookParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
+import bio.terra.cli.utils.AwsConfiguration;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsSageMakerNotebookResource;
@@ -77,9 +79,16 @@ public class AwsSageMakerNotebook extends Resource {
   public static void createControlled(CreateAwsSageMakerNotebookParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
+    Workspace workspace = Context.requireWorkspace();
+
     // call WSM to create the resource
     WorkspaceManagerServiceAws.fromContext()
-        .createControlledAwsSageMakerNotebook(Context.requireWorkspace().getUuid(), createParams);
+        .createControlledAwsSageMakerNotebook(workspace.getUuid(), createParams);
+
+    AwsConfiguration awsConfiguration = AwsConfiguration.loadFromDisk(workspace.getUuid());
+    awsConfiguration.addResource(
+        createParams.resourceFields.name, createParams.region, Type.AWS_SAGEMAKER_NOTEBOOK);
+    awsConfiguration.storeToDisk();
   }
 
   /**
@@ -92,9 +101,15 @@ public class AwsSageMakerNotebook extends Resource {
 
   /** Delete a AWS SageMaker Notebook controlled resource in the workspace. */
   protected void deleteControlled() {
+    Workspace workspace = Context.requireWorkspace();
+
     // call WSM to delete the resource
     WorkspaceManagerServiceAws.fromContext()
         .deleteControlledAwsSageMakerNotebook(Context.requireWorkspace().getUuid(), id);
+
+    AwsConfiguration awsConfiguration = AwsConfiguration.loadFromDisk(workspace.getUuid());
+    awsConfiguration.removeResource(getName());
+    awsConfiguration.storeToDisk();
   }
 
   /**

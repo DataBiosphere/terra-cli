@@ -153,7 +153,7 @@ public abstract class MountController {
         .filter(Objects::nonNull)
         .forEach(mountEntry -> BaseMountHandler.unmount(Path.of(mountEntry.mountPath)));
     // Delete empty directories in WORKSPACE_DIR, throw an error there are any nonempty directories
-    FileUtils.deleteEmptyDirectories(getWorkspaceDir());
+    FileUtils.deleteEmptyDirectories(getWorkspaceDir(), /*skipRoot= */ false);
   }
 
   /**

@@ -2,12 +2,14 @@ package bio.terra.cli.businessobject.resource;
 
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.exception.SystemException;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.input.CreateAwsS3StorageFolderParams;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.service.WorkspaceManagerServiceAws;
+import bio.terra.cli.utils.AwsConfiguration;
 import bio.terra.workspace.model.AwsCredential;
 import bio.terra.workspace.model.AwsCredentialAccessScope;
 import bio.terra.workspace.model.AwsS3StorageFolderResource;
@@ -84,11 +86,18 @@ public class AwsS3StorageFolder extends Resource {
   public static AwsS3StorageFolder createControlled(CreateAwsS3StorageFolderParams createParams) {
     validateResourceName(createParams.resourceFields.name);
 
+    Workspace workspace = Context.requireWorkspace();
+
     // call WSM to create the resource
     AwsS3StorageFolderResource createdResource =
         WorkspaceManagerServiceAws.fromContext()
-            .createControlledAwsS3StorageFolder(Context.requireWorkspace().getUuid(), createParams);
+            .createControlledAwsS3StorageFolder(workspace.getUuid(), createParams);
     logger.info("Created AWS S3 Storage Folder: {}", createdResource);
+
+    AwsConfiguration awsConfiguration = AwsConfiguration.loadFromDisk(workspace.getUuid());
+    awsConfiguration.addResource(
+        createParams.resourceFields.name, createParams.region, Type.AWS_S3_STORAGE_FOLDER);
+    awsConfiguration.storeToDisk();
 
     return new AwsS3StorageFolder(createdResource);
   }
@@ -101,9 +110,15 @@ public class AwsS3StorageFolder extends Resource {
 
   /** Delete a AWS S3 Storage Folder controlled resource in the workspace. */
   protected void deleteControlled() {
+    Workspace workspace = Context.requireWorkspace();
+
     // call WSM to delete the resource
     WorkspaceManagerServiceAws.fromContext()
-        .deleteControlledAwsS3StorageFolder(Context.requireWorkspace().getUuid(), id);
+        .deleteControlledAwsS3StorageFolder(workspace.getUuid(), id);
+
+    AwsConfiguration awsConfiguration = AwsConfiguration.loadFromDisk(workspace.getUuid());
+    awsConfiguration.removeResource(getName());
+    awsConfiguration.storeToDisk();
   }
 
   /** Resolve a AWS S3 Storage Folder resource to its cloud identifier. */
