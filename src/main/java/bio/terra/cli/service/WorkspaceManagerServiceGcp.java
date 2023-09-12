@@ -575,9 +575,10 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
       UUID workspaceId, UUID resourceId, UpdateControlledGcpDataprocClusterParams updateParams) {
 
     ControlledGcpResourceApi gcpResourceApi = new ControlledGcpResourceApi(apiClient);
-    String updateErrMsg =  "Error updating controlled GCP Dataproc cluster in the workspace";
+    String updateErrMsg = "Error updating controlled GCP Dataproc cluster in the workspace";
 
-    // Update WSM metadata fields and primary, secondary worker counts, and graceful decommission timeout.
+    // Update WSM metadata fields and primary, secondary worker counts, and graceful decommission
+    // timeout.
     UpdateControlledGcpDataprocClusterRequestBody updateRequest =
         new UpdateControlledGcpDataprocClusterRequestBody()
             .name(updateParams.resourceFields.name)
@@ -588,7 +589,6 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
             .numPrimaryWorkers(updateParams.numWorkers)
             .numSecondaryWorkers(updateParams.numSecondaryWorkers)
             .gracefulDecommissionTimeout(updateParams.gracefulDecommissionTimeout));
-
     callWithRetries(
         () -> gcpResourceApi.updateDataprocCluster(updateRequest, workspaceId, resourceId),
         updateErrMsg);

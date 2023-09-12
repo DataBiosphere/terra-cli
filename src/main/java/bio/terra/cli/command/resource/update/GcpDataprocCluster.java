@@ -71,23 +71,15 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Type.DATAPROC_CLUSTER);
 
-    UpdateControlledGcpDataprocClusterParams.Builder builder =
+    resource.updateControlled(
         new UpdateControlledGcpDataprocClusterParams.Builder()
             .resourceFields(resourceUpdateOptions.populateMetadataFields().build())
             .numWorkers(numWorkers)
             .numSecondaryWorkers(numSecondaryWorkers)
             .autoscalingPolicyUri(autoscalingPolicy)
             .gracefulDecommissionTimeout(gracefulDecommissionTimeout)
-            .idleDeleteTtl(idleDeleteTtl);
-
-    // Optional.ofNullable(numWorkers).ifPresent(builder::numWorkers);
-    // Optional.ofNullable(numSecondaryWorkers).ifPresent(builder::numSecondaryWorkers);
-    // Optional.ofNullable(autoscalingPolicy).ifPresent(builder::autoscalingPolicyUri);
-    // Optional.ofNullable(gracefulDecommissionTimeout)
-    //     .ifPresent(builder::gracefulDecommissionTimeout);
-    //
-    // builder.idleDeleteTtl(idleDeleteTtl);
-    resource.updateControlled(builder.build());
+            .idleDeleteTtl(idleDeleteTtl)
+            .build());
 
     // re-load the resource so we display all properties with up-to-date values
     resource =
